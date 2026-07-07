@@ -1,5 +1,4 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus } from "lucide-react";
-import { useState } from "react";
 
 const left = [
   { icon: Home, label: "Feed" },
@@ -11,14 +10,21 @@ const right = [
   { icon: Wallet, label: "Wallet" },
 ];
 
-export function MobileNav({ onCreate }: { onCreate: () => void }) {
-  const [active, setActive] = useState("Feed");
+export function MobileNav({
+  onCreate,
+  active,
+  onSelect,
+}: {
+  onCreate: () => void;
+  active: string;
+  onSelect: (label: string) => void;
+}) {
   const Item = (it: { icon: typeof Home; label: string }) => {
     const isActive = active === it.label;
     return (
       <button
         key={it.label}
-        onClick={() => setActive(it.label)}
+        onClick={() => onSelect(it.label)}
         className={`flex flex-col items-center justify-center gap-1 flex-1 py-1 ${
           isActive ? "text-emerald-400" : "text-slate-500"
         }`}
