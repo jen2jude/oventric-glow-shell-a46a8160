@@ -32,14 +32,14 @@ export function Header({ onMenuClick }: { onMenuClick?: () => void }) {
         <button className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300">
           <Search className="w-5 h-5" />
         </button>
-        <button className="neon-pulse relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors">
+        <button className="rgb-pulse-glow relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors">
           <Bell className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400" />
         </button>
         <button className="p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors">
           <MessageCircle className="w-5 h-5" />
         </button>
-        <button className="neon-pulse w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm">
+        <button className="rgb-pulse-glow w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm">
           OV
         </button>
       </div>

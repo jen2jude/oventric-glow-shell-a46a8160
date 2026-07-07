@@ -102,6 +102,37 @@
   animation: slide-up-panel 0.35s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
+@keyframes rgb-spectrum-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes rgb-glow-pulse {
+  0% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+  33% { box-shadow: 0 0 5px #00ff00, 0 0 10px #00ff00; }
+  66% { box-shadow: 0 0 5px #0000ff, 0 0 10px #0000ff; }
+  100% { box-shadow: 0 0 5px #ff0000, 0 0 10px #ff0000; }
+}
+
+.rgb-neon-bg {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 4s linear infinite;
+}
+
+.rgb-neon-border-wrapper {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 4s linear infinite;
+  padding: 2px;
+  border-radius: inherit;
+}
+
+.rgb-pulse-glow {
+  animation: rgb-glow-pulse 3s infinite;
+}
+
 @layer base {
   * {
     border-color: var(--color-border);
