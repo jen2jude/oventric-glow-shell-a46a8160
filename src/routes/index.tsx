@@ -28,9 +28,7 @@ function IndexInner() {
 
   const handleCreate = () => require(1, () => setCreateOpen(true));
 
-  const isWallet = active === "Wallet" || active === "Market";
   const view = active === "Wallet" ? <Wallet /> : <Feed />;
-  void isWallet;
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
