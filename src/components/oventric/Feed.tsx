@@ -1,6 +1,23 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users } from "lucide-react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart } from "lucide-react";
+import { useState } from "react";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 export function Feed() {
+  const { require } = useOnboarding();
+  const [likes, setLikes] = useState(128);
+  const [liked, setLiked] = useState(false);
+
+  const handleLike = () =>
+    require(1, () => {
+      setLiked((v) => {
+        setLikes((n) => n + (v ? -1 : 1));
+        return !v;
+      });
+    });
+
+  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
+  const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"));
+
   return (
     <div className="max-w-2xl mx-auto w-full px-4 py-6 space-y-4">
       {/* Composer */}
@@ -15,7 +32,10 @@ export function Feed() {
             <Paperclip className="w-4 h-4" />
             Attach
           </button>
-          <button className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors">
+          <button
+            onClick={() => require(1)}
+            className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors"
+          >
             Post
           </button>
         </div>
@@ -37,8 +57,11 @@ export function Feed() {
           us weeks. Happy to walk anyone through the setup.
         </p>
         <div className="flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
-          <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-emerald-400 transition-colors">
-            <Heart className="w-4 h-4" /> 128
+          <button
+            onClick={handleLike}
+            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors ${liked ? "text-emerald-400" : "hover:text-emerald-400"}`}
+          >
+            <Heart className={`w-4 h-4 ${liked ? "fill-current" : ""}`} /> {likes}
           </button>
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors">
             <MessageSquare className="w-4 h-4" /> 24
@@ -46,6 +69,34 @@ export function Feed() {
           <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto">
             <Share2 className="w-4 h-4" /> Share
           </button>
+        </div>
+      </article>
+
+      {/* Marketplace asset */}
+      <article className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden">
+        <header className="flex items-center justify-between px-5 py-3 border-b border-white/5">
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-md bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-xs">
+              KL
+            </div>
+            <span className="text-sm font-semibold text-white">Kessler Labs</span>
+          </div>
+          <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Marketplace</span>
+        </header>
+        <div className="p-5">
+          <h3 className="font-semibold text-white text-base mb-1">Postgres RLS Starter Kit</h3>
+          <p className="text-sm text-slate-400 mb-4">
+            Production-grade row-level security scaffolding with role enums, security-definer helpers, and typed policies.
+          </p>
+          <div className="flex items-center justify-between">
+            <div className="text-white font-black text-xl">$49</div>
+            <button
+              onClick={handleBuy}
+              className="flex items-center gap-2 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors"
+            >
+              <ShoppingCart className="w-4 h-4" /> Buy Now
+            </button>
+          </div>
         </div>
       </article>
 
@@ -96,7 +147,10 @@ export function Feed() {
             <span className="flex items-center gap-1.5"><Users className="w-3.5 h-3.5" /> 12 applicants</span>
             <span>· Closes in 3 days</span>
           </div>
-          <button className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors">
+          <button
+            onClick={handleBounty}
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors"
+          >
             Solve &amp; Earn
           </button>
         </div>

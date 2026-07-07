@@ -9,9 +9,16 @@ const items = [
   { icon: Wallet, label: "Wallet" },
 ];
 
-export function Sidebar({ onCreate }: { onCreate: () => void }) {
+export function Sidebar({
+  onCreate,
+  active,
+  onSelect,
+}: {
+  onCreate: () => void;
+  active: string;
+  onSelect: (label: string) => void;
+}) {
   const [collapsed, setCollapsed] = useState(false);
-  const [active, setActive] = useState("Feed");
 
   return (
     <aside
@@ -37,7 +44,7 @@ export function Sidebar({ onCreate }: { onCreate: () => void }) {
           return (
             <button
               key={it.label}
-              onClick={() => setActive(it.label)}
+              onClick={() => onSelect(it.label)}
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                 isActive
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
