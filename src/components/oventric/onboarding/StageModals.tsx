@@ -1,0 +1,315 @@
+import { useEffect, useState } from "react";
+import { X, Mail, ShieldCheck, Store, Wallet as WalletIcon, ScanFace, Loader2, Check } from "lucide-react";
+import { useOnboarding, type Country, type Currency } from "@/lib/onboarding/OnboardingContext";
+
+function ModalShell({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: React.ReactNode }) {
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-0 sm:px-4">
+      <div className="absolute inset-0 bg-black/75 backdrop-blur-md" onClick={onClose} />
+      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
+        <div className="flex items-start justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-bold text-white">{title}</h2>
+            {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
+          </div>
+          <button onClick={onClose} className="p-2 -m-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+        {children}
+      </div>
+    </div>
+  );
+}
+
+const inputCls =
+  "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
+const labelCls = "block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5";
+const btnCls = "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors";
+
+function StageIndicator({ current }: { current: number }) {
+  return (
+    <div className="flex items-center gap-1 mb-5">
+      {[1, 2, 3, 4, 5].map((n) => (
+        <div key={n} className={`h-1 flex-1 rounded-full ${n <= current ? "bg-emerald-500" : "bg-white/10"}`} />
+      ))}
+    </div>
+  );
+}
+
+function Stage1({ onClose }: { onClose: () => void }) {
+  const { advanceTo } = useOnboarding();
+  const [email, setEmail] = useState("");
+  return (
+    <ModalShell title="Activate your account" subtitle="Stage 1 of 5 · Email verification" onClose={onClose}>
+      <StageIndicator current={1} />
+      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
+        <Mail className="w-6 h-6 text-emerald-400" />
+      </div>
+      <label className={labelCls}>Active Email Address</label>
+      <input type="email" className={inputCls} placeholder="you@builder.dev" value={email} onChange={(e) => setEmail(e.target.value)} />
+      <button
+        disabled={!email.includes("@")}
+        onClick={() => advanceTo(1)}
+        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+      >
+        Send Magic Code
+      </button>
+    </ModalShell>
+  );
+}
+
+function Stage2({ onClose }: { onClose: () => void }) {
+  const { advanceTo } = useOnboarding();
+  const [name, setName] = useState("");
+  const [country, setCountry] = useState<Country | "">("");
+  return (
+    <ModalShell title="Become a verified buyer" subtitle="Stage 2 of 5 · Identity basics" onClose={onClose}>
+      <StageIndicator current={2} />
+      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
+        <ShieldCheck className="w-6 h-6 text-emerald-400" />
+      </div>
+      <label className={labelCls}>Full Name</label>
+      <input className={inputCls} placeholder="Ada Lovelace" value={name} onChange={(e) => setName(e.target.value)} />
+      <label className={labelCls + " mt-4"}>Country of Residence</label>
+      <select className={inputCls} value={country} onChange={(e) => setCountry(e.target.value as Country)}>
+        <option value="" disabled>Select a country</option>
+        <option value="NG">Nigeria</option>
+        <option value="GH">Ghana</option>
+        <option value="US">United States</option>
+        <option value="UK">United Kingdom</option>
+        <option value="OTHER">Other</option>
+      </select>
+      <button
+        disabled={!name || !country}
+        onClick={() => advanceTo(2, { fullName: name, country: country as Country })}
+        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+      >
+        Verify buyer profile
+      </button>
+    </ModalShell>
+  );
+}
+
+function Stage3({ onClose }: { onClose: () => void }) {
+  const { advanceTo } = useOnboarding();
+  const [store, setStore] = useState("");
+  const [niche, setNiche] = useState("");
+  const [addr, setAddr] = useState("");
+  return (
+    <ModalShell title="Open your seller storefront" subtitle="Stage 3 of 5 · Merchant details" onClose={onClose}>
+      <StageIndicator current={3} />
+      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
+        <Store className="w-6 h-6 text-emerald-400" />
+      </div>
+      <label className={labelCls}>Store / Brand Display Name</label>
+      <input className={inputCls} placeholder="Kessler Labs" value={store} onChange={(e) => setStore(e.target.value)} />
+      <label className={labelCls + " mt-4"}>Primary Skill Niche</label>
+      <select className={inputCls} value={niche} onChange={(e) => setNiche(e.target.value)}>
+        <option value="" disabled>Choose a niche</option>
+        <option>SaaS Templates</option>
+        <option>UI Kits & Design</option>
+        <option>AI Agents & Prompts</option>
+        <option>Backend & DevOps</option>
+        <option>Data & Analytics</option>
+      </select>
+      <label className={labelCls + " mt-4"}>Business Address</label>
+      <textarea rows={3} className={inputCls + " h-auto py-3"} placeholder="Street, city, state, postal" value={addr} onChange={(e) => setAddr(e.target.value)} />
+      <button
+        disabled={!store || !niche || !addr}
+        onClick={() => advanceTo(3, { storeName: store })}
+        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+      >
+        Activate storefront
+      </button>
+    </ModalShell>
+  );
+}
+
+function Stage4({ onClose }: { onClose: () => void }) {
+  const { advanceTo, baseCurrency, setBaseCurrency } = useOnboarding();
+  const [phone, setPhone] = useState("");
+  const [postal, setPostal] = useState("");
+  return (
+    <ModalShell title="Secure your funding vault" subtitle="Stage 4 of 5 · Payments profile" onClose={onClose}>
+      <StageIndicator current={4} />
+      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
+        <WalletIcon className="w-6 h-6 text-emerald-400" />
+      </div>
+      <label className={labelCls}>Phone Number</label>
+      <input className={inputCls} placeholder="+1 555 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <label className={labelCls + " mt-4"}>Billing Postal Code</label>
+      <input className={inputCls} placeholder="94103" value={postal} onChange={(e) => setPostal(e.target.value)} />
+      <div className="mt-5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+        <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">Baseline currency</div>
+        <div className="grid grid-cols-3 gap-2">
+          {(["USD", "NGN", "GHS"] as Currency[]).map((c) => (
+            <button
+              key={c}
+              onClick={() => setBaseCurrency(c)}
+              className={`h-10 rounded-md text-sm font-semibold border transition-colors ${
+                baseCurrency === c ? "bg-emerald-500 text-black border-emerald-400" : "bg-[#121214] text-slate-300 border-white/10 hover:border-emerald-500/40"
+              }`}
+            >
+              {c}
+            </button>
+          ))}
+        </div>
+      </div>
+      <button
+        disabled={!phone || !postal}
+        onClick={() => advanceTo(4, { phone })}
+        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+      >
+        Confirm funding vault
+      </button>
+    </ModalShell>
+  );
+}
+
+function Stage5({ onClose }: { onClose: () => void }) {
+  const { advanceTo, country } = useOnboarding();
+  const [step, setStep] = useState<"cam" | "flash" | "bank">("cam");
+  const [countdown, setCountdown] = useState(3);
+  const [bank, setBank] = useState("");
+  const [acct, setAcct] = useState("");
+  const [holder, setHolder] = useState("");
+  const [network, setNetwork] = useState("");
+  const [momo, setMomo] = useState("");
+  const [walletName, setWalletName] = useState("");
+
+  useEffect(() => {
+    if (step !== "cam") return;
+    if (countdown <= 0) {
+      setStep("flash");
+      const t = setTimeout(() => setStep("bank"), 1400);
+      return () => clearTimeout(t);
+    }
+    const t = setTimeout(() => setCountdown((c) => c - 1), 1000);
+    return () => clearTimeout(t);
+  }, [countdown, step]);
+
+  const finish = () => {
+    if (country === "NG") advanceTo(5, {});
+    else if (country === "GH") advanceTo(5, {});
+    else advanceTo(5, {});
+  };
+
+  const isNG = country === "NG";
+  const isGH = country === "GH";
+
+  return (
+    <ModalShell title="Liveness KYC verification" subtitle="Stage 5 of 5 · Biometric scan" onClose={onClose}>
+      <StageIndicator current={5} />
+
+      {step === "cam" && (
+        <div className="flex flex-col items-center">
+          <div className="rgb-neon-bg rounded-full p-[3px] mb-4">
+            <div className="w-52 h-52 rounded-full bg-black relative overflow-hidden flex items-center justify-center">
+              {/* Simulated webcam gradient */}
+              <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black" />
+              <div className="absolute inset-4 rounded-full border border-emerald-400/30" />
+              {/* Spinning scanner arc */}
+              <Loader2 className="absolute w-52 h-52 text-emerald-400/70 animate-spin" strokeWidth={1} />
+              <ScanFace className="relative w-16 h-16 text-emerald-300/80" strokeWidth={1.2} />
+              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#10b981]" />
+            </div>
+          </div>
+          <p className="text-sm text-slate-300">Hold still — capturing biometric</p>
+          <p className="text-4xl font-black text-white mt-1 tabular-nums">{countdown}</p>
+        </div>
+      )}
+
+      {step === "flash" && (
+        <>
+          <div className="fixed inset-0 z-[70] pointer-events-none rgb-neon-bg opacity-70" />
+          <div className="fixed inset-0 z-[71] pointer-events-none flex items-center justify-center">
+            <div className="bg-black/70 backdrop-blur-md rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
+                <Check className="w-6 h-6 text-black" strokeWidth={3} />
+              </div>
+              <div>
+                <div className="text-white font-bold">Verified</div>
+                <div className="text-xs text-slate-300">Liveness match confirmed</div>
+              </div>
+            </div>
+          </div>
+        </>
+      )}
+
+      {step === "bank" && (
+        <div>
+          <div className="mb-4 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-xs text-emerald-300">
+            Identity verified · configure your payout destination
+          </div>
+          {isNG && (
+            <>
+              <label className={labelCls}>Select Nigerian Commercial Bank</label>
+              <select className={inputCls} value={bank} onChange={(e) => setBank(e.target.value)}>
+                <option value="" disabled>Choose bank</option>
+                <option>Access Bank</option>
+                <option>GTBank</option>
+                <option>Zenith Bank</option>
+                <option>First Bank of Nigeria</option>
+                <option>UBA</option>
+                <option>Kuda Bank</option>
+              </select>
+              <label className={labelCls + " mt-4"}>10-digit Account Number</label>
+              <input className={inputCls} maxLength={10} value={acct} onChange={(e) => setAcct(e.target.value.replace(/\D/g, ""))} />
+              <label className={labelCls + " mt-4"}>Account Holder Name</label>
+              <input className={inputCls} value={holder} onChange={(e) => setHolder(e.target.value)} />
+              <button
+                disabled={!bank || acct.length !== 10 || !holder}
+                onClick={finish}
+                className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+              >
+                Complete KYC & unlock withdrawals
+              </button>
+            </>
+          )}
+          {isGH && (
+            <>
+              <label className={labelCls}>Mobile Money Network Provider</label>
+              <select className={inputCls} value={network} onChange={(e) => setNetwork(e.target.value)}>
+                <option value="" disabled>Choose network</option>
+                <option>MTN</option>
+                <option>Vodafone</option>
+                <option>AirtelTigo</option>
+              </select>
+              <label className={labelCls + " mt-4"}>Momo Wallet Phone Number</label>
+              <input className={inputCls} value={momo} onChange={(e) => setMomo(e.target.value)} />
+              <label className={labelCls + " mt-4"}>Registered Wallet Name</label>
+              <input className={inputCls} value={walletName} onChange={(e) => setWalletName(e.target.value)} />
+              <button
+                disabled={!network || !momo || !walletName}
+                onClick={finish}
+                className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+              >
+                Complete KYC & unlock withdrawals
+              </button>
+            </>
+          )}
+          {!isNG && !isGH && (
+            <>
+              <p className="text-sm text-slate-300 mb-4">
+                International payouts available via SWIFT wire. Our team will reach out to configure your account.
+              </p>
+              <button onClick={finish} className={btnCls}>Complete KYC</button>
+            </>
+          )}
+        </div>
+      )}
+    </ModalShell>
+  );
+}
+
+export function StageModals() {
+  const { openStage, setOpenStage } = useOnboarding();
+  if (!openStage) return null;
+  const close = () => setOpenStage(null);
+  if (openStage === 1) return <Stage1 onClose={close} />;
+  if (openStage === 2) return <Stage2 onClose={close} />;
+  if (openStage === 3) return <Stage3 onClose={close} />;
+  if (openStage === 4) return <Stage4 onClose={close} />;
+  return <Stage5 onClose={close} />;
+}
