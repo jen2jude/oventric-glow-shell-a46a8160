@@ -221,7 +221,7 @@ function ProfilePage() {
         [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
       }));
     }
-  }, [tab, tabData, fetchOne, navigate, id]);
+  }, [tab, tabData, fetchOne, navigate, id, q, sort]);
 
   // Change tabs — resets pagination and scroll in the URL.
   const changeTab = useCallback(
