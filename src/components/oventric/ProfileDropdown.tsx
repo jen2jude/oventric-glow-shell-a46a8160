@@ -457,12 +457,15 @@ function ProfileSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={saving ? undefined : onClose} />
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+      onClick={saving ? undefined : onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-lg max-h-[90vh] flex flex-col bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl my-auto max-h-[90vh] flex flex-col"
       >
         <header className="flex items-start justify-between gap-3 p-5 border-b border-white/5">
           <div>
