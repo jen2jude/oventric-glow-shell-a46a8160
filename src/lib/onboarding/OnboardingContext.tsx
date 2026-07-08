@@ -45,6 +45,7 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     baseCurrency: "USD",
     payoutBank: null,
     balances: { USD: 1284.5, NGN: 452000, GHS: 3120 },
+    balancesHidden: false,
   });
   const [openStage, setOpenStage] = useState<Stage | null>(null);
   const [pending, setPending] = useState<{ minTier: Tier; cb?: () => void } | null>(null);
