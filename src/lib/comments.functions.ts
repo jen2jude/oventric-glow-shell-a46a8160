@@ -22,7 +22,7 @@ export interface FeedComment {
 export const listComments = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ postId: z.string().trim().min(1).max(120) }).parse(input),
+    z.object({ postId: z.string().uuid() }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { data: rows, error } = await context.supabase
