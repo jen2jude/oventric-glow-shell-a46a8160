@@ -45,7 +45,10 @@ const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
   pages: fallback(z.number().int(), 1).default(1),
   y: fallback(z.number().int(), 0).default(0),
+  q: fallback(z.string(), "").default(""),
+  sort: fallback(z.string(), "newest").default("newest"),
 });
+
 
 export const Route = createFileRoute("/profile/$id")({
   validateSearch: zodValidator(profileSearchSchema),
