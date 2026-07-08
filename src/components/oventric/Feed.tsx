@@ -1,10 +1,15 @@
 import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { useAdminStore } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
+import { supabase } from "@/integrations/supabase/client";
+import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
+
+const POST_ID = "post-aria-1";
 
 interface Comment {
   id: string;
@@ -12,6 +17,10 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+}
+
+function toComment(c: FeedComment): Comment {
+  return { id: c.id, author: c.author_name, authorId: c.author_id, initials: c.initials, text: c.text };
 }
 
 function ReportedBadge() {
