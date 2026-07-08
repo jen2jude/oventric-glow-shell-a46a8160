@@ -80,100 +80,150 @@ function MarketplaceForge() {
   const [priceNGN, setPriceNGN] = useState("");
   const [priceGHS, setPriceGHS] = useState("");
   const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const reset = () => {
     setTitle(""); setVersion(""); setDescription("");
     setPriceUSD(""); setPriceNGN(""); setPriceGHS("");
   };
 
-  const submit = (e: React.FormEvent) => {
+  const usdN = Number(priceUSD), ngnN = Number(priceNGN), ghsN = Number(priceGHS);
+
+  const openPreview = (e: React.FormEvent) => {
     e.preventDefault();
-    const usd = Number(priceUSD), ngn = Number(priceNGN), ghs = Number(priceGHS);
     if (!title.trim() || !version.trim() || !description.trim() || !vendor.trim()) {
       setToast({ msg: "All fields are required.", kind: "err" }); return;
     }
-    if (!(usd > 0) || !(ngn > 0) || !(ghs > 0)) {
+    if (!(usdN > 0) || !(ngnN > 0) || !(ghsN > 0)) {
       setToast({ msg: "All three prices must be > 0.", kind: "err" }); return;
     }
+    setToast(null);
+    setPreviewOpen(true);
+  };
+
+  const confirmSubmit = () => {
     adminStore.addProduct({
       name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
-      description: description.trim(), priceUSD: usd, priceNGN: ngn, priceGHS: ghs,
+      description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
     });
+    setPreviewOpen(false);
     setToast({ msg: `Asset forged into ${category} grid.`, kind: "ok" });
     reset();
   };
 
+  const fields: TokenField[] = [
+    { label: "name", value: title.trim(), mono: true },
+    { label: "category", value: category, mono: true, accent: "ok" },
+    { label: "version", value: `v${version.trim()}`, mono: true },
+    { label: "vendor", value: vendor.trim() },
+    { label: "description", value: description.trim(), multiline: true },
+    { label: "price.USD", value: `$${usdN.toFixed(2)}`, mono: true },
+    { label: "price.NGN", value: `₦${ngnN.toFixed(2)}`, mono: true },
+    { label: "price.GHS", value: `₵${ghsN.toFixed(2)}`, mono: true },
+    { label: "stream", value: `marketplace / ${category}`, mono: true, accent: "muted" },
+  ];
+
   return (
-    <form onSubmit={submit} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
-          <Store className="w-4 h-4 text-emerald-300" />
-        </span>
+    <>
+      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
+            <Store className="w-4 h-4 text-emerald-300" />
+          </span>
+          <div>
+            <h2 className="text-white font-black text-base leading-tight">Marketplace Supply Forge</h2>
+            <p className="text-[11px] text-slate-500">Push house-branded assets into Module 4.</p>
+          </div>
+        </div>
+
         <div>
-          <h2 className="text-white font-black text-base leading-tight">Marketplace Supply Forge</h2>
-          <p className="text-[11px] text-slate-500">Push house-branded assets into Module 4.</p>
+          <FieldLabel>Asset Title</FieldLabel>
+          <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nebula Admin Theme" />
         </div>
-      </div>
 
-      <div>
-        <FieldLabel>Asset Title</FieldLabel>
-        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nebula Admin Theme" />
-      </div>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <FieldLabel>Category</FieldLabel>
+            <select className={inputCls} value={category} onChange={(e) => setCategory(e.target.value as AdminCategory)}>
+              <option value="themes">Themes</option>
+              <option value="plugins">Plugins</option>
+              <option value="blocks">HTML Blocks</option>
+              <option value="scripts">Scripts</option>
+            </select>
+          </div>
+          <div>
+            <FieldLabel>Version Tag</FieldLabel>
+            <input className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)} placeholder="1.0.0" />
+          </div>
+        </div>
 
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <FieldLabel>Category</FieldLabel>
-          <select className={inputCls} value={category} onChange={(e) => setCategory(e.target.value as AdminCategory)}>
-            <option value="themes">Themes</option>
-            <option value="plugins">Plugins</option>
-            <option value="blocks">HTML Blocks</option>
-            <option value="scripts">Scripts</option>
-          </select>
+          <FieldLabel>System Author Override</FieldLabel>
+          <input className={inputCls} value={vendor} onChange={(e) => setVendor(e.target.value)} />
         </div>
+
         <div>
-          <FieldLabel>Version Tag</FieldLabel>
-          <input className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)} placeholder="1.0.0" />
+          <FieldLabel>Description</FieldLabel>
+          <textarea rows={3} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What ships in this asset..." />
         </div>
-      </div>
 
-      <div>
-        <FieldLabel>System Author Override</FieldLabel>
-        <input className={inputCls} value={vendor} onChange={(e) => setVendor(e.target.value)} />
-      </div>
-
-      <div>
-        <FieldLabel>Description</FieldLabel>
-        <textarea rows={3} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What ships in this asset..." />
-      </div>
-
-      <div>
-        <FieldLabel>Pricing Matrix</FieldLabel>
-        <div className="grid grid-cols-3 gap-2">
-          {(["USD", "NGN", "GHS"] as const).map((c) => {
-            const val = c === "USD" ? priceUSD : c === "NGN" ? priceNGN : priceGHS;
-            const set = c === "USD" ? setPriceUSD : c === "NGN" ? setPriceNGN : setPriceGHS;
-            return (
-              <div key={c} className="relative">
-                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[c]}</span>
-                <input
-                  type="number" min={0} step="0.01"
-                  className={`${inputCls} pl-6`}
-                  placeholder={c}
-                  value={val}
-                  onChange={(e) => set(e.target.value)}
-                />
-              </div>
-            );
-          })}
+        <div>
+          <FieldLabel>Pricing Matrix</FieldLabel>
+          <div className="grid grid-cols-3 gap-2">
+            {(["USD", "NGN", "GHS"] as const).map((c) => {
+              const val = c === "USD" ? priceUSD : c === "NGN" ? priceNGN : priceGHS;
+              const set = c === "USD" ? setPriceUSD : c === "NGN" ? setPriceNGN : setPriceGHS;
+              return (
+                <div key={c} className="relative">
+                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[c]}</span>
+                  <input
+                    type="number" min={0} step="0.01"
+                    className={`${inputCls} pl-6`}
+                    placeholder={c}
+                    value={val}
+                    onChange={(e) => set(e.target.value)}
+                  />
+                </div>
+              );
+            })}
+          </div>
         </div>
-      </div>
 
-      {toast && <Toast msg={toast.msg} kind={toast.kind} />}
+        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
 
-      <button type="submit" className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors">
-        Forge Store Asset
-      </button>
-    </form>
+        <button type="submit" className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> Preview & Forge
+        </button>
+      </form>
+
+      <PreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        onConfirm={confirmSubmit}
+        title={title.trim() || "Untitled asset"}
+        subtitle={`Marketplace stream • ${category}`}
+        accent="emerald"
+        icon={<span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0"><Store className="w-4 h-4 text-emerald-300" /></span>}
+        confirmLabel="Confirm & Forge Asset"
+        fields={fields}
+        visual={
+          <div className="rounded-xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/10 to-transparent p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-emerald-300">{category}</span>
+              <span className="text-[10px] font-mono text-slate-500">v{version.trim() || "0.0.0"}</span>
+            </div>
+            <div className="text-white font-black text-lg leading-tight mb-1">{title.trim() || "Untitled asset"}</div>
+            <p className="text-xs text-slate-400 line-clamp-3 mb-3">{description.trim() || "No description."}</p>
+            <div className="flex items-baseline gap-3 text-xs">
+              <span className="text-emerald-300 font-black text-base">${usdN.toFixed(2)}</span>
+              <span className="text-slate-500 font-mono">₦{ngnN.toFixed(0)}</span>
+              <span className="text-slate-500 font-mono">₵{ghsN.toFixed(0)}</span>
+            </div>
+            <div className="text-[10px] text-slate-500 mt-2">by {vendor.trim()}</div>
+          </div>
+        }
+      />
+    </>
   );
 }
 
