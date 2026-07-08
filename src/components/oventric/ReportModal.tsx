@@ -89,7 +89,7 @@ export function ReportModal({
   target?: string;
   targetId?: string;
   targetKind?: string;
-  onReported?: (targetId: string) => void;
+  onReported?: (targetId: string, details: { reason: string; reasonLabel: string; note: string | null }) => void;
 }) {
   const submit = useServerFn(submitReport);
   const [reason, setReason] = useState<ReasonId | "">("");
@@ -126,7 +126,11 @@ export function ReportModal({
         },
       });
       setSubmitted(true);
-      onReported?.(targetId);
+      onReported?.(targetId, {
+        reason,
+        reasonLabel: REASONS.find((r) => r.id === reason)?.label ?? reason,
+        note: note.trim() || null,
+      });
       toast.success("Report submitted", {
         description: "Trust & safety will review it within 24h.",
       });

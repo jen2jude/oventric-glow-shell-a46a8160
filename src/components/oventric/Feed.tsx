@@ -26,9 +26,21 @@ function toComment(c: FeedComment): Comment {
   return { id: c.id, author: c.author_name, authorId: c.author_id, initials: c.initials, text: c.text };
 }
 
-function ReportedBadge() {
+interface ReportDetails {
+  reasonLabel: string;
+  note: string | null;
+}
+
+function ReportedBadge({ details }: { details?: ReportDetails }) {
+  const tooltip = details
+    ? `Reason: ${details.reasonLabel}${details.note ? `\nNote: ${details.note}` : "\nNote: (none)"}`
+    : "You reported this post";
   return (
-    <span className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+    <span
+      title={tooltip}
+      aria-label={tooltip}
+      className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 cursor-help"
+    >
       <Flag className="w-3 h-3" /> Reported
     </span>
   );
@@ -41,8 +53,13 @@ export function Feed() {
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
-  const [reported, setReported] = useState<Set<string>>(new Set());
-  const markReported = (id: string) => setReported((s) => new Set(s).add(id));
+  const [reported, setReported] = useState<Map<string, ReportDetails>>(new Map());
+  const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
+    setReported((m) => {
+      const next = new Map(m);
+      next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
+      return next;
+    });
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
@@ -200,7 +217,7 @@ export function Feed() {
             <div className="text-xs text-slate-500">Staff Engineer · 2h ago</div>
           </div>
           {reported.has("post-aria-1") ? (
-            <ReportedBadge />
+            <ReportedBadge details={reported.get("post-aria-1")} />
           ) : (
             <button
               onClick={() => setReportOpen("post-aria-1")}
@@ -321,7 +338,7 @@ export function Feed() {
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Marketplace</span>
             {reported.has("listing-rls-kit") ? (
-              <ReportedBadge />
+              <ReportedBadge details={reported.get("listing-rls-kit")} />
             ) : (
               <button
                 onClick={() => setReportOpen("listing-rls-kit")}
@@ -388,7 +405,7 @@ export function Feed() {
             [ACTIVE BOUNTY: $450 USD]
           </div>
           {reported.has("bounty-rls") ? (
-            <ReportedBadge />
+            <ReportedBadge details={reported.get("bounty-rls")} />
           ) : (
             <button
               onClick={() => setReportOpen("bounty-rls")}
