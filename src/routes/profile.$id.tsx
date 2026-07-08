@@ -33,6 +33,7 @@ import {
   Paperclip,
   Flag,
   ExternalLink,
+  Link2,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
