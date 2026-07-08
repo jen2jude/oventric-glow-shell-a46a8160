@@ -66,6 +66,47 @@ type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved";
 const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved"];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
+import type { ProfileSortKey } from "@/lib/profiles.functions";
+
+type SortOption = { value: ProfileSortKey; label: string };
+const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
+  posts: [
+    { value: "newest", label: "Newest" },
+    { value: "most_liked", label: "Most liked" },
+    { value: "most_commented", label: "Most commented" },
+  ],
+  groups: [
+    { value: "newest", label: "Newest" },
+    { value: "most_members", label: "Most members" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  marketplace: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "most_sold", label: "Most sold" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  posted: [
+    { value: "newest", label: "Newest" },
+    { value: "highest_bounty", label: "Highest bounty" },
+    { value: "lowest_bounty", label: "Lowest bounty" },
+    { value: "most_applicants", label: "Most applicants" },
+  ],
+  solved: [
+    { value: "newest", label: "Newest" },
+    { value: "highest_bounty", label: "Highest bounty" },
+    { value: "lowest_bounty", label: "Lowest bounty" },
+  ],
+};
+const SEARCH_PLACEHOLDER: Record<Tab, string> = {
+  posts: "Search posts…",
+  groups: "Search groups…",
+  marketplace: "Search listings…",
+  posted: "Search bounties…",
+  solved: "Search solved bounties…",
+};
+
 function ProfilePage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
