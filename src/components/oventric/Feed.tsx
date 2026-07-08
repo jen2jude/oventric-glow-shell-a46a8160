@@ -26,9 +26,21 @@ function toComment(c: FeedComment): Comment {
   return { id: c.id, author: c.author_name, authorId: c.author_id, initials: c.initials, text: c.text };
 }
 
-function ReportedBadge() {
+interface ReportDetails {
+  reasonLabel: string;
+  note: string | null;
+}
+
+function ReportedBadge({ details }: { details?: ReportDetails }) {
+  const tooltip = details
+    ? `Reason: ${details.reasonLabel}${details.note ? `\nNote: ${details.note}` : "\nNote: (none)"}`
+    : "You reported this post";
   return (
-    <span className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+    <span
+      title={tooltip}
+      aria-label={tooltip}
+      className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 cursor-help"
+    >
       <Flag className="w-3 h-3" /> Reported
     </span>
   );
