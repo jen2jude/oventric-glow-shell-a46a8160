@@ -311,7 +311,14 @@ export function Feed() {
         </div>
       </article>
 
-      <ReportModal open={!!reportOpen} onClose={() => setReportOpen(null)} target="post" />
+      <ReportModal
+        open={!!reportOpen}
+        onClose={() => setReportOpen(null)}
+        target={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+        targetId={reportOpen ?? undefined}
+        targetKind={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+        onReported={markReported}
+      />
     </div>
   );
 }
