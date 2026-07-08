@@ -1,4 +1,5 @@
 import { Search, Bell, MessageCircle, Menu } from "lucide-react";
+import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   return (
