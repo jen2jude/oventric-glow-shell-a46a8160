@@ -1,5 +1,7 @@
-import { Flag, X } from "lucide-react";
+import { Flag, X, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { submitReport } from "@/lib/reports.functions";
 
 const REASONS = [
   { id: "spam", label: "Spam", desc: "Unsolicited promotions, mass posting, or bots." },
@@ -8,33 +10,64 @@ const REASONS = [
   { id: "scam", label: "Scam", desc: "Phishing, fake bounties, or fraudulent listings." },
 ] as const;
 
+type ReasonId = (typeof REASONS)[number]["id"];
+
 export function ReportModal({
   open,
   onClose,
   target,
+  targetId,
+  targetKind = "post",
+  onReported,
 }: {
   open: boolean;
   onClose: () => void;
   target?: string;
+  targetId?: string;
+  targetKind?: string;
+  onReported?: (targetId: string) => void;
 }) {
-  const [reason, setReason] = useState<string>("");
+  const submit = useServerFn(submitReport);
+  const [reason, setReason] = useState<ReasonId | "">("");
   const [note, setNote] = useState("");
+  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!open) {
       setReason("");
       setNote("");
       setSubmitted(false);
+      setSubmitting(false);
+      setError(null);
     }
   }, [open]);
 
   if (!open) return null;
 
-  const submit = () => {
-    if (!reason) return;
-    setSubmitted(true);
-    setTimeout(onClose, 1400);
+  const handleSubmit = async () => {
+    if (!reason || !targetId) return;
+    setSubmitting(true);
+    setError(null);
+    try {
+      await submit({
+        data: {
+          targetId,
+          targetKind,
+          reason,
+          note: note.trim() || null,
+        },
+      });
+      setSubmitted(true);
+      onReported?.(targetId);
+      setTimeout(onClose, 1400);
+    } catch (e) {
+      console.error(e);
+      setError("Couldn't submit report. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -96,19 +129,22 @@ export function ReportModal({
               />
               <div className="text-[10px] text-slate-500 text-right mt-1">{note.length}/280</div>
             </div>
+            {error && <div className="text-xs text-red-400">{error}</div>}
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={onClose}
-                className="flex-1 px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:bg-white/5 text-sm"
+                disabled={submitting}
+                className="flex-1 px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:bg-white/5 text-sm disabled:opacity-40"
               >
                 Cancel
               </button>
               <button
-                onClick={submit}
-                disabled={!reason}
-                className="flex-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold text-sm"
+                onClick={handleSubmit}
+                disabled={!reason || submitting || !targetId}
+                className="flex-1 inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold text-sm"
               >
-                Submit report
+                {submitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+                {submitting ? "Submitting…" : "Submit report"}
               </button>
             </div>
           </div>
