@@ -94,8 +94,14 @@ export function Feed() {
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const listComments = useServerFn(listCommentsFn);
   const addComment = useServerFn(addCommentFn);
+  const updateComment = useServerFn(updateCommentFn);
+  const deleteComment = useServerFn(deleteCommentFn);
 
   const ensureSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -103,6 +109,8 @@ export function Feed() {
       const { error } = await supabase.auth.signInAnonymously();
       if (error) throw error;
     }
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user?.id) setMeId(userData.user.id);
   };
 
   // Initial load
@@ -122,7 +130,7 @@ export function Feed() {
     };
   }, [listComments]);
 
-  // Realtime subscription
+  // Realtime subscription (insert / update / delete)
   useEffect(() => {
     const channel = supabase
       .channel(`post_comments:${POST_ID}`)
@@ -132,6 +140,23 @@ export function Feed() {
         (payload) => {
           const row = payload.new as FeedComment;
           setComments((prev) => (prev.some((c) => c.id === row.id) ? prev : [...prev, toComment(row)]));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const row = payload.new as FeedComment;
+          setComments((prev) => prev.map((c) => (c.id === row.id ? { ...c, ...toComment(row) } : c)));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const oldRow = payload.old as Partial<FeedComment>;
+          if (!oldRow?.id) return;
+          setComments((prev) => prev.filter((c) => c.id !== oldRow.id));
         },
       )
       .subscribe();
