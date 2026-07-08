@@ -14,7 +14,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
   const unread = notifs.some((n) => !n.read);
 
   return (
-    <header className="sticky top-0 z-30 h-16 bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
+    <header className="sticky top-0 z-40 h-16 w-full bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
       {onMenuClick && (
         <button
           onClick={onMenuClick}

@@ -334,7 +334,7 @@ export function ProfileDropdown() {
           <div
             aria-hidden
             onClick={() => closeMenu(true)}
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90] sm:hidden"
           />
 
           {/* Responsive panel: bottom sheet on mobile, dropdown on desktop */}
@@ -351,11 +351,11 @@ export function ProfileDropdown() {
               // Mobile bottom-sheet defaults
               "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none",
               "border-t border-x border-white/5 bg-[#1E1E24] p-6 pb-8",
-              "z-50 transform-none max-h-[85vh] overflow-y-auto shadow-2xl",
+              "z-[100] transform-none max-h-[85vh] overflow-y-auto shadow-2xl",
               "animate-in slide-in-from-bottom duration-200",
               // Desktop dropdown overrides
               "sm:absolute sm:top-14 sm:right-0 sm:bottom-auto sm:left-auto",
-              "sm:w-72 sm:rounded-xl sm:border sm:transform-none sm:max-h-none sm:p-4",
+              "sm:w-72 sm:rounded-xl sm:border sm:transform-none sm:max-h-none sm:p-4 sm:z-[100]",
               "sm:animate-in sm:fade-in sm:slide-in-from-top-2 sm:duration-150",
               "focus:outline-none",
             ].join(" ")}
