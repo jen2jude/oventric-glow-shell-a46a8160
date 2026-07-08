@@ -93,6 +93,8 @@ export function Feed() {
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [commentPosting, setCommentPosting] = useState<Record<string, boolean>>({});
   const [commentError, setCommentError] = useState<string | null>(null);
+  const COMMENTS_PAGE_SIZE = 3;
+  const [visibleComments, setVisibleComments] = useState<Record<string, number>>({});
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
@@ -510,84 +512,110 @@ export function Feed() {
 
                 {/* Comments */}
                 <div className="mt-4 space-y-2">
-                  {comments.map((c) => (
-                    <div key={c.id} className="flex items-start gap-2">
-                      <Link
-                        to="/profile/$id"
-                        params={{ id: c.authorId }}
-                        className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold"
-                      >
-                        {c.initials}
-                      </Link>
-                      <div className="group flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
-                        <div className="flex items-center gap-2">
+                  {comments.length === 0 ? (
+                    <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-3 py-4 text-center text-xs text-slate-500">
+                      <MessageSquare className="w-4 h-4 mx-auto mb-1 opacity-60" />
+                      No comments yet. Be the first to reply.
+                    </div>
+                  ) : (
+                    <>
+                      {comments
+                        .slice(0, visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)
+                        .map((c) => (
+                        <div key={c.id} className="flex items-start gap-2">
                           <Link
                             to="/profile/$id"
                             params={{ id: c.authorId }}
-                            className="text-xs font-semibold text-white hover:text-emerald-400"
+                            className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold"
                           >
-                            {c.author}
+                            {c.initials}
                           </Link>
-                          {meId && c.authorId === meId && editing?.id !== c.id && (
-                            <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                              <button
-                                type="button"
-                                onClick={() => startEdit(c)}
-                                aria-label="Edit comment"
-                                className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-emerald-400"
+                          <div className="group flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
+                            <div className="flex items-center gap-2">
+                              <Link
+                                to="/profile/$id"
+                                params={{ id: c.authorId }}
+                                className="text-xs font-semibold text-white hover:text-emerald-400"
                               >
-                                <Pencil className="w-3 h-3" />
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => removeComment(c.id)}
-                                aria-label="Delete comment"
-                                className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-red-400"
-                              >
-                                <Trash2 className="w-3 h-3" />
-                              </button>
+                                {c.author}
+                              </Link>
+                              {meId && c.authorId === meId && editing?.id !== c.id && (
+                                <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                                  <button
+                                    type="button"
+                                    onClick={() => startEdit(c)}
+                                    aria-label="Edit comment"
+                                    className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-emerald-400"
+                                  >
+                                    <Pencil className="w-3 h-3" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => removeComment(c.id)}
+                                    aria-label="Delete comment"
+                                    className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-red-400"
+                                  >
+                                    <Trash2 className="w-3 h-3" />
+                                  </button>
+                                </div>
+                              )}
                             </div>
-                          )}
+                            {editing?.id === c.id ? (
+                              <div className="mt-1 flex items-center gap-1">
+                                <input
+                                  value={editing.text}
+                                  onChange={(e) => setEditing({ id: c.id, text: e.target.value })}
+                                  onKeyDown={(e) => {
+                                    if (e.key === "Enter") saveEdit();
+                                    else if (e.key === "Escape") cancelEdit();
+                                  }}
+                                  autoFocus
+                                  className="flex-1 bg-black/40 border border-emerald-500/40 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                                />
+                                <button
+                                  type="button"
+                                  onClick={saveEdit}
+                                  disabled={savingEdit || !editing.text.trim() || editing.text.trim() === c.text}
+                                  aria-label="Save edit"
+                                  className="p-1 rounded bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
+                                >
+                                  <Check className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={cancelEdit}
+                                  aria-label="Cancel edit"
+                                  className="p-1 rounded hover:bg-white/5 text-slate-400"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ) : (
+                              <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
+                                {c.text}
+                              </div>
+                            )}
+                          </div>
                         </div>
-                        {editing?.id === c.id ? (
-                          <div className="mt-1 flex items-center gap-1">
-                            <input
-                              value={editing.text}
-                              onChange={(e) => setEditing({ id: c.id, text: e.target.value })}
-                              onKeyDown={(e) => {
-                                if (e.key === "Enter") saveEdit();
-                                else if (e.key === "Escape") cancelEdit();
-                              }}
-                              autoFocus
-                              className="flex-1 bg-black/40 border border-emerald-500/40 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
-                            />
-                            <button
-                              type="button"
-                              onClick={saveEdit}
-                              disabled={savingEdit || !editing.text.trim() || editing.text.trim() === c.text}
-                              aria-label="Save edit"
-                              className="p-1 rounded bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
-                            >
-                              <Check className="w-3 h-3" />
-                            </button>
-                            <button
-                              type="button"
-                              onClick={cancelEdit}
-                              aria-label="Cancel edit"
-                              className="p-1 rounded hover:bg-white/5 text-slate-400"
-                            >
-                              <X className="w-3 h-3" />
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
-                            {c.text}
-                          </div>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                      ))}
+                      {comments.length > (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE) && (
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setVisibleComments((prev) => ({
+                              ...prev,
+                              [post.id]: (prev[post.id] ?? COMMENTS_PAGE_SIZE) + COMMENTS_PAGE_SIZE,
+                            }))
+                          }
+                          className="w-full text-center text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-white/5 rounded-lg py-2 transition-colors"
+                        >
+                          Load more comments ({comments.length - (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)} remaining)
+                        </button>
+                      )}
+                    </>
+                  )}
                 </div>
+
 
                 {/* Inline comment input */}
                 <div className="mt-3 flex items-center gap-2">
