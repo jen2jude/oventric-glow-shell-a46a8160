@@ -58,6 +58,7 @@ export function PreviewModal({
   visual,
   confirmLabel,
   icon,
+  isSubmitting = false,
 }: PreviewModalProps) {
   useEffect(() => {
     if (!open) return;
