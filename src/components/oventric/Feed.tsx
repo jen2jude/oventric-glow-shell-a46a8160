@@ -107,6 +107,18 @@ export function Feed() {
     const text = draft.trim();
     if (!text || posting) return;
     require(1, async () => {
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const optimistic: Comment = {
+        id: tempId,
+        author: "You",
+        authorId: "you",
+        initials: "OV",
+        text,
+        pending: true,
+      };
+      // Optimistic append
+      setComments((prev) => [...prev, optimistic]);
+      setDraft("");
       setPosting(true);
       setCommentError(null);
       try {
@@ -114,19 +126,27 @@ export function Feed() {
         const res = await addComment({
           data: { postId: POST_ID, text, authorName: "You", initials: "OV" },
         });
-        setDraft("");
-        // Optimistically append; realtime will dedupe by id
-        setComments((prev) =>
-          prev.some((c) => c.id === res.comment.id) ? prev : [...prev, toComment(res.comment)],
-        );
+        // Reconcile: replace temp with saved row (or drop if realtime already added it)
+        setComments((prev) => {
+          const saved = toComment(res.comment);
+          const hasSaved = prev.some((c) => c.id === saved.id);
+          const withoutTemp = prev.filter((c) => c.id !== tempId);
+          return hasSaved ? withoutTemp : [...withoutTemp, saved];
+        });
       } catch (e) {
         console.error(e);
+        // Mark the optimistic row as failed and restore draft for retry
+        setComments((prev) =>
+          prev.map((c) => (c.id === tempId ? { ...c, pending: false, failed: true } : c)),
+        );
+        setDraft(text);
         setCommentError("Couldn't post comment. Try again.");
       } finally {
         setPosting(false);
       }
     });
   };
+
 
   const isLoggedIn = tier >= 1;
 
