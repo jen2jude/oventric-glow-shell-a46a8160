@@ -1,4 +1,4 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X } from "lucide-react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle } from "lucide-react";
 import { useCallback, useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -30,6 +30,7 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  status?: "pending" | "failed";
 }
 
 function toComment(c: FeedComment): Comment {
@@ -332,26 +333,91 @@ export function Feed() {
     }
   };
 
+  const sendCommentAttempt = async (postId: string, tempId: string, text: string) => {
+    setCommentPosting((p) => ({ ...p, [tempId]: true }));
+    setCommentError(null);
+    // Mark as pending (clear any prior failed state)
+    setCommentsByPost((prev) => {
+      const arr = prev[postId] ?? [];
+      return {
+        ...prev,
+        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending" } : c)),
+      };
+    });
+    try {
+      const res = await addComment({
+        data: { postId, text, authorName: "You", initials: "OV" },
+      });
+      // Swap the optimistic entry for the real row; realtime INSERT will dedupe by id.
+      setCommentsByPost((prev) => {
+        const arr = prev[postId];
+        if (!arr) return prev;
+        const real = toComment(res.comment);
+        // If realtime already delivered the row, just drop the temp.
+        if (arr.some((c) => c.id === real.id)) {
+          return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+        }
+        return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+      });
+    } catch (e) {
+      console.error(e);
+      setCommentsByPost((prev) => {
+        const arr = prev[postId] ?? [];
+        return {
+          ...prev,
+          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed" } : c)),
+        };
+      });
+      setCommentError("Couldn't post comment. Retry below.");
+    } finally {
+      setCommentPosting((p) => {
+        const next = { ...p };
+        delete next[tempId];
+        return next;
+      });
+    }
+  };
+
   const submitComment = (postId: string) => {
     const text = (commentDrafts[postId] ?? "").trim();
     if (!text || commentPosting[postId]) return;
     require(1, async () => {
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const optimistic: Comment = {
+        id: tempId,
+        postId,
+        author: "You",
+        authorId: meId ?? "me",
+        initials: "OV",
+        text,
+        status: "pending",
+      };
       setCommentDrafts((d) => ({ ...d, [postId]: "" }));
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: [...(prev[postId] ?? []), optimistic],
+      }));
       setCommentPosting((p) => ({ ...p, [postId]: true }));
-      setCommentError(null);
       try {
-        await addComment({
-          data: { postId, text, authorName: "You", initials: "OV" },
-        });
-      } catch (e) {
-        console.error(e);
-        setCommentDrafts((d) => ({ ...d, [postId]: text }));
-        setCommentError("Couldn't post comment. Try again.");
+        await sendCommentAttempt(postId, tempId, text);
       } finally {
         setCommentPosting((p) => ({ ...p, [postId]: false }));
       }
     });
   };
+
+  const retryComment = (postId: string, tempId: string, text: string) => {
+    void sendCommentAttempt(postId, tempId, text);
+  };
+
+  const discardFailedComment = (postId: string, tempId: string) => {
+    setCommentsByPost((prev) => {
+      const arr = prev[postId];
+      if (!arr) return prev;
+      return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+    });
+  };
+
 
   const startEdit = (c: Comment) => {
     setEditing({ id: c.id, text: c.text });
@@ -522,7 +588,7 @@ export function Feed() {
                       {comments
                         .slice(0, visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)
                         .map((c) => (
-                        <div key={c.id} className="flex items-start gap-2">
+                        <div key={c.id} className={`flex items-start gap-2 ${c.status === "pending" ? "opacity-60" : ""}`}>
                           <Link
                             to="/profile/$id"
                             params={{ id: c.authorId }}
@@ -530,7 +596,7 @@ export function Feed() {
                           >
                             {c.initials}
                           </Link>
-                          <div className="group flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
+                          <div className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${c.status === "failed" ? "border-red-500/40" : "border-white/5"}`}>
                             <div className="flex items-center gap-2">
                               <Link
                                 to="/profile/$id"
@@ -539,7 +605,15 @@ export function Feed() {
                               >
                                 {c.author}
                               </Link>
-                              {meId && c.authorId === meId && editing?.id !== c.id && (
+                              {c.status === "pending" && (
+                                <span className="text-[10px] text-slate-500 italic">Sending…</span>
+                              )}
+                              {c.status === "failed" && (
+                                <span className="flex items-center gap-1 text-[10px] text-red-400">
+                                  <AlertCircle className="w-3 h-3" /> Failed to send
+                                </span>
+                              )}
+                              {!c.status && meId && c.authorId === meId && editing?.id !== c.id && (
                                 <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                   <button
                                     type="button"
@@ -595,8 +669,29 @@ export function Feed() {
                                 {c.text}
                               </div>
                             )}
+                            {c.status === "failed" && (
+                              <div className="mt-2 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => retryComment(post.id, c.id, c.text)}
+                                  disabled={!!commentPosting[c.id]}
+                                  className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                                >
+                                  <RotateCcw className={`w-3 h-3 ${commentPosting[c.id] ? "animate-spin" : ""}`} />
+                                  {commentPosting[c.id] ? "Retrying…" : "Retry"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => discardFailedComment(post.id, c.id)}
+                                  className="text-[11px] font-medium text-slate-400 hover:text-red-400"
+                                >
+                                  Discard
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
+
                       ))}
                       {comments.length > (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE) && (
                         <button
