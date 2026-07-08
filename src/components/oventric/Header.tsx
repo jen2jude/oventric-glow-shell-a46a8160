@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Search, Bell, MessageCircle, Menu } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
+import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
   NotificationsDrawer,
   SEED_NOTIFICATIONS,
