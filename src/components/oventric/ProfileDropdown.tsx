@@ -336,29 +336,17 @@ export function ProfileDropdown() {
     <div ref={wrapperRef} className="relative">
       {avatarBtn}
 
-      {/* Desktop dropdown */}
-      {open && !isMobile && (
-        <div
-          ref={menuRef}
-          id={menuId}
-          role="menu"
-          aria-labelledby={triggerId}
-          aria-orientation="vertical"
-          onKeyDown={onMenuKeyDown}
-          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150 focus:outline-none"
-        >
-          {panelBody}
-        </div>
-      )}
-
-      {/* Mobile bottom sheet */}
-      {open && isMobile && (
-        <div className="fixed inset-0 z-50 sm:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      {open && (
+        <>
+          {/* Mobile backdrop — tap to dismiss */}
+          <button
+            type="button"
+            aria-label="Close profile menu"
             onClick={() => closeMenu(true)}
-            aria-hidden
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
           />
+
+          {/* Responsive panel: bottom sheet on mobile, dropdown on desktop */}
           <div
             ref={menuRef}
             id={menuId}
@@ -366,12 +354,24 @@ export function ProfileDropdown() {
             aria-labelledby={triggerId}
             aria-orientation="vertical"
             onKeyDown={onMenuKeyDown}
-            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 focus:outline-none"
+            className={[
+              // Mobile bottom-sheet defaults
+              "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none",
+              "border-t border-x border-white/5 bg-[#1E1E24] p-6 pb-8",
+              "z-50 transform-none max-h-[85vh] overflow-y-auto shadow-2xl",
+              "animate-in slide-in-from-bottom duration-200",
+              // Desktop dropdown overrides
+              "sm:absolute sm:top-14 sm:right-0 sm:bottom-auto sm:left-auto",
+              "sm:w-72 sm:rounded-xl sm:border sm:transform-none sm:max-h-none sm:p-4",
+              "sm:animate-in sm:fade-in sm:slide-in-from-top-2 sm:duration-150",
+              "focus:outline-none",
+            ].join(" ")}
           >
-            <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4" aria-hidden />
+            {/* Grab-handle: only visible on mobile */}
+            <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4 sm:hidden" aria-hidden />
             {panelBody}
           </div>
-        </div>
+        </>
       )}
 
       <ProfileSettingsModal
