@@ -3,7 +3,7 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const CreateInput = z.object({
-  postId: z.string().trim().min(1).max(120),
+  postId: z.string().uuid(),
   text: z.string().trim().min(1).max(2000),
   authorName: z.string().trim().min(1).max(80).default("Guest"),
   initials: z.string().trim().min(1).max(4).default("OV"),
