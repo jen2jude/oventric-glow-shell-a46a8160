@@ -247,11 +247,13 @@ export function ProfileDropdown() {
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wallet Snapshot</span>
         <button
           type="button"
+          role="menuitem"
+          tabIndex={-1}
           onClick={toggleBalancesHidden}
-          className="text-slate-500 hover:text-slate-300 inline-flex items-center gap-1 text-[10px] font-semibold"
+          className="text-slate-500 hover:text-slate-300 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:text-slate-200"
           aria-label={balancesHidden ? "Show balances" : "Hide balances"}
         >
-          {balancesHidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          {balancesHidden ? <EyeOff className="w-3 h-3" aria-hidden /> : <Eye className="w-3 h-3" aria-hidden />}
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
