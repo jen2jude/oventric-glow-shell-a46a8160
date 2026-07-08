@@ -41,6 +41,36 @@ export type Database = {
         }
         Relationships: []
       }
+      post_comments: {
+        Row: {
+          author_id: string
+          author_name: string
+          created_at: string
+          id: string
+          initials: string
+          post_id: string
+          text: string
+        }
+        Insert: {
+          author_id: string
+          author_name: string
+          created_at?: string
+          id?: string
+          initials: string
+          post_id: string
+          text: string
+        }
+        Update: {
+          author_id?: string
+          author_name?: string
+          created_at?: string
+          id?: string
+          initials?: string
+          post_id?: string
+          text?: string
+        }
+        Relationships: []
+      }
       post_reports: {
         Row: {
           created_at: string
