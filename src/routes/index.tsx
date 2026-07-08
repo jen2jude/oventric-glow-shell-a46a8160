@@ -31,7 +31,7 @@ function IndexInner() {
   const handleCreate = () => require(1, () => setCreateOpen(true));
 
   const view =
-    active === "Wallet" ? <Wallet /> : active === "Marketplace" ? <Marketplace /> : <Feed />;
+    active === "Wallet" ? <Wallet /> : active === "Marketplace" ? <Marketplace /> : active === "Academy" ? <Academy /> : <Feed />;
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
