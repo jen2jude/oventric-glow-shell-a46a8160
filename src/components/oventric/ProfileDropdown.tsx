@@ -474,21 +474,32 @@ function ProfileSettingsModal({
       onClick={saving ? undefined : onClose}
     >
       <div
+        ref={dialogRef}
         role="dialog"
         aria-modal="true"
+        aria-labelledby={titleId}
+        aria-describedby={descId}
+        tabIndex={-1}
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-lg bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl my-auto max-h-[90vh] flex flex-col"
+        className="relative w-full max-w-lg bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl my-auto max-h-[90vh] flex flex-col focus:outline-none"
       >
         <header className="flex items-start justify-between gap-3 p-5 border-b border-white/5">
           <div>
             <div className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-emerald-500/15 border-emerald-500/40 text-emerald-300 mb-1.5">
-              <Settings className="w-3 h-3" /> Profile Settings
+              <Settings className="w-3 h-3" aria-hidden /> Profile Settings
             </div>
-            <h2 className="text-white font-black text-base">Identity & KYC</h2>
-            <p className="text-[11px] text-slate-500 mt-0.5">Update your display name, bio, avatar, and verification docs.</p>
+            <h2 id={titleId} className="text-white font-black text-base">Identity & KYC</h2>
+            <p id={descId} className="text-[11px] text-slate-500 mt-0.5">Update your display name, bio, avatar, and verification docs.</p>
           </div>
-          <button type="button" onClick={onClose} disabled={saving} className="text-slate-400 hover:text-white p-1 disabled:opacity-50" aria-label="Close">
-            <X className="w-4 h-4" />
+          <button
+            ref={closeBtnRef}
+            type="button"
+            onClick={onClose}
+            disabled={saving}
+            className="text-slate-400 hover:text-white p-1 disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 rounded"
+            aria-label="Close profile settings"
+          >
+            <X className="w-4 h-4" aria-hidden />
           </button>
         </header>
 
