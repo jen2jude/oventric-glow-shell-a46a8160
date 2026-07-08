@@ -17,6 +17,8 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  pending?: boolean;
+  failed?: boolean;
 }
 
 function toComment(c: FeedComment): Comment {
