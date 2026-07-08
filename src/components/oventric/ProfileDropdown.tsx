@@ -65,6 +65,19 @@ export function ProfileDropdown() {
   const [profile, setProfile] = useState<ProfileState>(() => loadProfile(fullName || storeName || "Sovereign Architect"));
 
   useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      const id = data.session?.user?.id;
+      if (id) setUserId(id);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      if (session?.user?.id) setUserId(session.user.id);
+    });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
+
+  useEffect(() => {
     // Sync default display name once fullName arrives from onboarding
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
