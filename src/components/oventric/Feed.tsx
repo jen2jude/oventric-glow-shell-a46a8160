@@ -6,6 +6,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { useAdminStore } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
+import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
 
@@ -151,7 +152,8 @@ export function Feed() {
   const isLoggedIn = tier >= 1;
 
   return (
-    <div className="max-w-2xl mx-auto w-full px-4 py-6 space-y-4">
+    <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start">
+      <div className="w-full lg:w-[62%] flex flex-col space-y-4 min-w-0">
       {/* Composer */}
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
         <textarea
@@ -441,6 +443,8 @@ export function Feed() {
         targetKind={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
         onReported={markReported}
       />
+      </div>
+      <DiscoveryPanel />
     </div>
   );
 }
