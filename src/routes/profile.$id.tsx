@@ -666,6 +666,86 @@ function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string;
   );
 }
 
+function relTime(iso: string | null): string | null {
+  if (!iso) return null;
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0) return "just now";
+  const s = Math.floor(diff / 1000);
+  if (s < 45) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
+}
+
+function absTime(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
+function CircleStatusNote({
+  status,
+  meta,
+  firstName,
+}: {
+  status: CircleStatus;
+  meta: { sentAt: string | null; acceptedAt: string | null; canceledAt: string | null };
+  firstName: string;
+}) {
+  const sent = relTime(meta.sentAt);
+  const accepted = relTime(meta.acceptedAt);
+  const canceled = relTime(meta.canceledAt);
+
+  if (status === "accepted") {
+    return (
+      <div className="text-[11px] text-emerald-300/90 sm:text-center leading-snug px-1 space-y-0.5">
+        {accepted && (
+          <div>
+            <span title={absTime(meta.acceptedAt)}>Accepted {accepted}</span>
+          </div>
+        )}
+        {sent && (
+          <div className="text-slate-500">
+            <span title={absTime(meta.sentAt)}>Request sent {sent}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (status === "pending") {
+    return (
+      <div className="text-[11px] text-slate-400 sm:text-center leading-snug px-1 space-y-0.5">
+        {sent && (
+          <div>
+            <span title={absTime(meta.sentAt)}>Sent {sent}</span>
+          </div>
+        )}
+        <div className="text-slate-500">Waiting on {firstName} to accept from their inbox.</div>
+      </div>
+    );
+  }
+
+  // status === "none"
+  if (canceled) {
+    return (
+      <div className="text-[11px] text-slate-500 sm:text-center leading-snug px-1">
+        <span title={absTime(meta.canceledAt)}>Request canceled {canceled}</span>
+      </div>
+    );
+  }
+  return null;
+}
+
 function StarRow({ value }: { value: number }) {
   return (
     <div className="flex items-center">
