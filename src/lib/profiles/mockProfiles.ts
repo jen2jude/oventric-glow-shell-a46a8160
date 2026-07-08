@@ -157,11 +157,13 @@ export function getProfile(id: string): Profile {
     joined: "2024",
     followers: 128,
     reputation: {
-      stars: 4.2,
       bountiesSolved: 3,
       coursesCompleted: 2,
       salesCount: 14,
       disputeRate: 1.1,
+      retentionRate: 70,
+      refundRate: 3.5,
+      activityScore: 55,
     },
     posts: [
       { id: "p1", content: "New here — shipping small things every day.", timeAgo: "5h ago", likes: 12, comments: 3 },
