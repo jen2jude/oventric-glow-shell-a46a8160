@@ -11,17 +11,16 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">{children}</label>;
 }
 
-const inputBaseCls =
-  "w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none";
-const inputCls = `${inputBaseCls} border-white/10 focus:border-emerald-500/60`;
+const inputCls =
+  "w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
 
-function fieldClass(hasError: boolean, focusColor: string = "emerald"): string {
-  return `${inputBaseCls} ${
-    hasError
-      ? "border-red-500/60 focus:border-red-400"
-      : `border-white/10 focus:border-${focusColor}-500/60`
-  }`;
+/** Merge error-state ring into the base input class. */
+function fieldCls(hasError: boolean): string {
+  return hasError
+    ? "w-full bg-[#121214] border border-red-500/60 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-red-400"
+    : inputCls;
 }
+
 
 function InlineError({ msg }: { msg?: string }) {
   if (!msg) return null;
