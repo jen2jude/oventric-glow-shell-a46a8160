@@ -207,8 +207,6 @@ function ProfilePage() {
     else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
     // "accepted" click is a no-op; user can Chat instead.
   };
-  const handleAccept = () =>
-    runCircle(() => acceptReq({ data: { targetSlug: profile.id } }));
   const handleChat = () => require(1, () => setDmOpen(true));
 
   return (
