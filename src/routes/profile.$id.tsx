@@ -62,6 +62,11 @@ function ProfilePage() {
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
   const [circleError, setCircleError] = useState<string | null>(null);
+  const [circleMeta, setCircleMeta] = useState<{
+    sentAt: string | null;
+    acceptedAt: string | null;
+    canceledAt: string | null;
+  }>({ sentAt: null, acceptedAt: null, canceledAt: null });
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
