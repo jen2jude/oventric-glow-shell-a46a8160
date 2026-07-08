@@ -1310,23 +1310,54 @@ function TabSkeleton({ variant }: { variant: Tab }) {
   );
 }
 
-function emptyLabelFor(tab: Tab, name: string, q?: string): string {
+function emptyContentFor(
+  tab: Tab,
+  name: string,
+  q: string,
+  onClearSearch: () => void,
+): {
+  title: string;
+  hint?: string;
+  primary?: StateAction;
+  secondary?: StateAction;
+} {
   if (q && q.trim().length > 0) {
-    return `No ${tabNoun(tab)} match “${q.trim()}”.`;
+    return {
+      title: `No ${tabNoun(tab)} match “${q.trim()}”.`,
+      hint: "Try a different keyword or clear the search to see everything.",
+      primary: { label: "Clear search", onClick: onClearSearch },
+    };
   }
   switch (tab) {
     case "posts":
-      return `${name} hasn't posted anything yet.`;
+      return {
+        title: `${name} hasn't posted yet`,
+        hint: "New posts from this creator will show up here.",
+      };
     case "groups":
-      return `${name} hasn't joined any groups yet.`;
+      return {
+        title: `${name} hasn't joined any circles`,
+        hint: "Once they join a peer circle it will appear on this tab.",
+      };
     case "marketplace":
-      return `${name} has no marketplace listings yet.`;
+      return {
+        title: `${name} has no listings yet`,
+        hint: "Products and services offered by this creator will land here.",
+      };
     case "posted":
-      return "No open bounties posted.";
+      return {
+        title: "No open bounties",
+        hint: "Active bounties this creator has posted will show up here.",
+      };
     case "solved":
-      return "No solved bounties yet.";
+      return {
+        title: "No solved bounties yet",
+        hint: "Completed bounties with delivered proof will appear on this tab.",
+      };
   }
 }
+
+
 
 function tabNoun(tab: Tab): string {
   switch (tab) {
