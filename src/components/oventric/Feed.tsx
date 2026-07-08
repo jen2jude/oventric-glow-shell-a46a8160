@@ -333,26 +333,91 @@ export function Feed() {
     }
   };
 
+  const sendCommentAttempt = async (postId: string, tempId: string, text: string) => {
+    setCommentPosting((p) => ({ ...p, [tempId]: true }));
+    setCommentError(null);
+    // Mark as pending (clear any prior failed state)
+    setCommentsByPost((prev) => {
+      const arr = prev[postId] ?? [];
+      return {
+        ...prev,
+        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending" } : c)),
+      };
+    });
+    try {
+      const res = await addComment({
+        data: { postId, text, authorName: "You", initials: "OV" },
+      });
+      // Swap the optimistic entry for the real row; realtime INSERT will dedupe by id.
+      setCommentsByPost((prev) => {
+        const arr = prev[postId];
+        if (!arr) return prev;
+        const real = toComment(res.comment);
+        // If realtime already delivered the row, just drop the temp.
+        if (arr.some((c) => c.id === real.id)) {
+          return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+        }
+        return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+      });
+    } catch (e) {
+      console.error(e);
+      setCommentsByPost((prev) => {
+        const arr = prev[postId] ?? [];
+        return {
+          ...prev,
+          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed" } : c)),
+        };
+      });
+      setCommentError("Couldn't post comment. Retry below.");
+    } finally {
+      setCommentPosting((p) => {
+        const next = { ...p };
+        delete next[tempId];
+        return next;
+      });
+    }
+  };
+
   const submitComment = (postId: string) => {
     const text = (commentDrafts[postId] ?? "").trim();
     if (!text || commentPosting[postId]) return;
     require(1, async () => {
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const optimistic: Comment = {
+        id: tempId,
+        postId,
+        author: "You",
+        authorId: meId ?? "me",
+        initials: "OV",
+        text,
+        status: "pending",
+      };
       setCommentDrafts((d) => ({ ...d, [postId]: "" }));
+      setCommentsByPost((prev) => ({
+        ...prev,
+        [postId]: [...(prev[postId] ?? []), optimistic],
+      }));
       setCommentPosting((p) => ({ ...p, [postId]: true }));
-      setCommentError(null);
       try {
-        await addComment({
-          data: { postId, text, authorName: "You", initials: "OV" },
-        });
-      } catch (e) {
-        console.error(e);
-        setCommentDrafts((d) => ({ ...d, [postId]: text }));
-        setCommentError("Couldn't post comment. Try again.");
+        await sendCommentAttempt(postId, tempId, text);
       } finally {
         setCommentPosting((p) => ({ ...p, [postId]: false }));
       }
     });
   };
+
+  const retryComment = (postId: string, tempId: string, text: string) => {
+    void sendCommentAttempt(postId, tempId, text);
+  };
+
+  const discardFailedComment = (postId: string, tempId: string) => {
+    setCommentsByPost((prev) => {
+      const arr = prev[postId];
+      if (!arr) return prev;
+      return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+    });
+  };
+
 
   const startEdit = (c: Comment) => {
     setEditing({ id: c.id, text: c.text });
