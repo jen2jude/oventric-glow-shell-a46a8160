@@ -118,8 +118,10 @@ export function ProfileDropdown() {
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
-      if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target as Node)) closeMenu(false);
+      const target = e.target as Node;
+      if (wrapperRef.current?.contains(target)) return;
+      if (menuRef.current?.contains(target)) return;
+      closeMenu(false);
     };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
