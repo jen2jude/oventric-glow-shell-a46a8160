@@ -82,15 +82,6 @@ export function ProfileDropdown() {
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
 
-  useEffect(() => {
-    if (open) return;
-    const onDown = (e: MouseEvent) => {
-      if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target as Node)) setOpen(false);
-    };
-    // no-op when closed
-    return () => document.removeEventListener("mousedown", onDown);
-  }, [open]);
 
   useEffect(() => {
     if (!open) return;
