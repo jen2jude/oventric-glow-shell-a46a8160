@@ -279,6 +279,42 @@ export function Feed() {
     };
   }, [posts, commentsByPost, listComments]);
 
+  const openFilePicker = () => {
+    setPostError(null);
+    fileInputRef.current?.click();
+  };
+
+  const clearAttachment = () => {
+    setAttachment((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return null;
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) {
+      setPostError("Only image or video files are allowed.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_MEDIA_BYTES) {
+      setPostError("File is too large. Max size is 10 MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
+    setAttachment({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      kind: isImage ? "image" : "video",
+    });
+  };
+
   const handleCreatePost = () => {
     const text = composerDraft.trim();
     if (!text || posting) return;
@@ -286,8 +322,28 @@ export function Feed() {
       setPosting(true);
       setPostError(null);
       try {
-        await createPost({ data: { text } });
+        let mediaPath: string | undefined;
+        let mediaType: "image" | "video" | undefined;
+        if (attachment) {
+          const { data: userRes } = await supabase.auth.getUser();
+          const uid = userRes.user?.id;
+          if (!uid) throw new Error("Not signed in");
+          const ext = (attachment.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+          const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("post-media")
+            .upload(path, attachment.file, {
+              contentType: attachment.file.type,
+              cacheControl: "3600",
+              upsert: false,
+            });
+          if (upErr) throw upErr;
+          mediaPath = path;
+          mediaType = attachment.kind;
+        }
+        await createPost({ data: { text, mediaPath, mediaType } });
         setComposerDraft("");
+        clearAttachment();
         // realtime will refresh; nudge in case the channel is late
         refreshPosts();
       } catch (e) {
@@ -298,6 +354,7 @@ export function Feed() {
       }
     });
   };
+
 
   const handleLike = (post: FeedPost) => {
     require(1, async () => {
