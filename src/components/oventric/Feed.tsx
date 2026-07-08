@@ -209,9 +209,30 @@ export function Feed() {
         { event: "INSERT", schema: "public", table: "post_comments" },
         (payload) => {
           const row = payload.new as FeedComment;
+          if (knownCommentIdsRef.current.has(row.id)) {
+            // Local swap already added this row; ignore realtime echo.
+            knownCommentIdsRef.current.delete(row.id);
+            return;
+          }
+          const dedupeKey = `${row.post_id}::${row.author_id}::${row.text}`;
+          const queue = pendingSelfCommentsRef.current.get(dedupeKey);
+          let adoptedTempId: string | null = null;
+          if (queue && queue.length > 0) {
+            adoptedTempId = queue.shift() ?? null;
+            if (queue.length === 0) pendingSelfCommentsRef.current.delete(dedupeKey);
+          }
+          knownCommentIdsRef.current.add(row.id);
           setCommentsByPost((prev) => {
             const arr = prev[row.post_id] ?? [];
             if (arr.some((c) => c.id === row.id)) return prev;
+            if (adoptedTempId) {
+              const idx = arr.findIndex((c) => c.id === adoptedTempId);
+              if (idx !== -1) {
+                const next = arr.slice();
+                next[idx] = toComment(row);
+                return { ...prev, [row.post_id]: next };
+              }
+            }
             return { ...prev, [row.post_id]: [...arr, toComment(row)] };
           });
           setPosts((prev) =>
@@ -221,6 +242,7 @@ export function Feed() {
           );
         },
       )
+
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "post_comments" },
