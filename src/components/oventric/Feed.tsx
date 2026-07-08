@@ -93,6 +93,8 @@ export function Feed() {
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
   const [commentPosting, setCommentPosting] = useState<Record<string, boolean>>({});
   const [commentError, setCommentError] = useState<string | null>(null);
+  const COMMENTS_PAGE_SIZE = 3;
+  const [visibleComments, setVisibleComments] = useState<Record<string, number>>({});
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
