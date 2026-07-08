@@ -174,7 +174,13 @@ function ProfilePage() {
       try {
         await ensureSession();
         const res = await fetchStatus({ data: { targetSlug: profile.id } });
-        if (!cancelled) setCircle(res.status);
+        if (cancelled) return;
+        setCircle(res.status);
+        setCircleMeta({
+          sentAt: res.sentAt,
+          acceptedAt: res.status === "accepted" ? res.updatedAt : null,
+          canceledAt: null,
+        });
       } catch (e) {
         console.error(e);
       }
@@ -192,14 +198,21 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
-  const runCircle = (fn: () => Promise<{ status: CircleStatus }>) => {
+  const handleJoin = () => {
     require(1, async () => {
       setCircleBusy(true);
       setCircleError(null);
       try {
         await ensureSession();
-        const res = await fn();
-        setCircle(res.status);
+        if (circle === "none") {
+          const res = await sendReq({ data: { targetSlug: profile.id } });
+          setCircle(res.status);
+          setCircleMeta({ sentAt: res.sentAt, acceptedAt: null, canceledAt: null });
+        } else if (circle === "pending") {
+          const res = await cancelReq({ data: { targetSlug: profile.id } });
+          setCircle(res.status);
+          setCircleMeta((m) => ({ sentAt: m.sentAt, acceptedAt: null, canceledAt: res.canceledAt }));
+        }
       } catch (e) {
         console.error(e);
         setCircleError("Something went wrong. Try again.");
@@ -207,12 +220,6 @@ function ProfilePage() {
         setCircleBusy(false);
       }
     });
-  };
-
-  const handleJoin = () => {
-    if (circle === "none") runCircle(() => sendReq({ data: { targetSlug: profile.id } }));
-    else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
-    // "accepted" click is a no-op; user can Chat instead.
   };
   const handleChat = () => require(1, () => setDmOpen(true));
 
