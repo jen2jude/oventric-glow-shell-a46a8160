@@ -52,9 +52,42 @@ function ProfilePage() {
   const { require, baseCurrency } = useOnboarding();
 
   const [tab, setTab] = useState<Tab>("posts");
-  const [joined, setJoined] = useState(false);
+  const [circle, setCircle] = useState<CircleStatus>("none");
+  const [circleBusy, setCircleBusy] = useState(false);
+  const [circleError, setCircleError] = useState<string | null>(null);
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+
+  const fetchStatus = useServerFn(getCircleStatus);
+  const sendReq = useServerFn(sendCircleRequest);
+  const cancelReq = useServerFn(cancelCircleRequest);
+  const acceptReq = useServerFn(acceptCircleRequest);
+
+  // Ensure an auth session exists (anonymous is fine for the demo)
+  const ensureSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+    }
+  };
+
+  // Load initial status for this profile
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureSession();
+        const res = await fetchStatus({ data: { targetSlug: profile.id } });
+        if (!cancelled) setCircle(res.status);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [profile.id, fetchStatus]);
 
   const rep = profile.reputation;
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
@@ -62,8 +95,30 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
-  const handleJoin = () =>
-    require(1, () => setJoined((v) => !v));
+  const runCircle = (fn: () => Promise<{ status: CircleStatus }>) => {
+    require(1, async () => {
+      setCircleBusy(true);
+      setCircleError(null);
+      try {
+        await ensureSession();
+        const res = await fn();
+        setCircle(res.status);
+      } catch (e) {
+        console.error(e);
+        setCircleError("Something went wrong. Try again.");
+      } finally {
+        setCircleBusy(false);
+      }
+    });
+  };
+
+  const handleJoin = () => {
+    if (circle === "none") runCircle(() => sendReq({ data: { targetSlug: profile.id } }));
+    else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
+    // "accepted" click is a no-op; user can Chat instead.
+  };
+  const handleAccept = () =>
+    runCircle(() => acceptReq({ data: { targetSlug: profile.id } }));
   const handleChat = () => require(1, () => setDmOpen(true));
 
   return (
