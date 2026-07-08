@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDownToLine,
@@ -151,8 +152,14 @@ export function Wallet() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
-        () => {
+        (payload) => {
           queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          if (payload.eventType === "INSERT") {
+            toast("New transaction recorded", {
+              description: "Your ledger has been updated with a new entry.",
+              icon: <WalletIcon className="w-4 h-4 text-emerald-400" />,
+            });
+          }
         },
       )
       .subscribe();
