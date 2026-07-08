@@ -53,13 +53,37 @@ export function Feed() {
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
-  const [reported, setReported] = useState<Map<string, ReportDetails>>(new Map());
+  const [reported, setReported] = useState<Map<string, ReportDetails>>(() => {
+    if (typeof window === "undefined") return new Map();
+    try {
+      const raw = window.localStorage.getItem("oventric.reported");
+      if (!raw) return new Map();
+      return new Map(Object.entries(JSON.parse(raw) as Record<string, ReportDetails>));
+    } catch {
+      return new Map();
+    }
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        "oventric.reported",
+        JSON.stringify(Object.fromEntries(reported)),
+      );
+    } catch {
+      /* ignore quota */
+    }
+  }, [reported]);
   const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
     setReported((m) => {
       const next = new Map(m);
       next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
       return next;
     });
+  const openReport = (id: string) => {
+    if (reported.has(id)) return;
+    setReportOpen(id);
+  };
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
@@ -220,7 +244,7 @@ export function Feed() {
             <ReportedBadge details={reported.get("post-aria-1")} />
           ) : (
             <button
-              onClick={() => setReportOpen("post-aria-1")}
+              onClick={() => openReport("post-aria-1")}
               className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
               aria-label="Report post"
               title="Report post"
@@ -341,7 +365,7 @@ export function Feed() {
               <ReportedBadge details={reported.get("listing-rls-kit")} />
             ) : (
               <button
-                onClick={() => setReportOpen("listing-rls-kit")}
+                onClick={() => openReport("listing-rls-kit")}
                 className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
                 aria-label="Report listing"
               >
@@ -408,7 +432,7 @@ export function Feed() {
             <ReportedBadge details={reported.get("bounty-rls")} />
           ) : (
             <button
-              onClick={() => setReportOpen("bounty-rls")}
+              onClick={() => openReport("bounty-rls")}
               className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
               aria-label="Report bounty"
             >
