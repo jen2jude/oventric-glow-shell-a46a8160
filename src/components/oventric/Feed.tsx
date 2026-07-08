@@ -104,11 +104,9 @@ export function Feed() {
   const deleteComment = useServerFn(deleteCommentFn);
 
   const ensureSession = async () => {
-    const { data } = await supabase.auth.getSession();
-    if (!data.session) {
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-    }
+    // SessionGate at the root guarantees an authenticated Supabase session by
+    // the time this component mounts, so we only need to record the current
+    // user id for authorship checks.
     const { data: userData } = await supabase.auth.getUser();
     if (userData.user?.id) setMeId(userData.user.id);
   };
