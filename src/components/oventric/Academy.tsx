@@ -321,13 +321,14 @@ const ADS: Ad[] = [
 ];
 
 export function Academy() {
-  const { require } = useOnboarding();
+  const { require, baseCurrency } = useOnboarding();
   const [view, setView] = useState<"landing" | "catalog">("landing");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const handleEnroll = () => require(2, () => alert("Enrollment secured (mock)"));
   const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"));
+  const handleBuy = () => require(2, () => alert("Purchase confirmed (mock)"));
 
   if (view === "landing") {
     return <AcademyLanding onExplore={() => setView("catalog")} />;
