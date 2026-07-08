@@ -186,7 +186,8 @@ export function Marketplace() {
       <div className="px-4 py-6 space-y-10">
         {(Object.keys(CATEGORY_META) as CategoryKey[]).map((cat) => {
           const meta = CATEGORY_META[cat];
-          const items = PRODUCTS.filter((p) => p.category === cat);
+          const items = ALL_PRODUCTS.filter((p) => p.category === cat);
+          const ad = marketplaceAds.find((a) => a.id.charCodeAt(3) % 4 === Object.keys(CATEGORY_META).indexOf(cat));
           return (
             <section
               key={cat}
@@ -209,6 +210,7 @@ export function Marketplace() {
                 {items.map((p) => (
                   <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} />
                 ))}
+                {ad && <AdSlotCard ad={ad} />}
                 <ViewMoreCard label={meta.label} onClick={() => setFullCategory(cat)} />
               </div>
             </section>
