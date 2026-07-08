@@ -34,6 +34,9 @@ import {
   Flag,
   ExternalLink,
   Link2,
+  Sparkles,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
