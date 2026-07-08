@@ -516,14 +516,15 @@ function ProfileSettingsModal({
               )}
             </div>
             <label className="flex-1 cursor-pointer">
-              <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors">
-                <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+              <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
+                <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" aria-hidden />
                 <div className="text-[11px] font-semibold text-slate-300">Upload avatar</div>
                 <div className="text-[10px] text-slate-500">PNG · JPG · WebP · max 2MB</div>
               </div>
               <input
                 type="file"
                 accept="image/*"
+                aria-label="Upload avatar image"
                 className="sr-only"
                 onChange={(e) => onAvatarPick(e.target.files?.[0] ?? null)}
               />
