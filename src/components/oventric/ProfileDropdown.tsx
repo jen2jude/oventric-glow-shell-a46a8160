@@ -124,6 +124,10 @@ export function ProfileDropdown() {
     };
   }, [open]);
 
+  // Trap Tab focus inside the panel while open. Return-to-trigger is handled
+  // by the effect above, so we opt out of the hook's own restore.
+  useFocusTrap(menuRef, open, { restoreFocus: false });
+
   const onMenuKeyDown = (e: React.KeyboardEvent) => {
     const items = getMenuItems();
     if (items.length === 0) return;
