@@ -480,7 +480,7 @@ function ProfileSettingsModal({
           </button>
         </header>
 
-        <form onSubmit={onSubmit} noValidate className="flex-1 overflow-y-auto p-5 space-y-4">
+        <form onSubmit={onSubmit} noValidate className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 scrollbar-thin">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
               {avatar ? (
