@@ -330,10 +330,9 @@ export function ProfileDropdown() {
 
       {open && (
         <>
-          {/* Mobile backdrop — tap to dismiss */}
-          <button
-            type="button"
-            aria-label="Close profile menu"
+          {/* Mobile backdrop — tap to dismiss (non-focusable; Esc handles keyboard) */}
+          <div
+            aria-hidden
             onClick={() => closeMenu(true)}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
           />
