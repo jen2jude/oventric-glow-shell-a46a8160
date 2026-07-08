@@ -6,7 +6,6 @@ import {
   getCircleStatus,
   sendCircleRequest,
   cancelCircleRequest,
-  acceptCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
 import { getProfileTab, type ProfileTabPage } from "@/lib/profiles.functions";
