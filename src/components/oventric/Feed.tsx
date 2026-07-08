@@ -53,13 +53,37 @@ export function Feed() {
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
-  const [reported, setReported] = useState<Map<string, ReportDetails>>(new Map());
+  const [reported, setReported] = useState<Map<string, ReportDetails>>(() => {
+    if (typeof window === "undefined") return new Map();
+    try {
+      const raw = window.localStorage.getItem("oventric.reported");
+      if (!raw) return new Map();
+      return new Map(Object.entries(JSON.parse(raw) as Record<string, ReportDetails>));
+    } catch {
+      return new Map();
+    }
+  });
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      window.localStorage.setItem(
+        "oventric.reported",
+        JSON.stringify(Object.fromEntries(reported)),
+      );
+    } catch {
+      /* ignore quota */
+    }
+  }, [reported]);
   const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
     setReported((m) => {
       const next = new Map(m);
       next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
       return next;
     });
+  const openReport = (id: string) => {
+    if (reported.has(id)) return;
+    setReportOpen(id);
+  };
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
