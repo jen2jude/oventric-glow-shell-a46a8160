@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle, RefreshCw, AlertTriangle, Compass } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -12,6 +14,22 @@ import type {
   ProfileListing,
   ProfileBounty,
 } from "@/lib/profiles/mockProfiles";
+
+const itemSearchSchema = z.object({
+  tab: fallback(z.string(), "posts").default("posts"),
+  pages: fallback(z.number().int(), 1).default(1),
+  y: fallback(z.number().int(), 0).default(0),
+  q: fallback(z.string(), "").default(""),
+  sort: fallback(z.string(), "newest").default("newest"),
+});
+
+const TAB_LABELS: Record<string, string> = {
+  posts: "Posts",
+  groups: "Groups",
+  marketplace: "Marketplace",
+  posted: "Bounties",
+  solved: "Solved",
+};
 
 const VALID_KINDS: ProfileItemKind[] = ["post", "group", "listing", "bounty", "solved"];
 
@@ -31,6 +49,7 @@ function labelFor(kind: ProfileItemKind): string {
 }
 
 export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
+  validateSearch: zodValidator(itemSearchSchema),
   loader: async ({ params }) => {
     if (!VALID_KINDS.includes(params.kind as ProfileItemKind)) throw notFound();
     const { item } = await getProfileItem({
@@ -226,6 +245,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function ItemDetail() {
   const { id, kind } = Route.useParams();
+  const backSearch = Route.useSearch();
   const { item } = Route.useLoaderData();
   const profile = getProfile(id);
   const { baseCurrency, require } = useOnboarding();
@@ -234,15 +254,27 @@ function ItemDetail() {
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
   const price = (usd: number) => `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
+  const tabLabel = TAB_LABELS[backSearch.tab] ?? "Profile";
+
   return (
     <Shell>
       <Link
         to="/profile/$id"
         params={{ id }}
+        search={{
+          tab: backSearch.tab,
+          pages: backSearch.pages,
+          y: backSearch.y,
+          q: backSearch.q,
+          sort: backSearch.sort,
+        }}
         className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 mb-4"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back to @{profile.name}
+        <span className="text-slate-600">·</span>
+        <span className="text-slate-500">{tabLabel}</span>
       </Link>
+
 
       {/* Author strip */}
       <Link
