@@ -7,6 +7,8 @@ import {
   SEED_NOTIFICATIONS,
   type Notif,
 } from "@/components/oventric/NotificationsDrawer";
+import logoMark from "@/assets/oventric-mark.asset.json";
+import logoFull from "@/assets/oventric-full.asset.json";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
