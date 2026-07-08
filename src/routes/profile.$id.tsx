@@ -1170,27 +1170,78 @@ function TabFilters({
   );
 }
 
-function EmptyState({ label }: { label: string }) {
+type StateAction = { label: string; onClick: () => void };
+
+function EmptyState({
+  title,
+  hint,
+  primary,
+  secondary,
+}: {
+  title: string;
+  hint?: string;
+  primary?: StateAction;
+  secondary?: StateAction;
+}) {
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center text-sm text-slate-500">
-      {label}
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
+        <Sparkles className="w-4 h-4" />
+      </div>
+      <div className="text-sm text-slate-200 font-semibold">{title}</div>
+      {hint && <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">{hint}</p>}
+      {(primary || secondary) && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {primary && (
+            <button
+              onClick={primary.onClick}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+            >
+              {primary.label}
+            </button>
+          )}
+          {secondary && (
+            <button
+              onClick={secondary.onClick}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-xs transition-colors"
+            >
+              {secondary.label}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ErrorState({ label, onRetry }: { label: string; onRetry: () => void }) {
+function ErrorState({
+  label,
+  hint,
+  onRetry,
+}: {
+  label: string;
+  hint?: string;
+  onRetry: () => void;
+}) {
   return (
     <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
-      <div className="text-sm text-red-300 mb-3">{label}</div>
-      <button
-        onClick={onRetry}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-slate-200 hover:bg-white/5 text-xs"
-      >
-        Try again
-      </button>
+      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 flex items-center justify-center">
+        <AlertTriangle className="w-4 h-4" />
+      </div>
+      <div className="text-sm text-red-200 font-semibold">{label}</div>
+      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      <div className="mt-4 flex items-center justify-center">
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Try again
+        </button>
+      </div>
     </div>
   );
 }
+
 
 function TabSkeleton({ variant }: { variant: Tab }) {
   const rows = 3;
