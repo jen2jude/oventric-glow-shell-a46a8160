@@ -1,7 +1,71 @@
-import { Flag, X, Loader2 } from "lucide-react";
+import { Flag, X, Loader2, AlertTriangle, WifiOff, RefreshCw, LifeBuoy } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
 import { submitReport } from "@/lib/reports.functions";
+
+type ErrorKind = "network" | "auth" | "rate" | "validation" | "server" | "unknown";
+
+interface ReportError {
+  kind: ErrorKind;
+  title: string;
+  message: string;
+}
+
+function classifyError(e: unknown): ReportError {
+  const raw =
+    e instanceof Error ? e.message : typeof e === "string" ? e : "Unexpected error";
+  const msg = raw.toLowerCase();
+
+  if (typeof navigator !== "undefined" && navigator.onLine === false) {
+    return {
+      kind: "network",
+      title: "You're offline",
+      message: "Reconnect to the internet and try submitting again.",
+    };
+  }
+  if (msg.includes("failed to fetch") || msg.includes("network") || msg.includes("timeout")) {
+    return {
+      kind: "network",
+      title: "Network hiccup",
+      message: "We couldn't reach the server. Check your connection and retry.",
+    };
+  }
+  if (msg.includes("unauthorized") || msg.includes("401") || msg.includes("auth")) {
+    return {
+      kind: "auth",
+      title: "Session expired",
+      message: "Your session ended. Refresh the page and try again.",
+    };
+  }
+  if (msg.includes("rate") || msg.includes("429") || msg.includes("too many")) {
+    return {
+      kind: "rate",
+      title: "Slow down a moment",
+      message: "You've submitted too many reports quickly. Wait a minute and retry.",
+    };
+  }
+  if (msg.includes("validation") || msg.includes("invalid") || msg.includes("parse")) {
+    return {
+      kind: "validation",
+      title: "Report couldn't be sent",
+      message: "The details look off. Pick a reason and keep notes under 280 characters.",
+    };
+  }
+  if (msg.includes("500") || msg.includes("server") || msg.includes("insert")) {
+    return {
+      kind: "server",
+      title: "Our servers are struggling",
+      message: "Something went wrong on our side. Try again in a moment.",
+    };
+  }
+  return {
+    kind: "unknown",
+    title: "Couldn't submit report",
+    message: raw,
+  };
+}
+
 
 const REASONS = [
   { id: "spam", label: "Spam", desc: "Unsolicited promotions, mass posting, or bots." },
