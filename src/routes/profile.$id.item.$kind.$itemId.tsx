@@ -105,11 +105,25 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
       />
     </Shell>
   ),
-  notFoundComponent: () => (
-    <Shell>
-      <NotFoundPanel />
-    </Shell>
-  ),
+  notFoundComponent: () => {
+    const { id, kind } = Route.useParams();
+    const search = Route.useSearch();
+    return (
+      <Shell>
+        <NotFoundPanel
+          profileId={id}
+          kind={VALID_KINDS.includes(kind as ProfileItemKind) ? (kind as ProfileItemKind) : "post"}
+          back={{
+            tab: search.tab,
+            pages: search.pages,
+            y: search.y,
+            q: search.q,
+            sort: search.sort,
+          }}
+        />
+      </Shell>
+    );
+  },
   component: ItemDetail,
 });
 
