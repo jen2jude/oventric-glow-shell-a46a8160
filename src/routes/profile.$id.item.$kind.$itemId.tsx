@@ -105,11 +105,25 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
       />
     </Shell>
   ),
-  notFoundComponent: () => (
-    <Shell>
-      <NotFoundPanel />
-    </Shell>
-  ),
+  notFoundComponent: () => {
+    const { id, kind } = Route.useParams();
+    const search = Route.useSearch();
+    return (
+      <Shell>
+        <NotFoundPanel
+          profileId={id}
+          kind={VALID_KINDS.includes(kind as ProfileItemKind) ? (kind as ProfileItemKind) : "post"}
+          back={{
+            tab: search.tab,
+            pages: search.pages,
+            y: search.y,
+            q: search.q,
+            sort: search.sort,
+          }}
+        />
+      </Shell>
+    );
+  },
   component: ItemDetail,
 });
 
@@ -208,21 +222,77 @@ function ErrorPanel({ title, message, onRetry }: { title: string; message: strin
   );
 }
 
-function NotFoundPanel() {
-  const navigate = useNavigate();
+const NOT_FOUND_COPY: Record<
+  ProfileItemKind,
+  { icon: React.ReactNode; title: string; body: string; back: string }
+> = {
+  post: {
+    icon: <MessageCircle className="w-5 h-5 text-slate-300" />,
+    title: "This post is gone",
+    body: "The author may have deleted it, or it was removed by moderation. Their other posts are still on their profile.",
+    back: "Back to posts",
+  },
+  group: {
+    icon: <Users className="w-5 h-5 text-slate-300" />,
+    title: "This group isn't available",
+    body: "It may have been archived, made private, or renamed. Explore other communities on this profile.",
+    back: "Back to groups",
+  },
+  listing: {
+    icon: <ShoppingBag className="w-5 h-5 text-slate-300" />,
+    title: "This listing is unavailable",
+    body: "It may have sold out, been unpublished, or removed by the seller. Check the marketplace tab for active items.",
+    back: "Back to marketplace",
+  },
+  bounty: {
+    icon: <Target className="w-5 h-5 text-slate-300" />,
+    title: "This bounty was closed",
+    body: "It was withdrawn, awarded, or moved to solved. Open bounties are still available on the profile.",
+    back: "Back to bounties",
+  },
+  solved: {
+    icon: <Award className="w-5 h-5 text-slate-300" />,
+    title: "This solved record is hidden",
+    body: "The solver or poster may have taken it down. Their other completed work is still visible.",
+    back: "Back to solved bounties",
+  },
+};
+
+function NotFoundPanel({
+  profileId,
+  kind,
+  back,
+}: {
+  profileId: string;
+  kind: ProfileItemKind;
+  back: { tab: string; pages: number; y: number; q: string; sort: string };
+}) {
+  const copy = NOT_FOUND_COPY[kind];
   return (
     <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
       <div className="mx-auto w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-        <Compass className="w-5 h-5 text-slate-300" />
+        {copy.icon}
       </div>
-      <div className="text-white font-semibold text-sm mb-1">This item is no longer available</div>
-      <div className="text-xs text-slate-400 mb-5">It may have been removed or the link is out of date.</div>
-      <button
-        onClick={() => navigate({ to: "/" })}
-        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
-      >
-        Back to feed
-      </button>
+      <div className="text-white font-semibold text-sm mb-1">{copy.title}</div>
+      <div className="text-xs text-slate-400 mb-5 max-w-md mx-auto leading-relaxed">
+        {copy.body}
+      </div>
+      <div className="flex items-center justify-center gap-2 flex-wrap">
+        <Link
+          to="/profile/$id"
+          params={{ id: profileId }}
+          search={back}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
+        >
+          <ArrowLeft className="w-3.5 h-3.5" /> {copy.back}
+        </Link>
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-xs font-semibold"
+        >
+          <Compass className="w-3.5 h-3.5" /> Explore feed
+        </Link>
+      </div>
     </div>
   );
 }
