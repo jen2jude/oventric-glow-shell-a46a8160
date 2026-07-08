@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDownToLine,
@@ -142,6 +142,24 @@ export function Wallet() {
       fetchList({ data: { search: debounced, currency: curFilter, page, pageSize: PAGE_SIZE } }),
     staleTime: 15_000,
   });
+
+  const queryClient = useQueryClient();
+  useEffect(() => {
+    if (!userId) return;
+    const channel = supabase
+      .channel(`wallet-tx-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [userId, queryClient]);
 
   const items = query.data?.items ?? [];
   const total = query.data?.total ?? 0;
