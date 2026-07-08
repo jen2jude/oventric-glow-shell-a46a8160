@@ -976,7 +976,15 @@ function ProfilePage() {
                       )}
                     </div>
                     {st.error && st.items.length > 0 && (
-                      <div className="text-center text-[11px] text-red-400">{st.error}</div>
+                      <div className="flex items-center justify-center gap-2 text-[11px] text-red-300">
+                        <span>{st.error}</span>
+                        <button
+                          onClick={() => retryTab(tab)}
+                          className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300"
+                        >
+                          <RefreshCw className="w-3 h-3" /> Try again
+                        </button>
+                      </div>
                     )}
                   </>
                 );
