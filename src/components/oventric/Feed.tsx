@@ -24,6 +24,8 @@ function ReportedBadge() {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
+  const admin = useAdminStore();
+  const feedAds = admin.ads.filter((a) => a.placement === "feed");
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
