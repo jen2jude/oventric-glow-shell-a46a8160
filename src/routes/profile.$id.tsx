@@ -126,6 +126,10 @@ function ProfilePage() {
     ? (search.sort as ProfileSortKey)
     : "newest";
 
+  // Search state to hand off to item detail pages so their back link returns
+  // to the exact tab, pagination depth, and scroll position we're in.
+  const itemSearch = { tab, pages: desiredPages, y: restoreY, q, sort };
+
 
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
