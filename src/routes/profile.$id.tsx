@@ -288,6 +288,15 @@ function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
 
+  // When search query or sort changes, invalidate the current tab so it
+  // reloads with the new filters. Pagination in the URL is reset to 1.
+  useEffect(() => {
+    scrollRestoredRef.current = true; // don't restore old scroll for a new query
+    setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, sort, tab]);
+
+
   // Persist scroll position into the URL (throttled) so reloads restore it.
   useEffect(() => {
     const el = mainRef.current;
