@@ -1,5 +1,6 @@
 import { useState } from "react";
-import { Store, Megaphone, Target, Rocket, CheckCircle2, XCircle, Eye } from "lucide-react";
+import { Store, Megaphone, Target, Rocket, Eye, AlertCircle, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { adminStore, type AdminCategory, type AdPlacement, type AdTier, type AdminCurrency } from "@/lib/admin/store";
 import { AdminHistory } from "./AdminHistory";
 import { PreviewModal, type TokenField } from "./AdminPreviewModal";
@@ -10,22 +11,33 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
   return <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">{children}</label>;
 }
 
-const inputCls =
-  "w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
+const inputBaseCls =
+  "w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none";
+const inputCls = `${inputBaseCls} border-white/10 focus:border-emerald-500/60`;
 
-function Toast({ msg, kind }: { msg: string; kind: "ok" | "err" }) {
+function fieldClass(hasError: boolean, focusColor: string = "emerald"): string {
+  return `${inputBaseCls} ${
+    hasError
+      ? "border-red-500/60 focus:border-red-400"
+      : `border-white/10 focus:border-${focusColor}-500/60`
+  }`;
+}
+
+function InlineError({ msg }: { msg?: string }) {
+  if (!msg) return null;
   return (
-    <div
-      className={`flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg border ${
-        kind === "ok"
-          ? "bg-emerald-500/10 border-emerald-500/40 text-emerald-300"
-          : "bg-red-500/10 border-red-500/40 text-red-300"
-      }`}
-    >
-      {kind === "ok" ? <CheckCircle2 className="w-4 h-4" /> : <XCircle className="w-4 h-4" />} {msg}
-    </div>
+    <p className="mt-1 flex items-center gap-1 text-[11px] font-semibold text-red-400">
+      <AlertCircle className="w-3 h-3" /> {msg}
+    </p>
   );
 }
+
+/** Simulate a server round-trip; the admin store is client-only, but this preserves the "reset only after success" contract. */
+async function commitToServer<T>(fn: () => T): Promise<T> {
+  await new Promise((r) => setTimeout(r, 350));
+  return fn();
+}
+
 
 type SubTab = "factory";
 
