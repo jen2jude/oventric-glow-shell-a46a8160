@@ -77,6 +77,9 @@ export type Database = {
           id: string
           note: string | null
           reason: Database["public"]["Enums"]["report_reason"]
+          resolved_at: string | null
+          resolved_by: string | null
+          status: Database["public"]["Enums"]["report_status"]
           target_id: string
           target_kind: string
         }
@@ -85,6 +88,9 @@ export type Database = {
           id?: string
           note?: string | null
           reason: Database["public"]["Enums"]["report_reason"]
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
           target_id: string
           target_kind?: string
         }
@@ -93,8 +99,32 @@ export type Database = {
           id?: string
           note?: string | null
           reason?: Database["public"]["Enums"]["report_reason"]
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: Database["public"]["Enums"]["report_status"]
           target_id?: string
           target_kind?: string
+        }
+        Relationships: []
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role: Database["public"]["Enums"]["app_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
         }
         Relationships: []
       }
@@ -103,11 +133,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      has_role: {
+        Args: {
+          _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
+        }
+        Returns: boolean
+      }
     }
     Enums: {
+      app_role: "admin" | "moderator" | "user"
       circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
+      report_status: "pending" | "approved" | "hidden"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -235,8 +273,10 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      app_role: ["admin", "moderator", "user"],
       circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],
+      report_status: ["pending", "approved", "hidden"],
     },
   },
 } as const
