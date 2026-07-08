@@ -13,6 +13,7 @@ import {
   Flame,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAdminStore } from "@/lib/admin/store";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
