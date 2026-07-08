@@ -40,10 +40,55 @@ export function Feed() {
   const [reportOpen, setReportOpen] = useState<string | null>(null);
   const [reported, setReported] = useState<Set<string>>(new Set());
   const markReported = (id: string) => setReported((s) => new Set(s).add(id));
-  const [comments, setComments] = useState<Comment[]>([
-    { id: "c1", author: "Devin Ortiz", authorId: "devin-ortiz", initials: "DO", text: "This saved me a week — thank you." },
-  ]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const listComments = useServerFn(listCommentsFn);
+  const addComment = useServerFn(addCommentFn);
+
+  const ensureSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureSession();
+        const res = await listComments({ data: { postId: POST_ID } });
+        if (!cancelled) setComments(res.comments.map(toComment));
+      } catch (e) {
+        console.error("[Feed] load comments failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [listComments]);
+
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel(`post_comments:${POST_ID}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const row = payload.new as FeedComment;
+          setComments((prev) => (prev.some((c) => c.id === row.id) ? prev : [...prev, toComment(row)]));
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleLike = () =>
     require(1, () => {
@@ -58,10 +103,26 @@ export function Feed() {
 
   const submitComment = () => {
     const text = draft.trim();
-    if (!text) return;
-    require(1, () => {
-      setComments((c) => [...c, { id: `c${Date.now()}`, author: "You", authorId: "you", initials: "OV", text }]);
-      setDraft("");
+    if (!text || posting) return;
+    require(1, async () => {
+      setPosting(true);
+      setCommentError(null);
+      try {
+        await ensureSession();
+        const res = await addComment({
+          data: { postId: POST_ID, text, authorName: "You", initials: "OV" },
+        });
+        setDraft("");
+        // Optimistically append; realtime will dedupe by id
+        setComments((prev) =>
+          prev.some((c) => c.id === res.comment.id) ? prev : [...prev, toComment(res.comment)],
+        );
+      } catch (e) {
+        console.error(e);
+        setCommentError("Couldn't post comment. Try again.");
+      } finally {
+        setPosting(false);
+      }
     });
   };
 
