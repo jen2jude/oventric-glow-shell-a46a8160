@@ -13,6 +13,8 @@ import {
   Flame,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAdminStore } from "@/lib/admin/store";
+import { AdCard } from "@/components/oventric/AdCard";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -79,18 +81,36 @@ function formatPrice(usd: number, cur: Currency) {
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
+  const admin = useAdminStore();
   const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
   const [fullCategory, setFullCategory] = useState<CategoryKey | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
 
+  const adminProducts: Product[] = useMemo(
+    () =>
+      admin.products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category as CategoryKey,
+        priceUSD: p.priceUSD,
+        rating: 5.0,
+        reviews: 0,
+        vendor: p.vendor,
+        hue: "from-emerald-500 to-teal-700",
+        promoted: true,
+      })),
+    [admin.products],
+  );
+  const ALL_PRODUCTS = useMemo(() => [...adminProducts, ...PRODUCTS], [adminProducts]);
+  const marketplaceAds = admin.ads.filter((a) => a.placement === "marketplace");
+
   const recommended = useMemo(() => {
-    // deterministic pseudo-random mix
-    const promoted = PRODUCTS.filter((p) => p.promoted);
-    const rest = PRODUCTS.filter((p) => !p.promoted).slice(0, 6);
+    const promoted = ALL_PRODUCTS.filter((p) => p.promoted);
+    const rest = ALL_PRODUCTS.filter((p) => !p.promoted).slice(0, 6);
     return [...promoted, ...rest].slice(0, 8);
-  }, []);
+  }, [ALL_PRODUCTS]);
 
   const onPillClick = (key: "all" | CategoryKey) => {
     setActiveTab(key);
@@ -101,7 +121,7 @@ export function Marketplace() {
 
   if (fullCategory) {
     const meta = CATEGORY_META[fullCategory];
-    const items = PRODUCTS.filter((p) => p.category === fullCategory);
+    const items = ALL_PRODUCTS.filter((p) => p.category === fullCategory);
     return (
       <div className="max-w-7xl mx-auto w-full px-4 py-6">
         <button
@@ -167,7 +187,8 @@ export function Marketplace() {
       <div className="px-4 py-6 space-y-10">
         {(Object.keys(CATEGORY_META) as CategoryKey[]).map((cat) => {
           const meta = CATEGORY_META[cat];
-          const items = PRODUCTS.filter((p) => p.category === cat);
+          const items = ALL_PRODUCTS.filter((p) => p.category === cat);
+          const ad = marketplaceAds.find((a) => a.id.charCodeAt(3) % 4 === Object.keys(CATEGORY_META).indexOf(cat));
           return (
             <section
               key={cat}
@@ -190,6 +211,7 @@ export function Marketplace() {
                 {items.map((p) => (
                   <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} />
                 ))}
+                {ad && <AdCard ad={ad} />}
                 <ViewMoreCard label={meta.label} onClick={() => setFullCategory(cat)} />
               </div>
             </section>

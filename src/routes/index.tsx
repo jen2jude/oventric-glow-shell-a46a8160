@@ -9,6 +9,7 @@ import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
 import { Bounties } from "@/components/oventric/Bounties";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
+import { Admin } from "@/components/oventric/Admin";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 export const Route = createFileRoute("/")({
@@ -31,7 +32,7 @@ function Index() {
   const handleCreate = () => require(1, () => setCreateOpen(true));
 
   const view =
-    active === "Wallet" ? <Wallet /> : active === "Marketplace" ? <Marketplace /> : active === "Academy" ? <Academy /> : active === "Bounties" ? <Bounties /> : <Feed />;
+    active === "Wallet" ? <Wallet /> : active === "Marketplace" ? <Marketplace /> : active === "Academy" ? <Academy /> : active === "Bounties" ? <Bounties /> : active === "Admin" ? <Admin /> : <Feed />;
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">

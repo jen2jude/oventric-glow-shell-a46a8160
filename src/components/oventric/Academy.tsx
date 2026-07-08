@@ -1,4 +1,6 @@
 import { useState, Fragment } from "react";
+import { useAdminStore } from "@/lib/admin/store";
+import { AdCard as AdminAdCard } from "@/components/oventric/AdCard";
 import {
   ArrowRight,
   ArrowLeft,
@@ -322,6 +324,8 @@ const ADS: Ad[] = [
 
 export function Academy() {
   const { require, baseCurrency } = useOnboarding();
+  const admin = useAdminStore();
+  const academyAds = admin.ads.filter((a) => a.placement === "academy");
   const [view, setView] = useState<"landing" | "catalog">("landing");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
@@ -368,6 +372,9 @@ export function Academy() {
       </div>
 
       <div className="px-4 py-6 space-y-4">
+        {academyAds.map((a) => (
+          <AdminAdCard key={a.id} ad={a} variant="banner" />
+        ))}
         {filtered.map((course, idx) => {
           const isExpanded = !!expanded[course.id];
           const injections: React.ReactNode[] = [];

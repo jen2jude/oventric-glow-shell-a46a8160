@@ -19,6 +19,7 @@ import {
   Wallet as WalletIcon,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAdminStore } from "@/lib/admin/store";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
@@ -177,24 +178,43 @@ function formatCountdown(ms: number) {
 
 export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
+  const admin = useAdminStore();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contract, setContract] = useState<ContractState | null>(null);
-  // Simulate: the current user acts as poster for owned bounties, developer otherwise.
-  // Toggle for demo purposes so the user can see both sides.
   const [role, setRole] = useState<"poster" | "developer">("poster");
 
   useTicker(1000);
 
-  const filtered = useMemo(
-    () => (filter === "all" ? BOUNTIES : BOUNTIES.filter((b) => b.category === filter)),
-    [filter],
+  const adminBounties: Bounty[] = useMemo(
+    () =>
+      admin.bounties.map((b) => {
+        const fx: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+        const usd = b.escrowAmount / fx[b.escrowCurrency];
+        return {
+          id: b.id,
+          title: b.title,
+          category: "api" as const,
+          priceUSD: Math.round(usd),
+          expiresAt: b.createdAt + 48 * 3_600_000,
+          ownedByMe: false,
+          applicants: [],
+        };
+      }),
+    [admin.bounties],
   );
 
-  const totalLocked = BOUNTIES.reduce((s, b) => s + b.priceUSD, 0);
-  const activeCount = BOUNTIES.length;
+  const ALL_BOUNTIES = useMemo(() => [...adminBounties, ...BOUNTIES], [adminBounties]);
 
-  const selected = selectedId ? BOUNTIES.find((b) => b.id === selectedId) ?? null : null;
+  const filtered = useMemo(
+    () => (filter === "all" ? ALL_BOUNTIES : ALL_BOUNTIES.filter((b) => b.category === filter)),
+    [filter, ALL_BOUNTIES],
+  );
+
+  const totalLocked = ALL_BOUNTIES.reduce((s, b) => s + b.priceUSD, 0);
+  const activeCount = ALL_BOUNTIES.length;
+
+  const selected = selectedId ? ALL_BOUNTIES.find((b) => b.id === selectedId) ?? null : null;
 
   // ------- Live contract workspace -------
   if (contract) {

@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { useAdminStore } from "@/lib/admin/store";
+import { AdCard } from "@/components/oventric/AdCard";
 
 interface Comment {
   id: string;
@@ -22,6 +24,8 @@ function ReportedBadge() {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
+  const admin = useAdminStore();
+  const feedAds = admin.ads.filter((a) => a.placement === "feed");
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
@@ -76,6 +80,10 @@ export function Feed() {
           </button>
         </div>
       </div>
+
+      {feedAds.map((a) => (
+        <AdCard key={a.id} ad={a} variant="banner" />
+      ))}
 
       {/* Social post */}
       <article className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${reported.has("post-aria-1") ? "opacity-70" : ""}`}>
