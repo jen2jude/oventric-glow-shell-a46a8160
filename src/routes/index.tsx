@@ -20,8 +20,8 @@ export const Route = createFileRoute("/")({
     meta: [
       { title: "Oventric — The multi-vendor tech platform" },
       { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
-      { property: "og:title", content: "Oventric" },
-      { property: "og:description", content: "The multi-vendor tech platform for builders." },
+      { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
+      { property: "og:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
     ],
   }),
   component: Index,

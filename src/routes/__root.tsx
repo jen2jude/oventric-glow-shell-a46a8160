@@ -81,12 +81,16 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Oventric — Multi-vendor tech platform" },
+      { title: "Oventric — The multi-vendor tech platform" },
       { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
-      { property: "og:title", content: "Oventric" },
-      { property: "og:description", content: "The multi-vendor tech platform for builders." },
+      { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
+      { property: "og:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:title", content: "Oventric — The multi-vendor tech platform" },
+      { name: "twitter:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
+      { property: "og:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/05d19baa-9b14-438f-9504-d1be93993980/id-preview-e406e368--edfe3718-716a-4c70-9e5e-216fbc715fe1.lovable.app-1783530099744.png" },
+      { name: "twitter:image", content: "https://pub-bb2e103a32db4e198524a2e9ed8f35b4.r2.dev/05d19baa-9b14-438f-9504-d1be93993980/id-preview-e406e368--edfe3718-716a-4c70-9e5e-216fbc715fe1.lovable.app-1783530099744.png" },
     ],
     links: [
       {
