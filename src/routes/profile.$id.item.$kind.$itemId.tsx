@@ -49,6 +49,7 @@ function labelFor(kind: ProfileItemKind): string {
 }
 
 export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
+  validateSearch: zodValidator(itemSearchSchema),
   loader: async ({ params }) => {
     if (!VALID_KINDS.includes(params.kind as ProfileItemKind)) throw notFound();
     const { item } = await getProfileItem({
