@@ -8,7 +8,26 @@ import { test, expect } from "@playwright/test";
 test.describe("Profile menu mobile stacking", () => {
   test.use({ viewport: { width: 390, height: 800 } });
 
-  test("bottom sheet overlays feed and header", async ({ page }) => {
+  test("bottom sheet overlays feed and header", async ({ page, context }) => {
+    // Restore Lovable-managed Supabase session so the authenticated header
+    // (and its profile trigger) renders.
+    const cookiesJson = process.env.LOVABLE_BROWSER_SUPABASE_COOKIES_JSON;
+    const storageKey = process.env.LOVABLE_BROWSER_SUPABASE_STORAGE_KEY;
+    const sessionJson = process.env.LOVABLE_BROWSER_SUPABASE_SESSION_JSON;
+    if (cookiesJson) {
+      const cookies = JSON.parse(cookiesJson).map((c: Record<string, unknown>) => ({
+        ...c,
+        url: "http://localhost:8080",
+      }));
+      await context.addCookies(cookies);
+    }
+    await page.goto("http://localhost:8080/", { waitUntil: "domcontentloaded" });
+    if (storageKey && sessionJson) {
+      await page.evaluate(
+        ([k, v]) => window.localStorage.setItem(k, v),
+        [storageKey, sessionJson],
+      );
+    }
     await page.goto("http://localhost:8080/", { waitUntil: "networkidle" });
 
     const trigger = page.getByLabel("Open profile menu");
