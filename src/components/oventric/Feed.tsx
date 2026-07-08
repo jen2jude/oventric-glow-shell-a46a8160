@@ -253,14 +253,17 @@ export function Feed() {
             />
             <button
               onClick={submitComment}
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || posting}
               className="p-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
               aria-label="Send comment"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className={`w-3.5 h-3.5 ${posting ? "animate-pulse" : ""}`} />
             </button>
           </div>
         </div>
+        {commentError && (
+          <div className="mt-2 text-[11px] text-red-400">{commentError}</div>
+        )}
       </article>
 
       {/* Marketplace asset */}
