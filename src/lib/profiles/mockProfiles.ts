@@ -36,11 +36,13 @@ export interface Profile {
   joined: string;
   followers: number;
   reputation: {
-    stars: number; // 0-5, may be fractional
     bountiesSolved: number;
     coursesCompleted: number;
     salesCount: number;
-    disputeRate: number; // percent
+    disputeRate: number; // percent (lower is better)
+    retentionRate: number; // percent of buyers/students who stay active (higher is better)
+    refundRate: number; // percent of orders refunded (lower is better)
+    activityScore: number; // 0-100, platform usage frequency (days active in last 30)
   };
   posts: ProfilePost[];
   groups: ProfileGroup[];
