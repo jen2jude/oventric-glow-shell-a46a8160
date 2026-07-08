@@ -63,11 +63,13 @@ const base: Record<string, Profile> = {
     joined: "March 2023",
     followers: 4820,
     reputation: {
-      stars: 4.8,
       bountiesSolved: 27,
       coursesCompleted: 12,
       salesCount: 341,
       disputeRate: 0.4,
+      retentionRate: 92,
+      refundRate: 1.2,
+      activityScore: 88,
     },
     posts: [
       {
