@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/oventric/Sidebar";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { Feed } from "@/components/oventric/Feed";
 import { Wallet } from "@/components/oventric/Wallet";
+import { Marketplace } from "@/components/oventric/Marketplace";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
 import { OnboardingProvider, useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { StageModals } from "@/components/oventric/onboarding/StageModals";
@@ -28,7 +29,8 @@ function IndexInner() {
 
   const handleCreate = () => require(1, () => setCreateOpen(true));
 
-  const view = active === "Wallet" ? <Wallet /> : <Feed />;
+  const view =
+    active === "Wallet" ? <Wallet /> : active === "Marketplace" ? <Marketplace /> : <Feed />;
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
