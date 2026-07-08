@@ -89,7 +89,7 @@ export function ReportModal({
   target?: string;
   targetId?: string;
   targetKind?: string;
-  onReported?: (targetId: string) => void;
+  onReported?: (targetId: string, details: { reason: string; reasonLabel: string; note: string | null }) => void;
 }) {
   const submit = useServerFn(submitReport);
   const [reason, setReason] = useState<ReasonId | "">("");
