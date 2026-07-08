@@ -81,6 +81,10 @@ export function Feed() {
         </div>
       </div>
 
+      {feedAds.map((a) => (
+        <AdCard key={a.id} ad={a} variant="banner" />
+      ))}
+
       {/* Social post */}
       <article className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${reported.has("post-aria-1") ? "opacity-70" : ""}`}>
         <header className="flex items-center gap-3 mb-3">
