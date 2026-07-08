@@ -57,6 +57,11 @@ export function ProfileDropdown() {
   const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef(false);
+  const triggerId = "profile-dropdown-trigger";
+  const menuId = "profile-dropdown-menu";
   const isMobile = useMediaQuery("(max-width: 640px)");
   const navigate = useNavigate();
 
@@ -82,15 +87,48 @@ export function ProfileDropdown() {
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
 
+  const getMenuItems = (): HTMLElement[] => {
+    if (!menuRef.current) return [];
+    return Array.from(
+      menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])'),
+    );
+  };
+
+  const closeMenu = (returnFocus = true) => {
+    returnFocusRef.current = returnFocus;
+    setOpen(false);
+  };
+
+  // Return focus to trigger after close
+  useEffect(() => {
+    if (open) return;
+    if (returnFocusRef.current) {
+      triggerRef.current?.focus();
+      returnFocusRef.current = false;
+    }
+  }, [open]);
+
+  // Focus first menu item on open
+  useEffect(() => {
+    if (!open) return;
+    const t = requestAnimationFrame(() => {
+      const items = getMenuItems();
+      items[0]?.focus();
+    });
+    return () => cancelAnimationFrame(t);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
       if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target as Node)) setOpen(false);
+      if (!wrapperRef.current.contains(e.target as Node)) closeMenu(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeMenu(true);
+      }
     };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
@@ -99,6 +137,30 @@ export function ProfileDropdown() {
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  const onMenuKeyDown = (e: React.KeyboardEvent) => {
+    const items = getMenuItems();
+    if (items.length === 0) return;
+    const currentIdx = items.indexOf(document.activeElement as HTMLElement);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = items[(currentIdx + 1 + items.length) % items.length];
+      next?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = items[(currentIdx - 1 + items.length) % items.length];
+      prev?.focus();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      items[0]?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      items[items.length - 1]?.focus();
+    } else if (e.key === "Tab") {
+      // Close on tab-out; let natural focus move
+      closeMenu(false);
+    }
+  };
 
   const persistProfile = (next: ProfileState) => {
     setProfile(next);
@@ -122,7 +184,7 @@ export function ProfileDropdown() {
   const reputation = (4.2 + Math.min(tier, 5) * 0.12).toFixed(2);
 
   const onSignOut = async () => {
-    setOpen(false);
+    closeMenu(false);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -134,18 +196,27 @@ export function ProfileDropdown() {
   };
 
   const openSettings = () => {
-    setOpen(false);
+    closeMenu(false);
     setSettingsOpen(true);
   };
 
   const avatarBtn = (
     <button
+      ref={triggerRef}
+      id={triggerId}
       type="button"
       onClick={() => setOpen((o) => !o)}
+      onKeyDown={(e) => {
+        if (!open && (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          setOpen(true);
+        }
+      }}
       aria-haspopup="menu"
       aria-expanded={open}
+      aria-controls={open ? menuId : undefined}
       aria-label="Open profile menu"
-      className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden"
+      className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
       {profile.avatarDataUrl ? (
         <img src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover" />
@@ -208,14 +279,16 @@ export function ProfileDropdown() {
   );
 
   const navMatrix = (
-    <div className="space-y-1">
+    <div className="space-y-1" role="none">
       <Link
         to="/profile/$id"
         params={{ id: userId }}
-        onClick={() => setOpen(false)}
-        className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors"
+        role="menuitem"
+        tabIndex={-1}
+        onClick={() => closeMenu(false)}
+        className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
       >
-        <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+        <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">View Public Profile Workspace</div>
           <div className="text-[10px] text-slate-500 truncate">Your /profile aggregator tab view</div>
@@ -223,10 +296,12 @@ export function ProfileDropdown() {
       </Link>
       <button
         type="button"
+        role="menuitem"
+        tabIndex={-1}
         onClick={openSettings}
-        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left"
+        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:bg-white/5 focus:text-white"
       >
-        <Settings className="w-4 h-4 text-sky-300 shrink-0" />
+        <Settings className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">Profile Settings & KYC Edit</div>
           <div className="text-[10px] text-slate-500 truncate">Name, bio, avatar, verification docs</div>
@@ -238,10 +313,12 @@ export function ProfileDropdown() {
   const signOutRow = (
     <button
       type="button"
+      role="menuitem"
+      tabIndex={-1}
       onClick={onSignOut}
-      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors"
+      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
     >
-      <LogOut className="w-4 h-4 shrink-0" />
+      <LogOut className="w-4 h-4 shrink-0" aria-hidden />
       Exit Platform / Sign Out
     </button>
   );
@@ -262,8 +339,13 @@ export function ProfileDropdown() {
       {/* Desktop dropdown */}
       {open && !isMobile && (
         <div
+          ref={menuRef}
+          id={menuId}
           role="menu"
-          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+          aria-labelledby={triggerId}
+          aria-orientation="vertical"
+          onKeyDown={onMenuKeyDown}
+          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150 focus:outline-none"
         >
           {panelBody}
         </div>
@@ -274,12 +356,17 @@ export function ProfileDropdown() {
         <div className="fixed inset-0 z-50 sm:hidden">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            onClick={() => closeMenu(true)}
             aria-hidden
           />
           <div
+            ref={menuRef}
+            id={menuId}
             role="menu"
-            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200"
+            aria-labelledby={triggerId}
+            aria-orientation="vertical"
+            onKeyDown={onMenuKeyDown}
+            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 focus:outline-none"
           >
             <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4" aria-hidden />
             {panelBody}
