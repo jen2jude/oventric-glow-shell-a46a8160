@@ -62,25 +62,149 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
       ],
     };
   },
+  pendingMs: 0,
+  pendingMinMs: 300,
+  pendingComponent: () => {
+    // Params aren't reliably typed here — use window location as a best-effort hint.
+    const kind = (typeof window !== "undefined"
+      ? (window.location.pathname.split("/item/")[1]?.split("/")[0] as ProfileItemKind | undefined)
+      : undefined) ?? "post";
+    return (
+      <Shell>
+        <ItemSkeleton kind={kind} />
+      </Shell>
+    );
+  },
   errorComponent: ({ error, reset }) => (
     <Shell>
-      <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
-        <div className="text-sm text-red-300 mb-3">{error.message}</div>
-        <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-white/10 text-slate-200 hover:bg-white/5 text-xs">
-          Try again
-        </button>
-      </div>
+      <ErrorPanel
+        title="We couldn't load this item"
+        message={error.message || "Something went wrong while fetching this content."}
+        onRetry={reset}
+      />
     </Shell>
   ),
   notFoundComponent: () => (
     <Shell>
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center text-sm text-slate-400">
-        This item is no longer available.
-      </div>
+      <NotFoundPanel />
     </Shell>
   ),
   component: ItemDetail,
 });
+
+function ItemSkeleton({ kind }: { kind: ProfileItemKind }) {
+  return (
+    <div className="animate-pulse">
+      <div className="h-3 w-32 bg-white/5 rounded mb-4" />
+      <div className="flex items-center gap-3 mb-4">
+        <div className="w-10 h-10 rounded-full bg-white/5 shrink-0" />
+        <div className="flex-1 space-y-2">
+          <div className="h-3 w-40 bg-white/5 rounded" />
+          <div className="h-2 w-24 bg-white/5 rounded" />
+        </div>
+      </div>
+      <div className="h-2 w-16 bg-emerald-500/20 rounded mb-3" />
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 space-y-4">
+        {kind === "listing" || kind === "bounty" || kind === "solved" ? (
+          <>
+            <div className="h-6 w-3/4 bg-white/5 rounded" />
+            <div className="grid grid-cols-2 gap-3">
+              <div className="h-16 bg-white/5 rounded-lg" />
+              <div className="h-16 bg-white/5 rounded-lg" />
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-full bg-white/5 rounded" />
+              <div className="h-3 w-5/6 bg-white/5 rounded" />
+              <div className="h-3 w-2/3 bg-white/5 rounded" />
+            </div>
+            <div className="h-10 w-full bg-white/5 rounded-lg" />
+          </>
+        ) : kind === "group" ? (
+          <>
+            <div className="flex items-center gap-4">
+              <div className="w-14 h-14 rounded-xl bg-white/5" />
+              <div className="flex-1 space-y-2">
+                <div className="h-5 w-1/2 bg-white/5 rounded" />
+                <div className="h-3 w-1/3 bg-white/5 rounded" />
+              </div>
+            </div>
+            <div className="space-y-2">
+              <div className="h-3 w-full bg-white/5 rounded" />
+              <div className="h-3 w-4/5 bg-white/5 rounded" />
+            </div>
+            <div className="flex gap-2">
+              <div className="h-9 w-28 bg-white/5 rounded-lg" />
+              <div className="h-9 w-40 bg-white/5 rounded-lg" />
+            </div>
+          </>
+        ) : (
+          <>
+            <div className="h-3 w-40 bg-white/5 rounded" />
+            <div className="space-y-2">
+              <div className="h-3 w-full bg-white/5 rounded" />
+              <div className="h-3 w-11/12 bg-white/5 rounded" />
+              <div className="h-3 w-3/4 bg-white/5 rounded" />
+            </div>
+            <div className="flex gap-5 pt-3 border-t border-white/5">
+              <div className="h-3 w-16 bg-white/5 rounded" />
+              <div className="h-3 w-20 bg-white/5 rounded" />
+            </div>
+          </>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ErrorPanel({ title, message, onRetry }: { title: string; message: string; onRetry: () => void }) {
+  const router = useRouter();
+  const [retrying, setRetrying] = useState(false);
+  const handleRetry = async () => {
+    setRetrying(true);
+    try {
+      onRetry();
+      await router.invalidate();
+    } finally {
+      setRetrying(false);
+    }
+  };
+  return (
+    <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-8 text-center">
+      <div className="mx-auto w-12 h-12 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center mb-4">
+        <AlertTriangle className="w-5 h-5 text-red-300" />
+      </div>
+      <div className="text-white font-semibold text-sm mb-1">{title}</div>
+      <div className="text-xs text-slate-400 mb-5 max-w-md mx-auto">{message}</div>
+      <button
+        onClick={handleRetry}
+        disabled={retrying}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-xs font-semibold disabled:opacity-60"
+      >
+        <RefreshCw className={`w-3.5 h-3.5 ${retrying ? "animate-spin" : ""}`} />
+        {retrying ? "Retrying…" : "Try again"}
+      </button>
+    </div>
+  );
+}
+
+function NotFoundPanel() {
+  const navigate = useNavigate();
+  return (
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+      <div className="mx-auto w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center mb-4">
+        <Compass className="w-5 h-5 text-slate-300" />
+      </div>
+      <div className="text-white font-semibold text-sm mb-1">This item is no longer available</div>
+      <div className="text-xs text-slate-400 mb-5">It may have been removed or the link is out of date.</div>
+      <button
+        onClick={() => navigate({ to: "/" })}
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-semibold"
+      >
+        Back to feed
+      </button>
+    </div>
+  );
+}
 
 function Shell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
