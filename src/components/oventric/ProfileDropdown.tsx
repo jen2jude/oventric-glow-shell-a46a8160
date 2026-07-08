@@ -7,20 +7,6 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
-function useMediaQuery(query: string): boolean {
-  const [match, setMatch] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(query).matches;
-  });
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatch(mql.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, [query]);
-  return match;
-}
 
 function slugify(v: string): string {
   return v.toLowerCase().trim().replace(/[^a-z0-9]+/g, "").slice(0, 24) || "architect";
@@ -62,7 +48,6 @@ export function ProfileDropdown() {
   const returnFocusRef = useRef(false);
   const triggerId = "profile-dropdown-trigger";
   const menuId = "profile-dropdown-menu";
-  const isMobile = useMediaQuery("(max-width: 640px)");
   const navigate = useNavigate();
 
   const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
@@ -336,29 +321,17 @@ export function ProfileDropdown() {
     <div ref={wrapperRef} className="relative">
       {avatarBtn}
 
-      {/* Desktop dropdown */}
-      {open && !isMobile && (
-        <div
-          ref={menuRef}
-          id={menuId}
-          role="menu"
-          aria-labelledby={triggerId}
-          aria-orientation="vertical"
-          onKeyDown={onMenuKeyDown}
-          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150 focus:outline-none"
-        >
-          {panelBody}
-        </div>
-      )}
-
-      {/* Mobile bottom sheet */}
-      {open && isMobile && (
-        <div className="fixed inset-0 z-50 sm:hidden">
-          <div
-            className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+      {open && (
+        <>
+          {/* Mobile backdrop — tap to dismiss */}
+          <button
+            type="button"
+            aria-label="Close profile menu"
             onClick={() => closeMenu(true)}
-            aria-hidden
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
           />
+
+          {/* Responsive panel: bottom sheet on mobile, dropdown on desktop */}
           <div
             ref={menuRef}
             id={menuId}
@@ -366,12 +339,24 @@ export function ProfileDropdown() {
             aria-labelledby={triggerId}
             aria-orientation="vertical"
             onKeyDown={onMenuKeyDown}
-            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 focus:outline-none"
+            className={[
+              // Mobile bottom-sheet defaults
+              "fixed bottom-0 left-0 right-0 w-full rounded-t-2xl rounded-b-none",
+              "border-t border-x border-white/5 bg-[#1E1E24] p-6 pb-8",
+              "z-50 transform-none max-h-[85vh] overflow-y-auto shadow-2xl",
+              "animate-in slide-in-from-bottom duration-200",
+              // Desktop dropdown overrides
+              "sm:absolute sm:top-14 sm:right-0 sm:bottom-auto sm:left-auto",
+              "sm:w-72 sm:rounded-xl sm:border sm:transform-none sm:max-h-none sm:p-4",
+              "sm:animate-in sm:fade-in sm:slide-in-from-top-2 sm:duration-150",
+              "focus:outline-none",
+            ].join(" ")}
           >
-            <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4" aria-hidden />
+            {/* Grab-handle: only visible on mobile */}
+            <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4 sm:hidden" aria-hidden />
             {panelBody}
           </div>
-        </div>
+        </>
       )}
 
       <ProfileSettingsModal
@@ -472,12 +457,15 @@ function ProfileSettingsModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={saving ? undefined : onClose} />
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+      onClick={saving ? undefined : onClose}
+    >
       <div
         role="dialog"
         aria-modal="true"
-        className="relative w-full max-w-lg max-h-[90vh] flex flex-col bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl"
+        onClick={(e) => e.stopPropagation()}
+        className="relative w-full max-w-lg bg-[#1A1A1E] border border-emerald-500/30 rounded-2xl shadow-2xl my-auto max-h-[90vh] flex flex-col"
       >
         <header className="flex items-start justify-between gap-3 p-5 border-b border-white/5">
           <div>
@@ -492,7 +480,7 @@ function ProfileSettingsModal({
           </button>
         </header>
 
-        <form onSubmit={onSubmit} noValidate className="flex-1 overflow-y-auto p-5 space-y-4">
+        <form onSubmit={onSubmit} noValidate className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 scrollbar-thin">
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
               {avatar ? (
