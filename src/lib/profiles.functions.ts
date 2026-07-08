@@ -38,3 +38,20 @@ export const getProfileTab = createServerFn({ method: "GET" })
     await new Promise((r) => setTimeout(r, 120));
     return loadProfileTab(data.profileId, data.tab, data.page, data.pageSize);
   });
+
+const KindEnum = z.enum(["post", "group", "listing", "bounty", "solved"]);
+const ItemInput = z.object({
+  profileId: z.string().trim().min(1).max(120),
+  kind: KindEnum,
+  itemId: z.string().trim().min(1).max(200),
+});
+
+export type ProfileItemKind = z.infer<typeof KindEnum>;
+
+export const getProfileItem = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => ItemInput.parse(input))
+  .handler(async ({ data }): Promise<{ item: ProfileTabItem | null }> => {
+    const { loadProfileItem } = await import("@/lib/profiles/data.server");
+    const item = loadProfileItem(data.profileId, data.kind, data.itemId);
+    return { item };
+  });
