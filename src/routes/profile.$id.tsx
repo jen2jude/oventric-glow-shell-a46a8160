@@ -66,7 +66,7 @@ type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved";
 const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved"];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
-import type { ProfileSortKey } from "@/lib/profiles.functions";
+
 
 type SortOption = { value: ProfileSortKey; label: string };
 const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
