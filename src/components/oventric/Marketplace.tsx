@@ -80,18 +80,36 @@ function formatPrice(usd: number, cur: Currency) {
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
+  const admin = useAdminStore();
   const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
   const [fullCategory, setFullCategory] = useState<CategoryKey | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
 
+  const adminProducts: Product[] = useMemo(
+    () =>
+      admin.products.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category as CategoryKey,
+        priceUSD: p.priceUSD,
+        rating: 5.0,
+        reviews: 0,
+        vendor: p.vendor,
+        hue: "from-emerald-500 to-teal-700",
+        promoted: true,
+      })),
+    [admin.products],
+  );
+  const ALL_PRODUCTS = useMemo(() => [...adminProducts, ...PRODUCTS], [adminProducts]);
+  const marketplaceAds = admin.ads.filter((a) => a.placement === "marketplace");
+
   const recommended = useMemo(() => {
-    // deterministic pseudo-random mix
-    const promoted = PRODUCTS.filter((p) => p.promoted);
-    const rest = PRODUCTS.filter((p) => !p.promoted).slice(0, 6);
+    const promoted = ALL_PRODUCTS.filter((p) => p.promoted);
+    const rest = ALL_PRODUCTS.filter((p) => !p.promoted).slice(0, 6);
     return [...promoted, ...rest].slice(0, 8);
-  }, []);
+  }, [ALL_PRODUCTS]);
 
   const onPillClick = (key: "all" | CategoryKey) => {
     setActiveTab(key);
