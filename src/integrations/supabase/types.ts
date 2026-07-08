@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      circle_requests: {
+        Row: {
+          created_at: string
+          id: string
+          requester_id: string
+          status: Database["public"]["Enums"]["circle_status"]
+          target_slug: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          requester_id: string
+          status?: Database["public"]["Enums"]["circle_status"]
+          target_slug: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          requester_id?: string
+          status?: Database["public"]["Enums"]["circle_status"]
+          target_slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       post_reports: {
         Row: {
           created_at: string
@@ -49,6 +76,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
+      circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
     }
     CompositeTypes: {
@@ -177,6 +205,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
+      circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],
     },
   },
