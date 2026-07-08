@@ -12,6 +12,14 @@ interface Comment {
   text: string;
 }
 
+function ReportedBadge() {
+  return (
+    <span className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+      <Flag className="w-3 h-3" /> Reported
+    </span>
+  );
+}
+
 export function Feed() {
   const { require, tier } = useOnboarding();
   const [likes, setLikes] = useState(128);
