@@ -1,8 +1,9 @@
-import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, ShieldCheck } from "lucide-react";
+import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, ShieldCheck, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
 const items = [
   { icon: Home, label: "Feed" },
+  { icon: MessageSquare, label: "Messages" },
   { icon: ShoppingBag, label: "Marketplace" },
   { icon: GraduationCap, label: "Academy" },
   { icon: Target, label: "Bounties" },
