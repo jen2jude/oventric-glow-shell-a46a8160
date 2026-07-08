@@ -109,6 +109,8 @@ export function Feed() {
   const pendingSelfCommentsRef = useRef<Map<string, string[]>>(new Map());
   // Real ids we've already merged locally — realtime INSERT skips them.
   const knownCommentIdsRef = useRef<Set<string>>(new Set());
+  // Synchronous guard to prevent double-submit before React re-renders.
+  const postingGuardRef = useRef<Set<string>>(new Set());
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
