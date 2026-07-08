@@ -59,6 +59,10 @@ export function Admin() {
         <AdInjector />
         <MegaBountyIssuer />
       </div>
+
+      <div className="mt-6">
+        <AdminHistory />
+      </div>
     </div>
   );
 }
