@@ -410,6 +410,76 @@ function ProfilePage() {
     }
   };
 
+  // Track how many marketplace pages are currently loaded so background
+  // refreshes rehydrate the same window the user is viewing.
+  useEffect(() => {
+    mpPagesRef.current = Math.max(1, tabData.marketplace.page || 1);
+  }, [tabData.marketplace.page]);
+
+  // Silently refetch all currently-loaded marketplace pages and replace items
+  // in place. Used by the auto-refresh interval and the manual Refresh button.
+  const refreshMarketplace = useCallback(async () => {
+    setMpRefreshing(true);
+    try {
+      const pagesToLoad = mpPagesRef.current;
+      const collected: ProfileTabPage["items"] = [];
+      let last: ProfileTabPage | null = null;
+      for (let p = 1; p <= pagesToLoad; p++) {
+        last = await fetchTab({
+          data: { profileId: profile.id, tab: "marketplace", page: p, pageSize: PAGE_SIZE, q, sort },
+        });
+        collected.push(...last.items);
+        if (!last.hasMore) break;
+      }
+      setTabData((s) => ({
+        ...s,
+        marketplace: {
+          items: collected,
+          page: last?.page ?? s.marketplace.page,
+          total: last?.total ?? s.marketplace.total,
+          hasMore: last?.hasMore ?? s.marketplace.hasMore,
+          loading: false,
+          error: null,
+        },
+      }));
+      setMpLastRefreshed(Date.now());
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setMpRefreshing(false);
+    }
+  }, [profile.id, q, sort, fetchTab]);
+
+  // Seed the "last updated" timestamp when marketplace items first appear.
+  useEffect(() => {
+    if (tab === "marketplace" && tabData.marketplace.items.length > 0 && mpLastRefreshed === null) {
+      setMpLastRefreshed(Date.now());
+    }
+  }, [tab, tabData.marketplace.items.length, mpLastRefreshed]);
+
+  // Auto-refresh marketplace every 15s while the tab is active. Also drives a
+  // 1s ticker so the "Xs ago" label stays accurate without extra state.
+  useEffect(() => {
+    if (tab !== "marketplace") return;
+    const refresh = window.setInterval(() => { refreshMarketplace(); }, 15000);
+    const tick = window.setInterval(() => setNowTick(Date.now()), 1000);
+    return () => {
+      window.clearInterval(refresh);
+      window.clearInterval(tick);
+    };
+  }, [tab, refreshMarketplace]);
+
+  const mpAgoLabel = (() => {
+    if (mpLastRefreshed === null) return "syncing…";
+    const s = Math.max(0, Math.floor((nowTick - mpLastRefreshed) / 1000));
+    if (s < 5) return "just now";
+    if (s < 60) return `${s}s ago`;
+    const m = Math.floor(s / 60);
+    return `${m}m ago`;
+  })();
+
+
+
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg" />
