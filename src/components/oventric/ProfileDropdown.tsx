@@ -57,6 +57,11 @@ export function ProfileDropdown() {
   const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const menuRef = useRef<HTMLDivElement>(null);
+  const returnFocusRef = useRef(false);
+  const triggerId = "profile-dropdown-trigger";
+  const menuId = "profile-dropdown-menu";
   const isMobile = useMediaQuery("(max-width: 640px)");
   const navigate = useNavigate();
 
@@ -82,15 +87,48 @@ export function ProfileDropdown() {
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
 
+  const getMenuItems = (): HTMLElement[] => {
+    if (!menuRef.current) return [];
+    return Array.from(
+      menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])'),
+    );
+  };
+
+  const closeMenu = (returnFocus = true) => {
+    returnFocusRef.current = returnFocus;
+    setOpen(false);
+  };
+
+  // Return focus to trigger after close
+  useEffect(() => {
+    if (open) return;
+    if (returnFocusRef.current) {
+      triggerRef.current?.focus();
+      returnFocusRef.current = false;
+    }
+  }, [open]);
+
+  // Focus first menu item on open
+  useEffect(() => {
+    if (!open) return;
+    const t = requestAnimationFrame(() => {
+      const items = getMenuItems();
+      items[0]?.focus();
+    });
+    return () => cancelAnimationFrame(t);
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
       if (!wrapperRef.current) return;
-      if (!wrapperRef.current.contains(e.target as Node)) setOpen(false);
+      if (!wrapperRef.current.contains(e.target as Node)) closeMenu(false);
     };
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setOpen(false);
+      if (e.key === "Escape") {
+        e.stopPropagation();
+        closeMenu(true);
+      }
     };
     document.addEventListener("mousedown", onDown);
     document.addEventListener("keydown", onKey);
@@ -99,6 +137,30 @@ export function ProfileDropdown() {
       document.removeEventListener("keydown", onKey);
     };
   }, [open]);
+
+  const onMenuKeyDown = (e: React.KeyboardEvent) => {
+    const items = getMenuItems();
+    if (items.length === 0) return;
+    const currentIdx = items.indexOf(document.activeElement as HTMLElement);
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      const next = items[(currentIdx + 1 + items.length) % items.length];
+      next?.focus();
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      const prev = items[(currentIdx - 1 + items.length) % items.length];
+      prev?.focus();
+    } else if (e.key === "Home") {
+      e.preventDefault();
+      items[0]?.focus();
+    } else if (e.key === "End") {
+      e.preventDefault();
+      items[items.length - 1]?.focus();
+    } else if (e.key === "Tab") {
+      // Close on tab-out; let natural focus move
+      closeMenu(false);
+    }
+  };
 
   const persistProfile = (next: ProfileState) => {
     setProfile(next);
