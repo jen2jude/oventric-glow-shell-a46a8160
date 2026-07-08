@@ -171,9 +171,16 @@ function ProfilePage() {
 
   // Fetch a specific page (1-indexed). Returns the fetched response.
   const fetchOne = useCallback(
-    async (which: Tab, pageNum: number, reset: boolean) => {
+    async (which: Tab, pageNum: number, reset: boolean, filters: { q: string; sort: ProfileSortKey }) => {
       const res = await fetchTab({
-        data: { profileId: profile.id, tab: which, page: pageNum, pageSize: PAGE_SIZE },
+        data: {
+          profileId: profile.id,
+          tab: which,
+          page: pageNum,
+          pageSize: PAGE_SIZE,
+          q: filters.q,
+          sort: filters.sort,
+        },
       });
       setTabData((s) => ({
         ...s,
@@ -190,6 +197,7 @@ function ProfilePage() {
     },
     [profile.id, fetchTab],
   );
+
 
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
