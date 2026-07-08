@@ -70,7 +70,7 @@ export function Feed() {
       </div>
 
       {/* Social post */}
-      <article className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
+      <article className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${reported.has("post-aria-1") ? "opacity-70" : ""}`}>
         <header className="flex items-center gap-3 mb-3">
           <Link
             to="/profile/$id"
@@ -89,15 +89,25 @@ export function Feed() {
             </Link>
             <div className="text-xs text-slate-500">Staff Engineer · 2h ago</div>
           </div>
-          <button
-            onClick={() => setReportOpen("post-aria-1")}
-            className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-            aria-label="Report post"
-            title="Report post"
-          >
-            <Flag className="w-4 h-4" />
-          </button>
+          {reported.has("post-aria-1") ? (
+            <ReportedBadge />
+          ) : (
+            <button
+              onClick={() => setReportOpen("post-aria-1")}
+              className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+              aria-label="Report post"
+              title="Report post"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          )}
         </header>
+        {reported.has("post-aria-1") && (
+          <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300">
+            <Flag className="w-3 h-3" />
+            You reported this post. It's hidden from your feed pending review.
+          </div>
+        )}
         <p className="text-slate-300 text-sm leading-relaxed">
           Just shipped a zero-downtime migration on our multi-tenant Postgres cluster. RLS + logical replication saved
           us weeks. Happy to walk anyone through the setup.
