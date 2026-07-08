@@ -91,3 +91,14 @@ export function useAdminStore() {
   }, []);
   return snap;
 }
+
+/** Live-updating list of ads for a placement, filtered by scheduling window. */
+export function useActiveAds(placement: AdPlacement, tickMs: number = 30_000): AdminAd[] {
+  const admin = useAdminStore();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = window.setInterval(() => setNow(Date.now()), tickMs);
+    return () => window.clearInterval(id);
+  }, [tickMs]);
+  return admin.ads.filter((a) => a.placement === placement && isAdActive(a, now));
+}
