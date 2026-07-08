@@ -42,6 +42,7 @@ function Index() {
     : active === "Bounties" ? <Bounties />
     : active === "Admin" ? <Admin />
     : active === "Messages" ? <Messages variant="page" />
+    : active === "Circles" ? <CirclesHub />
     : <Feed />;
 
   const isMessages = active === "Messages";
