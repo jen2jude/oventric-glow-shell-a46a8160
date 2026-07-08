@@ -53,8 +53,13 @@ export function Feed() {
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
-  const [reported, setReported] = useState<Set<string>>(new Set());
-  const markReported = (id: string) => setReported((s) => new Set(s).add(id));
+  const [reported, setReported] = useState<Map<string, ReportDetails>>(new Map());
+  const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
+    setReported((m) => {
+      const next = new Map(m);
+      next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
+      return next;
+    });
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
