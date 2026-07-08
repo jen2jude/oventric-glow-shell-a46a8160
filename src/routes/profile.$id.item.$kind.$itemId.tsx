@@ -1,5 +1,7 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tanstack/react-router";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle, RefreshCw, AlertTriangle, Compass } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -12,6 +14,22 @@ import type {
   ProfileListing,
   ProfileBounty,
 } from "@/lib/profiles/mockProfiles";
+
+const itemSearchSchema = z.object({
+  tab: fallback(z.string(), "posts").default("posts"),
+  pages: fallback(z.number().int(), 1).default(1),
+  y: fallback(z.number().int(), 0).default(0),
+  q: fallback(z.string(), "").default(""),
+  sort: fallback(z.string(), "newest").default("newest"),
+});
+
+const TAB_LABELS: Record<string, string> = {
+  posts: "Posts",
+  groups: "Groups",
+  marketplace: "Marketplace",
+  posted: "Bounties",
+  solved: "Solved",
+};
 
 const VALID_KINDS: ProfileItemKind[] = ["post", "group", "listing", "bounty", "solved"];
 
