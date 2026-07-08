@@ -103,6 +103,12 @@ export function Feed() {
   const [commentError, setCommentError] = useState<string | null>(null);
   const COMMENTS_PAGE_SIZE = 3;
   const [visibleComments, setVisibleComments] = useState<Record<string, number>>({});
+  // Reservations of client tempIds for locally-created comments, keyed by
+  // `${postId}::${authorId}::${text}`. Realtime INSERT consumes an entry to
+  // adopt the real id in-place instead of appending a duplicate.
+  const pendingSelfCommentsRef = useRef<Map<string, string[]>>(new Map());
+  // Real ids we've already merged locally — realtime INSERT skips them.
+  const knownCommentIdsRef = useRef<Set<string>>(new Set());
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
@@ -203,9 +209,30 @@ export function Feed() {
         { event: "INSERT", schema: "public", table: "post_comments" },
         (payload) => {
           const row = payload.new as FeedComment;
+          if (knownCommentIdsRef.current.has(row.id)) {
+            // Local swap already added this row; ignore realtime echo.
+            knownCommentIdsRef.current.delete(row.id);
+            return;
+          }
+          const dedupeKey = `${row.post_id}::${row.author_id}::${row.text}`;
+          const queue = pendingSelfCommentsRef.current.get(dedupeKey);
+          let adoptedTempId: string | null = null;
+          if (queue && queue.length > 0) {
+            adoptedTempId = queue.shift() ?? null;
+            if (queue.length === 0) pendingSelfCommentsRef.current.delete(dedupeKey);
+          }
+          knownCommentIdsRef.current.add(row.id);
           setCommentsByPost((prev) => {
             const arr = prev[row.post_id] ?? [];
             if (arr.some((c) => c.id === row.id)) return prev;
+            if (adoptedTempId) {
+              const idx = arr.findIndex((c) => c.id === adoptedTempId);
+              if (idx !== -1) {
+                const next = arr.slice();
+                next[idx] = toComment(row);
+                return { ...prev, [row.post_id]: next };
+              }
+            }
             return { ...prev, [row.post_id]: [...arr, toComment(row)] };
           });
           setPosts((prev) =>
@@ -215,6 +242,7 @@ export function Feed() {
           );
         },
       )
+
       .on(
         "postgres_changes",
         { event: "UPDATE", schema: "public", table: "post_comments" },
@@ -397,7 +425,29 @@ export function Feed() {
     }
   };
 
+  const dedupeKeyOf = (postId: string, authorId: string, text: string) =>
+    `${postId}::${authorId}::${text}`;
+
+  const reserveTempId = (key: string, tempId: string) => {
+    const map = pendingSelfCommentsRef.current;
+    const queue = map.get(key) ?? [];
+    if (!queue.includes(tempId)) queue.push(tempId);
+    map.set(key, queue);
+  };
+
+  const unreserveTempId = (key: string, tempId: string) => {
+    const map = pendingSelfCommentsRef.current;
+    const queue = map.get(key);
+    if (!queue) return;
+    const idx = queue.indexOf(tempId);
+    if (idx !== -1) queue.splice(idx, 1);
+    if (queue.length === 0) map.delete(key);
+  };
+
   const sendCommentAttempt = async (postId: string, tempId: string, text: string) => {
+    const authorId = meId ?? "me";
+    const key = dedupeKeyOf(postId, authorId, text);
+    reserveTempId(key, tempId);
     setCommentPosting((p) => ({ ...p, [tempId]: true }));
     setCommentError(null);
     // Mark as pending (clear any prior failed state)
@@ -412,19 +462,27 @@ export function Feed() {
       const res = await addComment({
         data: { postId, text, authorName: "You", initials: "OV" },
       });
-      // Swap the optimistic entry for the real row; realtime INSERT will dedupe by id.
-      setCommentsByPost((prev) => {
-        const arr = prev[postId];
-        if (!arr) return prev;
-        const real = toComment(res.comment);
-        // If realtime already delivered the row, just drop the temp.
-        if (arr.some((c) => c.id === real.id)) {
-          return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
-        }
-        return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
-      });
+      const real = toComment(res.comment);
+      // Race: if realtime already adopted the tempId, our reservation is gone
+      // and the row is already merged under real.id — nothing to do.
+      // Otherwise, claim the reservation, mark the id known so the realtime
+      // echo is ignored, and swap the temp entry to real in-place.
+      const stillReserved = pendingSelfCommentsRef.current.get(key)?.includes(tempId);
+      if (stillReserved) {
+        unreserveTempId(key, tempId);
+        knownCommentIdsRef.current.add(real.id);
+        setCommentsByPost((prev) => {
+          const arr = prev[postId];
+          if (!arr) return prev;
+          if (arr.some((c) => c.id === real.id)) {
+            return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+          }
+          return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+        });
+      }
     } catch (e) {
       console.error(e);
+      unreserveTempId(key, tempId);
       setCommentsByPost((prev) => {
         const arr = prev[postId] ?? [];
         return {
@@ -475,11 +533,15 @@ export function Feed() {
   };
 
   const discardFailedComment = (postId: string, tempId: string) => {
+    const authorId = meId ?? "me";
     setCommentsByPost((prev) => {
       const arr = prev[postId];
       if (!arr) return prev;
+      const target = arr.find((c) => c.id === tempId);
+      if (target) unreserveTempId(dedupeKeyOf(postId, authorId, target.text), tempId);
       return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
     });
+
   };
 
 
