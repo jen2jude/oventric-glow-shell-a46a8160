@@ -248,7 +248,7 @@ function ProfilePage() {
         navigate({
           to: "/profile/$id",
           params: { id },
-          search: (prev) => ({ ...prev, y }),
+          search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, y }),
           replace: true,
         });
       }, 200) as unknown as number;
