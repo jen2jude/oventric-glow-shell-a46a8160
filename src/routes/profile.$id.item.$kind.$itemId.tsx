@@ -1,5 +1,5 @@
-import { createFileRoute, Link, useNavigate, notFound } from "@tanstack/react-router";
-import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle } from "lucide-react";
+import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tanstack/react-router";
+import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle, RefreshCw, AlertTriangle, Compass } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
