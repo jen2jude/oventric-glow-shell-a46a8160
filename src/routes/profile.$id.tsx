@@ -324,11 +324,11 @@ function ProfilePage() {
                       </>
                     )}
                   </button>
-                  {circle === "pending" && (
-                    <p className="text-[11px] text-slate-400 sm:text-center leading-snug px-1">
-                      Waiting on {profile.name.split(" ")[0]} to accept from their inbox.
-                    </p>
-                  )}
+                  <CircleStatusNote
+                    status={circle}
+                    meta={circleMeta}
+                    firstName={profile.name.split(" ")[0]}
+                  />
                   <button
                     onClick={handleChat}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
