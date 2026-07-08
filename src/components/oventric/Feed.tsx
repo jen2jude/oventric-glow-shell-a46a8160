@@ -529,21 +529,65 @@ export function Feed() {
             placeholder="What are you creating today? Seeking Technical Help?"
             className="w-full bg-transparent text-slate-200 placeholder:text-slate-500 resize-none focus:outline-none text-sm"
           />
+          {attachment && (
+            <div className="mt-3 relative inline-block max-w-full">
+              {attachment.kind === "image" ? (
+                <img
+                  src={attachment.previewUrl}
+                  alt="Attachment preview"
+                  className="max-h-64 rounded-lg border border-white/10 object-cover"
+                />
+              ) : (
+                <video
+                  src={attachment.previewUrl}
+                  controls
+                  className="max-h-64 rounded-lg border border-white/10"
+                />
+              )}
+              <button
+                type="button"
+                onClick={clearAttachment}
+                aria-label="Remove attachment"
+                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-black text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
+                {attachment.kind === "image" ? <ImageIcon className="w-3 h-3" /> : <VideoIcon className="w-3 h-3" />}
+                <span className="truncate max-w-[240px]">{attachment.file.name}</span>
+                <span>· {(attachment.file.size / (1024 * 1024)).toFixed(1)} MB</span>
+              </div>
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={handleFileSelected}
+          />
           <div className="flex items-center justify-between pt-3 border-t border-white/5">
-            <button className="flex items-center gap-2 text-slate-400 hover:text-emerald-400 text-sm transition-colors">
+            <button
+              type="button"
+              onClick={openFilePicker}
+              disabled={posting}
+              className="flex items-center gap-2 text-slate-400 hover:text-emerald-400 text-sm transition-colors disabled:opacity-40"
+            >
               <Paperclip className="w-4 h-4" />
-              Attach
+              {attachment ? "Change attachment" : "Attach photo or video"}
             </button>
             <button
               onClick={handleCreatePost}
               disabled={!composerDraft.trim() || posting}
               className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm rounded-lg transition-colors"
             >
-              {posting ? "Posting…" : "Post"}
+              {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
             </button>
           </div>
+          <p className="mt-2 text-[10px] text-slate-500">Images or short videos, up to 10 MB.</p>
           {postError && <div className="mt-2 text-[11px] text-red-400">{postError}</div>}
         </div>
+
 
         {feedAds.map((a) => (
           <AdCard key={a.id} ad={a} variant="banner" />
