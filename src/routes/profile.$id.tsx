@@ -179,6 +179,7 @@ function ProfilePage() {
   }, [profile.id, fetchStatus]);
 
   const rep = profile.reputation;
+  const starBreakdown = useMemo(() => computeStarBreakdown(rep), [rep]);
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
   const price = (usd: number) =>
