@@ -320,8 +320,13 @@ const ADS: Ad[] = [
   },
 ];
 
+import { useAdminStore } from "@/lib/admin/store";
+import { AdCard as AdminAdCard } from "@/components/oventric/AdCard";
+
 export function Academy() {
   const { require, baseCurrency } = useOnboarding();
+  const admin = useAdminStore();
+  const academyAds = admin.ads.filter((a) => a.placement === "academy");
   const [view, setView] = useState<"landing" | "catalog">("landing");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
