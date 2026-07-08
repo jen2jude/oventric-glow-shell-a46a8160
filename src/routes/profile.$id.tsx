@@ -248,6 +248,27 @@ function ProfilePage() {
                     Joined {profile.joined} · {profile.followers.toLocaleString()} followers
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">{profile.bio}</p>
+                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${profile.name}'s circle`}>
+                    <div className="flex -space-x-2">
+                      {circleMembers.preview.map((m) => (
+                        <div
+                          key={m.id}
+                          title={m.name}
+                          className={`w-7 h-7 rounded-full bg-gradient-to-br ${m.avatarGradient} ring-2 ring-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-white`}
+                        >
+                          {m.initials}
+                        </div>
+                      ))}
+                      {circleMembers.total > circleMembers.preview.length && (
+                        <div className="w-7 h-7 rounded-full bg-white/10 ring-2 ring-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-slate-200">
+                          +{Math.max(0, circleMembers.total - circleMembers.preview.length)}
+                        </div>
+                      )}
+                    </div>
+                    <span className="text-xs text-slate-400">
+                      <span className="font-semibold text-slate-200">{circleMembers.total.toLocaleString()}</span> in circle
+                    </span>
+                  </div>
                 </div>
                 <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button
