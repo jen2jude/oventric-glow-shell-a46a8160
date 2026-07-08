@@ -314,21 +314,31 @@ export function Wallet() {
               </tr>
             </thead>
             <tbody>
-              {paged.map((t) => (
+              {items.map((t) => (
                 <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.id}</td>
+                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
                   <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
                   <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" : "text-slate-300"}`}>
                     {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{t.timestamp}</td>
+                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
                   <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                 </tr>
               ))}
-              {paged.length === 0 && (
+              {items.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                    No transactions match your filters.
+                    {!authReady ? (
+                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
+                    ) : !userId ? (
+                      "Sign in to view your transaction ledger."
+                    ) : query.isLoading ? (
+                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
+                    ) : query.isError ? (
+                      `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
+                    ) : (
+                      "No transactions match your filters."
+                    )}
                   </td>
                 </tr>
               )}
@@ -338,7 +348,7 @@ export function Wallet() {
 
         <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
           <div>
-            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {filtered.length} entries
+            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
           </div>
           <div className="flex items-center gap-2">
             <button
