@@ -211,7 +211,7 @@ export function Marketplace() {
                 {items.map((p) => (
                   <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} />
                 ))}
-                {ad && <AdSlotCard ad={ad} />}
+                {ad && <AdCard ad={ad} />}
                 <ViewMoreCard label={meta.label} onClick={() => setFullCategory(cat)} />
               </div>
             </section>
