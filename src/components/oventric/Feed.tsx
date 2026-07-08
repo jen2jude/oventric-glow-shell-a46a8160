@@ -443,6 +443,8 @@ export function Feed() {
         targetKind={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
         onReported={markReported}
       />
+      </div>
+      <DiscoveryPanel />
     </div>
   );
 }
