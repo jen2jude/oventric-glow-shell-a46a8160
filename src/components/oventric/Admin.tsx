@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Store, Megaphone, Target, Rocket, Eye, AlertCircle, Loader2 } from "lucide-react";
+import { Store, Megaphone, Target, Eye, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
 import { adminStore, type AdminCategory, type AdPlacement, type AdTier, type AdminCurrency } from "@/lib/admin/store";
 import { AdminHistory } from "./AdminHistory";
