@@ -94,7 +94,7 @@ function ProfilePage() {
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
-  const acceptReq = useServerFn(acceptCircleRequest);
+  
 
   const loadPage = useCallback(
     async (which: Tab, opts?: { reset?: boolean }) => {
