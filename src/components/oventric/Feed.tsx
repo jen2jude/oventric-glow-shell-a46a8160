@@ -1,10 +1,15 @@
 import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { useAdminStore } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
+import { supabase } from "@/integrations/supabase/client";
+import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
+
+const POST_ID = "post-aria-1";
 
 interface Comment {
   id: string;
@@ -12,6 +17,10 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+}
+
+function toComment(c: FeedComment): Comment {
+  return { id: c.id, author: c.author_name, authorId: c.author_id, initials: c.initials, text: c.text };
 }
 
 function ReportedBadge() {
@@ -31,10 +40,55 @@ export function Feed() {
   const [reportOpen, setReportOpen] = useState<string | null>(null);
   const [reported, setReported] = useState<Set<string>>(new Set());
   const markReported = (id: string) => setReported((s) => new Set(s).add(id));
-  const [comments, setComments] = useState<Comment[]>([
-    { id: "c1", author: "Devin Ortiz", authorId: "devin-ortiz", initials: "DO", text: "This saved me a week — thank you." },
-  ]);
+  const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
+  const [posting, setPosting] = useState(false);
+  const [commentError, setCommentError] = useState<string | null>(null);
+  const listComments = useServerFn(listCommentsFn);
+  const addComment = useServerFn(addCommentFn);
+
+  const ensureSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+    }
+  };
+
+  // Initial load
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureSession();
+        const res = await listComments({ data: { postId: POST_ID } });
+        if (!cancelled) setComments(res.comments.map(toComment));
+      } catch (e) {
+        console.error("[Feed] load comments failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [listComments]);
+
+  // Realtime subscription
+  useEffect(() => {
+    const channel = supabase
+      .channel(`post_comments:${POST_ID}`)
+      .on(
+        "postgres_changes",
+        { event: "INSERT", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const row = payload.new as FeedComment;
+          setComments((prev) => (prev.some((c) => c.id === row.id) ? prev : [...prev, toComment(row)]));
+        },
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
 
   const handleLike = () =>
     require(1, () => {
@@ -49,10 +103,26 @@ export function Feed() {
 
   const submitComment = () => {
     const text = draft.trim();
-    if (!text) return;
-    require(1, () => {
-      setComments((c) => [...c, { id: `c${Date.now()}`, author: "You", authorId: "you", initials: "OV", text }]);
-      setDraft("");
+    if (!text || posting) return;
+    require(1, async () => {
+      setPosting(true);
+      setCommentError(null);
+      try {
+        await ensureSession();
+        const res = await addComment({
+          data: { postId: POST_ID, text, authorName: "You", initials: "OV" },
+        });
+        setDraft("");
+        // Optimistically append; realtime will dedupe by id
+        setComments((prev) =>
+          prev.some((c) => c.id === res.comment.id) ? prev : [...prev, toComment(res.comment)],
+        );
+      } catch (e) {
+        console.error(e);
+        setCommentError("Couldn't post comment. Try again.");
+      } finally {
+        setPosting(false);
+      }
     });
   };
 
@@ -183,14 +253,17 @@ export function Feed() {
             />
             <button
               onClick={submitComment}
-              disabled={!draft.trim()}
+              disabled={!draft.trim() || posting}
               className="p-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
               aria-label="Send comment"
             >
-              <Send className="w-3.5 h-3.5" />
+              <Send className={`w-3.5 h-3.5 ${posting ? "animate-pulse" : ""}`} />
             </button>
           </div>
         </div>
+        {commentError && (
+          <div className="mt-2 text-[11px] text-red-400">{commentError}</div>
+        )}
       </article>
 
       {/* Marketplace asset */}
