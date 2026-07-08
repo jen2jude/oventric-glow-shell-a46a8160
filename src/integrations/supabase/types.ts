@@ -149,6 +149,8 @@ export type Database = {
           author_id: string
           created_at: string
           id: string
+          media_path: string | null
+          media_type: string | null
           text: string
           updated_at: string
         }
@@ -156,6 +158,8 @@ export type Database = {
           author_id: string
           created_at?: string
           id?: string
+          media_path?: string | null
+          media_type?: string | null
           text: string
           updated_at?: string
         }
@@ -163,6 +167,8 @@ export type Database = {
           author_id?: string
           created_at?: string
           id?: string
+          media_path?: string | null
+          media_type?: string | null
           text?: string
           updated_at?: string
         }

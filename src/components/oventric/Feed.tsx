@@ -1,5 +1,5 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle } from "lucide-react";
-import { useCallback, useEffect, useState } from "react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -89,6 +89,13 @@ export function Feed() {
   const [composerDraft, setComposerDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+  const MAX_MEDIA_BYTES = 10 * 1024 * 1024; // 10 MB
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [attachment, setAttachment] = useState<{
+    file: File;
+    previewUrl: string;
+    kind: "image" | "video";
+  } | null>(null);
 
   const [commentsByPost, setCommentsByPost] = useState<Record<string, Comment[]>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
@@ -272,6 +279,42 @@ export function Feed() {
     };
   }, [posts, commentsByPost, listComments]);
 
+  const openFilePicker = () => {
+    setPostError(null);
+    fileInputRef.current?.click();
+  };
+
+  const clearAttachment = () => {
+    setAttachment((prev) => {
+      if (prev) URL.revokeObjectURL(prev.previewUrl);
+      return null;
+    });
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const handleFileSelected = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const isImage = file.type.startsWith("image/");
+    const isVideo = file.type.startsWith("video/");
+    if (!isImage && !isVideo) {
+      setPostError("Only image or video files are allowed.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (file.size > MAX_MEDIA_BYTES) {
+      setPostError("File is too large. Max size is 10 MB.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+      return;
+    }
+    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
+    setAttachment({
+      file,
+      previewUrl: URL.createObjectURL(file),
+      kind: isImage ? "image" : "video",
+    });
+  };
+
   const handleCreatePost = () => {
     const text = composerDraft.trim();
     if (!text || posting) return;
@@ -279,8 +322,28 @@ export function Feed() {
       setPosting(true);
       setPostError(null);
       try {
-        await createPost({ data: { text } });
+        let mediaPath: string | undefined;
+        let mediaType: "image" | "video" | undefined;
+        if (attachment) {
+          const { data: userRes } = await supabase.auth.getUser();
+          const uid = userRes.user?.id;
+          if (!uid) throw new Error("Not signed in");
+          const ext = (attachment.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+          const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("post-media")
+            .upload(path, attachment.file, {
+              contentType: attachment.file.type,
+              cacheControl: "3600",
+              upsert: false,
+            });
+          if (upErr) throw upErr;
+          mediaPath = path;
+          mediaType = attachment.kind;
+        }
+        await createPost({ data: { text, mediaPath, mediaType } });
         setComposerDraft("");
+        clearAttachment();
         // realtime will refresh; nudge in case the channel is late
         refreshPosts();
       } catch (e) {
@@ -291,6 +354,7 @@ export function Feed() {
       }
     });
   };
+
 
   const handleLike = (post: FeedPost) => {
     require(1, async () => {
@@ -465,21 +529,65 @@ export function Feed() {
             placeholder="What are you creating today? Seeking Technical Help?"
             className="w-full bg-transparent text-slate-200 placeholder:text-slate-500 resize-none focus:outline-none text-sm"
           />
+          {attachment && (
+            <div className="mt-3 relative inline-block max-w-full">
+              {attachment.kind === "image" ? (
+                <img
+                  src={attachment.previewUrl}
+                  alt="Attachment preview"
+                  className="max-h-64 rounded-lg border border-white/10 object-cover"
+                />
+              ) : (
+                <video
+                  src={attachment.previewUrl}
+                  controls
+                  className="max-h-64 rounded-lg border border-white/10"
+                />
+              )}
+              <button
+                type="button"
+                onClick={clearAttachment}
+                aria-label="Remove attachment"
+                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-black text-white"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
+                {attachment.kind === "image" ? <ImageIcon className="w-3 h-3" /> : <VideoIcon className="w-3 h-3" />}
+                <span className="truncate max-w-[240px]">{attachment.file.name}</span>
+                <span>· {(attachment.file.size / (1024 * 1024)).toFixed(1)} MB</span>
+              </div>
+            </div>
+          )}
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            className="hidden"
+            onChange={handleFileSelected}
+          />
           <div className="flex items-center justify-between pt-3 border-t border-white/5">
-            <button className="flex items-center gap-2 text-slate-400 hover:text-emerald-400 text-sm transition-colors">
+            <button
+              type="button"
+              onClick={openFilePicker}
+              disabled={posting}
+              className="flex items-center gap-2 text-slate-400 hover:text-emerald-400 text-sm transition-colors disabled:opacity-40"
+            >
               <Paperclip className="w-4 h-4" />
-              Attach
+              {attachment ? "Change attachment" : "Attach photo or video"}
             </button>
             <button
               onClick={handleCreatePost}
               disabled={!composerDraft.trim() || posting}
               className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm rounded-lg transition-colors"
             >
-              {posting ? "Posting…" : "Post"}
+              {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
             </button>
           </div>
+          <p className="mt-2 text-[10px] text-slate-500">Images or short videos, up to 10 MB.</p>
           {postError && <div className="mt-2 text-[11px] text-red-400">{postError}</div>}
         </div>
+
 
         {feedAds.map((a) => (
           <AdCard key={a.id} ad={a} variant="banner" />
@@ -560,6 +668,22 @@ export function Feed() {
                 <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {post.text}
                 </p>
+                {post.media_url && post.media_type === "image" && (
+                  <img
+                    src={post.media_url}
+                    alt="Post attachment"
+                    loading="lazy"
+                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
+                  />
+                )}
+                {post.media_url && post.media_type === "video" && (
+                  <video
+                    src={post.media_url}
+                    controls
+                    preload="metadata"
+                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 bg-black"
+                  />
+                )}
                 <div className="flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
                   <button
                     onClick={() => handleLike(post)}

@@ -13,6 +13,8 @@ export interface FeedPost {
   likes_count: number;
   viewer_liked: boolean;
   comments_count: number;
+  media_url: string | null;
+  media_type: "image" | "video" | null;
 }
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
@@ -30,7 +32,7 @@ export const listPosts = createServerFn({ method: "GET" })
 
     const { data: posts, error } = await supabase
       .from("posts")
-      .select("id, author_id, text, created_at")
+      .select("id, author_id, text, created_at, media_path, media_type")
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) {
@@ -49,6 +51,18 @@ export const listPosts = createServerFn({ method: "GET" })
       supabase.from("post_likes").select("post_id").in("post_id", postIds).eq("user_id", userId),
       supabase.from("post_comments").select("post_id").in("post_id", postIds),
     ]);
+
+    // Generate signed URLs for media (private bucket)
+    const mediaPaths = rows.map((r) => r.media_path).filter((p): p is string => !!p);
+    const signedByPath = new Map<string, string>();
+    if (mediaPaths.length) {
+      const { data: signed } = await supabase.storage
+        .from("post-media")
+        .createSignedUrls(mediaPaths, 60 * 60 * 6); // 6h
+      (signed ?? []).forEach((s) => {
+        if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl);
+      });
+    }
 
     const profileById = new Map((profiles ?? []).map((p) => [p.user_id, p]));
     const likeCounts = new Map<string, number>();
@@ -71,6 +85,8 @@ export const listPosts = createServerFn({ method: "GET" })
         likes_count: likeCounts.get(r.id) ?? 0,
         viewer_liked: likedSet.has(r.id),
         comments_count: commentCounts.get(r.id) ?? 0,
+        media_url: r.media_path ? (signedByPath.get(r.media_path) ?? null) : null,
+        media_type: (r.media_type as "image" | "video" | null) ?? null,
       };
     });
     return { posts: out };
@@ -79,12 +95,21 @@ export const listPosts = createServerFn({ method: "GET" })
 export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
-    z.object({ text: z.string().trim().min(1).max(4000) }).parse(input),
+    z.object({
+      text: z.string().trim().min(1).max(4000),
+      mediaPath: z.string().trim().min(1).max(500).optional(),
+      mediaType: z.enum(["image", "video"]).optional(),
+    }).parse(input),
   )
   .handler(async ({ data, context }) => {
     const { data: row, error } = await context.supabase
       .from("posts")
-      .insert({ author_id: context.userId, text: data.text })
+      .insert({
+        author_id: context.userId,
+        text: data.text,
+        media_path: data.mediaPath ?? null,
+        media_type: data.mediaPath ? (data.mediaType ?? null) : null,
+      })
       .select("id, author_id, text, created_at")
       .single();
     if (error || !row) {
@@ -93,6 +118,7 @@ export const createPost = createServerFn({ method: "POST" })
     }
     return { post: row };
   });
+
 
 export const deletePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
