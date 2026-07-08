@@ -62,6 +62,11 @@ function ProfilePage() {
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
   const [circleError, setCircleError] = useState<string | null>(null);
+  const [circleMeta, setCircleMeta] = useState<{
+    sentAt: string | null;
+    acceptedAt: string | null;
+    canceledAt: string | null;
+  }>({ sentAt: null, acceptedAt: null, canceledAt: null });
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
@@ -169,7 +174,13 @@ function ProfilePage() {
       try {
         await ensureSession();
         const res = await fetchStatus({ data: { targetSlug: profile.id } });
-        if (!cancelled) setCircle(res.status);
+        if (cancelled) return;
+        setCircle(res.status);
+        setCircleMeta({
+          sentAt: res.sentAt,
+          acceptedAt: res.status === "accepted" ? res.updatedAt : null,
+          canceledAt: null,
+        });
       } catch (e) {
         console.error(e);
       }
@@ -187,14 +198,21 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
-  const runCircle = (fn: () => Promise<{ status: CircleStatus }>) => {
+  const handleJoin = () => {
     require(1, async () => {
       setCircleBusy(true);
       setCircleError(null);
       try {
         await ensureSession();
-        const res = await fn();
-        setCircle(res.status);
+        if (circle === "none") {
+          const res = await sendReq({ data: { targetSlug: profile.id } });
+          setCircle(res.status);
+          setCircleMeta({ sentAt: res.sentAt, acceptedAt: null, canceledAt: null });
+        } else if (circle === "pending") {
+          const res = await cancelReq({ data: { targetSlug: profile.id } });
+          setCircle(res.status);
+          setCircleMeta((m) => ({ sentAt: m.sentAt, acceptedAt: null, canceledAt: res.canceledAt }));
+        }
       } catch (e) {
         console.error(e);
         setCircleError("Something went wrong. Try again.");
@@ -202,12 +220,6 @@ function ProfilePage() {
         setCircleBusy(false);
       }
     });
-  };
-
-  const handleJoin = () => {
-    if (circle === "none") runCircle(() => sendReq({ data: { targetSlug: profile.id } }));
-    else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
-    // "accepted" click is a no-op; user can Chat instead.
   };
   const handleChat = () => require(1, () => setDmOpen(true));
 
@@ -312,11 +324,11 @@ function ProfilePage() {
                       </>
                     )}
                   </button>
-                  {circle === "pending" && (
-                    <p className="text-[11px] text-slate-400 sm:text-center leading-snug px-1">
-                      Waiting on {profile.name.split(" ")[0]} to accept from their inbox.
-                    </p>
-                  )}
+                  <CircleStatusNote
+                    status={circle}
+                    meta={circleMeta}
+                    firstName={profile.name.split(" ")[0]}
+                  />
                   <button
                     onClick={handleChat}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
@@ -652,6 +664,86 @@ function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string;
       <div className="mt-1 text-sm">{value}</div>
     </div>
   );
+}
+
+function relTime(iso: string | null): string | null {
+  if (!iso) return null;
+  const diff = Date.now() - new Date(iso).getTime();
+  if (diff < 0) return "just now";
+  const s = Math.floor(diff / 1000);
+  if (s < 45) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h ago`;
+  const d = Math.floor(h / 24);
+  if (d < 30) return `${d}d ago`;
+  const mo = Math.floor(d / 30);
+  if (mo < 12) return `${mo}mo ago`;
+  return `${Math.floor(mo / 12)}y ago`;
+}
+
+function absTime(iso: string | null): string {
+  if (!iso) return "";
+  try {
+    return new Date(iso).toLocaleString();
+  } catch {
+    return "";
+  }
+}
+
+function CircleStatusNote({
+  status,
+  meta,
+  firstName,
+}: {
+  status: CircleStatus;
+  meta: { sentAt: string | null; acceptedAt: string | null; canceledAt: string | null };
+  firstName: string;
+}) {
+  const sent = relTime(meta.sentAt);
+  const accepted = relTime(meta.acceptedAt);
+  const canceled = relTime(meta.canceledAt);
+
+  if (status === "accepted") {
+    return (
+      <div className="text-[11px] text-emerald-300/90 sm:text-center leading-snug px-1 space-y-0.5">
+        {accepted && (
+          <div>
+            <span title={absTime(meta.acceptedAt)}>Accepted {accepted}</span>
+          </div>
+        )}
+        {sent && (
+          <div className="text-slate-500">
+            <span title={absTime(meta.sentAt)}>Request sent {sent}</span>
+          </div>
+        )}
+      </div>
+    );
+  }
+
+  if (status === "pending") {
+    return (
+      <div className="text-[11px] text-slate-400 sm:text-center leading-snug px-1 space-y-0.5">
+        {sent && (
+          <div>
+            <span title={absTime(meta.sentAt)}>Sent {sent}</span>
+          </div>
+        )}
+        <div className="text-slate-500">Waiting on {firstName} to accept from their inbox.</div>
+      </div>
+    );
+  }
+
+  // status === "none"
+  if (canceled) {
+    return (
+      <div className="text-[11px] text-slate-500 sm:text-center leading-snug px-1">
+        <span title={absTime(meta.canceledAt)}>Request canceled {canceled}</span>
+      </div>
+    );
+  }
+  return null;
 }
 
 function StarRow({ value }: { value: number }) {

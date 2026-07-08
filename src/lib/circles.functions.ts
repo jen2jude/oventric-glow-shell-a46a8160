@@ -12,6 +12,14 @@ const RequesterInput = z.object({
 
 export type CircleStatus = "none" | "pending" | "accepted";
 
+export interface CircleStatusResult {
+  status: CircleStatus;
+  /** When the current request was originally sent (null when status === "none"). */
+  sentAt: string | null;
+  /** When the row was last updated — accept time when status === "accepted". */
+  updatedAt: string | null;
+}
+
 export interface IncomingCircleRequest {
   requesterId: string;
   requesterSlug: string | null;
@@ -76,11 +84,11 @@ export const getMyProfile = createServerFn({ method: "GET" })
 export const getCircleStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SlugInput.parse(input))
-  .handler(async ({ data, context }): Promise<{ status: CircleStatus }> => {
+  .handler(async ({ data, context }): Promise<CircleStatusResult> => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("circle_requests")
-      .select("status")
+      .select("status, created_at, updated_at")
       .eq("requester_id", userId)
       .eq("target_slug", data.targetSlug)
       .maybeSingle();
@@ -88,14 +96,18 @@ export const getCircleStatus = createServerFn({ method: "GET" })
       console.error("[getCircleStatus] failed", error);
       throw new Error("Failed to load circle status");
     }
-    if (!row) return { status: "none" };
-    return { status: row.status as CircleStatus };
+    if (!row) return { status: "none", sentAt: null, updatedAt: null };
+    return {
+      status: row.status as CircleStatus,
+      sentAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
   });
 
 export const sendCircleRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SlugInput.parse(input))
-  .handler(async ({ data, context }): Promise<{ status: CircleStatus }> => {
+  .handler(async ({ data, context }): Promise<CircleStatusResult> => {
     const { supabase, userId } = context;
     const { data: row, error } = await supabase
       .from("circle_requests")
@@ -103,19 +115,23 @@ export const sendCircleRequest = createServerFn({ method: "POST" })
         { requester_id: userId, target_slug: data.targetSlug, status: "pending" },
         { onConflict: "requester_id,target_slug", ignoreDuplicates: false },
       )
-      .select("status")
+      .select("status, created_at, updated_at")
       .single();
     if (error) {
       console.error("[sendCircleRequest] failed", error);
       throw new Error("Failed to send request");
     }
-    return { status: row.status as CircleStatus };
+    return {
+      status: row.status as CircleStatus,
+      sentAt: row.created_at,
+      updatedAt: row.updated_at,
+    };
   });
 
 export const cancelCircleRequest = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => SlugInput.parse(input))
-  .handler(async ({ data, context }): Promise<{ status: CircleStatus }> => {
+  .handler(async ({ data, context }): Promise<CircleStatusResult & { canceledAt: string }> => {
     const { supabase, userId } = context;
     const { error } = await supabase
       .from("circle_requests")
@@ -126,7 +142,7 @@ export const cancelCircleRequest = createServerFn({ method: "POST" })
       console.error("[cancelCircleRequest] failed", error);
       throw new Error("Failed to cancel request");
     }
-    return { status: "none" };
+    return { status: "none", sentAt: null, updatedAt: null, canceledAt: new Date().toISOString() };
   });
 
 /** List pending requests addressed to the signed-in user (via their profile slug). */
