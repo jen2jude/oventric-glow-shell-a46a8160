@@ -238,7 +238,10 @@ export function Feed() {
         {/* Comments */}
         <div className="mt-4 space-y-2">
           {comments.map((c) => (
-            <div key={c.id} className="flex items-start gap-2">
+            <div
+              key={c.id}
+              className={`flex items-start gap-2 transition-opacity ${c.pending ? "opacity-60" : ""}`}
+            >
               <Link
                 to="/profile/$id"
                 params={{ id: c.authorId }}
@@ -246,14 +249,30 @@ export function Feed() {
               >
                 {c.initials}
               </Link>
-              <div className="flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
-                <Link
-                  to="/profile/$id"
-                  params={{ id: c.authorId }}
-                  className="text-xs font-semibold text-white hover:text-emerald-400"
-                >
-                  {c.author}
-                </Link>
+              <div
+                className={`flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
+                  c.failed ? "border-red-500/40" : "border-white/5"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/profile/$id"
+                    params={{ id: c.authorId }}
+                    className="text-xs font-semibold text-white hover:text-emerald-400"
+                  >
+                    {c.author}
+                  </Link>
+                  {c.pending && (
+                    <span className="text-[10px] uppercase tracking-wider text-slate-500">
+                      Sending…
+                    </span>
+                  )}
+                  {c.failed && (
+                    <span className="text-[10px] uppercase tracking-wider text-red-400">
+                      Failed
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-slate-300 mt-0.5 leading-relaxed">{c.text}</div>
               </div>
             </div>
