@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,6 +9,13 @@ import {
   acceptCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
+import { getProfileTab, type ProfileTabPage } from "@/lib/profiles.functions";
+import type {
+  ProfilePost,
+  ProfileGroup,
+  ProfileListing,
+  ProfileBounty,
+} from "@/lib/profiles/mockProfiles";
 import {
   ArrowLeft,
   Star,
@@ -58,10 +65,92 @@ function ProfilePage() {
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
+  // Per-tab paginated data. Items accumulate on "Load more".
+  type TabState = {
+    items: ProfileTabPage["items"];
+    page: number;
+    total: number | null;
+    hasMore: boolean;
+    loading: boolean;
+    error: string | null;
+  };
+  const emptyTabState: TabState = {
+    items: [],
+    page: 0,
+    total: null,
+    hasMore: true,
+    loading: false,
+    error: null,
+  };
+  const [tabData, setTabData] = useState<Record<Tab, TabState>>({
+    posts: { ...emptyTabState },
+    groups: { ...emptyTabState },
+    marketplace: { ...emptyTabState },
+    posted: { ...emptyTabState },
+    solved: { ...emptyTabState },
+  });
+  const PAGE_SIZE = 6;
+
+  const fetchTab = useServerFn(getProfileTab);
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
   const acceptReq = useServerFn(acceptCircleRequest);
+
+  const loadPage = useCallback(
+    async (which: Tab, opts?: { reset?: boolean }) => {
+      setTabData((s) => ({
+        ...s,
+        [which]: { ...s[which], loading: true, error: null, ...(opts?.reset ? emptyTabState : {}) },
+      }));
+      const nextPage = opts?.reset ? 1 : (tabData[which].page || 0) + 1;
+      try {
+        const res = await fetchTab({
+          data: { profileId: profile.id, tab: which, page: nextPage, pageSize: PAGE_SIZE },
+        });
+        setTabData((s) => ({
+          ...s,
+          [which]: {
+            items: opts?.reset ? res.items : [...s[which].items, ...res.items],
+            page: res.page,
+            total: res.total,
+            hasMore: res.hasMore,
+            loading: false,
+            error: null,
+          },
+        }));
+      } catch (e) {
+        console.error(e);
+        setTabData((s) => ({
+          ...s,
+          [which]: { ...s[which], loading: false, error: "Couldn't load. Try again." },
+        }));
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [profile.id, fetchTab],
+  );
+
+  // Load current tab on mount and when tab or profile changes
+  useEffect(() => {
+    if (tabData[tab].page === 0 && !tabData[tab].loading && !tabData[tab].error) {
+      void loadPage(tab, { reset: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, profile.id]);
+
+  // Reset all tab caches when navigating to a different profile
+  useEffect(() => {
+    setTabData({
+      posts: { ...emptyTabState },
+      groups: { ...emptyTabState },
+      marketplace: { ...emptyTabState },
+      posted: { ...emptyTabState },
+      solved: { ...emptyTabState },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.id]);
+
 
   // Ensure an auth session exists (anonymous is fine for the demo)
   const ensureSession = async () => {
@@ -258,135 +347,195 @@ function ProfilePage() {
             <nav className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
               {(
                 [
-                  ["posts", "Posts", profile.posts.length],
-                  ["groups", "Groups", profile.groups.length],
-                  ["marketplace", "Marketplace", profile.listings.length],
-                  ["posted", "Bounties Posted", profile.bountiesPosted.length],
-                  ["solved", "Bounties Solved", profile.bountiesSolved.length],
-                ] as [Tab, string, number][]
-              ).map(([key, label, count]) => (
-                <button
-                  key={key}
-                  onClick={() => setTab(key)}
-                  className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                    tab === key
-                      ? "text-emerald-400 border-emerald-400"
-                      : "text-slate-400 border-transparent hover:text-white"
-                  }`}
-                >
-                  {label} <span className="text-xs text-slate-500 ml-1">({count})</span>
-                </button>
-              ))}
+                  ["posts", "Posts"],
+                  ["groups", "Groups"],
+                  ["marketplace", "Marketplace"],
+                  ["posted", "Bounties Posted"],
+                  ["solved", "Bounties Solved"],
+                ] as [Tab, string][]
+              ).map(([key, label]) => {
+                const count = tabData[key].total;
+                return (
+                  <button
+                    key={key}
+                    onClick={() => setTab(key)}
+                    className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                      tab === key
+                        ? "text-emerald-400 border-emerald-400"
+                        : "text-slate-400 border-transparent hover:text-white"
+                    }`}
+                  >
+                    {label}
+                    <span className="text-xs text-slate-500 ml-1">
+                      ({count === null ? "…" : count})
+                    </span>
+                  </button>
+                );
+              })}
             </nav>
 
             {/* Tab content */}
             <section className="mt-5 space-y-3">
-              {tab === "posts" &&
-                profile.posts.map((p) => (
-                  <article key={p.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
-                    <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
-                      <span>{profile.name}</span>
-                      <span>·</span>
-                      <span>{p.timeAgo}</span>
-                    </div>
-                    <p className="text-sm text-slate-200 leading-relaxed">{p.content}</p>
-                    <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
-                      <span>❤ {p.likes}</span>
-                      <span>💬 {p.comments}</span>
-                    </div>
-                  </article>
-                ))}
+              {(() => {
+                const st = tabData[tab];
+                const initialLoading = st.loading && st.items.length === 0;
+                const isEmpty = !st.loading && st.items.length === 0 && !st.error;
 
-              {tab === "groups" && (
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {profile.groups.map((g) => (
-                    <div key={g.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black">
-                          <Users className="w-5 h-5" />
-                        </div>
-                        <div className="min-w-0">
-                          <div className="text-white font-semibold text-sm truncate">{g.name}</div>
-                          <div className="text-[11px] text-slate-500">
-                            {g.tag} · {g.members.toLocaleString()} members
+                if (st.error && st.items.length === 0) {
+                  return (
+                    <ErrorState
+                      label={st.error}
+                      onRetry={() => loadPage(tab, { reset: true })}
+                    />
+                  );
+                }
+                if (initialLoading) return <TabSkeleton variant={tab} />;
+                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name)} />;
+
+                return (
+                  <>
+                    {tab === "posts" && (
+                      <>
+                        {(st.items as ProfilePost[]).map((p) => (
+                          <article
+                            key={p.id}
+                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-5"
+                          >
+                            <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
+                              <span>{profile.name}</span>
+                              <span>·</span>
+                              <span>{p.timeAgo}</span>
+                            </div>
+                            <p className="text-sm text-slate-200 leading-relaxed">{p.content}</p>
+                            <div className="flex items-center gap-4 mt-3 text-xs text-slate-500">
+                              <span>❤ {p.likes}</span>
+                              <span>💬 {p.comments}</span>
+                            </div>
+                          </article>
+                        ))}
+                      </>
+                    )}
+
+                    {tab === "groups" && (
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {(st.items as ProfileGroup[]).map((g) => (
+                          <div
+                            key={g.id}
+                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
+                          >
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black">
+                                <Users className="w-5 h-5" />
+                              </div>
+                              <div className="min-w-0">
+                                <div className="text-white font-semibold text-sm truncate">
+                                  {g.name}
+                                </div>
+                                <div className="text-[11px] text-slate-500">
+                                  {g.tag} · {g.members.toLocaleString()} members
+                                </div>
+                              </div>
+                            </div>
                           </div>
-                        </div>
+                        ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              )}
+                    )}
 
-              {tab === "marketplace" && (
-                <div className="grid sm:grid-cols-2 gap-3">
-                  {profile.listings.map((l) => (
-                    <div key={l.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-                      <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
-                        {l.category}
-                      </div>
-                      <div className="text-white font-semibold text-sm mt-1">{l.title}</div>
-                      <div className="flex items-center justify-between mt-3">
-                        <div className="text-white font-black text-lg">{price(l.priceUsd)}</div>
-                        <div className="text-[11px] text-slate-500">{l.sales} sold</div>
-                      </div>
-                      <button
-                        onClick={() => require(2, () => alert("Proceed to checkout (mock)"))}
-                        className="mt-3 w-full px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs"
-                      >
-                        Buy Now
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {tab === "posted" &&
-                (profile.bountiesPosted.length ? (
-                  profile.bountiesPosted.map((b) => (
-                    <article
-                      key={b.id}
-                      className="bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5"
-                    >
-                      <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300 mb-2">
-                        <Target className="w-3.5 h-3.5" />
-                        [ACTIVE · {price(b.amountUsd)}]
-                      </div>
-                      <h3 className="text-white font-bold leading-snug">{b.title}</h3>
-                      <div className="text-xs text-slate-500 mt-2">
-                        <Users className="w-3.5 h-3.5 inline mr-1" />
-                        {b.applicants ?? 0} applicants
-                      </div>
-                    </article>
-                  ))
-                ) : (
-                  <EmptyState label="No open bounties posted." />
-                ))}
-
-              {tab === "solved" &&
-                (profile.bountiesSolved.length ? (
-                  profile.bountiesSolved.map((b) => (
-                    <article key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
-                      <div className="flex items-center gap-2 text-[11px] font-bold text-purple-300 mb-2">
-                        <Award className="w-3.5 h-3.5" />
-                        [SOLVED · {price(b.amountUsd)}]
-                      </div>
-                      <h3 className="text-white font-bold leading-snug">{b.title}</h3>
-                      {b.proof && (
-                        <div className="mt-3 bg-black/30 border border-white/5 rounded-lg p-3">
-                          <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
-                            Technical execution proof
+                    {tab === "marketplace" && (
+                      <div className="grid sm:grid-cols-2 gap-3">
+                        {(st.items as ProfileListing[]).map((l) => (
+                          <div
+                            key={l.id}
+                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
+                          >
+                            <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+                              {l.category}
+                            </div>
+                            <div className="text-white font-semibold text-sm mt-1">{l.title}</div>
+                            <div className="flex items-center justify-between mt-3">
+                              <div className="text-white font-black text-lg">
+                                {price(l.priceUsd)}
+                              </div>
+                              <div className="text-[11px] text-slate-500">{l.sales} sold</div>
+                            </div>
+                            <button
+                              onClick={() =>
+                                require(2, () => alert("Proceed to checkout (mock)"))
+                              }
+                              className="mt-3 w-full px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs"
+                            >
+                              Buy Now
+                            </button>
                           </div>
-                          <p className="text-xs text-slate-300 leading-relaxed">{b.proof}</p>
-                          <button className="mt-2 inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300">
-                            View artifact <ExternalLink className="w-3 h-3" />
-                          </button>
+                        ))}
+                      </div>
+                    )}
+
+                    {tab === "posted" &&
+                      (st.items as ProfileBounty[]).map((b) => (
+                        <article
+                          key={b.id}
+                          className="bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5"
+                        >
+                          <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300 mb-2">
+                            <Target className="w-3.5 h-3.5" />
+                            [ACTIVE · {price(b.amountUsd)}]
+                          </div>
+                          <h3 className="text-white font-bold leading-snug">{b.title}</h3>
+                          <div className="text-xs text-slate-500 mt-2">
+                            <Users className="w-3.5 h-3.5 inline mr-1" />
+                            {b.applicants ?? 0} applicants
+                          </div>
+                        </article>
+                      ))}
+
+                    {tab === "solved" &&
+                      (st.items as ProfileBounty[]).map((b) => (
+                        <article
+                          key={b.id}
+                          className="bg-[#1E1E24] border border-white/10 rounded-xl p-5"
+                        >
+                          <div className="flex items-center gap-2 text-[11px] font-bold text-purple-300 mb-2">
+                            <Award className="w-3.5 h-3.5" />
+                            [SOLVED · {price(b.amountUsd)}]
+                          </div>
+                          <h3 className="text-white font-bold leading-snug">{b.title}</h3>
+                          {b.proof && (
+                            <div className="mt-3 bg-black/30 border border-white/5 rounded-lg p-3">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+                                Technical execution proof
+                              </div>
+                              <p className="text-xs text-slate-300 leading-relaxed">{b.proof}</p>
+                              <button className="mt-2 inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300">
+                                View artifact <ExternalLink className="w-3 h-3" />
+                              </button>
+                            </div>
+                          )}
+                        </article>
+                      ))}
+
+                    {/* Pagination footer */}
+                    <div className="pt-2 flex items-center justify-center">
+                      {st.hasMore ? (
+                        <button
+                          onClick={() => loadPage(tab)}
+                          disabled={st.loading}
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-sm text-slate-300 hover:text-white hover:bg-white/5 disabled:opacity-50"
+                        >
+                          {st.loading ? "Loading…" : `Load more (${(st.total ?? 0) - st.items.length} left)`}
+                        </button>
+                      ) : (
+                        <div className="text-[11px] text-slate-500">
+                          You've reached the end · {st.items.length} of {st.total}
                         </div>
                       )}
-                    </article>
-                  ))
-                ) : (
-                  <EmptyState label="No solved bounties yet." />
-                ))}
+                    </div>
+                    {st.error && st.items.length > 0 && (
+                      <div className="text-center text-[11px] text-red-400">{st.error}</div>
+                    )}
+                  </>
+                );
+              })()}
             </section>
           </div>
         </main>
@@ -444,6 +593,63 @@ function EmptyState({ label }: { label: string }) {
       {label}
     </div>
   );
+}
+
+function ErrorState({ label, onRetry }: { label: string; onRetry: () => void }) {
+  return (
+    <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
+      <div className="text-sm text-red-300 mb-3">{label}</div>
+      <button
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-slate-200 hover:bg-white/5 text-xs"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
+function TabSkeleton({ variant }: { variant: Tab }) {
+  const rows = 3;
+  if (variant === "groups" || variant === "marketplace") {
+    return (
+      <div className="grid sm:grid-cols-2 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 animate-pulse">
+            <div className="h-10 w-10 rounded-lg bg-white/5 mb-3" />
+            <div className="h-3 w-2/3 bg-white/5 rounded mb-2" />
+            <div className="h-2.5 w-1/2 bg-white/5 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse">
+          <div className="h-2.5 w-24 bg-white/5 rounded mb-3" />
+          <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
+          <div className="h-3 w-8/12 bg-white/5 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function emptyLabelFor(tab: Tab, name: string): string {
+  switch (tab) {
+    case "posts":
+      return `${name} hasn't posted anything yet.`;
+    case "groups":
+      return `${name} hasn't joined any groups yet.`;
+    case "marketplace":
+      return `${name} has no marketplace listings yet.`;
+    case "posted":
+      return "No open bounties posted.";
+    case "solved":
+      return "No solved bounties yet.";
+  }
 }
 
 function DMDrawer({

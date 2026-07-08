@@ -1,0 +1,40 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import type {
+  ProfileBounty,
+  ProfileGroup,
+  ProfileListing,
+  ProfilePost,
+} from "./profiles/mockProfiles";
+
+const TabEnum = z.enum(["posts", "groups", "marketplace", "posted", "solved"]);
+
+const TabInput = z.object({
+  profileId: z.string().trim().min(1).max(120),
+  tab: TabEnum,
+  page: z.number().int().min(1).max(200).default(1),
+  pageSize: z.number().int().min(1).max(50).default(6),
+});
+
+export type ProfileTabItem =
+  | ProfilePost
+  | ProfileGroup
+  | ProfileListing
+  | ProfileBounty;
+
+export interface ProfileTabPage {
+  items: ProfileTabItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+  hasMore: boolean;
+}
+
+export const getProfileTab = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => TabInput.parse(input))
+  .handler(async ({ data }): Promise<ProfileTabPage> => {
+    const { loadProfileTab } = await import("@/lib/profiles/data.server");
+    // Small artificial latency so pagination UX is observable in the demo.
+    await new Promise((r) => setTimeout(r, 120));
+    return loadProfileTab(data.profileId, data.tab, data.page, data.pageSize);
+  });
