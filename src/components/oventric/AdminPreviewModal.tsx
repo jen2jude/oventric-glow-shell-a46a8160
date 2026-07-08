@@ -21,6 +21,7 @@ interface PreviewModalProps {
   visual?: ReactNode;
   confirmLabel: string;
   icon?: ReactNode;
+  isSubmitting?: boolean;
 }
 
 const ACCENT_MAP = {
