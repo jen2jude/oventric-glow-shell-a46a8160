@@ -96,8 +96,7 @@ function fmtTs(iso: string) {
 }
 
 export function Wallet() {
-  const { balances } = useOnboarding();
-  const [hide, setHide] = useState(false);
+  const { balances, balancesHidden: hide, toggleBalancesHidden } = useOnboarding();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -191,7 +190,7 @@ export function Wallet() {
           </p>
         </div>
         <button
-          onClick={() => setHide((h) => !h)}
+          onClick={toggleBalancesHidden}
           className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] bg-[#141418] px-3 py-2 text-xs font-semibold text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
         >
           {hide ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
