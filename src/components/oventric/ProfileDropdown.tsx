@@ -341,8 +341,10 @@ export function ProfileDropdown() {
             ref={menuRef}
             id={menuId}
             role="menu"
+            tabIndex={-1}
             aria-labelledby={triggerId}
             aria-orientation="vertical"
+            aria-modal="true"
             onKeyDown={onMenuKeyDown}
             className={[
               // Mobile bottom-sheet defaults
