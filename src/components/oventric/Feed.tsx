@@ -1,4 +1,4 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send } from "lucide-react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,7 +8,13 @@ import { useAdminStore, useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
-import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
+import {
+  addComment as addCommentFn,
+  listComments as listCommentsFn,
+  updateComment as updateCommentFn,
+  deleteComment as deleteCommentFn,
+  type FeedComment,
+} from "@/lib/comments.functions";
 
 const POST_ID = "post-aria-1";
 
