@@ -11,6 +11,8 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { OnboardingProvider } from "@/lib/onboarding/OnboardingContext";
+import { StageModals } from "@/components/oventric/onboarding/StageModals";
 
 function NotFoundComponent() {
   return (
@@ -117,8 +119,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-      <Outlet />
+      <OnboardingProvider>
+        {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+        <Outlet />
+        <StageModals />
+      </OnboardingProvider>
     </QueryClientProvider>
   );
 }
