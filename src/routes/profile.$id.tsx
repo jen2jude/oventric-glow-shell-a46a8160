@@ -1,5 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  getCircleStatus,
+  sendCircleRequest,
+  cancelCircleRequest,
+  acceptCircleRequest,
+  type CircleStatus,
+} from "@/lib/circles.functions";
 import {
   ArrowLeft,
   Star,
