@@ -296,12 +296,16 @@ function AdInjector() {
   const [clickUrl, setClickUrl] = useState("");
   const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
-  const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  const clearErr = (k: string) =>
+    setErrors((prev) => (prev[k] ? { ...prev, [k]: "" } : prev));
 
   const reset = () => {
     setAdvertiser(""); setMediaUrl(""); setCta("Claim Free Credit"); setClickUrl("");
-    setStartAt(""); setEndAt("");
+    setStartAt(""); setEndAt(""); setErrors({});
   };
 
   const toEpoch = (s: string): number | null => {
@@ -313,36 +317,63 @@ function AdInjector() {
   const startEpoch = toEpoch(startAt);
   const endEpoch = toEpoch(endAt);
 
-  const openPreview = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!advertiser.trim() || !cta.trim() || !clickUrl.trim()) {
-      setToast({ msg: "Advertiser, CTA and URL are required.", kind: "err" }); return;
-    }
-    if (tier !== "text" && !mediaUrl.trim()) {
-      setToast({ msg: "Media URL required for Tier 2/3.", kind: "err" }); return;
+  const isValidUrl = (s: string): boolean => {
+    try { const u = new URL(s); return u.protocol === "http:" || u.protocol === "https:"; } catch { return false; }
+  };
+
+  const validate = (): Record<string, string> => {
+    const e: Record<string, string> = {};
+    if (!advertiser.trim()) e.advertiser = "Advertiser name required.";
+    if (!cta.trim()) e.cta = "CTA text required.";
+    else if (cta.trim().length > 40) e.cta = "Keep CTA under 40 characters.";
+    if (!clickUrl.trim()) e.clickUrl = "Destination URL required.";
+    else if (!isValidUrl(clickUrl.trim())) e.clickUrl = "Must be a valid http(s) URL.";
+    if (tier !== "text") {
+      if (!mediaUrl.trim()) e.mediaUrl = "Media URL required for Tier 2/3.";
+      else if (!isValidUrl(mediaUrl.trim())) e.mediaUrl = "Must be a valid http(s) URL.";
     }
     if (startEpoch != null && endEpoch != null && endEpoch <= startEpoch) {
-      setToast({ msg: "End time must be after start time.", kind: "err" }); return;
+      e.endAt = "End must be after start.";
     }
-    setToast(null);
+    return e;
+  };
+
+  const openPreview = (e: React.FormEvent) => {
+    e.preventDefault();
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Fix the highlighted fields", { description: `${Object.keys(errs).length} field${Object.keys(errs).length === 1 ? "" : "s"} need attention before launch.` });
+      return;
+    }
     setPreviewOpen(true);
   };
 
-  const confirmSubmit = () => {
-    adminStore.addAd({
-      advertiser: advertiser.trim(), placement, tier,
-      mediaUrl: mediaUrl.trim(), cta: cta.trim(), clickUrl: clickUrl.trim(),
-      startAt: startEpoch, endAt: endEpoch,
-    });
-    setPreviewOpen(false);
-    const scheduleNote =
-      startEpoch && startEpoch > Date.now()
-        ? " Scheduled to start soon."
-        : endEpoch
-          ? " Running until end date."
-          : "";
-    setToast({ msg: `Campaign live across placement.${scheduleNote}`, kind: "ok" });
-    reset();
+  const confirmSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await commitToServer(() =>
+        adminStore.addAd({
+          advertiser: advertiser.trim(), placement, tier,
+          mediaUrl: mediaUrl.trim(), cta: cta.trim(), clickUrl: clickUrl.trim(),
+          startAt: startEpoch, endAt: endEpoch,
+        }),
+      );
+      const scheduleNote =
+        startEpoch && startEpoch > Date.now()
+          ? " Scheduled to start soon."
+          : endEpoch
+            ? " Running until end date."
+            : "";
+      toast.success("Campaign launched", { description: `${advertiser.trim()} is live in the ${placement} loop.${scheduleNote}` });
+      setPreviewOpen(false);
+      reset();
+    } catch (err) {
+      toast.error("Launch failed", { description: err instanceof Error ? err.message : "The ad server rejected the campaign. Try again." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fmtWindow = (ms: number | null): string =>
@@ -364,7 +395,7 @@ function AdInjector() {
 
   return (
     <>
-      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+      <form onSubmit={openPreview} noValidate className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center">
             <Megaphone className="w-4 h-4 text-fuchsia-300" />
@@ -377,7 +408,10 @@ function AdInjector() {
 
         <div>
           <FieldLabel>Campaign Advertiser</FieldLabel>
-          <input className={inputCls} value={advertiser} onChange={(e) => setAdvertiser(e.target.value)} placeholder="Kessler Labs" />
+          <input className={fieldCls(!!errors.advertiser)} value={advertiser}
+            onChange={(e) => { setAdvertiser(e.target.value); clearErr("advertiser"); }} placeholder="Kessler Labs"
+            aria-invalid={!!errors.advertiser} />
+          <InlineError msg={errors.advertiser} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -391,7 +425,7 @@ function AdInjector() {
           </div>
           <div>
             <FieldLabel>Advertisement Tier</FieldLabel>
-            <select className={inputCls} value={tier} onChange={(e) => setTier(e.target.value as AdTier)}>
+            <select className={inputCls} value={tier} onChange={(e) => { setTier(e.target.value as AdTier); clearErr("mediaUrl"); }}>
               <option value="text">Tier 1 — Text Only</option>
               <option value="banner">Tier 2 — Visual Banner</option>
               <option value="video">Tier 3 — Video Player</option>
@@ -401,33 +435,44 @@ function AdInjector() {
 
         <div>
           <FieldLabel>Creative Media URL</FieldLabel>
-          <input className={inputCls} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://cdn.example.com/creative.jpg" />
+          <input className={fieldCls(!!errors.mediaUrl)} value={mediaUrl}
+            onChange={(e) => { setMediaUrl(e.target.value); clearErr("mediaUrl"); }} placeholder="https://cdn.example.com/creative.jpg"
+            aria-invalid={!!errors.mediaUrl} />
+          <InlineError msg={errors.mediaUrl} />
         </div>
 
         <div>
           <FieldLabel>Call-to-Action Text</FieldLabel>
-          <input className={inputCls} value={cta} onChange={(e) => setCta(e.target.value)} />
+          <input className={fieldCls(!!errors.cta)} value={cta} maxLength={40}
+            onChange={(e) => { setCta(e.target.value); clearErr("cta"); }}
+            aria-invalid={!!errors.cta} />
+          <InlineError msg={errors.cta} />
         </div>
 
         <div>
           <FieldLabel>Destination Click-Through URL</FieldLabel>
-          <input className={inputCls} value={clickUrl} onChange={(e) => setClickUrl(e.target.value)} placeholder="https://target.example.com/campaign" />
+          <input className={fieldCls(!!errors.clickUrl)} value={clickUrl}
+            onChange={(e) => { setClickUrl(e.target.value); clearErr("clickUrl"); }} placeholder="https://target.example.com/campaign"
+            aria-invalid={!!errors.clickUrl} />
+          <InlineError msg={errors.clickUrl} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <FieldLabel>Start (optional)</FieldLabel>
-            <input type="datetime-local" className={inputCls} value={startAt} onChange={(e) => setStartAt(e.target.value)} />
+            <input type="datetime-local" className={inputCls} value={startAt}
+              onChange={(e) => { setStartAt(e.target.value); clearErr("endAt"); }} />
             <p className="text-[10px] text-slate-500 mt-1">Leave empty to start immediately.</p>
           </div>
           <div>
             <FieldLabel>End (optional)</FieldLabel>
-            <input type="datetime-local" className={inputCls} value={endAt} onChange={(e) => setEndAt(e.target.value)} min={startAt || undefined} />
-            <p className="text-[10px] text-slate-500 mt-1">Leave empty to run indefinitely.</p>
+            <input type="datetime-local" className={fieldCls(!!errors.endAt)} value={endAt}
+              onChange={(e) => { setEndAt(e.target.value); clearErr("endAt"); }} min={startAt || undefined}
+              aria-invalid={!!errors.endAt} />
+            <InlineError msg={errors.endAt} />
+            {!errors.endAt && <p className="text-[10px] text-slate-500 mt-1">Leave empty to run indefinitely.</p>}
           </div>
         </div>
-
-        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
 
         <button type="submit" className="w-full py-2.5 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2">
           <Eye className="w-4 h-4" /> Preview & Launch
@@ -438,6 +483,7 @@ function AdInjector() {
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
         onConfirm={confirmSubmit}
+        isSubmitting={submitting}
         title={advertiser.trim() || "Untitled campaign"}
         subtitle={`${tierLabel} • ${placement} loop`}
         accent="fuchsia"
