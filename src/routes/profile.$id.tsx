@@ -760,6 +760,32 @@ function ProfilePage() {
               }}
             />
 
+            {/* Live refresh indicator for the marketplace tab */}
+            {tab === "marketplace" && (
+              <div className="mt-3 flex items-center justify-between text-[11px]">
+                <div className="inline-flex items-center gap-1.5 text-slate-400">
+                  <span
+                    className={`w-1.5 h-1.5 rounded-full ${
+                      mpRefreshing ? "bg-emerald-400 animate-pulse" : "bg-emerald-500"
+                    }`}
+                    aria-hidden
+                  />
+                  <span className="font-semibold text-emerald-300">Live prices</span>
+                  <span className="text-slate-500">· Last updated {mpAgoLabel}</span>
+                </div>
+                <button
+                  onClick={refreshMarketplace}
+                  disabled={mpRefreshing}
+                  className="text-slate-400 hover:text-emerald-400 disabled:opacity-50 font-semibold"
+                  aria-label="Refresh marketplace prices"
+                >
+                  {mpRefreshing ? "Refreshing…" : "Refresh"}
+                </button>
+              </div>
+            )}
+
+
+
             {/* Tab content */}
             <section className="mt-5 space-y-3">
               {(() => {
