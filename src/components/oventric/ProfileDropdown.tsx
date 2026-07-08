@@ -396,6 +396,11 @@ function ProfileSettingsModal({
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const dialogRef = useRef<HTMLDivElement>(null);
+  const closeBtnRef = useRef<HTMLButtonElement>(null);
+  const titleId = useId();
+  const descId = useId();
+  useFocusTrap(dialogRef, open, { initialFocus: closeBtnRef });
 
   useEffect(() => {
     if (!open) return;
