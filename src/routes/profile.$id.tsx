@@ -76,6 +76,11 @@ function ProfilePage() {
   const tab: Tab = isTab(search.tab) ? search.tab : "posts";
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
   const restoreY = Math.max(0, search.y || 0);
+  const q = (search.q || "").trim();
+  const sort = SORT_OPTIONS_BY_TAB[tab].some((o) => o.value === search.sort)
+    ? (search.sort as ProfileSortKey)
+    : "newest";
+
 
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
