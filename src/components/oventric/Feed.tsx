@@ -17,6 +17,8 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  pending?: boolean;
+  failed?: boolean;
 }
 
 function toComment(c: FeedComment): Comment {
@@ -105,6 +107,18 @@ export function Feed() {
     const text = draft.trim();
     if (!text || posting) return;
     require(1, async () => {
+      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+      const optimistic: Comment = {
+        id: tempId,
+        author: "You",
+        authorId: "you",
+        initials: "OV",
+        text,
+        pending: true,
+      };
+      // Optimistic append
+      setComments((prev) => [...prev, optimistic]);
+      setDraft("");
       setPosting(true);
       setCommentError(null);
       try {
@@ -112,19 +126,27 @@ export function Feed() {
         const res = await addComment({
           data: { postId: POST_ID, text, authorName: "You", initials: "OV" },
         });
-        setDraft("");
-        // Optimistically append; realtime will dedupe by id
-        setComments((prev) =>
-          prev.some((c) => c.id === res.comment.id) ? prev : [...prev, toComment(res.comment)],
-        );
+        // Reconcile: replace temp with saved row (or drop if realtime already added it)
+        setComments((prev) => {
+          const saved = toComment(res.comment);
+          const hasSaved = prev.some((c) => c.id === saved.id);
+          const withoutTemp = prev.filter((c) => c.id !== tempId);
+          return hasSaved ? withoutTemp : [...withoutTemp, saved];
+        });
       } catch (e) {
         console.error(e);
+        // Mark the optimistic row as failed and restore draft for retry
+        setComments((prev) =>
+          prev.map((c) => (c.id === tempId ? { ...c, pending: false, failed: true } : c)),
+        );
+        setDraft(text);
         setCommentError("Couldn't post comment. Try again.");
       } finally {
         setPosting(false);
       }
     });
   };
+
 
   const isLoggedIn = tier >= 1;
 
@@ -216,7 +238,10 @@ export function Feed() {
         {/* Comments */}
         <div className="mt-4 space-y-2">
           {comments.map((c) => (
-            <div key={c.id} className="flex items-start gap-2">
+            <div
+              key={c.id}
+              className={`flex items-start gap-2 transition-opacity ${c.pending ? "opacity-60" : ""}`}
+            >
               <Link
                 to="/profile/$id"
                 params={{ id: c.authorId }}
@@ -224,14 +249,30 @@ export function Feed() {
               >
                 {c.initials}
               </Link>
-              <div className="flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
-                <Link
-                  to="/profile/$id"
-                  params={{ id: c.authorId }}
-                  className="text-xs font-semibold text-white hover:text-emerald-400"
-                >
-                  {c.author}
-                </Link>
+              <div
+                className={`flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
+                  c.failed ? "border-red-500/40" : "border-white/5"
+                }`}
+              >
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/profile/$id"
+                    params={{ id: c.authorId }}
+                    className="text-xs font-semibold text-white hover:text-emerald-400"
+                  >
+                    {c.author}
+                  </Link>
+                  {c.pending && (
+                    <span className="text-[10px] uppercase tracking-wider text-slate-500">
+                      Sending…
+                    </span>
+                  )}
+                  {c.failed && (
+                    <span className="text-[10px] uppercase tracking-wider text-red-400">
+                      Failed
+                    </span>
+                  )}
+                </div>
                 <div className="text-xs text-slate-300 mt-0.5 leading-relaxed">{c.text}</div>
               </div>
             </div>
