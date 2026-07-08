@@ -6,6 +6,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { useAdminStore } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
+import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
 import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
 
