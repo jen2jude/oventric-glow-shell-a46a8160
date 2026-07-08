@@ -79,7 +79,7 @@ export function PreviewModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={isSubmitting ? undefined : onClose} />
       <div
         role="dialog"
         aria-modal="true"
