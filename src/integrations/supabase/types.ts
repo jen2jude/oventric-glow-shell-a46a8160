@@ -114,23 +114,32 @@ export type Database = {
         Row: {
           created_at: string
           display_name: string | null
+          reputation_stars: number
           slug: string
           updated_at: string
           user_id: string
+          username: string | null
+          verification_tier: string
         }
         Insert: {
           created_at?: string
           display_name?: string | null
+          reputation_stars?: number
           slug: string
           updated_at?: string
           user_id: string
+          username?: string | null
+          verification_tier?: string
         }
         Update: {
           created_at?: string
           display_name?: string | null
+          reputation_stars?: number
           slug?: string
           updated_at?: string
           user_id?: string
+          username?: string | null
+          verification_tier?: string
         }
         Relationships: []
       }
@@ -190,6 +199,39 @@ export type Database = {
           status?: Database["public"]["Enums"]["wallet_tx_status"]
           tx_hash?: string
           type?: Database["public"]["Enums"]["wallet_tx_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wallets: {
+        Row: {
+          accumulated_cashback: number
+          available_balance: number
+          created_at: string
+          currency: string
+          escrow_balance: number
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          accumulated_cashback?: number
+          available_balance?: number
+          created_at?: string
+          currency: string
+          escrow_balance?: number
+          id?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          accumulated_cashback?: number
+          available_balance?: number
+          created_at?: string
+          currency?: string
+          escrow_balance?: number
+          id?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []
