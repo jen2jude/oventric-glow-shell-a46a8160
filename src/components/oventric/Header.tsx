@@ -25,11 +25,23 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <Menu className="w-5 h-5" />
         </button>
       )}
-      <div className="flex items-center gap-2 shrink-0">
-        <span className="text-xl font-black tracking-tight text-white">
-          OVEN<span className="text-emerald-400">TRIC</span>
-        </span>
+      <div className="flex items-center shrink-0">
+        {/* Mobile: ring-only mark */}
+        <img
+          src={logoMark.url}
+          alt="Oventric"
+          className="sm:hidden h-9 w-9 object-contain [mix-blend-mode:screen]"
+          draggable={false}
+        />
+        {/* Tablet & desktop: full wordmark */}
+        <img
+          src={logoFull.url}
+          alt="Oventric"
+          className="hidden sm:block h-9 w-auto object-contain [mix-blend-mode:screen]"
+          draggable={false}
+        />
       </div>
+
 
       <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
         <div className="relative group">
