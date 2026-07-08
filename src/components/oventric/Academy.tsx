@@ -372,6 +372,9 @@ export function Academy() {
       </div>
 
       <div className="px-4 py-6 space-y-4">
+        {academyAds.map((a) => (
+          <AdminAdCard key={a.id} ad={a} variant="banner" />
+        ))}
         {filtered.map((course, idx) => {
           const isExpanded = !!expanded[course.id];
           const injections: React.ReactNode[] = [];
