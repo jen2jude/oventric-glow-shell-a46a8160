@@ -1,7 +1,17 @@
+import { useState } from "react";
 import { Search, Bell, MessageCircle, Menu } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
+import {
+  NotificationsDrawer,
+  SEED_NOTIFICATIONS,
+  type Notif,
+} from "@/components/oventric/NotificationsDrawer";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
+  const [notifOpen, setNotifOpen] = useState(false);
+  const [notifs, setNotifs] = useState<Notif[]>(SEED_NOTIFICATIONS);
+  const unread = notifs.some((n) => !n.read);
+
   return (
     <header className="sticky top-0 z-30 h-16 bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
       {onMenuClick && (
@@ -33,9 +43,18 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         <button className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300">
           <Search className="w-5 h-5" />
         </button>
-        <button className="rgb-pulse-glow relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors">
+        <button
+          onClick={() => setNotifOpen(true)}
+          aria-label="Open notifications"
+          className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+        >
           <Bell className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400" />
+          {unread && (
+            <span
+              className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 rgb-pulse-glow"
+              aria-hidden
+            />
+          )}
         </button>
         <IncomingCircleInbox />
         <button
@@ -50,6 +69,13 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           OV
         </button>
       </div>
+
+      <NotificationsDrawer
+        open={notifOpen}
+        onClose={() => setNotifOpen(false)}
+        items={notifs}
+        onUpdate={setNotifs}
+      />
     </header>
   );
 }
