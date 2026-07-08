@@ -50,6 +50,7 @@ export type Database = {
           initials: string
           post_id: string
           text: string
+          updated_at: string
         }
         Insert: {
           author_id: string
@@ -59,6 +60,7 @@ export type Database = {
           initials: string
           post_id: string
           text: string
+          updated_at?: string
         }
         Update: {
           author_id?: string
@@ -68,6 +70,7 @@ export type Database = {
           initials?: string
           post_id?: string
           text?: string
+          updated_at?: string
         }
         Relationships: []
       }

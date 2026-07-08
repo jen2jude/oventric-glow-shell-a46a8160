@@ -1,4 +1,4 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send } from "lucide-react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -8,7 +8,13 @@ import { useAdminStore, useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
-import { addComment as addCommentFn, listComments as listCommentsFn, type FeedComment } from "@/lib/comments.functions";
+import {
+  addComment as addCommentFn,
+  listComments as listCommentsFn,
+  updateComment as updateCommentFn,
+  deleteComment as deleteCommentFn,
+  type FeedComment,
+} from "@/lib/comments.functions";
 
 const POST_ID = "post-aria-1";
 
@@ -88,8 +94,14 @@ export function Feed() {
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [commentError, setCommentError] = useState<string | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [editDraft, setEditDraft] = useState("");
+  const [savingEdit, setSavingEdit] = useState(false);
   const listComments = useServerFn(listCommentsFn);
   const addComment = useServerFn(addCommentFn);
+  const updateComment = useServerFn(updateCommentFn);
+  const deleteComment = useServerFn(deleteCommentFn);
 
   const ensureSession = async () => {
     const { data } = await supabase.auth.getSession();
@@ -97,6 +109,8 @@ export function Feed() {
       const { error } = await supabase.auth.signInAnonymously();
       if (error) throw error;
     }
+    const { data: userData } = await supabase.auth.getUser();
+    if (userData.user?.id) setMeId(userData.user.id);
   };
 
   // Initial load
@@ -116,7 +130,7 @@ export function Feed() {
     };
   }, [listComments]);
 
-  // Realtime subscription
+  // Realtime subscription (insert / update / delete)
   useEffect(() => {
     const channel = supabase
       .channel(`post_comments:${POST_ID}`)
@@ -126,6 +140,23 @@ export function Feed() {
         (payload) => {
           const row = payload.new as FeedComment;
           setComments((prev) => (prev.some((c) => c.id === row.id) ? prev : [...prev, toComment(row)]));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const row = payload.new as FeedComment;
+          setComments((prev) => prev.map((c) => (c.id === row.id ? { ...c, ...toComment(row) } : c)));
+        },
+      )
+      .on(
+        "postgres_changes",
+        { event: "DELETE", schema: "public", table: "post_comments", filter: `post_id=eq.${POST_ID}` },
+        (payload) => {
+          const oldRow = payload.old as Partial<FeedComment>;
+          if (!oldRow?.id) return;
+          setComments((prev) => prev.filter((c) => c.id !== oldRow.id));
         },
       )
       .subscribe();
@@ -187,6 +218,47 @@ export function Feed() {
         setPosting(false);
       }
     });
+  };
+
+  const startEdit = (c: Comment) => {
+    setEditingId(c.id);
+    setEditDraft(c.text);
+    setCommentError(null);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft("");
+  };
+  const saveEdit = async () => {
+    if (!editingId) return;
+    const text = editDraft.trim();
+    if (!text) return;
+    const prevSnapshot = comments;
+    setSavingEdit(true);
+    setComments((prev) => prev.map((c) => (c.id === editingId ? { ...c, text } : c)));
+    try {
+      await updateComment({ data: { id: editingId, text } });
+      setEditingId(null);
+      setEditDraft("");
+    } catch (e) {
+      console.error(e);
+      setComments(prevSnapshot);
+      setCommentError("Couldn't update comment. Try again.");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+  const removeComment = async (id: string) => {
+    if (typeof window !== "undefined" && !window.confirm("Delete this comment?")) return;
+    const prevSnapshot = comments;
+    setComments((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await deleteComment({ data: { id } });
+    } catch (e) {
+      console.error(e);
+      setComments(prevSnapshot);
+      setCommentError("Couldn't delete comment. Try again.");
+    }
   };
 
 
@@ -293,7 +365,7 @@ export function Feed() {
                 {c.initials}
               </Link>
               <div
-                className={`flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
+                className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
                   c.failed ? "border-red-500/40" : "border-white/5"
                 }`}
               >
@@ -315,8 +387,60 @@ export function Feed() {
                       Failed
                     </span>
                   )}
+                  {meId && c.authorId === meId && !c.pending && editingId !== c.id && (
+                    <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(c)}
+                        aria-label="Edit comment"
+                        className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-emerald-400"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeComment(c.id)}
+                        aria-label="Delete comment"
+                        className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-red-400"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="text-xs text-slate-300 mt-0.5 leading-relaxed">{c.text}</div>
+                {editingId === c.id ? (
+                  <div className="mt-1 flex items-center gap-1">
+                    <input
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEdit();
+                        else if (e.key === "Escape") cancelEdit();
+                      }}
+                      autoFocus
+                      className="flex-1 bg-black/40 border border-emerald-500/40 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={saveEdit}
+                      disabled={savingEdit || !editDraft.trim() || editDraft.trim() === c.text}
+                      aria-label="Save edit"
+                      className="p-1 rounded bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
+                    >
+                      <Check className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      aria-label="Cancel edit"
+                      className="p-1 rounded hover:bg-white/5 text-slate-400"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">{c.text}</div>
+                )}
               </div>
             </div>
           ))}
