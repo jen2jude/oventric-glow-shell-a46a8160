@@ -6,7 +6,6 @@ import {
   getCircleStatus,
   sendCircleRequest,
   cancelCircleRequest,
-  acceptCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
 import { getProfileTab, type ProfileTabPage } from "@/lib/profiles.functions";
@@ -95,7 +94,7 @@ function ProfilePage() {
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
-  const acceptReq = useServerFn(acceptCircleRequest);
+  
 
   const loadPage = useCallback(
     async (which: Tab, opts?: { reset?: boolean }) => {
@@ -208,8 +207,6 @@ function ProfilePage() {
     else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
     // "accepted" click is a no-op; user can Chat instead.
   };
-  const handleAccept = () =>
-    runCircle(() => acceptReq({ data: { targetSlug: profile.id } }));
   const handleChat = () => require(1, () => setDmOpen(true));
 
   return (
@@ -304,14 +301,9 @@ function ProfilePage() {
                     )}
                   </button>
                   {circle === "pending" && (
-                    <button
-                      onClick={handleAccept}
-                      disabled={circleBusy}
-                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-xs font-semibold disabled:opacity-60"
-                      title={`Simulate ${profile.name} accepting your request`}
-                    >
-                      Accept as {profile.name.split(" ")[0]}
-                    </button>
+                    <p className="text-[11px] text-slate-400 sm:text-center leading-snug px-1">
+                      Waiting on {profile.name.split(" ")[0]} to accept from their inbox.
+                    </p>
                   )}
                   <button
                     onClick={handleChat}
