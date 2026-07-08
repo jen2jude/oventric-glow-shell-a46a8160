@@ -17,6 +17,8 @@ export function Feed() {
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
+  const [reported, setReported] = useState<Set<string>>(new Set());
+  const markReported = (id: string) => setReported((s) => new Set(s).add(id));
   const [comments, setComments] = useState<Comment[]>([
     { id: "c1", author: "Devin Ortiz", authorId: "devin-ortiz", initials: "DO", text: "This saved me a week — thank you." },
   ]);
