@@ -320,9 +320,6 @@ const ADS: Ad[] = [
   },
 ];
 
-import { useAdminStore } from "@/lib/admin/store";
-import { AdCard as AdminAdCard } from "@/components/oventric/AdCard";
-
 export function Academy() {
   const { require, baseCurrency } = useOnboarding();
   const admin = useAdminStore();
