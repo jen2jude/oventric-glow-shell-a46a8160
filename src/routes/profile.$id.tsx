@@ -158,18 +158,49 @@ function ProfilePage() {
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">{profile.bio}</p>
                 </div>
-                <div className="flex sm:flex-col gap-2 sm:w-40 shrink-0">
+                <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button
                     onClick={handleJoin}
-                    className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                      joined
+                    disabled={circleBusy}
+                    className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 ${
+                      circle === "accepted"
                         ? "bg-emerald-500/15 border border-emerald-500/50 text-emerald-300"
-                        : "bg-emerald-500 hover:bg-emerald-400 text-black"
+                        : circle === "pending"
+                          ? "bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/15"
+                          : "bg-emerald-500 hover:bg-emerald-400 text-black"
                     }`}
+                    aria-label={
+                      circle === "accepted"
+                        ? "In your circle"
+                        : circle === "pending"
+                          ? "Cancel circle request"
+                          : "Send circle request"
+                    }
                   >
-                    {joined ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                    {joined ? "In Circle" : "Join Circle"}
+                    {circle === "accepted" ? (
+                      <>
+                        <Check className="w-4 h-4" /> In Circle
+                      </>
+                    ) : circle === "pending" ? (
+                      <>
+                        <Check className="w-4 h-4" /> Requested
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" /> Join Circle
+                      </>
+                    )}
                   </button>
+                  {circle === "pending" && (
+                    <button
+                      onClick={handleAccept}
+                      disabled={circleBusy}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-xs font-semibold disabled:opacity-60"
+                      title={`Simulate ${profile.name} accepting your request`}
+                    >
+                      Accept as {profile.name.split(" ")[0]}
+                    </button>
+                  )}
                   <button
                     onClick={handleChat}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
@@ -182,6 +213,9 @@ function ProfilePage() {
                   >
                     <Flag className="w-3.5 h-3.5" /> Report
                   </button>
+                  {circleError && (
+                    <div className="text-[11px] text-red-400 sm:text-center">{circleError}</div>
+                  )}
                 </div>
               </div>
 
