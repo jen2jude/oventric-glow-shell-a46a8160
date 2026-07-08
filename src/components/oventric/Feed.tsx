@@ -3,6 +3,8 @@ import { useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { useAdminStore } from "@/lib/admin/store";
+import { AdCard } from "@/components/oventric/AdCard";
 
 interface Comment {
   id: string;
