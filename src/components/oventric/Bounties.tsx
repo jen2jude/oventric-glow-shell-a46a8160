@@ -19,6 +19,7 @@ import {
   Wallet as WalletIcon,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAdminStore } from "@/lib/admin/store";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
