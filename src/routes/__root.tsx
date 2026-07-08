@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { OnboardingProvider } from "@/lib/onboarding/OnboardingContext";
 import { StageModals } from "@/components/oventric/onboarding/StageModals";
+import { AuthSeeder } from "@/components/oventric/AuthSeeder";
 
 function NotFoundComponent() {
   return (
