@@ -96,7 +96,8 @@ export function ReportModal({
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<ReportError | null>(null);
+  const [attempts, setAttempts] = useState(0);
 
   useEffect(() => {
     if (!open) {
@@ -105,6 +106,7 @@ export function ReportModal({
       setSubmitted(false);
       setSubmitting(false);
       setError(null);
+      setAttempts(0);
     }
   }, [open]);
 
@@ -125,14 +127,21 @@ export function ReportModal({
       });
       setSubmitted(true);
       onReported?.(targetId);
+      toast.success("Report submitted", {
+        description: "Trust & safety will review it within 24h.",
+      });
       setTimeout(onClose, 1400);
     } catch (e) {
-      console.error(e);
-      setError("Couldn't submit report. Please try again.");
+      console.error("[ReportModal] submit failed", e);
+      const err = classifyError(e);
+      setError(err);
+      setAttempts((n) => n + 1);
+      toast.error(err.title, { description: err.message });
     } finally {
       setSubmitting(false);
     }
   };
+
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
