@@ -37,6 +37,7 @@ import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 
 export const Route = createFileRoute("/profile/$id")({
   head: ({ params }) => ({
@@ -63,6 +64,7 @@ function ProfilePage() {
   const [circleError, setCircleError] = useState<string | null>(null);
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [requestsOpen, setRequestsOpen] = useState(false);
 
   // Per-tab paginated data. Items accumulate on "Load more".
   type TabState = {
@@ -220,12 +222,22 @@ function ProfilePage() {
         <Header />
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
-            <button
-              onClick={() => navigate({ to: "/" })}
-              className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 mb-4"
-            >
-              <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
-            </button>
+            <div className="flex items-center justify-between gap-3 mb-4">
+              <button
+                onClick={() => navigate({ to: "/" })}
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400"
+              >
+                <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
+              </button>
+              <button
+                onClick={() => setRequestsOpen(true)}
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                aria-label="Open circle requests drawer"
+              >
+                <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
+                Circle Requests
+              </button>
+            </div>
 
             {/* Hero */}
             <section className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6">
@@ -618,6 +630,7 @@ function ProfilePage() {
       </div>
 
       <DMDrawer open={dmOpen} onClose={() => setDmOpen(false)} profile={profile} />
+      <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
