@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Link } from "@tanstack/react-router";
 import { Search, Bell, MessageCircle, Menu } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
@@ -25,7 +26,11 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <Menu className="w-5 h-5" />
         </button>
       )}
-      <div className="flex items-center shrink-0">
+      <Link
+        to="/"
+        aria-label="Oventric"
+        className="flex items-center shrink-0"
+      >
         {/* Mobile: ring-only mark */}
         <img
           src={logoMark.url}
@@ -40,7 +45,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           className="hidden sm:block h-9 w-auto object-contain [mix-blend-mode:screen]"
           draggable={false}
         />
-      </div>
+      </Link>
 
 
       <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
