@@ -236,9 +236,10 @@ function AdInjector() {
   const [mediaUrl, setMediaUrl] = useState("");
   const [cta, setCta] = useState("Claim Free Credit");
   const [clickUrl, setClickUrl] = useState("");
-  const [startAt, setStartAt] = useState(""); // datetime-local string
+  const [startAt, setStartAt] = useState("");
   const [endAt, setEndAt] = useState("");
   const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const reset = () => {
     setAdvertiser(""); setMediaUrl(""); setCta("Claim Free Credit"); setClickUrl("");
@@ -251,7 +252,10 @@ function AdInjector() {
     return Number.isFinite(t) ? t : null;
   };
 
-  const submit = (e: React.FormEvent) => {
+  const startEpoch = toEpoch(startAt);
+  const endEpoch = toEpoch(endAt);
+
+  const openPreview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!advertiser.trim() || !cta.trim() || !clickUrl.trim()) {
       setToast({ msg: "Advertiser, CTA and URL are required.", kind: "err" }); return;
@@ -259,16 +263,20 @@ function AdInjector() {
     if (tier !== "text" && !mediaUrl.trim()) {
       setToast({ msg: "Media URL required for Tier 2/3.", kind: "err" }); return;
     }
-    const startEpoch = toEpoch(startAt);
-    const endEpoch = toEpoch(endAt);
     if (startEpoch != null && endEpoch != null && endEpoch <= startEpoch) {
       setToast({ msg: "End time must be after start time.", kind: "err" }); return;
     }
+    setToast(null);
+    setPreviewOpen(true);
+  };
+
+  const confirmSubmit = () => {
     adminStore.addAd({
       advertiser: advertiser.trim(), placement, tier,
       mediaUrl: mediaUrl.trim(), cta: cta.trim(), clickUrl: clickUrl.trim(),
       startAt: startEpoch, endAt: endEpoch,
     });
+    setPreviewOpen(false);
     const scheduleNote =
       startEpoch && startEpoch > Date.now()
         ? " Scheduled to start soon."
@@ -279,88 +287,131 @@ function AdInjector() {
     reset();
   };
 
+  const fmtWindow = (ms: number | null): string =>
+    ms == null ? "—" : new Date(ms).toLocaleString(undefined, { month: "short", day: "numeric", hour: "2-digit", minute: "2-digit" });
+
+  const tierLabel = tier === "text" ? "Tier 1 — Text" : tier === "banner" ? "Tier 2 — Banner" : "Tier 3 — Video";
+
+  const fields: TokenField[] = [
+    { label: "advertiser", value: advertiser.trim(), mono: true },
+    { label: "placement", value: placement, mono: true, accent: "ok" },
+    { label: "tier", value: tierLabel, mono: true },
+    { label: "media_url", value: mediaUrl.trim() || (tier === "text" ? "(none — text tier)" : "—"), mono: true, accent: mediaUrl.trim() ? "default" : "muted" },
+    { label: "cta", value: cta.trim() },
+    { label: "click_url", value: clickUrl.trim(), mono: true },
+    { label: "starts_at", value: fmtWindow(startEpoch), mono: true, accent: startEpoch ? "warn" : "muted" },
+    { label: "ends_at", value: fmtWindow(endEpoch), mono: true, accent: endEpoch ? "warn" : "muted" },
+    { label: "stream", value: `ads / ${placement} loop`, mono: true, accent: "muted" },
+  ];
+
   return (
-    <form onSubmit={submit} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center">
-          <Megaphone className="w-4 h-4 text-fuchsia-300" />
-        </span>
-        <div>
-          <h2 className="text-white font-black text-base leading-tight">Ad Server & Campaign Injector</h2>
-          <p className="text-[11px] text-slate-500">Force placement across Modules 3, 4, 8.</p>
+    <>
+      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center">
+            <Megaphone className="w-4 h-4 text-fuchsia-300" />
+          </span>
+          <div>
+            <h2 className="text-white font-black text-base leading-tight">Ad Server & Campaign Injector</h2>
+            <p className="text-[11px] text-slate-500">Force placement across Modules 3, 4, 8.</p>
+          </div>
         </div>
-      </div>
 
-      <div>
-        <FieldLabel>Campaign Advertiser</FieldLabel>
-        <input className={inputCls} value={advertiser} onChange={(e) => setAdvertiser(e.target.value)} placeholder="Kessler Labs" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <FieldLabel>Target Placement</FieldLabel>
-          <select className={inputCls} value={placement} onChange={(e) => setPlacement(e.target.value as AdPlacement)}>
-            <option value="feed">Social Feed Loop</option>
-            <option value="marketplace">Marketplace Grid Slot</option>
-            <option value="academy">Academy Stream Grid</option>
-          </select>
+          <FieldLabel>Campaign Advertiser</FieldLabel>
+          <input className={inputCls} value={advertiser} onChange={(e) => setAdvertiser(e.target.value)} placeholder="Kessler Labs" />
         </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <FieldLabel>Target Placement</FieldLabel>
+            <select className={inputCls} value={placement} onChange={(e) => setPlacement(e.target.value as AdPlacement)}>
+              <option value="feed">Social Feed Loop</option>
+              <option value="marketplace">Marketplace Grid Slot</option>
+              <option value="academy">Academy Stream Grid</option>
+            </select>
+          </div>
+          <div>
+            <FieldLabel>Advertisement Tier</FieldLabel>
+            <select className={inputCls} value={tier} onChange={(e) => setTier(e.target.value as AdTier)}>
+              <option value="text">Tier 1 — Text Only</option>
+              <option value="banner">Tier 2 — Visual Banner</option>
+              <option value="video">Tier 3 — Video Player</option>
+            </select>
+          </div>
+        </div>
+
         <div>
-          <FieldLabel>Advertisement Tier</FieldLabel>
-          <select className={inputCls} value={tier} onChange={(e) => setTier(e.target.value as AdTier)}>
-            <option value="text">Tier 1 — Text Only</option>
-            <option value="banner">Tier 2 — Visual Banner</option>
-            <option value="video">Tier 3 — Video Player</option>
-          </select>
+          <FieldLabel>Creative Media URL</FieldLabel>
+          <input className={inputCls} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://cdn.example.com/creative.jpg" />
         </div>
-      </div>
 
-      <div>
-        <FieldLabel>Creative Media URL</FieldLabel>
-        <input className={inputCls} value={mediaUrl} onChange={(e) => setMediaUrl(e.target.value)} placeholder="https://cdn.example.com/creative.jpg" />
-      </div>
-
-      <div>
-        <FieldLabel>Call-to-Action Text</FieldLabel>
-        <input className={inputCls} value={cta} onChange={(e) => setCta(e.target.value)} />
-      </div>
-
-      <div>
-        <FieldLabel>Destination Click-Through URL</FieldLabel>
-        <input className={inputCls} value={clickUrl} onChange={(e) => setClickUrl(e.target.value)} placeholder="https://target.example.com/campaign" />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <FieldLabel>Start (optional)</FieldLabel>
-          <input
-            type="datetime-local"
-            className={inputCls}
-            value={startAt}
-            onChange={(e) => setStartAt(e.target.value)}
-          />
-          <p className="text-[10px] text-slate-500 mt-1">Leave empty to start immediately.</p>
+          <FieldLabel>Call-to-Action Text</FieldLabel>
+          <input className={inputCls} value={cta} onChange={(e) => setCta(e.target.value)} />
         </div>
+
         <div>
-          <FieldLabel>End (optional)</FieldLabel>
-          <input
-            type="datetime-local"
-            className={inputCls}
-            value={endAt}
-            onChange={(e) => setEndAt(e.target.value)}
-            min={startAt || undefined}
-          />
-          <p className="text-[10px] text-slate-500 mt-1">Leave empty to run indefinitely.</p>
+          <FieldLabel>Destination Click-Through URL</FieldLabel>
+          <input className={inputCls} value={clickUrl} onChange={(e) => setClickUrl(e.target.value)} placeholder="https://target.example.com/campaign" />
         </div>
-      </div>
 
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <FieldLabel>Start (optional)</FieldLabel>
+            <input type="datetime-local" className={inputCls} value={startAt} onChange={(e) => setStartAt(e.target.value)} />
+            <p className="text-[10px] text-slate-500 mt-1">Leave empty to start immediately.</p>
+          </div>
+          <div>
+            <FieldLabel>End (optional)</FieldLabel>
+            <input type="datetime-local" className={inputCls} value={endAt} onChange={(e) => setEndAt(e.target.value)} min={startAt || undefined} />
+            <p className="text-[10px] text-slate-500 mt-1">Leave empty to run indefinitely.</p>
+          </div>
+        </div>
 
-      {toast && <Toast msg={toast.msg} kind={toast.kind} />}
+        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
 
-      <button type="submit" className="w-full py-2.5 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-black text-sm transition-colors">
-        Launch Ad Campaign
-      </button>
-    </form>
+        <button type="submit" className="w-full py-2.5 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> Preview & Launch
+        </button>
+      </form>
+
+      <PreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        onConfirm={confirmSubmit}
+        title={advertiser.trim() || "Untitled campaign"}
+        subtitle={`${tierLabel} • ${placement} loop`}
+        accent="fuchsia"
+        icon={<span className="w-9 h-9 rounded-lg bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center shrink-0"><Megaphone className="w-4 h-4 text-fuchsia-300" /></span>}
+        confirmLabel="Confirm & Launch Campaign"
+        fields={fields}
+        visual={
+          <div className="rounded-xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-500/10 to-transparent p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">Sponsored • {placement}</span>
+              <span className="text-[10px] font-mono text-slate-500">{tierLabel}</span>
+            </div>
+            {tier !== "text" && mediaUrl.trim() && (
+              <div className="aspect-[16/9] rounded-lg bg-[#121214] border border-white/10 mb-3 overflow-hidden">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={mediaUrl.trim()} alt="Creative preview" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+              </div>
+            )}
+            <div className="text-white font-black text-base mb-1">{advertiser.trim() || "Advertiser"}</div>
+            <button type="button" className="w-full py-2 rounded-lg bg-fuchsia-500 text-black font-black text-xs">
+              {cta.trim() || "Learn more"}
+            </button>
+            <div className="text-[10px] text-slate-500 mt-2 truncate">→ {clickUrl.trim() || "(no url)"}</div>
+            {(startEpoch || endEpoch) && (
+              <div className="text-[10px] text-amber-300 mt-2 font-mono">
+                Window: {fmtWindow(startEpoch)} → {fmtWindow(endEpoch)}
+              </div>
+            )}
+          </div>
+        }
+      />
+    </>
   );
 }
 
