@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { X, Eye } from "lucide-react";
+import { X, Eye, Loader2 } from "lucide-react";
 
 export interface TokenField {
   label: string;
