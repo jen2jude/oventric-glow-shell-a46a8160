@@ -30,6 +30,7 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  status?: "pending" | "failed";
 }
 
 function toComment(c: FeedComment): Comment {
