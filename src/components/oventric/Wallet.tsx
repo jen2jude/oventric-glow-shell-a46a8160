@@ -276,20 +276,14 @@ export function Wallet() {
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search hash, type…"
                 className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
               />
             </div>
             <select
               value={curFilter}
-              onChange={(e) => {
-                setCurFilter(e.target.value as "ALL" | Currency);
-                setPage(1);
-              }}
+              onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
               className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="ALL">All currencies</option>
@@ -297,6 +291,14 @@ export function Wallet() {
               <option value="NGN">NGN</option>
               <option value="GHS">GHS</option>
             </select>
+            <button
+              onClick={() => query.refetch()}
+              disabled={query.isFetching}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
+              title="Refresh ledger"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
+            </button>
           </div>
         </div>
 
