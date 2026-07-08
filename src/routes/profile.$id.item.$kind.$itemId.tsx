@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tanstack/react-router";
 import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle, RefreshCw, AlertTriangle, Compass } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
