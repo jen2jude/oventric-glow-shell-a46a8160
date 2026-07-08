@@ -13,6 +13,8 @@ export interface FeedPost {
   likes_count: number;
   viewer_liked: boolean;
   comments_count: number;
+  media_url: string | null;
+  media_type: "image" | "video" | null;
 }
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
