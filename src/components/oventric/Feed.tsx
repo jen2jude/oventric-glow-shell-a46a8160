@@ -338,7 +338,7 @@ export function Feed() {
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Marketplace</span>
             {reported.has("listing-rls-kit") ? (
-              <ReportedBadge />
+              <ReportedBadge details={reported.get("listing-rls-kit")} />
             ) : (
               <button
                 onClick={() => setReportOpen("listing-rls-kit")}
