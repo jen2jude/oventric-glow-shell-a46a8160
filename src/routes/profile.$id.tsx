@@ -595,6 +595,63 @@ function EmptyState({ label }: { label: string }) {
   );
 }
 
+function ErrorState({ label, onRetry }: { label: string; onRetry: () => void }) {
+  return (
+    <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
+      <div className="text-sm text-red-300 mb-3">{label}</div>
+      <button
+        onClick={onRetry}
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-slate-200 hover:bg-white/5 text-xs"
+      >
+        Try again
+      </button>
+    </div>
+  );
+}
+
+function TabSkeleton({ variant }: { variant: Tab }) {
+  const rows = 3;
+  if (variant === "groups" || variant === "marketplace") {
+    return (
+      <div className="grid sm:grid-cols-2 gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 animate-pulse">
+            <div className="h-10 w-10 rounded-lg bg-white/5 mb-3" />
+            <div className="h-3 w-2/3 bg-white/5 rounded mb-2" />
+            <div className="h-2.5 w-1/2 bg-white/5 rounded" />
+          </div>
+        ))}
+      </div>
+    );
+  }
+  return (
+    <div className="space-y-3">
+      {Array.from({ length: rows }).map((_, i) => (
+        <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse">
+          <div className="h-2.5 w-24 bg-white/5 rounded mb-3" />
+          <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
+          <div className="h-3 w-8/12 bg-white/5 rounded" />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function emptyLabelFor(tab: Tab, name: string): string {
+  switch (tab) {
+    case "posts":
+      return `${name} hasn't posted anything yet.`;
+    case "groups":
+      return `${name} hasn't joined any groups yet.`;
+    case "marketplace":
+      return `${name} has no marketplace listings yet.`;
+    case "posted":
+      return "No open bounties posted.";
+    case "solved":
+      return "No solved bounties yet.";
+  }
+}
+
 function DMDrawer({
   open,
   onClose,
