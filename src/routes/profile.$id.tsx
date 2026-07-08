@@ -248,9 +248,9 @@ function ProfilePage() {
     (async () => {
       setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
       try {
-        let last = await fetchOne(tab, 1, true);
+        let last = await fetchOne(tab, 1, true, { q, sort });
         for (let p = 2; p <= desiredPages && last.hasMore && !cancelled; p++) {
-          last = await fetchOne(tab, p, false);
+          last = await fetchOne(tab, p, false, { q, sort });
         }
         if (cancelled) return;
         // Restore scroll after content is on the page.
