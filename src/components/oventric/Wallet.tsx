@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -17,8 +19,12 @@ import {
   ShieldCheck,
   Zap,
   TrendingUp,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { supabase } from "@/integrations/supabase/client";
+import { listWalletTransactions } from "@/lib/wallet.functions";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
