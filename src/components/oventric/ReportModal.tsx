@@ -126,7 +126,11 @@ export function ReportModal({
         },
       });
       setSubmitted(true);
-      onReported?.(targetId);
+      onReported?.(targetId, {
+        reason,
+        reasonLabel: REASONS.find((r) => r.id === reason)?.label ?? reason,
+        note: note.trim() || null,
+      });
       toast.success("Report submitted", {
         description: "Trust & safety will review it within 24h.",
       });
