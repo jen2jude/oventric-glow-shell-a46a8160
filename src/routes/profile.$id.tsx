@@ -34,6 +34,9 @@ import {
   Flag,
   ExternalLink,
   Link2,
+  Sparkles,
+  AlertTriangle,
+  RefreshCw,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -244,6 +247,25 @@ function ProfilePage() {
     },
     [tab, navigate, id],
   );
+
+  // Retry a failed tab: clear its cache so the load effect refetches up to
+  // the current desiredPages (preserving pagination). Also reset scroll.
+  const retryTab = useCallback(
+    (which: Tab) => {
+      scrollRestoredRef.current = true; // don't try to restore old scroll
+      setTabData((s) => ({ ...s, [which]: { ...emptyTabState } }));
+      navigate({
+        to: "/profile/$id",
+        params: { id },
+        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab: which, y: 0 }),
+        replace: true,
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, id],
+  );
+
+
 
   // Load (or reload) the active tab up to `desiredPages`, then restore scroll.
   useEffect(() => {
@@ -796,21 +818,30 @@ function ProfilePage() {
                 if (st.error && st.items.length === 0) {
                   return (
                     <ErrorState
-                      label={st.error}
-                      onRetry={() => {
-                        setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
-                        navigate({
-                          to: "/profile/$id",
-                          params: { id },
-                          search: { tab, pages: 1, y: 0 },
-                          replace: true,
-                        });
-                      }}
+                      label="Couldn't load this tab"
+                      hint={`We'll refetch ${desiredPages > 1 ? `pages 1–${desiredPages}` : "page 1"} of ${tabNoun(tab)}.`}
+                      onRetry={() => retryTab(tab)}
                     />
                   );
                 }
                 if (initialLoading) return <TabSkeleton variant={tab} />;
-                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name, q)} />;
+                if (isEmpty) {
+                  const empty = emptyContentFor(tab, profile.name, q, () => {
+                    navigate({
+                      to: "/profile/$id",
+                      params: { id },
+                      search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                        ...prev,
+                        q: "",
+                        pages: 1,
+                        y: 0,
+                      }),
+                      replace: true,
+                    });
+                  });
+                  return <EmptyState {...empty} />;
+                }
+
 
                 return (
                   <>
@@ -964,7 +995,15 @@ function ProfilePage() {
                       )}
                     </div>
                     {st.error && st.items.length > 0 && (
-                      <div className="text-center text-[11px] text-red-400">{st.error}</div>
+                      <div className="flex items-center justify-center gap-2 text-[11px] text-red-300">
+                        <span>{st.error}</span>
+                        <button
+                          onClick={() => retryTab(tab)}
+                          className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300"
+                        >
+                          <RefreshCw className="w-3 h-3" /> Try again
+                        </button>
+                      </div>
                     )}
                   </>
                 );
@@ -1170,27 +1209,78 @@ function TabFilters({
   );
 }
 
-function EmptyState({ label }: { label: string }) {
+type StateAction = { label: string; onClick: () => void };
+
+function EmptyState({
+  title,
+  hint,
+  primary,
+  secondary,
+}: {
+  title: string;
+  hint?: string;
+  primary?: StateAction;
+  secondary?: StateAction;
+}) {
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center text-sm text-slate-500">
-      {label}
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
+        <Sparkles className="w-4 h-4" />
+      </div>
+      <div className="text-sm text-slate-200 font-semibold">{title}</div>
+      {hint && <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">{hint}</p>}
+      {(primary || secondary) && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          {primary && (
+            <button
+              onClick={primary.onClick}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+            >
+              {primary.label}
+            </button>
+          )}
+          {secondary && (
+            <button
+              onClick={secondary.onClick}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-xs transition-colors"
+            >
+              {secondary.label}
+            </button>
+          )}
+        </div>
+      )}
     </div>
   );
 }
 
-function ErrorState({ label, onRetry }: { label: string; onRetry: () => void }) {
+function ErrorState({
+  label,
+  hint,
+  onRetry,
+}: {
+  label: string;
+  hint?: string;
+  onRetry: () => void;
+}) {
   return (
     <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
-      <div className="text-sm text-red-300 mb-3">{label}</div>
-      <button
-        onClick={onRetry}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg border border-white/10 text-slate-200 hover:bg-white/5 text-xs"
-      >
-        Try again
-      </button>
+      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 flex items-center justify-center">
+        <AlertTriangle className="w-4 h-4" />
+      </div>
+      <div className="text-sm text-red-200 font-semibold">{label}</div>
+      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      <div className="mt-4 flex items-center justify-center">
+        <button
+          onClick={onRetry}
+          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs transition-colors"
+        >
+          <RefreshCw className="w-3.5 h-3.5" /> Try again
+        </button>
+      </div>
     </div>
   );
 }
+
 
 function TabSkeleton({ variant }: { variant: Tab }) {
   const rows = 3;
@@ -1220,23 +1310,54 @@ function TabSkeleton({ variant }: { variant: Tab }) {
   );
 }
 
-function emptyLabelFor(tab: Tab, name: string, q?: string): string {
+function emptyContentFor(
+  tab: Tab,
+  name: string,
+  q: string,
+  onClearSearch: () => void,
+): {
+  title: string;
+  hint?: string;
+  primary?: StateAction;
+  secondary?: StateAction;
+} {
   if (q && q.trim().length > 0) {
-    return `No ${tabNoun(tab)} match “${q.trim()}”.`;
+    return {
+      title: `No ${tabNoun(tab)} match “${q.trim()}”.`,
+      hint: "Try a different keyword or clear the search to see everything.",
+      primary: { label: "Clear search", onClick: onClearSearch },
+    };
   }
   switch (tab) {
     case "posts":
-      return `${name} hasn't posted anything yet.`;
+      return {
+        title: `${name} hasn't posted yet`,
+        hint: "New posts from this creator will show up here.",
+      };
     case "groups":
-      return `${name} hasn't joined any groups yet.`;
+      return {
+        title: `${name} hasn't joined any circles`,
+        hint: "Once they join a peer circle it will appear on this tab.",
+      };
     case "marketplace":
-      return `${name} has no marketplace listings yet.`;
+      return {
+        title: `${name} has no listings yet`,
+        hint: "Products and services offered by this creator will land here.",
+      };
     case "posted":
-      return "No open bounties posted.";
+      return {
+        title: "No open bounties",
+        hint: "Active bounties this creator has posted will show up here.",
+      };
     case "solved":
-      return "No solved bounties yet.";
+      return {
+        title: "No solved bounties yet",
+        hint: "Completed bounties with delivered proof will appear on this tab.",
+      };
   }
 }
+
+
 
 function tabNoun(tab: Tab): string {
   switch (tab) {
