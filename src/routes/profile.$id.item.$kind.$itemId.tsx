@@ -245,6 +245,7 @@ function Shell({ children }: { children: React.ReactNode }) {
 
 function ItemDetail() {
   const { id, kind } = Route.useParams();
+  const backSearch = Route.useSearch();
   const { item } = Route.useLoaderData();
   const profile = getProfile(id);
   const { baseCurrency, require } = useOnboarding();
@@ -253,15 +254,27 @@ function ItemDetail() {
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
   const price = (usd: number) => `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
+  const tabLabel = TAB_LABELS[backSearch.tab] ?? "Profile";
+
   return (
     <Shell>
       <Link
         to="/profile/$id"
         params={{ id }}
+        search={{
+          tab: backSearch.tab,
+          pages: backSearch.pages,
+          y: backSearch.y,
+          q: backSearch.q,
+          sort: backSearch.sort,
+        }}
         className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 mb-4"
       >
         <ArrowLeft className="w-3.5 h-3.5" /> Back to @{profile.name}
+        <span className="text-slate-600">·</span>
+        <span className="text-slate-500">{tabLabel}</span>
       </Link>
+
 
       {/* Author strip */}
       <Link
