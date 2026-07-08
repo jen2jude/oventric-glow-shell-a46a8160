@@ -65,10 +65,92 @@ function ProfilePage() {
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
 
+  // Per-tab paginated data. Items accumulate on "Load more".
+  type TabState = {
+    items: ProfileTabPage["items"];
+    page: number;
+    total: number | null;
+    hasMore: boolean;
+    loading: boolean;
+    error: string | null;
+  };
+  const emptyTabState: TabState = {
+    items: [],
+    page: 0,
+    total: null,
+    hasMore: true,
+    loading: false,
+    error: null,
+  };
+  const [tabData, setTabData] = useState<Record<Tab, TabState>>({
+    posts: { ...emptyTabState },
+    groups: { ...emptyTabState },
+    marketplace: { ...emptyTabState },
+    posted: { ...emptyTabState },
+    solved: { ...emptyTabState },
+  });
+  const PAGE_SIZE = 6;
+
+  const fetchTab = useServerFn(getProfileTab);
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
   const acceptReq = useServerFn(acceptCircleRequest);
+
+  const loadPage = useCallback(
+    async (which: Tab, opts?: { reset?: boolean }) => {
+      setTabData((s) => ({
+        ...s,
+        [which]: { ...s[which], loading: true, error: null, ...(opts?.reset ? emptyTabState : {}) },
+      }));
+      const nextPage = opts?.reset ? 1 : (tabData[which].page || 0) + 1;
+      try {
+        const res = await fetchTab({
+          data: { profileId: profile.id, tab: which, page: nextPage, pageSize: PAGE_SIZE },
+        });
+        setTabData((s) => ({
+          ...s,
+          [which]: {
+            items: opts?.reset ? res.items : [...s[which].items, ...res.items],
+            page: res.page,
+            total: res.total,
+            hasMore: res.hasMore,
+            loading: false,
+            error: null,
+          },
+        }));
+      } catch (e) {
+        console.error(e);
+        setTabData((s) => ({
+          ...s,
+          [which]: { ...s[which], loading: false, error: "Couldn't load. Try again." },
+        }));
+      }
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [profile.id, fetchTab],
+  );
+
+  // Load current tab on mount and when tab or profile changes
+  useEffect(() => {
+    if (tabData[tab].page === 0 && !tabData[tab].loading && !tabData[tab].error) {
+      void loadPage(tab, { reset: true });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tab, profile.id]);
+
+  // Reset all tab caches when navigating to a different profile
+  useEffect(() => {
+    setTabData({
+      posts: { ...emptyTabState },
+      groups: { ...emptyTabState },
+      marketplace: { ...emptyTabState },
+      posted: { ...emptyTabState },
+      solved: { ...emptyTabState },
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [profile.id]);
+
 
   // Ensure an auth session exists (anonymous is fine for the demo)
   const ensureSession = async () => {
