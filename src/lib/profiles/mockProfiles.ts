@@ -36,11 +36,13 @@ export interface Profile {
   joined: string;
   followers: number;
   reputation: {
-    stars: number; // 0-5, may be fractional
     bountiesSolved: number;
     coursesCompleted: number;
     salesCount: number;
-    disputeRate: number; // percent
+    disputeRate: number; // percent (lower is better)
+    retentionRate: number; // percent of buyers/students who stay active (higher is better)
+    refundRate: number; // percent of orders refunded (lower is better)
+    activityScore: number; // 0-100, platform usage frequency (days active in last 30)
   };
   posts: ProfilePost[];
   groups: ProfileGroup[];
@@ -61,11 +63,13 @@ const base: Record<string, Profile> = {
     joined: "March 2023",
     followers: 4820,
     reputation: {
-      stars: 4.8,
       bountiesSolved: 27,
       coursesCompleted: 12,
       salesCount: 341,
       disputeRate: 0.4,
+      retentionRate: 92,
+      refundRate: 1.2,
+      activityScore: 88,
     },
     posts: [
       {
@@ -153,11 +157,13 @@ export function getProfile(id: string): Profile {
     joined: "2024",
     followers: 128,
     reputation: {
-      stars: 4.2,
       bountiesSolved: 3,
       coursesCompleted: 2,
       salesCount: 14,
       disputeRate: 1.1,
+      retentionRate: 70,
+      refundRate: 3.5,
+      activityScore: 55,
     },
     posts: [
       { id: "p1", content: "New here — shipping small things every day.", timeAgo: "5h ago", likes: 12, comments: 3 },
@@ -169,3 +175,79 @@ export function getProfile(id: string): Profile {
     dm: [{ from: "them", text: "Hey, thanks for connecting!", time: "09:00" }],
   };
 }
+
+export interface StarBreakdownItem {
+  key: string;
+  label: string;
+  detail: string;
+  weight: number; // 0-1
+  score: number; // 0-1 normalized contribution
+  raw: string; // human-friendly raw value
+}
+
+export interface StarBreakdown {
+  stars: number; // 0-5
+  items: StarBreakdownItem[];
+}
+
+/**
+ * Derive a 0-5 star rating from utility metrics. Each component is
+ * normalized to 0-1, weighted, then scaled to 5.
+ */
+export function computeStarBreakdown(rep: Profile["reputation"]): StarBreakdown {
+  const clamp = (n: number) => Math.max(0, Math.min(1, n));
+
+  const bountyScore = clamp(rep.bountiesSolved / 30);
+  const retentionScore = clamp(rep.retentionRate / 100);
+  const refundScore = clamp(1 - (rep.refundRate + rep.disputeRate) / 20); // 0% -> 1, 20%+ -> 0
+  const coursesScore = clamp(rep.coursesCompleted / 15);
+  const activityScore = clamp(rep.activityScore / 100);
+
+  const items: StarBreakdownItem[] = [
+    {
+      key: "bounties",
+      label: "Completed bounties",
+      detail: "Verified paid work delivered on-platform",
+      weight: 0.25,
+      score: bountyScore,
+      raw: `${rep.bountiesSolved} solved`,
+    },
+    {
+      key: "retention",
+      label: "Customer retention",
+      detail: "Share of buyers & students who stay active after 30 days",
+      weight: 0.2,
+      score: retentionScore,
+      raw: `${rep.retentionRate}%`,
+    },
+    {
+      key: "refunds",
+      label: "Refunds & disputes",
+      detail: "Lower is better — inverse of refund + dispute rate",
+      weight: 0.2,
+      score: refundScore,
+      raw: `${rep.refundRate}% refunds · ${rep.disputeRate}% disputes`,
+    },
+    {
+      key: "courses",
+      label: "Learning progress",
+      detail: "Courses completed on Academy",
+      weight: 0.1,
+      score: coursesScore,
+      raw: `${rep.coursesCompleted} courses`,
+    },
+    {
+      key: "activity",
+      label: "Platform activity",
+      detail: "How often the user shows up (active days in last 30)",
+      weight: 0.25,
+      score: activityScore,
+      raw: `${rep.activityScore}/100`,
+    },
+  ];
+
+  const weighted = items.reduce((sum, i) => sum + i.score * i.weight, 0);
+  const stars = Math.round(weighted * 5 * 10) / 10;
+  return { stars, items };
+}
+
