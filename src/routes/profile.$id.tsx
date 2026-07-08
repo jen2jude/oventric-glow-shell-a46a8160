@@ -37,6 +37,7 @@ import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 
 export const Route = createFileRoute("/profile/$id")({
   head: ({ params }) => ({
