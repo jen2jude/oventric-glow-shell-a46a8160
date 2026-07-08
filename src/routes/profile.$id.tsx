@@ -628,6 +628,39 @@ function ProfilePage() {
               })}
             </nav>
 
+            {/* Search + sort */}
+            <TabFilters
+              tab={tab}
+              q={q}
+              sort={sort}
+              onChangeQ={(next) => {
+                navigate({
+                  to: "/profile/$id",
+                  params: { id },
+                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                    ...prev,
+                    q: next,
+                    pages: 1,
+                    y: 0,
+                  }),
+                  replace: true,
+                });
+              }}
+              onChangeSort={(next) => {
+                navigate({
+                  to: "/profile/$id",
+                  params: { id },
+                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                    ...prev,
+                    sort: next,
+                    pages: 1,
+                    y: 0,
+                  }),
+                  replace: true,
+                });
+              }}
+            />
+
             {/* Tab content */}
             <section className="mt-5 space-y-3">
               {(() => {
