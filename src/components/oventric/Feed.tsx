@@ -405,7 +405,7 @@ export function Feed() {
             [ACTIVE BOUNTY: $450 USD]
           </div>
           {reported.has("bounty-rls") ? (
-            <ReportedBadge />
+            <ReportedBadge details={reported.get("bounty-rls")} />
           ) : (
             <button
               onClick={() => setReportOpen("bounty-rls")}
