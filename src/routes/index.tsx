@@ -9,8 +9,7 @@ import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
 import { Bounties } from "@/components/oventric/Bounties";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
-import { OnboardingProvider, useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { StageModals } from "@/components/oventric/onboarding/StageModals";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -24,7 +23,7 @@ export const Route = createFileRoute("/")({
   component: Index,
 });
 
-function IndexInner() {
+function Index() {
   const [createOpen, setCreateOpen] = useState(false);
   const [active, setActive] = useState("Feed");
   const { require } = useOnboarding();
@@ -36,7 +35,6 @@ function IndexInner() {
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
-      {/* Animated neon frame */}
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg" />
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg" />
       <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
@@ -52,15 +50,6 @@ function IndexInner() {
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
-      <StageModals />
     </div>
-  );
-}
-
-function Index() {
-  return (
-    <OnboardingProvider>
-      <IndexInner />
-    </OnboardingProvider>
   );
 }
