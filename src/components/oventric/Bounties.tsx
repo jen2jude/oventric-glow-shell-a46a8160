@@ -144,7 +144,7 @@ const BOUNTIES: Bounty[] = [
 type ContractStatus = "escrow" | "review" | "released" | "revisions" | "disputed";
 interface ChatMsg {
   id: string;
-  from: "dev" | "poster" | "system";
+  from: "developer" | "poster" | "system";
   text: string;
   ts: number;
 }
