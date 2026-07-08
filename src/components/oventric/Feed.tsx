@@ -217,7 +217,7 @@ export function Feed() {
             <div className="text-xs text-slate-500">Staff Engineer · 2h ago</div>
           </div>
           {reported.has("post-aria-1") ? (
-            <ReportedBadge />
+            <ReportedBadge details={reported.get("post-aria-1")} />
           ) : (
             <button
               onClick={() => setReportOpen("post-aria-1")}
