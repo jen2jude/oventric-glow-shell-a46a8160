@@ -1095,7 +1095,10 @@ function TabSkeleton({ variant }: { variant: Tab }) {
   );
 }
 
-function emptyLabelFor(tab: Tab, name: string): string {
+function emptyLabelFor(tab: Tab, name: string, q?: string): string {
+  if (q && q.trim().length > 0) {
+    return `No ${tabNoun(tab)} match “${q.trim()}”.`;
+  }
   switch (tab) {
     case "posts":
       return `${name} hasn't posted anything yet.`;
@@ -1107,6 +1110,16 @@ function emptyLabelFor(tab: Tab, name: string): string {
       return "No open bounties posted.";
     case "solved":
       return "No solved bounties yet.";
+  }
+}
+
+function tabNoun(tab: Tab): string {
+  switch (tab) {
+    case "posts": return "posts";
+    case "groups": return "groups";
+    case "marketplace": return "listings";
+    case "posted": return "bounties";
+    case "solved": return "solved bounties";
   }
 }
 
