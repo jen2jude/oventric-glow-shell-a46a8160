@@ -19,6 +19,7 @@ interface OnboardingState {
   baseCurrency: Currency;
   payoutBank: PayoutBank;
   balances: Record<Currency, number>;
+  balancesHidden: boolean;
 }
 
 interface OnboardingContextValue extends OnboardingState {
@@ -28,6 +29,8 @@ interface OnboardingContextValue extends OnboardingState {
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
+  setBalancesHidden: (hidden: boolean) => void;
+  toggleBalancesHidden: () => void;
 }
 
 const OnboardingContext = createContext<OnboardingContextValue | null>(null);
