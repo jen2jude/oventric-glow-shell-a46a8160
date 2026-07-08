@@ -311,7 +311,7 @@ function ItemDetail() {
   );
 }
 
-type Require = (step: number, cb: () => void) => void;
+type Require = (step: 0 | 1 | 2 | 3 | 4 | 5, cb: () => void) => void;
 
 function copyCurrentUrl() {
   if (typeof window === "undefined") return;
