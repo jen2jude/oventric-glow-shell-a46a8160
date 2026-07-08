@@ -425,84 +425,132 @@ function MegaBountyIssuer() {
   const [escrow, setEscrow] = useState("");
   const [currency, setCurrency] = useState<AdminCurrency>("USD");
   const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [previewOpen, setPreviewOpen] = useState(false);
 
   const reset = () => { setTitle(""); setScope(""); setEscrow(""); };
 
-  const submit = (e: React.FormEvent) => {
+  const limitN = Number(applicantLimit);
+  const escN = Number(escrow);
+
+  const openPreview = (e: React.FormEvent) => {
     e.preventDefault();
-    const limit = Number(applicantLimit), esc = Number(escrow);
     if (!title.trim() || !scope.trim() || !timeframe.trim()) {
       setToast({ msg: "Title, scope and timeframe are required.", kind: "err" }); return;
     }
-    if (!(limit > 0) || !(esc > 0)) {
+    if (!(limitN > 0) || !(escN > 0)) {
       setToast({ msg: "Applicant limit and escrow must be > 0.", kind: "err" }); return;
     }
+    setToast(null);
+    setPreviewOpen(true);
+  };
+
+  const confirmSubmit = () => {
     adminStore.addBounty({
       title: title.trim(), scope: scope.trim(), timeframe: timeframe.trim(),
-      applicantLimit: limit, escrowAmount: esc, escrowCurrency: currency,
+      applicantLimit: limitN, escrowAmount: escN, escrowCurrency: currency,
     });
+    setPreviewOpen(false);
     setToast({ msg: "Bounty deployed and escrow locked.", kind: "ok" });
     reset();
   };
 
+  const fields: TokenField[] = [
+    { label: "title", value: title.trim(), mono: true },
+    { label: "timeframe", value: timeframe.trim(), mono: true },
+    { label: "applicant_limit", value: limitN, mono: true },
+    { label: "escrow", value: `${CURRENCY_SYMBOL[currency]}${escN.toLocaleString()} ${currency}`, mono: true, accent: "warn" },
+    { label: "scope", value: scope.trim(), mono: true, multiline: true },
+    { label: "stream", value: "bounties / public board", mono: true, accent: "muted" },
+  ];
+
   return (
-    <form onSubmit={submit} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
-      <div className="flex items-center gap-2 mb-1">
-        <span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
-          <Target className="w-4 h-4 text-amber-300" />
-        </span>
-        <div>
-          <h2 className="text-white font-black text-base leading-tight">Sovereign Mega-Bounty Issuer</h2>
-          <p className="text-[11px] text-slate-500">Corporate-backed drops into Module 5.</p>
-        </div>
-      </div>
-
-      <div>
-        <FieldLabel>Project Task Title</FieldLabel>
-        <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ship a hardened RLS matrix" />
-      </div>
-
-      <div>
-        <FieldLabel>Scope of Technical Requirements</FieldLabel>
-        <textarea rows={5} className={`${inputCls} font-mono text-xs`} value={scope} onChange={(e) => setScope(e.target.value)} placeholder={"## Deliverables\n- ...\n- ..."} />
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <FieldLabel>Est. Timeframe</FieldLabel>
-          <input className={inputCls} value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
-        </div>
-        <div>
-          <FieldLabel>Applicants Limit</FieldLabel>
-          <input type="number" min={1} className={inputCls} value={applicantLimit} onChange={(e) => setApplicantLimit(e.target.value)} />
-        </div>
-      </div>
-
-      <div>
-        <FieldLabel>Escrow Funding Commitment</FieldLabel>
-        <div className="flex gap-2">
-          <div className="relative flex-1">
-            <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[currency]}</span>
-            <input type="number" min={0} step="0.01" className={`${inputCls} pl-6`} value={escrow} onChange={(e) => setEscrow(e.target.value)} placeholder="5000" />
-          </div>
-          <div className="flex rounded-lg border border-white/10 overflow-hidden">
-            {(["USD", "NGN", "GHS"] as const).map((c) => (
-              <button
-                type="button" key={c} onClick={() => setCurrency(c)}
-                className={`px-3 text-xs font-bold ${currency === c ? "bg-amber-500 text-black" : "bg-[#121214] text-slate-300 hover:text-white"}`}
-              >
-                {c}
-              </button>
-            ))}
+    <>
+      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+        <div className="flex items-center gap-2 mb-1">
+          <span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
+            <Target className="w-4 h-4 text-amber-300" />
+          </span>
+          <div>
+            <h2 className="text-white font-black text-base leading-tight">Sovereign Mega-Bounty Issuer</h2>
+            <p className="text-[11px] text-slate-500">Corporate-backed drops into Module 5.</p>
           </div>
         </div>
-      </div>
 
-      {toast && <Toast msg={toast.msg} kind={toast.kind} />}
+        <div>
+          <FieldLabel>Project Task Title</FieldLabel>
+          <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ship a hardened RLS matrix" />
+        </div>
 
-      <button type="submit" className="rgb-pulse-glow w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2">
-        <Rocket className="w-4 h-4" /> Deploy Public Bounty & Lock Escrow
-      </button>
-    </form>
+        <div>
+          <FieldLabel>Scope of Technical Requirements</FieldLabel>
+          <textarea rows={5} className={`${inputCls} font-mono text-xs`} value={scope} onChange={(e) => setScope(e.target.value)} placeholder={"## Deliverables\n- ...\n- ..."} />
+        </div>
+
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <FieldLabel>Est. Timeframe</FieldLabel>
+            <input className={inputCls} value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
+          </div>
+          <div>
+            <FieldLabel>Applicants Limit</FieldLabel>
+            <input type="number" min={1} className={inputCls} value={applicantLimit} onChange={(e) => setApplicantLimit(e.target.value)} />
+          </div>
+        </div>
+
+        <div>
+          <FieldLabel>Escrow Funding Commitment</FieldLabel>
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[currency]}</span>
+              <input type="number" min={0} step="0.01" className={`${inputCls} pl-6`} value={escrow} onChange={(e) => setEscrow(e.target.value)} placeholder="5000" />
+            </div>
+            <div className="flex rounded-lg border border-white/10 overflow-hidden">
+              {(["USD", "NGN", "GHS"] as const).map((c) => (
+                <button
+                  type="button" key={c} onClick={() => setCurrency(c)}
+                  className={`px-3 text-xs font-bold ${currency === c ? "bg-amber-500 text-black" : "bg-[#121214] text-slate-300 hover:text-white"}`}
+                >
+                  {c}
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
+
+        <button type="submit" className="rgb-pulse-glow w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2">
+          <Eye className="w-4 h-4" /> Preview & Deploy Bounty
+        </button>
+      </form>
+
+      <PreviewModal
+        open={previewOpen}
+        onClose={() => setPreviewOpen(false)}
+        onConfirm={confirmSubmit}
+        title={title.trim() || "Untitled bounty"}
+        subtitle={`Escrow ${CURRENCY_SYMBOL[currency]}${escN.toLocaleString()} • ${timeframe.trim()}`}
+        accent="amber"
+        icon={<span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center shrink-0"><Target className="w-4 h-4 text-amber-300" /></span>}
+        confirmLabel="Confirm & Lock Escrow"
+        fields={fields}
+        visual={
+          <div className="rounded-xl border border-amber-500/30 bg-gradient-to-br from-amber-500/10 to-transparent p-4">
+            <div className="flex items-center justify-between mb-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest text-amber-300">Public Bounty</span>
+              <span className="text-[10px] font-mono text-slate-500">up to {limitN} solvers</span>
+            </div>
+            <div className="text-white font-black text-lg leading-tight mb-2">{title.trim() || "Untitled bounty"}</div>
+            <div className="flex items-baseline gap-3 mb-3">
+              <span className="text-amber-300 font-black text-xl">{CURRENCY_SYMBOL[currency]}{escN.toLocaleString()}</span>
+              <span className="text-[10px] font-mono text-slate-500">{currency} • {timeframe.trim()}</span>
+            </div>
+            <pre className="text-[11px] font-mono text-slate-400 whitespace-pre-wrap max-h-32 overflow-y-auto bg-[#121214] rounded-lg p-2 border border-white/5">
+              {scope.trim() || "(no scope)"}
+            </pre>
+          </div>
+        }
+      />
+    </>
   );
 }
