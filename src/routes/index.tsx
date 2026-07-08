@@ -12,6 +12,7 @@ import { CreatePanel } from "@/components/oventric/CreatePanel";
 import { Admin } from "@/components/oventric/Admin";
 import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 export const Route = createFileRoute("/")({
@@ -41,6 +42,7 @@ function Index() {
     : active === "Bounties" ? <Bounties />
     : active === "Admin" ? <Admin />
     : active === "Messages" ? <Messages variant="page" />
+    : active === "Circles" ? <CirclesHub />
     : <Feed />;
 
   const isMessages = active === "Messages";
