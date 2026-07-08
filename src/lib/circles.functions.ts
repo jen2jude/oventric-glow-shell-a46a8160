@@ -12,6 +12,14 @@ const RequesterInput = z.object({
 
 export type CircleStatus = "none" | "pending" | "accepted";
 
+export interface CircleStatusResult {
+  status: CircleStatus;
+  /** When the current request was originally sent (null when status === "none"). */
+  sentAt: string | null;
+  /** When the row was last updated — accept time when status === "accepted". */
+  updatedAt: string | null;
+}
+
 export interface IncomingCircleRequest {
   requesterId: string;
   requesterSlug: string | null;
