@@ -62,7 +62,6 @@ export function ProfileDropdown() {
   const returnFocusRef = useRef(false);
   const triggerId = "profile-dropdown-trigger";
   const menuId = "profile-dropdown-menu";
-  const isMobile = useMediaQuery("(max-width: 640px)");
   const navigate = useNavigate();
 
   const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
