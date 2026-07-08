@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAdminStore } from "@/lib/admin/store";
+import { AdCard } from "@/components/oventric/AdCard";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
