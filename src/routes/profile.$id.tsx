@@ -976,6 +976,75 @@ function StarRow({ value }: { value: number }) {
   );
 }
 
+function TabFilters({
+  tab,
+  q,
+  sort,
+  onChangeQ,
+  onChangeSort,
+}: {
+  tab: Tab;
+  q: string;
+  sort: ProfileSortKey;
+  onChangeQ: (next: string) => void;
+  onChangeSort: (next: ProfileSortKey) => void;
+}) {
+  const [draft, setDraft] = useState(q);
+  // Keep the local input in sync when the URL changes externally (e.g. tab switch).
+  useEffect(() => {
+    setDraft(q);
+  }, [q, tab]);
+  // Debounce URL writes so every keystroke doesn't hit the server.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      if (draft.trim() !== q) onChangeQ(draft.trim());
+    }, 300);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
+  const options = SORT_OPTIONS_BY_TAB[tab];
+
+  return (
+    <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:items-center">
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={SEARCH_PLACEHOLDER[tab]}
+          className="w-full bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/40"
+          aria-label={SEARCH_PLACEHOLDER[tab]}
+        />
+        {draft && (
+          <button
+            type="button"
+            onClick={() => setDraft("")}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+      <label className="flex items-center gap-2 shrink-0">
+        <span className="text-[11px] uppercase tracking-wider text-slate-500">Sort</span>
+        <select
+          value={sort}
+          onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
+          className="bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/40"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function EmptyState({ label }: { label: string }) {
   return (
     <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center text-sm text-slate-500">
