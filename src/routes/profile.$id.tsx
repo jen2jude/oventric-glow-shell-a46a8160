@@ -273,7 +273,7 @@ function ProfilePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, profile.id]);
+  }, [tab, profile.id, q, sort]);
 
   // Reset caches when navigating to a different profile.
   useEffect(() => {
