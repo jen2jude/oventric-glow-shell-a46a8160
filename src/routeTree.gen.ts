@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -22,31 +23,39 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
+  id: '/item/$kind/$itemId',
+  path: '/item/$kind/$itemId',
+  getParentRoute: () => ProfileIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/profile/$id': typeof ProfileIdRoute
+  '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/profile/$id': typeof ProfileIdRoute
+  '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/profile/$id': typeof ProfileIdRoute
+  '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile/$id'
+  fullPaths: '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile/$id'
-  id: '__root__' | '/' | '/profile/$id'
+  to: '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
+  id: '__root__' | '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  ProfileIdRoute: typeof ProfileIdRoute
+  ProfileIdRoute: typeof ProfileIdRouteWithChildren
 }
 
 declare module '@tanstack/react-router' {
@@ -65,12 +74,31 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ProfileIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/profile/$id/item/$kind/$itemId': {
+      id: '/profile/$id/item/$kind/$itemId'
+      path: '/item/$kind/$itemId'
+      fullPath: '/profile/$id/item/$kind/$itemId'
+      preLoaderRoute: typeof ProfileIdItemKindItemIdRouteImport
+      parentRoute: typeof ProfileIdRoute
+    }
   }
 }
 
+interface ProfileIdRouteChildren {
+  ProfileIdItemKindItemIdRoute: typeof ProfileIdItemKindItemIdRoute
+}
+
+const ProfileIdRouteChildren: ProfileIdRouteChildren = {
+  ProfileIdItemKindItemIdRoute: ProfileIdItemKindItemIdRoute,
+}
+
+const ProfileIdRouteWithChildren = ProfileIdRoute._addFileChildren(
+  ProfileIdRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  ProfileIdRoute: ProfileIdRoute,
+  ProfileIdRoute: ProfileIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

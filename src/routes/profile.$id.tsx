@@ -397,9 +397,11 @@ function ProfilePage() {
                     {tab === "posts" && (
                       <>
                         {(st.items as ProfilePost[]).map((p) => (
-                          <article
+                          <Link
                             key={p.id}
-                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-5"
+                            to="/profile/$id/item/$kind/$itemId"
+                            params={{ id: profile.id, kind: "post", itemId: p.id }}
+                            className="block bg-[#1E1E24] border border-white/10 rounded-xl p-5 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
                               <span>{profile.name}</span>
@@ -411,7 +413,7 @@ function ProfilePage() {
                               <span>❤ {p.likes}</span>
                               <span>💬 {p.comments}</span>
                             </div>
-                          </article>
+                          </Link>
                         ))}
                       </>
                     )}
@@ -419,9 +421,11 @@ function ProfilePage() {
                     {tab === "groups" && (
                       <div className="grid sm:grid-cols-2 gap-3">
                         {(st.items as ProfileGroup[]).map((g) => (
-                          <div
+                          <Link
                             key={g.id}
-                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
+                            to="/profile/$id/item/$kind/$itemId"
+                            params={{ id: profile.id, kind: "group", itemId: g.id }}
+                            className="block bg-[#1E1E24] border border-white/10 rounded-xl p-4 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="flex items-center gap-3">
                               <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black">
@@ -436,7 +440,7 @@ function ProfilePage() {
                                 </div>
                               </div>
                             </div>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     )}
@@ -444,9 +448,11 @@ function ProfilePage() {
                     {tab === "marketplace" && (
                       <div className="grid sm:grid-cols-2 gap-3">
                         {(st.items as ProfileListing[]).map((l) => (
-                          <div
+                          <Link
                             key={l.id}
-                            className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
+                            to="/profile/$id/item/$kind/$itemId"
+                            params={{ id: profile.id, kind: "listing", itemId: l.id }}
+                            className="block bg-[#1E1E24] border border-white/10 rounded-xl p-4 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
                               {l.category}
@@ -459,23 +465,27 @@ function ProfilePage() {
                               <div className="text-[11px] text-slate-500">{l.sales} sold</div>
                             </div>
                             <button
-                              onClick={() =>
-                                require(2, () => alert("Proceed to checkout (mock)"))
-                              }
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                require(2, () => alert("Proceed to checkout (mock)"));
+                              }}
                               className="mt-3 w-full px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs"
                             >
                               Buy Now
                             </button>
-                          </div>
+                          </Link>
                         ))}
                       </div>
                     )}
 
                     {tab === "posted" &&
                       (st.items as ProfileBounty[]).map((b) => (
-                        <article
+                        <Link
                           key={b.id}
-                          className="bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5"
+                          to="/profile/$id/item/$kind/$itemId"
+                          params={{ id: profile.id, kind: "bounty", itemId: b.id }}
+                          className="block bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 hover:bg-white/[0.02] transition-colors"
                         >
                           <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300 mb-2">
                             <Target className="w-3.5 h-3.5" />
@@ -486,14 +496,16 @@ function ProfilePage() {
                             <Users className="w-3.5 h-3.5 inline mr-1" />
                             {b.applicants ?? 0} applicants
                           </div>
-                        </article>
+                        </Link>
                       ))}
 
                     {tab === "solved" &&
                       (st.items as ProfileBounty[]).map((b) => (
-                        <article
+                        <Link
                           key={b.id}
-                          className="bg-[#1E1E24] border border-white/10 rounded-xl p-5"
+                          to="/profile/$id/item/$kind/$itemId"
+                          params={{ id: profile.id, kind: "solved", itemId: b.id }}
+                          className="block bg-[#1E1E24] border border-white/10 rounded-xl p-5 hover:border-purple-400/40 hover:bg-white/[0.02] transition-colors"
                         >
                           <div className="flex items-center gap-2 text-[11px] font-bold text-purple-300 mb-2">
                             <Award className="w-3.5 h-3.5" />
@@ -506,13 +518,14 @@ function ProfilePage() {
                                 Technical execution proof
                               </div>
                               <p className="text-xs text-slate-300 leading-relaxed">{b.proof}</p>
-                              <button className="mt-2 inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300">
+                              <span className="mt-2 inline-flex items-center gap-1 text-[11px] text-emerald-400">
                                 View artifact <ExternalLink className="w-3 h-3" />
-                              </button>
+                              </span>
                             </div>
                           )}
-                        </article>
+                        </Link>
                       ))}
+
 
                     {/* Pagination footer */}
                     <div className="pt-2 flex items-center justify-center">

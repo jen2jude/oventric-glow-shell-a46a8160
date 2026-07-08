@@ -159,3 +159,27 @@ export function loadProfileTab(profileId: string, tab: ProfileTab, page: number,
   const items = all.slice(start, start + pageSize);
   return { items, total, page: safePage, pageSize, hasMore: start + items.length < total };
 }
+
+export type ProfileItemKind =
+  | "post"
+  | "group"
+  | "listing"
+  | "bounty"
+  | "solved";
+
+export function loadProfileItem(profileId: string, kind: ProfileItemKind, itemId: string) {
+  const full = buildFullProfile(profileId);
+  const list =
+    kind === "post"
+      ? full.posts
+      : kind === "group"
+        ? full.groups
+        : kind === "listing"
+          ? full.listings
+          : kind === "bounty"
+            ? full.bountiesPosted
+            : full.bountiesSolved;
+  const item = list.find((x) => x.id === itemId);
+  return item ?? null;
+}
+
