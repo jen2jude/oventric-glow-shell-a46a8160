@@ -9,6 +9,7 @@ import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
 import { Bounties } from "@/components/oventric/Bounties";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
+import { Admin } from "@/components/oventric/Admin";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 export const Route = createFileRoute("/")({
