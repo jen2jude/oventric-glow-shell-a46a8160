@@ -33,6 +33,7 @@ import {
   Paperclip,
   Flag,
   ExternalLink,
+  Link2,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -134,6 +135,7 @@ function ProfilePage() {
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Per-tab paginated data. Items accumulate on "Load more".
   type TabState = {
@@ -394,6 +396,15 @@ function ProfilePage() {
     });
   };
   const handleChat = () => require(1, () => setDmOpen(true));
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // silent fail
+    }
+  };
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
@@ -413,14 +424,28 @@ function ProfilePage() {
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
               </button>
-              <button
-                onClick={() => setRequestsOpen(true)}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                aria-label="Open circle requests drawer"
-              >
-                <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
-                Circle Requests
-              </button>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={handleCopyLink}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                  aria-label="Copy profile link"
+                >
+                  {copied ? (
+                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  ) : (
+                    <Link2 className="w-3.5 h-3.5 text-slate-400" />
+                  )}
+                  {copied ? "Copied!" : "Copy Link"}
+                </button>
+                <button
+                  onClick={() => setRequestsOpen(true)}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                  aria-label="Open circle requests drawer"
+                >
+                  <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
+                  Circle Requests
+                </button>
+              </div>
             </div>
 
             {/* Hero */}
