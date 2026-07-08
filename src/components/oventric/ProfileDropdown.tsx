@@ -247,11 +247,13 @@ export function ProfileDropdown() {
         <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wallet Snapshot</span>
         <button
           type="button"
+          role="menuitem"
+          tabIndex={-1}
           onClick={toggleBalancesHidden}
-          className="text-slate-500 hover:text-slate-300 inline-flex items-center gap-1 text-[10px] font-semibold"
+          className="text-slate-500 hover:text-slate-300 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:text-slate-200"
           aria-label={balancesHidden ? "Show balances" : "Hide balances"}
         >
-          {balancesHidden ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
+          {balancesHidden ? <EyeOff className="w-3 h-3" aria-hidden /> : <Eye className="w-3 h-3" aria-hidden />}
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
@@ -328,10 +330,9 @@ export function ProfileDropdown() {
 
       {open && (
         <>
-          {/* Mobile backdrop — tap to dismiss */}
-          <button
-            type="button"
-            aria-label="Close profile menu"
+          {/* Mobile backdrop — tap to dismiss (non-focusable; Esc handles keyboard) */}
+          <div
+            aria-hidden
             onClick={() => closeMenu(true)}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40 sm:hidden"
           />
@@ -515,14 +516,15 @@ function ProfileSettingsModal({
               )}
             </div>
             <label className="flex-1 cursor-pointer">
-              <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors">
-                <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" />
+              <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
+                <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" aria-hidden />
                 <div className="text-[11px] font-semibold text-slate-300">Upload avatar</div>
                 <div className="text-[10px] text-slate-500">PNG · JPG · WebP · max 2MB</div>
               </div>
               <input
                 type="file"
                 accept="image/*"
+                aria-label="Upload avatar image"
                 className="sr-only"
                 onChange={(e) => onAvatarPick(e.target.files?.[0] ?? null)}
               />
@@ -530,24 +532,27 @@ function ProfileSettingsModal({
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Display Name</label>
+            <label htmlFor={`${titleId}-name`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Display Name</label>
             <input
-              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none ${
+              id={`${titleId}-name`}
+              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
                 errors.displayName ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
               }`}
               value={displayName}
               maxLength={40}
               onChange={(e) => { setDisplayName(e.target.value); setErrors((p) => ({ ...p, displayName: "" })); }}
               aria-invalid={!!errors.displayName}
+              aria-describedby={errors.displayName ? `${titleId}-name-err` : undefined}
             />
-            {errors.displayName && <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.displayName}</p>}
+            {errors.displayName && <p id={`${titleId}-name-err`} className="text-[11px] font-semibold text-red-400 mt-1">{errors.displayName}</p>}
           </div>
 
           <div>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Developer Bio</label>
+            <label htmlFor={`${titleId}-bio`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Developer Bio</label>
             <textarea
+              id={`${titleId}-bio`}
               rows={3}
-              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none ${
+              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
                 errors.bio ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
               }`}
               value={bio}
@@ -555,27 +560,28 @@ function ProfileSettingsModal({
               onChange={(e) => { setBio(e.target.value); setErrors((p) => ({ ...p, bio: "" })); }}
               placeholder="Payments infra, distributed systems, RLS zealot…"
               aria-invalid={!!errors.bio}
+              aria-describedby={errors.bio ? `${titleId}-bio-err` : undefined}
             />
             <div className="flex justify-between mt-1">
               {errors.bio ? (
-                <p className="text-[11px] font-semibold text-red-400">{errors.bio}</p>
+                <p id={`${titleId}-bio-err`} className="text-[11px] font-semibold text-red-400">{errors.bio}</p>
               ) : (
                 <span className="text-[10px] text-slate-500">Displayed on your public workspace.</span>
               )}
-              <span className="text-[10px] text-slate-500 tabular-nums">{bio.length}/280</span>
+              <span className="text-[10px] text-slate-500 tabular-nums" aria-live="polite">{bio.length}/280</span>
             </div>
           </div>
 
           <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
             <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <ShieldCheck className="w-4 h-4 text-emerald-400" aria-hidden />
               <span className="text-xs font-bold text-white">Pending verification docs</span>
             </div>
             <p className="text-[11px] text-slate-500 mb-3">Upload updated ID or utility bill to raise your verification tier.</p>
             <button
               type="button"
               onClick={() => toast("KYC uploader launching soon", { description: "Verification desk is queued for release next sprint." })}
-              className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
+              className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
             >
               Process pending verification →
             </button>
@@ -587,7 +593,7 @@ function ProfileSettingsModal({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50"
+            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
           >
             Cancel
           </button>
@@ -595,7 +601,7 @@ function ProfileSettingsModal({
             type="button"
             onClick={onSubmit as unknown as () => void}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70"
+            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>
