@@ -546,7 +546,7 @@ function ProfilePage() {
                 return (
                   <button
                     key={key}
-                    onClick={() => setTab(key)}
+                    onClick={() => changeTab(key)}
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key
                         ? "text-emerald-400 border-emerald-400"
