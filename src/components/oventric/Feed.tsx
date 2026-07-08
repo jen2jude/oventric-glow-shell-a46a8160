@@ -425,7 +425,29 @@ export function Feed() {
     }
   };
 
+  const dedupeKeyOf = (postId: string, authorId: string, text: string) =>
+    `${postId}::${authorId}::${text}`;
+
+  const reserveTempId = (key: string, tempId: string) => {
+    const map = pendingSelfCommentsRef.current;
+    const queue = map.get(key) ?? [];
+    if (!queue.includes(tempId)) queue.push(tempId);
+    map.set(key, queue);
+  };
+
+  const unreserveTempId = (key: string, tempId: string) => {
+    const map = pendingSelfCommentsRef.current;
+    const queue = map.get(key);
+    if (!queue) return;
+    const idx = queue.indexOf(tempId);
+    if (idx !== -1) queue.splice(idx, 1);
+    if (queue.length === 0) map.delete(key);
+  };
+
   const sendCommentAttempt = async (postId: string, tempId: string, text: string) => {
+    const authorId = meId ?? "me";
+    const key = dedupeKeyOf(postId, authorId, text);
+    reserveTempId(key, tempId);
     setCommentPosting((p) => ({ ...p, [tempId]: true }));
     setCommentError(null);
     // Mark as pending (clear any prior failed state)
@@ -440,19 +462,27 @@ export function Feed() {
       const res = await addComment({
         data: { postId, text, authorName: "You", initials: "OV" },
       });
-      // Swap the optimistic entry for the real row; realtime INSERT will dedupe by id.
-      setCommentsByPost((prev) => {
-        const arr = prev[postId];
-        if (!arr) return prev;
-        const real = toComment(res.comment);
-        // If realtime already delivered the row, just drop the temp.
-        if (arr.some((c) => c.id === real.id)) {
-          return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
-        }
-        return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
-      });
+      const real = toComment(res.comment);
+      // Race: if realtime already adopted the tempId, our reservation is gone
+      // and the row is already merged under real.id — nothing to do.
+      // Otherwise, claim the reservation, mark the id known so the realtime
+      // echo is ignored, and swap the temp entry to real in-place.
+      const stillReserved = pendingSelfCommentsRef.current.get(key)?.includes(tempId);
+      if (stillReserved) {
+        unreserveTempId(key, tempId);
+        knownCommentIdsRef.current.add(real.id);
+        setCommentsByPost((prev) => {
+          const arr = prev[postId];
+          if (!arr) return prev;
+          if (arr.some((c) => c.id === real.id)) {
+            return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+          }
+          return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+        });
+      }
     } catch (e) {
       console.error(e);
+      unreserveTempId(key, tempId);
       setCommentsByPost((prev) => {
         const arr = prev[postId] ?? [];
         return {
@@ -503,11 +533,15 @@ export function Feed() {
   };
 
   const discardFailedComment = (postId: string, tempId: string) => {
+    const authorId = meId ?? "me";
     setCommentsByPost((prev) => {
       const arr = prev[postId];
       if (!arr) return prev;
+      const target = arr.find((c) => c.id === tempId);
+      if (target) unreserveTempId(dedupeKeyOf(postId, authorId, target.text), tempId);
       return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
     });
+
   };
 
 
