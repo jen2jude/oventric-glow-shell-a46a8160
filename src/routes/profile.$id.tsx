@@ -180,6 +180,7 @@ function ProfilePage() {
 
   const rep = profile.reputation;
   const starBreakdown = useMemo(() => computeStarBreakdown(rep), [rep]);
+  const circleMembers = useMemo(() => getCircleMembersPreview(profile), [profile]);
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
   const price = (usd: number) =>
