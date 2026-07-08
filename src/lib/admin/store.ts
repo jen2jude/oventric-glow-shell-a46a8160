@@ -73,7 +73,10 @@ export const adminStore = {
 export function useAdminStore() {
   const [snap, setSnap] = useState<AdminState>({ ...state });
   useEffect(() => {
-    return adminStore.subscribe(() => setSnap({ ...state }));
+    const unsub = adminStore.subscribe(() => setSnap({ ...state }));
+    return () => {
+      unsub();
+    };
   }, []);
   return snap;
 }
