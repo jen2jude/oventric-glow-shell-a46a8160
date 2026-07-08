@@ -135,6 +135,7 @@ function ProfilePage() {
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
+  const [copied, setCopied] = useState(false);
 
   // Per-tab paginated data. Items accumulate on "Load more".
   type TabState = {
