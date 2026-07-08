@@ -685,7 +685,7 @@ function ProfilePage() {
                   );
                 }
                 if (initialLoading) return <TabSkeleton variant={tab} />;
-                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name)} />;
+                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name, q)} />;
 
                 return (
                   <>
