@@ -109,6 +109,8 @@ export function Feed() {
   const pendingSelfCommentsRef = useRef<Map<string, string[]>>(new Map());
   // Real ids we've already merged locally — realtime INSERT skips them.
   const knownCommentIdsRef = useRef<Set<string>>(new Set());
+  // Synchronous guard to prevent double-submit before React re-renders.
+  const postingGuardRef = useRef<Set<string>>(new Set());
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
@@ -502,28 +504,34 @@ export function Feed() {
 
   const submitComment = (postId: string) => {
     const text = (commentDrafts[postId] ?? "").trim();
-    if (!text || commentPosting[postId]) return;
+    if (!text || commentPosting[postId] || postingGuardRef.current.has(postId)) return;
     require(1, async () => {
-      const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
-      const optimistic: Comment = {
-        id: tempId,
-        postId,
-        author: "You",
-        authorId: meId ?? "me",
-        initials: "OV",
-        text,
-        status: "pending",
-      };
-      setCommentDrafts((d) => ({ ...d, [postId]: "" }));
-      setCommentsByPost((prev) => ({
-        ...prev,
-        [postId]: [...(prev[postId] ?? []), optimistic],
-      }));
-      setCommentPosting((p) => ({ ...p, [postId]: true }));
+      if (postingGuardRef.current.has(postId)) return;
+      postingGuardRef.current.add(postId);
       try {
-        await sendCommentAttempt(postId, tempId, text);
+        const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+        const optimistic: Comment = {
+          id: tempId,
+          postId,
+          author: "You",
+          authorId: meId ?? "me",
+          initials: "OV",
+          text,
+          status: "pending",
+        };
+        setCommentDrafts((d) => ({ ...d, [postId]: "" }));
+        setCommentsByPost((prev) => ({
+          ...prev,
+          [postId]: [...(prev[postId] ?? []), optimistic],
+        }));
+        setCommentPosting((p) => ({ ...p, [postId]: true }));
+        try {
+          await sendCommentAttempt(postId, tempId, text);
+        } finally {
+          setCommentPosting((p) => ({ ...p, [postId]: false }));
+        }
       } finally {
-        setCommentPosting((p) => ({ ...p, [postId]: false }));
+        postingGuardRef.current.delete(postId);
       }
     });
   };
