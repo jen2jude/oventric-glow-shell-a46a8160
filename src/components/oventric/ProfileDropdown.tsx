@@ -7,20 +7,6 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
-function useMediaQuery(query: string): boolean {
-  const [match, setMatch] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.matchMedia(query).matches;
-  });
-  useEffect(() => {
-    if (typeof window === "undefined") return;
-    const mql = window.matchMedia(query);
-    const onChange = () => setMatch(mql.matches);
-    mql.addEventListener("change", onChange);
-    return () => mql.removeEventListener("change", onChange);
-  }, [query]);
-  return match;
-}
 
 function slugify(v: string): string {
   return v.toLowerCase().trim().replace(/[^a-z0-9]+/g, "").slice(0, 24) || "architect";
