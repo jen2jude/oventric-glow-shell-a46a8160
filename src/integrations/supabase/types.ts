@@ -152,6 +152,45 @@ export type Database = {
         }
         Relationships: []
       }
+      wallet_transactions: {
+        Row: {
+          amount: number
+          created_at: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id: string
+          inflow: boolean
+          occurred_at: string
+          status: Database["public"]["Enums"]["wallet_tx_status"]
+          tx_hash: string
+          type: Database["public"]["Enums"]["wallet_tx_type"]
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          created_at?: string
+          currency: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          inflow: boolean
+          occurred_at?: string
+          status?: Database["public"]["Enums"]["wallet_tx_status"]
+          tx_hash: string
+          type: Database["public"]["Enums"]["wallet_tx_type"]
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          currency?: Database["public"]["Enums"]["wallet_currency"]
+          id?: string
+          inflow?: boolean
+          occurred_at?: string
+          status?: Database["public"]["Enums"]["wallet_tx_status"]
+          tx_hash?: string
+          type?: Database["public"]["Enums"]["wallet_tx_type"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -171,6 +210,15 @@ export type Database = {
       circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
       report_status: "pending" | "approved" | "hidden"
+      wallet_currency: "USD" | "NGN" | "GHS"
+      wallet_tx_status: "success" | "pending" | "failed"
+      wallet_tx_type:
+        | "Marketplace Purchase"
+        | "Gig Bounty Escrowed"
+        | "Ad Injection Charge"
+        | "Affiliate Cashback Payout"
+        | "Wallet Top-Up"
+        | "Payout Withdrawal"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -302,6 +350,16 @@ export const Constants = {
       circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],
       report_status: ["pending", "approved", "hidden"],
+      wallet_currency: ["USD", "NGN", "GHS"],
+      wallet_tx_status: ["success", "pending", "failed"],
+      wallet_tx_type: [
+        "Marketplace Purchase",
+        "Gig Bounty Escrowed",
+        "Ad Injection Charge",
+        "Affiliate Cashback Payout",
+        "Wallet Top-Up",
+        "Payout Withdrawal",
+      ],
     },
   },
 } as const

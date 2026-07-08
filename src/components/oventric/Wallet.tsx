@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowDownToLine,
   ArrowUpFromLine,
@@ -17,8 +19,12 @@ import {
   ShieldCheck,
   Zap,
   TrendingUp,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { supabase } from "@/integrations/supabase/client";
+import { listWalletTransactions } from "@/lib/wallet.functions";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
@@ -77,20 +83,16 @@ function fmt(n: number, c: Currency) {
   return currencyMeta[c].symbol + n.toLocaleString("en-US", opts);
 }
 
-const MOCK_TX: Tx[] = [
-  { id: "0xA1F9-4402-BC12", type: "Affiliate Cashback Payout", amount: 45000, currency: "NGN", inflow: true, timestamp: "2026-07-08 09:12", status: "success" },
-  { id: "0x77E1-9022-D3AA", type: "Gig Bounty Escrowed", amount: 320, currency: "USD", inflow: false, timestamp: "2026-07-08 08:41", status: "pending" },
-  { id: "0x3B02-CC81-1FE0", type: "Marketplace Purchase", amount: 120, currency: "USD", inflow: false, timestamp: "2026-07-07 22:03", status: "success" },
-  { id: "0xF19D-8801-A44C", type: "Wallet Top-Up", amount: 1500, currency: "USD", inflow: true, timestamp: "2026-07-07 15:27", status: "success" },
-  { id: "0x66C4-72B0-9911", type: "Ad Injection Charge", amount: 85, currency: "GHS", inflow: false, timestamp: "2026-07-07 11:18", status: "failed" },
-  { id: "0x2E8B-5501-CD33", type: "Payout Withdrawal", amount: 750, currency: "USD", inflow: false, timestamp: "2026-07-06 19:52", status: "pending" },
-  { id: "0x91AA-3300-77B4", type: "Affiliate Cashback Payout", amount: 62, currency: "GHS", inflow: true, timestamp: "2026-07-06 14:10", status: "success" },
-  { id: "0x0D53-6621-88EE", type: "Marketplace Purchase", amount: 240000, currency: "NGN", inflow: false, timestamp: "2026-07-05 20:33", status: "success" },
-  { id: "0x4471-9C02-BF10", type: "Gig Bounty Escrowed", amount: 900, currency: "USD", inflow: true, timestamp: "2026-07-05 09:05", status: "pending" },
-  { id: "0x5A2C-0091-EF77", type: "Wallet Top-Up", amount: 220, currency: "GHS", inflow: true, timestamp: "2026-07-04 16:44", status: "success" },
-];
-
 const PAGE_SIZE = 6;
+
+function fmtTs(iso: string) {
+  try {
+    const d = new Date(iso);
+    return d.toISOString().slice(0, 16).replace("T", " ");
+  } catch {
+    return iso;
+  }
+}
 
 export function Wallet() {
   const { balances } = useOnboarding();
@@ -98,28 +100,53 @@ export function Wallet() {
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
   const [curFilter, setCurFilter] = useState<"ALL" | Currency>("ALL");
   const [page, setPage] = useState(1);
   const [spend, setSpend] = useState(2500);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
   const cashback = 218.42;
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return MOCK_TX.filter((t) => {
-      if (curFilter !== "ALL" && t.currency !== curFilter) return false;
-      if (!q) return true;
-      return (
-        t.id.toLowerCase().includes(q) ||
-        t.type.toLowerCase().includes(q) ||
-        t.currency.toLowerCase().includes(q)
-      );
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      setUserId(data.session?.user?.id ?? null);
+      setAuthReady(true);
     });
-  }, [search, curFilter]);
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(search.trim()), 250);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debounced, curFilter]);
+
+  const fetchList = useServerFn(listWalletTransactions);
+  const query = useQuery({
+    queryKey: ["wallet-tx", userId, debounced, curFilter, page],
+    enabled: authReady && !!userId,
+    queryFn: () =>
+      fetchList({ data: { search: debounced, currency: curFilter, page, pageSize: PAGE_SIZE } }),
+    staleTime: 15_000,
+  });
+
+  const items = query.data?.items ?? [];
+  const total = query.data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
-  const paged = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
 
   const tier = spend < 1000 ? { pct: 2, label: "Baseline" } : spend <= 5000 ? { pct: 3.5, label: "Elite Tier" } : { pct: 5, label: "Apex Architect" };
   const annualSavings = (spend * 12 * tier.pct) / 100;
@@ -249,20 +276,14 @@ export function Wallet() {
               <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
               <input
                 value={search}
-                onChange={(e) => {
-                  setSearch(e.target.value);
-                  setPage(1);
-                }}
+                onChange={(e) => setSearch(e.target.value)}
                 placeholder="Search hash, type…"
                 className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
               />
             </div>
             <select
               value={curFilter}
-              onChange={(e) => {
-                setCurFilter(e.target.value as "ALL" | Currency);
-                setPage(1);
-              }}
+              onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
               className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="ALL">All currencies</option>
@@ -270,6 +291,14 @@ export function Wallet() {
               <option value="NGN">NGN</option>
               <option value="GHS">GHS</option>
             </select>
+            <button
+              onClick={() => query.refetch()}
+              disabled={query.isFetching}
+              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
+              title="Refresh ledger"
+            >
+              <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
+            </button>
           </div>
         </div>
 
@@ -285,21 +314,31 @@ export function Wallet() {
               </tr>
             </thead>
             <tbody>
-              {paged.map((t) => (
+              {items.map((t) => (
                 <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.id}</td>
+                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
                   <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
                   <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" : "text-slate-300"}`}>
                     {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
                   </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{t.timestamp}</td>
+                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
                   <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                 </tr>
               ))}
-              {paged.length === 0 && (
+              {items.length === 0 && (
                 <tr>
                   <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                    No transactions match your filters.
+                    {!authReady ? (
+                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
+                    ) : !userId ? (
+                      "Sign in to view your transaction ledger."
+                    ) : query.isLoading ? (
+                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
+                    ) : query.isError ? (
+                      `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
+                    ) : (
+                      "No transactions match your filters."
+                    )}
                   </td>
                 </tr>
               )}
@@ -309,7 +348,7 @@ export function Wallet() {
 
         <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
           <div>
-            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {filtered.length} entries
+            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
           </div>
           <div className="flex items-center gap-2">
             <button
