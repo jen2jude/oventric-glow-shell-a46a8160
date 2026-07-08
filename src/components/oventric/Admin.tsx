@@ -257,6 +257,7 @@ function MarketplaceForge() {
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
         onConfirm={confirmSubmit}
+        isSubmitting={submitting}
         title={title.trim() || "Untitled asset"}
         subtitle={`Marketplace stream • ${category}`}
         accent="emerald"
