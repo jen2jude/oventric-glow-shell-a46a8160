@@ -171,7 +171,7 @@ export function loadProfileTab(
 
   // 1) Get the raw list + a search predicate + an index-preserving key.
   //    "newest" is defined as the original insertion order (index 0 = newest).
-  let all: unknown[] = [];
+  let all: any[] = [];
   if (tab === "posts") {
     all = full.posts.filter((p) => matchesQuery(p.content, q));
   } else if (tab === "groups") {
