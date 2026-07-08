@@ -573,7 +573,15 @@ function ProfilePage() {
                   return (
                     <ErrorState
                       label={st.error}
-                      onRetry={() => loadPage(tab, { reset: true })}
+                      onRetry={() => {
+                        setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
+                        navigate({
+                          to: "/profile/$id",
+                          params: { id },
+                          search: { tab, pages: 1, y: 0 },
+                          replace: true,
+                        });
+                      }}
                     />
                   );
                 }
