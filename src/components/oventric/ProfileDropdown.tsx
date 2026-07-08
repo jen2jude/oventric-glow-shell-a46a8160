@@ -184,7 +184,7 @@ export function ProfileDropdown() {
   const reputation = (4.2 + Math.min(tier, 5) * 0.12).toFixed(2);
 
   const onSignOut = async () => {
-    setOpen(false);
+    closeMenu(false);
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
@@ -196,18 +196,27 @@ export function ProfileDropdown() {
   };
 
   const openSettings = () => {
-    setOpen(false);
+    closeMenu(false);
     setSettingsOpen(true);
   };
 
   const avatarBtn = (
     <button
+      ref={triggerRef}
+      id={triggerId}
       type="button"
       onClick={() => setOpen((o) => !o)}
+      onKeyDown={(e) => {
+        if (!open && (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ")) {
+          e.preventDefault();
+          setOpen(true);
+        }
+      }}
       aria-haspopup="menu"
       aria-expanded={open}
+      aria-controls={open ? menuId : undefined}
       aria-label="Open profile menu"
-      className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden"
+      className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
       {profile.avatarDataUrl ? (
         <img src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover" />
