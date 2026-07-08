@@ -668,6 +668,22 @@ export function Feed() {
                 <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {post.text}
                 </p>
+                {post.media_url && post.media_type === "image" && (
+                  <img
+                    src={post.media_url}
+                    alt="Post attachment"
+                    loading="lazy"
+                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
+                  />
+                )}
+                {post.media_url && post.media_type === "video" && (
+                  <video
+                    src={post.media_url}
+                    controls
+                    preload="metadata"
+                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 bg-black"
+                  />
+                )}
                 <div className="flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
                   <button
                     onClick={() => handleLike(post)}
