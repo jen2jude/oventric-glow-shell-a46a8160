@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getProfileTab, type ProfileTabPage } from "@/lib/profiles.functions";
+import { getProfileTab, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -45,7 +45,10 @@ const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
   pages: fallback(z.number().int(), 1).default(1),
   y: fallback(z.number().int(), 0).default(0),
+  q: fallback(z.string(), "").default(""),
+  sort: fallback(z.string(), "newest").default("newest"),
 });
+
 
 export const Route = createFileRoute("/profile/$id")({
   validateSearch: zodValidator(profileSearchSchema),
@@ -63,6 +66,47 @@ type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved";
 const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved"];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
+
+
+type SortOption = { value: ProfileSortKey; label: string };
+const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
+  posts: [
+    { value: "newest", label: "Newest" },
+    { value: "most_liked", label: "Most liked" },
+    { value: "most_commented", label: "Most commented" },
+  ],
+  groups: [
+    { value: "newest", label: "Newest" },
+    { value: "most_members", label: "Most members" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  marketplace: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "most_sold", label: "Most sold" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  posted: [
+    { value: "newest", label: "Newest" },
+    { value: "highest_bounty", label: "Highest bounty" },
+    { value: "lowest_bounty", label: "Lowest bounty" },
+    { value: "most_applicants", label: "Most applicants" },
+  ],
+  solved: [
+    { value: "newest", label: "Newest" },
+    { value: "highest_bounty", label: "Highest bounty" },
+    { value: "lowest_bounty", label: "Lowest bounty" },
+  ],
+};
+const SEARCH_PLACEHOLDER: Record<Tab, string> = {
+  posts: "Search posts…",
+  groups: "Search groups…",
+  marketplace: "Search listings…",
+  posted: "Search bounties…",
+  solved: "Search solved bounties…",
+};
+
 function ProfilePage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
@@ -73,6 +117,11 @@ function ProfilePage() {
   const tab: Tab = isTab(search.tab) ? search.tab : "posts";
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
   const restoreY = Math.max(0, search.y || 0);
+  const q = (search.q || "").trim();
+  const sort = SORT_OPTIONS_BY_TAB[tab].some((o) => o.value === search.sort)
+    ? (search.sort as ProfileSortKey)
+    : "newest";
+
 
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
@@ -122,9 +171,16 @@ function ProfilePage() {
 
   // Fetch a specific page (1-indexed). Returns the fetched response.
   const fetchOne = useCallback(
-    async (which: Tab, pageNum: number, reset: boolean) => {
+    async (which: Tab, pageNum: number, reset: boolean, filters: { q: string; sort: ProfileSortKey }) => {
       const res = await fetchTab({
-        data: { profileId: profile.id, tab: which, page: pageNum, pageSize: PAGE_SIZE },
+        data: {
+          profileId: profile.id,
+          tab: which,
+          page: pageNum,
+          pageSize: PAGE_SIZE,
+          q: filters.q,
+          sort: filters.sort,
+        },
       });
       setTabData((s) => ({
         ...s,
@@ -142,6 +198,7 @@ function ProfilePage() {
     [profile.id, fetchTab],
   );
 
+
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
     const current = tabData[tab];
@@ -149,12 +206,12 @@ function ProfilePage() {
     setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
     const nextPage = (current.page || 0) + 1;
     try {
-      await fetchOne(tab, nextPage, false);
+      await fetchOne(tab, nextPage, false, { q, sort });
       const y = mainRef.current?.scrollTop ?? 0;
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab, pages: nextPage, y },
+        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab, pages: nextPage, y }),
         replace: true,
       });
     } catch (e) {
@@ -164,7 +221,7 @@ function ProfilePage() {
         [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
       }));
     }
-  }, [tab, tabData, fetchOne, navigate, id]);
+  }, [tab, tabData, fetchOne, navigate, id, q, sort]);
 
   // Change tabs — resets pagination and scroll in the URL.
   const changeTab = useCallback(
@@ -191,9 +248,9 @@ function ProfilePage() {
     (async () => {
       setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
       try {
-        let last = await fetchOne(tab, 1, true);
+        let last = await fetchOne(tab, 1, true, { q, sort });
         for (let p = 2; p <= desiredPages && last.hasMore && !cancelled; p++) {
-          last = await fetchOne(tab, p, false);
+          last = await fetchOne(tab, p, false, { q, sort });
         }
         if (cancelled) return;
         // Restore scroll after content is on the page.
@@ -216,7 +273,7 @@ function ProfilePage() {
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tab, profile.id]);
+  }, [tab, profile.id, q, sort]);
 
   // Reset caches when navigating to a different profile.
   useEffect(() => {
@@ -230,6 +287,15 @@ function ProfilePage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
+
+  // When search query or sort changes, invalidate the current tab so it
+  // reloads with the new filters. Pagination in the URL is reset to 1.
+  useEffect(() => {
+    scrollRestoredRef.current = true; // don't restore old scroll for a new query
+    setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [q, sort, tab]);
+
 
   // Persist scroll position into the URL (throttled) so reloads restore it.
   useEffect(() => {
@@ -562,6 +628,39 @@ function ProfilePage() {
               })}
             </nav>
 
+            {/* Search + sort */}
+            <TabFilters
+              tab={tab}
+              q={q}
+              sort={sort}
+              onChangeQ={(next) => {
+                navigate({
+                  to: "/profile/$id",
+                  params: { id },
+                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                    ...prev,
+                    q: next,
+                    pages: 1,
+                    y: 0,
+                  }),
+                  replace: true,
+                });
+              }}
+              onChangeSort={(next) => {
+                navigate({
+                  to: "/profile/$id",
+                  params: { id },
+                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                    ...prev,
+                    sort: next,
+                    pages: 1,
+                    y: 0,
+                  }),
+                  replace: true,
+                });
+              }}
+            />
+
             {/* Tab content */}
             <section className="mt-5 space-y-3">
               {(() => {
@@ -586,7 +685,7 @@ function ProfilePage() {
                   );
                 }
                 if (initialLoading) return <TabSkeleton variant={tab} />;
-                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name)} />;
+                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name, q)} />;
 
                 return (
                   <>
@@ -877,6 +976,75 @@ function StarRow({ value }: { value: number }) {
   );
 }
 
+function TabFilters({
+  tab,
+  q,
+  sort,
+  onChangeQ,
+  onChangeSort,
+}: {
+  tab: Tab;
+  q: string;
+  sort: ProfileSortKey;
+  onChangeQ: (next: string) => void;
+  onChangeSort: (next: ProfileSortKey) => void;
+}) {
+  const [draft, setDraft] = useState(q);
+  // Keep the local input in sync when the URL changes externally (e.g. tab switch).
+  useEffect(() => {
+    setDraft(q);
+  }, [q, tab]);
+  // Debounce URL writes so every keystroke doesn't hit the server.
+  useEffect(() => {
+    const t = window.setTimeout(() => {
+      if (draft.trim() !== q) onChangeQ(draft.trim());
+    }, 300);
+    return () => window.clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [draft]);
+
+  const options = SORT_OPTIONS_BY_TAB[tab];
+
+  return (
+    <div className="mt-4 flex flex-col sm:flex-row gap-2 sm:items-center">
+      <div className="relative flex-1">
+        <input
+          type="text"
+          value={draft}
+          onChange={(e) => setDraft(e.target.value)}
+          placeholder={SEARCH_PLACEHOLDER[tab]}
+          className="w-full bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/40"
+          aria-label={SEARCH_PLACEHOLDER[tab]}
+        />
+        {draft && (
+          <button
+            type="button"
+            onClick={() => setDraft("")}
+            aria-label="Clear search"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200"
+          >
+            <X className="w-3.5 h-3.5" />
+          </button>
+        )}
+      </div>
+      <label className="flex items-center gap-2 shrink-0">
+        <span className="text-[11px] uppercase tracking-wider text-slate-500">Sort</span>
+        <select
+          value={sort}
+          onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
+          className="bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/40"
+        >
+          {options.map((o) => (
+            <option key={o.value} value={o.value}>
+              {o.label}
+            </option>
+          ))}
+        </select>
+      </label>
+    </div>
+  );
+}
+
 function EmptyState({ label }: { label: string }) {
   return (
     <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center text-sm text-slate-500">
@@ -927,7 +1095,10 @@ function TabSkeleton({ variant }: { variant: Tab }) {
   );
 }
 
-function emptyLabelFor(tab: Tab, name: string): string {
+function emptyLabelFor(tab: Tab, name: string, q?: string): string {
+  if (q && q.trim().length > 0) {
+    return `No ${tabNoun(tab)} match “${q.trim()}”.`;
+  }
   switch (tab) {
     case "posts":
       return `${name} hasn't posted anything yet.`;
@@ -939,6 +1110,16 @@ function emptyLabelFor(tab: Tab, name: string): string {
       return "No open bounties posted.";
     case "solved":
       return "No solved bounties yet.";
+  }
+}
+
+function tabNoun(tab: Tab): string {
+  switch (tab) {
+    case "posts": return "posts";
+    case "groups": return "groups";
+    case "marketplace": return "listings";
+    case "posted": return "bounties";
+    case "solved": return "solved bounties";
   }
 }
 

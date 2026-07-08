@@ -140,25 +140,101 @@ function buildFullProfile(id: string): {
 }
 
 export type ProfileTab = "posts" | "groups" | "marketplace" | "posted" | "solved";
+export type ProfileSort =
+  | "newest"
+  | "most_liked"
+  | "most_commented"
+  | "most_members"
+  | "alpha"
+  | "price_low"
+  | "price_high"
+  | "most_sold"
+  | "highest_bounty"
+  | "lowest_bounty"
+  | "most_applicants";
 
-export function loadProfileTab(profileId: string, tab: ProfileTab, page: number, pageSize: number) {
+function matchesQuery(hay: string, q: string): boolean {
+  if (!q) return true;
+  return hay.toLowerCase().includes(q.toLowerCase());
+}
+
+export function loadProfileTab(
+  profileId: string,
+  tab: ProfileTab,
+  page: number,
+  pageSize: number,
+  opts?: { q?: string; sort?: ProfileSort },
+) {
   const full = buildFullProfile(profileId);
-  const all =
-    tab === "posts"
-      ? full.posts
-      : tab === "groups"
-        ? full.groups
-        : tab === "marketplace"
-          ? full.listings
-          : tab === "posted"
-            ? full.bountiesPosted
-            : full.bountiesSolved;
-  const total = all.length;
+  const q = (opts?.q ?? "").trim();
+  const sort = opts?.sort ?? "newest";
+
+  // 1) Get the raw list + a search predicate + an index-preserving key.
+  //    "newest" is defined as the original insertion order (index 0 = newest).
+  let all: any[] = [];
+  if (tab === "posts") {
+    all = full.posts.filter((p) => matchesQuery(p.content, q));
+  } else if (tab === "groups") {
+    all = full.groups.filter((g) => matchesQuery(`${g.name} ${g.tag}`, q));
+  } else if (tab === "marketplace") {
+    all = full.listings.filter((l) => matchesQuery(`${l.title} ${l.category}`, q));
+  } else if (tab === "posted") {
+    all = full.bountiesPosted.filter((b) => matchesQuery(b.title, q));
+  } else {
+    all = full.bountiesSolved.filter((b) => matchesQuery(b.title, q));
+  }
+
+  // 2) Sort a shallow copy so pagination is stable.
+  const sorted = [...all];
+  const byNum = (get: (x: any) => number, dir: 1 | -1) =>
+    sorted.sort((a, b) => (get(a) - get(b)) * dir);
+  const byStr = (get: (x: any) => string, dir: 1 | -1) =>
+    sorted.sort((a, b) => get(a).localeCompare(get(b)) * dir);
+
+  switch (sort) {
+    case "most_liked":
+      byNum((p) => p.likes ?? 0, -1);
+      break;
+    case "most_commented":
+      byNum((p) => p.comments ?? 0, -1);
+      break;
+    case "most_members":
+      byNum((g) => g.members ?? 0, -1);
+      break;
+    case "alpha":
+      byStr((x) => x.name ?? x.title ?? "", 1);
+      break;
+    case "price_low":
+      byNum((l) => l.priceUsd ?? 0, 1);
+      break;
+    case "price_high":
+      byNum((l) => l.priceUsd ?? 0, -1);
+      break;
+    case "most_sold":
+      byNum((l) => l.sales ?? 0, -1);
+      break;
+    case "highest_bounty":
+      byNum((b) => b.amountUsd ?? 0, -1);
+      break;
+    case "lowest_bounty":
+      byNum((b) => b.amountUsd ?? 0, 1);
+      break;
+    case "most_applicants":
+      byNum((b) => b.applicants ?? 0, -1);
+      break;
+    case "newest":
+    default:
+      // keep original order
+      break;
+  }
+
+  const total = sorted.length;
   const safePage = Math.max(1, page);
   const start = (safePage - 1) * pageSize;
-  const items = all.slice(start, start + pageSize);
+  const items = sorted.slice(start, start + pageSize);
   return { items, total, page: safePage, pageSize, hasMore: start + items.length < total };
 }
+
 
 export type ProfileItemKind =
   | "post"
