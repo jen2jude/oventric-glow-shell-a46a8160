@@ -14,8 +14,61 @@ import {
   Users,
   Star,
   Megaphone,
+  GraduationCap,
+  Package,
+  FileCode,
+  Palette,
+  Puzzle,
+  Blocks,
+  Terminal,
 } from "lucide-react";
-import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+
+const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+function formatPrice(usd: number, cur: Currency) {
+  const val = usd * FX_FROM_USD[cur];
+  const rounded = cur === "USD" ? val.toFixed(0) : Math.round(val).toLocaleString();
+  return `${CURRENCY_SYMBOL[cur]}${rounded}`;
+}
+
+interface MiniCourse {
+  id: string;
+  title: string;
+  tag: string;
+  hue: string;
+}
+
+const RECOMMENDED_COURSES: MiniCourse[] = [
+  { id: "rc1", title: "React Server Components in Practice", tag: "React Engine", hue: "from-indigo-500 to-purple-700" },
+  { id: "rc2", title: "Postgres Indexing Deep Dive", tag: "Database Core", hue: "from-emerald-500 to-teal-700" },
+  { id: "rc3", title: "Tailwind v4 Theme Tokens", tag: "Design Systems", hue: "from-fuchsia-500 to-rose-700" },
+  { id: "rc4", title: "Prompt Chaining for Agents", tag: "AI Workflows", hue: "from-amber-500 to-orange-700" },
+  { id: "rc5", title: "Zero-Trust Session Rotation", tag: "Security Ops", hue: "from-red-500 to-rose-800" },
+  { id: "rc6", title: "Edge Streaming with SSR", tag: "Frontend Perf", hue: "from-sky-500 to-blue-700" },
+  { id: "rc7", title: "RLS Policy Testing at Scale", tag: "Supabase Core", hue: "from-cyan-500 to-emerald-700" },
+  { id: "rc8", title: "Motion Choreography for UI", tag: "UI Motion", hue: "from-pink-500 to-purple-700" },
+];
+
+interface MiniAsset {
+  id: string;
+  name: string;
+  category: string;
+  priceUSD: number;
+  Icon: React.ComponentType<{ className?: string }>;
+  hue: string;
+}
+
+const SHOP_ASSETS: MiniAsset[] = [
+  { id: "sa1", name: "Postgres RLS Starter", category: "Supabase Script", priceUSD: 49, Icon: Terminal, hue: "from-emerald-500 to-emerald-800" },
+  { id: "sa2", name: "Nebula Admin Theme", category: "Dashboard Theme", priceUSD: 49, Icon: Palette, hue: "from-indigo-500 to-purple-600" },
+  { id: "sa3", name: "Stripe Checkout Plus", category: "Payments Plugin", priceUSD: 35, Icon: Puzzle, hue: "from-purple-500 to-indigo-700" },
+  { id: "sa4", name: "Hero Section Pack", category: "HTML Blocks", priceUSD: 15, Icon: Blocks, hue: "from-pink-500 to-rose-700" },
+  { id: "sa5", name: "Auth Gateway", category: "Security Plugin", priceUSD: 45, Icon: Puzzle, hue: "from-amber-500 to-orange-700" },
+  { id: "sa6", name: "Cron Runner Script", category: "Automation Script", priceUSD: 22, Icon: FileCode, hue: "from-blue-500 to-indigo-700" },
+  { id: "sa7", name: "Aurora SaaS Kit", category: "Landing Theme", priceUSD: 79, Icon: Package, hue: "from-emerald-500 to-teal-600" },
+  { id: "sa8", name: "Webhook Signer", category: "Utility Script", priceUSD: 11, Icon: FileCode, hue: "from-purple-500 to-fuchsia-700" },
+];
 
 type CategoryKey =
   | "all"
@@ -268,13 +321,14 @@ const ADS: Ad[] = [
 ];
 
 export function Academy() {
-  const { require } = useOnboarding();
+  const { require, baseCurrency } = useOnboarding();
   const [view, setView] = useState<"landing" | "catalog">("landing");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
 
   const handleEnroll = () => require(2, () => alert("Enrollment secured (mock)"));
   const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"));
+  const handleBuy = () => require(2, () => alert("Purchase confirmed (mock)"));
 
   if (view === "landing") {
     return <AcademyLanding onExplore={() => setView("catalog")} />;
@@ -350,6 +404,110 @@ export function Academy() {
             No courses in this category yet. Check back soon.
           </div>
         )}
+      </div>
+
+      {/* Shelf 1: Recommended Courses */}
+      <div className="border-t border-white/5 mt-6 pt-8 px-4">
+        <div className="flex items-end justify-between mb-4">
+          <h2 className="text-white font-black text-lg md:text-xl inline-flex items-center gap-2">
+            <GraduationCap className="w-5 h-5 text-emerald-400" />
+            Recommended Courses For You
+          </h2>
+          <button className="text-xs font-semibold text-emerald-400 hover:text-emerald-300">
+            View full library →
+          </button>
+        </div>
+        <div
+          className="flex overflow-x-auto snap-x scrollbar-none gap-4 pb-4"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {RECOMMENDED_COURSES.map((mc) => (
+            <div
+              key={mc.id}
+              className="w-[240px] snap-start bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex-shrink-0 hover:border-white/15 transition-colors"
+            >
+              <div className={`relative aspect-video rounded-lg bg-gradient-to-br ${mc.hue} overflow-hidden`}>
+                <div
+                  className="absolute inset-0 opacity-30"
+                  style={{
+                    backgroundImage:
+                      "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.5), transparent 60%)",
+                  }}
+                />
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="w-9 h-9 rounded-full bg-black/50 border border-white/20 flex items-center justify-center">
+                    <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                  </span>
+                </div>
+              </div>
+              <h3 className="mt-3 text-white font-bold text-sm leading-snug line-clamp-2">
+                {mc.title}
+              </h3>
+              <div className="mt-1.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">
+                {mc.tag}
+              </div>
+              <button
+                onClick={handleEnroll}
+                className="mt-3 w-full text-xs font-semibold text-emerald-400 hover:text-emerald-300 inline-flex items-center justify-center gap-1 border-t border-white/5 pt-2"
+              >
+                Quick Enroll <ArrowRight className="w-3 h-3" />
+              </button>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* Shelf 2: Shop Top Digital Assets */}
+      <div className="mt-6 pt-4 px-4 pb-10">
+        <div className="flex items-center justify-between mb-4 gap-3 flex-wrap">
+          <h2 className="text-white font-black text-lg md:text-xl inline-flex items-center gap-2">
+            <ShoppingBag className="w-5 h-5 text-emerald-400" />
+            Shop Top Digital Assets
+          </h2>
+          <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider shadow-[0_0_20px_-4px_rgba(16,185,129,0.6)]">
+            <Sparkles className="w-3 h-3" /> Trending Marketplace Files
+          </span>
+        </div>
+        <div
+          className="flex overflow-x-auto snap-x scrollbar-none gap-4 pb-2"
+          style={{ WebkitOverflowScrolling: "touch" }}
+        >
+          {SHOP_ASSETS.map((a) => {
+            const Icon = a.Icon;
+            return (
+              <div
+                key={a.id}
+                className="w-[220px] snap-start bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex-shrink-0 hover:border-white/15 transition-colors flex flex-col"
+              >
+                <div className={`relative aspect-square rounded-lg bg-gradient-to-br ${a.hue} flex items-center justify-center`}>
+                  <div
+                    className="absolute inset-0 opacity-25 rounded-lg"
+                    style={{
+                      backgroundImage:
+                        "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.6), transparent 60%)",
+                    }}
+                  />
+                  <Icon className="relative w-10 h-10 text-white" />
+                </div>
+                <h3 className="mt-3 text-white font-bold text-sm leading-snug line-clamp-2">
+                  {a.name}
+                </h3>
+                <div className="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-500">
+                  {a.category}
+                </div>
+                <div className="mt-2 text-white font-black text-base">
+                  {formatPrice(a.priceUSD, baseCurrency)}
+                </div>
+                <button
+                  onClick={handleBuy}
+                  className="mt-3 w-full py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs transition-colors"
+                >
+                  Buy Now
+                </button>
+              </div>
+            );
+          })}
+        </div>
       </div>
     </div>
   );
