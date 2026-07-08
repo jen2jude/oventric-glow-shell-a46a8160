@@ -719,7 +719,7 @@ function ProfilePage() {
                     <div className="pt-2 flex items-center justify-center">
                       {st.hasMore ? (
                         <button
-                          onClick={() => loadPage(tab)}
+                          onClick={() => loadMore()}
                           disabled={st.loading}
                           className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-sm text-slate-300 hover:text-white hover:bg-white/5 disabled:opacity-50"
                         >
