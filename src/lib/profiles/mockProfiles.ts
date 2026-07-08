@@ -251,3 +251,41 @@ export function computeStarBreakdown(rep: Profile["reputation"]): StarBreakdown 
   return { stars, items };
 }
 
+
+export interface CircleMember {
+  id: string;
+  name: string;
+  initials: string;
+  avatarGradient: string;
+}
+
+export interface CircleMembersPreview {
+  total: number;
+  preview: CircleMember[];
+}
+
+const CIRCLE_POOL: CircleMember[] = [
+  { id: "mira-okonkwo", name: "Mira Okonkwo", initials: "MO", avatarGradient: "from-emerald-400 to-teal-500" },
+  { id: "jules-tan", name: "Jules Tan", initials: "JT", avatarGradient: "from-sky-400 to-indigo-500" },
+  { id: "devon-ray", name: "Devon Ray", initials: "DR", avatarGradient: "from-amber-400 to-orange-500" },
+  { id: "sana-iqbal", name: "Sana Iqbal", initials: "SI", avatarGradient: "from-fuchsia-500 to-pink-500" },
+  { id: "kai-mendez", name: "Kai Mendez", initials: "KM", avatarGradient: "from-rose-400 to-red-500" },
+  { id: "elena-vos", name: "Elena Vos", initials: "EV", avatarGradient: "from-lime-400 to-green-500" },
+  { id: "priya-shah", name: "Priya Shah", initials: "PS", avatarGradient: "from-violet-500 to-purple-500" },
+  { id: "leo-arden", name: "Leo Arden", initials: "LA", avatarGradient: "from-cyan-400 to-blue-500" },
+];
+
+/** Deterministic circle preview derived from profile id + follower count. */
+export function getCircleMembersPreview(profile: Profile): CircleMembersPreview {
+  let seed = 0;
+  for (const ch of profile.id) seed = (seed * 31 + ch.charCodeAt(0)) >>> 0;
+  const pool = [...CIRCLE_POOL];
+  for (let i = pool.length - 1; i > 0; i--) {
+    seed = (seed * 1103515245 + 12345) >>> 0;
+    const j = seed % (i + 1);
+    [pool[i], pool[j]] = [pool[j], pool[i]];
+  }
+  const preview = pool.slice(0, 5);
+  const total = Math.max(12, Math.min(480, Math.round(profile.followers * 0.02) + preview.length));
+  return { total, preview };
+}
