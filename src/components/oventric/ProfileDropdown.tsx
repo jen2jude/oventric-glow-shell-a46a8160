@@ -490,7 +490,9 @@ function ProfileSettingsModal({
     }
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <div
       className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
       onClick={saving ? undefined : onClose}
@@ -628,6 +630,8 @@ function ProfileSettingsModal({
           </button>
         </footer>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
+
