@@ -630,6 +630,7 @@ function ProfilePage() {
       </div>
 
       <DMDrawer open={dmOpen} onClose={() => setDmOpen(false)} profile={profile} />
+      <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
