@@ -855,7 +855,7 @@ function ProfilePage() {
                           <Link
                             key={p.id}
                             to="/profile/$id/item/$kind/$itemId"
-                            params={{ id: profile.id, kind: "post", itemId: p.id }}
+                            params={{ id: profile.id, kind: "post", itemId: p.id }} search={itemSearch}
                             className="block bg-[#1E1E24] border border-white/10 rounded-xl p-5 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="flex items-center gap-2 mb-2 text-xs text-slate-500">
@@ -879,7 +879,7 @@ function ProfilePage() {
                           <Link
                             key={g.id}
                             to="/profile/$id/item/$kind/$itemId"
-                            params={{ id: profile.id, kind: "group", itemId: g.id }}
+                            params={{ id: profile.id, kind: "group", itemId: g.id }} search={itemSearch}
                             className="block bg-[#1E1E24] border border-white/10 rounded-xl p-4 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="flex items-center gap-3">
@@ -906,7 +906,7 @@ function ProfilePage() {
                           <Link
                             key={l.id}
                             to="/profile/$id/item/$kind/$itemId"
-                            params={{ id: profile.id, kind: "listing", itemId: l.id }}
+                            params={{ id: profile.id, kind: "listing", itemId: l.id }} search={itemSearch}
                             className="block bg-[#1E1E24] border border-white/10 rounded-xl p-4 hover:border-emerald-500/40 hover:bg-white/[0.02] transition-colors"
                           >
                             <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
@@ -939,7 +939,7 @@ function ProfilePage() {
                         <Link
                           key={b.id}
                           to="/profile/$id/item/$kind/$itemId"
-                          params={{ id: profile.id, kind: "bounty", itemId: b.id }}
+                          params={{ id: profile.id, kind: "bounty", itemId: b.id }} search={itemSearch}
                           className="block bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 hover:bg-white/[0.02] transition-colors"
                         >
                           <div className="flex items-center gap-2 text-[11px] font-bold text-emerald-300 mb-2">
@@ -959,7 +959,7 @@ function ProfilePage() {
                         <Link
                           key={b.id}
                           to="/profile/$id/item/$kind/$itemId"
-                          params={{ id: profile.id, kind: "solved", itemId: b.id }}
+                          params={{ id: profile.id, kind: "solved", itemId: b.id }} search={itemSearch}
                           className="block bg-[#1E1E24] border border-white/10 rounded-xl p-5 hover:border-purple-400/40 hover:bg-white/[0.02] transition-colors"
                         >
                           <div className="flex items-center gap-2 text-[11px] font-bold text-purple-300 mb-2">
