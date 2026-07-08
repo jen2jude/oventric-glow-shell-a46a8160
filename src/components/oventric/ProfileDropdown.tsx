@@ -339,8 +339,13 @@ export function ProfileDropdown() {
       {/* Desktop dropdown */}
       {open && !isMobile && (
         <div
+          ref={menuRef}
+          id={menuId}
           role="menu"
-          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150"
+          aria-labelledby={triggerId}
+          aria-orientation="vertical"
+          onKeyDown={onMenuKeyDown}
+          className="bg-[#1E1E24] border border-white/5 rounded-xl shadow-2xl p-4 w-72 absolute right-0 top-14 z-50 animate-in fade-in slide-in-from-top-2 duration-150 focus:outline-none"
         >
           {panelBody}
         </div>
@@ -351,12 +356,17 @@ export function ProfileDropdown() {
         <div className="fixed inset-0 z-50 sm:hidden">
           <div
             className="absolute inset-0 bg-black/60 backdrop-blur-sm"
-            onClick={() => setOpen(false)}
+            onClick={() => closeMenu(true)}
             aria-hidden
           />
           <div
+            ref={menuRef}
+            id={menuId}
             role="menu"
-            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200"
+            aria-labelledby={triggerId}
+            aria-orientation="vertical"
+            onKeyDown={onMenuKeyDown}
+            className="absolute inset-x-0 bottom-0 bg-[#1E1E24] border-t border-white/10 rounded-t-2xl shadow-2xl p-5 max-h-[85vh] overflow-y-auto animate-in slide-in-from-bottom duration-200 focus:outline-none"
           >
             <div className="w-10 h-1 rounded-full bg-white/10 mx-auto mb-4" aria-hidden />
             {panelBody}
