@@ -13,7 +13,7 @@ import {
   Flame,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useAdminStore } from "@/lib/admin/store";
+import { useAdminStore, useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
@@ -104,7 +104,7 @@ export function Marketplace() {
     [admin.products],
   );
   const ALL_PRODUCTS = useMemo(() => [...adminProducts, ...PRODUCTS], [adminProducts]);
-  const marketplaceAds = admin.ads.filter((a) => a.placement === "marketplace");
+  const marketplaceAds = useActiveAds("marketplace");
 
   const recommended = useMemo(() => {
     const promoted = ALL_PRODUCTS.filter((p) => p.promoted);

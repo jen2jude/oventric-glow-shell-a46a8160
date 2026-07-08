@@ -4,7 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
-import { useAdminStore } from "@/lib/admin/store";
+import { useAdminStore, useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
@@ -49,7 +49,7 @@ function ReportedBadge({ details }: { details?: ReportDetails }) {
 export function Feed() {
   const { require, tier } = useOnboarding();
   const admin = useAdminStore();
-  const feedAds = admin.ads.filter((a) => a.placement === "feed");
+  const feedAds = useActiveAds("feed");
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
