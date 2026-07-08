@@ -248,6 +248,25 @@ function ProfilePage() {
     [tab, navigate, id],
   );
 
+  // Retry a failed tab: clear its cache so the load effect refetches up to
+  // the current desiredPages (preserving pagination). Also reset scroll.
+  const retryTab = useCallback(
+    (which: Tab) => {
+      scrollRestoredRef.current = true; // don't try to restore old scroll
+      setTabData((s) => ({ ...s, [which]: { ...emptyTabState } }));
+      navigate({
+        to: "/profile/$id",
+        params: { id },
+        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab: which, y: 0 }),
+        replace: true,
+      });
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [navigate, id],
+  );
+
+
+
   // Load (or reload) the active tab up to `desiredPages`, then restore scroll.
   useEffect(() => {
     let cancelled = false;
