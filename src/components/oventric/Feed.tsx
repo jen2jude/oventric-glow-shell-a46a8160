@@ -365,7 +365,7 @@ export function Feed() {
                 {c.initials}
               </Link>
               <div
-                className={`flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
+                className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${
                   c.failed ? "border-red-500/40" : "border-white/5"
                 }`}
               >
@@ -387,8 +387,60 @@ export function Feed() {
                       Failed
                     </span>
                   )}
+                  {meId && c.authorId === meId && !c.pending && editingId !== c.id && (
+                    <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
+                      <button
+                        type="button"
+                        onClick={() => startEdit(c)}
+                        aria-label="Edit comment"
+                        className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-emerald-400"
+                      >
+                        <Pencil className="w-3 h-3" />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => removeComment(c.id)}
+                        aria-label="Delete comment"
+                        className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-red-400"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-                <div className="text-xs text-slate-300 mt-0.5 leading-relaxed">{c.text}</div>
+                {editingId === c.id ? (
+                  <div className="mt-1 flex items-center gap-1">
+                    <input
+                      value={editDraft}
+                      onChange={(e) => setEditDraft(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") saveEdit();
+                        else if (e.key === "Escape") cancelEdit();
+                      }}
+                      autoFocus
+                      className="flex-1 bg-black/40 border border-emerald-500/40 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={saveEdit}
+                      disabled={savingEdit || !editDraft.trim() || editDraft.trim() === c.text}
+                      aria-label="Save edit"
+                      className="p-1 rounded bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
+                    >
+                      <Check className="w-3 h-3" />
+                    </button>
+                    <button
+                      type="button"
+                      onClick={cancelEdit}
+                      aria-label="Cancel edit"
+                      className="p-1 rounded hover:bg-white/5 text-slate-400"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </div>
+                ) : (
+                  <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">{c.text}</div>
+                )}
               </div>
             </div>
           ))}
