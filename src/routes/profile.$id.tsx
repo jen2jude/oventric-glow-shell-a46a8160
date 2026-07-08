@@ -396,6 +396,15 @@ function ProfilePage() {
     });
   };
   const handleChat = () => require(1, () => setDmOpen(true));
+  const handleCopyLink = async () => {
+    try {
+      await navigator.clipboard.writeText(window.location.href);
+      setCopied(true);
+      window.setTimeout(() => setCopied(false), 1500);
+    } catch {
+      // silent fail
+    }
+  };
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
