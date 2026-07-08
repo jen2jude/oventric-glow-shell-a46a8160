@@ -6,6 +6,7 @@ import { MobileNav } from "@/components/oventric/MobileNav";
 import { Feed } from "@/components/oventric/Feed";
 import { Wallet } from "@/components/oventric/Wallet";
 import { Marketplace } from "@/components/oventric/Marketplace";
+import { Academy } from "@/components/oventric/Academy";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
 import { OnboardingProvider, useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { StageModals } from "@/components/oventric/onboarding/StageModals";
