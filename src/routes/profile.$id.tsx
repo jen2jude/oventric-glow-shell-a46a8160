@@ -136,6 +136,10 @@ function ProfilePage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
+  const [mpLastRefreshed, setMpLastRefreshed] = useState<number | null>(null);
+  const [mpRefreshing, setMpRefreshing] = useState(false);
+  const [nowTick, setNowTick] = useState(() => Date.now());
+  const mpPagesRef = useRef(1);
 
   // Per-tab paginated data. Items accumulate on "Load more".
   type TabState = {
