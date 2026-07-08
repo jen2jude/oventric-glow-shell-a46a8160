@@ -89,6 +89,13 @@ export function Feed() {
   const [composerDraft, setComposerDraft] = useState("");
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
+  const MAX_MEDIA_BYTES = 10 * 1024 * 1024; // 10 MB
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [attachment, setAttachment] = useState<{
+    file: File;
+    previewUrl: string;
+    kind: "image" | "video";
+  } | null>(null);
 
   const [commentsByPost, setCommentsByPost] = useState<Record<string, Comment[]>>({});
   const [commentDrafts, setCommentDrafts] = useState<Record<string, string>>({});
