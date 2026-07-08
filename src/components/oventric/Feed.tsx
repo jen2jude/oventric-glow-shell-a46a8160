@@ -244,7 +244,7 @@ export function Feed() {
             <ReportedBadge details={reported.get("post-aria-1")} />
           ) : (
             <button
-              onClick={() => setReportOpen("post-aria-1")}
+              onClick={() => openReport("post-aria-1")}
               className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
               aria-label="Report post"
               title="Report post"
@@ -365,7 +365,7 @@ export function Feed() {
               <ReportedBadge details={reported.get("listing-rls-kit")} />
             ) : (
               <button
-                onClick={() => setReportOpen("listing-rls-kit")}
+                onClick={() => openReport("listing-rls-kit")}
                 className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
                 aria-label="Report listing"
               >
@@ -432,7 +432,7 @@ export function Feed() {
             <ReportedBadge details={reported.get("bounty-rls")} />
           ) : (
             <button
-              onClick={() => setReportOpen("bounty-rls")}
+              onClick={() => openReport("bounty-rls")}
               className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
               aria-label="Report bounty"
             >
