@@ -120,7 +120,7 @@ export function Marketplace() {
 
   if (fullCategory) {
     const meta = CATEGORY_META[fullCategory];
-    const items = PRODUCTS.filter((p) => p.category === fullCategory);
+    const items = ALL_PRODUCTS.filter((p) => p.category === fullCategory);
     return (
       <div className="max-w-7xl mx-auto w-full px-4 py-6">
         <button
