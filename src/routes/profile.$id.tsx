@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { zodValidator, fallback } from "@tanstack/zod-adapter";
+import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import {
   getCircleStatus,
@@ -39,7 +41,14 @@ import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 
+const profileSearchSchema = z.object({
+  tab: fallback(z.string(), "posts").default("posts"),
+  pages: fallback(z.number().int(), 1).default(1),
+  y: fallback(z.number().int(), 0).default(0),
+});
+
 export const Route = createFileRoute("/profile/$id")({
+  validateSearch: zodValidator(profileSearchSchema),
   head: ({ params }) => ({
     meta: [
       { title: `@${params.id} · Oventric` },
