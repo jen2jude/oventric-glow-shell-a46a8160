@@ -528,34 +528,59 @@ function MegaBountyIssuer() {
   const [applicantLimit, setApplicantLimit] = useState("10");
   const [escrow, setEscrow] = useState("");
   const [currency, setCurrency] = useState<AdminCurrency>("USD");
-  const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
-  const reset = () => { setTitle(""); setScope(""); setEscrow(""); };
+  const clearErr = (k: string) =>
+    setErrors((prev) => (prev[k] ? { ...prev, [k]: "" } : prev));
+
+  const reset = () => { setTitle(""); setScope(""); setEscrow(""); setErrors({}); };
 
   const limitN = Number(applicantLimit);
   const escN = Number(escrow);
 
+  const validate = (): Record<string, string> => {
+    const e: Record<string, string> = {};
+    if (!title.trim()) e.title = "Task title is required.";
+    else if (title.trim().length > 120) e.title = "Keep title under 120 characters.";
+    if (!scope.trim()) e.scope = "Scope is required.";
+    else if (scope.trim().length > 5000) e.scope = "Scope must be under 5000 characters.";
+    if (!timeframe.trim()) e.timeframe = "Timeframe required.";
+    if (!(limitN > 0)) e.applicantLimit = "Must accept at least 1 applicant.";
+    if (!(escN > 0)) e.escrow = "Escrow must be > 0.";
+    return e;
+  };
+
   const openPreview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !scope.trim() || !timeframe.trim()) {
-      setToast({ msg: "Title, scope and timeframe are required.", kind: "err" }); return;
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Fix the highlighted fields", { description: `${Object.keys(errs).length} field${Object.keys(errs).length === 1 ? "" : "s"} need attention before deploy.` });
+      return;
     }
-    if (!(limitN > 0) || !(escN > 0)) {
-      setToast({ msg: "Applicant limit and escrow must be > 0.", kind: "err" }); return;
-    }
-    setToast(null);
     setPreviewOpen(true);
   };
 
-  const confirmSubmit = () => {
-    adminStore.addBounty({
-      title: title.trim(), scope: scope.trim(), timeframe: timeframe.trim(),
-      applicantLimit: limitN, escrowAmount: escN, escrowCurrency: currency,
-    });
-    setPreviewOpen(false);
-    setToast({ msg: "Bounty deployed and escrow locked.", kind: "ok" });
-    reset();
+  const confirmSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await commitToServer(() =>
+        adminStore.addBounty({
+          title: title.trim(), scope: scope.trim(), timeframe: timeframe.trim(),
+          applicantLimit: limitN, escrowAmount: escN, escrowCurrency: currency,
+        }),
+      );
+      toast.success("Bounty deployed", { description: `${CURRENCY_SYMBOL[currency]}${escN.toLocaleString()} ${currency} escrow locked for "${title.trim()}".` });
+      setPreviewOpen(false);
+      reset();
+    } catch (err) {
+      toast.error("Deploy failed", { description: err instanceof Error ? err.message : "The bounty board rejected the drop. Try again." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fields: TokenField[] = [
@@ -569,7 +594,7 @@ function MegaBountyIssuer() {
 
   return (
     <>
-      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+      <form onSubmit={openPreview} noValidate className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <span className="w-9 h-9 rounded-lg bg-amber-500/15 border border-amber-500/30 flex items-center justify-center">
             <Target className="w-4 h-4 text-amber-300" />
@@ -582,22 +607,34 @@ function MegaBountyIssuer() {
 
         <div>
           <FieldLabel>Project Task Title</FieldLabel>
-          <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Ship a hardened RLS matrix" />
+          <input className={fieldCls(!!errors.title)} value={title} maxLength={120}
+            onChange={(e) => { setTitle(e.target.value); clearErr("title"); }} placeholder="Ship a hardened RLS matrix"
+            aria-invalid={!!errors.title} />
+          <InlineError msg={errors.title} />
         </div>
 
         <div>
           <FieldLabel>Scope of Technical Requirements</FieldLabel>
-          <textarea rows={5} className={`${inputCls} font-mono text-xs`} value={scope} onChange={(e) => setScope(e.target.value)} placeholder={"## Deliverables\n- ...\n- ..."} />
+          <textarea rows={5} className={`${fieldCls(!!errors.scope)} font-mono text-xs`} value={scope} maxLength={5000}
+            onChange={(e) => { setScope(e.target.value); clearErr("scope"); }} placeholder={"## Deliverables\n- ...\n- ..."}
+            aria-invalid={!!errors.scope} />
+          <InlineError msg={errors.scope} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
           <div>
             <FieldLabel>Est. Timeframe</FieldLabel>
-            <input className={inputCls} value={timeframe} onChange={(e) => setTimeframe(e.target.value)} />
+            <input className={fieldCls(!!errors.timeframe)} value={timeframe}
+              onChange={(e) => { setTimeframe(e.target.value); clearErr("timeframe"); }}
+              aria-invalid={!!errors.timeframe} />
+            <InlineError msg={errors.timeframe} />
           </div>
           <div>
             <FieldLabel>Applicants Limit</FieldLabel>
-            <input type="number" min={1} className={inputCls} value={applicantLimit} onChange={(e) => setApplicantLimit(e.target.value)} />
+            <input type="number" min={1} className={fieldCls(!!errors.applicantLimit)} value={applicantLimit}
+              onChange={(e) => { setApplicantLimit(e.target.value); clearErr("applicantLimit"); }}
+              aria-invalid={!!errors.applicantLimit} />
+            <InlineError msg={errors.applicantLimit} />
           </div>
         </div>
 
@@ -606,7 +643,9 @@ function MegaBountyIssuer() {
           <div className="flex gap-2">
             <div className="relative flex-1">
               <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[currency]}</span>
-              <input type="number" min={0} step="0.01" className={`${inputCls} pl-6`} value={escrow} onChange={(e) => setEscrow(e.target.value)} placeholder="5000" />
+              <input type="number" min={0} step="0.01" className={`${fieldCls(!!errors.escrow)} pl-6`} value={escrow}
+                onChange={(e) => { setEscrow(e.target.value); clearErr("escrow"); }} placeholder="5000"
+                aria-invalid={!!errors.escrow} />
             </div>
             <div className="flex rounded-lg border border-white/10 overflow-hidden">
               {(["USD", "NGN", "GHS"] as const).map((c) => (
@@ -619,9 +658,8 @@ function MegaBountyIssuer() {
               ))}
             </div>
           </div>
+          <InlineError msg={errors.escrow} />
         </div>
-
-        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
 
         <button type="submit" className="rgb-pulse-glow w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2">
           <Eye className="w-4 h-4" /> Preview & Deploy Bounty
@@ -632,6 +670,7 @@ function MegaBountyIssuer() {
         open={previewOpen}
         onClose={() => setPreviewOpen(false)}
         onConfirm={confirmSubmit}
+        isSubmitting={submitting}
         title={title.trim() || "Untitled bounty"}
         subtitle={`Escrow ${CURRENCY_SYMBOL[currency]}${escN.toLocaleString()} • ${timeframe.trim()}`}
         accent="amber"
