@@ -206,12 +206,12 @@ function ProfilePage() {
     setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
     const nextPage = (current.page || 0) + 1;
     try {
-      await fetchOne(tab, nextPage, false);
+      await fetchOne(tab, nextPage, false, { q, sort });
       const y = mainRef.current?.scrollTop ?? 0;
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab, pages: nextPage, y },
+        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab, pages: nextPage, y }),
         replace: true,
       });
     } catch (e) {
