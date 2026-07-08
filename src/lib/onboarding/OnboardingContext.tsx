@@ -90,6 +90,14 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
     [],
   );
+  const setBalancesHidden = useCallback(
+    (hidden: boolean) => setState((s) => ({ ...s, balancesHidden: hidden })),
+    [],
+  );
+  const toggleBalancesHidden = useCallback(
+    () => setState((s) => ({ ...s, balancesHidden: !s.balancesHidden })),
+    [],
+  );
 
   const value = useMemo<OnboardingContextValue>(
     () => ({
@@ -103,8 +111,10 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       advanceTo,
       setBaseCurrency,
       updateBalance,
+      setBalancesHidden,
+      toggleBalancesHidden,
     }),
-    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance],
+    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalancesHidden, toggleBalancesHidden],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
