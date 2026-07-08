@@ -103,6 +103,12 @@ export function Feed() {
   const [commentError, setCommentError] = useState<string | null>(null);
   const COMMENTS_PAGE_SIZE = 3;
   const [visibleComments, setVisibleComments] = useState<Record<string, number>>({});
+  // Reservations of client tempIds for locally-created comments, keyed by
+  // `${postId}::${authorId}::${text}`. Realtime INSERT consumes an entry to
+  // adopt the real id in-place instead of appending a duplicate.
+  const pendingSelfCommentsRef = useRef<Map<string, string[]>>(new Map());
+  // Real ids we've already merged locally — realtime INSERT skips them.
+  const knownCommentIdsRef = useRef<Set<string>>(new Set());
 
   const [editing, setEditing] = useState<{ id: string; text: string } | null>(null);
   const [savingEdit, setSavingEdit] = useState(false);
