@@ -1,5 +1,5 @@
 import { useEffect, type ReactNode } from "react";
-import { X, Eye } from "lucide-react";
+import { X, Eye, Loader2 } from "lucide-react";
 
 export interface TokenField {
   label: string;
@@ -21,6 +21,7 @@ interface PreviewModalProps {
   visual?: ReactNode;
   confirmLabel: string;
   icon?: ReactNode;
+  isSubmitting?: boolean;
 }
 
 const ACCENT_MAP = {
@@ -57,11 +58,12 @@ export function PreviewModal({
   visual,
   confirmLabel,
   icon,
+  isSubmitting = false,
 }: PreviewModalProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape" && !isSubmitting) onClose();
     };
     window.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
@@ -77,7 +79,7 @@ export function PreviewModal({
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={isSubmitting ? undefined : onClose} />
       <div
         role="dialog"
         aria-modal="true"
@@ -141,16 +143,19 @@ export function PreviewModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold"
+            disabled={isSubmitting}
+            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 hover:text-white text-xs font-bold disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Back to edit
           </button>
           <button
             type="button"
             onClick={onConfirm}
-            className={`px-4 py-2 rounded-lg text-xs font-black ${styles.btn}`}
+            disabled={isSubmitting}
+            className={`px-4 py-2 rounded-lg text-xs font-black inline-flex items-center gap-2 disabled:opacity-70 disabled:cursor-wait ${styles.btn}`}
           >
-            {confirmLabel}
+            {isSubmitting && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
+            {isSubmitting ? "Submitting…" : confirmLabel}
           </button>
         </footer>
       </div>
