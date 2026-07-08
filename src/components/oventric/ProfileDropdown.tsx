@@ -142,10 +142,10 @@ export function ProfileDropdown() {
     } else if (e.key === "End") {
       e.preventDefault();
       items[items.length - 1]?.focus();
-    } else if (e.key === "Tab") {
-      // Close on tab-out; let natural focus move
-      closeMenu(false);
     }
+    // Tab is intentionally not handled here — focus is trapped inside the
+    // panel by useFocusTrap so keyboard users can't accidentally leave the
+    // open menu without dismissing it (Esc / outside click).
   };
 
   const persistProfile = (next: ProfileState) => {
