@@ -1,5 +1,5 @@
 import { useState, Fragment } from "react";
-import { useAdminStore } from "@/lib/admin/store";
+import { useAdminStore, useActiveAds } from "@/lib/admin/store";
 import { AdCard as AdminAdCard } from "@/components/oventric/AdCard";
 import {
   ArrowRight,
@@ -325,7 +325,7 @@ const ADS: Ad[] = [
 export function Academy() {
   const { require, baseCurrency } = useOnboarding();
   const admin = useAdminStore();
-  const academyAds = admin.ads.filter((a) => a.placement === "academy");
+  const academyAds = useActiveAds("academy");
   const [view, setView] = useState<"landing" | "catalog">("landing");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [expanded, setExpanded] = useState<Record<string, boolean>>({});
