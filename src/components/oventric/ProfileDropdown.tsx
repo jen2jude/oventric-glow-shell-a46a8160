@@ -279,14 +279,16 @@ export function ProfileDropdown() {
   );
 
   const navMatrix = (
-    <div className="space-y-1">
+    <div className="space-y-1" role="none">
       <Link
         to="/profile/$id"
         params={{ id: userId }}
-        onClick={() => setOpen(false)}
-        className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors"
+        role="menuitem"
+        tabIndex={-1}
+        onClick={() => closeMenu(false)}
+        className="flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
       >
-        <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" />
+        <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">View Public Profile Workspace</div>
           <div className="text-[10px] text-slate-500 truncate">Your /profile aggregator tab view</div>
@@ -294,10 +296,12 @@ export function ProfileDropdown() {
       </Link>
       <button
         type="button"
+        role="menuitem"
+        tabIndex={-1}
         onClick={openSettings}
-        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left"
+        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-sky-400/70 focus:bg-white/5 focus:text-white"
       >
-        <Settings className="w-4 h-4 text-sky-300 shrink-0" />
+        <Settings className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">Profile Settings & KYC Edit</div>
           <div className="text-[10px] text-slate-500 truncate">Name, bio, avatar, verification docs</div>
@@ -309,10 +313,12 @@ export function ProfileDropdown() {
   const signOutRow = (
     <button
       type="button"
+      role="menuitem"
+      tabIndex={-1}
       onClick={onSignOut}
-      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors"
+      className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm font-bold text-red-300 bg-red-500/5 border border-red-500/20 hover:bg-red-500/15 hover:border-red-500/40 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
     >
-      <LogOut className="w-4 h-4 shrink-0" />
+      <LogOut className="w-4 h-4 shrink-0" aria-hidden />
       Exit Platform / Sign Out
     </button>
   );
