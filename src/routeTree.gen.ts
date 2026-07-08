@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
+import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const IndexRoute = IndexRouteImport.update({
@@ -23,6 +24,11 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
   path: '/profile/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdminReportsRoute = AdminReportsRouteImport.update({
+  id: '/admin/reports',
+  path: '/admin/reports',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -31,30 +37,47 @@ const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/admin/reports': typeof AdminReportsRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
+  fullPaths:
+    | '/'
+    | '/admin/reports'
+    | '/profile/$id'
+    | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
-  id: '__root__' | '/' | '/profile/$id' | '/profile/$id/item/$kind/$itemId'
+  to:
+    | '/'
+    | '/admin/reports'
+    | '/profile/$id'
+    | '/profile/$id/item/$kind/$itemId'
+  id:
+    | '__root__'
+    | '/'
+    | '/admin/reports'
+    | '/profile/$id'
+    | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AdminReportsRoute: typeof AdminReportsRoute
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
 }
 
@@ -72,6 +95,13 @@ declare module '@tanstack/react-router' {
       path: '/profile/$id'
       fullPath: '/profile/$id'
       preLoaderRoute: typeof ProfileIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/admin/reports': {
+      id: '/admin/reports'
+      path: '/admin/reports'
+      fullPath: '/admin/reports'
+      preLoaderRoute: typeof AdminReportsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile/$id/item/$kind/$itemId': {
@@ -98,6 +128,7 @@ const ProfileIdRouteWithChildren = ProfileIdRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AdminReportsRoute: AdminReportsRoute,
   ProfileIdRoute: ProfileIdRouteWithChildren,
 }
 export const routeTree = rootRouteImport
