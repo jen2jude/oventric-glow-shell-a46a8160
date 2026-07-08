@@ -81,7 +81,7 @@ export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
   const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
   const [fullCategory, setFullCategory] = useState<CategoryKey | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLDivElement | null>>({});
+  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
   const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
 
