@@ -1,5 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import {
+  getCircleStatus,
+  sendCircleRequest,
+  cancelCircleRequest,
+  acceptCircleRequest,
+  type CircleStatus,
+} from "@/lib/circles.functions";
 import {
   ArrowLeft,
   Star,
@@ -43,9 +52,42 @@ function ProfilePage() {
   const { require, baseCurrency } = useOnboarding();
 
   const [tab, setTab] = useState<Tab>("posts");
-  const [joined, setJoined] = useState(false);
+  const [circle, setCircle] = useState<CircleStatus>("none");
+  const [circleBusy, setCircleBusy] = useState(false);
+  const [circleError, setCircleError] = useState<string | null>(null);
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+
+  const fetchStatus = useServerFn(getCircleStatus);
+  const sendReq = useServerFn(sendCircleRequest);
+  const cancelReq = useServerFn(cancelCircleRequest);
+  const acceptReq = useServerFn(acceptCircleRequest);
+
+  // Ensure an auth session exists (anonymous is fine for the demo)
+  const ensureSession = async () => {
+    const { data } = await supabase.auth.getSession();
+    if (!data.session) {
+      const { error } = await supabase.auth.signInAnonymously();
+      if (error) throw error;
+    }
+  };
+
+  // Load initial status for this profile
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        await ensureSession();
+        const res = await fetchStatus({ data: { targetSlug: profile.id } });
+        if (!cancelled) setCircle(res.status);
+      } catch (e) {
+        console.error(e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [profile.id, fetchStatus]);
 
   const rep = profile.reputation;
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
@@ -53,8 +95,30 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
-  const handleJoin = () =>
-    require(1, () => setJoined((v) => !v));
+  const runCircle = (fn: () => Promise<{ status: CircleStatus }>) => {
+    require(1, async () => {
+      setCircleBusy(true);
+      setCircleError(null);
+      try {
+        await ensureSession();
+        const res = await fn();
+        setCircle(res.status);
+      } catch (e) {
+        console.error(e);
+        setCircleError("Something went wrong. Try again.");
+      } finally {
+        setCircleBusy(false);
+      }
+    });
+  };
+
+  const handleJoin = () => {
+    if (circle === "none") runCircle(() => sendReq({ data: { targetSlug: profile.id } }));
+    else if (circle === "pending") runCircle(() => cancelReq({ data: { targetSlug: profile.id } }));
+    // "accepted" click is a no-op; user can Chat instead.
+  };
+  const handleAccept = () =>
+    runCircle(() => acceptReq({ data: { targetSlug: profile.id } }));
   const handleChat = () => require(1, () => setDmOpen(true));
 
   return (
@@ -94,18 +158,49 @@ function ProfilePage() {
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">{profile.bio}</p>
                 </div>
-                <div className="flex sm:flex-col gap-2 sm:w-40 shrink-0">
+                <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button
                     onClick={handleJoin}
-                    className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors ${
-                      joined
+                    disabled={circleBusy}
+                    className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 ${
+                      circle === "accepted"
                         ? "bg-emerald-500/15 border border-emerald-500/50 text-emerald-300"
-                        : "bg-emerald-500 hover:bg-emerald-400 text-black"
+                        : circle === "pending"
+                          ? "bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/15"
+                          : "bg-emerald-500 hover:bg-emerald-400 text-black"
                     }`}
+                    aria-label={
+                      circle === "accepted"
+                        ? "In your circle"
+                        : circle === "pending"
+                          ? "Cancel circle request"
+                          : "Send circle request"
+                    }
                   >
-                    {joined ? <Check className="w-4 h-4" /> : <UserPlus className="w-4 h-4" />}
-                    {joined ? "In Circle" : "Join Circle"}
+                    {circle === "accepted" ? (
+                      <>
+                        <Check className="w-4 h-4" /> In Circle
+                      </>
+                    ) : circle === "pending" ? (
+                      <>
+                        <Check className="w-4 h-4" /> Requested
+                      </>
+                    ) : (
+                      <>
+                        <UserPlus className="w-4 h-4" /> Join Circle
+                      </>
+                    )}
                   </button>
+                  {circle === "pending" && (
+                    <button
+                      onClick={handleAccept}
+                      disabled={circleBusy}
+                      className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-3 py-1.5 rounded-lg border border-emerald-500/40 text-emerald-300 hover:bg-emerald-500/10 text-xs font-semibold disabled:opacity-60"
+                      title={`Simulate ${profile.name} accepting your request`}
+                    >
+                      Accept as {profile.name.split(" ")[0]}
+                    </button>
+                  )}
                   <button
                     onClick={handleChat}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
@@ -118,6 +213,9 @@ function ProfilePage() {
                   >
                     <Flag className="w-3.5 h-3.5" /> Report
                   </button>
+                  {circleError && (
+                    <div className="text-[11px] text-red-400 sm:text-center">{circleError}</div>
+                  )}
                 </div>
               </div>
 
