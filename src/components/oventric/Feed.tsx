@@ -196,13 +196,17 @@ export function Feed() {
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Marketplace</span>
-            <button
-              onClick={() => setReportOpen("listing-rls-kit")}
-              className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
-              aria-label="Report listing"
-            >
-              <Flag className="w-3.5 h-3.5" />
-            </button>
+            {reported.has("listing-rls-kit") ? (
+              <ReportedBadge />
+            ) : (
+              <button
+                onClick={() => setReportOpen("listing-rls-kit")}
+                className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
+                aria-label="Report listing"
+              >
+                <Flag className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </header>
         <div className="p-5">
