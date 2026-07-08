@@ -66,9 +66,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <MessageCircle className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
         </button>
-        <button className="rgb-pulse-glow w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm">
-          OV
-        </button>
+        <ProfileDropdown />
       </div>
 
       <NotificationsDrawer
