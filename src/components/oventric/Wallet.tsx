@@ -83,20 +83,16 @@ function fmt(n: number, c: Currency) {
   return currencyMeta[c].symbol + n.toLocaleString("en-US", opts);
 }
 
-const MOCK_TX: Tx[] = [
-  { id: "0xA1F9-4402-BC12", type: "Affiliate Cashback Payout", amount: 45000, currency: "NGN", inflow: true, timestamp: "2026-07-08 09:12", status: "success" },
-  { id: "0x77E1-9022-D3AA", type: "Gig Bounty Escrowed", amount: 320, currency: "USD", inflow: false, timestamp: "2026-07-08 08:41", status: "pending" },
-  { id: "0x3B02-CC81-1FE0", type: "Marketplace Purchase", amount: 120, currency: "USD", inflow: false, timestamp: "2026-07-07 22:03", status: "success" },
-  { id: "0xF19D-8801-A44C", type: "Wallet Top-Up", amount: 1500, currency: "USD", inflow: true, timestamp: "2026-07-07 15:27", status: "success" },
-  { id: "0x66C4-72B0-9911", type: "Ad Injection Charge", amount: 85, currency: "GHS", inflow: false, timestamp: "2026-07-07 11:18", status: "failed" },
-  { id: "0x2E8B-5501-CD33", type: "Payout Withdrawal", amount: 750, currency: "USD", inflow: false, timestamp: "2026-07-06 19:52", status: "pending" },
-  { id: "0x91AA-3300-77B4", type: "Affiliate Cashback Payout", amount: 62, currency: "GHS", inflow: true, timestamp: "2026-07-06 14:10", status: "success" },
-  { id: "0x0D53-6621-88EE", type: "Marketplace Purchase", amount: 240000, currency: "NGN", inflow: false, timestamp: "2026-07-05 20:33", status: "success" },
-  { id: "0x4471-9C02-BF10", type: "Gig Bounty Escrowed", amount: 900, currency: "USD", inflow: true, timestamp: "2026-07-05 09:05", status: "pending" },
-  { id: "0x5A2C-0091-EF77", type: "Wallet Top-Up", amount: 220, currency: "GHS", inflow: true, timestamp: "2026-07-04 16:44", status: "success" },
-];
-
 const PAGE_SIZE = 6;
+
+function fmtTs(iso: string) {
+  try {
+    const d = new Date(iso);
+    return d.toISOString().slice(0, 16).replace("T", " ");
+  } catch {
+    return iso;
+  }
+}
 
 export function Wallet() {
   const { balances } = useOnboarding();
@@ -104,28 +100,53 @@ export function Wallet() {
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [debounced, setDebounced] = useState("");
   const [curFilter, setCurFilter] = useState<"ALL" | Currency>("ALL");
   const [page, setPage] = useState(1);
   const [spend, setSpend] = useState(2500);
+  const [userId, setUserId] = useState<string | null>(null);
+  const [authReady, setAuthReady] = useState(false);
 
   const cashback = 218.42;
 
-  const filtered = useMemo(() => {
-    const q = search.trim().toLowerCase();
-    return MOCK_TX.filter((t) => {
-      if (curFilter !== "ALL" && t.currency !== curFilter) return false;
-      if (!q) return true;
-      return (
-        t.id.toLowerCase().includes(q) ||
-        t.type.toLowerCase().includes(q) ||
-        t.currency.toLowerCase().includes(q)
-      );
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      setUserId(data.session?.user?.id ?? null);
+      setAuthReady(true);
     });
-  }, [search, curFilter]);
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setUserId(session?.user?.id ?? null);
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
 
-  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  useEffect(() => {
+    const t = setTimeout(() => setDebounced(search.trim()), 250);
+    return () => clearTimeout(t);
+  }, [search]);
+
+  useEffect(() => {
+    setPage(1);
+  }, [debounced, curFilter]);
+
+  const fetchList = useServerFn(listWalletTransactions);
+  const query = useQuery({
+    queryKey: ["wallet-tx", userId, debounced, curFilter, page],
+    enabled: authReady && !!userId,
+    queryFn: () =>
+      fetchList({ data: { search: debounced, currency: curFilter, page, pageSize: PAGE_SIZE } }),
+    staleTime: 15_000,
+  });
+
+  const items = query.data?.items ?? [];
+  const total = query.data?.total ?? 0;
+  const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
-  const paged = filtered.slice((pageSafe - 1) * PAGE_SIZE, pageSafe * PAGE_SIZE);
 
   const tier = spend < 1000 ? { pct: 2, label: "Baseline" } : spend <= 5000 ? { pct: 3.5, label: "Elite Tier" } : { pct: 5, label: "Apex Architect" };
   const annualSavings = (spend * 12 * tier.pct) / 100;
