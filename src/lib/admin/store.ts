@@ -27,6 +27,17 @@ export interface AdminAd {
   cta: string;
   clickUrl: string;
   createdAt: number;
+  /** Unix ms. If null, campaign starts immediately. */
+  startAt: number | null;
+  /** Unix ms. If null, campaign runs indefinitely. */
+  endAt: number | null;
+}
+
+/** True when the ad's scheduled window includes `now`. */
+export function isAdActive(ad: AdminAd, now: number = Date.now()): boolean {
+  if (ad.startAt != null && now < ad.startAt) return false;
+  if (ad.endAt != null && now > ad.endAt) return false;
+  return true;
 }
 
 export interface AdminBounty {
