@@ -799,21 +799,30 @@ function ProfilePage() {
                 if (st.error && st.items.length === 0) {
                   return (
                     <ErrorState
-                      label={st.error}
-                      onRetry={() => {
-                        setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
-                        navigate({
-                          to: "/profile/$id",
-                          params: { id },
-                          search: { tab, pages: 1, y: 0 },
-                          replace: true,
-                        });
-                      }}
+                      label="Couldn't load this tab"
+                      hint={`We'll refetch ${desiredPages > 1 ? `pages 1–${desiredPages}` : "page 1"} of ${tabNoun(tab)}.`}
+                      onRetry={() => retryTab(tab)}
                     />
                   );
                 }
                 if (initialLoading) return <TabSkeleton variant={tab} />;
-                if (isEmpty) return <EmptyState label={emptyLabelFor(tab, profile.name, q)} />;
+                if (isEmpty) {
+                  const empty = emptyContentFor(tab, profile.name, q, () => {
+                    navigate({
+                      to: "/profile/$id",
+                      params: { id },
+                      search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                        ...prev,
+                        q: "",
+                        pages: 1,
+                        y: 0,
+                      }),
+                      replace: true,
+                    });
+                  });
+                  return <EmptyState {...empty} />;
+                }
+
 
                 return (
                   <>
