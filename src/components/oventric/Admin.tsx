@@ -90,36 +90,65 @@ function MarketplaceForge() {
   const [priceUSD, setPriceUSD] = useState("");
   const [priceNGN, setPriceNGN] = useState("");
   const [priceGHS, setPriceGHS] = useState("");
-  const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+
+  type Field = "title" | "version" | "vendor" | "description" | "priceUSD" | "priceNGN" | "priceGHS";
+  const clearErr = (k: Field) =>
+    setErrors((prev) => (prev[k] ? { ...prev, [k]: "" } : prev));
 
   const reset = () => {
     setTitle(""); setVersion(""); setDescription("");
     setPriceUSD(""); setPriceNGN(""); setPriceGHS("");
+    setErrors({});
   };
 
   const usdN = Number(priceUSD), ngnN = Number(priceNGN), ghsN = Number(priceGHS);
 
+  const validate = (): Record<string, string> => {
+    const e: Record<string, string> = {};
+    if (!title.trim()) e.title = "Asset title is required.";
+    else if (title.trim().length > 100) e.title = "Keep title under 100 characters.";
+    if (!version.trim()) e.version = "Version tag required (e.g. 1.0.0).";
+    if (!vendor.trim()) e.vendor = "Vendor name required.";
+    if (!description.trim()) e.description = "Description required.";
+    else if (description.trim().length > 500) e.description = "Description must be under 500 characters.";
+    if (!(usdN > 0)) e.priceUSD = "USD price must be > 0.";
+    if (!(ngnN > 0)) e.priceNGN = "NGN price must be > 0.";
+    if (!(ghsN > 0)) e.priceGHS = "GHS price must be > 0.";
+    return e;
+  };
+
   const openPreview = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !version.trim() || !description.trim() || !vendor.trim()) {
-      setToast({ msg: "All fields are required.", kind: "err" }); return;
+    const errs = validate();
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error("Fix the highlighted fields", { description: `${Object.keys(errs).length} field${Object.keys(errs).length === 1 ? "" : "s"} need attention before forging.` });
+      return;
     }
-    if (!(usdN > 0) || !(ngnN > 0) || !(ghsN > 0)) {
-      setToast({ msg: "All three prices must be > 0.", kind: "err" }); return;
-    }
-    setToast(null);
     setPreviewOpen(true);
   };
 
-  const confirmSubmit = () => {
-    adminStore.addProduct({
-      name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
-      description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
-    });
-    setPreviewOpen(false);
-    setToast({ msg: `Asset forged into ${category} grid.`, kind: "ok" });
-    reset();
+  const confirmSubmit = async () => {
+    if (submitting) return;
+    setSubmitting(true);
+    try {
+      await commitToServer(() =>
+        adminStore.addProduct({
+          name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
+          description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
+        }),
+      );
+      toast.success("Asset forged", { description: `${title.trim()} is now live in the ${category} grid.` });
+      setPreviewOpen(false);
+      reset();
+    } catch (err) {
+      toast.error("Forge failed", { description: err instanceof Error ? err.message : "The server rejected the asset. Try again." });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const fields: TokenField[] = [
@@ -136,7 +165,7 @@ function MarketplaceForge() {
 
   return (
     <>
-      <form onSubmit={openPreview} className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
+      <form onSubmit={openPreview} noValidate className="bg-[#1E1E24] border border-white/5 rounded-xl p-6 space-y-4">
         <div className="flex items-center gap-2 mb-1">
           <span className="w-9 h-9 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center">
             <Store className="w-4 h-4 text-emerald-300" />
@@ -149,7 +178,10 @@ function MarketplaceForge() {
 
         <div>
           <FieldLabel>Asset Title</FieldLabel>
-          <input className={inputCls} value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Nebula Admin Theme" />
+          <input className={fieldCls(!!errors.title)} value={title} maxLength={100}
+            onChange={(e) => { setTitle(e.target.value); clearErr("title"); }} placeholder="Nebula Admin Theme"
+            aria-invalid={!!errors.title} />
+          <InlineError msg={errors.title} />
         </div>
 
         <div className="grid grid-cols-2 gap-3">
@@ -164,18 +196,27 @@ function MarketplaceForge() {
           </div>
           <div>
             <FieldLabel>Version Tag</FieldLabel>
-            <input className={inputCls} value={version} onChange={(e) => setVersion(e.target.value)} placeholder="1.0.0" />
+            <input className={fieldCls(!!errors.version)} value={version}
+              onChange={(e) => { setVersion(e.target.value); clearErr("version"); }} placeholder="1.0.0"
+              aria-invalid={!!errors.version} />
+            <InlineError msg={errors.version} />
           </div>
         </div>
 
         <div>
           <FieldLabel>System Author Override</FieldLabel>
-          <input className={inputCls} value={vendor} onChange={(e) => setVendor(e.target.value)} />
+          <input className={fieldCls(!!errors.vendor)} value={vendor}
+            onChange={(e) => { setVendor(e.target.value); clearErr("vendor"); }}
+            aria-invalid={!!errors.vendor} />
+          <InlineError msg={errors.vendor} />
         </div>
 
         <div>
           <FieldLabel>Description</FieldLabel>
-          <textarea rows={3} className={inputCls} value={description} onChange={(e) => setDescription(e.target.value)} placeholder="What ships in this asset..." />
+          <textarea rows={3} className={fieldCls(!!errors.description)} value={description} maxLength={500}
+            onChange={(e) => { setDescription(e.target.value); clearErr("description"); }} placeholder="What ships in this asset..."
+            aria-invalid={!!errors.description} />
+          <InlineError msg={errors.description} />
         </div>
 
         <div>
@@ -184,28 +225,33 @@ function MarketplaceForge() {
             {(["USD", "NGN", "GHS"] as const).map((c) => {
               const val = c === "USD" ? priceUSD : c === "NGN" ? priceNGN : priceGHS;
               const set = c === "USD" ? setPriceUSD : c === "NGN" ? setPriceNGN : setPriceGHS;
+              const key: Field = c === "USD" ? "priceUSD" : c === "NGN" ? "priceNGN" : "priceGHS";
+              const err = errors[key];
               return (
-                <div key={c} className="relative">
-                  <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[c]}</span>
-                  <input
-                    type="number" min={0} step="0.01"
-                    className={`${inputCls} pl-6`}
-                    placeholder={c}
-                    value={val}
-                    onChange={(e) => set(e.target.value)}
-                  />
+                <div key={c}>
+                  <div className="relative">
+                    <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-500 text-sm">{CURRENCY_SYMBOL[c]}</span>
+                    <input
+                      type="number" min={0} step="0.01"
+                      className={`${fieldCls(!!err)} pl-6`}
+                      placeholder={c}
+                      value={val}
+                      onChange={(e) => { set(e.target.value); clearErr(key); }}
+                      aria-invalid={!!err}
+                    />
+                  </div>
+                  <InlineError msg={err} />
                 </div>
               );
             })}
           </div>
         </div>
 
-        {toast && <Toast msg={toast.msg} kind={toast.kind} />}
-
         <button type="submit" className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors inline-flex items-center justify-center gap-2">
           <Eye className="w-4 h-4" /> Preview & Forge
         </button>
       </form>
+
 
       <PreviewModal
         open={previewOpen}
