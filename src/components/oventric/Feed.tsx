@@ -220,6 +220,47 @@ export function Feed() {
     });
   };
 
+  const startEdit = (c: Comment) => {
+    setEditingId(c.id);
+    setEditDraft(c.text);
+    setCommentError(null);
+  };
+  const cancelEdit = () => {
+    setEditingId(null);
+    setEditDraft("");
+  };
+  const saveEdit = async () => {
+    if (!editingId) return;
+    const text = editDraft.trim();
+    if (!text) return;
+    const prevSnapshot = comments;
+    setSavingEdit(true);
+    setComments((prev) => prev.map((c) => (c.id === editingId ? { ...c, text } : c)));
+    try {
+      await updateComment({ data: { id: editingId, text } });
+      setEditingId(null);
+      setEditDraft("");
+    } catch (e) {
+      console.error(e);
+      setComments(prevSnapshot);
+      setCommentError("Couldn't update comment. Try again.");
+    } finally {
+      setSavingEdit(false);
+    }
+  };
+  const removeComment = async (id: string) => {
+    if (typeof window !== "undefined" && !window.confirm("Delete this comment?")) return;
+    const prevSnapshot = comments;
+    setComments((prev) => prev.filter((c) => c.id !== id));
+    try {
+      await deleteComment({ data: { id } });
+    } catch (e) {
+      console.error(e);
+      setComments(prevSnapshot);
+      setCommentError("Couldn't delete comment. Try again.");
+    }
+  };
+
 
   const isLoggedIn = tier >= 1;
 
