@@ -313,11 +313,11 @@ function ProfilePage() {
               <div className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <RepStat
                   icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
-                  label="Reputation"
+                  label="Star Rating"
                   value={
                     <div className="flex items-center gap-1">
-                      <span className="text-white font-black">{rep.stars.toFixed(1)}</span>
-                      <StarRow value={rep.stars} />
+                      <span className="text-white font-black">{starBreakdown.stars.toFixed(1)}</span>
+                      <StarRow value={starBreakdown.stars} />
                     </div>
                   }
                 />
@@ -342,7 +342,50 @@ function ProfilePage() {
                   value={<span className="text-white font-black">{rep.disputeRate}%</span>}
                 />
               </div>
+
+              {/* Star rating derivation */}
+              <div className="mt-4 rounded-lg border border-white/5 bg-[#17171C] p-4">
+                <div className="flex items-center justify-between gap-2 mb-3">
+                  <div className="flex items-center gap-2">
+                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
+                      How this rating is calculated
+                    </h3>
+                  </div>
+                  <span className="text-[11px] text-slate-500">
+                    Weighted from live utility metrics
+                  </span>
+                </div>
+                <ul className="space-y-2.5">
+                  {starBreakdown.items.map((item) => (
+                    <li key={item.key} className="flex items-start gap-3">
+                      <div className="w-28 shrink-0">
+                        <div className="text-xs text-white font-semibold">{item.label}</div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-500">
+                          {Math.round(item.weight * 100)}% weight
+                        </div>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-[11px] text-slate-400 leading-snug">{item.detail}</div>
+                        <div className="mt-1.5 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400"
+                            style={{ width: `${Math.round(item.score * 100)}%` }}
+                          />
+                        </div>
+                      </div>
+                      <div className="w-24 shrink-0 text-right">
+                        <div className="text-xs font-bold text-white">{item.raw}</div>
+                        <div className="text-[10px] text-slate-500">
+                          {(item.score * 5).toFixed(1)} / 5
+                        </div>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </section>
+
 
             {/* Tabs */}
             <nav className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
