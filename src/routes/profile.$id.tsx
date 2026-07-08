@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,6 +9,13 @@ import {
   acceptCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
+import { getProfileTab, type ProfileTabPage } from "@/lib/profiles.functions";
+import type {
+  ProfilePost,
+  ProfileGroup,
+  ProfileListing,
+  ProfileBounty,
+} from "@/lib/profiles/mockProfiles";
 import {
   ArrowLeft,
   Star,
