@@ -42,6 +42,7 @@ function loadProfile(fallbackName: string): ProfileState {
 
 export function ProfileDropdown() {
   const [open, setOpen] = useState(false);
+  const [isMobile, setIsMobile] = useState(false);
   const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
@@ -51,6 +52,15 @@ export function ProfileDropdown() {
   const triggerId = "profile-dropdown-trigger";
   const menuId = "profile-dropdown-menu";
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 639.98px)");
+    const update = () => setIsMobile(mq.matches);
+    update();
+    mq.addEventListener("change", update);
+    return () => mq.removeEventListener("change", update);
+  }, []);
+
 
   const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
 
