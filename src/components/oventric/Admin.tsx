@@ -1,7 +1,8 @@
 import { useState } from "react";
-import { Store, Megaphone, Target, Rocket, CheckCircle2, XCircle } from "lucide-react";
+import { Store, Megaphone, Target, Rocket, CheckCircle2, XCircle, Eye } from "lucide-react";
 import { adminStore, type AdminCategory, type AdPlacement, type AdTier, type AdminCurrency } from "@/lib/admin/store";
 import { AdminHistory } from "./AdminHistory";
+import { PreviewModal, type TokenField } from "./AdminPreviewModal";
 
 const CURRENCY_SYMBOL: Record<AdminCurrency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
