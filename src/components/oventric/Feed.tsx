@@ -588,7 +588,7 @@ export function Feed() {
                       {comments
                         .slice(0, visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)
                         .map((c) => (
-                        <div key={c.id} className="flex items-start gap-2">
+                        <div key={c.id} className={`flex items-start gap-2 ${c.status === "pending" ? "opacity-60" : ""}`}>
                           <Link
                             to="/profile/$id"
                             params={{ id: c.authorId }}
@@ -596,7 +596,7 @@ export function Feed() {
                           >
                             {c.initials}
                           </Link>
-                          <div className="group flex-1 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
+                          <div className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${c.status === "failed" ? "border-red-500/40" : "border-white/5"}`}>
                             <div className="flex items-center gap-2">
                               <Link
                                 to="/profile/$id"
@@ -605,7 +605,15 @@ export function Feed() {
                               >
                                 {c.author}
                               </Link>
-                              {meId && c.authorId === meId && editing?.id !== c.id && (
+                              {c.status === "pending" && (
+                                <span className="text-[10px] text-slate-500 italic">Sending…</span>
+                              )}
+                              {c.status === "failed" && (
+                                <span className="flex items-center gap-1 text-[10px] text-red-400">
+                                  <AlertCircle className="w-3 h-3" /> Failed to send
+                                </span>
+                              )}
+                              {!c.status && meId && c.authorId === meId && editing?.id !== c.id && (
                                 <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
                                   <button
                                     type="button"
@@ -661,8 +669,29 @@ export function Feed() {
                                 {c.text}
                               </div>
                             )}
+                            {c.status === "failed" && (
+                              <div className="mt-2 flex items-center gap-2">
+                                <button
+                                  type="button"
+                                  onClick={() => retryComment(post.id, c.id, c.text)}
+                                  disabled={!!commentPosting[c.id]}
+                                  className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
+                                >
+                                  <RotateCcw className={`w-3 h-3 ${commentPosting[c.id] ? "animate-spin" : ""}`} />
+                                  {commentPosting[c.id] ? "Retrying…" : "Retry"}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => discardFailedComment(post.id, c.id)}
+                                  className="text-[11px] font-medium text-slate-400 hover:text-red-400"
+                                >
+                                  Discard
+                                </button>
+                              </div>
+                            )}
                           </div>
                         </div>
+
                       ))}
                       {comments.length > (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE) && (
                         <button
