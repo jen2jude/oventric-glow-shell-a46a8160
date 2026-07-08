@@ -60,14 +60,20 @@ export const Route = createFileRoute("/profile/$id")({
 });
 
 type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved";
+const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved"];
+const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
 function ProfilePage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
+  const search = Route.useSearch();
   const profile = useMemo(() => getProfile(id), [id]);
   const { require, baseCurrency } = useOnboarding();
 
-  const [tab, setTab] = useState<Tab>("posts");
+  const tab: Tab = isTab(search.tab) ? search.tab : "posts";
+  const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
+  const restoreY = Math.max(0, search.y || 0);
+
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
   const [circleError, setCircleError] = useState<string | null>(null);
@@ -110,52 +116,111 @@ function ProfilePage() {
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
-  
 
-  const loadPage = useCallback(
-    async (which: Tab, opts?: { reset?: boolean }) => {
+  const mainRef = useRef<HTMLElement | null>(null);
+  const scrollRestoredRef = useRef(false);
+
+  // Fetch a specific page (1-indexed). Returns the fetched response.
+  const fetchOne = useCallback(
+    async (which: Tab, pageNum: number, reset: boolean) => {
+      const res = await fetchTab({
+        data: { profileId: profile.id, tab: which, page: pageNum, pageSize: PAGE_SIZE },
+      });
       setTabData((s) => ({
         ...s,
-        [which]: { ...s[which], loading: true, error: null, ...(opts?.reset ? emptyTabState : {}) },
+        [which]: {
+          items: reset ? res.items : [...s[which].items, ...res.items],
+          page: res.page,
+          total: res.total,
+          hasMore: res.hasMore,
+          loading: false,
+          error: null,
+        },
       }));
-      const nextPage = opts?.reset ? 1 : (tabData[which].page || 0) + 1;
-      try {
-        const res = await fetchTab({
-          data: { profileId: profile.id, tab: which, page: nextPage, pageSize: PAGE_SIZE },
-        });
-        setTabData((s) => ({
-          ...s,
-          [which]: {
-            items: opts?.reset ? res.items : [...s[which].items, ...res.items],
-            page: res.page,
-            total: res.total,
-            hasMore: res.hasMore,
-            loading: false,
-            error: null,
-          },
-        }));
-      } catch (e) {
-        console.error(e);
-        setTabData((s) => ({
-          ...s,
-          [which]: { ...s[which], loading: false, error: "Couldn't load. Try again." },
-        }));
-      }
+      return res;
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [profile.id, fetchTab],
   );
 
-  // Load current tab on mount and when tab or profile changes
-  useEffect(() => {
-    if (tabData[tab].page === 0 && !tabData[tab].loading && !tabData[tab].error) {
-      void loadPage(tab, { reset: true });
+  // Load next page for a tab (used by "Load more"). Syncs URL.
+  const loadMore = useCallback(async () => {
+    const current = tabData[tab];
+    if (current.loading || !current.hasMore) return;
+    setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
+    const nextPage = (current.page || 0) + 1;
+    try {
+      await fetchOne(tab, nextPage, false);
+      const y = mainRef.current?.scrollTop ?? 0;
+      navigate({
+        to: "/profile/$id",
+        params: { id },
+        search: { tab, pages: nextPage, y },
+        replace: true,
+      });
+    } catch (e) {
+      console.error(e);
+      setTabData((s) => ({
+        ...s,
+        [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
+      }));
     }
+  }, [tab, tabData, fetchOne, navigate, id]);
+
+  // Change tabs — resets pagination and scroll in the URL.
+  const changeTab = useCallback(
+    (next: Tab) => {
+      if (next === tab) return;
+      scrollRestoredRef.current = true; // no restore for a fresh tab
+      navigate({
+        to: "/profile/$id",
+        params: { id },
+        search: { tab: next, pages: 1, y: 0 },
+        replace: true,
+      });
+      if (mainRef.current) mainRef.current.scrollTop = 0;
+    },
+    [tab, navigate, id],
+  );
+
+  // Load (or reload) the active tab up to `desiredPages`, then restore scroll.
+  useEffect(() => {
+    let cancelled = false;
+    const state = tabData[tab];
+    // Only trigger the initial hydration for this tab.
+    if (state.page !== 0 || state.loading) return;
+    (async () => {
+      setTabData((s) => ({ ...s, [tab]: { ...s[tab], loading: true, error: null } }));
+      try {
+        let last = await fetchOne(tab, 1, true);
+        for (let p = 2; p <= desiredPages && last.hasMore && !cancelled; p++) {
+          last = await fetchOne(tab, p, false);
+        }
+        if (cancelled) return;
+        // Restore scroll after content is on the page.
+        requestAnimationFrame(() => {
+          if (!scrollRestoredRef.current && mainRef.current && restoreY > 0) {
+            mainRef.current.scrollTop = restoreY;
+          }
+          scrollRestoredRef.current = true;
+        });
+      } catch (e) {
+        if (cancelled) return;
+        console.error(e);
+        setTabData((s) => ({
+          ...s,
+          [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
+        }));
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tab, profile.id]);
 
-  // Reset all tab caches when navigating to a different profile
+  // Reset caches when navigating to a different profile.
   useEffect(() => {
+    scrollRestoredRef.current = false;
     setTabData({
       posts: { ...emptyTabState },
       groups: { ...emptyTabState },
@@ -165,6 +230,38 @@ function ProfilePage() {
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
+
+  // Persist scroll position into the URL (throttled) so reloads restore it.
+  useEffect(() => {
+    const el = mainRef.current;
+    if (!el) return;
+    let raf = 0;
+    let lastWritten = restoreY;
+    const onScroll = () => {
+      if (!scrollRestoredRef.current) return;
+      if (raf) return;
+      raf = window.setTimeout(() => {
+        raf = 0;
+        const y = Math.round(el.scrollTop);
+        if (Math.abs(y - lastWritten) < 40) return;
+        lastWritten = y;
+        navigate({
+          to: "/profile/$id",
+          params: { id },
+          search: (prev) => ({ ...prev, y }),
+          replace: true,
+        });
+      }, 200) as unknown as number;
+    };
+    el.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      el.removeEventListener("scroll", onScroll);
+      if (raf) window.clearTimeout(raf);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [id, profile.id]);
+
+
 
 
   // Ensure an auth session exists (anonymous is fine for the demo)
