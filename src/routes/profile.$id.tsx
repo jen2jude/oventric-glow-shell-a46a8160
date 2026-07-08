@@ -300,7 +300,13 @@ function ProfilePage() {
       </div>
 
       <DMDrawer open={dmOpen} onClose={() => setDmOpen(false)} profile={profile} />
-      <ReportModal open={reportOpen} onClose={() => setReportOpen(false)} target={profile.name} />
+      <ReportModal
+        open={reportOpen}
+        onClose={() => setReportOpen(false)}
+        target={profile.name}
+        targetId={`profile-${profile.id}`}
+        targetKind="profile"
+      />
     </div>
   );
 }

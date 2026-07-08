@@ -12,11 +12,21 @@ interface Comment {
   text: string;
 }
 
+function ReportedBadge() {
+  return (
+    <span className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300">
+      <Flag className="w-3 h-3" /> Reported
+    </span>
+  );
+}
+
 export function Feed() {
   const { require, tier } = useOnboarding();
   const [likes, setLikes] = useState(128);
   const [liked, setLiked] = useState(false);
   const [reportOpen, setReportOpen] = useState<string | null>(null);
+  const [reported, setReported] = useState<Set<string>>(new Set());
+  const markReported = (id: string) => setReported((s) => new Set(s).add(id));
   const [comments, setComments] = useState<Comment[]>([
     { id: "c1", author: "Devin Ortiz", authorId: "devin-ortiz", initials: "DO", text: "This saved me a week — thank you." },
   ]);
@@ -68,7 +78,7 @@ export function Feed() {
       </div>
 
       {/* Social post */}
-      <article className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
+      <article className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${reported.has("post-aria-1") ? "opacity-70" : ""}`}>
         <header className="flex items-center gap-3 mb-3">
           <Link
             to="/profile/$id"
@@ -87,15 +97,25 @@ export function Feed() {
             </Link>
             <div className="text-xs text-slate-500">Staff Engineer · 2h ago</div>
           </div>
-          <button
-            onClick={() => setReportOpen("post-aria-1")}
-            className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-            aria-label="Report post"
-            title="Report post"
-          >
-            <Flag className="w-4 h-4" />
-          </button>
+          {reported.has("post-aria-1") ? (
+            <ReportedBadge />
+          ) : (
+            <button
+              onClick={() => setReportOpen("post-aria-1")}
+              className="ml-auto p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
+              aria-label="Report post"
+              title="Report post"
+            >
+              <Flag className="w-4 h-4" />
+            </button>
+          )}
         </header>
+        {reported.has("post-aria-1") && (
+          <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300">
+            <Flag className="w-3 h-3" />
+            You reported this post. It's hidden from your feed pending review.
+          </div>
+        )}
         <p className="text-slate-300 text-sm leading-relaxed">
           Just shipped a zero-downtime migration on our multi-tenant Postgres cluster. RLS + logical replication saved
           us weeks. Happy to walk anyone through the setup.
@@ -176,13 +196,17 @@ export function Feed() {
           </Link>
           <div className="flex items-center gap-2">
             <span className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">Marketplace</span>
-            <button
-              onClick={() => setReportOpen("listing-rls-kit")}
-              className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
-              aria-label="Report listing"
-            >
-              <Flag className="w-3.5 h-3.5" />
-            </button>
+            {reported.has("listing-rls-kit") ? (
+              <ReportedBadge />
+            ) : (
+              <button
+                onClick={() => setReportOpen("listing-rls-kit")}
+                className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
+                aria-label="Report listing"
+              >
+                <Flag className="w-3.5 h-3.5" />
+              </button>
+            )}
           </div>
         </header>
         <div className="p-5">
@@ -233,19 +257,23 @@ export function Feed() {
       </article>
 
       {/* Bounty */}
-      <article className="relative bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 shadow-[0_0_30px_-10px_rgba(16,185,129,0.5)]">
+      <article className={`relative bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 shadow-[0_0_30px_-10px_rgba(16,185,129,0.5)] transition-opacity ${reported.has("bounty-rls") ? "opacity-70" : ""}`}>
         <div className="flex items-start justify-between">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold tracking-wide mb-3">
             <Target className="w-3 h-3" />
             [ACTIVE BOUNTY: $450 USD]
           </div>
-          <button
-            onClick={() => setReportOpen("bounty-rls")}
-            className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
-            aria-label="Report bounty"
-          >
-            <Flag className="w-3.5 h-3.5" />
-          </button>
+          {reported.has("bounty-rls") ? (
+            <ReportedBadge />
+          ) : (
+            <button
+              onClick={() => setReportOpen("bounty-rls")}
+              className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
+              aria-label="Report bounty"
+            >
+              <Flag className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2 mb-2">
           <Link
@@ -283,7 +311,14 @@ export function Feed() {
         </div>
       </article>
 
-      <ReportModal open={!!reportOpen} onClose={() => setReportOpen(null)} target="post" />
+      <ReportModal
+        open={!!reportOpen}
+        onClose={() => setReportOpen(null)}
+        target={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+        targetId={reportOpen ?? undefined}
+        targetKind={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+        onReported={markReported}
+      />
     </div>
   );
 }
