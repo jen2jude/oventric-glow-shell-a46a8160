@@ -180,9 +180,20 @@ function AdInjector() {
   const [mediaUrl, setMediaUrl] = useState("");
   const [cta, setCta] = useState("Claim Free Credit");
   const [clickUrl, setClickUrl] = useState("");
+  const [startAt, setStartAt] = useState(""); // datetime-local string
+  const [endAt, setEndAt] = useState("");
   const [toast, setToast] = useState<{ msg: string; kind: "ok" | "err" } | null>(null);
 
-  const reset = () => { setAdvertiser(""); setMediaUrl(""); setCta("Claim Free Credit"); setClickUrl(""); };
+  const reset = () => {
+    setAdvertiser(""); setMediaUrl(""); setCta("Claim Free Credit"); setClickUrl("");
+    setStartAt(""); setEndAt("");
+  };
+
+  const toEpoch = (s: string): number | null => {
+    if (!s) return null;
+    const t = new Date(s).getTime();
+    return Number.isFinite(t) ? t : null;
+  };
 
   const submit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,11 +203,23 @@ function AdInjector() {
     if (tier !== "text" && !mediaUrl.trim()) {
       setToast({ msg: "Media URL required for Tier 2/3.", kind: "err" }); return;
     }
+    const startEpoch = toEpoch(startAt);
+    const endEpoch = toEpoch(endAt);
+    if (startEpoch != null && endEpoch != null && endEpoch <= startEpoch) {
+      setToast({ msg: "End time must be after start time.", kind: "err" }); return;
+    }
     adminStore.addAd({
       advertiser: advertiser.trim(), placement, tier,
       mediaUrl: mediaUrl.trim(), cta: cta.trim(), clickUrl: clickUrl.trim(),
+      startAt: startEpoch, endAt: endEpoch,
     });
-    setToast({ msg: "Campaign live across placement.", kind: "ok" });
+    const scheduleNote =
+      startEpoch && startEpoch > Date.now()
+        ? " Scheduled to start soon."
+        : endEpoch
+          ? " Running until end date."
+          : "";
+    setToast({ msg: `Campaign live across placement.${scheduleNote}`, kind: "ok" });
     reset();
   };
 
@@ -250,6 +273,31 @@ function AdInjector() {
         <FieldLabel>Destination Click-Through URL</FieldLabel>
         <input className={inputCls} value={clickUrl} onChange={(e) => setClickUrl(e.target.value)} placeholder="https://target.example.com/campaign" />
       </div>
+
+      <div className="grid grid-cols-2 gap-3">
+        <div>
+          <FieldLabel>Start (optional)</FieldLabel>
+          <input
+            type="datetime-local"
+            className={inputCls}
+            value={startAt}
+            onChange={(e) => setStartAt(e.target.value)}
+          />
+          <p className="text-[10px] text-slate-500 mt-1">Leave empty to start immediately.</p>
+        </div>
+        <div>
+          <FieldLabel>End (optional)</FieldLabel>
+          <input
+            type="datetime-local"
+            className={inputCls}
+            value={endAt}
+            onChange={(e) => setEndAt(e.target.value)}
+            min={startAt || undefined}
+          />
+          <p className="text-[10px] text-slate-500 mt-1">Leave empty to run indefinitely.</p>
+        </div>
+      </div>
+
 
       {toast && <Toast msg={toast.msg} kind={toast.kind} />}
 
