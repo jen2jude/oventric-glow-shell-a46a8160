@@ -52,8 +52,9 @@ function loadProfile(fallbackName: string): ProfileState {
   return { displayName: fallbackName, bio: "", avatarDataUrl: null };
 }
 
-export function ProfileDropdown({ userId }: { userId: string }) {
+export function ProfileDropdown() {
   const [open, setOpen] = useState(false);
+  const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const isMobile = useMediaQuery("(max-width: 640px)");
