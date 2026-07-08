@@ -257,19 +257,23 @@ export function Feed() {
       </article>
 
       {/* Bounty */}
-      <article className="relative bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 shadow-[0_0_30px_-10px_rgba(16,185,129,0.5)]">
+      <article className={`relative bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-5 shadow-[0_0_30px_-10px_rgba(16,185,129,0.5)] transition-opacity ${reported.has("bounty-rls") ? "opacity-70" : ""}`}>
         <div className="flex items-start justify-between">
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[11px] font-bold tracking-wide mb-3">
             <Target className="w-3 h-3" />
             [ACTIVE BOUNTY: $450 USD]
           </div>
-          <button
-            onClick={() => setReportOpen("bounty-rls")}
-            className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
-            aria-label="Report bounty"
-          >
-            <Flag className="w-3.5 h-3.5" />
-          </button>
+          {reported.has("bounty-rls") ? (
+            <ReportedBadge />
+          ) : (
+            <button
+              onClick={() => setReportOpen("bounty-rls")}
+              className="p-1 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5"
+              aria-label="Report bounty"
+            >
+              <Flag className="w-3.5 h-3.5" />
+            </button>
+          )}
         </div>
         <div className="flex items-center gap-2 mb-2">
           <Link
