@@ -130,7 +130,7 @@ export const createProduct = createServerFn({ method: "POST" })
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
     if (!(data.priceUSD > 0)) throw new Error("Price must be > 0");
-    if (!data.filePath && !data.externalUrl) throw new Error("Provide a file upload or an external delivery URL");
+    if (data.filePath === "" && data.externalUrl === "") throw new Error("Provide a file upload or an external delivery URL");
     const { data: row, error } = await context.supabase
       .from("products")
       .insert({
