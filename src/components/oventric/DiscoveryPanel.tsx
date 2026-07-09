@@ -162,7 +162,11 @@ export function DiscoveryPanel() {
                   <div className="text-[9px] uppercase tracking-wider text-slate-500">Escrow locked</div>
                   <div className="text-sm font-black text-emerald-300 truncate">{price(b.amountUsd)}</div>
                 </div>
-                <button className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+                <button
+                  onClick={() => handleSolve(b.title)}
+                  aria-label={`Solve bounty: ${b.title}`}
+                  className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
+                >
                   Solve →
                 </button>
               </div>
