@@ -316,11 +316,12 @@ function AuthGateModal({
     }
     setSending(true);
     try {
+      // Omit emailRedirectTo so the email is a pure 6-digit code, not a
+      // clickable magic link — users always paste the code in the modal.
       const { error } = await supabase.auth.signInWithOtp({
         email: parsedEmail.data,
         options: {
           shouldCreateUser: true,
-          emailRedirectTo: typeof window !== "undefined" ? window.location.origin : undefined,
           data: username.trim() ? { username: username.trim() } : undefined,
         },
       });
@@ -335,6 +336,53 @@ function AuthGateModal({
       setSending(false);
     }
   }, [email, username]);
+
+  const sendReturningCode = useCallback(async () => {
+    setIdentifierError(null);
+    setFlash(null);
+    const raw = identifier.trim();
+    if (raw.length < 2) {
+      setIdentifierError("Enter your email or username");
+      return;
+    }
+    setSending(true);
+    try {
+      let resolvedEmail = raw;
+      if (!raw.includes("@")) {
+        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
+        resolvedEmail = res.email;
+      } else {
+        const parsed = emailSchema.safeParse(raw);
+        if (!parsed.success) {
+          setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
+          setSending(false);
+          return;
+        }
+        resolvedEmail = parsed.data;
+      }
+      const { error } = await supabase.auth.signInWithOtp({
+        email: resolvedEmail,
+        options: { shouldCreateUser: false },
+      });
+      if (error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes("signups not allowed") || msg.includes("not found") || msg.includes("user not found")) {
+          throw new Error("No account found. Try signing up as a new user.");
+        }
+        throw error;
+      }
+      setEmail(resolvedEmail);
+      setStage("otp");
+      setOtpDigits(Array(OTP_LENGTH).fill(""));
+      setResendIn(RESEND_SECONDS);
+      setFlash(`Code sent to ${resolvedEmail}`);
+    } catch (err) {
+      setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
+    } finally {
+      setSending(false);
+    }
+  }, [identifier, resolveLoginIdentifier]);
+
 
   const verifyCode = useCallback(
     async (token: string) => {
