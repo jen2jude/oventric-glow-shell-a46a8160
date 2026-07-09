@@ -249,10 +249,14 @@ function ProductCard({
       }`}
     >
       <div className={`relative h-28 rounded-lg bg-gradient-to-br ${p.hue} mb-3 overflow-hidden`}>
-        <div className="absolute inset-0 opacity-30" style={{
-          backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
-        }} />
-        <Icon className="absolute right-2 bottom-2 w-6 h-6 text-white/70" />
+        {p.coverUrl ? (
+          <img src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <div className="absolute inset-0 opacity-30" style={{
+            backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
+          }} />
+        )}
+        <Icon className="absolute right-2 bottom-2 w-6 h-6 text-white/70 drop-shadow" />
         {p.promoted && (
           <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
             <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" />
