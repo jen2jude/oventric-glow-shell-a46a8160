@@ -32,6 +32,8 @@ interface FormState {
   promoted: boolean;
   cover_path: string | null;
   cover_preview: string | null;
+  file_path: string | null;
+  file_name: string | null;
 }
 
 const emptyForm: FormState = {
@@ -44,7 +46,11 @@ const emptyForm: FormState = {
   promoted: false,
   cover_path: null,
   cover_preview: null,
+  file_path: null,
+  file_name: null,
 };
+
+const MAX_ASSET_MB = 50;
 
 function ProductsPage() {
   const listFn = useServerFn(listAllProducts);
