@@ -486,14 +486,27 @@ export function Feed() {
     } catch (e) {
       console.error(e);
       unreserveTempId(key, tempId);
+      const raw = e instanceof Error ? e.message : "Unknown error";
+      const lower = raw.toLowerCase();
+      const friendly = lower.includes("unauthorized") || lower.includes("401") || lower.includes("jwt")
+        ? "Your session expired. Sign in again to post this comment."
+        : lower.includes("row-level security") || lower.includes("permission") || lower.includes("403")
+          ? "You don't have permission to post here."
+          : lower.includes("network") || lower.includes("fetch") || lower.includes("failed to fetch")
+            ? "Network hiccup. Check your connection and retry."
+            : lower.includes("rate") || lower.includes("429")
+              ? "You're posting too fast. Wait a moment and retry."
+              : lower.includes("timeout")
+                ? "Server took too long to respond. Retry in a moment."
+                : `Couldn't post: ${raw}`;
       setCommentsByPost((prev) => {
         const arr = prev[postId] ?? [];
         return {
           ...prev,
-          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed" } : c)),
+          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed", errorMessage: friendly } : c)),
         };
       });
-      setCommentError("Couldn't post comment. Retry below.");
+      setCommentError(friendly);
     } finally {
       setCommentPosting((p) => {
         const next = { ...p };
