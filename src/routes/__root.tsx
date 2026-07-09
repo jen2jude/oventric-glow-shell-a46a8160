@@ -15,6 +15,7 @@ import { OnboardingProvider } from "@/lib/onboarding/OnboardingContext";
 import { StageModals } from "@/components/oventric/onboarding/StageModals";
 import { AuthSeeder } from "@/components/oventric/AuthSeeder";
 import { AuthGateProvider } from "@/lib/auth-gate/AuthGateProvider";
+import { FullNameGateProvider } from "@/lib/full-name-gate/FullNameGate";
 
 function NotFoundComponent() {
   return (
@@ -127,10 +128,12 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <AuthGateProvider>
         <OnboardingProvider>
-          <AuthSeeder />
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-          <StageModals />
+          <FullNameGateProvider>
+            <AuthSeeder />
+            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+            <Outlet />
+            <StageModals />
+          </FullNameGateProvider>
         </OnboardingProvider>
       </AuthGateProvider>
     </QueryClientProvider>

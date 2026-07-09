@@ -90,3 +90,27 @@ export const seedNewUser = createServerFn({ method: "POST" })
 
     return { ok: true, userId };
   });
+
+const FullNameInput = z.object({
+  fullName: z.string().trim().min(2, "Enter your full name").max(80),
+});
+
+/**
+ * Persists the user's full name onto their profile's display_name. Used by
+ * the "fill your full name" gate that fires before create actions.
+ */
+export const updateFullName = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => FullNameInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: data.fullName })
+      .eq("user_id", userId);
+    if (error) {
+      console.error("[updateFullName] update failed", error);
+      throw new Error("Failed to save full name");
+    }
+    return { ok: true, fullName: data.fullName };
+  });
