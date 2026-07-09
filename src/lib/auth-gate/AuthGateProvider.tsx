@@ -432,6 +432,57 @@ function AuthGateModal({
     }
   }, [identifier, resolveLoginIdentifier]);
 
+  const signInWithPassword = useCallback(async () => {
+    setIdentifierError(null);
+    setPasswordError(null);
+    setFlash(null);
+    const raw = identifier.trim();
+    if (raw.length < 2) {
+      setIdentifierError("Enter your email or username");
+      return;
+    }
+    if (password.length < 6) {
+      setPasswordError("Enter your password");
+      return;
+    }
+    setSending(true);
+    try {
+      let resolvedEmail = raw;
+      if (!raw.includes("@")) {
+        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
+        resolvedEmail = res.email;
+      } else {
+        const parsed = emailSchema.safeParse(raw);
+        if (!parsed.success) {
+          setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
+          setSending(false);
+          return;
+        }
+        resolvedEmail = parsed.data;
+      }
+      const { error } = await supabase.auth.signInWithPassword({
+        email: resolvedEmail,
+        password,
+      });
+      if (error) {
+        const msg = error.message.toLowerCase();
+        if (msg.includes("invalid") || msg.includes("credentials")) {
+          setPasswordError("Wrong email or password.");
+        } else {
+          setPasswordError(humanizeError(error.message));
+        }
+        return;
+      }
+      // SIGNED_IN listener in provider closes modal + fires splash + pending action.
+    } catch (err) {
+      setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not sign in"));
+    } finally {
+      setSending(false);
+    }
+  }, [identifier, password, resolveLoginIdentifier]);
+
+
+
 
   const verifyCode = useCallback(
     async (token: string) => {
