@@ -175,6 +175,83 @@ export const setProductPromoted = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Admin creates a marketplace product. Ownership defaults to the admin unless overridden. */
+export const adminCreateProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: {
+    name: string;
+    category: string;
+    description?: string;
+    price_usd: number;
+    vendor: string;
+    hue?: string;
+    external_url?: string | null;
+    file_path?: string | null;
+    cover_path?: string | null;
+    promoted?: boolean;
+    seller_id?: string | null;
+  }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    if (!data.name?.trim()) throw new Error("Name required");
+    if (!(Number(data.price_usd) > 0)) throw new Error("Price must be > 0");
+    const { data: row, error } = await sb
+      .from("products")
+      .insert({
+        seller_id: data.seller_id || context.userId,
+        name: data.name.trim(),
+        category: data.category,
+        description: data.description ?? "",
+        price_usd: Number(data.price_usd),
+        vendor: data.vendor.trim(),
+        hue: data.hue ?? "from-emerald-500 to-teal-700",
+        external_url: data.external_url ?? null,
+        file_path: data.file_path ?? null,
+        cover_path: data.cover_path ?? null,
+        promoted: data.promoted ?? false,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "product.create", "product", row.id as string);
+    return { id: row.id as string };
+  });
+
+/** Admin updates any product (works for products owned by other users via admin RLS). */
+export const adminUpdateProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: {
+    id: string;
+    name?: string;
+    category?: string;
+    description?: string;
+    price_usd?: number;
+    vendor?: string;
+    hue?: string;
+    external_url?: string | null;
+    promoted?: boolean;
+  }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const patch: Record<string, unknown> = {};
+    if (data.name !== undefined) patch.name = data.name.trim();
+    if (data.category !== undefined) patch.category = data.category;
+    if (data.description !== undefined) patch.description = data.description;
+    if (data.price_usd !== undefined) patch.price_usd = Number(data.price_usd);
+    if (data.vendor !== undefined) patch.vendor = data.vendor.trim();
+    if (data.hue !== undefined) patch.hue = data.hue;
+    if (data.external_url !== undefined) patch.external_url = data.external_url;
+    if (data.promoted !== undefined) patch.promoted = data.promoted;
+    const { error } = await sb.from("products").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "product.update", "product", data.id, patch);
+    return { ok: true };
+  });
+
 /** ------- Campaigns ------- */
 export interface AdCampaignRow {
   id: string;
