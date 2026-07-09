@@ -33,7 +33,7 @@ function Index() {
   const [active, setActive] = useState("Feed");
   const { require } = useOnboarding();
 
-  const handleCreate = () => require(1, () => setCreateOpen(true));
+  const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
 
   const view =
     active === "Wallet" ? <Wallet />
