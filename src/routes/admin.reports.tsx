@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Flag, Check, EyeOff, RotateCcw, ShieldCheck, AlertCircle, Loader2 } from "lucide-react";
+import { Flag, Check, EyeOff, RotateCcw, ShieldCheck, AlertCircle, Loader2, ChevronDown, MessageSquareQuote } from "lucide-react";
 import {
   listPendingReports,
   resolveReport,
