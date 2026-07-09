@@ -759,11 +759,51 @@ function AuthGateModal({
 
                   {/* --- Returning user form --- */}
                   <form
-                    onSubmit={(e) => { e.preventDefault(); if (mode === "returning") void sendReturningCode(); }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (mode !== "returning") return;
+                      if (returningMethod === "password") void signInWithPassword();
+                      else void sendReturningCode();
+                    }}
                     noValidate
                     className="w-1/2 shrink-0 space-y-4 pl-1"
                     aria-hidden={mode !== "returning"}
                   >
+                    <div
+                      role="tablist"
+                      aria-label="Sign-in method"
+                      className="flex items-center gap-1 p-1 bg-[#0F0F12] rounded-lg border border-white/5"
+                    >
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={returningMethod === "password"}
+                        onClick={() => { setReturningMethod("password"); setPasswordError(null); }}
+                        tabIndex={mode === "returning" ? 0 : -1}
+                        className={`flex-1 h-8 rounded-md text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                          returningMethod === "password"
+                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                            : "text-slate-500 hover:text-slate-300"
+                        }`}
+                      >
+                        Password
+                      </button>
+                      <button
+                        type="button"
+                        role="tab"
+                        aria-selected={returningMethod === "otp"}
+                        onClick={() => setReturningMethod("otp")}
+                        tabIndex={mode === "returning" ? 0 : -1}
+                        className={`flex-1 h-8 rounded-md text-[11px] font-bold uppercase tracking-wide transition-colors ${
+                          returningMethod === "otp"
+                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                            : "text-slate-500 hover:text-slate-300"
+                        }`}
+                      >
+                        Email code
+                      </button>
+                    </div>
+
                     <div>
                       <label htmlFor="gate-identifier" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
                         Email or username
@@ -788,6 +828,32 @@ function AuthGateModal({
                       )}
                     </div>
 
+                    {returningMethod === "password" && (
+                      <div>
+                        <label htmlFor="gate-password" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                          Password
+                        </label>
+                        <input
+                          id="gate-password"
+                          type="password"
+                          autoComplete="current-password"
+                          value={password}
+                          onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
+                          placeholder="••••••••"
+                          aria-invalid={!!passwordError}
+                          tabIndex={mode === "returning" ? 0 : -1}
+                          className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                            passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                          }`}
+                        />
+                        {passwordError && (
+                          <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                            {passwordError}
+                          </p>
+                        )}
+                      </div>
+                    )}
+
                     <button
                       type="submit"
                       disabled={sending}
@@ -795,7 +861,9 @@ function AuthGateModal({
                       className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
                     >
                       {sending && mode === "returning" ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                        <><Loader2 className="w-4 h-4 animate-spin" /> {returningMethod === "password" ? "Signing in…" : "Sending…"}</>
+                      ) : returningMethod === "password" ? (
+                        <>Sign in <ArrowRight className="w-4 h-4" /></>
                       ) : (
                         <>Send Login Code <ArrowRight className="w-4 h-4" /></>
                       )}
