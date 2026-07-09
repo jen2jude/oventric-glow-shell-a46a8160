@@ -762,7 +762,7 @@ function AuthGateModal({
                   </button>
                   <button
                     type="button"
-                    onClick={() => { if (resendIn === 0) void sendCode(); }}
+                    onClick={() => { if (resendIn === 0) void (mode === "returning" ? sendReturningCode() : sendCode()); }}
                     disabled={resendIn > 0 || sending || verifying || verified}
                     className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >
