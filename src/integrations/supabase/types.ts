@@ -14,6 +14,102 @@ export type Database = {
   }
   public: {
     Tables: {
+      ad_campaigns: {
+        Row: {
+          advertiser: string
+          body: string
+          created_at: string
+          created_by: string | null
+          cta_label: string
+          cta_type: string
+          cta_url: string
+          description: string
+          end_at: string | null
+          header: string
+          id: string
+          media_path: string | null
+          media_url: string | null
+          placements: string[]
+          start_at: string | null
+          status: string
+          tier: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          advertiser: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          cta_type?: string
+          cta_url?: string
+          description?: string
+          end_at?: string | null
+          header?: string
+          id?: string
+          media_path?: string | null
+          media_url?: string | null
+          placements?: string[]
+          start_at?: string | null
+          status?: string
+          tier: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          advertiser?: string
+          body?: string
+          created_at?: string
+          created_by?: string | null
+          cta_label?: string
+          cta_type?: string
+          cta_url?: string
+          description?: string
+          end_at?: string | null
+          header?: string
+          id?: string
+          media_path?: string | null
+          media_url?: string | null
+          placements?: string[]
+          start_at?: string | null
+          status?: string
+          tier?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      audit_logs: {
+        Row: {
+          action: string
+          actor_id: string | null
+          created_at: string
+          id: string
+          meta: Json
+          target_id: string | null
+          target_kind: string | null
+        }
+        Insert: {
+          action: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          target_id?: string | null
+          target_kind?: string | null
+        }
+        Update: {
+          action?: string
+          actor_id?: string | null
+          created_at?: string
+          id?: string
+          meta?: Json
+          target_id?: string | null
+          target_kind?: string | null
+        }
+        Relationships: []
+      }
       circle_requests: {
         Row: {
           created_at: string
@@ -37,6 +133,75 @@ export type Database = {
           requester_id?: string
           status?: Database["public"]["Enums"]["circle_status"]
           target_slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      feature_flags: {
+        Row: {
+          created_at: string
+          description: string | null
+          enabled: boolean
+          id: string
+          key: string
+          scope: string
+          target_id: string | null
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key: string
+          scope?: string
+          target_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          enabled?: boolean
+          id?: string
+          key?: string
+          scope?: string
+          target_id?: string | null
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      marketplace_categories: {
+        Row: {
+          created_at: string
+          description: string
+          enabled: boolean
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
           updated_at?: string
         }
         Relationships: []
@@ -102,6 +267,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      platform_settings: {
+        Row: {
+          base_currency: string
+          fx_rates: Json
+          fx_updated_at: string | null
+          id: number
+          live_fx_enabled: boolean
+          meta: Json
+          updated_at: string
+        }
+        Insert: {
+          base_currency?: string
+          fx_rates?: Json
+          fx_updated_at?: string | null
+          id?: number
+          live_fx_enabled?: boolean
+          meta?: Json
+          updated_at?: string
+        }
+        Update: {
+          base_currency?: string
+          fx_rates?: Json
+          fx_updated_at?: string | null
+          id?: number
+          live_fx_enabled?: boolean
+          meta?: Json
+          updated_at?: string
+        }
+        Relationships: []
       }
       post_comments: {
         Row: {
