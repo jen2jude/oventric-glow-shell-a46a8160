@@ -1,7 +1,9 @@
 import { useState } from "react";
 import { Store, Megaphone, Target, Eye, AlertCircle } from "lucide-react";
 import { toast } from "sonner";
+import { useServerFn } from "@tanstack/react-start";
 import { adminStore, type AdminCategory, type AdPlacement, type AdTier, type AdminCurrency } from "@/lib/admin/store";
+import { createProduct } from "@/lib/marketplace.functions";
 import { AdminHistory } from "./AdminHistory";
 import { PreviewModal, type TokenField } from "./AdminPreviewModal";
 
@@ -82,6 +84,7 @@ export function Admin() {
 // ----------------------------- 1. Marketplace Supply Forge -----------------------------
 
 function MarketplaceForge() {
+  const persistProduct = useServerFn(createProduct);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<AdminCategory>("themes");
   const [version, setVersion] = useState("");
@@ -135,12 +138,19 @@ function MarketplaceForge() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await commitToServer(() =>
-        adminStore.addProduct({
-          name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
-          description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
-        }),
-      );
+      await persistProduct({
+        data: {
+          name: title.trim(),
+          category,
+          description: description.trim(),
+          priceUSD: usdN,
+          vendor: vendor.trim(),
+        },
+      });
+      adminStore.addProduct({
+        name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
+        description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
+      });
       toast.success("Asset forged", { description: `${title.trim()} is now live in the ${category} grid.` });
       setPreviewOpen(false);
       reset();

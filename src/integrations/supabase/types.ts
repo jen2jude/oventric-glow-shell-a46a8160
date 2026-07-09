@@ -41,6 +41,68 @@ export type Database = {
         }
         Relationships: []
       }
+      orders: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          display_currency: Database["public"]["Enums"]["wallet_currency"]
+          display_total: number
+          download_token: string
+          fx_rate: number
+          id: string
+          paid_at: string | null
+          payment_method: string
+          product_id: string
+          quantity: number
+          seller_id: string
+          status: string
+          total_usd: number
+          unit_price_usd: number
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          display_currency?: Database["public"]["Enums"]["wallet_currency"]
+          display_total: number
+          download_token?: string
+          fx_rate?: number
+          id?: string
+          paid_at?: string | null
+          payment_method: string
+          product_id: string
+          quantity?: number
+          seller_id: string
+          status?: string
+          total_usd: number
+          unit_price_usd: number
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          display_currency?: Database["public"]["Enums"]["wallet_currency"]
+          display_total?: number
+          download_token?: string
+          fx_rate?: number
+          id?: string
+          paid_at?: string | null
+          payment_method?: string
+          product_id?: string
+          quantity?: number
+          seller_id?: string
+          status?: string
+          total_usd?: number
+          unit_price_usd?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       post_comments: {
         Row: {
           author_id: string
@@ -171,6 +233,63 @@ export type Database = {
           media_type?: string | null
           text?: string
           updated_at?: string
+        }
+        Relationships: []
+      }
+      products: {
+        Row: {
+          category: string
+          cover_path: string | null
+          created_at: string
+          description: string
+          external_url: string | null
+          file_path: string | null
+          hue: string
+          id: string
+          name: string
+          price_usd: number
+          promoted: boolean
+          rating: number
+          reviews: number
+          seller_id: string
+          updated_at: string
+          vendor: string
+        }
+        Insert: {
+          category: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string
+          external_url?: string | null
+          file_path?: string | null
+          hue?: string
+          id?: string
+          name: string
+          price_usd: number
+          promoted?: boolean
+          rating?: number
+          reviews?: number
+          seller_id: string
+          updated_at?: string
+          vendor?: string
+        }
+        Update: {
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string
+          external_url?: string | null
+          file_path?: string | null
+          hue?: string
+          id?: string
+          name?: string
+          price_usd?: number
+          promoted?: boolean
+          rating?: number
+          reviews?: number
+          seller_id?: string
+          updated_at?: string
+          vendor?: string
         }
         Relationships: []
       }
@@ -326,6 +445,14 @@ export type Database = {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      wallet_credit: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
+      wallet_debit: {
+        Args: { _amount: number; _user_id: string }
         Returns: boolean
       }
     }

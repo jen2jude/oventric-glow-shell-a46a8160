@@ -1,90 +1,60 @@
 
-## Goal
+# Real Marketplace Checkout Flow
 
-Every gated action (post/comment/like, messages, circles, marketplace buy, academy learn, bounty, wallet) opens the **Connect** modal for guests. New users verify email via OTP → slide-in profile form (full name, password, country) → RGB neon splash. Returning users sign in with email + password. Wallet view/fund/withdraw triggers **KYC face liveness** (first time: capture + save; subsequent withdraws: recapture + visual match confirmation).
+Replace the mock `alert("Proceeding to checkout")` with a full purchase pipeline backed by real user-uploaded digital assets, wallet payments, country-aware top-up, download delivery, and a receipt email.
 
-## 1. Schema changes (migration)
+## Scope
 
-Add to `public.profiles`:
-- `country text`
-- `phone text`
-- `kyc_selfie_path text` (Storage path to the reference selfie)
-- `kyc_completed_at timestamptz`
-- `profile_completed_at timestamptz` (marks that name+password+country were saved)
+Marketplace items become real records created by sellers (existing "admin/forge" flow already writes to a store — we'll promote it to a real `products` table). Buyers get a product detail page, checkout page, wallet/card payment, wallet top-up on insufficient balance, download delivery page, and a confirmation email.
 
-New private Storage bucket `kyc-selfies` with RLS: users can only read/write their own folder `{user_id}/*`.
+## Backend (migration + storage)
 
-## 2. Auth flow refactor (`AuthGateProvider`)
+New tables (all with GRANTs + RLS in the same migration):
 
-Replace current tabbed OTP-only modal with a two-track flow:
+- `products` — id, seller_id (auth.users), name, category (themes/plugins/blocks/scripts), description, price_usd, hue, cover_path (storage), file_path (storage, nullable), external_url (nullable), rating default 5, reviews default 0, promoted bool, created_at. Public SELECT to `anon` + `authenticated`; INSERT/UPDATE/DELETE only to owner.
+- `orders` — id, buyer_id, product_id, seller_id, quantity, unit_price_usd, total_usd, currency (USD/NGN/GHS), fx_rate, payment_method (wallet/card), status (pending/paid/failed), created_at, paid_at. RLS: buyer sees own, seller sees own sales.
+- `order_downloads` — order_id, download_token (uuid), expires_at, download_count. Buyer-only SELECT; used to gate signed URL / external link reveal.
 
-**New user track (default tab):**
-1. Enter email → `signInWithOtp({ shouldCreateUser: true })` (magic link kept as fallback)
-2. Enter 6-digit code → `verifyOtp`
-3. On success, **slide right** to Profile Setup form: `Full Name`, `Password` (min 8), `Confirm password`, `Country` (select)
-4. Submit → `supabase.auth.updateUser({ password })` + server fn `completeProfile` writes name/country/`profile_completed_at` to `profiles`
-5. RGB neon splash → resolve original action
+New storage buckets: `product-covers` (public), `product-files` (private, signed URL on delivery). RLS: sellers upload to their own folder; buyers read only via signed URL from server function after order paid.
 
-**Returning user track (tab "Already have an account"):**
-1. Email + password fields
-2. `supabase.auth.signInWithPassword` → resolve action (no splash; direct pass)
-3. Fallback link "Forgot password / use code instead" reverts to OTP
+Extend existing `wallets` — add credit/debit RPCs (`wallet_credit`, `wallet_debit`) as SECURITY DEFINER with balance check.
 
-`FullNameGate` is removed — its job is folded into the new profile-setup slide, which only shows when `profile_completed_at` is null.
+## Server functions
 
-## 3. Universal action gate
+`src/lib/marketplace.functions.ts`:
+- `listProducts({ category?, search?, page })` — public.
+- `getProduct({ id })` — public, includes seller display info.
+- `createOrder({ productId, quantity, currency, paymentMethod })` — auth-required. Computes total, checks wallet balance if `wallet`, calls `wallet_debit`, credits seller wallet (minus platform fee later), marks order `paid`, generates download token. If insufficient balance → returns `{ needsTopUp: true, shortfallUsd }`.
+- `topUpWallet({ amountUsd, currency, method })` — auth-required. Mock card processor for now (success unless amount ends in .13), credits buyer wallet, writes `wallet_transactions` row. Real gateway wiring can slot in later.
+- `getDownload({ orderId })` — auth-required, buyer-only. Returns signed URL for `product-files` or the seller-provided `external_url`.
+- `sendReceipt({ orderId })` — enqueues receipt email using existing email infrastructure if configured; otherwise no-op with a log line (I'll set up email infra only if the user asks).
 
-Wrap every gated entry point in a single `requireAction(callback)` helper exposed from `OnboardingContext` / `AuthGateProvider`:
-- If no session → open Connect modal, run `callback` after verified + profile complete.
-- If session but `profile_completed_at` null → open Profile Setup slide directly.
-- Else → run `callback`.
+Admin `MarketplaceForge` (already in Admin.tsx) is rewired to write into `products` instead of the in-memory `useAdminStore`. Existing seed catalog stays as static fallback so the marketplace isn't empty on a fresh DB.
 
-Wired into:
-- `src/routes/index.tsx` → `+` create button (already partial)
-- `Feed.tsx` → comment submit, like button, media attach
-- `Messages.tsx` / `MessagesDrawer.tsx` → new thread / send
-- `CirclesHub.tsx` / `IncomingCircleInbox.tsx` → join / request
-- `Marketplace.tsx` → buy button
-- `Academy.tsx` → learn/enroll button
-- `Bounties.tsx` → solve / claim
-- `Wallet.tsx` and `MobileNav`/`Sidebar` wallet entry → view/fund/withdraw
+## Frontend
 
-## 4. KYC face liveness
+New routes (TanStack):
+- `/marketplace/product/$id` — detail page: cover, description, seller, rating, price in active currency, quantity stepper (only if `allow_quantity` — default 1 for digital), "Buy now" → `/marketplace/checkout/$id?qty=`.
+- `/marketplace/checkout/$id` — order summary, payment method selector:
+  - **Wallet balance** (shows current balance in active currency, disabled if insufficient with inline "Top up" CTA).
+  - **Card** — country-aware method list derived from `profile.country`: NG → Card / Bank Transfer / USSD (Paystack-style labels), GH → Mobile Money / Card, US/EU/other → Card only. UI only; all routed through the same mock `topUpWallet` for now (real Paystack/Stripe integration is a follow-up).
+  - Confirms → calls `createOrder`. On `needsTopUp`, opens top-up modal for the shortfall using the country-appropriate methods, then retries order.
+- `/marketplace/order/$id` — success page with download button, receipt summary, "email sent to X" confirmation.
 
-New component `KycLivenessModal.tsx`:
-- Requests `navigator.mediaDevices.getUserMedia({ video: true })`
-- 3-second capture → grabs a frame to a canvas → uploads JPEG to `kyc-selfies/{user_id}/reference.jpg` on first run; on subsequent withdraws uploads to `.../attempt-{ts}.jpg`
-- Shows both captured selfie and reference side-by-side with a "Does this match?" visual confirmation (per user's answer — demo match)
-- On confirm: writes `kyc_completed_at` (first time) and shows "Congratulations, verified" splash; on decline: red "We couldn't match your face — try again" with retry
+`Marketplace.tsx`: `handleBuy` no longer alerts — navigates to product detail. Cards become links. Admin-forged products render from DB.
 
-Server functions in `src/lib/kyc.functions.ts`:
-- `startKyc` → returns signed upload URL for reference selfie
-- `completeKycReference` → sets `kyc_selfie_path` + `kyc_completed_at`
-- `verifyKycAttempt` → records attempt path; returns reference signed URL for visual compare
+Auth gate: buying requires level-2 auth (existing `require(2, ..., "buyer")`) — kept.
 
-Wallet actions gate:
-- Opening Wallet page or clicking Fund/Withdraw → if `kyc_completed_at` null → run reference-capture flow before showing wallet
-- Withdraw button → always runs recapture + visual-match flow before proceeding
+## Email receipt
 
-## 5. Files touched
+If Lovable Emails infrastructure is already set up in the project, add a `purchase-receipt` template and call it from `createOrder` after payment success. If not set up, I'll flag it and set it up in the same turn (needs an email domain — I'll check status first). Template: product name, order id, amount paid, download link, seller.
 
-**New:**
-- `src/lib/kyc.functions.ts`
-- `src/components/oventric/KycLivenessModal.tsx`
-- `src/lib/auth-gate/ProfileSetupSlide.tsx` (extracted from AuthGate)
+## Out of scope for this change
 
-**Modified:**
-- `supabase` migration (columns + bucket + RLS)
-- `src/lib/auth-gate/AuthGateProvider.tsx` — add password flow, profile slide, `requireAction`
-- `src/lib/onboarding.functions.ts` — add `completeProfile` server fn
-- `src/routes/__root.tsx` — remove FullNameGate provider, mount KYC modal
-- `src/routes/index.tsx` — swap `require + ensureFullName` → `requireAction`
-- Feed, Messages, Circles, Marketplace, Academy, Bounties, Wallet — wrap actions in `requireAction`
-- `Wallet.tsx` — trigger KYC modal
-- Remove `src/lib/full-name-gate/FullNameGate.tsx`
+- Real card processor integration (Paystack/Stripe) — mocked with a deterministic pass/fail so the flow is testable end-to-end. Wiring a real processor is a clean follow-up once you pick the provider per country.
+- Refunds, disputes, platform fee split, seller payout schedule.
+- Physical product shipping.
 
-## Notes
+## Verification
 
-- Password track requires email confirmation, so signup still goes through OTP first — password is set as part of profile setup via `updateUser` on the already-verified session. This preserves email verification and enables password login on return.
-- Face "match" is demo-quality per your choice: user visually confirms match. Selfies stored privately with per-user RLS. No third-party face API, no biometric extraction.
-- Existing users without `profile_completed_at` will be shown the profile setup slide on their next gated action (backfill-friendly).
+After implementing, I'll drive the flow with Playwright: create a product via admin, buy it as a signed-in user with empty wallet, top up, complete purchase, hit the download route, and confirm the receipt call fired.
