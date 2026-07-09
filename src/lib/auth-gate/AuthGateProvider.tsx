@@ -417,7 +417,7 @@ function AuthGateModal({
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
-      onClick={(e) => { if (e.target === e.currentTarget && !verifying) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget && !verifying && !verified) onClose(); }}
     >
       <div className="relative w-full max-w-md">
         <div className="rgb-neon-bg rounded-2xl p-[1.5px]">
