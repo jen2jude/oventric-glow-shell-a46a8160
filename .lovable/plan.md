@@ -1,60 +1,62 @@
+This is a very large scope — a full enterprise CRM. Building all 13 sections in one turn would produce shallow, half-wired UI across the board. I'll ship it in phases, starting with the security-critical foundation this turn and confirming direction before we go deep on each module.
 
-# Real Marketplace Checkout Flow
+## Phase 1 — Foundation (this turn)
 
-Replace the mock `alert("Proceeding to checkout")` with a full purchase pipeline backed by real user-uploaded digital assets, wallet payments, country-aware top-up, download delivery, and a receipt email.
+**1. Hide Admin & gate access by role**
+- Remove any public entry point to `/admin` (nav links, buttons, `CreatePanel` tiles that expose forge to non-admins).
+- Move the admin surface under `src/routes/_authenticated/admin/*` and add a `beforeLoad` role check using existing `has_role(_user_id, 'admin')` (already in the DB). Non-admins get 404.
+- Add an `admin` login route at `/admin-console` (obscure path) that reuses the existing auth flow but redirects to `/admin` only when `has_role('admin')` returns true.
+- Bootstrap the first admin: I'll add a migration that grants `admin` role to a specific email you provide (or the first signed-up user if you prefer). **I need you to tell me the admin email.** No hardcoded credentials — you sign in normally with magic link/password and the role table decides access.
 
-## Scope
+**2. New admin shell**
+- New route tree: `/admin` (overview), `/admin/users`, `/admin/products`, `/admin/orders`, `/admin/campaigns`, `/admin/bounties`, `/admin/reports`, `/admin/features`, `/admin/pricing`, `/admin/audit`, `/admin/team`, `/admin/broadcasts`.
+- Sidebar layout with KPI cards on overview (users, revenue, orders, active campaigns) using real Supabase queries.
+- Dark by default, matches existing Oventric theme tokens.
 
-Marketplace items become real records created by sellers (existing "admin/forge" flow already writes to a store — we'll promote it to a real `products` table). Buyers get a product detail page, checkout page, wallet/card payment, wallet top-up on insufficient balance, download delivery page, and a confirmation email.
+**3. Feature flags + audit log tables**
+- `feature_flags` (key, enabled, scope=global|role|user, target_id nullable) + `platform_settings` singleton (base currency, live FX toggle).
+- `audit_logs` (actor_id, action, target_kind, target_id, meta jsonb, created_at) written from all admin server fns.
+- `ad_campaigns` table replacing the in-memory admin store (title, advertiser, description, status, start_at, end_at, placements[], tier, header, body, media_path, cta_type, cta_url) — real DB-backed with RLS.
+- `marketplace_categories` (slug, name, sort_order, enabled).
 
-## Backend (migration + storage)
+## Phase 2 — Content moderation (next turn, on your go-ahead)
 
-New tables (all with GRANTs + RLS in the same migration):
+- Products moderation table: admin list of every uploaded product with edit / approve / pause / delete / flag / restore actions (add `moderation_status` + `deleted_at` to `products`).
+- Asset management view (files in `product-files` + `product-covers` with search/filter/replace).
+- Marketplace banners table + upload UI.
+- Category CRUD with drag reorder.
 
-- `products` — id, seller_id (auth.users), name, category (themes/plugins/blocks/scripts), description, price_usd, hue, cover_path (storage), file_path (storage, nullable), external_url (nullable), rating default 5, reviews default 0, promoted bool, created_at. Public SELECT to `anon` + `authenticated`; INSERT/UPDATE/DELETE only to owner.
-- `orders` — id, buyer_id, product_id, seller_id, quantity, unit_price_usd, total_usd, currency (USD/NGN/GHS), fx_rate, payment_method (wallet/card), status (pending/paid/failed), created_at, paid_at. RLS: buyer sees own, seller sees own sales.
-- `order_downloads` — order_id, download_token (uuid), expires_at, download_count. Buyer-only SELECT; used to gate signed URL / external link reveal.
+## Phase 3 — Campaigns v2 (next turn)
 
-New storage buckets: `product-covers` (public), `product-files` (private, signed URL on delivery). RLS: sellers upload to their own folder; buyers read only via signed URL from server function after order paid.
+- Rebuild AdInjector with tier-specific dynamic forms (text / image / video ≤50MB), multi-placement selector, CTA type dropdown (website/registration/landing/whatsapp/facebook/instagram/linkedin/x/youtube/telegram/custom). Video upload to a new `ad-media` bucket.
+- Placement components in Feed/Marketplace/Academy read from `ad_campaigns` scheduled window.
 
-Extend existing `wallets` — add credit/debit RPCs (`wallet_credit`, `wallet_debit`) as SECURITY DEFINER with balance check.
+## Phase 4 — Global pricing matrix
 
-## Server functions
+- `pricing_rules` table (product_id nullable = global default markup, base_currency USD, price).
+- Server-side FX cache table refreshed from an FX API (exchangerate.host — free, no key). Admin toggle to use live vs fixed rates.
+- All price rendering routes through one `formatMoney(usd, userCurrency)` helper reading FX cache.
 
-`src/lib/marketplace.functions.ts`:
-- `listProducts({ category?, search?, page })` — public.
-- `getProduct({ id })` — public, includes seller display info.
-- `createOrder({ productId, quantity, currency, paymentMethod })` — auth-required. Computes total, checks wallet balance if `wallet`, calls `wallet_debit`, credits seller wallet (minus platform fee later), marks order `paid`, generates download token. If insufficient balance → returns `{ needsTopUp: true, shortfallUsd }`.
-- `topUpWallet({ amountUsd, currency, method })` — auth-required. Mock card processor for now (success unless amount ends in .13), credits buyer wallet, writes `wallet_transactions` row. Real gateway wiring can slot in later.
-- `getDownload({ orderId })` — auth-required, buyer-only. Returns signed URL for `product-files` or the seller-provided `external_url`.
-- `sendReceipt({ orderId })` — enqueues receipt email using existing email infrastructure if configured; otherwise no-op with a log line (I'll set up email infra only if the user asks).
+## Phase 5 — Users, team, permissions, communications, analytics
 
-Admin `MarketplaceForge` (already in Admin.tsx) is rewired to write into `products` instead of the in-memory `useAdminStore`. Existing seed catalog stays as static fallback so the marketplace isn't empty on a fresh DB.
+- Full user management (suspend/ban/verify/role via Auth Admin API), team invites, per-feature per-user flags.
+- Broadcast center (in-app notifications table + email via Lovable Emails once a domain is set — I'll ask before wiring email).
+- Analytics dashboards with real chart data (recharts).
+- Audit log viewer with filters.
 
-## Frontend
+## Sovereign Mega Bounty fix (Phase 2)
 
-New routes (TanStack):
-- `/marketplace/product/$id` — detail page: cover, description, seller, rating, price in active currency, quantity stepper (only if `allow_quantity` — default 1 for digital), "Buy now" → `/marketplace/checkout/$id?qty=`.
-- `/marketplace/checkout/$id` — order summary, payment method selector:
-  - **Wallet balance** (shows current balance in active currency, disabled if insufficient with inline "Top up" CTA).
-  - **Card** — country-aware method list derived from `profile.country`: NG → Card / Bank Transfer / USSD (Paystack-style labels), GH → Mobile Money / Card, US/EU/other → Card only. UI only; all routed through the same mock `topUpWallet` for now (real Paystack/Stripe integration is a follow-up).
-  - Confirms → calls `createOrder`. On `needsTopUp`, opens top-up modal for the shortfall using the country-appropriate methods, then retries order.
-- `/marketplace/order/$id` — success page with download button, receipt summary, "email sent to X" confirmation.
+Currency selector locked to the user's wallet/country currency; escrow amount stored in USD after FX conversion, displayed in wallet currency. One-currency-only enforcement in the form.
 
-`Marketplace.tsx`: `handleBuy` no longer alerts — navigates to product detail. Cards become links. Admin-forged products render from DB.
+## What I need from you before Phase 1 ships
 
-Auth gate: buying requires level-2 auth (existing `require(2, ..., "buyer")`) — kept.
+1. **Admin email address** (the account that gets the first `admin` role). If you want more than one admin seeded, list them.
+2. Confirmation that "hide admin from frontend" means: no visible link anywhere for non-admins, and the `/admin` URL 404s for them. (Vs. a "Coming soon" page.)
+3. OK to defer Phases 2–5 to follow-up turns so each ships fully working rather than half-scaffolded.
 
-## Email receipt
+## Technical notes
 
-If Lovable Emails infrastructure is already set up in the project, add a `purchase-receipt` template and call it from `createOrder` after payment success. If not set up, I'll flag it and set it up in the same turn (needs an email domain — I'll check status first). Template: product name, order id, amount paid, download link, seller.
-
-## Out of scope for this change
-
-- Real card processor integration (Paystack/Stripe) — mocked with a deterministic pass/fail so the flow is testable end-to-end. Wiring a real processor is a clean follow-up once you pick the provider per country.
-- Refunds, disputes, platform fee split, seller payout schedule.
-- Physical product shipping.
-
-## Verification
-
-After implementing, I'll drive the flow with Playwright: create a product via admin, buy it as a signed-in user with empty wallet, top up, complete purchase, hit the download route, and confirm the receipt call fired.
+- All new tables get GRANTs + RLS in the same migration; admin-only policies use `has_role(auth.uid(), 'admin')`.
+- Audit logging via a shared server-fn wrapper so every admin mutation writes a row.
+- No new secrets required for Phase 1. FX API is public. Video upload uses existing storage.
+- Existing `src/lib/admin/store.ts` in-memory store gets retired as its data moves to DB (kept temporarily as fallback).
