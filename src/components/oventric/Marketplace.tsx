@@ -227,7 +227,7 @@ export function Marketplace() {
             {recommended.slice(0, 3).map((p) => (
               <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} full />
             ))}
-            <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"))} />
+            <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"), "solver")} />
             {recommended.slice(3, 7).map((p) => (
               <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} full />
             ))}
