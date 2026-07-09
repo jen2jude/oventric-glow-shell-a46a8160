@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { useAuthGate, type AuthGateContextKey } from "@/lib/auth-gate/AuthGateProvider";
 
 export type Tier = 0 | 1 | 2 | 3 | 4 | 5;
 export type Stage = 1 | 2 | 3 | 4 | 5;
