@@ -11,7 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import type { Session } from "@supabase/supabase-js";
-import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X } from "lucide-react";
+import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X, AlertTriangle } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
@@ -103,7 +103,41 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const [gateOpen, setGateOpen] = useState(false);
   const [ctxKey, setCtxKey] = useState<AuthGateContextKey>("generic");
   const [splash, setSplash] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
+
+  // Detect magic-link failures returned by Supabase in the URL hash
+  // (e.g. #error=access_denied&error_code=otp_expired&error_description=...).
+  // Open the gate with a prominent retry banner instead of silently swallowing it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash || !hash.includes("error")) return;
+    const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+    const errCode = params.get("error_code") || params.get("error");
+    const errDesc = params.get("error_description");
+    if (!errCode && !errDesc) return;
+    let message = "Your sign-in link is invalid or has expired. Send a new code to continue.";
+    const code = (errCode || "").toLowerCase();
+    if (code.includes("otp_expired") || code.includes("expired")) {
+      message = "This sign-in link has expired. Send a new code to continue.";
+    } else if (code.includes("access_denied") || code.includes("used")) {
+      message = "This sign-in link has already been used or was denied. Send a new code to continue.";
+    } else if (errDesc) {
+      message = decodeURIComponent(errDesc.replace(/\+/g, " "));
+    }
+    setLinkError(message);
+    setCtxKey("generic");
+    setGateOpen(true);
+    // Strip the error from the URL so a refresh doesn't re-trigger it.
+    try {
+      const clean = window.location.pathname + window.location.search;
+      window.history.replaceState({}, "", clean);
+    } catch {
+      /* noop */
+    }
+  }, []);
+
 
   useEffect(() => {
     let alive = true;
@@ -163,6 +197,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const closeGate = useCallback(() => {
     pendingRef.current = null;
     setGateOpen(false);
+    setLinkError(null);
   }, []);
 
   const value = useMemo<AuthGateContextValue>(
@@ -177,9 +212,12 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
         <AuthGateModal
           contextKey={ctxKey}
           onClose={closeGate}
+          linkError={linkError}
+          onClearLinkError={() => setLinkError(null)}
         />
       )}
       {splash && <NeonSuccessSplash />}
+
     </AuthGateContext.Provider>
   );
 }
@@ -235,10 +273,15 @@ type Mode = "new" | "returning";
 function AuthGateModal({
   contextKey,
   onClose,
+  linkError,
+  onClearLinkError,
 }: {
   contextKey: AuthGateContextKey;
   onClose: () => void;
+  linkError: string | null;
+  onClearLinkError: () => void;
 }) {
+
   const [mode, setMode] = useState<Mode>("new");
   const [stage, setStage] = useState<Stage>("email");
   const [email, setEmail] = useState("");
@@ -512,7 +555,33 @@ function AuthGateModal({
               </p>
             </header>
 
+            {linkError && stage === "email" && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="mb-5 rounded-lg border border-red-500/50 bg-red-500/10 p-3 flex items-start gap-2.5"
+              >
+                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-red-300 leading-snug">
+                    Sign-in link failed
+                  </p>
+                  <p className="text-[11px] text-red-200/80 mt-0.5 leading-relaxed">
+                    {linkError}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onClearLinkError}
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300 hover:text-emerald-200"
+                  >
+                    <RotateCw className="w-3 h-3" /> Dismiss & try again
+                  </button>
+                </div>
+              </div>
+            )}
+
             {stage === "email" && (
+
               <div
                 role="tablist"
                 aria-label="Account access"
