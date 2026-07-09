@@ -146,6 +146,57 @@ export type Database = {
         }
         Relationships: []
       }
+      bounties: {
+        Row: {
+          applicant_limit: number
+          category: string
+          cover_path: string | null
+          created_at: string
+          deadline_at: string | null
+          description: string
+          end_at: string | null
+          id: string
+          poster_id: string
+          price_usd: number
+          start_at: string | null
+          status: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_limit?: number
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          deadline_at?: string | null
+          description?: string
+          end_at?: string | null
+          id?: string
+          poster_id: string
+          price_usd: number
+          start_at?: string | null
+          status?: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_limit?: number
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          deadline_at?: string | null
+          description?: string
+          end_at?: string | null
+          id?: string
+          poster_id?: string
+          price_usd?: number
+          start_at?: string | null
+          status?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       circle_requests: {
         Row: {
           created_at: string
