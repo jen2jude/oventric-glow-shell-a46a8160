@@ -583,8 +583,8 @@ export function Feed() {
     }
   };
 
-  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
-  const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"));
+  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
+  const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"), "solver");
   const isLoggedIn = tier >= 1;
 
   return (
