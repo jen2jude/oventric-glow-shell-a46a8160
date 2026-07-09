@@ -548,12 +548,13 @@ export function Feed() {
           authorId: meId ?? "me",
           initials: "OV",
           text,
+          createdAt: new Date().toISOString(),
           status: "pending",
         };
         setCommentDrafts((d) => ({ ...d, [postId]: "" }));
         setCommentsByPost((prev) => ({
           ...prev,
-          [postId]: [...(prev[postId] ?? []), optimistic],
+          [postId]: sortComments([...(prev[postId] ?? []), optimistic]),
         }));
         setCommentPosting((p) => ({ ...p, [postId]: true }));
         try {
