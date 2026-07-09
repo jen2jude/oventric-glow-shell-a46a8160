@@ -103,7 +103,41 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const [gateOpen, setGateOpen] = useState(false);
   const [ctxKey, setCtxKey] = useState<AuthGateContextKey>("generic");
   const [splash, setSplash] = useState(false);
+  const [linkError, setLinkError] = useState<string | null>(null);
   const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
+
+  // Detect magic-link failures returned by Supabase in the URL hash
+  // (e.g. #error=access_denied&error_code=otp_expired&error_description=...).
+  // Open the gate with a prominent retry banner instead of silently swallowing it.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const hash = window.location.hash;
+    if (!hash || !hash.includes("error")) return;
+    const params = new URLSearchParams(hash.startsWith("#") ? hash.slice(1) : hash);
+    const errCode = params.get("error_code") || params.get("error");
+    const errDesc = params.get("error_description");
+    if (!errCode && !errDesc) return;
+    let message = "Your sign-in link is invalid or has expired. Send a new code to continue.";
+    const code = (errCode || "").toLowerCase();
+    if (code.includes("otp_expired") || code.includes("expired")) {
+      message = "This sign-in link has expired. Send a new code to continue.";
+    } else if (code.includes("access_denied") || code.includes("used")) {
+      message = "This sign-in link has already been used or was denied. Send a new code to continue.";
+    } else if (errDesc) {
+      message = decodeURIComponent(errDesc.replace(/\+/g, " "));
+    }
+    setLinkError(message);
+    setCtxKey("generic");
+    setGateOpen(true);
+    // Strip the error from the URL so a refresh doesn't re-trigger it.
+    try {
+      const clean = window.location.pathname + window.location.search;
+      window.history.replaceState({}, "", clean);
+    } catch {
+      /* noop */
+    }
+  }, []);
+
 
   useEffect(() => {
     let alive = true;
