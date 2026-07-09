@@ -57,7 +57,20 @@ export const ensureMyProfile = createServerFn({ method: "POST" })
         .select("slug")
         .single();
       if (!error && data) return { slug: data.slug };
-      if (error && !error.message.toLowerCase().includes("duplicate")) {
+      const code = (error as { code?: string } | null)?.code;
+      const msg = error?.message?.toLowerCase() ?? "";
+      if (code === "23505" || msg.includes("duplicate")) {
+        // Unique violation — could be slug collision OR the profile row already
+        // exists for this user (seeded concurrently). Re-read before retrying.
+        const { data: found } = await supabase
+          .from("profiles")
+          .select("slug")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (found?.slug) return { slug: found.slug };
+        continue;
+      }
+      if (error) {
         console.error("[ensureMyProfile] insert failed", error);
         throw new Error("Failed to provision profile");
       }
