@@ -53,6 +53,13 @@ const REASON_LABEL: Record<AdminReport["reason"], string> = {
   scam: "Scam",
 };
 
+const REASON_DESCRIPTION: Record<AdminReport["reason"], string> = {
+  spam: "Unsolicited or repetitive content that clutters the feed.",
+  harassment: "Targeted abuse, threats, or hateful behavior toward a user.",
+  ip: "Intellectual-property violation — copyrighted or stolen work.",
+  scam: "Fraudulent offers, phishing, or attempts to deceive users.",
+};
+
 const STATUS_STYLE: Record<ReportStatus, string> = {
   pending: "bg-yellow-500/10 border-yellow-500/40 text-yellow-300",
   approved: "bg-emerald-500/10 border-emerald-500/40 text-emerald-300",
