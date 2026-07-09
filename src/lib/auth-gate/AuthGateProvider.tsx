@@ -273,10 +273,15 @@ type Mode = "new" | "returning";
 function AuthGateModal({
   contextKey,
   onClose,
+  linkError,
+  onClearLinkError,
 }: {
   contextKey: AuthGateContextKey;
   onClose: () => void;
+  linkError: string | null;
+  onClearLinkError: () => void;
 }) {
+
   const [mode, setMode] = useState<Mode>("new");
   const [stage, setStage] = useState<Stage>("email");
   const [email, setEmail] = useState("");
