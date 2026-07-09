@@ -246,10 +246,20 @@ function AuthGateModal({
   const [otpError, setOtpError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [resendIn, setResendIn] = useState(0);
   const [flash, setFlash] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
+
+  const humanizeError = (msg: string): string => {
+    const m = msg.toLowerCase();
+    if (m.includes("token has expired") || m.includes("expired")) return "That code expired. Tap Resend to get a fresh one.";
+    if (m.includes("invalid") && m.includes("token")) return "That code isn't right. Double-check the 6 digits from your inbox.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a moment before trying again.";
+    if (m.includes("network") || m.includes("fetch")) return "Network hiccup. Check your connection and retry.";
+    return msg;
+  };
 
   const copy = COPY[contextKey] ?? COPY.generic;
 
@@ -276,7 +286,7 @@ function AuthGateModal({
   // Escape closes
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !verifying) onClose();
+      if (e.key === "Escape" && !verifying && !verified) onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
@@ -314,7 +324,7 @@ function AuthGateModal({
       setResendIn(RESEND_SECONDS);
       setFlash(`Code sent to ${parsedEmail.data}`);
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : "Could not send code");
+      setEmailError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
       setSending(false);
     }
@@ -333,6 +343,8 @@ function AuthGateModal({
         });
         if (error) throw error;
         if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        setVerified(true);
+        setFlash(null);
         try {
           await seedNewUser({ data: username.trim() ? { username: username.trim() } : {} });
         } catch (seedErr) {
@@ -341,7 +353,7 @@ function AuthGateModal({
         // The provider's onAuthStateChange('SIGNED_IN') closes the modal and
         // runs the pending action. Nothing else to do here.
       } catch (err) {
-        setOtpError(err instanceof Error ? err.message : "Invalid or expired code");
+        setOtpError(humanizeError(err instanceof Error ? err.message : "Invalid or expired code"));
         setOtpDigits(Array(OTP_LENGTH).fill(""));
         window.setTimeout(() => otpRefs.current[0]?.focus(), 40);
       } finally {
@@ -405,7 +417,7 @@ function AuthGateModal({
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
-      onClick={(e) => { if (e.target === e.currentTarget && !verifying) onClose(); }}
+      onClick={(e) => { if (e.target === e.currentTarget && !verifying && !verified) onClose(); }}
     >
       <div className="relative w-full max-w-md">
         <div className="rgb-neon-bg rounded-2xl p-[1.5px]">
@@ -413,7 +425,7 @@ function AuthGateModal({
             <button
               type="button"
               onClick={onClose}
-              disabled={verifying}
+              disabled={verifying || verified}
               className="absolute top-3 right-3 p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 disabled:opacity-40"
               aria-label="Close"
             >
@@ -520,36 +532,65 @@ function AuthGateModal({
                       onChange={(e) => setDigit(i, e.target.value)}
                       onKeyDown={(e) => onKeyDownDigit(i, e)}
                       onFocus={(e) => e.currentTarget.select()}
-                      disabled={verifying}
-                      className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black tabular-nums text-white bg-[#121214] rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                        otpError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                      disabled={verifying || verified}
+                      className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black tabular-nums text-white bg-[#121214] rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border transition-colors ${
+                        verified
+                          ? "border-emerald-500/70 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]"
+                          : otpError
+                            ? "border-red-500/70"
+                            : "border-white/10 focus:border-emerald-500/60"
                       }`}
                     />
                   ))}
                 </div>
-                {otpError && (
-                  <p className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+
+                {verified ? (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-[12px] text-emerald-300 inline-flex items-center gap-2 w-full"
+                  >
+                    <ShieldCheck className="w-4 h-4 shrink-0" />
+                    <span className="font-semibold">Code verified. Signing you in…</span>
+                  </div>
+                ) : otpError ? (
+                  <p role="alert" className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
                     {otpError}
                   </p>
-                )}
-                {verifying && (
+                ) : verifying ? (
                   <p className="text-[11px] text-slate-500 inline-flex items-center gap-1.5">
                     <Loader2 className="w-3 h-3 animate-spin" /> Verifying…
                   </p>
-                )}
+                ) : null}
+
+                <button
+                  type="button"
+                  onClick={() => void verifyCode(otpDigits.join(""))}
+                  disabled={verifying || verified || otpDigits.join("").length !== OTP_LENGTH}
+                  className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
+                >
+                  {verifying ? (
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</>
+                  ) : verified ? (
+                    <><ShieldCheck className="w-4 h-4 text-emerald-300" /> Verified</>
+                  ) : (
+                    <>Submit Code <ArrowRight className="w-4 h-4" /></>
+                  )}
+                </button>
 
                 <div className="flex items-center justify-between text-[12px]">
                   <button
                     type="button"
                     onClick={() => { setStage("email"); setOtpError(null); setFlash(null); }}
-                    className="inline-flex items-center gap-1 text-slate-400 hover:text-white min-h-11 px-1"
+                    disabled={verifying || verified}
+                    className="inline-flex items-center gap-1 text-slate-400 hover:text-white min-h-11 px-1 disabled:opacity-40"
                   >
                     <ArrowLeft className="w-3.5 h-3.5" /> Change email
                   </button>
                   <button
                     type="button"
                     onClick={() => { if (resendIn === 0) void sendCode(); }}
-                    disabled={resendIn > 0 || sending}
+                    disabled={resendIn > 0 || sending || verifying || verified}
                     className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${sending ? "animate-spin" : ""}`} />
@@ -559,7 +600,7 @@ function AuthGateModal({
               </div>
             )}
 
-            {flash && stage === "otp" && (
+            {flash && stage === "otp" && !verified && (
               <p className="mt-4 text-[11px] text-emerald-400 text-center">{flash}</p>
             )}
           </div>
