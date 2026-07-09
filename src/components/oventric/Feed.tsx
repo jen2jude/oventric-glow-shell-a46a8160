@@ -31,6 +31,7 @@ interface Comment {
   initials: string;
   text: string;
   status?: "pending" | "failed";
+  errorMessage?: string;
 }
 
 function toComment(c: FeedComment): Comment {
