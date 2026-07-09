@@ -39,6 +39,43 @@ function useMoney() {
 
 export function DiscoveryPanel() {
   const price = useMoney();
+  const { require } = useOnboarding();
+  const [peers, setPeers] = useState<Peer[]>(INITIAL_PEERS);
+
+  const handleAddToCircle = (peer: Peer) => {
+    require(
+      1,
+      () => {
+        setPeers((prev) => prev.map((p) => (p.id === peer.id ? { ...p, inCircle: true } : p)));
+        toast.success(`Circle request sent to ${peer.name}`, {
+          description: "You'll be able to chat once they accept.",
+        });
+      },
+      "buyer",
+    );
+  };
+
+  const handleChat = (peer: Peer) => {
+    require(
+      1,
+      () => {
+        toast(`Opening chat with ${peer.name}…`);
+        navigateSection("Messages");
+      },
+      "buyer",
+    );
+  };
+
+  const handleSolve = (bountyTitle: string) => {
+    require(
+      2,
+      () => {
+        toast.success("Bounty opened", { description: bountyTitle });
+        navigateSection("Bounties");
+      },
+      "solver",
+    );
+  };
 
   return (
     <aside className="hidden lg:flex lg:w-[38%] flex-col gap-4 sticky top-20 h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6">
@@ -48,7 +85,12 @@ export function DiscoveryPanel() {
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>👑</span> Top Peers in Your Circle
           </h3>
-          <button className="text-[11px] text-emerald-400 hover:text-emerald-300">See all</button>
+          <button
+            onClick={() => navigateSection("Circles")}
+            className="text-[11px] text-emerald-400 hover:text-emerald-300"
+          >
+            See all
+          </button>
         </div>
         <ul className="space-y-2">
           {peers.map((p) => (
@@ -74,11 +116,19 @@ export function DiscoveryPanel() {
                 </div>
               </div>
               {p.inCircle ? (
-                <button className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold">
+                <button
+                  onClick={() => handleChat(p)}
+                  aria-label={`Chat with ${p.name}`}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>
               ) : (
-                <button className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold">
+                <button
+                  onClick={() => handleAddToCircle(p)}
+                  aria-label={`Add ${p.name} to your circle`}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold"
+                >
                   <UserPlus className="w-3 h-3" /> Circle
                 </button>
               )}
@@ -86,6 +136,7 @@ export function DiscoveryPanel() {
           ))}
         </ul>
       </section>
+
 
       {/* Widget B: Hot Bounties */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4">
