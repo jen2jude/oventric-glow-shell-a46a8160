@@ -243,6 +243,7 @@ export function DiscoveryPanel() {
               <div className="shrink-0 text-right">
                 <div className="text-sm font-black text-white">{price(l.priceUsd)}</div>
               </div>
+              </button>
             </li>
           ))}
         </ul>
