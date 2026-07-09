@@ -1,7 +1,7 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Flag, Check, EyeOff, RotateCcw, ShieldCheck, AlertCircle, Loader2 } from "lucide-react";
+import { Flag, Check, EyeOff, RotateCcw, ShieldCheck, AlertCircle, Loader2, ChevronDown, MessageSquareQuote } from "lucide-react";
 import {
   listPendingReports,
   resolveReport,
@@ -53,6 +53,13 @@ const REASON_LABEL: Record<AdminReport["reason"], string> = {
   scam: "Scam",
 };
 
+const REASON_DESCRIPTION: Record<AdminReport["reason"], string> = {
+  spam: "Unsolicited or repetitive content that clutters the feed.",
+  harassment: "Targeted abuse, threats, or hateful behavior toward a user.",
+  ip: "Intellectual-property violation — copyrighted or stolen work.",
+  scam: "Fraudulent offers, phishing, or attempts to deceive users.",
+};
+
 const STATUS_STYLE: Record<ReportStatus, string> = {
   pending: "bg-yellow-500/10 border-yellow-500/40 text-yellow-300",
   approved: "bg-emerald-500/10 border-emerald-500/40 text-emerald-300",
@@ -68,6 +75,7 @@ function AdminReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [session, setSession] = useState<boolean | null>(null);
 
   useEffect(() => {
@@ -184,7 +192,9 @@ function AdminReportsPage() {
               </div>
             ) : reports && reports.length > 0 ? (
               <ul className="space-y-3">
-                {reports.map((r) => (
+                {reports.map((r) => {
+                  const isOpen = expandedId === r.id;
+                  return (
                   <li
                     key={r.id}
                     className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
@@ -200,7 +210,7 @@ function AdminReportsPage() {
                           >
                             {r.status}
                           </span>
-                          <span className="text-[11px] font-semibold text-slate-300">
+                          <span className="inline-flex items-center rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-bold text-red-200">
                             {REASON_LABEL[r.reason]}
                           </span>
                           <span className="text-[11px] text-slate-500">·</span>
@@ -215,13 +225,61 @@ function AdminReportsPage() {
                         <div className="mt-1 text-sm text-white font-semibold break-all">
                           {r.target_id}
                         </div>
-                        {r.note && (
-                          <p className="mt-1 text-xs text-slate-400 leading-relaxed">
-                            "{r.note}"
+                        {r.note ? (
+                          <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/10 bg-black/30 p-2.5">
+                            <MessageSquareQuote className="w-3.5 h-3.5 text-amber-300 mt-0.5 shrink-0" />
+                            <div className="min-w-0">
+                              <div className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
+                                Reporter's note
+                              </div>
+                              <p className={`mt-0.5 text-xs text-slate-200 leading-relaxed break-words ${isOpen ? "" : "line-clamp-2"}`}>
+                                {r.note}
+                              </p>
+                            </div>
+                          </div>
+                        ) : (
+                          <p className="mt-2 text-[11px] italic text-slate-500">
+                            No custom note provided by the reporter.
                           </p>
                         )}
                       </div>
+                      <button
+                        onClick={() => setExpandedId(isOpen ? null : r.id)}
+                        aria-expanded={isOpen}
+                        aria-label={isOpen ? "Collapse details" : "Expand details"}
+                        className="p-1.5 rounded-md hover:bg-white/5 text-slate-400"
+                      >
+                        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
+                      </button>
                     </div>
+
+                    {isOpen && (
+                      <dl className="mt-3 ml-11 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-white/10 bg-black/20 p-3 text-xs">
+                        <div>
+                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Reason</dt>
+                          <dd className="mt-0.5 text-slate-200 font-semibold">{REASON_LABEL[r.reason]}</dd>
+                          <dd className="text-[11px] text-slate-400 mt-0.5">{REASON_DESCRIPTION[r.reason]}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Target</dt>
+                          <dd className="mt-0.5 text-slate-200 capitalize">{r.target_kind}</dd>
+                          <dd className="text-[11px] text-slate-500 font-mono break-all">{r.target_id}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Submitted</dt>
+                          <dd className="mt-0.5 text-slate-200">{new Date(r.created_at).toLocaleString()}</dd>
+                        </div>
+                        <div>
+                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Resolution</dt>
+                          <dd className="mt-0.5 text-slate-200">
+                            {r.resolved_at ? new Date(r.resolved_at).toLocaleString() : "—"}
+                          </dd>
+                          {r.resolved_by && (
+                            <dd className="text-[11px] text-slate-500 font-mono break-all">by {r.resolved_by}</dd>
+                          )}
+                        </div>
+                      </dl>
+                    )}
 
                     <div className="mt-3 flex items-center gap-2 flex-wrap">
                       {r.status !== "approved" && (
@@ -254,7 +312,8 @@ function AdminReportsPage() {
                       {busyId === r.id && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
                     </div>
                   </li>
-                ))}
+                  );
+                })}
               </ul>
             ) : (
               <div className="rounded-xl border border-white/10 bg-[#1E1E24] p-10 text-center">
