@@ -1,8 +1,9 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Star, Trash2, Pencil, Plus, X } from "lucide-react";
+import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import {
   listAllProducts,
   deleteProductAdmin,
@@ -29,6 +30,8 @@ interface FormState {
   vendor: string;
   external_url: string;
   promoted: boolean;
+  cover_path: string | null;
+  cover_preview: string | null;
 }
 
 const emptyForm: FormState = {
@@ -39,6 +42,8 @@ const emptyForm: FormState = {
   vendor: "",
   external_url: "",
   promoted: false,
+  cover_path: null,
+  cover_preview: null,
 };
 
 function ProductsPage() {
@@ -59,16 +64,57 @@ function ProductsPage() {
   useEffect(() => { refresh(); }, [refresh]);
 
   const openCreate = () => setModal({ ...emptyForm });
-  const openEdit = (p: Row) => setModal({
-    id: p.id as string,
-    name: (p.name as string) ?? "",
-    category: (p.category as string) ?? "themes",
-    description: (p.description as string) ?? "",
-    price_usd: String(p.price_usd ?? ""),
-    vendor: (p.vendor as string) ?? "",
-    external_url: (p.external_url as string) ?? "",
-    promoted: Boolean(p.promoted),
-  });
+  const openEdit = async (p: Row) => {
+    const coverPath = (p.cover_path as string) ?? null;
+    let coverPreview: string | null = null;
+    if (coverPath) {
+      const { data: signed } = await supabase.storage
+        .from("product-covers")
+        .createSignedUrl(coverPath, 60 * 60);
+      coverPreview = signed?.signedUrl ?? null;
+    }
+    setModal({
+      id: p.id as string,
+      name: (p.name as string) ?? "",
+      category: (p.category as string) ?? "themes",
+      description: (p.description as string) ?? "",
+      price_usd: String(p.price_usd ?? ""),
+      vendor: (p.vendor as string) ?? "",
+      external_url: (p.external_url as string) ?? "",
+      promoted: Boolean(p.promoted),
+      cover_path: coverPath,
+      cover_preview: coverPreview,
+    });
+  };
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const handleCoverPick = async (file: File) => {
+    if (!modal) return;
+    if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
+    setUploadingCover(true);
+    try {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id ?? "admin";
+      const safe = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${uid}/${Date.now()}_${safe}`;
+      const { error } = await supabase.storage
+        .from("product-covers")
+        .upload(path, file, { contentType: file.type || undefined, upsert: false });
+      if (error) throw error;
+      const { data: signed } = await supabase.storage
+        .from("product-covers")
+        .createSignedUrl(path, 60 * 60);
+      setModal((m) => m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m);
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   const save = async () => {
     if (!modal) return;
@@ -86,6 +132,7 @@ function ProductsPage() {
           price_usd: price,
           vendor: modal.vendor,
           external_url: modal.external_url || null,
+          cover_path: modal.cover_path,
           promoted: modal.promoted,
         } });
         toast.success("Product updated");
@@ -97,6 +144,7 @@ function ProductsPage() {
           price_usd: price,
           vendor: modal.vendor,
           external_url: modal.external_url || null,
+          cover_path: modal.cover_path,
           promoted: modal.promoted,
         } });
         toast.success("Product created");
@@ -204,6 +252,56 @@ function ProductsPage() {
               </button>
             </div>
             <div className="space-y-3">
+              <div>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product image</span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Shown as the cover on marketplace cards. PNG/JPG/WebP, up to 5MB.</p>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp,image/gif"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverPick(f); e.target.value = ""; }}
+                />
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingCover}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                >
+                  {modal.cover_preview ? (
+                    <img src={modal.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10" />
+                  ) : (
+                    <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
+                      <ImagePlus className="w-6 h-6" />
+                    </div>
+                  )}
+                  <div className="flex-1 min-w-0 text-xs">
+                    {uploadingCover ? (
+                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                    ) : modal.cover_preview ? (
+                      <>
+                        <div className="text-slate-200 font-medium">Image attached</div>
+                        <div className="text-slate-500 mt-0.5">Click to replace</div>
+                      </>
+                    ) : (
+                      <div className="text-slate-400">Click to upload a cover image (recommended 4:3).</div>
+                    )}
+                  </div>
+                  {modal.cover_preview && !uploadingCover && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); } }}
+                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                      aria-label="Remove image"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </button>
+              </div>
+
               <Field label="Name">
                 <input
                   value={modal.name}

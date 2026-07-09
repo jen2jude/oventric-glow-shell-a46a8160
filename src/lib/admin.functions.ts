@@ -231,6 +231,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     vendor?: string;
     hue?: string;
     external_url?: string | null;
+    cover_path?: string | null;
     promoted?: boolean;
   }) => i)
   .handler(async ({ data, context }) => {
@@ -245,6 +246,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     if (data.vendor !== undefined) patch.vendor = data.vendor.trim();
     if (data.hue !== undefined) patch.hue = data.hue;
     if (data.external_url !== undefined) patch.external_url = data.external_url;
+    if (data.cover_path !== undefined) patch.cover_path = data.cover_path;
     if (data.promoted !== undefined) patch.promoted = data.promoted;
     const { error } = await sb.from("products").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
