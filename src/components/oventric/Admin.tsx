@@ -138,12 +138,19 @@ function MarketplaceForge() {
     if (submitting) return;
     setSubmitting(true);
     try {
-      await commitToServer(() =>
-        adminStore.addProduct({
-          name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
-          description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
-        }),
-      );
+      await persistProduct({
+        data: {
+          name: title.trim(),
+          category,
+          description: description.trim(),
+          priceUSD: usdN,
+          vendor: vendor.trim(),
+        },
+      });
+      adminStore.addProduct({
+        name: title.trim(), category, version: version.trim(), vendor: vendor.trim(),
+        description: description.trim(), priceUSD: usdN, priceNGN: ngnN, priceGHS: ghsN,
+      });
       toast.success("Asset forged", { description: `${title.trim()} is now live in the ${category} grid.` });
       setPreviewOpen(false);
       reset();
