@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus } from "lucide-react";
+import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -32,6 +32,8 @@ interface FormState {
   promoted: boolean;
   cover_path: string | null;
   cover_preview: string | null;
+  file_path: string | null;
+  file_name: string | null;
 }
 
 const emptyForm: FormState = {
@@ -44,7 +46,11 @@ const emptyForm: FormState = {
   promoted: false,
   cover_path: null,
   cover_preview: null,
+  file_path: null,
+  file_name: null,
 };
+
+const MAX_ASSET_MB = 50;
 
 function ProductsPage() {
   const listFn = useServerFn(listAllProducts);
@@ -73,6 +79,7 @@ function ProductsPage() {
         .createSignedUrl(coverPath, 60 * 60);
       coverPreview = signed?.signedUrl ?? null;
     }
+    const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
       name: (p.name as string) ?? "",
@@ -84,11 +91,15 @@ function ProductsPage() {
       promoted: Boolean(p.promoted),
       cover_path: coverPath,
       cover_preview: coverPreview,
+      file_path: filePath,
+      file_name: filePath ? filePath.split("/").pop() ?? null : null,
     });
   };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const assetInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingAsset, setUploadingAsset] = useState(false);
 
   const handleCoverPick = async (file: File) => {
     if (!modal) return;
@@ -116,6 +127,28 @@ function ProductsPage() {
     }
   };
 
+  const handleAssetPick = async (file: File) => {
+    if (!modal) return;
+    if (file.size > MAX_ASSET_MB * 1024 * 1024) return toast.error(`Max ${MAX_ASSET_MB}MB`);
+    setUploadingAsset(true);
+    try {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id ?? "admin";
+      const safe = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${uid}/${Date.now()}_${safe}`;
+      const { error } = await supabase.storage
+        .from("product-files")
+        .upload(path, file, { contentType: file.type || undefined, upsert: false });
+      if (error) throw error;
+      setModal((m) => m ? { ...m, file_path: path, file_name: file.name } : m);
+      toast.success("Product file uploaded");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingAsset(false);
+    }
+  };
+
   const save = async () => {
     if (!modal) return;
     if (!modal.name.trim()) return toast.error("Name is required");
@@ -133,6 +166,7 @@ function ProductsPage() {
           vendor: modal.vendor,
           external_url: modal.external_url || null,
           cover_path: modal.cover_path,
+          file_path: modal.file_path,
           promoted: modal.promoted,
         } });
         toast.success("Product updated");
@@ -145,6 +179,7 @@ function ProductsPage() {
           vendor: modal.vendor,
           external_url: modal.external_url || null,
           cover_path: modal.cover_path,
+          file_path: modal.file_path,
           promoted: modal.promoted,
         } });
         toast.success("Product created");
@@ -353,6 +388,51 @@ function ProductsPage() {
                   className={inputCls}
                 />
               </Field>
+              <div>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
+                <input
+                  ref={assetInputRef}
+                  type="file"
+                  accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
+                />
+                <button
+                  type="button"
+                  onClick={() => assetInputRef.current?.click()}
+                  disabled={uploadingAsset}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                >
+                  <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
+                    <FileArchive className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-xs">
+                    {uploadingAsset ? (
+                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                    ) : modal.file_name ? (
+                      <>
+                        <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
+                        <div className="text-slate-500 mt-0.5">Click to replace</div>
+                      </>
+                    ) : (
+                      <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
+                    )}
+                  </div>
+                  {modal.file_name && !uploadingAsset && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
+                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </button>
+              </div>
               <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input
                   type="checkbox"

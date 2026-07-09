@@ -226,16 +226,17 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
             {mode === "file" ? (
               <label className="mt-2 block border border-dashed border-white/15 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 transition-colors">
                 <input type="file" className="hidden" onChange={(e) => handleFile(e.target.files?.[0] ?? null)}
-                  accept=".zip,.rar,.7z,.tar,.gz,.pdf,.png,.jpg,.jpeg,.svg,.mp4,.mp3,.psd,.fig,.sketch,.json,.txt,.md" />
+                  accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed" />
                 {file ? (
                   <div className="text-sm text-white">
-                    <div className="font-medium">{file.name}</div>
+                    <div className="font-medium truncate">{file.name}</div>
                     <div className="text-xs text-slate-400 mt-1">{(file.size / (1024 * 1024)).toFixed(2)} MB — click to replace</div>
                   </div>
                 ) : (
                   <div className="text-sm text-slate-400">
                     <Upload className="w-5 h-5 mx-auto mb-2 text-emerald-400" />
-                    Drop a file or click to browse. Max {MAX_FILE_MB}MB.
+                    <div className="font-medium text-slate-200">Click to upload product ZIP file</div>
+                    <div className="text-xs mt-1">ZIP / RAR / 7Z — max {MAX_FILE_MB}MB</div>
                   </div>
                 )}
               </label>
