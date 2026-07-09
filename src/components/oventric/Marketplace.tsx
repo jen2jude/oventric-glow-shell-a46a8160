@@ -86,7 +86,7 @@ export function Marketplace() {
   const [fullCategory, setFullCategory] = useState<CategoryKey | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
+  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
 
   const adminProducts: Product[] = useMemo(
     () =>
