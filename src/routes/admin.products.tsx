@@ -388,6 +388,51 @@ function ProductsPage() {
                   className={inputCls}
                 />
               </Field>
+              <div>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
+                <input
+                  ref={assetInputRef}
+                  type="file"
+                  accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
+                />
+                <button
+                  type="button"
+                  onClick={() => assetInputRef.current?.click()}
+                  disabled={uploadingAsset}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                >
+                  <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
+                    <FileArchive className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-xs">
+                    {uploadingAsset ? (
+                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                    ) : modal.file_name ? (
+                      <>
+                        <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
+                        <div className="text-slate-500 mt-0.5">Click to replace</div>
+                      </>
+                    ) : (
+                      <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
+                    )}
+                  </div>
+                  {modal.file_name && !uploadingAsset && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
+                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                      aria-label="Remove file"
+                    >
+                      <X className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </button>
+              </div>
               <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input
                   type="checkbox"
