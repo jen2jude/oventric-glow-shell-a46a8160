@@ -56,6 +56,7 @@ const NAV = [
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
+  { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/features", label: "Features", icon: ToggleLeft },
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
