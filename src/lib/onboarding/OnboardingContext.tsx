@@ -104,6 +104,16 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
     [],
   );
+  const setBalances = useCallback(
+    (balances: Record<Currency, number>, escrow?: Record<Currency, number>, cashback?: number) =>
+      setState((s) => ({
+        ...s,
+        balances,
+        escrow: escrow ?? s.escrow,
+        cashback: cashback ?? s.cashback,
+      })),
+    [],
+  );
   const setBalancesHidden = useCallback(
     (hidden: boolean) => setState((s) => ({ ...s, balancesHidden: hidden })),
     [],
