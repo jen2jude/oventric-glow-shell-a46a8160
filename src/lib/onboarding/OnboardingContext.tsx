@@ -20,6 +20,8 @@ interface OnboardingState {
   baseCurrency: Currency;
   payoutBank: PayoutBank;
   balances: Record<Currency, number>;
+  escrow: Record<Currency, number>;
+  cashback: number;
   balancesHidden: boolean;
 }
 
