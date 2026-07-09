@@ -174,8 +174,17 @@ export function Wallet() {
         },
       )
       .subscribe();
+    const walletChannel = supabase
+      .channel(`wallets-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
+        () => queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] }),
+      )
+      .subscribe();
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(walletChannel);
     };
   }, [userId, queryClient]);
 
