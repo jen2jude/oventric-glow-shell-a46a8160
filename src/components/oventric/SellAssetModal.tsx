@@ -26,6 +26,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
+  const [cover, setCover] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState<string>("");
 
@@ -34,6 +36,18 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const reset = () => {
     setName(""); setVendor(""); setDescription(""); setPriceUSD("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
+    setCover(null);
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    setCoverPreview(null);
+  };
+
+  const handleCover = (f: File | null) => {
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    if (!f) { setCover(null); setCoverPreview(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Cover must be an image"); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Cover image too large", { description: "Max 5MB." }); return; }
+    setCover(f);
+    setCoverPreview(URL.createObjectURL(f));
   };
 
   const handleFile = (f: File | null) => {
