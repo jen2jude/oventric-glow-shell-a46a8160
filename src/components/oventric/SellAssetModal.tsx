@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Upload, Link2, Loader2, CheckCircle2 } from "lucide-react";
+import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -26,6 +26,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
+  const [cover, setCover] = useState<File | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState<string>("");
 
@@ -34,6 +36,18 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const reset = () => {
     setName(""); setVendor(""); setDescription(""); setPriceUSD("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
+    setCover(null);
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    setCoverPreview(null);
+  };
+
+  const handleCover = (f: File | null) => {
+    if (coverPreview) URL.revokeObjectURL(coverPreview);
+    if (!f) { setCover(null); setCoverPreview(null); return; }
+    if (!f.type.startsWith("image/")) { toast.error("Cover must be an image"); return; }
+    if (f.size > 5 * 1024 * 1024) { toast.error("Cover image too large", { description: "Max 5MB." }); return; }
+    setCover(f);
+    setCoverPreview(URL.createObjectURL(f));
   };
 
   const handleFile = (f: File | null) => {
@@ -59,13 +73,27 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
     setSubmitting(true);
     try {
+      const { data: userData, error: uErr } = await supabase.auth.getUser();
+      if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
+      const uid = userData.user.id;
+
+      let coverPath: string | null = null;
+      if (cover) {
+        setProgress("Uploading cover image...");
+        const safe = cover.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${uid}/${Date.now()}-${safe}`;
+        const { error: cErr } = await supabase.storage
+          .from("product-covers")
+          .upload(path, cover, { contentType: cover.type || undefined, upsert: false });
+        if (cErr) throw new Error(cErr.message);
+        coverPath = path;
+      }
+
       let filePath: string | null = null;
       if (mode === "file" && file) {
         setProgress("Uploading asset...");
-        const { data: userData, error: uErr } = await supabase.auth.getUser();
-        if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
         const safe = file.name.replace(/[^\w.\-]+/g, "_");
-        const path = `${userData.user.id}/${Date.now()}-${safe}`;
+        const path = `${uid}/${Date.now()}-${safe}`;
         const { error: upErr } = await supabase.storage
           .from("product-files")
           .upload(path, file, { contentType: file.type || undefined, upsert: false });
@@ -82,6 +110,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           vendor: vendor.trim(),
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
+          coverPath,
         },
       });
       toast.success("Asset listed", {
@@ -152,6 +181,34 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
               placeholder="What buyers get, tech stack, key features..."
               className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none resize-none" />
           </label>
+
+          <div>
+            <span className="text-xs font-medium text-slate-300">Product image</span>
+            <p className="text-[11px] text-slate-500 mt-0.5">Displayed as the cover on marketplace cards and the product page. PNG/JPG, up to 5MB.</p>
+            <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60 transition-colors">
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" className="hidden"
+                onChange={(e) => handleCover(e.target.files?.[0] ?? null)} />
+              {coverPreview ? (
+                <>
+                  <img src={coverPreview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10" />
+                  <div className="text-xs text-slate-300 flex-1 min-w-0">
+                    <div className="font-medium truncate">{cover?.name}</div>
+                    <div className="text-slate-500 mt-0.5">{cover ? (cover.size / (1024 * 1024)).toFixed(2) : 0} MB — click to replace</div>
+                  </div>
+                  <button type="button" onClick={(e) => { e.preventDefault(); handleCover(null); }}
+                    className="text-[11px] text-slate-400 hover:text-red-400 underline">Remove</button>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-20 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
+                    <ImagePlus className="w-6 h-6" />
+                  </div>
+                  <div className="text-xs text-slate-400">Click to upload a product cover image (recommended 4:3).</div>
+                </>
+              )}
+            </label>
+          </div>
+
 
           <div>
             <span className="text-xs font-medium text-slate-300">Delivery</span>
