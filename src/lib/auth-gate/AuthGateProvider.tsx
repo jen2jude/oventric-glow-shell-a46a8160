@@ -197,6 +197,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const closeGate = useCallback(() => {
     pendingRef.current = null;
     setGateOpen(false);
+    setLinkError(null);
   }, []);
 
   const value = useMemo<AuthGateContextValue>(
@@ -211,9 +212,12 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
         <AuthGateModal
           contextKey={ctxKey}
           onClose={closeGate}
+          linkError={linkError}
+          onClearLinkError={() => setLinkError(null)}
         />
       )}
       {splash && <NeonSuccessSplash />}
+
     </AuthGateContext.Provider>
   );
 }
