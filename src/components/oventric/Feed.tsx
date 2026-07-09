@@ -243,10 +243,10 @@ export function Feed() {
               if (idx !== -1) {
                 const next = arr.slice();
                 next[idx] = toComment(row);
-                return { ...prev, [row.post_id]: next };
+                return { ...prev, [row.post_id]: sortComments(next) };
               }
             }
-            return { ...prev, [row.post_id]: [...arr, toComment(row)] };
+            return { ...prev, [row.post_id]: sortComments([...arr, toComment(row)]) };
           });
           setPosts((prev) =>
             prev.map((p) =>
@@ -264,7 +264,7 @@ export function Feed() {
           setCommentsByPost((prev) => {
             const arr = prev[row.post_id];
             if (!arr) return prev;
-            return { ...prev, [row.post_id]: arr.map((c) => (c.id === row.id ? toComment(row) : c)) };
+            return { ...prev, [row.post_id]: sortComments(arr.map((c) => (c.id === row.id ? toComment(row) : c))) };
           });
         },
       )
