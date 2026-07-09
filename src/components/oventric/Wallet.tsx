@@ -273,7 +273,7 @@ export function Wallet() {
           </div>
         </button>
         <button
-          onClick={() => require(1, () => setPayoutOpen(true), "withdraw")}
+          onClick={() => require(1, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
