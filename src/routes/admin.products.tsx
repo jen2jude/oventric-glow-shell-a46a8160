@@ -79,6 +79,7 @@ function ProductsPage() {
         .createSignedUrl(coverPath, 60 * 60);
       coverPreview = signed?.signedUrl ?? null;
     }
+    const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
       name: (p.name as string) ?? "",
@@ -90,11 +91,15 @@ function ProductsPage() {
       promoted: Boolean(p.promoted),
       cover_path: coverPath,
       cover_preview: coverPreview,
+      file_path: filePath,
+      file_name: filePath ? filePath.split("/").pop() ?? null : null,
     });
   };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const assetInputRef = useRef<HTMLInputElement | null>(null);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingAsset, setUploadingAsset] = useState(false);
 
   const handleCoverPick = async (file: File) => {
     if (!modal) return;
@@ -122,6 +127,28 @@ function ProductsPage() {
     }
   };
 
+  const handleAssetPick = async (file: File) => {
+    if (!modal) return;
+    if (file.size > MAX_ASSET_MB * 1024 * 1024) return toast.error(`Max ${MAX_ASSET_MB}MB`);
+    setUploadingAsset(true);
+    try {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id ?? "admin";
+      const safe = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${uid}/${Date.now()}_${safe}`;
+      const { error } = await supabase.storage
+        .from("product-files")
+        .upload(path, file, { contentType: file.type || undefined, upsert: false });
+      if (error) throw error;
+      setModal((m) => m ? { ...m, file_path: path, file_name: file.name } : m);
+      toast.success("Product file uploaded");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingAsset(false);
+    }
+  };
+
   const save = async () => {
     if (!modal) return;
     if (!modal.name.trim()) return toast.error("Name is required");
@@ -139,6 +166,7 @@ function ProductsPage() {
           vendor: modal.vendor,
           external_url: modal.external_url || null,
           cover_path: modal.cover_path,
+          file_path: modal.file_path,
           promoted: modal.promoted,
         } });
         toast.success("Product updated");
@@ -151,6 +179,7 @@ function ProductsPage() {
           vendor: modal.vendor,
           external_url: modal.external_url || null,
           cover_path: modal.cover_path,
+          file_path: modal.file_path,
           promoted: modal.promoted,
         } });
         toast.success("Product created");
