@@ -343,6 +343,8 @@ function AuthGateModal({
         });
         if (error) throw error;
         if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        setVerified(true);
+        setFlash(null);
         try {
           await seedNewUser({ data: username.trim() ? { username: username.trim() } : {} });
         } catch (seedErr) {
@@ -351,7 +353,7 @@ function AuthGateModal({
         // The provider's onAuthStateChange('SIGNED_IN') closes the modal and
         // runs the pending action. Nothing else to do here.
       } catch (err) {
-        setOtpError(err instanceof Error ? err.message : "Invalid or expired code");
+        setOtpError(humanizeError(err instanceof Error ? err.message : "Invalid or expired code"));
         setOtpDigits(Array(OTP_LENGTH).fill(""));
         window.setTimeout(() => otpRefs.current[0]?.focus(), 40);
       } finally {
