@@ -217,7 +217,15 @@ export function DiscoveryPanel() {
         </div>
         <ul className="space-y-2.5">
           {listings.map((l) => (
-            <li key={l.id} className="flex items-center gap-3 min-w-0">
+            <li key={l.id}>
+              <button
+                onClick={() => {
+                  toast(`Opening ${l.title}`);
+                  navigateSection("Marketplace");
+                }}
+                aria-label={`Open marketplace listing: ${l.title}`}
+                className="w-full flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
+              >
               <div
                 className={`w-11 h-11 shrink-0 rounded-lg bg-gradient-to-br ${l.hue} flex items-center justify-center`}
               >
