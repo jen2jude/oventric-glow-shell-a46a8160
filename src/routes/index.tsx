@@ -35,6 +35,15 @@ function Index() {
 
   const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
 
+  useEffect(() => {
+    const onNav = (e: Event) => {
+      const detail = (e as CustomEvent<{ section?: string }>).detail;
+      if (detail?.section) setActive(detail.section);
+    };
+    window.addEventListener("oventric:navigate", onNav);
+    return () => window.removeEventListener("oventric:navigate", onNav);
+  }, []);
+
   const view =
     active === "Wallet" ? <Wallet />
     : active === "Marketplace" ? <Marketplace />
