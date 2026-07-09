@@ -286,7 +286,7 @@ function AuthGateModal({
   // Escape closes
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && !verifying) onClose();
+      if (e.key === "Escape" && !verifying && !verified) onClose();
     };
     document.addEventListener("keydown", onKey);
     return () => document.removeEventListener("keydown", onKey);
