@@ -1,7 +1,7 @@
 import { Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { toast } from "sonner";
-import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle, Check } from "lucide-react";
+import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 type Peer = { id: string; name: string; initials: string; stars: number; gradient: string; inCircle: boolean };
