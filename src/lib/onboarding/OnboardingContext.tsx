@@ -135,10 +135,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       advanceTo,
       setBaseCurrency,
       updateBalance,
+      setBalances,
       setBalancesHidden,
       toggleBalancesHidden,
     }),
-    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalancesHidden, toggleBalancesHidden],
+    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalances, setBalancesHidden, toggleBalancesHidden],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;
