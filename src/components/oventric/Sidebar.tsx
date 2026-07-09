@@ -1,4 +1,4 @@
-import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, ShieldCheck, MessageSquare, Users } from "lucide-react";
+import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
 import { useState } from "react";
 
 const items = [
@@ -9,7 +9,6 @@ const items = [
   { icon: GraduationCap, label: "Academy" },
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
-  { icon: ShieldCheck, label: "Admin" },
 ];
 
 export function Sidebar({
