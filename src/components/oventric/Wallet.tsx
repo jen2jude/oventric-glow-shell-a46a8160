@@ -96,7 +96,7 @@ function fmtTs(iso: string) {
 }
 
 export function Wallet() {
-  const { balances, balancesHidden: hide, toggleBalancesHidden } = useOnboarding();
+  const { balances, balancesHidden: hide, toggleBalancesHidden, require } = useOnboarding();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
