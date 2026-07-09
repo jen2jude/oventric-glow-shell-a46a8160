@@ -16,6 +16,7 @@ function fmt(usd: number, cur: Currency) {
 
 export const Route = createFileRoute("/product/$id")({
   ssr: false,
+  validateSearch: (s: Record<string, unknown>) => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
   head: () => ({
     meta: [
       { title: "Product · Oventric Marketplace" },
