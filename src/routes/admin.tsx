@@ -1,4 +1,4 @@
-import { createFileRoute, Outlet, Link, useRouter, redirect } from "@tanstack/react-router";
+import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
