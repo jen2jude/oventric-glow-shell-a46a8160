@@ -116,6 +116,7 @@ export const createProduct = createServerFn({ method: "POST" })
     vendor: string;
     hue?: string;
     externalUrl?: string | null;
+    filePath?: string | null;
   }) => ({
     name: String(input.name ?? "").trim(),
     category: input.category,
@@ -124,10 +125,12 @@ export const createProduct = createServerFn({ method: "POST" })
     vendor: String(input.vendor ?? "").trim(),
     hue: input.hue ?? "from-emerald-500 to-teal-700",
     externalUrl: input.externalUrl ?? null,
+    filePath: input.filePath ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
     if (!(data.priceUSD > 0)) throw new Error("Price must be > 0");
+    
     const { data: row, error } = await context.supabase
       .from("products")
       .insert({
@@ -139,6 +142,7 @@ export const createProduct = createServerFn({ method: "POST" })
         vendor: data.vendor,
         hue: data.hue,
         external_url: data.externalUrl,
+        file_path: data.filePath,
         promoted: true,
       })
       .select()
@@ -146,6 +150,7 @@ export const createProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return mapProduct(row as Record<string, unknown>);
   });
+
 
 /** Wallet top-up (mock card/bank/momo processing). Credits the user's wallet in USD equivalent. */
 export const topUpWallet = createServerFn({ method: "POST" })
