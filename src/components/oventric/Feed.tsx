@@ -30,6 +30,7 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  createdAt: string;
   status?: "pending" | "failed";
   errorMessage?: string;
 }
@@ -42,7 +43,16 @@ function toComment(c: FeedComment): Comment {
     authorId: c.author_id,
     initials: c.initials,
     text: c.text,
+    createdAt: c.created_at,
   };
+}
+
+// Stable sort: by createdAt asc, tiebreak by id so re-renders don't reshuffle.
+function sortComments(list: Comment[]): Comment[] {
+  return list.slice().sort((a, b) => {
+    if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
 }
 
 function timeAgo(iso: string): string {
