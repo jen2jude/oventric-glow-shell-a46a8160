@@ -192,7 +192,12 @@ export function DiscoveryPanel() {
         <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
           Sub-50ms cold starts across 40 regions. 10M free requests/mo for indie builders.
         </p>
-        <button className="mt-3 w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg">
+        <button
+          onClick={() => {
+            toast.success("Nebula Cloud free tier claimed", { description: "Check your inbox for onboarding steps." });
+          }}
+          className="mt-3 w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg"
+        >
           Claim Free Tier
         </button>
       </section>
