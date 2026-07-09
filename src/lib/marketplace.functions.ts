@@ -22,6 +22,8 @@ export interface ProductDTO {
   promoted: boolean;
   externalUrl: string | null;
   filePath: string | null;
+  coverPath: string | null;
+  coverUrl: string | null;
   createdAt: string;
 }
 
