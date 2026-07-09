@@ -65,7 +65,7 @@ function AdminOverview() {
         <Section title="Recent orders">
           {activity.orders.length === 0 ? <Empty label="No orders yet." /> : (
             <ul className="divide-y divide-white/5">
-              {activity.orders.map((o) => (
+              {(activity.orders as Array<Record<string, unknown>>).map((o) => (
                 <li key={o.id as string} className="py-2 flex items-center justify-between text-sm">
                   <span className="text-slate-300 truncate">{String(o.id).slice(0, 8)}…</span>
                   <span className={`text-xs font-bold ${o.status === "paid" ? "text-emerald-300" : "text-slate-400"}`}>
@@ -79,7 +79,7 @@ function AdminOverview() {
         <Section title="New users">
           {activity.users.length === 0 ? <Empty label="No users yet." /> : (
             <ul className="divide-y divide-white/5">
-              {activity.users.map((u) => (
+              {(activity.users as Array<Record<string, unknown>>).map((u) => (
                 <li key={u.user_id as string} className="py-2 flex items-center justify-between text-sm">
                   <span className="text-slate-300 truncate">{(u.username as string) ?? String(u.user_id).slice(0, 8)}</span>
                   <span className="text-xs text-slate-500">{new Date(u.created_at as string).toLocaleDateString()}</span>
@@ -91,7 +91,7 @@ function AdminOverview() {
         <Section title="Recent products">
           {activity.products.length === 0 ? <Empty label="No products yet." /> : (
             <ul className="divide-y divide-white/5">
-              {activity.products.map((p) => (
+              {(activity.products as Array<Record<string, unknown>>).map((p) => (
                 <li key={p.id as string} className="py-2 flex items-center justify-between text-sm">
                   <span className="text-slate-300 truncate">{p.name as string}</span>
                   <span className="text-xs text-emerald-300 font-bold">${Number(p.price_usd).toFixed(2)}</span>
@@ -103,7 +103,7 @@ function AdminOverview() {
         <Section title="Audit trail">
           {activity.audit.length === 0 ? <Empty label="No admin actions yet." /> : (
             <ul className="divide-y divide-white/5">
-              {activity.audit.map((a) => (
+              {(activity.audit as Array<Record<string, unknown>>).map((a) => (
                 <li key={a.id as string} className="py-2 text-sm">
                   <div className="text-slate-200 font-mono text-xs">{a.action as string}</div>
                   <div className="text-[11px] text-slate-500">{new Date(a.created_at as string).toLocaleString()}</div>
