@@ -208,7 +208,12 @@ export function DiscoveryPanel() {
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>🛍️</span> Top Marketplace Files
           </h3>
-          <button className="text-[11px] text-emerald-400 hover:text-emerald-300">Browse</button>
+          <button
+            onClick={() => navigateSection("Marketplace")}
+            className="text-[11px] text-emerald-400 hover:text-emerald-300"
+          >
+            Browse
+          </button>
         </div>
         <ul className="space-y-2.5">
           {listings.map((l) => (
