@@ -97,7 +97,7 @@ function fmtTs(iso: string) {
 }
 
 export function Wallet() {
-  const { balances, balancesHidden: hide, toggleBalancesHidden, require } = useOnboarding();
+  const { balances, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances } = useOnboarding();
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
@@ -108,8 +108,6 @@ export function Wallet() {
   const [spend, setSpend] = useState(2500);
   const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
-
-  const cashback = 218.42;
 
   useEffect(() => {
     let alive = true;
