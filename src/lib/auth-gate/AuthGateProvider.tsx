@@ -246,10 +246,20 @@ function AuthGateModal({
   const [otpError, setOtpError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
   const [verifying, setVerifying] = useState(false);
+  const [verified, setVerified] = useState(false);
   const [resendIn, setResendIn] = useState(0);
   const [flash, setFlash] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
+
+  const humanizeError = (msg: string): string => {
+    const m = msg.toLowerCase();
+    if (m.includes("token has expired") || m.includes("expired")) return "That code expired. Tap Resend to get a fresh one.";
+    if (m.includes("invalid") && m.includes("token")) return "That code isn't right. Double-check the 6 digits from your inbox.";
+    if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a moment before trying again.";
+    if (m.includes("network") || m.includes("fetch")) return "Network hiccup. Check your connection and retry.";
+    return msg;
+  };
 
   const copy = COPY[contextKey] ?? COPY.generic;
 
