@@ -64,16 +64,57 @@ function ProductsPage() {
   useEffect(() => { refresh(); }, [refresh]);
 
   const openCreate = () => setModal({ ...emptyForm });
-  const openEdit = (p: Row) => setModal({
-    id: p.id as string,
-    name: (p.name as string) ?? "",
-    category: (p.category as string) ?? "themes",
-    description: (p.description as string) ?? "",
-    price_usd: String(p.price_usd ?? ""),
-    vendor: (p.vendor as string) ?? "",
-    external_url: (p.external_url as string) ?? "",
-    promoted: Boolean(p.promoted),
-  });
+  const openEdit = async (p: Row) => {
+    const coverPath = (p.cover_path as string) ?? null;
+    let coverPreview: string | null = null;
+    if (coverPath) {
+      const { data: signed } = await supabase.storage
+        .from("product-covers")
+        .createSignedUrl(coverPath, 60 * 60);
+      coverPreview = signed?.signedUrl ?? null;
+    }
+    setModal({
+      id: p.id as string,
+      name: (p.name as string) ?? "",
+      category: (p.category as string) ?? "themes",
+      description: (p.description as string) ?? "",
+      price_usd: String(p.price_usd ?? ""),
+      vendor: (p.vendor as string) ?? "",
+      external_url: (p.external_url as string) ?? "",
+      promoted: Boolean(p.promoted),
+      cover_path: coverPath,
+      cover_preview: coverPreview,
+    });
+  };
+
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  const handleCoverPick = async (file: File) => {
+    if (!modal) return;
+    if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
+    setUploadingCover(true);
+    try {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id ?? "admin";
+      const safe = file.name.replace(/[^\w.\-]+/g, "_");
+      const path = `${uid}/${Date.now()}_${safe}`;
+      const { error } = await supabase.storage
+        .from("product-covers")
+        .upload(path, file, { contentType: file.type || undefined, upsert: false });
+      if (error) throw error;
+      const { data: signed } = await supabase.storage
+        .from("product-covers")
+        .createSignedUrl(path, 60 * 60);
+      setModal((m) => m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m);
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setUploadingCover(false);
+    }
+  };
 
   const save = async () => {
     if (!modal) return;
@@ -91,6 +132,7 @@ function ProductsPage() {
           price_usd: price,
           vendor: modal.vendor,
           external_url: modal.external_url || null,
+          cover_path: modal.cover_path,
           promoted: modal.promoted,
         } });
         toast.success("Product updated");
@@ -102,6 +144,7 @@ function ProductsPage() {
           price_usd: price,
           vendor: modal.vendor,
           external_url: modal.external_url || null,
+          cover_path: modal.cover_path,
           promoted: modal.promoted,
         } });
         toast.success("Product created");
