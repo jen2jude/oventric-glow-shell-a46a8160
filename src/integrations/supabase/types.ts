@@ -176,8 +176,13 @@ export type Database = {
       }
       profiles: {
         Row: {
+          country: string | null
           created_at: string
           display_name: string | null
+          kyc_completed_at: string | null
+          kyc_selfie_path: string | null
+          phone: string | null
+          profile_completed_at: string | null
           reputation_stars: number
           slug: string
           updated_at: string
@@ -186,8 +191,13 @@ export type Database = {
           verification_tier: string
         }
         Insert: {
+          country?: string | null
           created_at?: string
           display_name?: string | null
+          kyc_completed_at?: string | null
+          kyc_selfie_path?: string | null
+          phone?: string | null
+          profile_completed_at?: string | null
           reputation_stars?: number
           slug: string
           updated_at?: string
@@ -196,8 +206,13 @@ export type Database = {
           verification_tier?: string
         }
         Update: {
+          country?: string | null
           created_at?: string
           display_name?: string | null
+          kyc_completed_at?: string | null
+          kyc_selfie_path?: string | null
+          phone?: string | null
+          profile_completed_at?: string | null
           reputation_stars?: number
           slug?: string
           updated_at?: string
