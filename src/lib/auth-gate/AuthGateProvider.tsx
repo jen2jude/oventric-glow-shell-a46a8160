@@ -230,6 +230,7 @@ const OTP_LENGTH = 6;
 const RESEND_SECONDS = 60;
 
 type Stage = "email" | "otp";
+type Mode = "new" | "returning";
 
 function AuthGateModal({
   contextKey,
@@ -238,11 +239,14 @@ function AuthGateModal({
   contextKey: AuthGateContextKey;
   onClose: () => void;
 }) {
+  const [mode, setMode] = useState<Mode>("new");
   const [stage, setStage] = useState<Stage>("email");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
+  const [identifier, setIdentifier] = useState(""); // returning user: email or username
   const [emailError, setEmailError] = useState<string | null>(null);
   const [usernameError, setUsernameError] = useState<string | null>(null);
+  const [identifierError, setIdentifierError] = useState<string | null>(null);
   const [otpDigits, setOtpDigits] = useState<string[]>(() => Array(OTP_LENGTH).fill(""));
   const [otpError, setOtpError] = useState<string | null>(null);
   const [sending, setSending] = useState(false);
@@ -252,6 +256,7 @@ function AuthGateModal({
   const [flash, setFlash] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
+  const resolveLoginIdentifier = useServerFn(resolveLoginIdentifierFn);
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
