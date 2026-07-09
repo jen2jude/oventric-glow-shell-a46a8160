@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Header } from "@/components/oventric/Header";
 import { Sidebar } from "@/components/oventric/Sidebar";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -34,6 +34,15 @@ function Index() {
   const { require } = useOnboarding();
 
   const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
+
+  useEffect(() => {
+    const onNav = (e: Event) => {
+      const detail = (e as CustomEvent<{ section?: string }>).detail;
+      if (detail?.section) setActive(detail.section);
+    };
+    window.addEventListener("oventric:navigate", onNav);
+    return () => window.removeEventListener("oventric:navigate", onNav);
+  }, []);
 
   const view =
     active === "Wallet" ? <Wallet />

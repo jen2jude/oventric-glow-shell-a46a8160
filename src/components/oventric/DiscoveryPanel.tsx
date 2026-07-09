@@ -1,13 +1,22 @@
 import { Link } from "@tanstack/react-router";
+import { useState } from "react";
+import { toast } from "sonner";
 import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
-const peers = [
+type Peer = { id: string; name: string; initials: string; stars: number; gradient: string; inCircle: boolean };
+
+const INITIAL_PEERS: Peer[] = [
   { id: "aria-kessler", name: "Aria Kessler", initials: "AK", stars: 4.9, gradient: "from-purple-500 to-pink-500", inCircle: false },
   { id: "marco-tenreiro", name: "Marco Tenreiro", initials: "MT", stars: 4.7, gradient: "from-orange-400 to-red-500", inCircle: true },
   { id: "lena-osei", name: "Lena Osei", initials: "LO", stars: 4.8, gradient: "from-emerald-400 to-teal-500", inCircle: false },
   { id: "davin-park", name: "Davin Park", initials: "DP", stars: 4.6, gradient: "from-sky-400 to-indigo-500", inCircle: false },
 ];
+
+export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
+}
 
 const bounties = [
   { id: "b1", title: "Build a pgvector migration tool", amountUsd: 900, escrow: true },
@@ -30,6 +39,43 @@ function useMoney() {
 
 export function DiscoveryPanel() {
   const price = useMoney();
+  const { require } = useOnboarding();
+  const [peers, setPeers] = useState<Peer[]>(INITIAL_PEERS);
+
+  const handleAddToCircle = (peer: Peer) => {
+    require(
+      1,
+      () => {
+        setPeers((prev) => prev.map((p) => (p.id === peer.id ? { ...p, inCircle: true } : p)));
+        toast.success(`Circle request sent to ${peer.name}`, {
+          description: "You'll be able to chat once they accept.",
+        });
+      },
+      "buyer",
+    );
+  };
+
+  const handleChat = (peer: Peer) => {
+    require(
+      1,
+      () => {
+        toast(`Opening chat with ${peer.name}…`);
+        navigateSection("Messages");
+      },
+      "buyer",
+    );
+  };
+
+  const handleSolve = (bountyTitle: string) => {
+    require(
+      2,
+      () => {
+        toast.success("Bounty opened", { description: bountyTitle });
+        navigateSection("Bounties");
+      },
+      "solver",
+    );
+  };
 
   return (
     <aside className="hidden lg:flex lg:w-[38%] flex-col gap-4 sticky top-20 h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6">
@@ -39,7 +85,12 @@ export function DiscoveryPanel() {
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>👑</span> Top Peers in Your Circle
           </h3>
-          <button className="text-[11px] text-emerald-400 hover:text-emerald-300">See all</button>
+          <button
+            onClick={() => navigateSection("Circles")}
+            className="text-[11px] text-emerald-400 hover:text-emerald-300"
+          >
+            See all
+          </button>
         </div>
         <ul className="space-y-2">
           {peers.map((p) => (
@@ -65,11 +116,19 @@ export function DiscoveryPanel() {
                 </div>
               </div>
               {p.inCircle ? (
-                <button className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold">
+                <button
+                  onClick={() => handleChat(p)}
+                  aria-label={`Chat with ${p.name}`}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>
               ) : (
-                <button className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold">
+                <button
+                  onClick={() => handleAddToCircle(p)}
+                  aria-label={`Add ${p.name} to your circle`}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold"
+                >
                   <UserPlus className="w-3 h-3" /> Circle
                 </button>
               )}
@@ -77,6 +136,7 @@ export function DiscoveryPanel() {
           ))}
         </ul>
       </section>
+
 
       {/* Widget B: Hot Bounties */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4">
@@ -102,7 +162,11 @@ export function DiscoveryPanel() {
                   <div className="text-[9px] uppercase tracking-wider text-slate-500">Escrow locked</div>
                   <div className="text-sm font-black text-emerald-300 truncate">{price(b.amountUsd)}</div>
                 </div>
-                <button className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300">
+                <button
+                  onClick={() => handleSolve(b.title)}
+                  aria-label={`Solve bounty: ${b.title}`}
+                  className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
+                >
                   Solve →
                 </button>
               </div>
@@ -128,7 +192,12 @@ export function DiscoveryPanel() {
         <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
           Sub-50ms cold starts across 40 regions. 10M free requests/mo for indie builders.
         </p>
-        <button className="mt-3 w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg">
+        <button
+          onClick={() => {
+            toast.success("Nebula Cloud free tier claimed", { description: "Check your inbox for onboarding steps." });
+          }}
+          className="mt-3 w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg"
+        >
           Claim Free Tier
         </button>
       </section>
@@ -139,11 +208,24 @@ export function DiscoveryPanel() {
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>🛍️</span> Top Marketplace Files
           </h3>
-          <button className="text-[11px] text-emerald-400 hover:text-emerald-300">Browse</button>
+          <button
+            onClick={() => navigateSection("Marketplace")}
+            className="text-[11px] text-emerald-400 hover:text-emerald-300"
+          >
+            Browse
+          </button>
         </div>
         <ul className="space-y-2.5">
           {listings.map((l) => (
-            <li key={l.id} className="flex items-center gap-3 min-w-0">
+            <li key={l.id}>
+              <button
+                onClick={() => {
+                  toast(`Opening ${l.title}`);
+                  navigateSection("Marketplace");
+                }}
+                aria-label={`Open marketplace listing: ${l.title}`}
+                className="w-full flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
+              >
               <div
                 className={`w-11 h-11 shrink-0 rounded-lg bg-gradient-to-br ${l.hue} flex items-center justify-center`}
               >
@@ -161,6 +243,7 @@ export function DiscoveryPanel() {
               <div className="shrink-0 text-right">
                 <div className="text-sm font-black text-white">{price(l.priceUsd)}</div>
               </div>
+              </button>
             </li>
           ))}
         </ul>
