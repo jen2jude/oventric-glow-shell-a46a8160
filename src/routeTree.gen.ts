@@ -24,6 +24,7 @@ import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
+import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
@@ -102,6 +103,11 @@ const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
   path: '/campaigns',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBountiesRoute = AdminBountiesRouteImport.update({
+  id: '/bounties',
+  path: '/bounties',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -117,6 +123,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
@@ -135,6 +142,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
@@ -155,6 +163,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
@@ -176,6 +185,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/audit'
+    | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/communications'
@@ -194,6 +204,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/admin/audit'
+    | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/communications'
@@ -213,6 +224,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/audit'
+    | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/communications'
@@ -345,6 +357,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCampaignsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/bounties': {
+      id: '/admin/bounties'
+      path: '/bounties'
+      fullPath: '/admin/bounties'
+      preLoaderRoute: typeof AdminBountiesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/audit'
@@ -364,6 +383,7 @@ declare module '@tanstack/react-router' {
 
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminBountiesRoute: typeof AdminBountiesRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
@@ -377,6 +397,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminBountiesRoute: AdminBountiesRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCommunicationsRoute: AdminCommunicationsRoute,
