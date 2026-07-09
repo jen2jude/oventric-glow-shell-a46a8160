@@ -163,7 +163,7 @@ export function DiscoveryPanel() {
   const hasListings = listings.length > 0;
 
   return (
-    <aside className="hidden lg:flex lg:w-[38%] flex-col gap-4 sticky top-20 h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6">
+    <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable]">
       {/* Widget A: Top Peers */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={loading}>
         <div className="flex items-center justify-between mb-3">
