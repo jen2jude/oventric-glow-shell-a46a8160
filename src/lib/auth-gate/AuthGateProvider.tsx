@@ -555,7 +555,33 @@ function AuthGateModal({
               </p>
             </header>
 
+            {linkError && stage === "email" && (
+              <div
+                role="alert"
+                aria-live="assertive"
+                className="mb-5 rounded-lg border border-red-500/50 bg-red-500/10 p-3 flex items-start gap-2.5"
+              >
+                <AlertTriangle className="w-4 h-4 text-red-400 shrink-0 mt-0.5" aria-hidden />
+                <div className="flex-1 min-w-0">
+                  <p className="text-[12px] font-bold text-red-300 leading-snug">
+                    Sign-in link failed
+                  </p>
+                  <p className="text-[11px] text-red-200/80 mt-0.5 leading-relaxed">
+                    {linkError}
+                  </p>
+                  <button
+                    type="button"
+                    onClick={onClearLinkError}
+                    className="mt-2 inline-flex items-center gap-1 text-[11px] font-bold uppercase tracking-wide text-emerald-300 hover:text-emerald-200"
+                  >
+                    <RotateCw className="w-3 h-3" /> Dismiss & try again
+                  </button>
+                </div>
+              </div>
+            )}
+
             {stage === "email" && (
+
               <div
                 role="tablist"
                 aria-label="Account access"
