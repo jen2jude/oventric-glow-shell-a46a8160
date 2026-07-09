@@ -30,6 +30,8 @@ interface FormState {
   vendor: string;
   external_url: string;
   promoted: boolean;
+  cover_path: string | null;
+  cover_preview: string | null;
 }
 
 const emptyForm: FormState = {
@@ -40,6 +42,8 @@ const emptyForm: FormState = {
   vendor: "",
   external_url: "",
   promoted: false,
+  cover_path: null,
+  cover_preview: null,
 };
 
 function ProductsPage() {
