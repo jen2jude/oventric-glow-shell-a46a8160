@@ -463,12 +463,19 @@ export function Feed() {
     reserveTempId(key, tempId);
     setCommentPosting((p) => ({ ...p, [tempId]: true }));
     setCommentError(null);
-    // Mark as pending (clear any prior failed state)
+    // Mark as pending (clear any prior failed state) and bump createdAt so a
+    // retried comment moves to the tail — matching where the server will
+    // eventually place it after reconciliation.
+    const attemptTs = new Date().toISOString();
     setCommentsByPost((prev) => {
       const arr = prev[postId] ?? [];
       return {
         ...prev,
-        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending", errorMessage: undefined } : c)),
+        [postId]: sortComments(
+          arr.map((c) =>
+            c.id === tempId ? { ...c, status: "pending", errorMessage: undefined, createdAt: attemptTs } : c,
+          ),
+        ),
       };
     });
     try {
@@ -488,9 +495,9 @@ export function Feed() {
           const arr = prev[postId];
           if (!arr) return prev;
           if (arr.some((c) => c.id === real.id)) {
-            return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+            return { ...prev, [postId]: sortComments(arr.filter((c) => c.id !== tempId)) };
           }
-          return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+          return { ...prev, [postId]: sortComments(arr.map((c) => (c.id === tempId ? real : c))) };
         });
       }
     } catch (e) {
