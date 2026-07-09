@@ -232,6 +232,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     hue?: string;
     external_url?: string | null;
     cover_path?: string | null;
+    file_path?: string | null;
     promoted?: boolean;
   }) => i)
   .handler(async ({ data, context }) => {
