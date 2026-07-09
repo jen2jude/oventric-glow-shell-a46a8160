@@ -804,7 +804,10 @@ export function Feed() {
                           >
                             {c.initials}
                           </Link>
-                          <div className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${c.status === "failed" ? "border-red-500/40" : "border-white/5"}`}>
+                          <div className={`group flex-1 border rounded-lg px-3 py-2 ${c.status === "failed" ? "bg-red-500/10 border-red-500/60 ring-1 ring-red-500/30" : "bg-black/30 border-white/5"}`}>
+                            {c.status === "failed" && (
+                              <span className="absolute -mt-4 -ml-1 inline-block w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden />
+                            )}
                             <div className="flex items-center gap-2">
                               <Link
                                 to="/profile/$id"
