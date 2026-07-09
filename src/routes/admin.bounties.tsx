@@ -77,6 +77,50 @@ function BountiesAdminPage() {
   const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<"newest" | "oldest" | "status" | "deadline" | "price_high" | "price_low">("newest");
+
+  const filteredRows = useMemo(() => {
+    if (!rows) return null;
+    const q = query.trim().toLowerCase();
+    const statusOrder: Record<string, number> = { active: 0, paused: 1, draft: 2, closed: 3 };
+    const getTime = (v: unknown) => {
+      const t = v ? new Date(v as string).getTime() : NaN;
+      return Number.isNaN(t) ? 0 : t;
+    };
+    const filtered = rows.filter((b) => {
+      if (categoryFilter !== "all" && (b.category as string) !== categoryFilter) return false;
+      if (statusFilter !== "all" && (b.status as string) !== statusFilter) return false;
+      if (!q) return true;
+      const hay = `${(b.title as string) ?? ""} ${(b.description as string) ?? ""} ${(b.category as string) ?? ""}`.toLowerCase();
+      return hay.includes(q);
+    });
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortKey) {
+        case "oldest":
+          return getTime(a.created_at) - getTime(b.created_at);
+        case "status": {
+          const sa = statusOrder[(a.status as string) ?? ""] ?? 99;
+          const sb = statusOrder[(b.status as string) ?? ""] ?? 99;
+          if (sa !== sb) return sa - sb;
+          return getTime(b.created_at) - getTime(a.created_at);
+        }
+        case "deadline":
+          return (getTime(a.deadline_at) || Infinity) - (getTime(b.deadline_at) || Infinity);
+        case "price_high":
+          return Number(b.price_usd ?? 0) - Number(a.price_usd ?? 0);
+        case "price_low":
+          return Number(a.price_usd ?? 0) - Number(b.price_usd ?? 0);
+        case "newest":
+        default:
+          return getTime(b.created_at) - getTime(a.created_at);
+      }
+    });
+    return sorted;
+  }, [rows, query, categoryFilter, statusFilter, sortKey]);
+
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
   }, [listFn]);
