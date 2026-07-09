@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X, Upload, Link2, Loader2, CheckCircle2 } from "lucide-react";
+import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
