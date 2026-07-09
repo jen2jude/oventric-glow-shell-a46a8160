@@ -73,13 +73,27 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
     setSubmitting(true);
     try {
+      const { data: userData, error: uErr } = await supabase.auth.getUser();
+      if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
+      const uid = userData.user.id;
+
+      let coverPath: string | null = null;
+      if (cover) {
+        setProgress("Uploading cover image...");
+        const safe = cover.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${uid}/${Date.now()}-${safe}`;
+        const { error: cErr } = await supabase.storage
+          .from("product-covers")
+          .upload(path, cover, { contentType: cover.type || undefined, upsert: false });
+        if (cErr) throw new Error(cErr.message);
+        coverPath = path;
+      }
+
       let filePath: string | null = null;
       if (mode === "file" && file) {
         setProgress("Uploading asset...");
-        const { data: userData, error: uErr } = await supabase.auth.getUser();
-        if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
         const safe = file.name.replace(/[^\w.\-]+/g, "_");
-        const path = `${userData.user.id}/${Date.now()}-${safe}`;
+        const path = `${uid}/${Date.now()}-${safe}`;
         const { error: upErr } = await supabase.storage
           .from("product-files")
           .upload(path, file, { contentType: file.type || undefined, upsert: false });
@@ -96,6 +110,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           vendor: vendor.trim(),
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
+          coverPath,
         },
       });
       toast.success("Asset listed", {
