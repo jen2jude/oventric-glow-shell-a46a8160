@@ -316,15 +316,17 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      // Omit emailRedirectTo so the email is a pure 6-digit code, not a
-      // clickable magic link — users always paste the code in the modal.
+      // Include emailRedirectTo so the email contains a magic link users can
+      // click to auto-verify (the 6-digit code is still included as a fallback).
       const { error } = await supabase.auth.signInWithOtp({
         email: parsedEmail.data,
         options: {
           shouldCreateUser: true,
+          emailRedirectTo: window.location.origin,
           data: username.trim() ? { username: username.trim() } : undefined,
         },
       });
+
       if (error) throw error;
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
@@ -362,8 +364,9 @@ function AuthGateModal({
       }
       const { error } = await supabase.auth.signInWithOtp({
         email: resolvedEmail,
-        options: { shouldCreateUser: false },
+        options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
       });
+
       if (error) {
         const msg = error.message.toLowerCase();
         if (msg.includes("signups not allowed") || msg.includes("not found") || msg.includes("user not found")) {
