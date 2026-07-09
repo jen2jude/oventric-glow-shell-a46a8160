@@ -458,7 +458,7 @@ export function Feed() {
       const arr = prev[postId] ?? [];
       return {
         ...prev,
-        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending" } : c)),
+        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending", errorMessage: undefined } : c)),
       };
     });
     try {
