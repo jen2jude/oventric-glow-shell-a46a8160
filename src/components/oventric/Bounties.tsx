@@ -264,7 +264,7 @@ export function Bounties() {
                 },
               ],
             });
-          })
+          }, "issuer")
         }
       />
     );
