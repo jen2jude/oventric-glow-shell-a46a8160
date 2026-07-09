@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState, useCallback, useRef } from "react";
+import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar } from "lucide-react";
 import { toast } from "sonner";
@@ -76,6 +76,50 @@ function BountiesAdminPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  const [query, setQuery] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState<string>("all");
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [sortKey, setSortKey] = useState<"newest" | "oldest" | "status" | "deadline" | "price_high" | "price_low">("newest");
+
+  const filteredRows = useMemo(() => {
+    if (!rows) return null;
+    const q = query.trim().toLowerCase();
+    const statusOrder: Record<string, number> = { active: 0, paused: 1, draft: 2, closed: 3 };
+    const getTime = (v: unknown) => {
+      const t = v ? new Date(v as string).getTime() : NaN;
+      return Number.isNaN(t) ? 0 : t;
+    };
+    const filtered = rows.filter((b) => {
+      if (categoryFilter !== "all" && (b.category as string) !== categoryFilter) return false;
+      if (statusFilter !== "all" && (b.status as string) !== statusFilter) return false;
+      if (!q) return true;
+      const hay = `${(b.title as string) ?? ""} ${(b.description as string) ?? ""} ${(b.category as string) ?? ""}`.toLowerCase();
+      return hay.includes(q);
+    });
+    const sorted = [...filtered].sort((a, b) => {
+      switch (sortKey) {
+        case "oldest":
+          return getTime(a.created_at) - getTime(b.created_at);
+        case "status": {
+          const sa = statusOrder[(a.status as string) ?? ""] ?? 99;
+          const sb = statusOrder[(b.status as string) ?? ""] ?? 99;
+          if (sa !== sb) return sa - sb;
+          return getTime(b.created_at) - getTime(a.created_at);
+        }
+        case "deadline":
+          return (getTime(a.deadline_at) || Infinity) - (getTime(b.deadline_at) || Infinity);
+        case "price_high":
+          return Number(b.price_usd ?? 0) - Number(a.price_usd ?? 0);
+        case "price_low":
+          return Number(a.price_usd ?? 0) - Number(b.price_usd ?? 0);
+        case "newest":
+        default:
+          return getTime(b.created_at) - getTime(a.created_at);
+      }
+    });
+    return sorted;
+  }, [rows, query, categoryFilter, statusFilter, sortKey]);
 
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
@@ -184,7 +228,10 @@ function BountiesAdminPage() {
           <h1 className="text-white text-2xl font-black flex items-center gap-2">
             <Target className="w-6 h-6 text-emerald-400" /> Bounties
           </h1>
-          <p className="text-sm text-slate-400">{rows?.length ?? 0} bounties · admin can edit any, including user-posted ones</p>
+          <p className="text-sm text-slate-400">
+            {filteredRows?.length ?? 0}
+            {rows && filteredRows && filteredRows.length !== rows.length ? ` of ${rows.length}` : ""} bounties · admin can edit any, including user-posted ones
+          </p>
         </div>
         <button
           onClick={openCreate}
@@ -194,13 +241,56 @@ function BountiesAdminPage() {
         </button>
       </header>
 
+      <div className="mb-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2">
+        <input
+          value={query}
+          onChange={(e) => setQuery(e.target.value)}
+          placeholder="Search title, description, category…"
+          className={inputCls}
+          aria-label="Search bounties"
+        />
+        <select
+          value={categoryFilter}
+          onChange={(e) => setCategoryFilter(e.target.value)}
+          className={inputCls}
+          aria-label="Filter by category"
+        >
+          <option value="all">All categories</option>
+          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+        </select>
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          className={inputCls}
+          aria-label="Filter by status"
+        >
+          <option value="all">All statuses</option>
+          {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
+        </select>
+        <select
+          value={sortKey}
+          onChange={(e) => setSortKey(e.target.value as typeof sortKey)}
+          className={inputCls}
+          aria-label="Sort bounties"
+        >
+          <option value="newest">Newest first</option>
+          <option value="oldest">Oldest first</option>
+          <option value="status">Status (active → closed)</option>
+          <option value="deadline">Deadline (soonest)</option>
+          <option value="price_high">Escrow (high → low)</option>
+          <option value="price_low">Escrow (low → high)</option>
+        </select>
+      </div>
+
       {!rows ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" />
       ) : rows.length === 0 ? (
         <p className="text-sm text-slate-500 text-center mt-10">No bounties yet. Publish the first one.</p>
+      ) : filteredRows && filteredRows.length === 0 ? (
+        <p className="text-sm text-slate-500 text-center mt-10">No bounties match your filters.</p>
       ) : (
         <div className="grid gap-3">
-          {rows.map((b) => {
+          {(filteredRows ?? []).map((b) => {
             const id = b.id as string;
             const status = b.status as string;
             const statusColor =
