@@ -425,7 +425,7 @@ function AuthGateModal({
             <button
               type="button"
               onClick={onClose}
-              disabled={verifying}
+              disabled={verifying || verified}
               className="absolute top-3 right-3 p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 disabled:opacity-40"
               aria-label="Close"
             >
