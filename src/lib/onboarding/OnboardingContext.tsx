@@ -51,17 +51,25 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [openStage, setOpenStage] = useState<Stage | null>(null);
   const [pending, setPending] = useState<{ minTier: Tier; cb?: () => void } | null>(null);
 
+  const { ensureUserAuthenticated } = useAuthGate();
+
   const require = useCallback(
-    (minTier: Tier, onSuccess?: () => void) => {
-      if (state.tier >= minTier) {
-        onSuccess?.();
-        return;
-      }
-      const nextStage = (state.tier + 1) as Stage;
-      setPending({ minTier, cb: onSuccess });
-      setOpenStage(nextStage);
+    (minTier: Tier, onSuccess?: () => void, authContext: AuthGateContextKey = "generic") => {
+      // Global auth gate always fires first. If the user is already signed in
+      // this resolves synchronously and we fall straight through to the tier
+      // ladder; otherwise the OTP modal opens and the pending callback
+      // re-enters this branch after SIGNED_IN.
+      ensureUserAuthenticated(() => {
+        if (state.tier >= minTier) {
+          onSuccess?.();
+          return;
+        }
+        const nextStage = (state.tier + 1) as Stage;
+        setPending({ minTier, cb: onSuccess });
+        setOpenStage(nextStage);
+      }, authContext);
     },
-    [state.tier],
+    [state.tier, ensureUserAuthenticated],
   );
 
   const advanceTo = useCallback(
