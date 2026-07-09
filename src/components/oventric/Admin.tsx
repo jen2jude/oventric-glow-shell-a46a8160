@@ -84,6 +84,7 @@ export function Admin() {
 // ----------------------------- 1. Marketplace Supply Forge -----------------------------
 
 function MarketplaceForge() {
+  const persistProduct = useServerFn(createProduct);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<AdminCategory>("themes");
   const [version, setVersion] = useState("");
