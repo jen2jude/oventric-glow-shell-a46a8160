@@ -87,7 +87,20 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <MessageCircle className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
         </button>
-        <ProfileDropdown />
+        {isAuthenticated ? (
+          <ProfileDropdown />
+        ) : (
+          <button
+            type="button"
+            onClick={() => openGate("generic")}
+            className="rgb-pulse-glow inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#121214] border border-emerald-500/50 text-white font-bold text-xs sm:text-sm hover:border-emerald-400 transition-colors"
+            aria-label="Connect account"
+          >
+            <KeyRound className="w-3.5 h-3.5 text-emerald-300" />
+            <span className="hidden sm:inline">Connect Account</span>
+            <span className="sm:hidden">Connect</span>
+          </button>
+        )}
       </div>
 
       <NotificationsDrawer
