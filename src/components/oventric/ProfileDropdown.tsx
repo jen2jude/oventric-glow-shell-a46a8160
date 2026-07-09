@@ -270,15 +270,30 @@ export function ProfileDropdown() {
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-2">
-        {(["USD", "NGN", "GHS"] as Currency[]).map((c) => (
-          <div key={c} className="rounded-lg bg-[#121214] border border-white/5 px-2 py-2 text-center">
-            <div className="text-[9px] font-bold uppercase tracking-widest text-slate-500">{c}</div>
-            <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-white"}`}>
-              {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[c]}${fmtBalance(balances[c], c)}`}
-            </div>
-          </div>
-        ))}
+      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Base currency">
+        {(["USD", "NGN", "GHS"] as Currency[]).map((c) => {
+          const active = baseCurrency === c;
+          return (
+            <button
+              key={c}
+              type="button"
+              role="radio"
+              aria-checked={active}
+              onClick={() => setBaseCurrency(c)}
+              className={`rounded-lg px-2 py-2 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                active
+                  ? "bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(16,185,129,0.9)]"
+                  : "bg-[#121214] border border-white/5 hover:border-white/20"
+              }`}
+              title={active ? `${c} is your active currency` : `Switch prices to ${c}`}
+            >
+              <div className={`text-[9px] font-bold uppercase tracking-widest ${active ? "text-emerald-300" : "text-slate-500"}`}>{c}{active ? " · Active" : ""}</div>
+              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : active ? "text-emerald-100" : "text-white"}`}>
+                {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[c]}${fmtBalance(balances[c], c)}`}
+              </div>
+            </button>
+          );
+        })}
       </div>
     </div>
   );
