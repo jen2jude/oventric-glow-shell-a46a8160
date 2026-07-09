@@ -173,17 +173,6 @@ export const setProductPromoted = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     await writeAudit(sb, context.userId, `product.${data.promoted ? "promote" : "unpromote"}`, "product", data.id);
     return { ok: true };
-export const setProductPromoted = createServerFn({ method: "POST" })
-  .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id: string; promoted: boolean }) => i)
-  .handler(async ({ data, context }) => {
-    await assertAdmin(context);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
-    const { error } = await sb.from("products").update({ promoted: data.promoted }).eq("id", data.id);
-    if (error) throw new Error(error.message);
-    await writeAudit(sb, context.userId, `product.${data.promoted ? "promote" : "unpromote"}`, "product", data.id);
-    return { ok: true };
   });
 
 /** Admin creates a marketplace product. Ownership defaults to the admin unless overridden. */
