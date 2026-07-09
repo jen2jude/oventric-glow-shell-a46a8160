@@ -33,8 +33,12 @@ function Index() {
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [active, setActive] = useState("Feed");
   const { require } = useOnboarding();
+  const { ensureFullName } = useFullNameGate();
 
-  const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
+  // Create flow: (1) auth-gate for anonymous visitors, (2) require full name
+  // on the profile, then (3) open the create panel.
+  const handleCreate = () =>
+    require(1, () => ensureFullName(() => setCreateOpen(true)), "seller");
 
   useEffect(() => {
     const onNav = (e: Event) => {
