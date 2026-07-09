@@ -44,7 +44,7 @@ function ProductsPage() {
                   <div className="text-xs text-slate-500 mt-0.5">{p.category as string} · ${Number(p.price_usd).toFixed(2)} · by {(p.vendor as string) ?? "—"}</div>
                 </div>
                 <button
-                  onClick={async () => { setBusy(id); await promFn({ data: { productId: id, promoted: !(p.promoted as boolean) } }); refresh(); setBusy(null); }}
+                  onClick={async () => { setBusy(id); await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); setBusy(null); }}
                   disabled={busy === id}
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
                   aria-label="Toggle promoted"
@@ -54,7 +54,7 @@ function ProductsPage() {
                 <button
                   onClick={async () => {
                     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
-                    setBusy(id); await delFn({ data: { productId: id } }); refresh(); setBusy(null);
+                    setBusy(id); await delFn({ data: { id } }); refresh(); setBusy(null);
                   }}
                   disabled={busy === id}
                   className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
