@@ -75,6 +75,7 @@ function AdminReportsPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [busyId, setBusyId] = useState<string | null>(null);
+  const [expandedId, setExpandedId] = useState<string | null>(null);
   const [session, setSession] = useState<boolean | null>(null);
 
   useEffect(() => {
