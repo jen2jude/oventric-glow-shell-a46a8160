@@ -1,13 +1,22 @@
 import { Link } from "@tanstack/react-router";
-import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle, Check } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
-const peers = [
+type Peer = { id: string; name: string; initials: string; stars: number; gradient: string; inCircle: boolean };
+
+const INITIAL_PEERS: Peer[] = [
   { id: "aria-kessler", name: "Aria Kessler", initials: "AK", stars: 4.9, gradient: "from-purple-500 to-pink-500", inCircle: false },
   { id: "marco-tenreiro", name: "Marco Tenreiro", initials: "MT", stars: 4.7, gradient: "from-orange-400 to-red-500", inCircle: true },
   { id: "lena-osei", name: "Lena Osei", initials: "LO", stars: 4.8, gradient: "from-emerald-400 to-teal-500", inCircle: false },
   { id: "davin-park", name: "Davin Park", initials: "DP", stars: 4.6, gradient: "from-sky-400 to-indigo-500", inCircle: false },
 ];
+
+export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
+  if (typeof window === "undefined") return;
+  window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
+}
 
 const bounties = [
   { id: "b1", title: "Build a pgvector migration tool", amountUsd: 900, escrow: true },
