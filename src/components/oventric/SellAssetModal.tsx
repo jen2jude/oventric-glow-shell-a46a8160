@@ -183,6 +183,34 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           </label>
 
           <div>
+            <span className="text-xs font-medium text-slate-300">Product image</span>
+            <p className="text-[11px] text-slate-500 mt-0.5">Displayed as the cover on marketplace cards and the product page. PNG/JPG, up to 5MB.</p>
+            <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60 transition-colors">
+              <input type="file" accept="image/png,image/jpeg,image/webp,image/gif,image/svg+xml" className="hidden"
+                onChange={(e) => handleCover(e.target.files?.[0] ?? null)} />
+              {coverPreview ? (
+                <>
+                  <img src={coverPreview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10" />
+                  <div className="text-xs text-slate-300 flex-1 min-w-0">
+                    <div className="font-medium truncate">{cover?.name}</div>
+                    <div className="text-slate-500 mt-0.5">{cover ? (cover.size / (1024 * 1024)).toFixed(2) : 0} MB — click to replace</div>
+                  </div>
+                  <button type="button" onClick={(e) => { e.preventDefault(); handleCover(null); }}
+                    className="text-[11px] text-slate-400 hover:text-red-400 underline">Remove</button>
+                </>
+              ) : (
+                <>
+                  <div className="w-20 h-20 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
+                    <ImagePlus className="w-6 h-6" />
+                  </div>
+                  <div className="text-xs text-slate-400">Click to upload a product cover image (recommended 4:3).</div>
+                </>
+              )}
+            </label>
+          </div>
+
+
+          <div>
             <span className="text-xs font-medium text-slate-300">Delivery</span>
             <div className="mt-1 grid grid-cols-2 gap-2">
               <button type="button" onClick={() => setMode("file")}
