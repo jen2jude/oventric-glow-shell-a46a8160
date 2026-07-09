@@ -59,7 +59,7 @@ function serverPublicClient() {
   });
 }
 
-function mapProduct(r: Record<string, unknown>): ProductDTO {
+function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null): ProductDTO {
   return {
     id: r.id as string,
     sellerId: r.seller_id as string,
@@ -74,21 +74,39 @@ function mapProduct(r: Record<string, unknown>): ProductDTO {
     promoted: Boolean(r.promoted),
     externalUrl: (r.external_url as string) ?? null,
     filePath: (r.file_path as string) ?? null,
+    coverPath: (r.cover_path as string) ?? null,
+    coverUrl,
     createdAt: r.created_at as string,
   };
 }
+
+async function signCovers(
+  sb: ReturnType<typeof serverPublicClient>,
+  paths: (string | null)[],
+): Promise<(string | null)[]> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  if (unique.length === 0) return paths.map(() => null);
+  const { data } = await sb.storage.from("product-covers").createSignedUrls(unique, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+  return paths.map((p) => (p ? map.get(p) ?? null : null));
+}
+
+const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
 
 /** Public catalog. Anyone (including anon) can list. */
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublicClient();
   const { data, error } = await sb
     .from("products")
-    .select("id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at")
+    .select(PRODUCT_COLS)
     .order("promoted", { ascending: false })
     .order("created_at", { ascending: false })
     .limit(200);
   if (error) throw new Error(error.message);
-  return (data ?? []).map(mapProduct);
+  const rows = data ?? [];
+  const urls = await signCovers(sb, rows.map((r) => (r.cover_path as string) ?? null));
+  return rows.map((r, i) => mapProduct(r as Record<string, unknown>, urls[i]));
 });
 
 /** Public product detail. */
@@ -99,12 +117,13 @@ export const getProduct = createServerFn({ method: "POST" })
     const sb = serverPublicClient();
     const { data: row, error } = await sb
       .from("products")
-      .select("id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at")
+      .select(PRODUCT_COLS)
       .eq("id", data.id)
       .maybeSingle();
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Product not found");
-    return mapProduct(row as Record<string, unknown>);
+    const [url] = await signCovers(sb, [(row.cover_path as string) ?? null]);
+    return mapProduct(row as Record<string, unknown>, url);
   });
 
 /** Authenticated seller creates a product (used by Admin Forge). */
@@ -119,6 +138,7 @@ export const createProduct = createServerFn({ method: "POST" })
     hue?: string;
     externalUrl?: string | null;
     filePath?: string | null;
+    coverPath?: string | null;
   }) => ({
     name: String(input.name ?? "").trim(),
     category: input.category,
@@ -128,6 +148,7 @@ export const createProduct = createServerFn({ method: "POST" })
     hue: input.hue ?? "from-emerald-500 to-teal-700",
     externalUrl: input.externalUrl ?? null,
     filePath: input.filePath ?? null,
+    coverPath: input.coverPath ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
@@ -145,13 +166,22 @@ export const createProduct = createServerFn({ method: "POST" })
         hue: data.hue,
         external_url: data.externalUrl,
         file_path: data.filePath,
+        cover_path: data.coverPath,
         promoted: true,
       })
       .select()
       .single();
     if (error) throw new Error(error.message);
-    return mapProduct(row as Record<string, unknown>);
+    let coverUrl: string | null = null;
+    if (data.coverPath) {
+      const { data: signed } = await context.supabase.storage
+        .from("product-covers")
+        .createSignedUrl(data.coverPath, 60 * 60 * 24 * 7);
+      coverUrl = signed?.signedUrl ?? null;
+    }
+    return mapProduct(row as Record<string, unknown>, coverUrl);
   });
+
 
 
 /** Wallet top-up (mock card/bank/momo processing). Credits the user's wallet in USD equivalent. */
