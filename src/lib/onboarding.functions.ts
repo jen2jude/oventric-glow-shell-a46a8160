@@ -114,3 +114,89 @@ export const updateFullName = createServerFn({ method: "POST" })
     }
     return { ok: true, fullName: data.fullName };
   });
+
+const CompleteProfileInput = z.object({
+  fullName: z.string().trim().min(2).max(80),
+  country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
+});
+
+/**
+ * Marks the user's profile as complete after they've entered name, country,
+ * and set a password (password is set client-side via supabase.auth.updateUser).
+ */
+export const completeProfile = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => CompleteProfileInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        display_name: data.fullName,
+        country: data.country,
+        profile_completed_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+    if (error) {
+      console.error("[completeProfile] update failed", error);
+      throw new Error("Failed to save profile");
+    }
+    return { ok: true };
+  });
+
+/**
+ * Reads the current user's profile-completion + kyc status. Used by gates to
+ * decide whether to show the setup / kyc modals.
+ */
+export const getOnboardingStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("display_name, country, phone, profile_completed_at, kyc_completed_at, kyc_selfie_path")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) {
+      console.error("[getOnboardingStatus] read failed", error);
+      throw new Error("Failed to read profile status");
+    }
+    return {
+      profileCompleted: !!data?.profile_completed_at,
+      kycCompleted: !!data?.kyc_completed_at,
+      displayName: data?.display_name ?? null,
+      country: data?.country ?? null,
+      phone: data?.phone ?? null,
+      kycSelfiePath: data?.kyc_selfie_path ?? null,
+    };
+  });
+
+const SaveKycInput = z.object({
+  phone: z.string().trim().min(6).max(24),
+  selfiePath: z.string().trim().min(1).max(400),
+});
+
+/**
+ * Persists the KYC selfie path + phone number and marks kyc_completed_at.
+ * The selfie itself is uploaded from the browser to the private
+ * `kyc-selfies` bucket (path pattern: `<user_id>/<timestamp>.jpg`).
+ */
+export const saveKyc = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => SaveKycInput.parse(input))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        phone: data.phone,
+        kyc_selfie_path: data.selfiePath,
+        kyc_completed_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId);
+    if (error) {
+      console.error("[saveKyc] update failed", error);
+      throw new Error("Failed to save KYC");
+    }
+    return { ok: true };
+  });

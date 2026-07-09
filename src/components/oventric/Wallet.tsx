@@ -26,6 +26,7 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions } from "@/lib/wallet.functions";
+import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
@@ -97,6 +98,7 @@ function fmtTs(iso: string) {
 
 export function Wallet() {
   const { balances, balancesHidden: hide, toggleBalancesHidden, require } = useOnboarding();
+  const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -257,7 +259,7 @@ export function Wallet() {
       {/* 2. Ingestion & Extraction */}
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
-          onClick={() => require(1, () => setAddOpen(true), "funding")}
+          onClick={() => require(1, () => ensureKyc(() => setAddOpen(true)), "funding")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
@@ -271,7 +273,7 @@ export function Wallet() {
           </div>
         </button>
         <button
-          onClick={() => require(1, () => setPayoutOpen(true), "withdraw")}
+          onClick={() => require(1, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
