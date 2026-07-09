@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions } from "@/lib/wallet.functions";
+import { listWalletTransactions, getWalletBalances } from "@/lib/wallet.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
