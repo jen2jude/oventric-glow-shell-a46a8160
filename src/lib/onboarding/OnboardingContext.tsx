@@ -20,6 +20,8 @@ interface OnboardingState {
   baseCurrency: Currency;
   payoutBank: PayoutBank;
   balances: Record<Currency, number>;
+  escrow: Record<Currency, number>;
+  cashback: number;
   balancesHidden: boolean;
 }
 
@@ -30,6 +32,7 @@ interface OnboardingContextValue extends OnboardingState {
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
+  setBalances: (balances: Record<Currency, number>, escrow?: Record<Currency, number>, cashback?: number) => void;
   setBalancesHidden: (hidden: boolean) => void;
   toggleBalancesHidden: () => void;
 }
@@ -45,7 +48,9 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     phone: "",
     baseCurrency: "USD",
     payoutBank: null,
-    balances: { USD: 1284.5, NGN: 452000, GHS: 3120 },
+    balances: { USD: 0, NGN: 0, GHS: 0 },
+    escrow: { USD: 0, NGN: 0, GHS: 0 },
+    cashback: 0,
     balancesHidden: false,
   });
   const [openStage, setOpenStage] = useState<Stage | null>(null);
@@ -99,6 +104,16 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
     [],
   );
+  const setBalances = useCallback(
+    (balances: Record<Currency, number>, escrow?: Record<Currency, number>, cashback?: number) =>
+      setState((s) => ({
+        ...s,
+        balances,
+        escrow: escrow ?? s.escrow,
+        cashback: cashback ?? s.cashback,
+      })),
+    [],
+  );
   const setBalancesHidden = useCallback(
     (hidden: boolean) => setState((s) => ({ ...s, balancesHidden: hidden })),
     [],
@@ -120,10 +135,11 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       advanceTo,
       setBaseCurrency,
       updateBalance,
+      setBalances,
       setBalancesHidden,
       toggleBalancesHidden,
     }),
-    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalancesHidden, toggleBalancesHidden],
+    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalances, setBalancesHidden, toggleBalancesHidden],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;

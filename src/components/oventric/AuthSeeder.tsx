@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
+import { getWalletBalances } from "@/lib/wallet.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
@@ -15,18 +17,37 @@ import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
  */
 export function AuthSeeder() {
   const seedNewUser = useServerFn(seedNewUserFn);
+  const fetchBalances = useServerFn(getWalletBalances);
+  const { setBalances } = useOnboarding();
   const seededFor = useRef<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
 
+    const refreshBalances = async () => {
+      try {
+        const b = await fetchBalances();
+        if (!cancelled) setBalances(b.balances, b.escrow, b.cashback);
+      } catch (err) {
+        console.error("[AuthSeeder] balances fetch failed", err);
+      }
+    };
+
     const seed = async (userId: string | undefined) => {
-      if (!userId || seededFor.current === userId) return;
+      if (!userId) {
+        // Signed out: zero the ambient balances.
+        setBalances({ USD: 0, NGN: 0, GHS: 0 }, { USD: 0, NGN: 0, GHS: 0 }, 0);
+        return;
+      }
+      if (seededFor.current === userId) {
+        void refreshBalances();
+        return;
+      }
       seededFor.current = userId;
       try {
         await seedNewUser({ data: {} });
+        await refreshBalances();
       } catch (err) {
-        // Non-blocking: seeding is idempotent and can retry next session.
         console.error("[AuthSeeder] seed failed", err);
         if (!cancelled) seededFor.current = null;
       }
@@ -40,14 +61,34 @@ export function AuthSeeder() {
     // Fresh sign-ins only. Skip TOKEN_REFRESHED / INITIAL_SESSION churn.
     const { data: sub } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === "SIGNED_IN") seed(session?.user?.id);
-      if (event === "SIGNED_OUT") seededFor.current = null;
+      if (event === "SIGNED_OUT") {
+        seededFor.current = null;
+        setBalances({ USD: 0, NGN: 0, GHS: 0 }, { USD: 0, NGN: 0, GHS: 0 }, 0);
+      }
+    });
+
+    // Subscribe to wallet balance changes for the signed-in user.
+    let walletChannel: ReturnType<typeof supabase.channel> | null = null;
+    supabase.auth.getSession().then(({ data }) => {
+      const uid = data.session?.user?.id;
+      if (!uid || cancelled) return;
+      walletChannel = supabase
+        .channel(`wallets-root-${uid}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
+          () => void refreshBalances(),
+        )
+        .subscribe();
     });
 
     return () => {
       cancelled = true;
       sub.subscription.unsubscribe();
+      if (walletChannel) supabase.removeChannel(walletChannel);
     };
-  }, [seedNewUser]);
+  }, [seedNewUser, fetchBalances, setBalances]);
 
   return null;
 }
+

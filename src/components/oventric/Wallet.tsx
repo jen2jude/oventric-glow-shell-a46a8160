@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions } from "@/lib/wallet.functions";
+import { listWalletTransactions, getWalletBalances } from "@/lib/wallet.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
@@ -97,7 +97,7 @@ function fmtTs(iso: string) {
 }
 
 export function Wallet() {
-  const { balances, balancesHidden: hide, toggleBalancesHidden, require } = useOnboarding();
+  const { balances, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances } = useOnboarding();
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
@@ -108,8 +108,6 @@ export function Wallet() {
   const [spend, setSpend] = useState(2500);
   const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
-
-  const cashback = 218.42;
 
   useEffect(() => {
     let alive = true;
@@ -145,6 +143,18 @@ export function Wallet() {
     staleTime: 15_000,
   });
 
+  const fetchBalances = useServerFn(getWalletBalances);
+  const balancesQuery = useQuery({
+    queryKey: ["wallet-balances", userId],
+    enabled: authReady && !!userId,
+    queryFn: () => fetchBalances(),
+    staleTime: 15_000,
+  });
+  useEffect(() => {
+    const d = balancesQuery.data;
+    if (d) setBalances(d.balances, d.escrow, d.cashback);
+  }, [balancesQuery.data, setBalances]);
+
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!userId) return;
@@ -164,8 +174,17 @@ export function Wallet() {
         },
       )
       .subscribe();
+    const walletChannel = supabase
+      .channel(`wallets-${userId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
+        () => queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] }),
+      )
+      .subscribe();
     return () => {
       supabase.removeChannel(channel);
+      supabase.removeChannel(walletChannel);
     };
   }, [userId, queryClient]);
 
