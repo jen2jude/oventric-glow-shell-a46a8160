@@ -21,6 +21,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
+import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
@@ -86,6 +87,11 @@ const AdminFeaturesRoute = AdminFeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCommunicationsRoute = AdminCommunicationsRouteImport.update({
+  id: '/communications',
+  path: '/communications',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -130,6 +137,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -149,6 +157,7 @@ export interface FileRoutesById {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -169,6 +178,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/campaigns'
     | '/admin/categories'
+    | '/admin/communications'
     | '/admin/features'
     | '/admin/products'
     | '/admin/reports'
@@ -186,6 +196,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/campaigns'
     | '/admin/categories'
+    | '/admin/communications'
     | '/admin/features'
     | '/admin/products'
     | '/admin/reports'
@@ -204,6 +215,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/campaigns'
     | '/admin/categories'
+    | '/admin/communications'
     | '/admin/features'
     | '/admin/products'
     | '/admin/reports'
@@ -312,6 +324,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeaturesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/communications': {
+      id: '/admin/communications'
+      path: '/communications'
+      fullPath: '/admin/communications'
+      preLoaderRoute: typeof AdminCommunicationsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -347,6 +366,7 @@ interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -359,6 +379,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
