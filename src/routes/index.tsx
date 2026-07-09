@@ -9,7 +9,7 @@ import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
 import { Bounties } from "@/components/oventric/Bounties";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
-import { Admin } from "@/components/oventric/Admin";
+
 import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
@@ -54,7 +54,6 @@ function Index() {
     : active === "Marketplace" ? <Marketplace />
     : active === "Academy" ? <Academy />
     : active === "Bounties" ? <Bounties />
-    : active === "Admin" ? <Admin />
     : active === "Messages" ? <Messages variant="page" />
     : active === "Circles" ? <CirclesHub />
     : <Feed />;
