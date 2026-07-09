@@ -82,3 +82,34 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       pageSize: data.pageSize,
     } satisfies ListWalletTxResult;
   });
+
+export interface WalletBalancesDTO {
+  balances: Record<WalletCurrency, number>;
+  escrow: Record<WalletCurrency, number>;
+  cashback: number;
+}
+
+export const getWalletBalances = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<WalletBalancesDTO> => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("wallets")
+      .select("currency, available_balance, escrow_balance, accumulated_cashback")
+      .eq("user_id", userId);
+    if (error) throw new Error(error.message);
+
+    const balances: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
+    const escrow: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
+    let cashback = 0;
+    for (const r of data ?? []) {
+      const c = r.currency as WalletCurrency;
+      if (c in balances) {
+        balances[c] = Number(r.available_balance ?? 0);
+        escrow[c] = Number(r.escrow_balance ?? 0);
+        cashback += Number(r.accumulated_cashback ?? 0);
+      }
+    }
+    return { balances, escrow, cashback };
+  });
+
