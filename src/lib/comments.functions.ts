@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
+import { createClient } from "@supabase/supabase-js";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { Database } from "@/integrations/supabase/types";
 
 const CreateInput = z.object({
   postId: z.string().uuid(),
@@ -19,13 +21,19 @@ export interface FeedComment {
   created_at: string;
 }
 
+// Public read — no auth required. Uses the anonymous publishable key so RLS
+// still applies (the `public can read comments` policy grants anon SELECT).
 export const listComments = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
     z.object({ postId: z.string().uuid() }).parse(input),
   )
-  .handler(async ({ data, context }) => {
-    const { data: rows, error } = await context.supabase
+  .handler(async ({ data }) => {
+    const sb = createClient<Database>(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { storage: undefined, persistSession: false, autoRefreshToken: false } },
+    );
+    const { data: rows, error } = await sb
       .from("post_comments")
       .select("id, post_id, author_id, author_name, initials, text, created_at")
       .eq("post_id", data.postId)
