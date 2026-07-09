@@ -131,10 +131,13 @@ function RootComponent() {
       <AuthGateProvider>
         <OnboardingProvider>
           <FullNameGateProvider>
-            <AuthSeeder />
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <StageModals />
+            <KycGateProvider>
+              <AuthSeeder />
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <StageModals />
+              <ProfileSetupModalHost />
+            </KycGateProvider>
           </FullNameGateProvider>
         </OnboardingProvider>
       </AuthGateProvider>
