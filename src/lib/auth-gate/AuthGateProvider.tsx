@@ -364,8 +364,9 @@ function AuthGateModal({
       }
       const { error } = await supabase.auth.signInWithOtp({
         email: resolvedEmail,
-        options: { shouldCreateUser: false },
+        options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
       });
+
       if (error) {
         const msg = error.message.toLowerCase();
         if (msg.includes("signups not allowed") || msg.includes("not found") || msg.includes("user not found")) {
