@@ -382,7 +382,7 @@ export function Feed() {
       } finally {
         setPosting(false);
       }
-    });
+    }, "interaction");
   };
 
 
@@ -412,7 +412,7 @@ export function Feed() {
           ),
         );
       }
-    });
+    }, "interaction");
   };
 
   const handleDeletePost = async (id: string) => {
@@ -533,7 +533,7 @@ export function Feed() {
       } finally {
         postingGuardRef.current.delete(postId);
       }
-    });
+    }, "interaction");
   };
 
   const retryComment = (postId: string, tempId: string, text: string) => {
