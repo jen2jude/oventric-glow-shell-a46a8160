@@ -284,6 +284,9 @@ function AuthGateModal({
 
   const [mode, setMode] = useState<Mode>("new");
   const [stage, setStage] = useState<Stage>("email");
+  const [returningMethod, setReturningMethod] = useState<"password" | "otp">("password");
+  const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [identifier, setIdentifier] = useState(""); // returning user: email or username
