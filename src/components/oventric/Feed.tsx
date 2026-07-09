@@ -30,6 +30,7 @@ interface Comment {
   authorId: string;
   initials: string;
   text: string;
+  createdAt: string;
   status?: "pending" | "failed";
   errorMessage?: string;
 }
@@ -42,7 +43,16 @@ function toComment(c: FeedComment): Comment {
     authorId: c.author_id,
     initials: c.initials,
     text: c.text,
+    createdAt: c.created_at,
   };
+}
+
+// Stable sort: by createdAt asc, tiebreak by id so re-renders don't reshuffle.
+function sortComments(list: Comment[]): Comment[] {
+  return list.slice().sort((a, b) => {
+    if (a.createdAt !== b.createdAt) return a.createdAt < b.createdAt ? -1 : 1;
+    return a.id < b.id ? -1 : a.id > b.id ? 1 : 0;
+  });
 }
 
 function timeAgo(iso: string): string {
@@ -233,10 +243,10 @@ export function Feed() {
               if (idx !== -1) {
                 const next = arr.slice();
                 next[idx] = toComment(row);
-                return { ...prev, [row.post_id]: next };
+                return { ...prev, [row.post_id]: sortComments(next) };
               }
             }
-            return { ...prev, [row.post_id]: [...arr, toComment(row)] };
+            return { ...prev, [row.post_id]: sortComments([...arr, toComment(row)]) };
           });
           setPosts((prev) =>
             prev.map((p) =>
@@ -254,7 +264,7 @@ export function Feed() {
           setCommentsByPost((prev) => {
             const arr = prev[row.post_id];
             if (!arr) return prev;
-            return { ...prev, [row.post_id]: arr.map((c) => (c.id === row.id ? toComment(row) : c)) };
+            return { ...prev, [row.post_id]: sortComments(arr.map((c) => (c.id === row.id ? toComment(row) : c))) };
           });
         },
       )
@@ -453,12 +463,19 @@ export function Feed() {
     reserveTempId(key, tempId);
     setCommentPosting((p) => ({ ...p, [tempId]: true }));
     setCommentError(null);
-    // Mark as pending (clear any prior failed state)
+    // Mark as pending (clear any prior failed state) and bump createdAt so a
+    // retried comment moves to the tail — matching where the server will
+    // eventually place it after reconciliation.
+    const attemptTs = new Date().toISOString();
     setCommentsByPost((prev) => {
       const arr = prev[postId] ?? [];
       return {
         ...prev,
-        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending", errorMessage: undefined } : c)),
+        [postId]: sortComments(
+          arr.map((c) =>
+            c.id === tempId ? { ...c, status: "pending", errorMessage: undefined, createdAt: attemptTs } : c,
+          ),
+        ),
       };
     });
     try {
@@ -478,9 +495,9 @@ export function Feed() {
           const arr = prev[postId];
           if (!arr) return prev;
           if (arr.some((c) => c.id === real.id)) {
-            return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
+            return { ...prev, [postId]: sortComments(arr.filter((c) => c.id !== tempId)) };
           }
-          return { ...prev, [postId]: arr.map((c) => (c.id === tempId ? real : c)) };
+          return { ...prev, [postId]: sortComments(arr.map((c) => (c.id === tempId ? real : c))) };
         });
       }
     } catch (e) {
@@ -531,12 +548,13 @@ export function Feed() {
           authorId: meId ?? "me",
           initials: "OV",
           text,
+          createdAt: new Date().toISOString(),
           status: "pending",
         };
         setCommentDrafts((d) => ({ ...d, [postId]: "" }));
         setCommentsByPost((prev) => ({
           ...prev,
-          [postId]: [...(prev[postId] ?? []), optimistic],
+          [postId]: sortComments([...(prev[postId] ?? []), optimistic]),
         }));
         setCommentPosting((p) => ({ ...p, [postId]: true }));
         try {
