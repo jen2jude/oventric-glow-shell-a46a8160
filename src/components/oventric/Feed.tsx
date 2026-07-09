@@ -31,6 +31,7 @@ interface Comment {
   initials: string;
   text: string;
   status?: "pending" | "failed";
+  errorMessage?: string;
 }
 
 function toComment(c: FeedComment): Comment {
@@ -457,7 +458,7 @@ export function Feed() {
       const arr = prev[postId] ?? [];
       return {
         ...prev,
-        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending" } : c)),
+        [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "pending", errorMessage: undefined } : c)),
       };
     });
     try {
@@ -485,14 +486,27 @@ export function Feed() {
     } catch (e) {
       console.error(e);
       unreserveTempId(key, tempId);
+      const raw = e instanceof Error ? e.message : "Unknown error";
+      const lower = raw.toLowerCase();
+      const friendly = lower.includes("unauthorized") || lower.includes("401") || lower.includes("jwt")
+        ? "Your session expired. Sign in again to post this comment."
+        : lower.includes("row-level security") || lower.includes("permission") || lower.includes("403")
+          ? "You don't have permission to post here."
+          : lower.includes("network") || lower.includes("fetch") || lower.includes("failed to fetch")
+            ? "Network hiccup. Check your connection and retry."
+            : lower.includes("rate") || lower.includes("429")
+              ? "You're posting too fast. Wait a moment and retry."
+              : lower.includes("timeout")
+                ? "Server took too long to respond. Retry in a moment."
+                : `Couldn't post: ${raw}`;
       setCommentsByPost((prev) => {
         const arr = prev[postId] ?? [];
         return {
           ...prev,
-          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed" } : c)),
+          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed", errorMessage: friendly } : c)),
         };
       });
-      setCommentError("Couldn't post comment. Retry below.");
+      setCommentError(friendly);
     } finally {
       setCommentPosting((p) => {
         const next = { ...p };
@@ -790,7 +804,10 @@ export function Feed() {
                           >
                             {c.initials}
                           </Link>
-                          <div className={`group flex-1 bg-black/30 border rounded-lg px-3 py-2 ${c.status === "failed" ? "border-red-500/40" : "border-white/5"}`}>
+                          <div className={`group flex-1 border rounded-lg px-3 py-2 ${c.status === "failed" ? "bg-red-500/10 border-red-500/60 ring-1 ring-red-500/30" : "bg-black/30 border-white/5"}`}>
+                            {c.status === "failed" && (
+                              <span className="absolute -mt-4 -ml-1 inline-block w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden />
+                            )}
                             <div className="flex items-center gap-2">
                               <Link
                                 to="/profile/$id"
@@ -861,6 +878,16 @@ export function Feed() {
                             ) : (
                               <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
                                 {c.text}
+                              </div>
+                            )}
+                            {c.status === "failed" && (
+                              <div
+                                role="alert"
+                                aria-live="polite"
+                                className="mt-2 flex items-start gap-1.5 text-[11px] text-red-300 border-l-2 border-red-500 pl-2"
+                              >
+                                <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span className="leading-snug">{c.errorMessage ?? "Couldn't post this comment."}</span>
                               </div>
                             )}
                             {c.status === "failed" && (
