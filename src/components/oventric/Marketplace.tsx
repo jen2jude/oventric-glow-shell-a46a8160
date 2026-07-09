@@ -86,7 +86,7 @@ export function Marketplace() {
   const [fullCategory, setFullCategory] = useState<CategoryKey | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
-  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
+  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
 
   const adminProducts: Product[] = useMemo(
     () =>
@@ -227,7 +227,7 @@ export function Marketplace() {
             {recommended.slice(0, 3).map((p) => (
               <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} full />
             ))}
-            <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"))} />
+            <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"), "solver")} />
             {recommended.slice(3, 7).map((p) => (
               <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={handleBuy} full />
             ))}

@@ -1,9 +1,189 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
+import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
-import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft } from "lucide-react";
+import type { Session } from "@supabase/supabase-js";
+import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X } from "lucide-react";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
+
+// ---------------------------------------------------------------------------
+// Context types
+// ---------------------------------------------------------------------------
+
+export type AuthGateContextKey =
+  | "generic"
+  | "buyer"
+  | "seller"
+  | "solver"
+  | "issuer"
+  | "funding"
+  | "withdraw"
+  | "interaction";
+
+const COPY: Record<AuthGateContextKey, { title: string; subtitle: string }> = {
+  generic: {
+    title: "Connect your account",
+    subtitle: "Sign in with a 6-digit email code to unlock this action.",
+  },
+  buyer: {
+    title: "Secure your access",
+    subtitle:
+      "Verify your profile in 10 seconds to purchase this digital asset and download files.",
+  },
+  seller: {
+    title: "Claim your storefront",
+    subtitle:
+      "Authenticate your email to set up your creator profile and list files for sale.",
+  },
+  solver: {
+    title: "Unlock freelance workspaces",
+    subtitle:
+      "Verify your profile to place a bid on this bounty and secure your escrow payout rules.",
+  },
+  issuer: {
+    title: "Find elite talent",
+    subtitle:
+      "Sign up instantly to fund your escrow vault and publish your project on the global board.",
+  },
+  funding: {
+    title: "Initialize banking ledger",
+    subtitle:
+      "Verify your account securely to process card, bank, or MoMo ingestion deposits.",
+  },
+  withdraw: {
+    title: "Secure currency clearance",
+    subtitle:
+      "Verify your identity profile to authorize capital withdrawals to your localized banking networks.",
+  },
+  interaction: {
+    title: "Join the conversation",
+    subtitle:
+      "Input your email to drop a technical review, provide code feedback, or upvote your peers.",
+  },
+};
+
+interface AuthGateContextValue {
+  isAuthenticated: boolean;
+  session: Session | null;
+  checked: boolean;
+  ensureUserAuthenticated: (
+    actionCallback: () => void | Promise<void>,
+    contextType?: AuthGateContextKey,
+  ) => void;
+  openGate: (contextType?: AuthGateContextKey) => void;
+  closeGate: () => void;
+}
+
+const AuthGateContext = createContext<AuthGateContextValue | null>(null);
+
+export function useAuthGate(): AuthGateContextValue {
+  const ctx = useContext(AuthGateContext);
+  if (!ctx) throw new Error("useAuthGate must be used inside <AuthGateProvider>");
+  return ctx;
+}
+
+// ---------------------------------------------------------------------------
+// Provider
+// ---------------------------------------------------------------------------
+
+export function AuthGateProvider({ children }: { children: ReactNode }) {
+  const [session, setSession] = useState<Session | null>(null);
+  const [checked, setChecked] = useState(false);
+  const [gateOpen, setGateOpen] = useState(false);
+  const [ctxKey, setCtxKey] = useState<AuthGateContextKey>("generic");
+  const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
+
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (!alive) return;
+      setSession(data.session);
+      setChecked(true);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((event, next) => {
+      if (
+        event !== "SIGNED_IN" &&
+        event !== "SIGNED_OUT" &&
+        event !== "USER_UPDATED" &&
+        event !== "INITIAL_SESSION"
+      ) return;
+      setSession(next);
+      setChecked(true);
+      if (event === "SIGNED_IN" && next) {
+        // Post-Auth Auto-Resumption: close overlay, run pending action in-place.
+        setGateOpen(false);
+        const cb = pendingRef.current;
+        pendingRef.current = null;
+        if (cb) {
+          // Defer a tick so React can flush the session-driven re-render
+          // (e.g. Connect button → ProfileDropdown swap) before the resumed
+          // action opens any modal/mutation of its own.
+          setTimeout(() => { void cb(); }, 30);
+        }
+      }
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  const isAuthenticated = !!session;
+
+  const ensureUserAuthenticated = useCallback(
+    (actionCallback: () => void | Promise<void>, contextType: AuthGateContextKey = "generic") => {
+      if (session) {
+        void actionCallback();
+        return;
+      }
+      pendingRef.current = actionCallback;
+      setCtxKey(contextType);
+      setGateOpen(true);
+    },
+    [session],
+  );
+
+  const openGate = useCallback((contextType: AuthGateContextKey = "generic") => {
+    setCtxKey(contextType);
+    setGateOpen(true);
+  }, []);
+
+  const closeGate = useCallback(() => {
+    pendingRef.current = null;
+    setGateOpen(false);
+  }, []);
+
+  const value = useMemo<AuthGateContextValue>(
+    () => ({ isAuthenticated, session, checked, ensureUserAuthenticated, openGate, closeGate }),
+    [isAuthenticated, session, checked, ensureUserAuthenticated, openGate, closeGate],
+  );
+
+  return (
+    <AuthGateContext.Provider value={value}>
+      {children}
+      {gateOpen && (
+        <AuthGateModal
+          contextKey={ctxKey}
+          onClose={closeGate}
+        />
+      )}
+    </AuthGateContext.Provider>
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Modal — the shared OTP flow, portalled at z-[200]
+// ---------------------------------------------------------------------------
 
 const emailSchema = z
   .string()
@@ -24,7 +204,13 @@ const RESEND_SECONDS = 60;
 
 type Stage = "email" | "otp";
 
-export function AuthPanel() {
+function AuthGateModal({
+  contextKey,
+  onClose,
+}: {
+  contextKey: AuthGateContextKey;
+  onClose: () => void;
+}) {
   const [stage, setStage] = useState<Stage>("email");
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -39,20 +225,36 @@ export function AuthPanel() {
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
 
-  // Countdown ticker
+  const copy = COPY[contextKey] ?? COPY.generic;
+
   useEffect(() => {
     if (resendIn <= 0) return;
     const t = window.setInterval(() => setResendIn((s) => (s <= 1 ? 0 : s - 1)), 1000);
     return () => window.clearInterval(t);
   }, [resendIn]);
 
-  // Autofocus first OTP box when stage flips
   useEffect(() => {
     if (stage === "otp") {
       const t = window.setTimeout(() => otpRefs.current[0]?.focus(), 60);
       return () => window.clearTimeout(t);
     }
   }, [stage]);
+
+  // Lock body scroll while gate is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
+  // Escape closes
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && !verifying) onClose();
+    };
+    document.addEventListener("keydown", onKey);
+    return () => document.removeEventListener("keydown", onKey);
+  }, [verifying, onClose]);
 
   const sendCode = useCallback(async () => {
     setEmailError(null);
@@ -86,8 +288,7 @@ export function AuthPanel() {
       setResendIn(RESEND_SECONDS);
       setFlash(`Code sent to ${parsedEmail.data}`);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : "Could not send code";
-      setEmailError(msg);
+      setEmailError(err instanceof Error ? err.message : "Could not send code");
     } finally {
       setSending(false);
     }
@@ -106,26 +307,15 @@ export function AuthPanel() {
         });
         if (error) throw error;
         if (!data.session) throw new Error("Verification succeeded but no session was returned");
-
-        // Seed profile + wallets with the chosen username (best-effort, non-blocking).
         try {
           await seedNewUser({ data: username.trim() ? { username: username.trim() } : {} });
         } catch (seedErr) {
-          console.error("[AuthPanel] seed failed", seedErr);
+          console.error("[AuthGate] seed failed", seedErr);
         }
-
-        // Trigger the immersive rgb-neon transition, then let the root gate
-        // swap in the app shell on the next paint.
-        if (typeof document !== "undefined") {
-          const flashEl = document.createElement("div");
-          flashEl.className = "fixed inset-0 z-[200] rgb-neon-bg pointer-events-none";
-          flashEl.style.animation = "auth-flash 900ms ease-out forwards";
-          document.body.appendChild(flashEl);
-          window.setTimeout(() => flashEl.remove(), 950);
-        }
+        // The provider's onAuthStateChange('SIGNED_IN') closes the modal and
+        // runs the pending action. Nothing else to do here.
       } catch (err) {
-        const msg = err instanceof Error ? err.message : "Invalid or expired code";
-        setOtpError(msg);
+        setOtpError(err instanceof Error ? err.message : "Invalid or expired code");
         setOtpDigits(Array(OTP_LENGTH).fill(""));
         window.setTimeout(() => otpRefs.current[0]?.focus(), 40);
       } finally {
@@ -138,39 +328,25 @@ export function AuthPanel() {
   const setDigit = (idx: number, raw: string) => {
     const clean = raw.replace(/\D/g, "");
     if (!clean) {
-      // Deletion path
-      setOtpDigits((prev) => {
-        const next = [...prev];
-        next[idx] = "";
-        return next;
-      });
+      setOtpDigits((prev) => { const n = [...prev]; n[idx] = ""; return n; });
       return;
     }
     if (clean.length > 1) {
-      // Paste-style input — spread across boxes
       const chars = clean.slice(0, OTP_LENGTH - idx).split("");
       setOtpDigits((prev) => {
-        const next = [...prev];
-        chars.forEach((c, i) => {
-          next[idx + i] = c;
-        });
-        return next;
+        const n = [...prev];
+        chars.forEach((c, i) => { n[idx + i] = c; });
+        return n;
       });
       const nextFocus = Math.min(idx + chars.length, OTP_LENGTH - 1);
       window.setTimeout(() => otpRefs.current[nextFocus]?.focus(), 0);
       const combined = [...otpDigits];
-      chars.forEach((c, i) => {
-        combined[idx + i] = c;
-      });
+      chars.forEach((c, i) => { combined[idx + i] = c; });
       const full = combined.join("");
       if (full.length === OTP_LENGTH && !full.includes("")) void verifyCode(full);
       return;
     }
-    setOtpDigits((prev) => {
-      const next = [...prev];
-      next[idx] = clean;
-      return next;
-    });
+    setOtpDigits((prev) => { const n = [...prev]; n[idx] = clean; return n; });
     if (idx < OTP_LENGTH - 1) {
       window.setTimeout(() => otpRefs.current[idx + 1]?.focus(), 0);
     }
@@ -183,11 +359,7 @@ export function AuthPanel() {
   const onKeyDownDigit = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otpDigits[idx] && idx > 0) {
       e.preventDefault();
-      setOtpDigits((prev) => {
-        const next = [...prev];
-        next[idx - 1] = "";
-        return next;
-      });
+      setOtpDigits((prev) => { const n = [...prev]; n[idx - 1] = ""; return n; });
       otpRefs.current[idx - 1]?.focus();
     } else if (e.key === "ArrowLeft" && idx > 0) {
       otpRefs.current[idx - 1]?.focus();
@@ -199,17 +371,28 @@ export function AuthPanel() {
     }
   };
 
-  return (
-    <div className="relative min-h-dvh w-full bg-[#121214] text-slate-200 flex items-center justify-center px-4 py-10 overflow-hidden">
-      {/* Ambient neon frame */}
-      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-40 rgb-neon-bg" />
-      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-40 rgb-neon-bg" />
-      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-40 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-40 rgb-neon-bg hidden md:block" />
+  if (typeof document === "undefined") return null;
 
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm"
+      role="dialog"
+      aria-modal="true"
+      aria-label={copy.title}
+      onClick={(e) => { if (e.target === e.currentTarget && !verifying) onClose(); }}
+    >
       <div className="relative w-full max-w-md">
         <div className="rgb-neon-bg rounded-2xl p-[1.5px]">
-          <div className="bg-[#1E1E24] rounded-2xl p-6 sm:p-8">
+          <div className="bg-[#1E1E24] rounded-2xl p-6 sm:p-8 relative">
+            <button
+              type="button"
+              onClick={onClose}
+              disabled={verifying}
+              className="absolute top-3 right-3 p-1.5 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 disabled:opacity-40"
+              aria-label="Close"
+            >
+              <X className="w-4 h-4" />
+            </button>
             <header className="text-center mb-6">
               <div className="mx-auto w-12 h-12 rounded-xl rgb-pulse-glow bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
                 {stage === "email" ? (
@@ -219,30 +402,27 @@ export function AuthPanel() {
                 )}
               </div>
               <h1 className="text-white font-black text-xl tracking-tight">
-                {stage === "email" ? "Enter the platform" : "Verify your email"}
+                {stage === "email" ? copy.title : "Verify your email"}
               </h1>
-              <p className="text-[12px] text-slate-500 mt-1">
+              <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
                 {stage === "email"
-                  ? "We'll email a 6-digit code to sign you in or create your account."
+                  ? copy.subtitle
                   : `Enter the 6-digit code sent to ${email || "your inbox"}.`}
               </p>
             </header>
 
             {stage === "email" ? (
               <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  void sendCode();
-                }}
+                onSubmit={(e) => { e.preventDefault(); void sendCode(); }}
                 noValidate
                 className="space-y-4"
               >
                 <div>
-                  <label htmlFor="auth-email" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                  <label htmlFor="gate-email" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
                     Email address
                   </label>
                   <input
-                    id="auth-email"
+                    id="gate-email"
                     type="email"
                     inputMode="email"
                     autoComplete="email"
@@ -251,37 +431,35 @@ export function AuthPanel() {
                     onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
                     placeholder="you@builder.io"
                     aria-invalid={!!emailError}
-                    aria-describedby={emailError ? "auth-email-error" : undefined}
                     className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
                       emailError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
                     }`}
                   />
                   {emailError && (
-                    <p id="auth-email-error" className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                    <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
                       {emailError}
                     </p>
                   )}
                 </div>
 
                 <div>
-                  <label htmlFor="auth-username" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                  <label htmlFor="gate-username" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
                     Username <span className="text-slate-600 font-normal normal-case">(optional — new accounts only)</span>
                   </label>
                   <input
-                    id="auth-username"
+                    id="gate-username"
                     type="text"
                     autoComplete="username"
                     value={username}
                     onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
                     placeholder="sovereign_architect"
                     aria-invalid={!!usernameError}
-                    aria-describedby={usernameError ? "auth-username-error" : undefined}
                     className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
                       usernameError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
                     }`}
                   />
                   {usernameError && (
-                    <p id="auth-username-error" className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                    <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
                       {usernameError}
                     </p>
                   )}
@@ -293,13 +471,9 @@ export function AuthPanel() {
                   className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
                 >
                   {sending ? (
-                    <>
-                      <Loader2 className="w-4 h-4 animate-spin" /> Sending…
-                    </>
+                    <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
                   ) : (
-                    <>
-                      Send Verification Code <ArrowRight className="w-4 h-4" />
-                    </>
+                    <>Send Verification Code <ArrowRight className="w-4 h-4" /></>
                   )}
                 </button>
               </form>
@@ -350,7 +524,7 @@ export function AuthPanel() {
                     type="button"
                     onClick={() => { if (resendIn === 0) void sendCode(); }}
                     disabled={resendIn > 0 || sending}
-                    className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 disabled:hover:text-slate-500 min-h-11 px-1"
+                    className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${sending ? "animate-spin" : ""}`} />
                     {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend Code"}
@@ -362,14 +536,10 @@ export function AuthPanel() {
             {flash && stage === "otp" && (
               <p className="mt-4 text-[11px] text-emerald-400 text-center">{flash}</p>
             )}
-
-            <p className="mt-6 text-center text-[10px] text-slate-600 leading-relaxed">
-              By continuing you agree to Oventric's platform terms. Sessions persist
-              on this device — you won't need to re-verify on refresh.
-            </p>
           </div>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }

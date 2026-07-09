@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, MessageCircle, Menu } from "lucide-react";
+import { Search, Bell, MessageCircle, Menu, KeyRound } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -8,6 +8,7 @@ import {
   SEED_NOTIFICATIONS,
   type Notif,
 } from "@/components/oventric/NotificationsDrawer";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
 
@@ -15,6 +16,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
   const [notifOpen, setNotifOpen] = useState(false);
   const [notifs, setNotifs] = useState<Notif[]>(SEED_NOTIFICATIONS);
   const unread = notifs.some((n) => !n.read);
+  const { isAuthenticated, openGate } = useAuthGate();
 
   return (
     <header className="sticky top-0 z-40 h-16 w-full bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
@@ -85,7 +87,20 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <MessageCircle className="w-5 h-5" />
           <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
         </button>
-        <ProfileDropdown />
+        {isAuthenticated ? (
+          <ProfileDropdown />
+        ) : (
+          <button
+            type="button"
+            onClick={() => openGate("generic")}
+            className="rgb-pulse-glow inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#121214] border border-emerald-500/50 text-white font-bold text-xs sm:text-sm hover:border-emerald-400 transition-colors"
+            aria-label="Connect account"
+          >
+            <KeyRound className="w-3.5 h-3.5 text-emerald-300" />
+            <span className="hidden sm:inline">Connect Account</span>
+            <span className="sm:hidden">Connect</span>
+          </button>
+        )}
       </div>
 
       <NotificationsDrawer

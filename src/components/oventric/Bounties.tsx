@@ -264,7 +264,7 @@ export function Bounties() {
                 },
               ],
             });
-          })
+          }, "issuer")
         }
       />
     );
@@ -332,7 +332,7 @@ export function Bounties() {
               key={b.id}
               bounty={b}
               currency={baseCurrency}
-              onOpen={() => require(2, () => setSelectedId(b.id))}
+              onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
             />,
           ];
           if ((idx + 1) % 4 === 0) {

@@ -14,7 +14,7 @@ import { reportLovableError } from "../lib/lovable-error-reporting";
 import { OnboardingProvider } from "@/lib/onboarding/OnboardingContext";
 import { StageModals } from "@/components/oventric/onboarding/StageModals";
 import { AuthSeeder } from "@/components/oventric/AuthSeeder";
-import { SessionGate } from "@/components/oventric/SessionGate";
+import { AuthGateProvider } from "@/lib/auth-gate/AuthGateProvider";
 
 function NotFoundComponent() {
   return (
@@ -125,14 +125,14 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <OnboardingProvider>
-        <AuthSeeder />
-        <SessionGate>
+      <AuthGateProvider>
+        <OnboardingProvider>
+          <AuthSeeder />
           {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
           <Outlet />
           <StageModals />
-        </SessionGate>
-      </OnboardingProvider>
+        </OnboardingProvider>
+      </AuthGateProvider>
     </QueryClientProvider>
   );
 }

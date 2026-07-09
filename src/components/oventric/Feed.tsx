@@ -382,7 +382,7 @@ export function Feed() {
       } finally {
         setPosting(false);
       }
-    });
+    }, "interaction");
   };
 
 
@@ -412,7 +412,7 @@ export function Feed() {
           ),
         );
       }
-    });
+    }, "interaction");
   };
 
   const handleDeletePost = async (id: string) => {
@@ -533,7 +533,7 @@ export function Feed() {
       } finally {
         postingGuardRef.current.delete(postId);
       }
-    });
+    }, "interaction");
   };
 
   const retryComment = (postId: string, tempId: string, text: string) => {
@@ -583,8 +583,8 @@ export function Feed() {
     }
   };
 
-  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"));
-  const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"));
+  const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
+  const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"), "solver");
   const isLoggedIn = tier >= 1;
 
   return (

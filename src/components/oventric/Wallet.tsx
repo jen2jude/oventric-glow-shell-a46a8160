@@ -96,7 +96,7 @@ function fmtTs(iso: string) {
 }
 
 export function Wallet() {
-  const { balances, balancesHidden: hide, toggleBalancesHidden } = useOnboarding();
+  const { balances, balancesHidden: hide, toggleBalancesHidden, require } = useOnboarding();
   const [addOpen, setAddOpen] = useState(false);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
@@ -257,7 +257,7 @@ export function Wallet() {
       {/* 2. Ingestion & Extraction */}
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
-          onClick={() => setAddOpen(true)}
+          onClick={() => require(1, () => setAddOpen(true), "funding")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
@@ -271,7 +271,7 @@ export function Wallet() {
           </div>
         </button>
         <button
-          onClick={() => setPayoutOpen(true)}
+          onClick={() => require(1, () => setPayoutOpen(true), "withdraw")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
         >
           <div className="flex items-center gap-3">

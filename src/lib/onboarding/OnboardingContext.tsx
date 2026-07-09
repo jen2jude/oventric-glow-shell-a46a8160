@@ -1,4 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
+import { useAuthGate, type AuthGateContextKey } from "@/lib/auth-gate/AuthGateProvider";
 
 export type Tier = 0 | 1 | 2 | 3 | 4 | 5;
 export type Stage = 1 | 2 | 3 | 4 | 5;
@@ -25,7 +26,7 @@ interface OnboardingState {
 interface OnboardingContextValue extends OnboardingState {
   openStage: Stage | null;
   setOpenStage: (s: Stage | null) => void;
-  require: (minTier: Tier, onSuccess?: () => void) => void;
+  require: (minTier: Tier, onSuccess?: () => void, authContext?: AuthGateContextKey) => void;
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
@@ -50,17 +51,25 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
   const [openStage, setOpenStage] = useState<Stage | null>(null);
   const [pending, setPending] = useState<{ minTier: Tier; cb?: () => void } | null>(null);
 
+  const { ensureUserAuthenticated } = useAuthGate();
+
   const require = useCallback(
-    (minTier: Tier, onSuccess?: () => void) => {
-      if (state.tier >= minTier) {
-        onSuccess?.();
-        return;
-      }
-      const nextStage = (state.tier + 1) as Stage;
-      setPending({ minTier, cb: onSuccess });
-      setOpenStage(nextStage);
+    (minTier: Tier, onSuccess?: () => void, authContext: AuthGateContextKey = "generic") => {
+      // Global auth gate always fires first. If the user is already signed in
+      // this resolves synchronously and we fall straight through to the tier
+      // ladder; otherwise the OTP modal opens and the pending callback
+      // re-enters this branch after SIGNED_IN.
+      ensureUserAuthenticated(() => {
+        if (state.tier >= minTier) {
+          onSuccess?.();
+          return;
+        }
+        const nextStage = (state.tier + 1) as Stage;
+        setPending({ minTier, cb: onSuccess });
+        setOpenStage(nextStage);
+      }, authContext);
     },
-    [state.tier],
+    [state.tier, ensureUserAuthenticated],
   );
 
   const advanceTo = useCallback(
