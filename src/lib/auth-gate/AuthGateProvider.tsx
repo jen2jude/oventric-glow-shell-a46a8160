@@ -494,81 +494,200 @@ function AuthGateModal({
                 )}
               </div>
               <h1 className="text-white font-black text-xl tracking-tight">
-                {stage === "email" ? copy.title : "Verify your email"}
+                {stage === "otp"
+                  ? "Verify your email"
+                  : mode === "new"
+                    ? copy.title
+                    : "Welcome back"}
               </h1>
               <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
-                {stage === "email"
-                  ? copy.subtitle
-                  : `Enter the 6-digit code sent to ${email || "your inbox"}.`}
+                {stage === "otp"
+                  ? `Enter the 6-digit code sent to ${email || "your inbox"}.`
+                  : mode === "new"
+                    ? copy.subtitle
+                    : "Sign in with your email or username — we'll send a 6-digit code."}
               </p>
             </header>
 
-            {stage === "email" ? (
-              <form
-                onSubmit={(e) => { e.preventDefault(); void sendCode(); }}
-                noValidate
-                className="space-y-4"
+            {stage === "email" && (
+              <div
+                role="tablist"
+                aria-label="Account access"
+                className="flex items-center gap-1 p-1 mb-5 bg-[#121214] rounded-lg border border-white/10"
               >
-                <div>
-                  <label htmlFor="gate-email" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
-                    Email address
-                  </label>
-                  <input
-                    id="gate-email"
-                    type="email"
-                    inputMode="email"
-                    autoComplete="email"
-                    autoFocus
-                    value={email}
-                    onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
-                    placeholder="you@builder.io"
-                    aria-invalid={!!emailError}
-                    className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                      emailError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
-                    }`}
-                  />
-                  {emailError && (
-                    <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
-                      {emailError}
-                    </p>
-                  )}
-                </div>
-
-                <div>
-                  <label htmlFor="gate-username" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
-                    Username <span className="text-slate-600 font-normal normal-case">(optional — new accounts only)</span>
-                  </label>
-                  <input
-                    id="gate-username"
-                    type="text"
-                    autoComplete="username"
-                    value={username}
-                    onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
-                    placeholder="sovereign_architect"
-                    aria-invalid={!!usernameError}
-                    className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                      usernameError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
-                    }`}
-                  />
-                  {usernameError && (
-                    <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
-                      {usernameError}
-                    </p>
-                  )}
-                </div>
-
                 <button
-                  type="submit"
-                  disabled={sending}
-                  className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "new"}
+                  onClick={() => { setMode("new"); setIdentifierError(null); }}
+                  className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
+                    mode === "new"
+                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                      : "text-slate-500 hover:text-slate-300"
+                  }`}
                 >
-                  {sending ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
-                  ) : (
-                    <>Send Verification Code <ArrowRight className="w-4 h-4" /></>
-                  )}
+                  New user
                 </button>
-              </form>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={mode === "returning"}
+                  onClick={() => { setMode("returning"); setEmailError(null); setUsernameError(null); }}
+                  className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
+                    mode === "returning"
+                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                      : "text-slate-500 hover:text-slate-300"
+                  }`}
+                >
+                  Returning
+                </button>
+              </div>
+            )}
+
+            {stage === "email" ? (
+              <div className="relative overflow-hidden">
+                <div
+                  className="flex w-[200%] transition-transform duration-300 ease-out"
+                  style={{ transform: mode === "new" ? "translateX(0)" : "translateX(-50%)" }}
+                >
+                  {/* --- New user form --- */}
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); if (mode === "new") void sendCode(); }}
+                    noValidate
+                    className="w-1/2 shrink-0 space-y-4 pr-1"
+                    aria-hidden={mode !== "new"}
+                  >
+                    <div>
+                      <label htmlFor="gate-email" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        Email address
+                      </label>
+                      <input
+                        id="gate-email"
+                        type="email"
+                        inputMode="email"
+                        autoComplete="email"
+                        value={email}
+                        onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
+                        placeholder="you@builder.io"
+                        aria-invalid={!!emailError}
+                        tabIndex={mode === "new" ? 0 : -1}
+                        className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                          emailError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                        }`}
+                      />
+                      {emailError && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                          {emailError}
+                        </p>
+                      )}
+                    </div>
+
+                    <div>
+                      <label htmlFor="gate-username" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        Username <span className="text-slate-600 font-normal normal-case">(optional)</span>
+                      </label>
+                      <input
+                        id="gate-username"
+                        type="text"
+                        autoComplete="username"
+                        value={username}
+                        onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
+                        placeholder="sovereign_architect"
+                        aria-invalid={!!usernameError}
+                        tabIndex={mode === "new" ? 0 : -1}
+                        className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                          usernameError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                        }`}
+                      />
+                      {usernameError && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                          {usernameError}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      tabIndex={mode === "new" ? 0 : -1}
+                      className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                    >
+                      {sending && mode === "new" ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                      ) : (
+                        <>Send Verification Code <ArrowRight className="w-4 h-4" /></>
+                      )}
+                    </button>
+
+                    <p className="text-center text-[11px] text-slate-500">
+                      Already have an account?{" "}
+                      <button
+                        type="button"
+                        onClick={() => setMode("returning")}
+                        className="font-bold text-emerald-300 hover:text-emerald-200"
+                      >
+                        Click here to sign in
+                      </button>
+                    </p>
+                  </form>
+
+                  {/* --- Returning user form --- */}
+                  <form
+                    onSubmit={(e) => { e.preventDefault(); if (mode === "returning") void sendReturningCode(); }}
+                    noValidate
+                    className="w-1/2 shrink-0 space-y-4 pl-1"
+                    aria-hidden={mode !== "returning"}
+                  >
+                    <div>
+                      <label htmlFor="gate-identifier" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        Email or username
+                      </label>
+                      <input
+                        id="gate-identifier"
+                        type="text"
+                        autoComplete="username"
+                        value={identifier}
+                        onChange={(e) => { setIdentifier(e.target.value); setIdentifierError(null); }}
+                        placeholder="you@builder.io or sovereign_architect"
+                        aria-invalid={!!identifierError}
+                        tabIndex={mode === "returning" ? 0 : -1}
+                        className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                          identifierError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                        }`}
+                      />
+                      {identifierError && (
+                        <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                          {identifierError}
+                        </p>
+                      )}
+                    </div>
+
+                    <button
+                      type="submit"
+                      disabled={sending}
+                      tabIndex={mode === "returning" ? 0 : -1}
+                      className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                    >
+                      {sending && mode === "returning" ? (
+                        <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                      ) : (
+                        <>Send Login Code <ArrowRight className="w-4 h-4" /></>
+                      )}
+                    </button>
+
+                    <p className="text-center text-[11px] text-slate-500">
+                      New to Oventric?{" "}
+                      <button
+                        type="button"
+                        onClick={() => setMode("new")}
+                        className="font-bold text-emerald-300 hover:text-emerald-200"
+                      >
+                        Create an account
+                      </button>
+                    </p>
+                  </form>
+                </div>
+              </div>
             ) : (
               <div className="space-y-4">
                 <div className="flex justify-between gap-2" role="group" aria-label="6-digit verification code">
