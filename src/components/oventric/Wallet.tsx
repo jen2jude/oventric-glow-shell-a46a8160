@@ -143,6 +143,18 @@ export function Wallet() {
     staleTime: 15_000,
   });
 
+  const fetchBalances = useServerFn(getWalletBalances);
+  const balancesQuery = useQuery({
+    queryKey: ["wallet-balances", userId],
+    enabled: authReady && !!userId,
+    queryFn: () => fetchBalances(),
+    staleTime: 15_000,
+  });
+  useEffect(() => {
+    const d = balancesQuery.data;
+    if (d) setBalances(d.balances, d.escrow, d.cashback);
+  }, [balancesQuery.data, setBalances]);
+
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!userId) return;
