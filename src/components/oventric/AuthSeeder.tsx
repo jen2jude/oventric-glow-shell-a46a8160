@@ -2,6 +2,8 @@ import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
+import { getWalletBalances } from "@/lib/wallet.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
