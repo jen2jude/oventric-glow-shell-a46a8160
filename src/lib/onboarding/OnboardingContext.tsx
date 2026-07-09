@@ -26,7 +26,7 @@ interface OnboardingState {
 interface OnboardingContextValue extends OnboardingState {
   openStage: Stage | null;
   setOpenStage: (s: Stage | null) => void;
-  require: (minTier: Tier, onSuccess?: () => void) => void;
+  require: (minTier: Tier, onSuccess?: () => void, authContext?: AuthGateContextKey) => void;
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
