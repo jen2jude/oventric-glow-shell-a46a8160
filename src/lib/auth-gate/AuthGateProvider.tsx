@@ -101,6 +101,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const [checked, setChecked] = useState(false);
   const [gateOpen, setGateOpen] = useState(false);
   const [ctxKey, setCtxKey] = useState<AuthGateContextKey>("generic");
+  const [splash, setSplash] = useState(false);
   const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
 
   useEffect(() => {
@@ -120,16 +121,16 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       setSession(next);
       setChecked(true);
       if (event === "SIGNED_IN" && next) {
-        // Post-Auth Auto-Resumption: close overlay, run pending action in-place.
+        // Fire the RGB neon success splash, then close the modal + run the
+        // pending action once the animation has had time to play.
+        setSplash(true);
         setGateOpen(false);
         const cb = pendingRef.current;
         pendingRef.current = null;
-        if (cb) {
-          // Defer a tick so React can flush the session-driven re-render
-          // (e.g. Connect button → ProfileDropdown swap) before the resumed
-          // action opens any modal/mutation of its own.
-          setTimeout(() => { void cb(); }, 30);
-        }
+        window.setTimeout(() => {
+          setSplash(false);
+          if (cb) void cb();
+        }, 1400);
       }
     });
     return () => {
@@ -177,7 +178,32 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
           onClose={closeGate}
         />
       )}
+      {splash && <NeonSuccessSplash />}
     </AuthGateContext.Provider>
+  );
+}
+
+function NeonSuccessSplash() {
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[300] flex items-center justify-center pointer-events-none"
+      role="status"
+      aria-live="polite"
+      aria-label="Successfully signed in"
+    >
+      <div className="absolute inset-0 rgb-neon-bg opacity-70" style={{ animation: "auth-flash 1.4s ease-out forwards" }} />
+      <div className="relative z-10 rgb-neon-bg rounded-2xl p-[2px]">
+        <div className="bg-[#0b0b0d] rounded-2xl px-8 py-6 text-center">
+          <div className="mx-auto w-14 h-14 rounded-full rgb-pulse-glow bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
+            <ShieldCheck className="w-6 h-6 text-emerald-300" aria-hidden />
+          </div>
+          <div className="text-white font-black tracking-tight text-lg">Verified</div>
+          <div className="text-[12px] text-slate-400 mt-1">Welcome to Oventric.</div>
+        </div>
+      </div>
+    </div>,
+    document.body,
   );
 }
 
