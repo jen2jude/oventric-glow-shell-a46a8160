@@ -881,6 +881,16 @@ export function Feed() {
                               </div>
                             )}
                             {c.status === "failed" && (
+                              <div
+                                role="alert"
+                                aria-live="polite"
+                                className="mt-2 flex items-start gap-1.5 text-[11px] text-red-300 border-l-2 border-red-500 pl-2"
+                              >
+                                <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
+                                <span className="leading-snug">{c.errorMessage ?? "Couldn't post this comment."}</span>
+                              </div>
+                            )}
+                            {c.status === "failed" && (
                               <div className="mt-2 flex items-center gap-2">
                                 <button
                                   type="button"
