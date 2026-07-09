@@ -324,7 +324,7 @@ function AuthGateModal({
       setResendIn(RESEND_SECONDS);
       setFlash(`Code sent to ${parsedEmail.data}`);
     } catch (err) {
-      setEmailError(err instanceof Error ? err.message : "Could not send code");
+      setEmailError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
       setSending(false);
     }
