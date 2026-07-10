@@ -405,7 +405,7 @@ function ProfilePage() {
   // it resolves so the button reflects the actual circle_requests row.
   useEffect(() => {
     let cancelled = false;
-    (async () => {
+    const load = async () => {
       try {
         await ensureSession();
         const res = await fetchStatus({ data: { targetSlug: circleTargetSlug } });
@@ -419,11 +419,23 @@ function ProfilePage() {
       } catch (e) {
         console.error(e);
       }
-    })();
+    };
+    void load();
+    // Refetch when the tab regains focus so acceptance by the target user
+    // flips the button from Pending → In Circle without a manual reload.
+    const onFocus = () => void load();
+    const onVisibility = () => {
+      if (document.visibilityState === "visible") void load();
+    };
+    window.addEventListener("focus", onFocus);
+    document.addEventListener("visibilitychange", onVisibility);
     return () => {
       cancelled = true;
+      window.removeEventListener("focus", onFocus);
+      document.removeEventListener("visibilitychange", onVisibility);
     };
   }, [circleTargetSlug, fetchStatus]);
+
 
 
   const rep = profile.reputation;
