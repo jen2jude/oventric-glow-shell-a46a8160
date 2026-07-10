@@ -1,6 +1,38 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function writePayoutAudit(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sb: any,
+  actorId: string,
+  action: "payout.approve" | "payout.reject" | "payout.mark_paid",
+  payoutId: string,
+  meta: Record<string, unknown>,
+) {
+  try {
+    await sb.from("audit_logs").insert({
+      actor_id: actorId,
+      action,
+      target_kind: "payout_request",
+      target_id: payoutId,
+      meta,
+    });
+  } catch (e) {
+    // Never let audit failure block the action; log server-side.
+    console.error("[payout audit] insert failed", e);
+  }
+}
+
+export interface PayoutAuditEntry {
+  id: string;
+  action: string;
+  actor_id: string | null;
+  actor_name: string | null;
+  actor_username: string | null;
+  created_at: string;
+  meta: Record<string, string | number | boolean | null>;
+}
+
 export type PayoutCurrency = "USD" | "NGN" | "GHS";
 export type PayoutMethod = "bank" | "momo" | "wire";
 export type PayoutStatus = "pending" | "approved" | "rejected" | "paid" | "cancelled";
@@ -232,6 +264,9 @@ export const adminApprovePayout = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .in("status", ["pending"]);
     if (error) throw new Error(error.message);
+    await writePayoutAudit(supabase, userId, "payout.approve", data.id, {
+      note: data.note || null,
+    });
     return { ok: true };
   });
 
@@ -242,12 +277,17 @@ export const adminRejectPayout = createServerFn({ method: "POST" })
     reason: String(input?.reason ?? "").trim().slice(0, 500) || "Rejected by admin",
   }))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
     const { error } = await supabase.rpc("payout_request_reject", {
       _id: data.id,
       _reason: data.reason,
     });
     if (error) throw new Error(error.message);
+    await writePayoutAudit(supabase, userId, "payout.reject", data.id, {
+      reason: data.reason,
+    });
     return { ok: true };
   });
 
@@ -258,11 +298,72 @@ export const adminMarkPayoutPaid = createServerFn({ method: "POST" })
     note: typeof input?.note === "string" ? input.note.trim().slice(0, 500) : "",
   }))
   .handler(async ({ data, context }) => {
-    const { supabase } = context;
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
     const { error } = await supabase.rpc("payout_request_mark_paid", {
       _id: data.id,
       _note: data.note,
     });
     if (error) throw new Error(error.message);
+    await writePayoutAudit(supabase, userId, "payout.mark_paid", data.id, {
+      note: data.note || null,
+    });
     return { ok: true };
   });
+
+/**
+ * Return the audit trail for a single payout request, most-recent first,
+ * enriched with the acting admin's display name / username when available.
+ */
+export const adminListPayoutAudit = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { payoutId: string }) => ({
+    payoutId: String(input?.payoutId ?? ""),
+  }))
+  .handler(async ({ data, context }): Promise<PayoutAuditEntry[]> => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+    if (!data.payoutId) return [];
+
+    const { data: rows, error } = await supabase
+      .from("audit_logs")
+      .select("id, action, actor_id, created_at, meta")
+      .eq("target_kind", "payout_request")
+      .eq("target_id", data.payoutId)
+      .order("created_at", { ascending: false })
+      .limit(50);
+    if (error) throw new Error(error.message);
+
+    const actorIds = Array.from(
+      new Set((rows ?? []).map((r) => r.actor_id as string | null).filter((v): v is string => !!v)),
+    );
+    let nameMap: Record<string, { display_name: string | null; username: string | null }> = {};
+    if (actorIds.length) {
+      const { data: profs } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, username")
+        .in("user_id", actorIds);
+      nameMap = Object.fromEntries(
+        (profs ?? []).map((p) => [
+          p.user_id as string,
+          {
+            display_name: (p.display_name as string) ?? null,
+            username: (p.username as string) ?? null,
+          },
+        ]),
+      );
+    }
+
+    return (rows ?? []).map((r) => ({
+      id: r.id as string,
+      action: r.action as string,
+      actor_id: (r.actor_id as string | null) ?? null,
+      actor_name: r.actor_id ? nameMap[r.actor_id as string]?.display_name ?? null : null,
+      actor_username: r.actor_id ? nameMap[r.actor_id as string]?.username ?? null : null,
+      created_at: r.created_at as string,
+      meta: (r.meta as Record<string, string | number | boolean | null>) ?? {},
+    }));
+  });
+
