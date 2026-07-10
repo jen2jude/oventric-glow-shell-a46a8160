@@ -397,13 +397,14 @@ function ProfilePage() {
     }
   };
 
-  // Load initial status for this profile
+  // Load initial status for this profile — keyed to the real profile slug once
+  // it resolves so the button reflects the actual circle_requests row.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         await ensureSession();
-        const res = await fetchStatus({ data: { targetSlug: profile.id } });
+        const res = await fetchStatus({ data: { targetSlug: circleTargetSlug } });
         if (cancelled) return;
         setCircle(res.status);
         setCircleMeta({
@@ -418,7 +419,8 @@ function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [profile.id, fetchStatus]);
+  }, [circleTargetSlug, fetchStatus]);
+
 
   const rep = profile.reputation;
   const starBreakdown = useMemo(() => computeStarBreakdown(rep), [rep]);
