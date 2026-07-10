@@ -657,26 +657,23 @@ export const enrollPaid = createServerFn({ method: "POST" })
     const instructorCutUSD = Number((totalUSD * INSTRUCTOR_SHARE).toFixed(2));
     const platformCutUSD = Number((totalUSD - instructorCutUSD).toFixed(2));
 
-    await supabase.rpc("wallet_credit", {
+    await supabaseAdmin.rpc("wallet_credit", {
       _user_id: course.owner_id as string,
       _amount: instructorCutUSD,
     });
 
-    {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("system_wallet_credit", {
-        _kind: "academy",
-        _amount: platformCutUSD,
-        _source: "course_enrollment",
-        _ref: eRow.id as string,
-        _meta: {
-          enrollment_id: eRow.id,
-          course_id: data.courseId,
-          buyer_id: userId,
-          instructor_id: course.owner_id,
-        },
-      });
-    }
+    await supabaseAdmin.rpc("system_wallet_credit", {
+      _kind: "academy",
+      _amount: platformCutUSD,
+      _source: "course_enrollment",
+      _ref: eRow.id as string,
+      _meta: {
+        enrollment_id: eRow.id,
+        course_id: data.courseId,
+        buyer_id: userId,
+        instructor_id: course.owner_id,
+      },
+    });
 
     // 2% cashback for wallet payments
     let cashbackUSD = 0;
