@@ -195,6 +195,29 @@ export function Bounties() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contract, setContract] = useState<ContractState | null>(null);
   const [role, setRole] = useState<"poster" | "developer">("poster");
+  const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
+  const [adsLoading, setAdsLoading] = useState(true);
+
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("ad_campaigns")
+      .select("id, advertiser, title, description, tier, media_url, cta_url, cta_label")
+      .eq("status", "active")
+      .contains("placements", ["bounties"])
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("Bounty ads fetch error:", error);
+        }
+        setBountyAds(((data ?? []) as BountyAd[]));
+        setAdsLoading(false);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   useTicker(1000);
 
