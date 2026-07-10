@@ -361,6 +361,12 @@ export function Bounties() {
             Post work, evaluate applicants, run escrow-protected contracts end-to-end.
           </p>
         </div>
+        <button
+          onClick={() => require(1, () => setPostOpen(true), "issuer")}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)]"
+        >
+          <Plus className="w-4 h-4" /> Post a bounty
+        </button>
       </div>
 
       {/* Metric grid */}
