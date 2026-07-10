@@ -159,10 +159,10 @@ export function BountyEditorModal({
           toast.success("Bounty published and promoted");
         }
       } else {
-        toast.success("Bounty published");
+        toast.success("Bounty published", { description: form.title.trim() });
       }
       reset();
-      onPublished?.();
+      if (inserted?.id) onPublished?.(inserted.id);
       onClose();
     } catch (e) {
       toast.error((e as Error).message);
