@@ -273,7 +273,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     const body = draft.trim();
     if (!body) return;
     if (!me) {
-      openGate("message");
+      openGate("interaction");
       return;
     }
     setSending(true);
@@ -317,7 +317,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               Direct messages are encrypted between verified peers. Connect your account to start chatting.
             </p>
             <button
-              onClick={() => openGate("message")}
+              onClick={() => openGate("interaction")}
               className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
             >
               Connect account
