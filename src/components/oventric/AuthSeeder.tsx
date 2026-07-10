@@ -52,11 +52,34 @@ export function AuthSeeder() {
       try {
         await seedNewUser({ data: {} });
         await refreshBalances();
+        // Hydrate the onboarding tier from the persisted profile so returning
+        // users who already unlocked commerce don't get re-prompted.
+        try {
+          const status = await fetchStatus();
+          if (cancelled) return;
+          const country = (status.country ?? null) as Country | null;
+          if (status.profileCompleted) {
+            const currency = countryToCurrency(country);
+            setBaseCurrency(currency);
+            advanceTo(status.kycCompleted ? 5 : 2, {
+              fullName: status.displayName ?? "",
+              country,
+              phone: status.phone ?? "",
+              baseCurrency: currency,
+            });
+          } else {
+            // Signed in but no profile fields yet — Tier 1 (social only).
+            advanceTo(1);
+          }
+        } catch (err) {
+          console.error("[AuthSeeder] status fetch failed", err);
+        }
       } catch (err) {
         console.error("[AuthSeeder] seed failed", err);
         if (!cancelled) seededFor.current = null;
       }
     };
+
 
     // Initial session (page load with existing tokens)
     supabase.auth.getSession().then(({ data }) => {
