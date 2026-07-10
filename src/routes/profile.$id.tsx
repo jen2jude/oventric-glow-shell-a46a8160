@@ -517,7 +517,7 @@ function ProfilePage() {
     } finally {
       setMpRefreshing(false);
     }
-  }, [profile.id, q, sort, fetchTab]);
+  }, [id, q, sort, fetchTab]);
 
   // Seed the "last updated" timestamp when marketplace items first appear.
   useEffect(() => {
