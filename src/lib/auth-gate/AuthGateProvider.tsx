@@ -306,7 +306,8 @@ function AuthGateModal({
   const [flash, setFlash] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
-  const resolveLoginIdentifier = useServerFn(resolveLoginIdentifierFn);
+  const sendLoginOtpByIdentifier = useServerFn(sendLoginOtpByIdentifierFn);
+  const signInWithIdentifierPassword = useServerFn(signInWithIdentifierPasswordFn);
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
