@@ -63,37 +63,144 @@ function Stage1({ onClose }: { onClose: () => void }) {
   );
 }
 
+const COUNTRY_META: Record<Country, { label: string; currency: Currency; dial: string }> = {
+  NG: { label: "Nigeria", currency: "NGN", dial: "+234" },
+  GH: { label: "Ghana", currency: "GHS", dial: "+233" },
+  US: { label: "United States", currency: "USD", dial: "+1" },
+  UK: { label: "United Kingdom", currency: "USD", dial: "+44" },
+  OTHER: { label: "Other", currency: "USD", dial: "+" },
+};
+
 function Stage2({ onClose }: { onClose: () => void }) {
-  const { advanceTo } = useOnboarding();
-  const [name, setName] = useState("");
-  const [country, setCountry] = useState<Country | "">("");
+  const { advanceTo, setBaseCurrency, fullName: existingName, country: existingCountry, phone: existingPhone } = useOnboarding();
+  const completeProfile = useServerFn(completeProfileFn);
+  const [name, setName] = useState(existingName || "");
+  const [country, setCountry] = useState<Country | "">(existingCountry ?? "");
+  const [address, setAddress] = useState("");
+  const [phone, setPhone] = useState(existingPhone || "");
+  const [saving, setSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const currency = country ? COUNTRY_META[country].currency : null;
+
+  const canSubmit =
+    name.trim().length >= 2 &&
+    !!country &&
+    address.trim().length >= 4 &&
+    phone.trim().length >= 6 &&
+    !saving;
+
+  const submit = async () => {
+    if (!canSubmit || !country) return;
+    setError(null);
+    setSaving(true);
+    try {
+      await completeProfile({
+        data: {
+          fullName: name.trim(),
+          country,
+          address: address.trim(),
+          phone: phone.trim(),
+        },
+      });
+      const nextCurrency = countryToCurrency(country);
+      setBaseCurrency(nextCurrency);
+      advanceTo(2, {
+        fullName: name.trim(),
+        country,
+        phone: phone.trim(),
+        baseCurrency: nextCurrency,
+      });
+      toast.success("Commerce unlocked", {
+        description: `You can now buy, sell, fund your wallet and accept bounties in ${nextCurrency}.`,
+      });
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Could not save your profile";
+      setError(msg);
+      toast.error("Could not unlock commerce", { description: msg });
+    } finally {
+      setSaving(false);
+    }
+  };
+
   return (
-    <ModalShell title="Become a verified buyer" subtitle="Stage 2 of 5 · Identity basics" onClose={onClose}>
+    <ModalShell
+      title="Unlock buying, selling & wallets"
+      subtitle="Stage 2 of 5 · Tell us who you are so we can transact for you"
+      onClose={onClose}
+    >
       <StageIndicator current={2} />
       <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
         <ShieldCheck className="w-6 h-6 text-emerald-400" />
       </div>
+
       <label className={labelCls}>Full Name</label>
-      <input className={inputCls} placeholder="Ada Lovelace" value={name} onChange={(e) => setName(e.target.value)} />
+      <input
+        className={inputCls}
+        placeholder="Ada Lovelace"
+        autoComplete="name"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
+
       <label className={labelCls + " mt-4"}>Country of Residence</label>
-      <select className={inputCls} value={country} onChange={(e) => setCountry(e.target.value as Country)}>
-        <option value="" disabled>Select a country</option>
-        <option value="NG">Nigeria</option>
-        <option value="GH">Ghana</option>
-        <option value="US">United States</option>
-        <option value="UK">United Kingdom</option>
-        <option value="OTHER">Other</option>
-      </select>
-      <button
-        disabled={!name || !country}
-        onClick={() => advanceTo(2, { fullName: name, country: country as Country })}
-        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
+      <select
+        className={inputCls}
+        value={country}
+        onChange={(e) => setCountry(e.target.value as Country)}
       >
-        Verify buyer profile
+        <option value="" disabled>Select a country</option>
+        {(Object.keys(COUNTRY_META) as Country[]).map((c) => (
+          <option key={c} value={c}>
+            {COUNTRY_META[c].label} · {COUNTRY_META[c].currency}
+          </option>
+        ))}
+      </select>
+      {currency && (
+        <p className="text-[11px] text-emerald-300/80 mt-1.5">
+          Base currency will lock to <span className="font-semibold">{currency}</span> for wallet, marketplace and bounties.
+        </p>
+      )}
+
+      <label className={labelCls + " mt-4"}>Residential Address</label>
+      <textarea
+        rows={2}
+        className={inputCls + " h-auto py-2.5"}
+        placeholder="Street, city, state, postal code"
+        autoComplete="street-address"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+      />
+
+      <label className={labelCls + " mt-4"}>Phone Number</label>
+      <input
+        className={inputCls}
+        type="tel"
+        autoComplete="tel"
+        placeholder={country ? `${COUNTRY_META[country].dial} 800 000 0000` : "+1 555 123 4567"}
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+      />
+
+      {error && (
+        <div className="mt-3 rounded-md border border-rose-500/40 bg-rose-500/10 text-rose-200 text-xs px-3 py-2">
+          {error}
+        </div>
+      )}
+
+      <button
+        type="button"
+        disabled={!canSubmit}
+        onClick={() => void submit()}
+        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"}
+      >
+        {saving && <Loader className="w-4 h-4 animate-spin" />}
+        {saving ? "Saving profile…" : "Unlock commerce"}
       </button>
     </ModalShell>
   );
 }
+
 
 function Stage3({ onClose }: { onClose: () => void }) {
   const { advanceTo } = useOnboarding();
