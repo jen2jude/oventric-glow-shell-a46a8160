@@ -130,9 +130,9 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
         .limit(20),
     ]);
 
-    // ---- Peers (top 10, prefer those with real names) ----
+    // ---- Peers (top 10, real users only — must have a display_name) ----
     const profileRows = (profilesRes.data ?? []).filter(
-      (p) => (p.display_name || p.username || p.slug) && p.slug,
+      (p) => !!p.display_name && p.slug && !/^user-[a-f0-9]+$/i.test(p.slug),
     );
     const topProfiles = profileRows.slice(0, 20);
     const avatarUrls = await signBucket(sb, "avatars", topProfiles.map((p) => p.avatar_path));
