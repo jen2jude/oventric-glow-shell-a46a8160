@@ -19,10 +19,13 @@ import {
   getProduct,
   createOrder,
   topUpWallet,
+  validateCoupon,
   FX_FROM_USD,
+  WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
