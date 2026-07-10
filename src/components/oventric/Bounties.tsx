@@ -431,6 +431,12 @@ export function Bounties() {
           </div>
         )}
       </div>
+
+      <BountyEditorModal
+        open={postOpen}
+        onClose={() => setPostOpen(false)}
+        onPublished={() => setRefreshTick((t) => t + 1)}
+      />
     </div>
   );
 }
