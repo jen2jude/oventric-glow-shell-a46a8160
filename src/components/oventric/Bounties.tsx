@@ -223,6 +223,46 @@ export function Bounties() {
     };
   }, []);
 
+  const [dbBounties, setDbBounties] = useState<Bounty[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("bounties")
+      .select("id, title, category, price_usd, deadline_at, end_at, created_at, status")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("Bounties fetch error:", error);
+          return;
+        }
+        const now = Date.now();
+        const rows: Bounty[] = (data ?? [])
+          .filter((b) => !b.end_at || new Date(b.end_at as string).getTime() > now)
+          .map((b) => {
+            const cat = (b.category as string) as Exclude<Category, "all">;
+            const expiresAt = b.deadline_at
+              ? new Date(b.deadline_at as string).getTime()
+              : b.end_at
+                ? new Date(b.end_at as string).getTime()
+                : new Date(b.created_at as string).getTime() + 48 * 3_600_000;
+            return {
+              id: b.id as string,
+              title: (b.title as string) ?? "",
+              category: (["frontend", "database", "api", "uiux"] as const).includes(cat) ? cat : "api",
+              priceUSD: Number(b.price_usd ?? 0),
+              expiresAt,
+              ownedByMe: false,
+              applicants: [],
+            };
+          });
+        setDbBounties(rows);
+      });
+    return () => { cancelled = true; };
+  }, [refreshTick]);
+
   useTicker(1000);
 
   const adminBounties: Bounty[] = useMemo(
