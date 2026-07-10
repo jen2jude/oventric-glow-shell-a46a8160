@@ -345,7 +345,7 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       else if (data.sort === "lowest_bounty") q = q.order("price_usd", { ascending: true });
       else q = q.order("created_at", { ascending: false });
       const { data: rows, count } = await q.range(from, to);
-      const items: ProfileBounty[] = (rows ?? []).map((r) => ({
+      const items: ProfileBounty[] = (rows ?? []).map((r: any) => ({
         id: r.id as string,
         title: (r.title as string) ?? "Untitled",
         amountUsd: Number(r.price_usd ?? 0),
@@ -356,8 +356,84 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
     }
 
-    // groups + solved: no live source yet
+    if (data.tab === "solved") {
+      let q = supabase
+        .from("bounties")
+        .select("id, title, price_usd, status, updated_at", { count: "exact" })
+        .eq("poster_id", userId)
+        .eq("status", "solved");
+      if (data.q) q = q.ilike("title", `%${data.q}%`);
+      if (data.sort === "highest_bounty") q = q.order("price_usd", { ascending: false });
+      else if (data.sort === "lowest_bounty") q = q.order("price_usd", { ascending: true });
+      else q = q.order("updated_at", { ascending: false });
+      const { data: rows, count } = await q.range(from, to);
+      const items: ProfileBounty[] = (rows ?? []).map((r: any) => ({
+        id: r.id as string,
+        title: (r.title as string) ?? "Untitled",
+        amountUsd: Number(r.price_usd ?? 0),
+        proof: "Marked solved on Oventric.",
+        status: "solved",
+      }));
+      const total = count ?? items.length;
+      return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
+    }
+
+    if (data.tab === "groups") {
+      // Resolve profile's own slug so we can find inbound circle requests too.
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("slug")
+        .eq("user_id", userId)
+        .maybeSingle();
+      const mySlug = (prof as { slug?: string } | null)?.slug ?? null;
+
+      let q = supabase
+        .from("circle_requests")
+        .select("id, requester_id, target_slug, created_at", { count: "exact" })
+        .eq("status", "accepted");
+      q = mySlug
+        ? q.or(`requester_id.eq.${userId},target_slug.eq.${mySlug}`)
+        : q.eq("requester_id", userId);
+      q = q.order("created_at", { ascending: false }).range(from, to);
+      const { data: rows, count } = await q;
+
+      // Collect peer identifiers to resolve friendly names.
+      const peerSlugs: string[] = [];
+      const peerIds: string[] = [];
+      for (const r of (rows ?? []) as any[]) {
+        if (r.requester_id === userId) peerSlugs.push(r.target_slug);
+        else peerIds.push(r.requester_id);
+      }
+      const [bySlug, byId] = await Promise.all([
+        peerSlugs.length
+          ? supabase.from("profiles").select("slug, display_name").in("slug", peerSlugs)
+          : Promise.resolve({ data: [] as any[] }),
+        peerIds.length
+          ? supabase.from("profiles").select("user_id, display_name, slug").in("user_id", peerIds)
+          : Promise.resolve({ data: [] as any[] }),
+      ]);
+      const slugName = new Map<string, string>();
+      for (const p of (bySlug.data ?? []) as any[])
+        slugName.set(p.slug, p.display_name ?? p.slug);
+      const idName = new Map<string, string>();
+      for (const p of (byId.data ?? []) as any[])
+        idName.set(p.user_id, p.display_name ?? p.slug ?? "Member");
+
+      let items: ProfileGroup[] = (rows ?? []).map((r: any) => {
+        const name =
+          r.requester_id === userId
+            ? slugName.get(r.target_slug) ?? r.target_slug
+            : idName.get(r.requester_id) ?? "Member";
+        return { id: r.id as string, name, members: 2, tag: "Circle" };
+      });
+      if (data.q) items = items.filter((g) => g.name.toLowerCase().includes(data.q.toLowerCase()));
+      if (data.sort === "alpha") items = [...items].sort((a, b) => a.name.localeCompare(b.name));
+      const total = count ?? items.length;
+      return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
+    }
+
     return empty;
+
   });
 
 const LiveItemInput = z.object({
