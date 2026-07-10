@@ -175,8 +175,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
               </select>
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-slate-300">Vendor / studio name</span>
-              <input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Your studio"
+              <span className="text-xs font-medium text-slate-300">Price (USD)</span>
+              <input value={priceUSD} onChange={(e) => setPriceUSD(e.target.value)} inputMode="decimal" placeholder="29.00"
                 className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
             </label>
             <label className="block">
