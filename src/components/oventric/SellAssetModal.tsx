@@ -118,7 +118,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           category,
           description: description.trim(),
           priceUSD: usd,
-          vendor: vendor.trim(),
+          vendor: vendorName,
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
           coverPath,
