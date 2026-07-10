@@ -267,3 +267,70 @@ function PayoutRow({
     </div>
   );
 }
+
+const AUDIT_LABEL: Record<string, { label: string; tone: string }> = {
+  "payout.approve": { label: "Approved", tone: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
+  "payout.reject": { label: "Rejected", tone: "border-red-500/40 bg-red-500/10 text-red-300" },
+  "payout.mark_paid": { label: "Marked paid", tone: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+};
+
+function PayoutAuditTrail({ payoutId, expanded }: { payoutId: string; expanded: boolean }) {
+  const auditFn = useServerFn(adminListPayoutAudit);
+  const q = useQuery({
+    queryKey: ["admin-payout-audit", payoutId],
+    queryFn: () => auditFn({ data: { payoutId } }),
+    enabled: expanded,
+    staleTime: 10_000,
+  });
+
+  const entries: PayoutAuditEntry[] = q.data ?? [];
+
+  return (
+    <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+      <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">Audit trail</div>
+      {q.isLoading && (
+        <div className="text-xs text-slate-500 inline-flex items-center gap-2">
+          <Loader2 className="w-3 h-3 animate-spin" /> Loading history…
+        </div>
+      )}
+      {!q.isLoading && entries.length === 0 && (
+        <div className="text-xs text-slate-500">No admin actions recorded yet.</div>
+      )}
+      {entries.length > 0 && (
+        <ol className="space-y-2">
+          {entries.map((e) => {
+            const meta = AUDIT_LABEL[e.action] ?? {
+              label: e.action,
+              tone: "border-slate-500/40 bg-slate-500/10 text-slate-300",
+            };
+            const actor = e.actor_name || e.actor_username || (e.actor_id ? `${e.actor_id.slice(0, 8)}…` : "system");
+            const reason =
+              (typeof e.meta?.reason === "string" && e.meta.reason) ||
+              (typeof e.meta?.note === "string" && e.meta.note) ||
+              "";
+            return (
+              <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 text-xs">
+                <span
+                  className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${meta.tone}`}
+                >
+                  {meta.label}
+                </span>
+                <div className="min-w-0">
+                  <div className="text-slate-200">
+                    <span className="font-medium">{actor}</span>
+                    <span className="text-slate-500"> · {new Date(e.created_at).toLocaleString()}</span>
+                  </div>
+                  {reason && (
+                    <div className="text-slate-400 break-words">
+                      <span className="text-slate-500">Reason:</span> {reason}
+                    </div>
+                  )}
+                </div>
+              </li>
+            );
+          })}
+        </ol>
+      )}
+    </div>
+  );
+}
