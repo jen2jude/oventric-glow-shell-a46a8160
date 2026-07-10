@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
