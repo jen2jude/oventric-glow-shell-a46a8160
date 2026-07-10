@@ -10,8 +10,6 @@ import {
   Plug,
   Blocks,
   Code2,
-  Sparkles,
-  Target,
   Flame,
   Loader2,
   PackageOpen,
@@ -213,13 +211,10 @@ export function Marketplace() {
               <span className="text-xs text-slate-500 hidden sm:inline">Curated by trending intent</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recommended.slice(0, 3).map((p) => (
+              {recommended.slice(0, 7).map((p) => (
                 <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={() => onBuy(p)} full />
               ))}
-              <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"), "solver")} />
-              {recommended.slice(3, 7).map((p) => (
-                <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={() => onBuy(p)} full />
-              ))}
+
             </div>
           </div>
         )}
@@ -305,27 +300,3 @@ function ViewMoreCard({ label, onClick }: { label: string; onClick: () => void }
   );
 }
 
-function BountyInjectionCard({ onSolve }: { onSolve: () => void }) {
-  return (
-    <div className="relative bg-[#1E1E24] border border-emerald-500/40 rounded-xl p-4 shadow-[0_0_30px_-10px_rgba(16,185,129,0.5)] flex flex-col">
-      <div className="inline-flex self-start items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wide mb-2">
-        <Target className="w-3 h-3" />
-        ACTIVE BOUNTY · $320
-      </div>
-      <h3 className="text-white font-bold text-sm leading-snug mb-1">Design a token-gated Discord onboarding flow</h3>
-      <p className="text-xs text-slate-400 mb-3 line-clamp-2 flex-1">
-        Wallet-verified role assignment with a 3-step welcome journey.
-      </p>
-      <div className="flex items-center justify-between text-[11px] text-slate-500 mb-3">
-        <span className="inline-flex items-center gap-1"><Sparkles className="w-3 h-3" /> 7 applicants</span>
-        <span>Closes 5d</span>
-      </div>
-      <button
-        onClick={onSolve}
-        className="w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
-      >
-        Solve &amp; Earn
-      </button>
-    </div>
-  );
-}
