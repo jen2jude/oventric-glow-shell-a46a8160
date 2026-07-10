@@ -20,7 +20,6 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const persist = useServerFn(createProduct);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProductCategory>("themes");
-  const [vendor, setVendor] = useState("");
   const [description, setDescription] = useState("");
   const [priceUSD, setPriceUSD] = useState("");
   const [mode, setMode] = useState<"file" | "url">("file");
@@ -34,7 +33,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setVendor(""); setDescription(""); setPriceUSD("");
+    setName(""); setDescription(""); setPriceUSD("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setCover(null);
     if (coverPreview) URL.revokeObjectURL(coverPreview);
