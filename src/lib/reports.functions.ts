@@ -13,15 +13,16 @@ export const submitReport = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ReportInput.parse(input))
   .handler(async ({ data, context }) => {
-    // Insert scoped to the authenticated reporter — the row's `reporter_id` is
-    // set server-side, and RLS enforces the caller can only insert as themselves.
+    // Auth-only: the requireSupabaseAuth middleware blocks anonymous callers,
+    // so only signed-in users can file reports. context.userId is available
+    // for audit log correlation if needed.
+    void context.userId;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("post_reports").insert({
       target_id: data.targetId,
       target_kind: data.targetKind,
       reason: data.reason,
       note: data.note ?? null,
-      reporter_id: context.userId,
     });
     if (error) {
       console.error("[submitReport] insert failed", error);
