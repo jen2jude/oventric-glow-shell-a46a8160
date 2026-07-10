@@ -416,9 +416,8 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
 export function StageModals() {
   const { openStage, setOpenStage } = useOnboarding();
-  if (!openStage) return null;
+  if (!openStage || openStage === 1) return null;
   const close = () => setOpenStage(null);
-  if (openStage === 1) return <Stage1 onClose={close} />;
   if (openStage === 2) return <Stage2 onClose={close} />;
   if (openStage === 3) return <Stage3 onClose={close} />;
   if (openStage === 4) return <Stage4 onClose={close} />;
