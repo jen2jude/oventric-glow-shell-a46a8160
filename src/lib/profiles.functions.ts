@@ -230,7 +230,15 @@ export const updateMyProfile = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdateInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, string | null> = {};
+    const patch: {
+      display_name?: string;
+      bio?: string | null;
+      avatar_path?: string | null;
+      username?: string | null;
+      phone?: string | null;
+      country?: string | null;
+      address?: string | null;
+    } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.avatarPath !== undefined) patch.avatar_path = data.avatarPath;
