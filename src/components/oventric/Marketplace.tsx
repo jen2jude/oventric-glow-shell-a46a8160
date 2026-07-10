@@ -130,8 +130,12 @@ export function Marketplace() {
           <span className="text-xs text-slate-500">{items.length} items</span>
         </div>
         {items.length === 0 ? (
-          <div className="text-sm text-slate-500 bg-[#1E1E24] border border-white/5 rounded-xl p-8 text-center">
-            No {meta.label.toLowerCase()} published yet.
+          <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
+            <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+            <div className="text-white font-semibold mb-1">No {meta.label.toLowerCase()} yet</div>
+            <div className="text-sm text-slate-400">
+              Nothing in this category. Check back later or browse other sections.
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
