@@ -488,6 +488,12 @@ function ProfileSettingsModal({
   const [dangerOpen, setDangerOpen] = useState(false);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [notifPrefs, setNotifPrefs] = useState<{ email_digest: boolean; dm_pings: boolean; bounty_invites: boolean }>({
+    email_digest: true,
+    dm_pings: true,
+    bounty_invites: true,
+  });
+  const [notifSaving, setNotifSaving] = useState<string | null>(null);
   const deleteAccountRemote = useServerFn(deleteMyAccount);
   const navigateTop = useNavigate();
   const dialogRef = useRef<HTMLDivElement>(null);
