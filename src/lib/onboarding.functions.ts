@@ -42,35 +42,39 @@ export const seedNewUser = createServerFn({ method: "POST" })
     }
 
     if (!existing) {
-      const { error: insErr } = await supabase.from("profiles").insert({
-        user_id: userId,
-        slug: slugBase,
-        display_name: fallbackName,
-        username: desiredUsername,
-        verification_tier: "TIER_0",
-        reputation_stars: 5.0,
-      });
-      // 23505 = unique_violation (username or slug collision). We retry once
-      // with a suffix so seeding never blocks signup.
-      if (insErr && (insErr as { code?: string }).code === "23505") {
-        const suffix = Math.random().toString(36).slice(2, 6);
-        const { error: retryErr } = await supabase.from("profiles").insert({
+      const tryInsert = async (slug: string, uname: string) =>
+        supabase.from("profiles").insert({
           user_id: userId,
-          slug: `${slugBase}${suffix}`,
+          slug,
           display_name: fallbackName,
-          username: `${desiredUsername}-${suffix}`,
+          username: uname,
           verification_tier: "TIER_0",
           reputation_stars: 5.0,
         });
-        if (retryErr) {
-          console.error("[seedNewUser] profile insert retry failed", retryErr);
-          throw new Error("Failed to create profile");
+
+      let { error: insErr } = await tryInsert(slugBase, desiredUsername);
+      // Retry a few times on unique-violation (slug/username collisions or
+      // a concurrent seed that just wrote the row).
+      for (let i = 0; insErr && (insErr as { code?: string }).code === "23505" && i < 3; i++) {
+        // If the row already exists for this user, we're done.
+        const { data: found } = await supabase
+          .from("profiles")
+          .select("user_id")
+          .eq("user_id", userId)
+          .maybeSingle();
+        if (found) {
+          insErr = null as unknown as typeof insErr;
+          break;
         }
-      } else if (insErr) {
+        const suffix = Math.random().toString(36).slice(2, 6);
+        ({ error: insErr } = await tryInsert(`${slugBase}${suffix}`, `${desiredUsername}-${suffix}`));
+      }
+      if (insErr) {
         console.error("[seedNewUser] profile insert failed", insErr);
         throw new Error("Failed to create profile");
       }
     }
+
 
     // 2. Wallets (one row per currency; UNIQUE(user_id, currency) makes this idempotent)
     const rows = WALLET_CURRENCIES.map((currency) => ({
