@@ -21,6 +21,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAdminStore } from "@/lib/admin/store";
+import { BountyEditorModal } from "./BountyEditorModal";
+import { Plus } from "lucide-react";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
