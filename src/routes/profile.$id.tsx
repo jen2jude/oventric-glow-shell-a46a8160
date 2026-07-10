@@ -451,7 +451,7 @@ function ProfilePage() {
       : `${realProfile.verificationTier.replace("_", " ")} Verified`
     : "Verified";
   const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? starBreakdown.stars;
-  const circleTargetSlug = realProfile?.slug ?? profile.id;
+  
 
   const handleJoin = () => {
     require(1, async () => {
