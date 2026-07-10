@@ -17,6 +17,7 @@ import {
   Radio,
   Target,
   Wallet,
+  GraduationCap,
 } from "lucide-react";
 
 
