@@ -312,8 +312,9 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
+
       .eq("user_id", userId)
       .maybeSingle();
     if (error) {
