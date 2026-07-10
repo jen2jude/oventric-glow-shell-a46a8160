@@ -485,6 +485,11 @@ function ProfileSettingsModal({
   const [pwConfirm, setPwConfirm] = useState("");
   const [pwShow, setPwShow] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
+  const [dangerOpen, setDangerOpen] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccountRemote = useServerFn(deleteMyAccount);
+  const navigateTop = useNavigate();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
