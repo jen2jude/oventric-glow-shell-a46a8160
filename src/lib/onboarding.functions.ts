@@ -118,11 +118,14 @@ export const updateFullName = createServerFn({ method: "POST" })
 const CompleteProfileInput = z.object({
   fullName: z.string().trim().min(2).max(80),
   country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
+  address: z.string().trim().min(4, "Enter a valid address").max(240),
+  phone: z.string().trim().min(6, "Enter a valid phone").max(24),
 });
 
 /**
- * Marks the user's profile as complete after they've entered name, country,
- * and set a password (password is set client-side via supabase.auth.updateUser).
+ * Stage 2 onboarding: persists full name, country, address, and phone, and
+ * promotes verification_tier from TIER_1 → TIER_2 so commerce actions
+ * (buy, sell, wallet, bounty apply, campaign issue) unlock.
  */
 export const completeProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -134,6 +137,9 @@ export const completeProfile = createServerFn({ method: "POST" })
       .update({
         display_name: data.fullName,
         country: data.country,
+        address: data.address,
+        phone: data.phone,
+        verification_tier: "TIER_2",
         profile_completed_at: new Date().toISOString(),
       })
       .eq("user_id", userId);
@@ -143,6 +149,7 @@ export const completeProfile = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
 /**
  * Reads the current user's profile-completion + kyc status. Used by gates to
