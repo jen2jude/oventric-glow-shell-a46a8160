@@ -37,6 +37,8 @@ import {
   Sparkles,
   AlertTriangle,
   RefreshCw,
+  Clock,
+  Loader2,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -397,13 +399,16 @@ function ProfilePage() {
     }
   };
 
-  // Load initial status for this profile
+  const circleTargetSlug = realProfile?.slug ?? profile.id;
+
+  // Load initial status for this profile — keyed to the real profile slug once
+  // it resolves so the button reflects the actual circle_requests row.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
         await ensureSession();
-        const res = await fetchStatus({ data: { targetSlug: profile.id } });
+        const res = await fetchStatus({ data: { targetSlug: circleTargetSlug } });
         if (cancelled) return;
         setCircle(res.status);
         setCircleMeta({
@@ -418,7 +423,8 @@ function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [profile.id, fetchStatus]);
+  }, [circleTargetSlug, fetchStatus]);
+
 
   const rep = profile.reputation;
   const starBreakdown = useMemo(() => computeStarBreakdown(rep), [rep]);
@@ -449,7 +455,7 @@ function ProfilePage() {
       : `${realProfile.verificationTier.replace("_", " ")} Verified`
     : "Verified";
   const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? starBreakdown.stars;
-  const circleTargetSlug = realProfile?.slug ?? profile.id;
+  
 
   const handleJoin = () => {
     require(1, async () => {
@@ -458,11 +464,11 @@ function ProfilePage() {
       try {
         await ensureSession();
         if (circle === "none") {
-          const res = await sendReq({ data: { targetSlug: profile.id } });
+          const res = await sendReq({ data: { targetSlug: circleTargetSlug } });
           setCircle(res.status);
           setCircleMeta({ sentAt: res.sentAt, acceptedAt: null, canceledAt: null });
         } else if (circle === "pending") {
-          const res = await cancelReq({ data: { targetSlug: profile.id } });
+          const res = await cancelReq({ data: { targetSlug: circleTargetSlug } });
           setCircle(res.status);
           setCircleMeta((m) => ({ sentAt: m.sentAt, acceptedAt: null, canceledAt: res.canceledAt }));
         }
@@ -671,19 +677,25 @@ function ProfilePage() {
                           : "Send circle request"
                     }
                   >
-                    {circle === "accepted" ? (
+                    {circleBusy ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {circle === "pending" ? "Canceling…" : circle === "accepted" ? "Loading…" : "Sending…"}
+                      </>
+                    ) : circle === "accepted" ? (
                       <>
                         <Check className="w-4 h-4" /> In Circle
                       </>
                     ) : circle === "pending" ? (
                       <>
-                        <Check className="w-4 h-4" /> Requested
+                        <Clock className="w-4 h-4" /> Pending
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4" /> Join Circle
                       </>
                     )}
+
                   </button>
                   <CircleStatusNote
                     status={circle}
