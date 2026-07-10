@@ -199,6 +199,8 @@ export function Bounties() {
   const [role, setRole] = useState<"poster" | "developer">("poster");
   const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
   const [adsLoading, setAdsLoading] = useState(true);
+  const [postOpen, setPostOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
