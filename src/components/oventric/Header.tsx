@@ -5,8 +5,7 @@ import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
   NotificationsDrawer,
-  SEED_NOTIFICATIONS,
-  type Notif,
+  useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import logoMark from "@/assets/oventric-mark.asset.json";
@@ -14,8 +13,8 @@ import logoFull from "@/assets/oventric-full.asset.json";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifs, setNotifs] = useState<Notif[]>(SEED_NOTIFICATIONS);
-  const unread = notifs.some((n) => !n.read);
+  const unreadCount = useUnreadNotificationsCount();
+  const unread = unreadCount > 0;
   const { isAuthenticated, openGate } = useAuthGate();
 
   return (
@@ -73,9 +72,11 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <Bell className="w-5 h-5" />
           {unread && (
             <span
-              className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 rgb-pulse-glow"
-              aria-hidden
-            />
+              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
+              aria-label={`${unreadCount} unread notifications`}
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
           )}
         </button>
         <IncomingCircleInbox />
@@ -106,8 +107,6 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
       <NotificationsDrawer
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
-        items={notifs}
-        onUpdate={setNotifs}
       />
     </header>
   );
