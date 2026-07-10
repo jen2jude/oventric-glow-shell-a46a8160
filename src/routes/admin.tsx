@@ -18,6 +18,7 @@ import {
   Target,
   Wallet,
   GraduationCap,
+  Banknote,
 } from "lucide-react";
 
 
