@@ -19,6 +19,9 @@ export const seedNewUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => Input.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId, claims } = context;
+    const isAnonymous = Boolean(
+      (claims as { is_anonymous?: boolean } | undefined)?.is_anonymous,
+    );
 
     const email = (claims as { email?: string } | undefined)?.email ?? "";
     const emailLocal = email.split("@")[0] || "architect";
@@ -76,20 +79,23 @@ export const seedNewUser = createServerFn({ method: "POST" })
     }
 
 
-    // 2. Wallets (one row per currency; UNIQUE(user_id, currency) makes this idempotent)
-    const rows = WALLET_CURRENCIES.map((currency) => ({
-      user_id: userId,
-      currency,
-      available_balance: 0,
-      escrow_balance: 0,
-      accumulated_cashback: 0,
-    }));
-    const { error: walletErr } = await supabase
-      .from("wallets")
-      .upsert(rows, { onConflict: "user_id,currency", ignoreDuplicates: true });
-    if (walletErr) {
-      console.error("[seedNewUser] wallet upsert failed", walletErr);
-      throw new Error("Failed to initialize wallets");
+    // 2. Wallets (only for real, non-anonymous users — RLS blocks anon inserts,
+    // and anon browse-only sessions don't need wallet rows until they upgrade).
+    if (!isAnonymous) {
+      const rows = WALLET_CURRENCIES.map((currency) => ({
+        user_id: userId,
+        currency,
+        available_balance: 0,
+        escrow_balance: 0,
+        accumulated_cashback: 0,
+      }));
+      const { error: walletErr } = await supabase
+        .from("wallets")
+        .upsert(rows, { onConflict: "user_id,currency", ignoreDuplicates: true });
+      if (walletErr) {
+        console.error("[seedNewUser] wallet upsert failed", walletErr);
+        throw new Error("Failed to initialize wallets");
+      }
     }
 
     return { ok: true, userId };
