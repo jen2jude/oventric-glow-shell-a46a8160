@@ -248,26 +248,47 @@ export type Database = {
       course_enrollments: {
         Row: {
           amount_paid_usd: number
+          cashback_usd: number | null
           completed_at: string | null
+          coupon_code: string | null
           course_id: string
           created_at: string
+          discount_usd: number | null
+          display_currency: string | null
+          display_total: number | null
           id: string
+          paid_at: string | null
+          payment_method: string | null
           user_id: string
         }
         Insert: {
           amount_paid_usd?: number
+          cashback_usd?: number | null
           completed_at?: string | null
+          coupon_code?: string | null
           course_id: string
           created_at?: string
+          discount_usd?: number | null
+          display_currency?: string | null
+          display_total?: number | null
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           user_id: string
         }
         Update: {
           amount_paid_usd?: number
+          cashback_usd?: number | null
           completed_at?: string | null
+          coupon_code?: string | null
           course_id?: string
           created_at?: string
+          discount_usd?: number | null
+          display_currency?: string | null
+          display_total?: number | null
           id?: string
+          paid_at?: string | null
+          payment_method?: string | null
           user_id?: string
         }
         Relationships: [

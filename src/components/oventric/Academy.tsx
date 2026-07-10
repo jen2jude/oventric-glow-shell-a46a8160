@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
@@ -262,6 +263,7 @@ function CourseDetail({
   const [activeIdx, setActiveIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
@@ -305,7 +307,7 @@ function CourseDetail({
       return;
     }
     if (!course.isFree) {
-      toast.info("Paid enrollment is coming in the next update");
+      setCheckoutOpen(true);
       return;
     }
     setBusy(true);
@@ -318,6 +320,13 @@ function CourseDetail({
     } finally {
       setBusy(false);
     }
+  };
+
+  const refetchEnrollment = async () => {
+    try {
+      const e = await fetchEnroll({ data: { courseId } });
+      setEnrollment(e);
+    } catch { /* not enrolled */ }
   };
 
   const toggleComplete = async () => {
@@ -502,6 +511,13 @@ function CourseDetail({
           </div>
         </aside>
       </div>
+
+      <CourseCheckoutModal
+        open={checkoutOpen}
+        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl } : null}
+        onClose={() => setCheckoutOpen(false)}
+        onEnrolled={() => { setCheckoutOpen(false); refetchEnrollment(); }}
+      />
     </div>
   );
 }
