@@ -178,6 +178,23 @@ function ProfilePage() {
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
+  const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+
+  const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchRealProfile({ data: { idOrSlug: id } });
+        if (!cancelled) setRealProfile(res.profile);
+      } catch (e) {
+        console.error("[profile] real load failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, fetchRealProfile]);
 
   const mainRef = useRef<HTMLElement | null>(null);
   const scrollRestoredRef = useRef(false);
