@@ -1,13 +1,16 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { getProfileByIdOrSlug, updateMyProfile } from "@/lib/profiles.functions";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+
 
 
 function slugify(v: string): string {
