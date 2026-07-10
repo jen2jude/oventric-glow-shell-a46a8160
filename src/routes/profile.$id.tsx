@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, type LiveReputation, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, getProfileSocialCounts, type LiveReputation, type ProfileSocialCounts, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -182,20 +182,24 @@ function ProfilePage() {
   const cancelReq = useServerFn(cancelCircleRequest);
   const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
   const fetchReputation = useServerFn(getLiveReputation);
+  const fetchSocialCounts = useServerFn(getProfileSocialCounts);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
+  const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [pRes, rRes] = await Promise.all([
+        const [pRes, rRes, cRes] = await Promise.all([
           fetchRealProfile({ data: { idOrSlug: id } }),
           fetchReputation({ data: { idOrSlug: id } }),
+          fetchSocialCounts({ data: { idOrSlug: id } }),
         ]);
         if (cancelled) return;
         setRealProfile(pRes.profile);
         setLiveRep(rRes.reputation);
+        setSocialCounts(cRes);
       } catch (e) {
         console.error("[profile] real load failed", e);
       }
@@ -203,7 +207,8 @@ function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [id, fetchRealProfile, fetchReputation]);
+  }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
 
 
   const mainRef = useRef<HTMLElement | null>(null);
@@ -643,14 +648,14 @@ function ProfilePage() {
                   </div>
                   <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {profile.followers.toLocaleString()} followers
+                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {(socialCounts?.followers ?? 0).toLocaleString()} followers
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">
                     {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
                   </p>
-                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${displayName}'s circle`}>
+                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${socialCounts?.circleMembers ?? 0} members in ${displayName}'s circle`}>
                     <div className="flex -space-x-2">
-                      {circleMembers.preview.map((m) => (
+                      {circleMembers.preview.slice(0, Math.min(circleMembers.preview.length, socialCounts?.circleMembers ?? 0)).map((m) => (
                         <div
                           key={m.id}
                           title={m.name}
@@ -659,16 +664,17 @@ function ProfilePage() {
                           {m.initials}
                         </div>
                       ))}
-                      {circleMembers.total > circleMembers.preview.length && (
+                      {(socialCounts?.circleMembers ?? 0) > circleMembers.preview.length && (
                         <div className="w-7 h-7 rounded-full bg-white/10 ring-2 ring-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-slate-200">
-                          +{Math.max(0, circleMembers.total - circleMembers.preview.length)}
+                          +{Math.max(0, (socialCounts?.circleMembers ?? 0) - circleMembers.preview.length)}
                         </div>
                       )}
                     </div>
                     <span className="text-xs text-slate-400">
-                      <span className="font-semibold text-slate-200">{circleMembers.total.toLocaleString()}</span> in circle
+                      <span className="font-semibold text-slate-200">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span> in circle
                     </span>
                   </div>
+
                 </div>
                 <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button

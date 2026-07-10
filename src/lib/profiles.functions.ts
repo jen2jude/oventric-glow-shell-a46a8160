@@ -156,6 +156,55 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
 
 
 // ---------------------------------------------------------------------------
+// Live social counts (followers, circle members) for a profile slug.
+// Backed by a security-definer SQL function so counts are accurate even
+// when RLS hides individual circle_requests rows from the viewer.
+// ---------------------------------------------------------------------------
+
+export interface ProfileSocialCounts {
+  followers: number;
+  circleMembers: number;
+}
+
+export const getProfileSocialCounts = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => ViewInput.parse(input))
+  .handler(async ({ data }): Promise<ProfileSocialCounts> => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+
+    // Resolve to a slug. Accept slug/username directly; look up by user_id UUID.
+    let slug = data.idOrSlug;
+    if (UUID_RE.test(data.idOrSlug)) {
+      const { data: row } = await supabase
+        .from("profiles")
+        .select("slug")
+        .eq("user_id", data.idOrSlug)
+        .maybeSingle();
+      if (!row?.slug) return { followers: 0, circleMembers: 0 };
+      slug = row.slug;
+    }
+
+    const { data: rows, error } = await supabase.rpc("profile_social_counts", { _slug: slug });
+    if (error) {
+      console.error("[getProfileSocialCounts] rpc failed", error);
+      return { followers: 0, circleMembers: 0 };
+    }
+    const first = Array.isArray(rows) ? rows[0] : rows;
+    return {
+      followers: Number(first?.followers ?? 0),
+      circleMembers: Number(first?.circle_members ?? 0),
+    };
+  });
+
+
+
+
+
+// ---------------------------------------------------------------------------
 // Update the authenticated user's own profile (name, bio, avatar path).
 // ---------------------------------------------------------------------------
 
