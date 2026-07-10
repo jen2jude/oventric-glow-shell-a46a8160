@@ -441,6 +441,7 @@ export function Bounties() {
               bounty={b}
               currency={baseCurrency}
               onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
+              isNew={highlightId === b.id}
             />,
           ];
           if ((idx + 1) % 4 === 0) {
