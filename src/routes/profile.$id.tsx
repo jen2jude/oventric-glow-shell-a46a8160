@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getLiveProfileTab, getProfileByIdOrSlug, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, type LiveReputation, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
