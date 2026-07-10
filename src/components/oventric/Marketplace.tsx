@@ -91,21 +91,25 @@ export function Marketplace() {
   }
 
   if (!products) {
-    return (
-      <div className="max-w-7xl mx-auto w-full px-4 py-10 flex items-center gap-2 text-slate-400 text-sm">
-        <Loader2 className="w-4 h-4 animate-spin" /> Loading marketplace…
-      </div>
-    );
+    return <MarketplaceSkeleton />;
   }
 
   if (products.length === 0) {
     return (
       <div className="max-w-3xl mx-auto w-full px-4 py-16 text-center">
-        <PackageOpen className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+        <div className="w-16 h-16 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center mx-auto mb-5">
+          <PackageOpen className="w-8 h-8 text-slate-500" />
+        </div>
         <h2 className="text-xl font-black text-white mb-1">No listings yet</h2>
-        <p className="text-sm text-slate-400">
-          Digital assets uploaded by sellers appear here. Publish one via the Admin Content Factory to get started.
+        <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">
+          The marketplace is empty right now. Be the first to publish a digital asset and start earning.
         </p>
+        <button
+          onClick={() => navigate({ to: "/admin" })}
+          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors"
+        >
+          Open Content Factory
+        </button>
       </div>
     );
   }
