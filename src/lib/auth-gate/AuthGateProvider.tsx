@@ -400,42 +400,33 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      let resolvedEmail = raw;
-      if (!raw.includes("@")) {
-        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
-        resolvedEmail = res.email;
-      } else {
+      // Server-side dispatch: never exposes the resolved email to the client.
+      // If the identifier is a bare email, we still route through the server
+      // fn so the response shape (masked email only) is uniform.
+      if (raw.includes("@")) {
         const parsed = emailSchema.safeParse(raw);
         if (!parsed.success) {
           setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
           setSending(false);
           return;
         }
-        resolvedEmail = parsed.data;
       }
-      const { error } = await supabase.auth.signInWithOtp({
-        email: resolvedEmail,
-        options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
-      });
-
-      if (error) {
-        const msg = error.message.toLowerCase();
-        if (msg.includes("signups not allowed") || msg.includes("not found") || msg.includes("user not found")) {
-          throw new Error("No account found. Try signing up as a new user.");
-        }
-        throw error;
+      const res = await sendLoginOtpByIdentifier({ data: { identifier: raw } });
+      if (!res.sent) {
+        throw new Error("No account found. Try signing up as a new user.");
       }
-      setEmail(resolvedEmail);
+      // Keep raw email out of client state — we rely on `identifier` at verify time.
+      setEmail("");
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(`Code sent to ${resolvedEmail}`);
+      setFlash(res.maskedEmail ? `Code sent to ${res.maskedEmail}` : "Code sent");
     } catch (err) {
       setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
       setSending(false);
     }
-  }, [identifier, resolveLoginIdentifier]);
+  }, [identifier, sendLoginOtpByIdentifier]);
 
   const signInWithPassword = useCallback(async () => {
     setIdentifierError(null);
@@ -452,30 +443,20 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      let resolvedEmail = raw;
-      if (!raw.includes("@")) {
-        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
-        resolvedEmail = res.email;
-      } else {
-        const parsed = emailSchema.safeParse(raw);
-        if (!parsed.success) {
-          setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
-          setSending(false);
-          return;
-        }
-        resolvedEmail = parsed.data;
-      }
-      const { error } = await supabase.auth.signInWithPassword({
-        email: resolvedEmail,
-        password,
+      // Server-side sign-in returns session tokens; raw email never crosses back.
+      const res = await signInWithIdentifierPassword({
+        data: { identifier: raw, password },
       });
-      if (error) {
-        const msg = error.message.toLowerCase();
-        if (msg.includes("invalid") || msg.includes("credentials")) {
-          setPasswordError("Wrong email or password.");
-        } else {
-          setPasswordError(humanizeError(error.message));
-        }
+      if (!res.ok || !res.session) {
+        setPasswordError("Wrong email or password.");
+        return;
+      }
+      const { error: setErr } = await supabase.auth.setSession({
+        access_token: res.session.access_token,
+        refresh_token: res.session.refresh_token,
+      });
+      if (setErr) {
+        setPasswordError(humanizeError(setErr.message));
         return;
       }
       // SIGNED_IN listener in provider closes modal + fires splash + pending action.
@@ -484,7 +465,7 @@ function AuthGateModal({
     } finally {
       setSending(false);
     }
-  }, [identifier, password, resolveLoginIdentifier]);
+  }, [identifier, password, signInWithIdentifierPassword]);
 
 
 
