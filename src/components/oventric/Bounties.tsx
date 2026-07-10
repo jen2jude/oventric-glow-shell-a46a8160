@@ -263,6 +263,21 @@ export function Bounties() {
     return () => { cancelled = true; };
   }, [refreshTick]);
 
+  // Realtime: auto-refresh when any bounty is inserted/updated/deleted
+  useEffect(() => {
+    const channel = supabase
+      .channel("bounties-board")
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bounties" },
+        () => setRefreshTick((t) => t + 1),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, []);
+
   useTicker(1000);
 
   const adminBounties: Bounty[] = useMemo(
