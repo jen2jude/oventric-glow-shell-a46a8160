@@ -16,7 +16,8 @@ export interface SystemWalletTxDTO {
   source: string;
   refId: string | null;
   createdAt: string;
-  meta: Record<string, unknown>;
+  meta: string;
+
 }
 
 async function assertAdmin(ctx: { supabase: unknown; userId: string }) {
