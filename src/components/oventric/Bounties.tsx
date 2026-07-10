@@ -283,7 +283,7 @@ export function Bounties() {
     [admin.bounties],
   );
 
-  const ALL_BOUNTIES = useMemo(() => [...adminBounties, ...BOUNTIES], [adminBounties]);
+  const ALL_BOUNTIES = useMemo(() => [...dbBounties, ...adminBounties, ...BOUNTIES], [dbBounties, adminBounties]);
 
   const filtered = useMemo(
     () => (filter === "all" ? ALL_BOUNTIES : ALL_BOUNTIES.filter((b) => b.category === filter)),
