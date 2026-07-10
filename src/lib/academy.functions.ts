@@ -249,7 +249,8 @@ export const updateCourse = createServerFn({ method: "POST" })
     if (data.promoted !== undefined) patch.promoted = data.promoted;
     const { data: row, error } = await context.supabase
       .from("courses")
-      .update(patch)
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(patch as any)
       .eq("id", data.id)
       .select(COURSE_COLS)
       .single();
