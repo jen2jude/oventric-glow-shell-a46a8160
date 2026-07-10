@@ -6,6 +6,19 @@ export type Stage = 1 | 2 | 3 | 4 | 5;
 export type Country = "NG" | "GH" | "US" | "UK" | "OTHER";
 export type Currency = "USD" | "NGN" | "GHS";
 
+/**
+ * Country → base currency map. Nigeria uses NGN, Ghana uses GHS, everywhere
+ * else falls back to USD. This is the single source of truth used both when
+ * a user picks their country during Stage 2 onboarding and when hydrating an
+ * already-completed profile at sign-in.
+ */
+export function countryToCurrency(country: Country | null | undefined): Currency {
+  if (country === "NG") return "NGN";
+  if (country === "GH") return "GHS";
+  return "USD";
+}
+
+
 export type PayoutBank =
   | { country: "NG"; bank: string; accountNumber: string; accountName: string }
   | { country: "GH"; network: string; momoNumber: string; walletName: string }
