@@ -522,7 +522,9 @@ function ProfileSettingsModal({
           setCountry(p.country ?? "");
           setAddress(p.address ?? "");
           setAvatar(p.avatarUrl ?? profile.avatarDataUrl);
+          setNotifPrefs(p.notificationPreferences);
         }
+
       })
       .catch((e) => {
         console.error("[ProfileSettingsModal] load failed", e);
