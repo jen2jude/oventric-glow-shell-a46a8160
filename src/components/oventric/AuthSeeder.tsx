@@ -115,7 +115,7 @@ export function AuthSeeder() {
       sub.subscription.unsubscribe();
       if (walletChannel) supabase.removeChannel(walletChannel);
     };
-  }, [seedNewUser, fetchBalances, setBalances]);
+  }, [seedNewUser, fetchBalances, fetchStatus, setBalances, advanceTo, setBaseCurrency]);
 
   return null;
 }
