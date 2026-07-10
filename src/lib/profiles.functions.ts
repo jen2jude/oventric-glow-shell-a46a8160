@@ -335,6 +335,49 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
   });
 
 
+// ---------------------------------------------------------------------------
+// Danger zone — soft-delete the authenticated user's account. Requires the
+// caller to type their exact email as confirmation. Uses the admin client
+// with `shouldSoftDelete: true` so the auth row is retained for 30 days and
+// can be restored on request.
+// ---------------------------------------------------------------------------
+
+const DeleteAccountInput = z.object({
+  confirmEmail: z.string().trim().email().max(255),
+});
+
+export const deleteMyAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => DeleteAccountInput.parse(input ?? {}))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { data: userRes, error: userErr } = await supabase.auth.getUser();
+    if (userErr || !userRes?.user) throw new Error("Not authenticated");
+    const email = userRes.user.email ?? "";
+    if (email.toLowerCase() !== data.confirmEmail.toLowerCase()) {
+      throw new Error("Email confirmation does not match your account.");
+    }
+
+    // Best-effort profile flagging so app queries can filter deleted users
+    // even before the auth row is purged.
+    await supabase
+      .from("profiles")
+      .update({ display_name: "[deleted user]", bio: null })
+      .eq("user_id", userId);
+
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(userId, true);
+    if (delErr) {
+      console.error("[deleteMyAccount] soft-delete failed", delErr);
+      throw new Error("Could not delete account. Please try again.");
+    }
+    return { ok: true };
+  });
+
+
+
+
+
 
 // ---------------------------------------------------------------------------
 // Live profile tab / item — queries the real Supabase tables tied to the

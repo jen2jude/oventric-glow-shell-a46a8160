@@ -7,7 +7,7 @@ import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOf
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, type MyFullProfile } from "@/lib/profiles.functions";
+import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccount, type MyFullProfile } from "@/lib/profiles.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
@@ -485,6 +485,11 @@ function ProfileSettingsModal({
   const [pwConfirm, setPwConfirm] = useState("");
   const [pwShow, setPwShow] = useState(false);
   const [pwSaving, setPwSaving] = useState(false);
+  const [dangerOpen, setDangerOpen] = useState(false);
+  const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
+  const [deleting, setDeleting] = useState(false);
+  const deleteAccountRemote = useServerFn(deleteMyAccount);
+  const navigateTop = useNavigate();
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
@@ -656,6 +661,34 @@ function ProfileSettingsModal({
       setPwSaving(false);
     }
   };
+
+  const onDeleteAccount = async () => {
+    if (!full?.email) {
+      toast.error("No email on file", { description: "Contact support to delete this account." });
+      return;
+    }
+    if (deleteConfirmEmail.trim().toLowerCase() !== full.email.toLowerCase()) {
+      toast.error("Email doesn't match", { description: "Type your account email exactly to confirm." });
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteAccountRemote({ data: { confirmEmail: deleteConfirmEmail.trim() } });
+      await supabase.auth.signOut();
+      toast.success("Account scheduled for deletion", {
+        description: "You have 30 days to contact support to restore it.",
+      });
+      onClose();
+      navigateTop({ to: "/" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not delete account", { description: message });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
 
   const tierLabel = (t?: string) => {
     switch (t) {
@@ -975,7 +1008,54 @@ function ProfileSettingsModal({
               {full?.kycCompletedAt ? "Re-run liveness check →" : "Start identity verification →"}
             </button>
           </div>
+
+          {/* Danger zone */}
+          <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-bold text-red-300 uppercase tracking-widest">Danger zone</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Soft-delete this account. Restorable for 30 days via support.</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDangerOpen((v) => !v)}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
+                aria-expanded={dangerOpen}
+              >
+                {dangerOpen ? "Cancel" : "Delete account"}
+              </button>
+            </div>
+            {dangerOpen && (
+              <div className="mt-3 space-y-2">
+                <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-0.5">
+                  <li>Your sign-in access is revoked immediately.</li>
+                  <li>Profile is anonymized; public content stays attributed to <em>[deleted user]</em>.</li>
+                  <li>Auth row is soft-deleted and purged after 30 days.</li>
+                </ul>
+                <label className="block text-[11px] font-semibold text-slate-400">
+                  Type <span className="text-red-300">{full?.email ?? "your email"}</span> to confirm
+                </label>
+                <input
+                  type="email"
+                  autoComplete="off"
+                  value={deleteConfirmEmail}
+                  onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                  placeholder={full?.email ?? ""}
+                  className="w-full bg-[#0F0F12] border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/70"
+                />
+                <button
+                  type="button"
+                  onClick={onDeleteAccount}
+                  disabled={deleting || !deleteConfirmEmail}
+                  className="w-full text-xs font-black py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
+                >
+                  {deleting ? "Deleting…" : "Permanently delete my account"}
+                </button>
+              </div>
+            )}
+          </div>
           </>
+
           )}
         </form>
 
