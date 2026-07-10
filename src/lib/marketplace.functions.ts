@@ -361,22 +361,19 @@ export const createOrder = createServerFn({ method: "POST" })
     const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
     const platformCutUSD = Number((totalUSD - sellerCutUSD).toFixed(2));
 
-    await supabase.rpc("wallet_credit", {
+    await supabaseAdmin.rpc("wallet_credit", {
       _user_id: product.sellerId,
       _amount: sellerCutUSD,
     });
 
     // Credit the admin marketplace revenue wallet via SECURITY DEFINER helper.
-    {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("system_wallet_credit", {
-        _kind: "marketplace",
-        _amount: platformCutUSD,
-        _source: "marketplace_order",
-        _ref: oRow.id as string,
-        _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
-      });
-    }
+    await supabaseAdmin.rpc("system_wallet_credit", {
+      _kind: "marketplace",
+      _amount: platformCutUSD,
+      _source: "marketplace_order",
+      _ref: oRow.id as string,
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
+    });
 
     // 2% cashback to buyer when paying from wallet.
     let cashbackUSD = 0;
