@@ -1,135 +1,167 @@
-import { useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   X,
+  Bell,
   Wallet as WalletIcon,
   Users,
   Timer,
   ShieldAlert,
+  Megaphone,
+  Mail,
   ArrowRight,
-  Check,
 } from "lucide-react";
-import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import {
+  myNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "@/lib/communications.functions";
 
-type Channel = "all" | "financials" | "circles" | "bounties" | "moderation";
+type Channel = "all" | "financials" | "circles" | "bounties" | "system";
 
-type BaseNotif = {
+interface DbNotif {
   id: string;
-  channel: Exclude<Channel, "all">;
-  createdAt: string;
-  read: boolean;
-};
-type FinancialNotif = BaseNotif & {
-  kind: "financial";
-  amountUsd: number;
-  contract: string;
-};
-type CircleNotif = BaseNotif & {
-  kind: "circle";
-  name: string;
-  initials: string;
-  accepted?: boolean;
-  declined?: boolean;
-};
-type BountyNotif = BaseNotif & {
-  kind: "bounty";
-  task: string;
-  taskId: string;
-  hoursLeft: number;
-};
-type ModerationNotif = BaseNotif & { kind: "moderation"; postRef: string };
-type Notif = FinancialNotif | CircleNotif | BountyNotif | ModerationNotif;
-
-const SEED: Notif[] = [
-  {
-    id: "n1",
-    kind: "financial",
-    channel: "financials",
-    amountUsd: 1250,
-    contract: "0983",
-    createdAt: "2m",
-    read: false,
-  },
-  {
-    id: "n2",
-    kind: "circle",
-    channel: "circles",
-    name: "Ada Lovelace",
-    initials: "AL",
-    createdAt: "9m",
-    read: false,
-  },
-  {
-    id: "n3",
-    kind: "bounty",
-    channel: "bounties",
-    task: "Fix Webhook Sync",
-    taskId: "104",
-    hoursLeft: 71,
-    createdAt: "34m",
-    read: false,
-  },
-  {
-    id: "n4",
-    kind: "moderation",
-    channel: "moderation",
-    postRef: "post_44a1",
-    createdAt: "2h",
-    read: true,
-  },
-  {
-    id: "n5",
-    kind: "financial",
-    channel: "financials",
-    amountUsd: 420,
-    contract: "0971",
-    createdAt: "5h",
-    read: true,
-  },
-  {
-    id: "n6",
-    kind: "circle",
-    channel: "circles",
-    name: "Kwame Mensah",
-    initials: "KM",
-    createdAt: "1d",
-    read: true,
-  },
-];
+  kind: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  from_user_id: string | null;
+  read_at: string | null;
+  created_at: string;
+  user_id: string;
+}
 
 const CHANNELS: { key: Channel; label: string }[] = [
   { key: "all", label: "All" },
   { key: "financials", label: "💳 Financials" },
   { key: "circles", label: "👥 Circles" },
   { key: "bounties", label: "🎯 Bounties" },
+  { key: "system", label: "📢 System" },
 ];
+
+function channelForKind(kind: string): Exclude<Channel, "all"> {
+  if (/wallet|payout|escrow|order|payment|cashback/i.test(kind)) return "financials";
+  if (/circle|peer/i.test(kind)) return "circles";
+  if (/bounty/i.test(kind)) return "bounties";
+  return "system";
+}
+
+function iconForKind(kind: string) {
+  const c = channelForKind(kind);
+  if (c === "financials") return <WalletIcon className="w-4 h-4 text-emerald-400" />;
+  if (c === "circles") return <Users className="w-4 h-4 text-sky-400" />;
+  if (c === "bounties") return <Timer className="w-4 h-4 text-amber-300" />;
+  if (kind === "announcement") return <Megaphone className="w-4 h-4 text-fuchsia-400" />;
+  if (kind === "direct_message") return <Mail className="w-4 h-4 text-white" />;
+  if (kind === "alert") return <ShieldAlert className="w-4 h-4 text-red-400" />;
+  return <Bell className="w-4 h-4 text-slate-300" />;
+}
+
+function timeAgo(iso: string): string {
+  const d = new Date(iso).getTime();
+  const diff = Math.max(0, Date.now() - d);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const days = Math.floor(h / 24);
+  if (days < 7) return `${days}d`;
+  return new Date(iso).toLocaleDateString();
+}
 
 export function NotificationsDrawer({
   open,
   onClose,
-  items,
-  onUpdate,
 }: {
   open: boolean;
   onClose: () => void;
-  items: Notif[];
-  onUpdate: (next: Notif[]) => void;
 }) {
-  const { baseCurrency } = useOnboarding();
+  const { isAuthenticated } = useAuthGate();
   const [channel, setChannel] = useState<Channel>("all");
+  const [items, setItems] = useState<DbNotif[]>([]);
+  const [loading, setLoading] = useState(false);
 
-  const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
-  const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
-  const money = (usd: number) =>
-    `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const fetchList = useServerFn(myNotifications);
+  const markOne = useServerFn(markNotificationRead);
+  const markAll = useServerFn(markAllNotificationsRead);
+
+  const refresh = useCallback(async () => {
+    if (!isAuthenticated) {
+      setItems([]);
+      return;
+    }
+    setLoading(true);
+    try {
+      const rows = (await fetchList()) as DbNotif[];
+      setItems(rows);
+    } catch {
+      /* ignore */
+    } finally {
+      setLoading(false);
+    }
+  }, [fetchList, isAuthenticated]);
+
+  useEffect(() => {
+    if (open) void refresh();
+  }, [open, refresh]);
+
+  // Realtime subscription — always on while authenticated so unread badge stays live.
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let userId: string | null = null;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
+    let cancelled = false;
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+      if (!userId || cancelled) return;
+      channelSub = supabase
+        .channel(`notif-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          () => {
+            void refresh();
+          },
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated, refresh]);
 
   const filtered = useMemo(
-    () => (channel === "all" ? items : items.filter((n) => n.channel === channel)),
+    () => (channel === "all" ? items : items.filter((n) => channelForKind(n.kind) === channel)),
     [items, channel],
   );
 
-  const markAllRead = () => onUpdate(items.map((n) => ({ ...n, read: true })));
-  const patch = (id: string, p: Partial<Notif>) =>
-    onUpdate(items.map((n) => (n.id === id ? ({ ...n, ...p } as Notif) : n)));
+  const handleOpenItem = async (n: DbNotif) => {
+    if (!n.read_at) {
+      setItems((prev) => prev.map((p) => (p.id === n.id ? { ...p, read_at: new Date().toISOString() } : p)));
+      try {
+        await markOne({ data: { id: n.id } });
+      } catch {
+        /* ignore */
+      }
+    }
+    if (n.link) window.location.href = n.link;
+  };
+
+  const handleMarkAll = async () => {
+    setItems((prev) => prev.map((p) => ({ ...p, read_at: p.read_at ?? new Date().toISOString() })));
+    try {
+      await markAll({});
+    } catch {
+      /* ignore */
+    }
+  };
 
   return (
     <>
@@ -151,7 +183,9 @@ export function NotificationsDrawer({
         <div className="flex items-center justify-between px-4 h-16 border-b border-white/5">
           <div>
             <h2 className="text-white font-bold text-sm">Notifications</h2>
-            <p className="text-[11px] text-slate-500">Real-time activity across your workspace</p>
+            <p className="text-[11px] text-slate-500">
+              {isAuthenticated ? "Live activity across your workspace" : "Connect your account to receive alerts"}
+            </p>
           </div>
           <button
             onClick={onClose}
@@ -162,7 +196,6 @@ export function NotificationsDrawer({
           </button>
         </div>
 
-        {/* Channel pills */}
         <div className="px-4 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5">
           {CHANNELS.map((c) => {
             const active = channel === c.key;
@@ -182,31 +215,66 @@ export function NotificationsDrawer({
           })}
         </div>
 
-        {/* Stream */}
         <div className="overflow-y-auto px-4 py-3" style={{ maxHeight: "calc(100vh - 8.5rem - 3.25rem)" }}>
-          {filtered.length === 0 ? (
+          {!isAuthenticated ? (
+            <div className="text-center text-xs text-slate-500 py-10">
+              Sign in to view your notifications.
+            </div>
+          ) : loading && items.length === 0 ? (
+            <div className="text-center text-xs text-slate-500 py-10">Loading…</div>
+          ) : filtered.length === 0 ? (
             <div className="text-center text-xs text-slate-500 py-10">
               You're all caught up in this channel.
             </div>
           ) : (
             filtered.map((n) => (
-              <NotifCard
+              <button
                 key={n.id}
-                n={n}
-                money={money}
-                onAcceptCircle={() => patch(n.id, { accepted: true, declined: false, read: true } as Partial<Notif>)}
-                onDeclineCircle={() => patch(n.id, { declined: true, accepted: false, read: true } as Partial<Notif>)}
-                onOpen={() => patch(n.id, { read: true })}
-              />
+                onClick={() => void handleOpenItem(n)}
+                className={`w-full text-left bg-[#121214] border border-white/5 rounded-xl p-3 mb-3 transition-all hover:border-white/10 ${
+                  !n.read_at ? "ring-1 ring-emerald-500/20" : ""
+                }`}
+              >
+                <div className="flex items-start gap-3">
+                  <div
+                    className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10 ${
+                      !n.read_at ? "rgb-pulse-glow" : ""
+                    }`}
+                  >
+                    {iconForKind(n.kind)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex items-center gap-2">
+                      <p className="text-[13px] font-semibold text-white truncate">{n.title}</p>
+                      {!n.read_at && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-hidden />
+                      )}
+                    </div>
+                    {n.body && (
+                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{n.body}</p>
+                    )}
+                    <div className="mt-1.5 flex items-center justify-between">
+                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+                        {timeAgo(n.created_at)}
+                      </span>
+                      {n.link && (
+                        <span className="text-[11px] font-semibold text-emerald-400 inline-flex items-center gap-1">
+                          Open <ArrowRight className="w-3 h-3" />
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                </div>
+              </button>
             ))
           )}
         </div>
 
-        {/* Footer */}
         <div className="absolute bottom-0 inset-x-0 px-4 py-3 border-t border-white/5 bg-[#1E1E24]">
           <button
-            onClick={markAllRead}
-            className="w-full py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-[#121214] border border-white/10 hover:border-emerald-500/40 transition-colors"
+            onClick={handleMarkAll}
+            disabled={!isAuthenticated || items.every((n) => n.read_at)}
+            className="w-full py-2 rounded-lg text-xs font-semibold text-slate-300 hover:text-white bg-[#121214] border border-white/10 hover:border-emerald-500/40 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             Mark All as Read
           </button>
@@ -216,149 +284,55 @@ export function NotificationsDrawer({
   );
 }
 
-function NotifCard({
-  n,
-  money,
-  onAcceptCircle,
-  onDeclineCircle,
-  onOpen,
-}: {
-  n: Notif;
-  money: (usd: number) => string;
-  onAcceptCircle: () => void;
-  onDeclineCircle: () => void;
-  onOpen: () => void;
-}) {
-  return (
-    <div
-      className={`bg-[#121214] border border-white/5 rounded-xl p-3 mb-3 transition-all hover:border-white/10 ${
-        !n.read ? "ring-1 ring-emerald-500/20" : ""
-      }`}
-    >
-      <div className="flex items-start gap-3">
-        <IconBadge kind={n.kind} unread={!n.read} />
-        <div className="flex-1 min-w-0">
-          {n.kind === "financial" && (
-            <>
-              <p className="text-[13px] leading-snug text-slate-200">
-                <span className="font-semibold text-white">Escrow Locked:</span> Payout balance of{" "}
-                <span className="font-black text-emerald-400">{money(n.amountUsd)}</span> has been
-                verified and safely bound to Contract #{n.contract}.
-              </p>
-              <TimeRow t={n.createdAt} />
-            </>
-          )}
+/**
+ * Lightweight hook that keeps an unread count in sync via realtime, for the
+ * header bell badge. Returns 0 when the user is not authenticated.
+ */
+export function useUnreadNotificationsCount() {
+  const { isAuthenticated } = useAuthGate();
+  const [count, setCount] = useState(0);
 
-          {n.kind === "circle" && (
-            <>
-              <div className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded-full bg-gradient-to-br from-emerald-400 to-sky-500 text-black text-[10px] font-black flex items-center justify-center">
-                  {n.initials}
-                </div>
-                <p className="text-[13px] leading-snug text-slate-200">
-                  <span className="font-semibold text-white">{n.name}</span> has requested to join
-                  your Peer Circle.
-                </p>
-              </div>
-              <TimeRow t={n.createdAt} />
-              {n.accepted ? (
-                <div className="mt-2 inline-flex items-center gap-1.5 text-[11px] font-semibold text-emerald-400">
-                  <Check className="w-3.5 h-3.5" /> In Your Circle
-                </div>
-              ) : n.declined ? (
-                <div className="mt-2 text-[11px] text-slate-500">Request declined</div>
-              ) : (
-                <div className="mt-2 flex items-center gap-3">
-                  <button
-                    onClick={onAcceptCircle}
-                    className="px-3 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold transition-colors"
-                  >
-                    Accept
-                  </button>
-                  <button
-                    onClick={onDeclineCircle}
-                    className="text-[11px] text-slate-500 hover:text-slate-300 transition-colors"
-                  >
-                    Decline
-                  </button>
-                </div>
-              )}
-            </>
-          )}
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCount(0);
+      return;
+    }
+    let cancelled = false;
+    let userId: string | null = null;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
 
-          {n.kind === "bounty" && (
-            <>
-              <p className="text-[13px] leading-snug text-slate-200">
-                <span className="font-semibold text-white">Review Requested:</span> Developer has
-                marked Task #{n.taskId} (
-                <span className="text-slate-300">‘{n.task}’</span>) as complete. Your{" "}
-                <span className="font-semibold text-amber-300">{n.hoursLeft}h</span> review window
-                is ticking down.
-              </p>
-              <TimeRow t={n.createdAt} />
-              <button
-                onClick={onOpen}
-                className="mt-2 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300"
-              >
-                Inspect Workspace <ArrowRight className="w-3 h-3" />
-              </button>
-            </>
-          )}
+    const load = async () => {
+      if (!userId) return;
+      const { count: c } = await supabase
+        .from("notifications")
+        .select("id", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .is("read_at", null);
+      if (!cancelled) setCount(c ?? 0);
+    };
 
-          {n.kind === "moderation" && (
-            <>
-              <p className="text-[13px] leading-snug text-slate-200">
-                <span className="font-semibold text-white">Action Taken:</span> A social post you
-                flagged has been processed by an automated system administrator moderator.
-              </p>
-              <TimeRow t={n.createdAt} />
-            </>
-          )}
-        </div>
-      </div>
-    </div>
-  );
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+      if (!userId || cancelled) return;
+      await load();
+      channelSub = supabase
+        .channel(`notif-count-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          () => {
+            void load();
+          },
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated]);
+
+  return count;
 }
-
-function IconBadge({ kind, unread }: { kind: Notif["kind"]; unread: boolean }) {
-  const base =
-    "shrink-0 w-9 h-9 rounded-lg flex items-center justify-center border relative";
-  if (kind === "financial")
-    return (
-      <div className={`${base} bg-emerald-500/10 border-emerald-500/30 text-emerald-400`}>
-        <WalletIcon className="w-4 h-4" />
-        {unread && <Dot />}
-      </div>
-    );
-  if (kind === "circle")
-    return (
-      <div className={`${base} bg-sky-500/10 border-sky-500/30 text-sky-300`}>
-        <Users className="w-4 h-4" />
-        {unread && <Dot />}
-      </div>
-    );
-  if (kind === "bounty")
-    return (
-      <div className={`${base} bg-purple-500/10 border-purple-500/30 text-purple-300`}>
-        <Timer className="w-4 h-4 animate-pulse" />
-        {unread && <Dot />}
-      </div>
-    );
-  return (
-    <div className={`${base} bg-amber-500/10 border-amber-500/30 text-amber-300`}>
-      <ShieldAlert className="w-4 h-4" />
-      {unread && <Dot />}
-    </div>
-  );
-}
-
-const Dot = () => (
-  <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-emerald-400 rgb-pulse-glow" />
-);
-
-const TimeRow = ({ t }: { t: string }) => (
-  <div className="text-[10px] text-slate-500 mt-1">{t} ago</div>
-);
-
-export type { Notif };
-export { SEED as SEED_NOTIFICATIONS };
