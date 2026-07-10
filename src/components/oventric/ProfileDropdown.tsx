@@ -932,7 +932,41 @@ function ProfileSettingsModal({
             />
           </div>
 
+          {/* Notification preferences */}
+          <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
+            <div className="text-xs font-bold text-white uppercase tracking-widest">Notifications</div>
+            <div className="text-[11px] text-slate-400 -mt-1">Choose which alerts we send. Changes save instantly.</div>
+            {([
+              { key: "email_digest" as const, label: "Weekly email digest", desc: "Summary of activity, sales and bounty wins." },
+              { key: "dm_pings" as const, label: "Direct message pings", desc: "Notify me when someone messages me." },
+              { key: "bounty_invites" as const, label: "Bounty invite alerts", desc: "Ping me when I'm invited to a bounty." },
+            ]).map((item) => {
+              const on = notifPrefs[item.key];
+              const busy = notifSaving === item.key;
+              return (
+                <div key={item.key} className="flex items-center justify-between gap-3 py-1.5">
+                  <div className="min-w-0">
+                    <div className="text-xs font-semibold text-white">{item.label}</div>
+                    <div className="text-[11px] text-slate-400 truncate">{item.desc}</div>
+                  </div>
+                  <button
+                    type="button"
+                    role="switch"
+                    aria-checked={on}
+                    aria-label={item.label}
+                    disabled={busy || loading}
+                    onClick={() => toggleNotifPref(item.key)}
+                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${on ? "bg-emerald-500" : "bg-slate-700"} disabled:opacity-60`}
+                  >
+                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0"}`} />
+                  </button>
+                </div>
+              );
+            })}
+          </div>
+
           {/* Account & security */}
+
           <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-3">
             <div className="flex items-center justify-between gap-2">
               <div>
