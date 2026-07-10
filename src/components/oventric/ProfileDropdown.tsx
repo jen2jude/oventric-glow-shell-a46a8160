@@ -7,7 +7,8 @@ import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOf
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { getProfileByIdOrSlug, updateMyProfile } from "@/lib/profiles.functions";
+import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, type MyFullProfile } from "@/lib/profiles.functions";
+import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
