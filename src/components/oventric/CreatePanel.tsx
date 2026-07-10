@@ -1,15 +1,17 @@
 import { useState } from "react";
-import { X, PenSquare, Target, ShoppingBag, FileText } from "lucide-react";
+import { X, PenSquare, Target, ShoppingBag, FileText, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellAssetModal } from "./SellAssetModal";
+import { CourseEditorModal } from "./CourseEditorModal";
 
-type ChoiceKey = "post" | "bounty" | "sell" | "blog";
+type ChoiceKey = "post" | "bounty" | "sell" | "blog" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
 
 const choices: Choice[] = [
   { key: "post", icon: PenSquare, title: "Drop a Post", desc: "Share updates with the community", tier: 1 },
   { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
   { key: "sell", icon: ShoppingBag, title: "Sell an Asset", desc: "List digital goods in the marketplace", tier: 3 },
+  { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
   { key: "blog", icon: FileText, title: "Add Blog Article", desc: "Publish long-form technical writing", tier: 1 },
 ];
 
