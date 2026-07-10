@@ -523,7 +523,7 @@ function AuthGateModal({
         setVerifying(false);
       }
     },
-    [email, seedNewUser, username],
+    [email, identifier, seedNewUser, username, verifyLoginOtpByIdentifier],
   );
 
   const setDigit = (idx: number, raw: string) => {
