@@ -298,7 +298,7 @@ function ViewMoreCard({ label, onClick }: { label: string; onClick: () => void }
       <div className="h-full w-full bg-[#1E1E24]/70 backdrop-blur rounded-[10px] flex flex-col items-center justify-center gap-3 p-6 text-center hover:bg-[#1E1E24] transition-colors">
         <span className="w-14 h-14 rounded-full rgb-neon-bg flex items-center justify-center">
           <span className="w-12 h-12 rounded-full bg-[#1E1E24] flex items-center justify-center">
-            <ArrowRight className="w-6 per h-6 text-white" />
+            <ArrowRight className="w-6 h-6 text-white" />
           </span>
         </span>
         <div className="text-white font-bold">View More</div>
