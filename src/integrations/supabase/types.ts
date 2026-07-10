@@ -838,6 +838,7 @@ export type Database = {
           created_at: string
           display_name: string | null
           kyc_completed_at: string | null
+          kyc_id_path: string | null
           kyc_selfie_path: string | null
           phone: string | null
           profile_completed_at: string | null
@@ -854,6 +855,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           kyc_completed_at?: string | null
+          kyc_id_path?: string | null
           kyc_selfie_path?: string | null
           phone?: string | null
           profile_completed_at?: string | null
@@ -870,6 +872,7 @@ export type Database = {
           created_at?: string
           display_name?: string | null
           kyc_completed_at?: string | null
+          kyc_id_path?: string | null
           kyc_selfie_path?: string | null
           phone?: string | null
           profile_completed_at?: string | null
