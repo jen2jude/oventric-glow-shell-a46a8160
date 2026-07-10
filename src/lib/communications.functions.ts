@@ -256,3 +256,16 @@ export const markNotificationRead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+export const markAllNotificationsRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const sb = context.supabase as any;
+    const { error } = await sb
+      .from("notifications")
+      .update({ read_at: new Date().toISOString() })
+      .eq("user_id", context.userId)
+      .is("read_at", null);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
