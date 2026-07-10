@@ -479,6 +479,12 @@ function ProfileSettingsModal({
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
+  const [pwOpen, setPwOpen] = useState(false);
+  const [pwCurrent, setPwCurrent] = useState("");
+  const [pwNext, setPwNext] = useState("");
+  const [pwConfirm, setPwConfirm] = useState("");
+  const [pwShow, setPwShow] = useState(false);
+  const [pwSaving, setPwSaving] = useState(false);
   const dialogRef = useRef<HTMLDivElement>(null);
   const closeBtnRef = useRef<HTMLButtonElement>(null);
   const titleId = useId();
