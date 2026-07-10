@@ -511,6 +511,13 @@ function CourseDetail({
           </div>
         </aside>
       </div>
+
+      <CourseCheckoutModal
+        open={checkoutOpen}
+        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl } : null}
+        onClose={() => setCheckoutOpen(false)}
+        onEnrolled={() => { setCheckoutOpen(false); refetchEnrollment(); }}
+      />
     </div>
   );
 }
