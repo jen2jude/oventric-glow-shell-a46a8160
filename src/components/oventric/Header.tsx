@@ -107,8 +107,6 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
       <NotificationsDrawer
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
-        items={notifs}
-        onUpdate={setNotifs}
       />
     </header>
   );
