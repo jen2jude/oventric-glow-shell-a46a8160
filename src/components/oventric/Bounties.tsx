@@ -371,7 +371,7 @@ export function Bounties() {
             />,
           ];
           if ((idx + 1) % 4 === 0) {
-            rows.push(<AdSlot key={`ad-${b.id}`} tier={idx % 2 === 0 ? 1 : 2} />);
+            rows.push(<LiveAdSlot key={`ad-${b.id}`} index={idx} ads={bountyAds} loading={adsLoading} />);
           }
           return rows;
         })}
