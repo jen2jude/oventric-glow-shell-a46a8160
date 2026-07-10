@@ -213,13 +213,10 @@ export function Marketplace() {
               <span className="text-xs text-slate-500 hidden sm:inline">Curated by trending intent</span>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {recommended.slice(0, 3).map((p) => (
+              {recommended.slice(0, 7).map((p) => (
                 <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={() => onBuy(p)} full />
               ))}
-              <BountyInjectionCard onSolve={() => require(2, () => alert("Applying to bounty (mock)"), "solver")} />
-              {recommended.slice(3, 7).map((p) => (
-                <ProductCard key={p.id} p={p} currency={baseCurrency} onBuy={() => onBuy(p)} full />
-              ))}
+
             </div>
           </div>
         )}
