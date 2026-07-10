@@ -72,6 +72,10 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         </div>
       )}
       <SellAssetModal open={sellOpen} onClose={() => setSellOpen(false)} />
+      <CourseEditorModal open={courseOpen} onClose={() => setCourseOpen(false)} onSaved={() => {
+        setCourseOpen(false);
+        window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
+      }} />
     </>
   );
 }
