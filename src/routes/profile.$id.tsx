@@ -677,19 +677,25 @@ function ProfilePage() {
                           : "Send circle request"
                     }
                   >
-                    {circle === "accepted" ? (
+                    {circleBusy ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" />
+                        {circle === "pending" ? "Canceling…" : circle === "accepted" ? "Loading…" : "Sending…"}
+                      </>
+                    ) : circle === "accepted" ? (
                       <>
                         <Check className="w-4 h-4" /> In Circle
                       </>
                     ) : circle === "pending" ? (
                       <>
-                        <Check className="w-4 h-4" /> Requested
+                        <Clock className="w-4 h-4" /> Pending
                       </>
                     ) : (
                       <>
                         <UserPlus className="w-4 h-4" /> Join Circle
                       </>
                     )}
+
                   </button>
                   <CircleStatusNote
                     status={circle}
