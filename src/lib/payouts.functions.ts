@@ -1,6 +1,38 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
+async function writePayoutAudit(
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  sb: any,
+  actorId: string,
+  action: "payout.approve" | "payout.reject" | "payout.mark_paid",
+  payoutId: string,
+  meta: Record<string, unknown>,
+) {
+  try {
+    await sb.from("audit_logs").insert({
+      actor_id: actorId,
+      action,
+      target_kind: "payout_request",
+      target_id: payoutId,
+      meta,
+    });
+  } catch (e) {
+    // Never let audit failure block the action; log server-side.
+    console.error("[payout audit] insert failed", e);
+  }
+}
+
+export interface PayoutAuditEntry {
+  id: string;
+  action: string;
+  actor_id: string | null;
+  actor_name: string | null;
+  actor_username: string | null;
+  created_at: string;
+  meta: Record<string, unknown>;
+}
+
 export type PayoutCurrency = "USD" | "NGN" | "GHS";
 export type PayoutMethod = "bank" | "momo" | "wire";
 export type PayoutStatus = "pending" | "approved" | "rejected" | "paid" | "cancelled";
