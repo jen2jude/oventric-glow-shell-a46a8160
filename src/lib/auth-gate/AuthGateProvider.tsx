@@ -19,6 +19,7 @@ import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
 import {
   sendLoginOtpByIdentifier as sendLoginOtpByIdentifierFn,
   signInWithIdentifierPassword as signInWithIdentifierPasswordFn,
+  verifyLoginOtpByIdentifier as verifyLoginOtpByIdentifierFn,
 } from "@/lib/auth-lookup.functions";
 
 // ---------------------------------------------------------------------------
