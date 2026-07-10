@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
 type Category = (typeof CATEGORIES)[number];
+type PromoteTier = "text" | "banner" | "video";
 
 interface FormState {
   title: string;
@@ -17,6 +18,8 @@ interface FormState {
   deadline_at: string;
   cover_path: string | null;
   cover_preview: string | null;
+  promote: boolean;
+  promote_tier: PromoteTier;
 }
 
 const emptyForm: FormState = {
@@ -30,6 +33,8 @@ const emptyForm: FormState = {
   deadline_at: "",
   cover_path: null,
   cover_preview: null,
+  promote: false,
+  promote_tier: "banner",
 };
 
 function fromLocalInput(v: string): string | null {
@@ -50,7 +55,26 @@ export function BountyEditorModal({
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id;
+      if (!uid) {
+        if (!cancelled) setIsAdmin(false);
+        return;
+      }
+      const { data, error } = await supabase.rpc("has_role", { _user_id: uid, _role: "admin" });
+      if (!cancelled) setIsAdmin(!error && data === true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   if (!open) return null;
 
@@ -99,7 +123,7 @@ export function BountyEditorModal({
       const { data: session } = await supabase.auth.getUser();
       const uid = session.user?.id;
       if (!uid) throw new Error("You must be signed in to post a bounty");
-      const { error } = await supabase.from("bounties").insert({
+      const { data: inserted, error } = await supabase.from("bounties").insert({
         poster_id: uid,
         title: form.title.trim(),
         description: form.description,
@@ -111,9 +135,32 @@ export function BountyEditorModal({
         end_at: end,
         deadline_at: deadline,
         status: "active",
-      });
+      }).select("id").single();
       if (error) throw error;
-      toast.success("Bounty published");
+
+      // Promotion is admin-only. RLS on ad_campaigns also enforces this server-side.
+      if (form.promote && isAdmin && inserted?.id) {
+        const { error: adErr } = await supabase.from("ad_campaigns").insert({
+          title: form.title.trim().slice(0, 80),
+          advertiser: form.title.trim().slice(0, 80),
+          placements: ["bounties"],
+          tier: form.promote_tier,
+          cta_url: `#bounty-${inserted.id}`,
+          cta_label: "View bounty",
+          media_url: form.cover_preview ?? null,
+          start_at: start,
+          end_at: end,
+          status: "active",
+          created_by: uid,
+        });
+        if (adErr) {
+          toast.warning("Bounty published, but promotion failed", { description: adErr.message });
+        } else {
+          toast.success("Bounty published and promoted");
+        }
+      } else {
+        toast.success("Bounty published");
+      }
       reset();
       onPublished?.();
       onClose();
@@ -284,9 +331,46 @@ export function BountyEditorModal({
             </p>
           </div>
 
-          <p className="text-[11px] text-slate-500">
-            Promoted placements are reserved for admin campaigns. Your bounty goes live on the public board immediately.
-          </p>
+          {isAdmin ? (
+            <div className="pt-2 border-t border-white/10 mt-2">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-fuchsia-300 mb-2">
+                <Megaphone className="w-3.5 h-3.5" /> Promotion
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300 normal-case tracking-normal">
+                  <ShieldCheck className="w-3 h-3" /> Admin-only
+                </span>
+              </div>
+              <label className="flex items-start gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={form.promote}
+                  onChange={(e) => setForm({ ...form, promote: e.target.checked })}
+                  className="mt-0.5 accent-fuchsia-500"
+                />
+                <span>
+                  Promote this bounty in the Sponsored slot on the Bounties board for the schedule above.
+                </span>
+              </label>
+              {form.promote && (
+                <div className="mt-2 max-w-xs">
+                  <Field label="Ad tier">
+                    <select
+                      value={form.promote_tier}
+                      onChange={(e) => setForm({ ...form, promote_tier: e.target.value as PromoteTier })}
+                      className={inputCls}
+                    >
+                      <option value="text">Text</option>
+                      <option value="banner">Banner</option>
+                      <option value="video">Video</option>
+                    </select>
+                  </Field>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-[11px] text-slate-500">
+              Promoted placements are reserved for admin campaigns. Your bounty goes live on the public board immediately.
+            </p>
+          )}
 
           <div className="flex gap-2 pt-3">
             <button
