@@ -278,7 +278,7 @@ export function Wallet() {
       {/* 2. Ingestion & Extraction */}
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
-          onClick={() => require(1, () => ensureKyc(() => setAddOpen(true)), "funding")}
+          onClick={() => require(2, () => ensureKyc(() => setAddOpen(true)), "funding")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
