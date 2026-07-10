@@ -363,7 +363,7 @@ export const adminListPayoutAudit = createServerFn({ method: "POST" })
       actor_name: r.actor_id ? nameMap[r.actor_id as string]?.display_name ?? null : null,
       actor_username: r.actor_id ? nameMap[r.actor_id as string]?.username ?? null : null,
       created_at: r.created_at as string,
-      meta: (r.meta as Record<string, unknown>) ?? {},
+      meta: (r.meta as Record<string, string | number | boolean | null>) ?? {},
     }));
   });
 
