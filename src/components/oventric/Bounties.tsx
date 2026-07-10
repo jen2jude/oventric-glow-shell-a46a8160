@@ -201,6 +201,7 @@ export function Bounties() {
   const [adsLoading, setAdsLoading] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
+  const [highlightId, setHighlightId] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
