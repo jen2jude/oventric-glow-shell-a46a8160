@@ -18,12 +18,18 @@ const choices: Choice[] = [
 export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { require } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
+  const [courseOpen, setCourseOpen] = useState(false);
 
   const handleChoice = (c: Choice) => {
     require(c.tier, () => {
       if (c.key === "sell") {
         onClose();
         setSellOpen(true);
+        return;
+      }
+      if (c.key === "course") {
+        onClose();
+        setCourseOpen(true);
         return;
       }
       onClose();
