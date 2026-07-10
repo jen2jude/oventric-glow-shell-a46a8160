@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
 export type AdminCategory = "themes" | "plugins" | "blocks" | "scripts";
-export type AdPlacement = "feed" | "marketplace" | "academy";
+export type AdPlacement = "feed" | "marketplace" | "academy" | "bounties";
 export type AdTier = "text" | "banner" | "video";
 export type AdminCurrency = "USD" | "NGN" | "GHS";
 
