@@ -74,6 +74,7 @@ function CheckoutPage() {
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
   const submitTopUp = useServerFn(topUpWallet);
+  const checkCoupon = useServerFn(validateCoupon);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -85,9 +86,20 @@ function CheckoutPage() {
   const [topUpMethod, setTopUpMethod] = useState<PaymentMethod>("card");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
+  const [couponErr, setCouponErr] = useState<string | null>(null);
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
-  const totalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  const canUseCoupon = method !== "wallet";
+  const discountUSD = useMemo(
+    () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
+    [canUseCoupon, coupon, subtotalUSD],
+  );
+  const totalUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+
 
   useEffect(() => {
     let cancelled = false;
