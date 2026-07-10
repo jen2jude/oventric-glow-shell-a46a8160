@@ -5,8 +5,7 @@ import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
   NotificationsDrawer,
-  SEED_NOTIFICATIONS,
-  type Notif,
+  useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import logoMark from "@/assets/oventric-mark.asset.json";
@@ -14,8 +13,8 @@ import logoFull from "@/assets/oventric-full.asset.json";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
-  const [notifs, setNotifs] = useState<Notif[]>(SEED_NOTIFICATIONS);
-  const unread = notifs.some((n) => !n.read);
+  const unreadCount = useUnreadNotificationsCount();
+  const unread = unreadCount > 0;
   const { isAuthenticated, openGate } = useAuthGate();
 
   return (
