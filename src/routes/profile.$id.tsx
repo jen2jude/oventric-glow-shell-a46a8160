@@ -397,6 +397,8 @@ function ProfilePage() {
     }
   };
 
+  const circleTargetSlug = realProfile?.slug ?? profile.id;
+
   // Load initial status for this profile — keyed to the real profile slug once
   // it resolves so the button reflects the actual circle_requests row.
   useEffect(() => {
