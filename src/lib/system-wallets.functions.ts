@@ -71,6 +71,7 @@ export const listSystemWalletTx = createServerFn({ method: "POST" })
       source: r.source as string,
       refId: (r.ref_id as string) ?? null,
       createdAt: r.created_at as string,
-      meta: (r.meta as Record<string, unknown>) ?? {},
+      meta: JSON.stringify(r.meta ?? {}),
     }));
+
   });
