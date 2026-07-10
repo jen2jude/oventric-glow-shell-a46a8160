@@ -161,6 +161,17 @@ interface ContractState {
   messages: ChatMsg[];
 }
 
+interface BountyAd {
+  id: string;
+  advertiser: string;
+  title: string;
+  description: string;
+  tier: string;
+  media_url: string | null;
+  cta_url: string;
+  cta_label: string;
+}
+
 function useTicker(intervalMs = 1000) {
   const [, setT] = useState(0);
   useEffect(() => {
