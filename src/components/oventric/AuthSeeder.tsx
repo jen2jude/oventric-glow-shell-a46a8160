@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
+import {
+  seedNewUser as seedNewUserFn,
+  getOnboardingStatus as getOnboardingStatusFn,
+} from "@/lib/onboarding.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useOnboarding, countryToCurrency, type Country } from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
@@ -18,8 +21,10 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 export function AuthSeeder() {
   const seedNewUser = useServerFn(seedNewUserFn);
   const fetchBalances = useServerFn(getWalletBalances);
-  const { setBalances } = useOnboarding();
+  const fetchStatus = useServerFn(getOnboardingStatusFn);
+  const { setBalances, advanceTo, setBaseCurrency } = useOnboarding();
   const seededFor = useRef<string | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
