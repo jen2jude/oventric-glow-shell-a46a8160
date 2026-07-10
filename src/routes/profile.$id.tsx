@@ -182,20 +182,24 @@ function ProfilePage() {
   const cancelReq = useServerFn(cancelCircleRequest);
   const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
   const fetchReputation = useServerFn(getLiveReputation);
+  const fetchSocialCounts = useServerFn(getProfileSocialCounts);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
+  const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const [pRes, rRes] = await Promise.all([
+        const [pRes, rRes, cRes] = await Promise.all([
           fetchRealProfile({ data: { idOrSlug: id } }),
           fetchReputation({ data: { idOrSlug: id } }),
+          fetchSocialCounts({ data: { idOrSlug: id } }),
         ]);
         if (cancelled) return;
         setRealProfile(pRes.profile);
         setLiveRep(rRes.reputation);
+        setSocialCounts(cRes);
       } catch (e) {
         console.error("[profile] real load failed", e);
       }
@@ -203,7 +207,8 @@ function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [id, fetchRealProfile, fetchReputation]);
+  }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
 
 
   const mainRef = useRef<HTMLElement | null>(null);
