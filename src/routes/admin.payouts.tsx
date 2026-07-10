@@ -219,6 +219,9 @@ function PayoutRow({
             </div>
           )}
 
+          <PayoutAuditTrail payoutId={p.id} expanded={expanded} />
+
+
           <div className="flex items-center gap-2 flex-wrap">
             {p.status === "pending" && (
               <>
