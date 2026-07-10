@@ -57,20 +57,24 @@ function AdminPayoutsPage() {
     staleTime: 10_000,
   });
 
-  const refetch = () => qc.invalidateQueries({ queryKey: ["admin-payouts"] });
+  const refetch = () => {
+    qc.invalidateQueries({ queryKey: ["admin-payouts"] });
+    qc.invalidateQueries({ queryKey: ["admin-payout-audit"] });
+  };
 
   const approve = async (id: string) => {
-    try { await approveFn({ data: { id } }); toast.success("Approved"); refetch(); }
+    const note = window.prompt("Approval note (optional — visible in audit log):") ?? "";
+    try { await approveFn({ data: { id, note } }); toast.success("Approved"); refetch(); }
     catch (e) { toast.error((e as Error).message); }
   };
   const reject = async (id: string) => {
-    const reason = window.prompt("Reason for rejection?");
-    if (!reason) return;
-    try { await rejectFn({ data: { id, reason } }); toast.success("Rejected — funds refunded"); refetch(); }
+    const reason = window.prompt("Reason for rejection? (required — logged to audit trail)");
+    if (!reason || !reason.trim()) return;
+    try { await rejectFn({ data: { id, reason: reason.trim() } }); toast.success("Rejected — funds refunded"); refetch(); }
     catch (e) { toast.error((e as Error).message); }
   };
   const markPaid = async (id: string) => {
-    const note = window.prompt("Reference / note for this payout (transfer ID, etc.)?") ?? "";
+    const note = window.prompt("Reference / note for this payout (transfer ID, etc. — logged to audit trail):") ?? "";
     try { await paidFn({ data: { id, note } }); toast.success("Marked as paid"); refetch(); }
     catch (e) { toast.error((e as Error).message); }
   };
