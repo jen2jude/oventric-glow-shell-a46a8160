@@ -37,6 +37,8 @@ import {
   Sparkles,
   AlertTriangle,
   RefreshCw,
+  Clock,
+  Loader2,
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
