@@ -14,7 +14,7 @@ import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { useFullNameGate } from "@/lib/full-name-gate/FullNameGate";
+
 
 export const Route = createFileRoute("/")({
   head: () => ({
