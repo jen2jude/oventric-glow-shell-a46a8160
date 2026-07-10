@@ -11,7 +11,6 @@ import {
   Blocks,
   Code2,
   Flame,
-  Loader2,
   PackageOpen,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
