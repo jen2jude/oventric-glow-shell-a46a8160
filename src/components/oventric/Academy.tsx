@@ -305,7 +305,7 @@ function CourseDetail({
       return;
     }
     if (!course.isFree) {
-      toast.info("Paid enrollment is coming in the next update");
+      setCheckoutOpen(true);
       return;
     }
     setBusy(true);
@@ -318,6 +318,13 @@ function CourseDetail({
     } finally {
       setBusy(false);
     }
+  };
+
+  const refetchEnrollment = async () => {
+    try {
+      const e = await fetchEnroll({ data: { courseId } });
+      setEnrollment(e);
+    } catch { /* not enrolled */ }
   };
 
   const toggleComplete = async () => {
