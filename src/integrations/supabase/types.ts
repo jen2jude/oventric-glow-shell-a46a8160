@@ -1151,6 +1151,13 @@ export type Database = {
         Args: { _id: string; _reason: string }
         Returns: undefined
       }
+      profile_social_counts: {
+        Args: { _slug: string }
+        Returns: {
+          circle_members: number
+          followers: number
+        }[]
+      }
       system_wallet_credit: {
         Args: {
           _amount: number
