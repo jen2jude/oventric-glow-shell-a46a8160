@@ -458,7 +458,10 @@ export function Bounties() {
       <BountyEditorModal
         open={postOpen}
         onClose={() => setPostOpen(false)}
-        onPublished={() => setRefreshTick((t) => t + 1)}
+        onPublished={(id) => {
+          setRefreshTick((t) => t + 1);
+          setHighlightId(id);
+        }}
       />
     </div>
   );
