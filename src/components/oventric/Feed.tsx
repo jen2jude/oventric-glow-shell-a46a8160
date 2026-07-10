@@ -697,17 +697,50 @@ export function Feed() {
 
         {/* Posts (live) */}
         {postsLoading ? (
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-sm text-slate-400 text-center">
-            Loading feed…
+          <div className="space-y-4" aria-busy="true" aria-label="Loading feed">
+            {[0, 1, 2].map((i) => (
+              <div
+                key={i}
+                className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse"
+              >
+                <div className="flex items-center gap-3 mb-4">
+                  <div className="w-9 h-9 rounded-full bg-white/[0.06]" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-3 w-1/3 bg-white/[0.06] rounded" />
+                    <div className="h-2 w-1/5 bg-white/[0.05] rounded" />
+                  </div>
+                </div>
+                <div className="space-y-2 mb-4">
+                  <div className="h-3 w-11/12 bg-white/[0.06] rounded" />
+                  <div className="h-3 w-4/5 bg-white/[0.06] rounded" />
+                  <div className="h-3 w-2/3 bg-white/[0.05] rounded" />
+                </div>
+                <div className="h-40 w-full bg-white/[0.04] rounded-lg mb-4" />
+                <div className="flex gap-6">
+                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : postsError ? (
-          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-6 text-sm text-red-300 text-center">
-            {postsError}
+          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-6 text-center">
+            <AlertCircle className="w-6 h-6 text-red-400 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-red-300">Couldn’t load the feed</p>
+            <p className="mt-1 text-xs text-red-300/80">{postsError}</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-sm text-slate-400 text-center">
-            No posts yet. Be the first to share something.
+          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+              <MessageSquare className="w-5 h-5 text-emerald-400" />
+            </div>
+            <p className="text-sm font-semibold text-white">The feed is quiet right now</p>
+            <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto">
+              No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question.
+            </p>
           </div>
+
         ) : (
           posts.map((post) => {
             const comments = commentsByPost[post.id] ?? [];
