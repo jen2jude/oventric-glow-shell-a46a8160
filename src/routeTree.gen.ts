@@ -21,6 +21,7 @@ import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wa
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
+import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
@@ -90,6 +91,11 @@ const AdminProductsRoute = AdminProductsRouteImport.update({
   path: '/products',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
+  id: '/payouts',
+  path: '/payouts',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeaturesRoute = AdminFeaturesRouteImport.update({
   id: '/features',
   path: '/features',
@@ -141,6 +147,7 @@ export interface FileRoutesByFullPath {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -162,6 +169,7 @@ export interface FileRoutesByTo {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -185,6 +193,7 @@ export interface FileRoutesById {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
@@ -209,6 +218,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
@@ -230,6 +240,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
@@ -252,6 +263,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
@@ -360,6 +372,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminProductsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/payouts': {
+      id: '/admin/payouts'
+      path: '/payouts'
+      fullPath: '/admin/payouts'
+      preLoaderRoute: typeof AdminPayoutsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/features': {
       id: '/admin/features'
       path: '/features'
@@ -427,6 +446,7 @@ interface AdminRouteChildren {
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
+  AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
@@ -443,6 +463,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
+  AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
