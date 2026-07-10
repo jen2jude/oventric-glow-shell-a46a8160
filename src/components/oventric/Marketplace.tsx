@@ -11,7 +11,6 @@ import {
   Blocks,
   Code2,
   Flame,
-  Loader2,
   PackageOpen,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
@@ -91,21 +90,25 @@ export function Marketplace() {
   }
 
   if (!products) {
-    return (
-      <div className="max-w-7xl mx-auto w-full px-4 py-10 flex items-center gap-2 text-slate-400 text-sm">
-        <Loader2 className="w-4 h-4 animate-spin" /> Loading marketplace…
-      </div>
-    );
+    return <MarketplaceSkeleton />;
   }
 
   if (products.length === 0) {
     return (
       <div className="max-w-3xl mx-auto w-full px-4 py-16 text-center">
-        <PackageOpen className="w-12 h-12 text-slate-600 mx-auto mb-4" />
+        <div className="w-16 h-16 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center mx-auto mb-5">
+          <PackageOpen className="w-8 h-8 text-slate-500" />
+        </div>
         <h2 className="text-xl font-black text-white mb-1">No listings yet</h2>
-        <p className="text-sm text-slate-400">
-          Digital assets uploaded by sellers appear here. Publish one via the Admin Content Factory to get started.
+        <p className="text-sm text-slate-400 max-w-sm mx-auto mb-6">
+          The marketplace is empty right now. Be the first to publish a digital asset and start earning.
         </p>
+        <button
+          onClick={() => navigate({ to: "/admin" })}
+          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors"
+        >
+          Open Content Factory
+        </button>
       </div>
     );
   }
@@ -126,8 +129,12 @@ export function Marketplace() {
           <span className="text-xs text-slate-500">{items.length} items</span>
         </div>
         {items.length === 0 ? (
-          <div className="text-sm text-slate-500 bg-[#1E1E24] border border-white/5 rounded-xl p-8 text-center">
-            No {meta.label.toLowerCase()} published yet.
+          <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
+            <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+            <div className="text-white font-semibold mb-1">No {meta.label.toLowerCase()} yet</div>
+            <div className="text-sm text-slate-400">
+              Nothing in this category. Check back later or browse other sections.
+            </div>
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
@@ -297,6 +304,72 @@ function ViewMoreCard({ label, onClick }: { label: string; onClick: () => void }
         <div className="text-xs text-slate-400">Browse the full {label} catalog</div>
       </div>
     </button>
+  );
+}
+
+function SkeletonPill() {
+  return (
+    <div className="shrink-0 px-4 py-2 rounded-full bg-white/5 animate-pulse h-9 w-20" />
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="w-[220px] sm:w-[260px] snap-start bg-[#1E1E24] border border-white/5 rounded-xl p-3 animate-pulse">
+      <div className="h-28 rounded-lg bg-white/5 mb-3" />
+      <div className="h-4 w-3/4 bg-white/5 rounded mb-2" />
+      <div className="h-3 w-1/2 bg-white/5 rounded mb-4" />
+      <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
+        <div className="h-4 w-16 bg-white/5 rounded" />
+        <div className="h-6 w-12 bg-white/5 rounded" />
+      </div>
+    </div>
+  );
+}
+
+function MarketplaceSkeleton() {
+  const cats = ["themes", "plugins", "blocks"] as CategoryKey[];
+  return (
+    <div className="max-w-7xl mx-auto w-full">
+      {/* Tab bar skeleton */}
+      <div className="sticky top-0 z-30 -mx-0 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none">
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+        </div>
+      </div>
+
+      <div className="px-4 py-6 space-y-10">
+        {cats.map((cat) => (
+          <section key={cat}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-6 w-48 bg-white/5 rounded animate-pulse" />
+              <div className="h-4 w-16 bg-white/5 rounded animate-pulse" />
+            </div>
+            <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={`${cat}-${i}`} />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        <div className="border-t border-white/5 pt-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-6 w-56 bg-white/5 rounded animate-pulse" />
+            <div className="h-3 w-32 bg-white/5 rounded animate-pulse hidden sm:block" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={`rec-${i}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
