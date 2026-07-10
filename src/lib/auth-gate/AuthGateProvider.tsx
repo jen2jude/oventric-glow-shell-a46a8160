@@ -504,6 +504,13 @@ function AuthGateModal({
           await seedNewUser({ data: username.trim() ? { username: username.trim() } : {} });
         } catch (seedErr) {
           console.error("[AuthGate] seed failed", seedErr);
+          const friendly =
+            "We verified your email, but couldn't finish setting up your profile. Please try again in a moment — your sign-in is safe.";
+          setOtpError(friendly);
+          toast.error("Profile setup failed", {
+            description: "You're signed in, but we couldn't create your profile. Tap resend or try again shortly.",
+          });
+          return;
         }
         // The provider's onAuthStateChange('SIGNED_IN') closes the modal and
         // runs the pending action. Nothing else to do here.
