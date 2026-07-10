@@ -50,7 +50,7 @@ export function BountyEditorModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onPublished?: () => void;
+  onPublished?: (bountyId: string) => void;
 }) {
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
