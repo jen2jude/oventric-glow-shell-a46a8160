@@ -298,13 +298,79 @@ function ViewMoreCard({ label, onClick }: { label: string; onClick: () => void }
       <div className="h-full w-full bg-[#1E1E24]/70 backdrop-blur rounded-[10px] flex flex-col items-center justify-center gap-3 p-6 text-center hover:bg-[#1E1E24] transition-colors">
         <span className="w-14 h-14 rounded-full rgb-neon-bg flex items-center justify-center">
           <span className="w-12 h-12 rounded-full bg-[#1E1E24] flex items-center justify-center">
-            <ArrowRight className="w-6 h-6 text-white" />
+            <ArrowRight className="w-6 per h-6 text-white" />
           </span>
         </span>
         <div className="text-white font-bold">View More</div>
         <div className="text-xs text-slate-400">Browse the full {label} catalog</div>
       </div>
     </button>
+  );
+}
+
+function SkeletonPill() {
+  return (
+    <div className="shrink-0 px-4 py-2 rounded-full bg-white/5 animate-pulse h-9 w-20" />
+  );
+}
+
+function SkeletonCard() {
+  return (
+    <div className="w-[220px] sm:w-[260px] snap-start bg-[#1E1E24] border border-white/5 rounded-xl p-3 animate-pulse">
+      <div className="h-28 rounded-lg bg-white/5 mb-3" />
+      <div className="h-4 w-3/4 bg-white/5 rounded mb-2" />
+      <div className="h-3 w-1/2 bg-white/5 rounded mb-4" />
+      <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
+        <div className="h-4 w-16 bg-white/5 rounded" />
+        <div className="h-6 w-12 bg-white/5 rounded" />
+      </div>
+    </div>
+  );
+}
+
+function MarketplaceSkeleton() {
+  const cats = ["themes", "plugins", "blocks"] as CategoryKey[];
+  return (
+    <div className="max-w-7xl mx-auto w-full">
+      {/* Tab bar skeleton */}
+      <div className="sticky top-0 z-30 -mx-0 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5">
+        <div className="flex gap-2 overflow-x-auto scrollbar-none">
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+          <SkeletonPill />
+        </div>
+      </div>
+
+      <div className="px-4 py-6 space-y-10">
+        {cats.map((cat) => (
+          <section key={cat}>
+            <div className="flex items-center justify-between mb-4">
+              <div className="h-6 w-48 bg-white/5 rounded animate-pulse" />
+              <div className="h-4 w-16 bg-white/5 rounded animate-pulse" />
+            </div>
+            <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <SkeletonCard key={`${cat}-${i}`} />
+              ))}
+            </div>
+          </section>
+        ))}
+
+        <div className="border-t border-white/5 pt-8">
+          <div className="flex items-center justify-between mb-4">
+            <div className="h-6 w-56 bg-white/5 rounded animate-pulse" />
+            <div className="h-3 w-32 bg-white/5 rounded animate-pulse hidden sm:block" />
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {Array.from({ length: 4 }).map((_, i) => (
+              <SkeletonCard key={`rec-${i}`} />
+            ))}
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }
 
