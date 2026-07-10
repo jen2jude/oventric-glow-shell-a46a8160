@@ -492,12 +492,14 @@ function ProfilePage() {
       const collected: ProfileTabPage["items"] = [];
       let last: ProfileTabPage | null = null;
       for (let p = 1; p <= pagesToLoad; p++) {
-        last = await fetchTab({
-          data: { profileId: profile.id, tab: "marketplace", page: p, pageSize: PAGE_SIZE, q, sort },
+        const res: ProfileTabPage = await fetchTab({
+          data: { idOrSlug: id, tab: "marketplace", page: p, pageSize: PAGE_SIZE, q, sort },
         });
-        collected.push(...last.items);
-        if (!last.hasMore) break;
+        last = res;
+        collected.push(...res.items);
+        if (!res.hasMore) break;
       }
+
       setTabData((s) => ({
         ...s,
         marketplace: {
