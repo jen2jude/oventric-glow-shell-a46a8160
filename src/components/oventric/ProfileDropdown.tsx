@@ -1008,7 +1008,54 @@ function ProfileSettingsModal({
               {full?.kycCompletedAt ? "Re-run liveness check →" : "Start identity verification →"}
             </button>
           </div>
+
+          {/* Danger zone */}
+          <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-bold text-red-300 uppercase tracking-widest">Danger zone</div>
+                <div className="text-[11px] text-slate-400 mt-0.5">Soft-delete this account. Restorable for 30 days via support.</div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setDangerOpen((v) => !v)}
+                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
+                aria-expanded={dangerOpen}
+              >
+                {dangerOpen ? "Cancel" : "Delete account"}
+              </button>
+            </div>
+            {dangerOpen && (
+              <div className="mt-3 space-y-2">
+                <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-0.5">
+                  <li>Your sign-in access is revoked immediately.</li>
+                  <li>Profile is anonymized; public content stays attributed to <em>[deleted user]</em>.</li>
+                  <li>Auth row is soft-deleted and purged after 30 days.</li>
+                </ul>
+                <label className="block text-[11px] font-semibold text-slate-400">
+                  Type <span className="text-red-300">{full?.email ?? "your email"}</span> to confirm
+                </label>
+                <input
+                  type="email"
+                  autoComplete="off"
+                  value={deleteConfirmEmail}
+                  onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                  placeholder={full?.email ?? ""}
+                  className="w-full bg-[#0F0F12] border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/70"
+                />
+                <button
+                  type="button"
+                  onClick={onDeleteAccount}
+                  disabled={deleting || !deleteConfirmEmail}
+                  className="w-full text-xs font-black py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
+                >
+                  {deleting ? "Deleting…" : "Permanently delete my account"}
+                </button>
+              </div>
+            )}
+          </div>
           </>
+
           )}
         </form>
 
