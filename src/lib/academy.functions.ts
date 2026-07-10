@@ -680,7 +680,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
     if (data.paymentMethod === "wallet") {
       cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
       if (cashbackUSD > 0) {
-        await supabase.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
         await supabase.from("wallet_transactions").insert({
           user_id: userId,
           tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
