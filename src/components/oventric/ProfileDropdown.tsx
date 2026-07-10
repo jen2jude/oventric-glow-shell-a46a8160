@@ -87,6 +87,31 @@ export function ProfileDropdown() {
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
 
+  // Load the real profile row (name, bio, avatar signed URL) once we know
+  // this session's user id.
+  const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+  useEffect(() => {
+    if (!userId || userId === "me") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchRealProfile({ data: { idOrSlug: userId } });
+        if (cancelled || !res.profile) return;
+        setProfile((p) => ({
+          displayName: res.profile!.displayName || p.displayName,
+          bio: res.profile!.bio ?? p.bio,
+          avatarDataUrl: res.profile!.avatarUrl ?? p.avatarDataUrl,
+        }));
+      } catch (e) {
+        console.error("[ProfileDropdown] real profile load failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, fetchRealProfile]);
+
+
   const getMenuItems = (): HTMLElement[] => {
     if (!menuRef.current) return [];
     return Array.from(
