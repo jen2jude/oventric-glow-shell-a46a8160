@@ -875,6 +875,80 @@ function ProfileSettingsModal({
             />
           </div>
 
+          {/* Account & security */}
+          <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-3">
+            <div className="flex items-center justify-between gap-2">
+              <div>
+                <div className="text-xs font-bold text-white">Account email</div>
+                <div className="text-[11px] text-slate-400 break-all">{full?.email ?? "—"}</div>
+              </div>
+              <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">Verified</span>
+            </div>
+            <div className="border-t border-white/5 pt-3">
+              <div className="flex items-center justify-between gap-2">
+                <div>
+                  <div className="text-xs font-bold text-white">Password</div>
+                  <div className="text-[11px] text-slate-500">Change the password used to sign in.</div>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setPwOpen((v) => !v)}
+                  className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-white/10 bg-[#1E1E24] text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  aria-expanded={pwOpen}
+                >
+                  {pwOpen ? "Cancel" : "Change"}
+                </button>
+              </div>
+              {pwOpen && (
+                <div className="mt-3 space-y-2">
+                  <div className="relative">
+                    <input
+                      type={pwShow ? "text" : "password"}
+                      autoComplete="current-password"
+                      placeholder="Current password"
+                      value={pwCurrent}
+                      onChange={(e) => setPwCurrent(e.target.value)}
+                      className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setPwShow((v) => !v)}
+                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                      aria-label={pwShow ? "Hide password" : "Show password"}
+                    >
+                      {pwShow ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <input
+                    type={pwShow ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="New password (min 8 chars)"
+                    value={pwNext}
+                    onChange={(e) => setPwNext(e.target.value)}
+                    className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                  />
+                  <input
+                    type={pwShow ? "text" : "password"}
+                    autoComplete="new-password"
+                    placeholder="Confirm new password"
+                    value={pwConfirm}
+                    onChange={(e) => setPwConfirm(e.target.value)}
+                    className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                  />
+                  <button
+                    type="button"
+                    onClick={onChangePassword}
+                    disabled={pwSaving || !pwCurrent || !pwNext || !pwConfirm}
+                    className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
+                  >
+                    {pwSaving ? "Updating…" : "Update password"}
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>
+
+
           {/* Live KYC status */}
           <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
             <div className="flex items-center justify-between gap-2 mb-2">
