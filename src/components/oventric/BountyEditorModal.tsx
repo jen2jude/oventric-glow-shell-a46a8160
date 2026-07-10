@@ -123,7 +123,7 @@ export function BountyEditorModal({
       const { data: session } = await supabase.auth.getUser();
       const uid = session.user?.id;
       if (!uid) throw new Error("You must be signed in to post a bounty");
-      const { error } = await supabase.from("bounties").insert({
+      const { data: inserted, error } = await supabase.from("bounties").insert({
         poster_id: uid,
         title: form.title.trim(),
         description: form.description,
@@ -135,9 +135,31 @@ export function BountyEditorModal({
         end_at: end,
         deadline_at: deadline,
         status: "active",
-      });
+      }).select("id").single();
       if (error) throw error;
-      toast.success("Bounty published");
+
+      // Promotion is admin-only. RLS on ad_campaigns also enforces this server-side.
+      if (form.promote && isAdmin && inserted?.id) {
+        const { error: adErr } = await supabase.from("ad_campaigns").insert({
+          advertiser: form.title.trim().slice(0, 80),
+          placement: "bounties",
+          tier: form.promote_tier,
+          click_url: `#bounty-${inserted.id}`,
+          media_url: form.cover_preview ?? null,
+          cta: "View bounty",
+          start_at: start,
+          end_at: end,
+          status: "active",
+          created_by: uid,
+        });
+        if (adErr) {
+          toast.warning("Bounty published, but promotion failed", { description: adErr.message });
+        } else {
+          toast.success("Bounty published and promoted");
+        }
+      } else {
+        toast.success("Bounty published");
+      }
       reset();
       onPublished?.();
       onClose();
