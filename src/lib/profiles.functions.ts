@@ -252,6 +252,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       phone?: string | null;
       country?: string | null;
       address?: string | null;
+      notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
@@ -260,6 +261,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
     if (data.address !== undefined) patch.address = data.address;
+    if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
+
     if (Object.keys(patch).length === 0) return { ok: true };
 
     const { error } = await supabase.from("profiles").update(patch).eq("user_id", userId);
