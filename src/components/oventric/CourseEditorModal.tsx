@@ -1,0 +1,427 @@
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video } from "lucide-react";
+import { toast } from "sonner";
+import {
+  createCourse,
+  updateCourse,
+  deleteCourse,
+  upsertModule,
+  deleteModule,
+  getCourse,
+  getCourseCoverUploadUrl,
+  type CourseCategory,
+  type CourseLevel,
+  type CourseWithModulesDTO,
+  type ModuleDTO,
+  type VideoProvider,
+} from "@/lib/academy.functions";
+import { supabase } from "@/integrations/supabase/client";
+
+const CATEGORIES: { key: CourseCategory; label: string }[] = [
+  { key: "frontend", label: "Frontend Dev" },
+  { key: "uiux", label: "UI/UX Design" },
+  { key: "ai", label: "AI Prompting" },
+  { key: "backend", label: "Backend & DB" },
+  { key: "security", label: "Cybersecurity" },
+];
+const LEVELS: { key: CourseLevel; label: string }[] = [
+  { key: "beginner", label: "Beginner" },
+  { key: "intermediate", label: "Intermediate" },
+  { key: "advanced", label: "Advanced" },
+];
+
+function detectProvider(url: string): VideoProvider {
+  return /vimeo\.com/i.test(url) ? "vimeo" : "youtube";
+}
+
+export function CourseEditorModal({
+  open,
+  onClose,
+  courseId,
+  isAdmin = false,
+  onSaved,
+}: {
+  open: boolean;
+  onClose: () => void;
+  courseId?: string;
+  isAdmin?: boolean;
+  onSaved?: (courseId: string) => void;
+}) {
+  const create = useServerFn(createCourse);
+  const update = useServerFn(updateCourse);
+  const remove = useServerFn(deleteCourse);
+  const saveModule = useServerFn(upsertModule);
+  const removeModule = useServerFn(deleteModule);
+  const fetchCourse = useServerFn(getCourse);
+  const getUpload = useServerFn(getCourseCoverUploadUrl);
+
+  const [loading, setLoading] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [savedId, setSavedId] = useState<string | null>(courseId ?? null);
+  const [modules, setModules] = useState<ModuleDTO[]>([]);
+  const [coverPath, setCoverPath] = useState<string | null>(null);
+  const [coverUrl, setCoverUrl] = useState<string | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const [form, setForm] = useState({
+    title: "",
+    description: "",
+    category: "frontend" as CourseCategory,
+    level: "beginner" as CourseLevel,
+    instructorName: "",
+    isFree: true,
+    priceUSD: 0,
+    isPublished: true,
+    promoted: false,
+  });
+
+  const [modForm, setModForm] = useState({
+    id: "",
+    title: "",
+    description: "",
+    videoUrl: "",
+    durationMin: 0,
+    isPreview: false,
+  });
+
+  useEffect(() => {
+    if (!open) return;
+    if (!courseId) {
+      setSavedId(null);
+      setModules([]);
+      setCoverPath(null);
+      setCoverUrl(null);
+      setForm({
+        title: "",
+        description: "",
+        category: "frontend",
+        level: "beginner",
+        instructorName: "",
+        isFree: true,
+        priceUSD: 0,
+        isPublished: true,
+        promoted: false,
+      });
+      return;
+    }
+    setLoading(true);
+    fetchCourse({ data: { id: courseId } })
+      .then((c: CourseWithModulesDTO) => {
+        setSavedId(c.id);
+        setModules(c.modules);
+        setCoverPath(c.coverPath);
+        setCoverUrl(c.coverUrl);
+        setForm({
+          title: c.title,
+          description: c.description,
+          category: c.category,
+          level: c.level,
+          instructorName: c.instructorName,
+          isFree: c.isFree,
+          priceUSD: c.priceUSD,
+          isPublished: c.isPublished,
+          promoted: c.promoted,
+        });
+      })
+      .catch((e) => toast.error(e.message))
+      .finally(() => setLoading(false));
+  }, [open, courseId, fetchCourse]);
+
+  if (!open) return null;
+
+  const handleCoverUpload = async (file: File) => {
+    if (file.size > 5 * 1024 * 1024) {
+      toast.error("Cover must be under 5MB");
+      return;
+    }
+    setUploading(true);
+    try {
+      const { path, token } = await getUpload({ data: { filename: file.name } });
+      const { error } = await supabase.storage
+        .from("course-covers")
+        .uploadToSignedUrl(path, token, file, { contentType: file.type });
+      if (error) throw error;
+      const { data: signed } = await supabase.storage
+        .from("course-covers")
+        .createSignedUrl(path, 60 * 60 * 24 * 7);
+      setCoverPath(path);
+      setCoverUrl(signed?.signedUrl ?? null);
+      toast.success("Cover uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const saveCourse = async () => {
+    if (!form.title.trim()) return toast.error("Title required");
+    if (!form.isFree && !(form.priceUSD > 0)) return toast.error("Set a price or mark as free");
+    setSaving(true);
+    try {
+      if (savedId) {
+        await update({ data: { id: savedId, ...form, coverPath } });
+        toast.success("Course updated");
+      } else {
+        const res = await create({ data: { ...form, coverPath } });
+        setSavedId(res.id);
+        toast.success("Course created — now add modules");
+      }
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Save failed");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const finish = async () => {
+    await saveCourse();
+    if (savedId && onSaved) onSaved(savedId);
+    else onClose();
+  };
+
+  const addOrUpdateModule = async () => {
+    if (!savedId) return toast.error("Save the course details first");
+    if (!modForm.title.trim() || !modForm.videoUrl.trim())
+      return toast.error("Module title and video URL required");
+    try {
+      const provider = detectProvider(modForm.videoUrl);
+      const pos = modForm.id ? modules.find((m) => m.id === modForm.id)?.position ?? 0 : modules.length;
+      const saved = await saveModule({
+        data: {
+          id: modForm.id || undefined,
+          courseId: savedId,
+          position: pos,
+          title: modForm.title,
+          description: modForm.description,
+          videoUrl: modForm.videoUrl,
+          videoProvider: provider,
+          durationMin: modForm.durationMin,
+          isPreview: modForm.isPreview,
+        },
+      });
+      setModules((prev) => {
+        const others = prev.filter((m) => m.id !== saved.id);
+        return [...others, saved].sort((a, b) => a.position - b.position);
+      });
+      setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false });
+      toast.success(modForm.id ? "Module updated" : "Module added");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  const editModule = (m: ModuleDTO) => {
+    setModForm({
+      id: m.id,
+      title: m.title,
+      description: m.description,
+      videoUrl: m.videoUrl,
+      durationMin: m.durationMin,
+      isPreview: m.isPreview,
+    });
+  };
+
+  const removeMod = async (id: string) => {
+    if (!confirm("Delete this module?")) return;
+    try {
+      await removeModule({ data: { id } });
+      setModules((prev) => prev.filter((m) => m.id !== id));
+      toast.success("Module removed");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  const removeCourseHandler = async () => {
+    if (!savedId || !confirm("Delete this course and all modules? This cannot be undone.")) return;
+    try {
+      await remove({ data: { id: savedId } });
+      toast.success("Course deleted");
+      onClose();
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Failed");
+    }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
+        <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
+          <div>
+            <h2 className="text-lg font-bold text-white">{savedId ? "Edit Course" : "Publish a Course"}</h2>
+            <p className="text-xs text-slate-500">
+              {savedId ? "Update details and manage modules" : "Step 1: save details, then add video modules"}
+            </p>
+          </div>
+          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        {loading ? (
+          <div className="p-10 text-center"><Loader2 className="w-6 h-6 mx-auto text-emerald-400 animate-spin" /></div>
+        ) : (
+          <div className="flex-1 overflow-y-auto p-5 space-y-6">
+            {/* DETAILS */}
+            <section className="space-y-3">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Course Details</h3>
+              <div className="grid sm:grid-cols-2 gap-3">
+                <Field label="Title *">
+                  <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" placeholder="e.g. React Server Components" />
+                </Field>
+                <Field label="Instructor name">
+                  <input value={form.instructorName} onChange={(e) => setForm({ ...form, instructorName: e.target.value })} className="input" placeholder="Displayed as author" />
+                </Field>
+                <Field label="Category">
+                  <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as CourseCategory })} className="input">
+                    {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+                  </select>
+                </Field>
+                <Field label="Level">
+                  <select value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value as CourseLevel })} className="input">
+                    {LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
+                  </select>
+                </Field>
+              </div>
+              <Field label="Description">
+                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="input resize-none" placeholder="What learners will build and master..." />
+              </Field>
+
+              <Field label="Cover image (optional, up to 5MB)">
+                <div className="flex items-center gap-3">
+                  {coverUrl && <img src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10" />}
+                  <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
+                    <Upload className="w-4 h-4" />
+                    {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
+                    <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(e) => e.target.files?.[0] && handleCoverUpload(e.target.files[0])} />
+                  </label>
+                </div>
+              </Field>
+
+              <div className="grid sm:grid-cols-2 gap-3">
+                <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
+                  <input type="checkbox" checked={form.isFree} onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceUSD: e.target.checked ? 0 : form.priceUSD })} className="accent-emerald-500" />
+                  <span className="text-sm text-white">This is a free course</span>
+                </label>
+                <Field label={`Price (USD) ${form.isFree ? "· disabled" : ""}`}>
+                  <input type="number" min="0" step="1" disabled={form.isFree} value={form.priceUSD} onChange={(e) => setForm({ ...form, priceUSD: Number(e.target.value) })} className="input disabled:opacity-40" />
+                </Field>
+              </div>
+
+              <div className="flex flex-wrap gap-3">
+                <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
+                  <input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} className="accent-emerald-500" />
+                  <span className="text-sm text-white">Published (visible in catalog)</span>
+                </label>
+                {isAdmin && (
+                  <label className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
+                    <input type="checkbox" checked={form.promoted} onChange={(e) => setForm({ ...form, promoted: e.target.checked })} className="accent-emerald-500" />
+                    <span className="text-sm text-emerald-300">Promote course (admin)</span>
+                  </label>
+                )}
+              </div>
+
+              <div className="flex gap-2 pt-1">
+                <button onClick={saveCourse} disabled={saving} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2">
+                  {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+                  {savedId ? "Save changes" : "Create course & add modules"}
+                </button>
+                {savedId && (
+                  <button onClick={removeCourseHandler} className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold">
+                    Delete course
+                  </button>
+                )}
+              </div>
+            </section>
+
+            {/* MODULES */}
+            {savedId && (
+              <section className="space-y-3 border-t border-white/10 pt-5">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Modules ({modules.length})</h3>
+
+                <div className="space-y-2">
+                  {modules.map((m, i) => (
+                    <div key={m.id} className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10">
+                      <GripVertical className="w-4 h-4 text-slate-600" />
+                      <span className="text-xs font-bold text-slate-500 w-6">{i + 1}.</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="text-sm font-semibold text-white truncate">{m.title}</div>
+                        <div className="text-[11px] text-slate-500 flex items-center gap-2">
+                          <Video className="w-3 h-3" /> {m.videoProvider} · {m.durationMin || "?"} min {m.isPreview && "· preview"}
+                        </div>
+                      </div>
+                      <button onClick={() => editModule(m)} className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1">Edit</button>
+                      <button onClick={() => removeMod(m.id)} className="text-xs text-red-400 hover:text-red-300 p-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                    </div>
+                  ))}
+                  {modules.length === 0 && (
+                    <div className="text-xs text-slate-500 text-center py-4 border border-dashed border-white/10 rounded-lg">
+                      No modules yet. Add your first video below.
+                    </div>
+                  )}
+                </div>
+
+                <div className="p-4 rounded-lg bg-[#121214] border border-emerald-500/20 space-y-3">
+                  <div className="text-xs font-bold uppercase tracking-wider text-emerald-300">
+                    {modForm.id ? "Editing module" : "Add new module"}
+                  </div>
+                  <div className="grid sm:grid-cols-2 gap-3">
+                    <Field label="Module title *">
+                      <input value={modForm.title} onChange={(e) => setModForm({ ...modForm, title: e.target.value })} className="input" placeholder="Module 1 — Foundations" />
+                    </Field>
+                    <Field label="Video URL (YouTube or Vimeo) *">
+                      <input value={modForm.videoUrl} onChange={(e) => setModForm({ ...modForm, videoUrl: e.target.value })} className="input" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
+                    </Field>
+                    <Field label="Duration (minutes)">
+                      <input type="number" min="0" value={modForm.durationMin} onChange={(e) => setModForm({ ...modForm, durationMin: Number(e.target.value) })} className="input" />
+                    </Field>
+                    <label className="flex items-center gap-2 p-3 rounded-lg bg-[#1E1E24] border border-white/10 cursor-pointer">
+                      <input type="checkbox" checked={modForm.isPreview} onChange={(e) => setModForm({ ...modForm, isPreview: e.target.checked })} className="accent-emerald-500" />
+                      <span className="text-sm text-white">Free preview (viewable pre-enrollment)</span>
+                    </label>
+                  </div>
+                  <Field label="Description">
+                    <textarea rows={2} value={modForm.description} onChange={(e) => setModForm({ ...modForm, description: e.target.value })} className="input resize-none" placeholder="What this module covers" />
+                  </Field>
+                  <div className="flex gap-2">
+                    <button onClick={addOrUpdateModule} className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2">
+                      <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
+                    </button>
+                    {modForm.id && (
+                      <button onClick={() => setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false })} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
+                        Cancel
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </section>
+            )}
+          </div>
+        )}
+
+        <div className="p-4 border-t border-white/10 flex justify-end gap-2 shrink-0">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-slate-300 hover:text-white text-sm">Close</button>
+          {savedId && (
+            <button onClick={finish} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm">
+              Done
+            </button>
+          )}
+        </div>
+      </div>
+
+      <style>{`.input{width:100%;padding:0.5rem 0.75rem;background:#121214;border:1px solid rgba(255,255,255,0.1);border-radius:0.5rem;color:white;font-size:0.875rem;outline:none}.input:focus{border-color:rgb(16 185 129 / 0.5)}`}</style>
+    </div>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 block">{label}</span>
+      {children}
+    </label>
+  );
+}
