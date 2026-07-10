@@ -852,7 +852,7 @@ function ProfileSettingsModal({
               type="button"
               onClick={() => {
                 onClose();
-                ensureKyc(() => toast.success("Verification updated"));
+                ensureKyc(() => { toast.success("Verification updated"); });
               }}
               className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
             >
