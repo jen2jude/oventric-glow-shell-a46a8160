@@ -350,6 +350,11 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         kycIdUploaded: !!(row as { kyc_id_path?: string | null }).kyc_id_path,
         profileCompletedAt: row.profile_completed_at,
         joined: row.created_at,
+        notificationPreferences: {
+          ...DEFAULT_NOTIFICATION_PREFS,
+          ...((row as { notification_preferences?: Partial<NotificationPreferences> }).notification_preferences ?? {}),
+        },
+
       },
     };
   });
