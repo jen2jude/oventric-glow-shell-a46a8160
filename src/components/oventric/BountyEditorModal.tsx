@@ -55,7 +55,26 @@ export function BountyEditorModal({
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    let cancelled = false;
+    (async () => {
+      const { data: session } = await supabase.auth.getUser();
+      const uid = session.user?.id;
+      if (!uid) {
+        if (!cancelled) setIsAdmin(false);
+        return;
+      }
+      const { data, error } = await supabase.rpc("has_role", { _user_id: uid, _role: "admin" });
+      if (!cancelled) setIsAdmin(!error && data === true);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [open]);
 
   if (!open) return null;
 
