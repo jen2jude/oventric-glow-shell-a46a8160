@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
-import { X, Mail, ShieldCheck, Store, Wallet as WalletIcon, ScanFace, Loader2, Check } from "lucide-react";
-import { useOnboarding, type Country, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { X, Mail, ShieldCheck, Store, Wallet as WalletIcon, ScanFace, Loader2, Check, Loader } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { useOnboarding, type Country, type Currency, countryToCurrency } from "@/lib/onboarding/OnboardingContext";
+import { completeProfile as completeProfileFn } from "@/lib/onboarding.functions";
+
 
 function ModalShell({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: React.ReactNode }) {
   return (
