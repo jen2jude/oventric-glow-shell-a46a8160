@@ -592,21 +592,34 @@ function ProfilePage() {
             <section className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
-                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg`}
+                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
                 >
-                  {profile.initials}
+                  {displayAvatar ? (
+                    <img
+                      src={displayAvatar}
+                      alt={`${displayName} avatar`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    displayInitials
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-white text-2xl font-black">{profile.name}</h1>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <h1 className="text-white text-2xl font-black">{displayName}</h1>
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" aria-label={displayTierLabel} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                      {displayTierLabel}
+                    </span>
                   </div>
-                  <div className="text-sm text-slate-400 mt-0.5">{profile.role}</div>
+                  <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Joined {profile.joined} · {profile.followers.toLocaleString()} followers
+                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {profile.followers.toLocaleString()} followers
                   </div>
-                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">{profile.bio}</p>
-                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${profile.name}'s circle`}>
+                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">
+                    {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
+                  </p>
+                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${displayName}'s circle`}>
                     <div className="flex -space-x-2">
                       {circleMembers.preview.map((m) => (
                         <div
