@@ -531,10 +531,32 @@ function ProfileSettingsModal({
     }
     setSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 350));
+      let avatarPath: string | null | undefined = undefined;
+      if (avatarFile && userId && userId !== "me") {
+        const ext = (avatarFile.name.split(".").pop() || "png").toLowerCase();
+        const path = `${userId}/avatar-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("avatars")
+          .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
+        if (upErr) throw upErr;
+        avatarPath = path;
+      }
+      await persistProfileRemote({
+        data: {
+          displayName: displayName.trim(),
+          bio: bio.trim() || null,
+          ...(avatarPath !== undefined ? { avatarPath } : {}),
+        },
+      });
       onSave({ displayName: displayName.trim(), bio: bio.trim(), avatarDataUrl: avatar });
       toast.success("Profile updated", { description: "Your workspace identity is synced." });
+      setAvatarFile(null);
       onClose();
+    } catch (err) {
+      console.error("[ProfileSettingsModal] save failed", err);
+      toast.error("Could not save profile", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
     } finally {
       setSaving(false);
     }
