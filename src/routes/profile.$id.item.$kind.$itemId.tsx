@@ -8,7 +8,7 @@ import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile } from "@/lib/profiles/mockProfiles";
-import { getProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
+import { getLiveProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -53,13 +53,14 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
   validateSearch: zodValidator(itemSearchSchema),
   loader: async ({ params }) => {
     if (!VALID_KINDS.includes(params.kind as ProfileItemKind)) throw notFound();
-    const { item } = await getProfileItem({
+    const { item } = await getLiveProfileItem({
       data: {
-        profileId: params.id,
+        idOrSlug: params.id,
         kind: params.kind as ProfileItemKind,
         itemId: params.itemId,
       },
     });
+
     if (!item) throw notFound();
     return { item, kind: params.kind as ProfileItemKind };
   },

@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getProfileTab, getProfileByIdOrSlug, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getLiveProfileTab, getProfileByIdOrSlug, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -174,7 +174,7 @@ function ProfilePage() {
   });
   const PAGE_SIZE = 6;
 
-  const fetchTab = useServerFn(getProfileTab);
+  const fetchTab = useServerFn(getLiveProfileTab);
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
@@ -204,7 +204,7 @@ function ProfilePage() {
     async (which: Tab, pageNum: number, reset: boolean, filters: { q: string; sort: ProfileSortKey }) => {
       const res = await fetchTab({
         data: {
-          profileId: profile.id,
+          idOrSlug: id,
           tab: which,
           page: pageNum,
           pageSize: PAGE_SIZE,
@@ -212,6 +212,7 @@ function ProfilePage() {
           sort: filters.sort,
         },
       });
+
       setTabData((s) => ({
         ...s,
         [which]: {
@@ -491,12 +492,14 @@ function ProfilePage() {
       const collected: ProfileTabPage["items"] = [];
       let last: ProfileTabPage | null = null;
       for (let p = 1; p <= pagesToLoad; p++) {
-        last = await fetchTab({
-          data: { profileId: profile.id, tab: "marketplace", page: p, pageSize: PAGE_SIZE, q, sort },
+        const res: ProfileTabPage = await fetchTab({
+          data: { idOrSlug: id, tab: "marketplace", page: p, pageSize: PAGE_SIZE, q, sort },
         });
-        collected.push(...last.items);
-        if (!last.hasMore) break;
+        last = res;
+        collected.push(...res.items);
+        if (!res.hasMore) break;
       }
+
       setTabData((s) => ({
         ...s,
         marketplace: {
@@ -514,7 +517,7 @@ function ProfilePage() {
     } finally {
       setMpRefreshing(false);
     }
-  }, [profile.id, q, sort, fetchTab]);
+  }, [id, q, sort, fetchTab]);
 
   // Seed the "last updated" timestamp when marketplace items first appear.
   useEffect(() => {
