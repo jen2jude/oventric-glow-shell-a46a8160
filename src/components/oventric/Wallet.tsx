@@ -563,41 +563,398 @@ function AddCapitalModal({ onClose }: { onClose: () => void }) {
   );
 }
 
+type Rail = {
+  c: Currency;
+  method: "bank" | "momo" | "wire";
+  label: string;
+  eta: string;
+  tone: "emerald" | "amber" | "sky";
+  hint: string;
+};
+
+const NG_BANKS = [
+  "Access Bank",
+  "Fidelity Bank",
+  "First Bank",
+  "First City Monument Bank (FCMB)",
+  "GTBank",
+  "Kuda Bank",
+  "OPay",
+  "Palmpay",
+  "Polaris Bank",
+  "Providus Bank",
+  "Stanbic IBTC",
+  "Sterling Bank",
+  "UBA",
+  "Union Bank",
+  "Unity Bank",
+  "Wema Bank",
+  "Zenith Bank",
+];
+const GH_BANKS = [
+  "Absa Bank Ghana",
+  "Access Bank Ghana",
+  "CalBank",
+  "Ecobank Ghana",
+  "Fidelity Bank Ghana",
+  "GCB Bank",
+  "GT Bank Ghana",
+  "Stanbic Bank Ghana",
+  "Standard Chartered Ghana",
+  "Zenith Bank Ghana",
+];
+
 function PayoutModal({ onClose }: { onClose: () => void }) {
-  const rails = [
-    { c: "NGN", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald" },
-    { c: "GHS", label: "GHS MoMo Payout", eta: "< 15 mins", tone: "amber" },
-    { c: "USD", label: "USD Wire Transfer", eta: "24–48 Hours", tone: "sky" },
+  const { balances } = useOnboarding();
+  const [step, setStep] = useState<"pick" | "form">("pick");
+  const [rail, setRail] = useState<Rail | null>(null);
+  const [amount, setAmount] = useState<string>("");
+  const [submitting, setSubmitting] = useState(false);
+
+  // NGN bank fields
+  const [ngBank, setNgBank] = useState("");
+  const [ngAcct, setNgAcct] = useState("");
+  const [ngName, setNgName] = useState("");
+
+  // GHS momo / bank
+  const [ghMode, setGhMode] = useState<"momo" | "bank">("momo");
+  const [ghNetwork, setGhNetwork] = useState<"MTN" | "Vodafone" | "AirtelTigo">("MTN");
+  const [ghPhone, setGhPhone] = useState("");
+  const [ghHolder, setGhHolder] = useState("");
+  const [ghBank, setGhBank] = useState("");
+  const [ghAcct, setGhAcct] = useState("");
+
+  // USD wire
+  const [wireBene, setWireBene] = useState("");
+  const [wireBank, setWireBank] = useState("");
+  const [wireAcct, setWireAcct] = useState("");
+  const [wireSwift, setWireSwift] = useState("");
+  const [wireRouting, setWireRouting] = useState("");
+  const [wireCountry, setWireCountry] = useState("");
+  const [wireAddress, setWireAddress] = useState("");
+
+  const rails: Rail[] = [
+    { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Nigerian bank · NIP rails" },
+    { c: "GHS", method: "momo", label: "GHS Mobile Money / Bank", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" },
+    { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · Correspondent bank" },
   ];
+
+  const submit = async () => {
+    if (!rail) return;
+    const amt = Number(amount);
+    if (!Number.isFinite(amt) || amt <= 0) {
+      toast.error("Enter a valid amount");
+      return;
+    }
+    const bal = balances[rail.c] ?? 0;
+    if (amt > bal) {
+      toast.error(`Amount exceeds available balance (${currencyMeta[rail.c].symbol}${bal.toLocaleString()})`);
+      return;
+    }
+
+    let method: "bank" | "momo" | "wire" = rail.method;
+    const destination: Record<string, string> = {};
+
+    try {
+      if (rail.c === "NGN") {
+        method = "bank";
+        if (!ngBank || !ngAcct || !ngName) throw new Error("Fill bank, account number and account name");
+        if (!/^\d{10}$/.test(ngAcct)) throw new Error("Nigerian account number must be 10 digits");
+        Object.assign(destination, { bank_name: ngBank, account_number: ngAcct, account_name: ngName });
+      } else if (rail.c === "GHS") {
+        if (ghMode === "momo") {
+          method = "momo";
+          if (!ghPhone || !ghHolder) throw new Error("Fill mobile number and account name");
+          Object.assign(destination, { network: ghNetwork, phone: ghPhone, account_name: ghHolder });
+        } else {
+          method = "bank";
+          if (!ghBank || !ghAcct || !ghHolder) throw new Error("Fill bank, account number and account name");
+          Object.assign(destination, { bank_name: ghBank, account_number: ghAcct, account_name: ghHolder });
+        }
+      } else {
+        method = "wire";
+        if (!wireBene || !wireBank || !wireAcct || !wireSwift) throw new Error("Fill beneficiary, bank, account and SWIFT");
+        Object.assign(destination, {
+          beneficiary_name: wireBene,
+          bank_name: wireBank,
+          account_number: wireAcct,
+          swift: wireSwift,
+          routing: wireRouting,
+          bank_country: wireCountry,
+          beneficiary_address: wireAddress,
+        });
+      }
+    } catch (e) {
+      toast.error((e as Error).message);
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const { createPayoutRequest } = await import("@/lib/payouts.functions");
+      // useServerFn is component-scope; call directly is fine for one-off submission.
+      await createPayoutRequest({
+        data: { currency: rail.c, method, amount: amt, destination },
+      });
+      toast.success("Payout requested", {
+        description: "Your withdrawal is queued for admin review. Funds are held in escrow.",
+      });
+      onClose();
+    } catch (e) {
+      toast.error("Payout failed", { description: (e as Error).message });
+    } finally {
+      setSubmitting(false);
+    }
+  };
+
+  if (step === "pick") {
+    return (
+      <ModalShell title="Request Payout" onClose={onClose}>
+        <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
+          <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
+          <p className="text-xs text-emerald-200/90">
+            Liveness verified. Choose a payout rail — funds move to escrow and clear once an admin approves.
+          </p>
+        </div>
+        <div className="space-y-2">
+          {rails.map((r) => {
+            const active = rail?.c === r.c;
+            const bal = balances[r.c] ?? 0;
+            const disabled = bal <= 0;
+            return (
+              <button
+                key={r.c}
+                type="button"
+                disabled={disabled}
+                onClick={() => setRail(r)}
+                className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all ${
+                  active
+                    ? "border-sky-500/60 bg-sky-500/5"
+                    : disabled
+                      ? "border-[#1a1a1e] bg-[#0A0A0C] opacity-50 cursor-not-allowed"
+                      : "border-[#222226] bg-[#0A0A0C] hover:border-white/20"
+                }`}
+              >
+                <div
+                  className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${
+                    r.tone === "emerald"
+                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                      : r.tone === "amber"
+                        ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                        : "border-sky-500/40 bg-sky-500/10 text-sky-300"
+                  }`}
+                >
+                  <Zap className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="font-semibold text-white text-sm truncate">{r.label}</div>
+                  <div className="text-xs text-slate-400 truncate">{r.hint} · {r.eta}</div>
+                </div>
+                <div className="shrink-0 text-right">
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Available</div>
+                  <div className="text-xs font-bold text-slate-200 tabular-nums">
+                    {currencyMeta[r.c].symbol}
+                    {bal.toLocaleString("en-US", { minimumFractionDigits: r.c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
+                  </div>
+                </div>
+              </button>
+            );
+          })}
+        </div>
+        <button
+          disabled={!rail}
+          onClick={() => setStep("form")}
+          className="w-full mt-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+        >
+          Continue to payout details
+        </button>
+      </ModalShell>
+    );
+  }
+
+  if (!rail) return null;
+  const bal = balances[rail.c] ?? 0;
+  const sym = currencyMeta[rail.c].symbol;
+
   return (
-    <ModalShell title="Request Payout" onClose={onClose}>
-      <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
-        <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
-        <p className="text-xs text-emerald-200/90">
-          Escrow extraction gate · funds are validated against pending obligations before release.
-        </p>
-      </div>
-      <div className="space-y-2">
-        {rails.map((r) => (
-          <div key={r.c} className="grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
-            <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${
-              r.tone === "emerald" ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-              : r.tone === "amber" ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
-              : "border-sky-500/40 bg-sky-500/10 text-sky-300"
-            }`}>
-              <Zap className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-semibold text-white text-sm truncate">{r.label}</div>
-              <div className="text-xs text-slate-400">Clearing window</div>
-            </div>
-            <span className="shrink-0 text-xs font-bold text-slate-200 tabular-nums">{r.eta}</span>
-          </div>
-        ))}
-      </div>
-      <button className="w-full mt-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors">
-        Continue to security verification
+    <ModalShell title={`${rail.label} · Payout Details`} onClose={onClose}>
+      <button
+        type="button"
+        onClick={() => setStep("pick")}
+        className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider"
+      >
+        ← Change rail
       </button>
+
+      <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-slate-500 mb-1">
+          <span>Amount to withdraw ({rail.c})</span>
+          <button
+            type="button"
+            onClick={() => setAmount(String(bal))}
+            className="text-emerald-400 hover:text-emerald-300 normal-case tracking-normal"
+          >
+            Max {sym}{bal.toLocaleString()}
+          </button>
+        </div>
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-bold text-slate-400">{sym}</span>
+          <input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step={rail.c === "NGN" ? 1 : 0.01}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            className="w-full bg-transparent text-2xl font-black text-white tabular-nums focus:outline-none"
+          />
+        </div>
+      </div>
+
+      {rail.c === "NGN" && (
+        <div className="space-y-2">
+          <Field label="Bank">
+            <select
+              value={ngBank}
+              onChange={(e) => setNgBank(e.target.value)}
+              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+            >
+              <option value="">Select bank…</option>
+              {NG_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+            </select>
+          </Field>
+          <Field label="Account number (10 digits, NUBAN)">
+            <TxtInput value={ngAcct} onChange={setNgAcct} placeholder="0123456789" maxLength={10} />
+          </Field>
+          <Field label="Account name">
+            <TxtInput value={ngName} onChange={setNgName} placeholder="As it appears on your bank record" />
+          </Field>
+        </div>
+      )}
+
+      {rail.c === "GHS" && (
+        <div className="space-y-2">
+          <div className="grid grid-cols-2 gap-2">
+            <button
+              type="button"
+              onClick={() => setGhMode("momo")}
+              className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+                ghMode === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"
+              }`}
+            >
+              Mobile Money
+            </button>
+            <button
+              type="button"
+              onClick={() => setGhMode("bank")}
+              className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
+                ghMode === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"
+              }`}
+            >
+              Bank Transfer
+            </button>
+          </div>
+
+          {ghMode === "momo" ? (
+            <>
+              <Field label="Network">
+                <select
+                  value={ghNetwork}
+                  onChange={(e) => setGhNetwork(e.target.value as never)}
+                  className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                >
+                  <option value="MTN">MTN Mobile Money</option>
+                  <option value="Vodafone">Vodafone Cash</option>
+                  <option value="AirtelTigo">AirtelTigo Money</option>
+                </select>
+              </Field>
+              <Field label="Mobile number">
+                <TxtInput value={ghPhone} onChange={setGhPhone} placeholder="+233 20 000 0000" />
+              </Field>
+              <Field label="Registered wallet name">
+                <TxtInput value={ghHolder} onChange={setGhHolder} placeholder="Full name on the mobile wallet" />
+              </Field>
+            </>
+          ) : (
+            <>
+              <Field label="Bank">
+                <select
+                  value={ghBank}
+                  onChange={(e) => setGhBank(e.target.value)}
+                  className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+                >
+                  <option value="">Select bank…</option>
+                  {GH_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
+                </select>
+              </Field>
+              <Field label="Account number">
+                <TxtInput value={ghAcct} onChange={setGhAcct} placeholder="Bank account number" />
+              </Field>
+              <Field label="Account name">
+                <TxtInput value={ghHolder} onChange={setGhHolder} placeholder="Full account holder name" />
+              </Field>
+            </>
+          )}
+        </div>
+      )}
+
+      {rail.c === "USD" && (
+        <div className="space-y-2">
+          <Field label="Beneficiary name"><TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" /></Field>
+          <Field label="Beneficiary address"><TxtInput value={wireAddress} onChange={setWireAddress} placeholder="Street, city, country" /></Field>
+          <Field label="Bank name"><TxtInput value={wireBank} onChange={setWireBank} placeholder="e.g. Chase, HSBC" /></Field>
+          <Field label="Account number / IBAN"><TxtInput value={wireAcct} onChange={setWireAcct} placeholder="Account or IBAN" /></Field>
+          <div className="grid grid-cols-2 gap-2">
+            <Field label="SWIFT / BIC"><TxtInput value={wireSwift} onChange={setWireSwift} placeholder="ABCDUSXX" /></Field>
+            <Field label="Routing / Sort (optional)"><TxtInput value={wireRouting} onChange={setWireRouting} placeholder="If applicable" /></Field>
+          </div>
+          <Field label="Bank country"><TxtInput value={wireCountry} onChange={setWireCountry} placeholder="e.g. United States" /></Field>
+        </div>
+      )}
+
+      <button
+        onClick={submit}
+        disabled={submitting}
+        className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-60"
+      >
+        {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
+        {submitting ? "Submitting…" : `Request ${sym}${amount || "0"} payout`}
+      </button>
+      <p className="text-[11px] text-slate-500 text-center">
+        Funds are held in escrow until an admin reviews and marks the request paid.
+      </p>
     </ModalShell>
+  );
+}
+
+function Field({ label, children }: { label: string; children: React.ReactNode }) {
+  return (
+    <label className="block">
+      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1">{label}</div>
+      {children}
+    </label>
+  );
+}
+
+function TxtInput({
+  value,
+  onChange,
+  placeholder,
+  maxLength,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+  placeholder?: string;
+  maxLength?: number;
+}) {
+  return (
+    <input
+      value={value}
+      onChange={(e) => onChange(e.target.value)}
+      placeholder={placeholder}
+      maxLength={maxLength}
+      className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500/50"
+    />
   );
 }

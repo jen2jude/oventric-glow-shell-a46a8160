@@ -644,6 +644,54 @@ export type Database = {
           },
         ]
       }
+      payout_requests: {
+        Row: {
+          admin_note: string | null
+          amount: number
+          created_at: string
+          currency: string
+          destination: Json
+          id: string
+          method: string
+          processed_at: string | null
+          processed_by: string | null
+          reject_reason: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_note?: string | null
+          amount: number
+          created_at?: string
+          currency: string
+          destination?: Json
+          id?: string
+          method: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reject_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_note?: string | null
+          amount?: number
+          created_at?: string
+          currency?: string
+          destination?: Json
+          id?: string
+          method?: string
+          processed_at?: string | null
+          processed_by?: string | null
+          reject_reason?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           base_currency: string
@@ -1079,6 +1127,23 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      payout_request_create: {
+        Args: {
+          _amount: number
+          _currency: string
+          _destination: Json
+          _method: string
+        }
+        Returns: string
+      }
+      payout_request_mark_paid: {
+        Args: { _id: string; _note: string }
+        Returns: undefined
+      }
+      payout_request_reject: {
+        Args: { _id: string; _reason: string }
+        Returns: undefined
       }
       system_wallet_credit: {
         Args: {

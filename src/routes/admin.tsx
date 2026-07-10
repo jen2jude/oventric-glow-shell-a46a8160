@@ -18,6 +18,7 @@ import {
   Target,
   Wallet,
   GraduationCap,
+  Banknote,
 } from "lucide-react";
 
 
@@ -64,6 +65,7 @@ const NAV = [
   { to: "/admin/bounties", label: "Bounties", icon: Target },
   { to: "/admin/courses", label: "Academy", icon: GraduationCap },
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
+  { to: "/admin/payouts", label: "Payouts", icon: Banknote },
 
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
