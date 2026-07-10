@@ -220,7 +220,7 @@ function timeAgo(iso: string): string {
 }
 
 async function resolveUserId(
-  supabase: ReturnType<typeof import("@supabase/supabase-js").createClient>,
+  supabase: any,
   idOrSlug: string,
 ): Promise<string | null> {
   if (UUID_RE.test(idOrSlug)) return idOrSlug;
@@ -231,6 +231,7 @@ async function resolveUserId(
     .maybeSingle();
   return (data as { user_id?: string } | null)?.user_id ?? null;
 }
+
 
 function serverClient() {
   const { createClient } = require("@supabase/supabase-js") as typeof import("@supabase/supabase-js");
