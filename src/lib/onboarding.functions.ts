@@ -93,8 +93,9 @@ export const seedNewUser = createServerFn({ method: "POST" })
         .from("wallets")
         .upsert(rows, { onConflict: "user_id,currency", ignoreDuplicates: true });
       if (walletErr) {
-        console.error("[seedNewUser] wallet upsert failed", walletErr);
-        throw new Error("Failed to initialize wallets");
+        // Non-fatal: profile is seeded; wallets can be created on first
+        // commerce action. Do not blank the app shell over this.
+        console.error("[seedNewUser] wallet upsert failed (non-fatal)", walletErr);
       }
     }
 
