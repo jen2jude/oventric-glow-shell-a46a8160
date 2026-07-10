@@ -208,6 +208,18 @@ export const getProfileSocialCounts = createServerFn({ method: "GET" })
 // Update the authenticated user's own profile (name, bio, avatar path).
 // ---------------------------------------------------------------------------
 
+const NotificationPrefsInput = z.object({
+  email_digest: z.boolean(),
+  dm_pings: z.boolean(),
+  bounty_invites: z.boolean(),
+});
+export type NotificationPreferences = z.infer<typeof NotificationPrefsInput>;
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
+  email_digest: true,
+  dm_pings: true,
+  bounty_invites: true,
+};
+
 const UpdateInput = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(280).optional().nullable(),
@@ -223,7 +235,9 @@ const UpdateInput = z.object({
   phone: z.string().trim().min(6).max(24).optional().nullable(),
   country: z.string().trim().max(60).optional().nullable(),
   address: z.string().trim().max(200).optional().nullable(),
+  notificationPreferences: NotificationPrefsInput.optional(),
 });
+
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
