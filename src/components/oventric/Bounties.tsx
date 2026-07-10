@@ -534,7 +534,7 @@ function LiveAdSlot({
         </div>
         {hasMedia ? (
           <img
-            src={ad.media_url}
+            src={ad.media_url ?? undefined}
             alt={ad.advertiser}
             className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/10"
             loading="lazy"
