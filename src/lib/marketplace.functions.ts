@@ -302,9 +302,10 @@ export const createOrder = createServerFn({ method: "POST" })
     const fx = FX_FROM_USD[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Wallet debit if paying from wallet.
+    // Wallet debit if paying from wallet. Wallet mutations run via service-role.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.paymentMethod === "wallet") {
-      const { data: ok, error: dErr } = await supabase.rpc("wallet_debit", {
+      const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
         _user_id: userId,
         _amount: totalUSD,
       });
