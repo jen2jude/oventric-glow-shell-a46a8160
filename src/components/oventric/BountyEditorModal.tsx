@@ -1,10 +1,11 @@
-import { useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
 type Category = (typeof CATEGORIES)[number];
+type PromoteTier = "text" | "banner" | "video";
 
 interface FormState {
   title: string;
@@ -17,6 +18,8 @@ interface FormState {
   deadline_at: string;
   cover_path: string | null;
   cover_preview: string | null;
+  promote: boolean;
+  promote_tier: PromoteTier;
 }
 
 const emptyForm: FormState = {
@@ -30,6 +33,8 @@ const emptyForm: FormState = {
   deadline_at: "",
   cover_path: null,
   cover_preview: null,
+  promote: false,
+  promote_tier: "banner",
 };
 
 function fromLocalInput(v: string): string | null {
