@@ -20,7 +20,6 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const persist = useServerFn(createProduct);
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProductCategory>("themes");
-  const [vendor, setVendor] = useState("");
   const [description, setDescription] = useState("");
   const [priceUSD, setPriceUSD] = useState("");
   const [mode, setMode] = useState<"file" | "url">("file");
@@ -34,7 +33,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setVendor(""); setDescription(""); setPriceUSD("");
+    setName(""); setDescription(""); setPriceUSD("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setCover(null);
     if (coverPreview) URL.revokeObjectURL(coverPreview);
@@ -63,7 +62,6 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     e.preventDefault();
     if (submitting) return;
     if (!name.trim()) return toast.error("Asset name required");
-    if (!vendor.trim()) return toast.error("Vendor name required");
     if (!description.trim()) return toast.error("Description required");
     const usd = Number(priceUSD);
     if (!(usd > 0)) return toast.error("Price must be greater than 0");
@@ -76,6 +74,19 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
       const { data: userData, error: uErr } = await supabase.auth.getUser();
       if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
       const uid = userData.user.id;
+      const email = userData.user.email ?? "";
+
+      // Derive vendor display name from profile (display_name → username → email prefix).
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("user_id", uid)
+        .maybeSingle();
+      const vendorName =
+        (prof?.display_name && String(prof.display_name).trim()) ||
+        (prof?.username && String(prof.username).trim()) ||
+        (email ? email.split("@")[0] : "") ||
+        "Member";
 
       let coverPath: string | null = null;
       if (cover) {
@@ -107,7 +118,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           category,
           description: description.trim(),
           priceUSD: usd,
-          vendor: vendor.trim(),
+          vendor: vendorName,
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
           coverPath,
@@ -162,11 +173,6 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60">
                 {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
               </select>
-            </label>
-            <label className="block">
-              <span className="text-xs font-medium text-slate-300">Vendor / studio name</span>
-              <input value={vendor} onChange={(e) => setVendor(e.target.value)} placeholder="Your studio"
-                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
             </label>
             <label className="block">
               <span className="text-xs font-medium text-slate-300">Price (USD)</span>
