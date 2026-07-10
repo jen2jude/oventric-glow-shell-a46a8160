@@ -466,7 +466,7 @@ function ProfilePage() {
           setCircle(res.status);
           setCircleMeta({ sentAt: res.sentAt, acceptedAt: null, canceledAt: null });
         } else if (circle === "pending") {
-          const res = await cancelReq({ data: { targetSlug: profile.id } });
+          const res = await cancelReq({ data: { targetSlug: circleTargetSlug } });
           setCircle(res.status);
           setCircleMeta((m) => ({ sentAt: m.sentAt, acceptedAt: null, canceledAt: res.canceledAt }));
         }
