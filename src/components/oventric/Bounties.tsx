@@ -21,6 +21,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAdminStore } from "@/lib/admin/store";
+import { BountyEditorModal } from "./BountyEditorModal";
+import { Plus } from "lucide-react";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
@@ -197,6 +199,8 @@ export function Bounties() {
   const [role, setRole] = useState<"poster" | "developer">("poster");
   const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
   const [adsLoading, setAdsLoading] = useState(true);
+  const [postOpen, setPostOpen] = useState(false);
+  const [refreshTick, setRefreshTick] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -219,6 +223,46 @@ export function Bounties() {
     };
   }, []);
 
+  const [dbBounties, setDbBounties] = useState<Bounty[]>([]);
+  useEffect(() => {
+    let cancelled = false;
+    supabase
+      .from("bounties")
+      .select("id, title, category, price_usd, deadline_at, end_at, created_at, status")
+      .eq("status", "active")
+      .order("created_at", { ascending: false })
+      .then(({ data, error }) => {
+        if (cancelled) return;
+        if (error) {
+          // eslint-disable-next-line no-console
+          console.error("Bounties fetch error:", error);
+          return;
+        }
+        const now = Date.now();
+        const rows: Bounty[] = (data ?? [])
+          .filter((b) => !b.end_at || new Date(b.end_at as string).getTime() > now)
+          .map((b) => {
+            const cat = (b.category as string) as Exclude<Category, "all">;
+            const expiresAt = b.deadline_at
+              ? new Date(b.deadline_at as string).getTime()
+              : b.end_at
+                ? new Date(b.end_at as string).getTime()
+                : new Date(b.created_at as string).getTime() + 48 * 3_600_000;
+            return {
+              id: b.id as string,
+              title: (b.title as string) ?? "",
+              category: (["frontend", "database", "api", "uiux"] as const).includes(cat) ? cat : "api",
+              priceUSD: Number(b.price_usd ?? 0),
+              expiresAt,
+              ownedByMe: false,
+              applicants: [],
+            };
+          });
+        setDbBounties(rows);
+      });
+    return () => { cancelled = true; };
+  }, [refreshTick]);
+
   useTicker(1000);
 
   const adminBounties: Bounty[] = useMemo(
@@ -239,7 +283,7 @@ export function Bounties() {
     [admin.bounties],
   );
 
-  const ALL_BOUNTIES = useMemo(() => [...adminBounties, ...BOUNTIES], [adminBounties]);
+  const ALL_BOUNTIES = useMemo(() => [...dbBounties, ...adminBounties, ...BOUNTIES], [dbBounties, adminBounties]);
 
   const filtered = useMemo(
     () => (filter === "all" ? ALL_BOUNTIES : ALL_BOUNTIES.filter((b) => b.category === filter)),
@@ -317,6 +361,12 @@ export function Bounties() {
             Post work, evaluate applicants, run escrow-protected contracts end-to-end.
           </p>
         </div>
+        <button
+          onClick={() => require(1, () => setPostOpen(true), "issuer")}
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)]"
+        >
+          <Plus className="w-4 h-4" /> Post a bounty
+        </button>
       </div>
 
       {/* Metric grid */}
@@ -381,6 +431,12 @@ export function Bounties() {
           </div>
         )}
       </div>
+
+      <BountyEditorModal
+        open={postOpen}
+        onClose={() => setPostOpen(false)}
+        onPublished={() => setRefreshTick((t) => t + 1)}
+      />
     </div>
   );
 }

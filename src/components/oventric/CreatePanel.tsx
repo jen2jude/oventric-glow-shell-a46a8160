@@ -3,6 +3,7 @@ import { X, PenSquare, Target, ShoppingBag, FileText, GraduationCap } from "luci
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellAssetModal } from "./SellAssetModal";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { BountyEditorModal } from "./BountyEditorModal";
 
 type ChoiceKey = "post" | "bounty" | "sell" | "blog" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
@@ -19,6 +20,7 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
   const { require } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
+  const [bountyOpen, setBountyOpen] = useState(false);
 
   const handleChoice = (c: Choice) => {
     require(c.tier, () => {
@@ -30,6 +32,11 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
       if (c.key === "course") {
         onClose();
         setCourseOpen(true);
+        return;
+      }
+      if (c.key === "bounty") {
+        onClose();
+        setBountyOpen(true);
         return;
       }
       onClose();
@@ -76,6 +83,13 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         setCourseOpen(false);
         window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
       }} />
+      <BountyEditorModal
+        open={bountyOpen}
+        onClose={() => setBountyOpen(false)}
+        onPublished={() => {
+          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
+        }}
+      />
     </>
   );
 }
