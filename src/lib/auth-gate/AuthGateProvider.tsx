@@ -478,13 +478,27 @@ function AuthGateModal({
       if (token.length !== OTP_LENGTH) return;
       setVerifying(true);
       try {
-        const { data, error } = await supabase.auth.verifyOtp({
-          email: email.trim(),
-          token,
-          type: "email",
-        });
-        if (error) throw error;
-        if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        // New-user tab has the raw email in state; returning-user tab keeps
+        // email out of the client and verifies via the identifier server-side.
+        if (email.trim()) {
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: email.trim(),
+            token,
+            type: "email",
+          });
+          if (error) throw error;
+          if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        } else {
+          const res = await verifyLoginOtpByIdentifier({
+            data: { identifier: identifier.trim(), token },
+          });
+          if (!res.ok || !res.session) throw new Error("Invalid or expired code");
+          const { error: setErr } = await supabase.auth.setSession({
+            access_token: res.session.access_token,
+            refresh_token: res.session.refresh_token,
+          });
+          if (setErr) throw setErr;
+        }
         setVerified(true);
         setFlash(null);
         try {
