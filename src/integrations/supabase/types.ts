@@ -833,6 +833,7 @@ export type Database = {
       }
       profiles: {
         Row: {
+          address: string | null
           country: string | null
           created_at: string
           display_name: string | null
@@ -848,6 +849,7 @@ export type Database = {
           verification_tier: string
         }
         Insert: {
+          address?: string | null
           country?: string | null
           created_at?: string
           display_name?: string | null
@@ -863,6 +865,7 @@ export type Database = {
           verification_tier?: string
         }
         Update: {
+          address?: string | null
           country?: string | null
           created_at?: string
           display_name?: string | null
