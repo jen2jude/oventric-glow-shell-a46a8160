@@ -103,3 +103,41 @@ export const signInWithIdentifierPassword = createServerFn({ method: "POST" })
       maskedEmail: maskEmail(email),
     };
   });
+
+const VerifyInput = z.object({
+  identifier: z.string().trim().min(2).max(254),
+  token: z.string().trim().regex(/^\d{4,10}$/),
+});
+
+/**
+ * Server-side email OTP verification by identifier. Resolves username → email
+ * server-side, calls verifyOtp, and returns the resulting session tokens for
+ * the client to apply via supabase.auth.setSession(). Raw email is never
+ * returned to the client.
+ */
+export const verifyLoginOtpByIdentifier = createServerFn({ method: "POST" })
+  .inputValidator((input: unknown) => VerifyInput.parse(input))
+  .handler(async ({ data }) => {
+    const email = await resolveEmail(data.identifier.trim());
+    const fail = { ok: false as const, session: null };
+    if (!email) return fail;
+    const { createClient } = await import("@supabase/supabase-js");
+    const url = process.env.SUPABASE_URL!;
+    const anon = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const sb = createClient(url, anon, {
+      auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+    });
+    const { data: res, error } = await sb.auth.verifyOtp({
+      email,
+      token: data.token,
+      type: "email",
+    });
+    if (error || !res.session) return fail;
+    return {
+      ok: true as const,
+      session: {
+        access_token: res.session.access_token,
+        refresh_token: res.session.refresh_token,
+      },
+    };
+  });
