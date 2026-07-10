@@ -262,6 +262,7 @@ function CourseDetail({
   const [activeIdx, setActiveIdx] = useState(0);
   const [loading, setLoading] = useState(true);
   const [busy, setBusy] = useState(false);
+  const [checkoutOpen, setCheckoutOpen] = useState(false);
 
   useEffect(() => {
     setLoading(true);
