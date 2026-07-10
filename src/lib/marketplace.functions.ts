@@ -201,8 +201,11 @@ export const topUpWallet = createServerFn({ method: "POST" })
     if (data.method === "wallet") throw new Error("Cannot top up wallet from wallet");
     const usd = data.amount / FX_FROM_USD[data.currency];
 
-    // Simulated card / bank / momo processing.
-    const { error: cErr } = await context.supabase.rpc("wallet_credit", {
+    // Simulated card / bank / momo processing. Wallet mutations run through the
+    // service-role client — wallet_credit/wallet_debit RPCs are no longer
+    // callable by end-user JWTs to prevent direct RPC abuse.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: cErr } = await supabaseAdmin.rpc("wallet_credit", {
       _user_id: context.userId,
       _amount: usd,
     });
