@@ -212,6 +212,17 @@ const UpdateInput = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(280).optional().nullable(),
   avatarPath: z.string().trim().max(300).optional().nullable(),
+  username: z
+    .string()
+    .trim()
+    .min(3)
+    .max(24)
+    .regex(/^[a-zA-Z0-9_]+$/, "Letters, numbers, and underscore only")
+    .optional()
+    .nullable(),
+  phone: z.string().trim().min(6).max(24).optional().nullable(),
+  country: z.string().trim().max(60).optional().nullable(),
+  address: z.string().trim().max(200).optional().nullable(),
 });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
@@ -223,19 +234,102 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       display_name?: string;
       bio?: string | null;
       avatar_path?: string | null;
+      username?: string | null;
+      phone?: string | null;
+      country?: string | null;
+      address?: string | null;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.avatarPath !== undefined) patch.avatar_path = data.avatarPath;
+    if (data.username !== undefined) patch.username = data.username;
+    if (data.phone !== undefined) patch.phone = data.phone;
+    if (data.country !== undefined) patch.country = data.country;
+    if (data.address !== undefined) patch.address = data.address;
     if (Object.keys(patch).length === 0) return { ok: true };
 
     const { error } = await supabase.from("profiles").update(patch).eq("user_id", userId);
     if (error) {
       console.error("[updateMyProfile] update failed", error);
+      // Unique-violation on username
+      if ((error as { code?: string }).code === "23505") {
+        throw new Error("That username is taken. Try another.");
+      }
       throw new Error("Failed to update profile");
     }
     return { ok: true };
   });
+
+
+// ---------------------------------------------------------------------------
+// Full self-profile fetch for the settings modal — includes editable fields
+// plus live verification tier and KYC state (with signed avatar URL).
+// ---------------------------------------------------------------------------
+
+export interface MyFullProfile {
+  userId: string;
+  slug: string;
+  displayName: string;
+  username: string | null;
+  bio: string | null;
+  phone: string | null;
+  country: string | null;
+  address: string | null;
+  avatarUrl: string | null;
+  verificationTier: string;
+  reputationStars: number;
+  kycCompletedAt: string | null;
+  kycSelfieUploaded: boolean;
+  kycIdUploaded: boolean;
+  profileCompletedAt: string | null;
+  joined: string;
+}
+
+export const getMyFullProfile = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<{ profile: MyFullProfile | null }> => {
+    const { supabase, userId } = context;
+    const { data: row, error } = await supabase
+      .from("profiles")
+      .select(
+        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, created_at",
+      )
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) {
+      console.error("[getMyFullProfile] read failed", error);
+      return { profile: null };
+    }
+    if (!row) return { profile: null };
+    let avatarUrl: string | null = null;
+    if (row.avatar_path) {
+      const { data: signed } = await supabase.storage
+        .from("avatars")
+        .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
+      avatarUrl = signed?.signedUrl ?? null;
+    }
+    return {
+      profile: {
+        userId: row.user_id,
+        slug: row.slug,
+        displayName: row.display_name ?? row.username ?? row.slug,
+        username: row.username,
+        bio: row.bio,
+        phone: row.phone,
+        country: row.country,
+        address: (row as { address?: string | null }).address ?? null,
+        avatarUrl,
+        verificationTier: row.verification_tier,
+        reputationStars: Number(row.reputation_stars ?? 0),
+        kycCompletedAt: row.kyc_completed_at,
+        kycSelfieUploaded: !!row.kyc_selfie_path,
+        kycIdUploaded: !!(row as { kyc_id_path?: string | null }).kyc_id_path,
+        profileCompletedAt: row.profile_completed_at,
+        joined: row.created_at,
+      },
+    };
+  });
+
 
 
 // ---------------------------------------------------------------------------

@@ -7,7 +7,8 @@ import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOf
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { getProfileByIdOrSlug, updateMyProfile } from "@/lib/profiles.functions";
+import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, type MyFullProfile } from "@/lib/profiles.functions";
+import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
@@ -461,9 +462,20 @@ function ProfileSettingsModal({
   onSave: (next: ProfileState) => void;
 }) {
   const persistProfileRemote = useServerFn(updateMyProfile);
+  const loadFullProfile = useServerFn(getMyFullProfile);
+  const { ensureKyc, kycCompleted } = useKycGate();
+
+  const [full, setFull] = useState<MyFullProfile | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState<string | null>(null);
+
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [displayName, setDisplayName] = useState(profile.displayName);
+  const [username, setUsername] = useState("");
   const [bio, setBio] = useState(profile.bio);
+  const [phone, setPhone] = useState("");
+  const [country, setCountry] = useState("");
+  const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -473,13 +485,40 @@ function ProfileSettingsModal({
   const descId = useId();
   useFocusTrap(dialogRef, open, { initialFocus: closeBtnRef });
 
+  // Load the live profile every time the modal opens so KYC + editable
+  // fields reflect the current database state.
   useEffect(() => {
     if (!open) return;
-    setDisplayName(profile.displayName);
-    setBio(profile.bio);
-    setAvatar(profile.avatarDataUrl);
+    let cancelled = false;
+    setLoading(true);
+    setLoadError(null);
+    loadFullProfile({})
+      .then((res) => {
+        if (cancelled) return;
+        const p = res.profile;
+        setFull(p);
+        if (p) {
+          setDisplayName(p.displayName ?? "");
+          setUsername(p.username ?? "");
+          setBio(p.bio ?? "");
+          setPhone(p.phone ?? "");
+          setCountry(p.country ?? "");
+          setAddress(p.address ?? "");
+          setAvatar(p.avatarUrl ?? profile.avatarDataUrl);
+        }
+      })
+      .catch((e) => {
+        console.error("[ProfileSettingsModal] load failed", e);
+        if (!cancelled) setLoadError("Couldn't load your profile. Please retry.");
+      })
+      .finally(() => {
+        if (!cancelled) setLoading(false);
+      });
     setErrors({});
-  }, [open, profile]);
+    return () => {
+      cancelled = true;
+    };
+  }, [open, loadFullProfile, profile.avatarDataUrl]);
 
   useEffect(() => {
     if (!open) return;
@@ -518,6 +557,16 @@ function ProfileSettingsModal({
     if (!displayName.trim()) e.displayName = "Display name is required.";
     else if (displayName.trim().length > 40) e.displayName = "Keep under 40 characters.";
     if (bio.length > 280) e.bio = "Bio must be under 280 characters.";
+    const u = username.trim();
+    if (u) {
+      if (u.length < 3) e.username = "At least 3 characters.";
+      else if (u.length > 24) e.username = "Under 24 characters.";
+      else if (!/^[a-zA-Z0-9_]+$/.test(u)) e.username = "Letters, numbers, and underscore only.";
+    }
+    const p = phone.trim();
+    if (p && !/^[+\d][\d\s-]{5,23}$/.test(p)) e.phone = "Enter a valid phone number.";
+    if (country.trim().length > 60) e.country = "Under 60 characters.";
+    if (address.trim().length > 200) e.address = "Under 200 characters.";
     return e;
   };
 
@@ -545,6 +594,10 @@ function ProfileSettingsModal({
         data: {
           displayName: displayName.trim(),
           bio: bio.trim() || null,
+          username: username.trim() || null,
+          phone: phone.trim() || null,
+          country: country.trim() || null,
+          address: address.trim() || null,
           ...(avatarPath !== undefined ? { avatarPath } : {}),
         },
       });
@@ -554,12 +607,32 @@ function ProfileSettingsModal({
       onClose();
     } catch (err) {
       console.error("[ProfileSettingsModal] save failed", err);
-      toast.error("Could not save profile", {
-        description: err instanceof Error ? err.message : "Please try again.",
-      });
+      const message = err instanceof Error ? err.message : "Please try again.";
+      if (/username/i.test(message)) setErrors((p) => ({ ...p, username: message }));
+      toast.error("Could not save profile", { description: message });
     } finally {
       setSaving(false);
     }
+  };
+
+  const tierLabel = (t?: string) => {
+    switch (t) {
+      case "TIER_5":
+        return { label: "Tier 5 · Fully verified", tone: "emerald" as const };
+      case "TIER_2":
+        return { label: "Tier 2 · Commerce ready", tone: "sky" as const };
+      case "TIER_1":
+        return { label: "Tier 1 · Email verified", tone: "amber" as const };
+      default:
+        return { label: "Tier 0 · Guest", tone: "slate" as const };
+    }
+  };
+  const tier = tierLabel(full?.verificationTier);
+  const tierClasses: Record<string, string> = {
+    emerald: "bg-emerald-500/15 border-emerald-500/40 text-emerald-300",
+    sky: "bg-sky-500/15 border-sky-500/40 text-sky-300",
+    amber: "bg-amber-500/15 border-amber-500/40 text-amber-300",
+    slate: "bg-slate-500/15 border-slate-500/40 text-slate-300",
   };
 
   if (typeof document === "undefined") return null;
@@ -581,11 +654,13 @@ function ProfileSettingsModal({
       >
         <header className="flex items-start justify-between gap-3 p-5 border-b border-white/5">
           <div>
-            <div className="inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-emerald-500/15 border-emerald-500/40 text-emerald-300 mb-1.5">
-              <Settings className="w-3 h-3" aria-hidden /> Profile Settings
+            <div className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-1.5 ${tierClasses[tier.tone]}`}>
+              <ShieldCheck className="w-3 h-3" aria-hidden /> {tier.label}
             </div>
-            <h2 id={titleId} className="text-white font-black text-base">Identity & KYC</h2>
-            <p id={descId} className="text-[11px] text-slate-500 mt-0.5">Update your display name, bio, avatar, and verification docs.</p>
+            <h2 id={titleId} className="text-white font-black text-base">Identity & KYC Edit</h2>
+            <p id={descId} className="text-[11px] text-slate-500 mt-0.5">
+              Live workspace identity. Fields sync to your public profile immediately.
+            </p>
           </div>
           <button
             ref={closeBtnRef}
@@ -599,7 +674,20 @@ function ProfileSettingsModal({
           </button>
         </header>
 
-        <form onSubmit={onSubmit} noValidate className="flex-1 min-h-0 overflow-y-auto p-6 space-y-4 scrollbar-thin">
+        <form onSubmit={onSubmit} noValidate className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 scrollbar-thin">
+          {loading && (
+            <div className="text-center py-8 text-xs text-slate-500" role="status" aria-live="polite">
+              Loading your identity…
+            </div>
+          )}
+          {loadError && !loading && (
+            <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-[11px] text-red-300">
+              {loadError}
+            </div>
+          )}
+          {!loading && (
+          <>
+          {/* Avatar */}
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
               {avatar ? (
@@ -626,6 +714,7 @@ function ProfileSettingsModal({
             </label>
           </div>
 
+          {/* Display name */}
           <div>
             <label htmlFor={`${titleId}-name`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Display Name</label>
             <input
@@ -642,8 +731,36 @@ function ProfileSettingsModal({
             {errors.displayName && <p id={`${titleId}-name-err`} className="text-[11px] font-semibold text-red-400 mt-1">{errors.displayName}</p>}
           </div>
 
+          {/* Username */}
           <div>
-            <label htmlFor={`${titleId}-bio`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Developer Bio</label>
+            <label htmlFor={`${titleId}-username`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Username <span className="text-slate-500 font-normal normal-case">· your public handle</span></label>
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">@</span>
+              <input
+                id={`${titleId}-username`}
+                className={`w-full bg-[#121214] border rounded-lg pl-7 pr-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                  errors.username ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                }`}
+                value={username}
+                maxLength={24}
+                placeholder="jane_doe"
+                onChange={(e) => { setUsername(e.target.value); setErrors((p) => ({ ...p, username: "" })); }}
+                aria-invalid={!!errors.username}
+                aria-describedby={errors.username ? `${titleId}-username-err` : `${titleId}-username-help`}
+              />
+            </div>
+            {errors.username ? (
+              <p id={`${titleId}-username-err`} className="text-[11px] font-semibold text-red-400 mt-1">{errors.username}</p>
+            ) : (
+              <p id={`${titleId}-username-help`} className="text-[10px] text-slate-500 mt-1">
+                Public URL: <span className="text-slate-400">/profile/{username.trim() || full?.slug || "your-handle"}</span>
+              </p>
+            )}
+          </div>
+
+          {/* Bio */}
+          <div>
+            <label htmlFor={`${titleId}-bio`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Bio</label>
             <textarea
               id={`${titleId}-bio`}
               rows={3}
@@ -667,20 +784,83 @@ function ProfileSettingsModal({
             </div>
           </div>
 
-          <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
-            <div className="flex items-center gap-2 mb-2">
-              <ShieldCheck className="w-4 h-4 text-emerald-400" aria-hidden />
-              <span className="text-xs font-bold text-white">Pending verification docs</span>
+          {/* Contact grid */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label htmlFor={`${titleId}-phone`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Phone</label>
+              <input
+                id={`${titleId}-phone`}
+                inputMode="tel"
+                autoComplete="tel"
+                className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                  errors.phone ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                }`}
+                value={phone}
+                placeholder="+234 801 234 5678"
+                onChange={(e) => { setPhone(e.target.value); setErrors((p) => ({ ...p, phone: "" })); }}
+                aria-invalid={!!errors.phone}
+              />
+              {errors.phone && <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.phone}</p>}
             </div>
-            <p className="text-[11px] text-slate-500 mb-3">Upload updated ID or utility bill to raise your verification tier.</p>
+            <div>
+              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Country</label>
+              <input
+                id={`${titleId}-country`}
+                autoComplete="country-name"
+                className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                  errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                }`}
+                value={country}
+                maxLength={60}
+                placeholder="Nigeria"
+                onChange={(e) => { setCountry(e.target.value); setErrors((p) => ({ ...p, country: "" })); }}
+              />
+            </div>
+          </div>
+
+          <div>
+            <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
+            <input
+              id={`${titleId}-address`}
+              autoComplete="street-address"
+              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                errors.address ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+              }`}
+              value={address}
+              maxLength={200}
+              placeholder="Street, City"
+              onChange={(e) => { setAddress(e.target.value); setErrors((p) => ({ ...p, address: "" })); }}
+            />
+          </div>
+
+          {/* Live KYC status */}
+          <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className={`w-4 h-4 ${kycCompleted || full?.kycCompletedAt ? "text-emerald-400" : "text-amber-400"}`} aria-hidden />
+                <span className="text-xs font-bold text-white">Verification status</span>
+              </div>
+              <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${tierClasses[tier.tone]}`}>{tier.label.split("·")[0].trim()}</span>
+            </div>
+            <ul className="text-[11px] text-slate-400 space-y-1 mb-3">
+              <li className="flex items-center justify-between"><span>Selfie liveness</span><span className={full?.kycSelfieUploaded ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycSelfieUploaded ? "Captured" : "Missing"}</span></li>
+              <li className="flex items-center justify-between"><span>Government ID</span><span className={full?.kycIdUploaded ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycIdUploaded ? "Uploaded" : "Missing"}</span></li>
+              <li className="flex items-center justify-between"><span>Completed</span><span className={full?.kycCompletedAt ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycCompletedAt ? new Date(full.kycCompletedAt).toLocaleDateString() : "Not yet"}</span></li>
+              <li className="flex items-center justify-between"><span>Joined</span><span className="text-slate-300 tabular-nums">{full?.joined ? new Date(full.joined).toLocaleDateString() : "—"}</span></li>
+            </ul>
             <button
               type="button"
-              onClick={() => toast("KYC uploader launching soon", { description: "Verification desk is queued for release next sprint." })}
-              className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
+              onClick={() => {
+                onClose();
+                ensureKyc(() => { toast.success("Verification updated"); });
+              }}
+              className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
             >
-              Process pending verification →
+              {full?.kycCompletedAt ? "Re-run liveness check →" : "Start identity verification →"}
             </button>
           </div>
+          </>
+          )}
         </form>
 
         <footer className="flex items-center justify-end gap-2 p-4 border-t border-white/5">
@@ -688,15 +868,15 @@ function ProfileSettingsModal({
             type="button"
             onClick={onClose}
             disabled={saving}
-            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
+            className="px-4 py-2 rounded-lg bg-[#121214] border border-white/10 text-slate-300 text-xs font-bold disabled:opacity-50 focus:outline-none focus-visible:ring-2 focus-visible:ring-slate-300/70"
           >
             Cancel
           </button>
           <button
             type="button"
             onClick={onSubmit as unknown as () => void}
-            disabled={saving}
-            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E]"
+            disabled={saving || loading}
+            className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-black disabled:opacity-70 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300"
           >
             {saving ? "Saving…" : "Save Changes"}
           </button>
@@ -706,4 +886,5 @@ function ProfileSettingsModal({
     document.body,
   );
 }
+
 
