@@ -10,8 +10,6 @@ import {
   Plug,
   Blocks,
   Code2,
-  Sparkles,
-  Target,
   Flame,
   Loader2,
   PackageOpen,
