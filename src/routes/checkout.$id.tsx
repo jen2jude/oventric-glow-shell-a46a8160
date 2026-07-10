@@ -19,10 +19,13 @@ import {
   getProduct,
   createOrder,
   topUpWallet,
+  validateCoupon,
   FX_FROM_USD,
+  WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
@@ -71,6 +74,7 @@ function CheckoutPage() {
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
   const submitTopUp = useServerFn(topUpWallet);
+  const checkCoupon = useServerFn(validateCoupon);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -82,9 +86,20 @@ function CheckoutPage() {
   const [topUpMethod, setTopUpMethod] = useState<PaymentMethod>("card");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
+  const [couponInput, setCouponInput] = useState("");
+  const [couponBusy, setCouponBusy] = useState(false);
+  const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
+  const [couponErr, setCouponErr] = useState<string | null>(null);
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
-  const totalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  const canUseCoupon = method !== "wallet";
+  const discountUSD = useMemo(
+    () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
+    [canUseCoupon, coupon, subtotalUSD],
+  );
+  const totalUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+
 
   useEffect(() => {
     let cancelled = false;
@@ -115,7 +130,13 @@ function CheckoutPage() {
     setShortfallUSD(null);
     try {
       const res = await submitOrder({
-        data: { productId: product.id, quantity: qty, displayCurrency: baseCurrency, paymentMethod: method },
+        data: {
+          productId: product.id,
+          quantity: qty,
+          displayCurrency: baseCurrency,
+          paymentMethod: method,
+          couponCode: canUseCoupon && coupon ? coupon.code : null,
+        },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
         setShortfallUSD(res.walletShortfallUSD);
@@ -124,8 +145,13 @@ function CheckoutPage() {
         toast.error("Wallet balance too low", { description: `Top up ${fmt(res.walletShortfallUSD, baseCurrency)} to continue.` });
         return;
       }
-      toast.success("Payment successful");
+      if (res.cashbackUSD && res.cashbackUSD > 0) {
+        toast.success("Payment successful", { description: `${fmt(res.cashbackUSD, baseCurrency)} cashback credited to your wallet.` });
+      } else {
+        toast.success("Payment successful");
+      }
       navigate({ to: "/order/$id", params: { id: res.order.id } });
+
     } catch (e) {
       toast.error("Payment failed", { description: e instanceof Error ? e.message : "Try again." });
     } finally {
@@ -227,10 +253,77 @@ function CheckoutPage() {
               <div className={`h-20 rounded-lg bg-gradient-to-br ${product.hue} mb-3`} />
               <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
               <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
+
+              {canUseCoupon && (
+                <div className="border-t border-white/5 pt-3 mb-3">
+                  <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Coupon Code</div>
+                  {coupon ? (
+                    <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/40 rounded-lg px-3 py-2">
+                      <div className="text-xs">
+                        <div className="text-emerald-300 font-bold font-mono">{coupon.code}</div>
+                        <div className="text-[11px] text-slate-400">{coupon.discountPct}% off applied</div>
+                      </div>
+                      <button
+                        onClick={() => { setCoupon(null); setCouponInput(""); setCouponErr(null); }}
+                        className="text-[11px] text-slate-400 hover:text-white underline"
+                      >
+                        Remove
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex gap-2">
+                        <input
+                          value={couponInput}
+                          onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(null); }}
+                          placeholder="Enter code"
+                          className="flex-1 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
+                        />
+                        <button
+                          onClick={async () => {
+                            const code = couponInput.trim();
+                            if (!code) return;
+                            setCouponBusy(true); setCouponErr(null);
+                            try {
+                              const r = await checkCoupon({ data: { code } });
+                              if (r.valid) {
+                                setCoupon({ code: r.code, discountPct: r.discountPct });
+                                toast.success("Coupon applied", { description: `${r.discountPct}% off your order.` });
+                              } else {
+                                setCouponErr("Invalid or expired code");
+                              }
+                            } catch (e) {
+                              setCouponErr(e instanceof Error ? e.message : "Failed");
+                            } finally {
+                              setCouponBusy(false);
+                            }
+                          }}
+                          disabled={couponBusy || !couponInput.trim()}
+                          className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold disabled:opacity-50"
+                        >
+                          {couponBusy ? "…" : "Apply"}
+                        </button>
+                      </div>
+                      {couponErr && <div className="text-[11px] text-red-300 mt-1.5">{couponErr}</div>}
+                      <div className="text-[11px] text-slate-500 mt-1.5">Try <span className="font-mono text-slate-400">SAVE2</span> for 2% off.</div>
+                    </>
+                  )}
+                </div>
+              )}
+
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
-                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
+                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(subtotalUSD, baseCurrency)}</span></div>
+                {discountUSD > 0 && (
+                  <div className="flex justify-between text-emerald-300"><span>Discount ({coupon?.discountPct}%)</span><span>− {fmt(discountUSD, baseCurrency)}</span></div>
+                )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
                 <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
+                {method === "wallet" && (
+                  <div className="flex justify-between text-[11px] text-emerald-300/80 pt-1">
+                    <span>Wallet cashback ({(WALLET_CASHBACK_PCT * 100).toFixed(0)}%)</span>
+                    <span>+ {fmt(totalUSD * WALLET_CASHBACK_PCT, baseCurrency)}</span>
+                  </div>
+                )}
               </div>
               <button
                 onClick={pay}
@@ -243,6 +336,7 @@ function CheckoutPage() {
                 <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer protection
               </div>
             </div>
+
           </div>
         )}
       </main>

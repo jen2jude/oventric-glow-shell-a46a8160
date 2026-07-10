@@ -127,3 +127,62 @@ export const adminDeleteBounty = createServerFn({ method: "POST" })
     await writeAudit(sb, context.userId, "bounty.delete", data.id);
     return { ok: true };
   });
+
+export const BOUNTY_SOLVER_SHARE = 0.8;
+
+/** Admin — mark a bounty solved and pay out 80% to the solver, 20% to the admin bounty wallet. */
+export const adminPayoutBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string; solverId: string }) => ({
+    id: String(i?.id ?? ""),
+    solverId: String(i?.solverId ?? ""),
+  }))
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (!data.id || !data.solverId) throw new Error("Bounty id and solver id required");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+
+    const { data: b, error } = await sb
+      .from("bounties")
+      .select("id, price_usd, status")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!b) throw new Error("Bounty not found");
+    if (b.status === "closed") throw new Error("Bounty already closed");
+
+    const total = Number(b.price_usd);
+    const solverCut = Number((total * BOUNTY_SOLVER_SHARE).toFixed(2));
+    const platformCut = Number((total - solverCut).toFixed(2));
+
+    // Pay solver via wallet_credit (SECURITY DEFINER, safe to call as authenticated).
+    await sb.rpc("wallet_credit", { _user_id: data.solverId, _amount: solverCut });
+
+    // Ledger entry for solver.
+    await sb.from("wallet_transactions").insert({
+      user_id: data.solverId,
+      tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+      type: "Gig Bounty Escrowed",
+      amount: solverCut,
+      currency: "USD",
+      inflow: true,
+      status: "success",
+      occurred_at: new Date().toISOString(),
+    });
+
+    // Credit admin bounty wallet.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("system_wallet_credit", {
+      _kind: "bounty",
+      _amount: platformCut,
+      _source: "bounty_payout",
+      _ref: b.id,
+      _meta: { bounty_id: b.id, solver_id: data.solverId },
+    });
+
+    await sb.from("bounties").update({ status: "closed" }).eq("id", b.id);
+    await writeAudit(sb, context.userId, "bounty.payout", b.id, { solverCut, platformCut, solverId: data.solverId });
+    return { ok: true, solverCut, platformCut };
+  });
+

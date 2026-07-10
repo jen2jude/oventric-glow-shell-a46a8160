@@ -224,6 +224,27 @@ export type Database = {
         }
         Relationships: []
       }
+      coupons: {
+        Row: {
+          active: boolean
+          code: string
+          created_at: string
+          discount_pct: number
+        }
+        Insert: {
+          active?: boolean
+          code: string
+          created_at?: string
+          discount_pct: number
+        }
+        Update: {
+          active?: boolean
+          code?: string
+          created_at?: string
+          discount_pct?: number
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           created_at: string
@@ -659,6 +680,62 @@ export type Database = {
         }
         Relationships: []
       }
+      system_wallet_transactions: {
+        Row: {
+          amount_usd: number
+          created_at: string
+          id: string
+          kind: string
+          meta: Json
+          ref_id: string | null
+          source: string
+        }
+        Insert: {
+          amount_usd: number
+          created_at?: string
+          id?: string
+          kind: string
+          meta?: Json
+          ref_id?: string | null
+          source: string
+        }
+        Update: {
+          amount_usd?: number
+          created_at?: string
+          id?: string
+          kind?: string
+          meta?: Json
+          ref_id?: string | null
+          source?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "system_wallet_transactions_kind_fkey"
+            columns: ["kind"]
+            isOneToOne: false
+            referencedRelation: "system_wallets"
+            referencedColumns: ["kind"]
+          },
+        ]
+      }
+      system_wallets: {
+        Row: {
+          balance_usd: number
+          kind: string
+          updated_at: string
+        }
+        Insert: {
+          balance_usd?: number
+          kind: string
+          updated_at?: string
+        }
+        Update: {
+          balance_usd?: number
+          kind?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -764,6 +841,16 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      system_wallet_credit: {
+        Args: {
+          _amount: number
+          _kind: string
+          _meta?: Json
+          _ref?: string
+          _source: string
+        }
+        Returns: undefined
       }
       wallet_credit: {
         Args: { _amount: number; _user_id: string }

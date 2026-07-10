@@ -16,7 +16,10 @@ import {
   Loader2,
   Radio,
   Target,
+  Wallet,
 } from "lucide-react";
+
+
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin } from "@/lib/admin.functions";
 
@@ -58,6 +61,8 @@ const NAV = [
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
   { to: "/admin/bounties", label: "Bounties", icon: Target },
+  { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
+
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/features", label: "Features", icon: ToggleLeft },

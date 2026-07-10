@@ -17,6 +17,7 @@ import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
@@ -66,6 +67,11 @@ const CheckoutIdRoute = CheckoutIdRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSystemWalletsRoute = AdminSystemWalletsRouteImport.update({
+  id: '/system-wallets',
+  path: '/system-wallets',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -131,6 +137,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -150,6 +157,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -171,6 +179,7 @@ export interface FileRoutesById {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -193,6 +202,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/system-wallets'
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
@@ -212,6 +222,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/system-wallets'
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
@@ -232,6 +243,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/system-wallets'
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
@@ -306,6 +318,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/system-wallets': {
+      id: '/admin/system-wallets'
+      path: '/system-wallets'
+      fullPath: '/admin/system-wallets'
+      preLoaderRoute: typeof AdminSystemWalletsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -391,6 +410,7 @@ interface AdminRouteChildren {
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminSystemWalletsRoute: typeof AdminSystemWalletsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -405,6 +425,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminSystemWalletsRoute: AdminSystemWalletsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }

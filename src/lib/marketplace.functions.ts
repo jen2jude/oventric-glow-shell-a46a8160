@@ -227,12 +227,35 @@ export interface CreateOrderInput {
   quantity: number;
   displayCurrency: OrderCurrency;
   paymentMethod: PaymentMethod;
+  couponCode?: string | null;
 }
 
 export interface CreateOrderResult {
   order: OrderDTO;
   walletShortfallUSD?: number;
+  cashbackUSD?: number;
+  discountUSD?: number;
 }
+
+export const SELLER_SHARE = 0.8;
+export const PLATFORM_SHARE = 0.2;
+export const WALLET_CASHBACK_PCT = 0.02;
+
+/** Public: validate a coupon code. Returns the discount percent or null. */
+export const validateCoupon = createServerFn({ method: "POST" })
+  .inputValidator((i: { code: string }) => ({ code: String(i?.code ?? "").trim().toUpperCase() }))
+  .handler(async ({ data }) => {
+    if (!data.code) return { valid: false as const };
+    const sb = serverPublicClient();
+    const { data: row } = await sb
+      .from("coupons")
+      .select("code, discount_pct")
+      .eq("code", data.code)
+      .eq("active", true)
+      .maybeSingle();
+    if (!row) return { valid: false as const };
+    return { valid: true as const, code: row.code as string, discountPct: Number(row.discount_pct) };
+  });
 
 /** Create + settle an order. Wallet method debits balance atomically. */
 export const createOrder = createServerFn({ method: "POST" })
@@ -242,6 +265,7 @@ export const createOrder = createServerFn({ method: "POST" })
     quantity: Math.max(1, Math.min(20, Number(input.quantity ?? 1))),
     displayCurrency: (input.displayCurrency ?? "USD") as OrderCurrency,
     paymentMethod: (input.paymentMethod ?? "wallet") as PaymentMethod,
+    couponCode: input.couponCode ? String(input.couponCode).trim().toUpperCase() : null,
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -254,11 +278,28 @@ export const createOrder = createServerFn({ method: "POST" })
     if (!pRow) throw new Error("Product not found");
     const product = mapProduct(pRow as Record<string, unknown>);
 
-    const totalUSD = Number((product.priceUSD * data.quantity).toFixed(2));
+    const grossUSD = Number((product.priceUSD * data.quantity).toFixed(2));
+
+    // Coupon only applies to non-wallet payments (per spec).
+    let discountUSD = 0;
+    let discountPct = 0;
+    if (data.couponCode && data.paymentMethod !== "wallet") {
+      const { data: c } = await supabase
+        .from("coupons")
+        .select("discount_pct")
+        .eq("code", data.couponCode)
+        .eq("active", true)
+        .maybeSingle();
+      if (c) {
+        discountPct = Number(c.discount_pct);
+        discountUSD = Number(((grossUSD * discountPct) / 100).toFixed(2));
+      }
+    }
+    const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
     const fx = FX_FROM_USD[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Try to debit wallet if wallet method.
+    // Wallet debit if paying from wallet.
     if (data.paymentMethod === "wallet") {
       const { data: ok, error: dErr } = await supabase.rpc("wallet_debit", {
         _user_id: userId,
@@ -278,9 +319,6 @@ export const createOrder = createServerFn({ method: "POST" })
           walletShortfallUSD: Number((totalUSD - bal).toFixed(2)),
         } as CreateOrderResult;
       }
-    } else {
-      // Card / bank / momo: mock immediate settlement — funds move directly to seller ledger.
-      // (No wallet debit for buyer.)
     }
 
     const { data: oRow, error: oErr } = await supabase
@@ -315,11 +353,45 @@ export const createOrder = createServerFn({ method: "POST" })
       occurred_at: new Date().toISOString(),
     });
 
-    // Credit seller wallet in USD.
+    // 80/20 split — seller gets 80%, platform marketplace wallet gets 20%.
+    const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
+    const platformCutUSD = Number((totalUSD - sellerCutUSD).toFixed(2));
+
     await supabase.rpc("wallet_credit", {
       _user_id: product.sellerId,
-      _amount: totalUSD,
+      _amount: sellerCutUSD,
     });
+
+    // Credit the admin marketplace revenue wallet via SECURITY DEFINER helper.
+    {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("system_wallet_credit", {
+        _kind: "marketplace",
+        _amount: platformCutUSD,
+        _source: "marketplace_order",
+        _ref: oRow.id as string,
+        _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
+      });
+    }
+
+    // 2% cashback to buyer when paying from wallet.
+    let cashbackUSD = 0;
+    if (data.paymentMethod === "wallet") {
+      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+      if (cashbackUSD > 0) {
+        await supabase.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabase.from("wallet_transactions").insert({
+          user_id: userId,
+          tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+          type: "Affiliate Cashback Payout",
+          amount: Number((cashbackUSD * fx).toFixed(2)),
+          currency: data.displayCurrency,
+          inflow: true,
+          status: "success",
+          occurred_at: new Date().toISOString(),
+        });
+      }
+    }
 
     return {
       order: {
@@ -342,8 +414,11 @@ export const createOrder = createServerFn({ method: "POST" })
         externalUrl: product.externalUrl,
         filePath: product.filePath,
       },
+      cashbackUSD: cashbackUSD || undefined,
+      discountUSD: discountUSD || undefined,
     } as CreateOrderResult;
   });
+
 
 /** Load an order for the buyer, with a signed download URL if applicable. */
 export const getOrderWithDownload = createServerFn({ method: "POST" })
