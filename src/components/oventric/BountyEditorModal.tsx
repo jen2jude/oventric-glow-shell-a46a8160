@@ -331,9 +331,46 @@ export function BountyEditorModal({
             </p>
           </div>
 
-          <p className="text-[11px] text-slate-500">
-            Promoted placements are reserved for admin campaigns. Your bounty goes live on the public board immediately.
-          </p>
+          {isAdmin ? (
+            <div className="pt-2 border-t border-white/10 mt-2">
+              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-fuchsia-300 mb-2">
+                <Megaphone className="w-3.5 h-3.5" /> Promotion
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300 normal-case tracking-normal">
+                  <ShieldCheck className="w-3 h-3" /> Admin-only
+                </span>
+              </div>
+              <label className="flex items-start gap-2 text-xs text-slate-300">
+                <input
+                  type="checkbox"
+                  checked={form.promote}
+                  onChange={(e) => setForm({ ...form, promote: e.target.checked })}
+                  className="mt-0.5 accent-fuchsia-500"
+                />
+                <span>
+                  Promote this bounty in the Sponsored slot on the Bounties board for the schedule above.
+                </span>
+              </label>
+              {form.promote && (
+                <div className="mt-2 max-w-xs">
+                  <Field label="Ad tier">
+                    <select
+                      value={form.promote_tier}
+                      onChange={(e) => setForm({ ...form, promote_tier: e.target.value as PromoteTier })}
+                      className={inputCls}
+                    >
+                      <option value="text">Text</option>
+                      <option value="banner">Banner</option>
+                      <option value="video">Video</option>
+                    </select>
+                  </Field>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-[11px] text-slate-500">
+              Promoted placements are reserved for admin campaigns. Your bounty goes live on the public board immediately.
+            </p>
+          )}
 
           <div className="flex gap-2 pt-3">
             <button
