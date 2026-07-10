@@ -8,7 +8,7 @@ import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile } from "@/lib/profiles/mockProfiles";
-import { getProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
+import { getLiveProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
