@@ -166,11 +166,15 @@ const UpdateInput = z.object({
 });
 
 export const updateMyProfile = createServerFn({ method: "POST" })
-  .middleware([(await import("@/integrations/supabase/auth-middleware")).requireSupabaseAuth])
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => UpdateInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      display_name?: string;
+      bio?: string | null;
+      avatar_path?: string | null;
+    } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.avatarPath !== undefined) patch.avatar_path = data.avatarPath;
@@ -183,4 +187,5 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
 
