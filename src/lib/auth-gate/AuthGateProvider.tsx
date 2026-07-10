@@ -597,7 +597,7 @@ function AuthGateModal({
                 {stage === "otp"
                   ? "Verify your email"
                   : mode === "new"
-                    ? copy.title
+                    ? "Let's get started"
                     : "Welcome back"}
               </h1>
               <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
