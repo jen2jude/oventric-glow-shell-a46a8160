@@ -77,7 +77,13 @@ export function AuthSeeder() {
         }
       } catch (err) {
         console.error("[AuthSeeder] seed failed", err);
-        if (!cancelled) seededFor.current = null;
+        if (!cancelled) {
+          seededFor.current = null;
+          toast.error("We couldn't finish setting up your account", {
+            description:
+              "Your sign-in worked, but profile setup didn't complete. Refresh the page or try again in a moment.",
+          });
+        }
       }
     };
 
