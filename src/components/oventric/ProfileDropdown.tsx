@@ -451,13 +451,17 @@ function ProfileSettingsModal({
   open,
   onClose,
   profile,
+  userId,
   onSave,
 }: {
   open: boolean;
   onClose: () => void;
   profile: ProfileState;
+  userId: string;
   onSave: (next: ProfileState) => void;
 }) {
+  const persistProfileRemote = useServerFn(updateMyProfile);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio);
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
