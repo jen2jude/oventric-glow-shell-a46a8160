@@ -34,6 +34,11 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         setCourseOpen(true);
         return;
       }
+      if (c.key === "bounty") {
+        onClose();
+        setBountyOpen(true);
+        return;
+      }
       onClose();
       window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: c.key } }));
     });
