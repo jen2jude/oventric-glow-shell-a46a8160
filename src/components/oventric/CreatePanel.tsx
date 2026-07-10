@@ -20,6 +20,7 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
   const { require } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
+  const [bountyOpen, setBountyOpen] = useState(false);
 
   const handleChoice = (c: Choice) => {
     require(c.tier, () => {
