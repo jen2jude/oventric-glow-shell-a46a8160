@@ -434,8 +434,10 @@ export function ProfileDropdown() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         profile={profile}
+        userId={userId}
         onSave={persistProfile}
       />
+
     </div>
   );
 }
