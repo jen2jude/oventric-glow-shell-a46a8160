@@ -471,10 +471,12 @@ function BountyRow({
   bounty,
   currency,
   onOpen,
+  isNew,
 }: {
   bounty: Bounty;
   currency: Currency;
   onOpen: () => void;
+  isNew?: boolean;
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
