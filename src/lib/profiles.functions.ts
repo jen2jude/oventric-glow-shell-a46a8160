@@ -269,6 +269,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
 export interface MyFullProfile {
   userId: string;
   slug: string;
+  email: string | null;
   displayName: string;
   username: string | null;
   bio: string | null;
