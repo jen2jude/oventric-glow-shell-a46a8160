@@ -279,6 +279,13 @@ export function Bounties() {
     };
   }, []);
 
+  // Clear bounty highlight after a few seconds
+  useEffect(() => {
+    if (!highlightId) return;
+    const t = setTimeout(() => setHighlightId(null), 4000);
+    return () => clearTimeout(t);
+  }, [highlightId]);
+
   useTicker(1000);
 
   const adminBounties: Bounty[] = useMemo(
