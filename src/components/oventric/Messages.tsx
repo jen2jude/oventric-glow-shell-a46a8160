@@ -143,7 +143,7 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
 }
 
 export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onOpenEscrow, onClose }: MessagesProps) {
-  const { session, requireAuth } = useAuthGate();
+  const { session, openGate } = useAuthGate();
   const me = session?.user?.id ?? null;
 
   const fetchThreads = useServerFn(listThreads);
