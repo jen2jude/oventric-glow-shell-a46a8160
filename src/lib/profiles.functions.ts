@@ -269,6 +269,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
 export interface MyFullProfile {
   userId: string;
   slug: string;
+  email: string | null;
   displayName: string;
   username: string | null;
   bio: string | null;
@@ -308,10 +309,13 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
       avatarUrl = signed?.signedUrl ?? null;
     }
+    const { data: userRes } = await supabase.auth.getUser();
+    const email = userRes?.user?.email ?? null;
     return {
       profile: {
         userId: row.user_id,
         slug: row.slug,
+        email,
         displayName: row.display_name ?? row.username ?? row.slug,
         username: row.username,
         bio: row.bio,
