@@ -62,7 +62,6 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     e.preventDefault();
     if (submitting) return;
     if (!name.trim()) return toast.error("Asset name required");
-    if (!vendor.trim()) return toast.error("Vendor name required");
     if (!description.trim()) return toast.error("Description required");
     const usd = Number(priceUSD);
     if (!(usd > 0)) return toast.error("Price must be greater than 0");
@@ -75,6 +74,19 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
       const { data: userData, error: uErr } = await supabase.auth.getUser();
       if (uErr || !userData.user) throw new Error("You must be signed in to sell.");
       const uid = userData.user.id;
+      const email = userData.user.email ?? "";
+
+      // Derive vendor display name from profile (display_name → username → email prefix).
+      const { data: prof } = await supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("user_id", uid)
+        .maybeSingle();
+      const vendorName =
+        (prof?.display_name && String(prof.display_name).trim()) ||
+        (prof?.username && String(prof.username).trim()) ||
+        (email ? email.split("@")[0] : "") ||
+        "Member";
 
       let coverPath: string | null = null;
       if (cover) {
