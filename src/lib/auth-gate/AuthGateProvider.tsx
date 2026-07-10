@@ -16,7 +16,10 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
-import { resolveLoginIdentifier as resolveLoginIdentifierFn } from "@/lib/auth-lookup.functions";
+import {
+  sendLoginOtpByIdentifier as sendLoginOtpByIdentifierFn,
+  signInWithIdentifierPassword as signInWithIdentifierPasswordFn,
+} from "@/lib/auth-lookup.functions";
 
 // ---------------------------------------------------------------------------
 // Context types
