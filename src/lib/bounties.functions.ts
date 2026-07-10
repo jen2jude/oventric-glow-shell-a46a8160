@@ -173,7 +173,6 @@ export const adminPayoutBounty = createServerFn({ method: "POST" })
     });
 
     // Credit admin bounty wallet.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.rpc("system_wallet_credit", {
       _kind: "bounty",
       _amount: platformCut,
