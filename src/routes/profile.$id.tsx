@@ -174,7 +174,7 @@ function ProfilePage() {
   });
   const PAGE_SIZE = 6;
 
-  const fetchTab = useServerFn(getProfileTab);
+  const fetchTab = useServerFn(getLiveProfileTab);
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
