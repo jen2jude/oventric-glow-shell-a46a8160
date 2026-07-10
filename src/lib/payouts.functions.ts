@@ -30,7 +30,7 @@ export interface PayoutAuditEntry {
   actor_name: string | null;
   actor_username: string | null;
   created_at: string;
-  meta: Record<string, unknown>;
+  meta: Record<string, string | number | boolean | null>;
 }
 
 export type PayoutCurrency = "USD" | "NGN" | "GHS";
