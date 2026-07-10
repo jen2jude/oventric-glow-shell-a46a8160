@@ -621,6 +621,42 @@ function ProfileSettingsModal({
     }
   };
 
+  const onChangePassword = async () => {
+    if (pwNext.length < 8) {
+      toast.error("Password too short", { description: "Use at least 8 characters." });
+      return;
+    }
+    if (pwNext !== pwConfirm) {
+      toast.error("Passwords don't match");
+      return;
+    }
+    if (!full?.email) {
+      toast.error("No email on file", { description: "Contact support to reset." });
+      return;
+    }
+    setPwSaving(true);
+    try {
+      // Re-verify current password before allowing change
+      const { error: signErr } = await supabase.auth.signInWithPassword({
+        email: full.email,
+        password: pwCurrent,
+      });
+      if (signErr) throw new Error("Current password is incorrect.");
+      const { error: updErr } = await supabase.auth.updateUser({ password: pwNext });
+      if (updErr) throw updErr;
+      toast.success("Password updated", { description: "Use your new password next sign-in." });
+      setPwCurrent("");
+      setPwNext("");
+      setPwConfirm("");
+      setPwOpen(false);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not update password", { description: message });
+    } finally {
+      setPwSaving(false);
+    }
+  };
+
   const tierLabel = (t?: string) => {
     switch (t) {
       case "TIER_5":
