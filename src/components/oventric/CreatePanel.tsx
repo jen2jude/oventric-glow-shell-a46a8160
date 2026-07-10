@@ -3,6 +3,7 @@ import { X, PenSquare, Target, ShoppingBag, FileText, GraduationCap } from "luci
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellAssetModal } from "./SellAssetModal";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { BountyEditorModal } from "./BountyEditorModal";
 
 type ChoiceKey = "post" | "bounty" | "sell" | "blog" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
