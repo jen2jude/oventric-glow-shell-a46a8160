@@ -670,6 +670,22 @@ function ProfileSettingsModal({
     }
   };
 
+  const toggleNotifPref = async (key: "email_digest" | "dm_pings" | "bounty_invites") => {
+    const next = { ...notifPrefs, [key]: !notifPrefs[key] };
+    setNotifPrefs(next);
+    setNotifSaving(key);
+    try {
+      await persistProfileRemote({ data: { notificationPreferences: next } });
+      toast.success("Preference saved");
+    } catch (err) {
+      setNotifPrefs(notifPrefs);
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not save preference", { description: message });
+    } finally {
+      setNotifSaving(null);
+    }
+  };
+
   const onDeleteAccount = async () => {
     if (!full?.email) {
       toast.error("No email on file", { description: "Contact support to delete this account." });
