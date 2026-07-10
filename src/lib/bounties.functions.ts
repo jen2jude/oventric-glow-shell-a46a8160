@@ -156,8 +156,9 @@ export const adminPayoutBounty = createServerFn({ method: "POST" })
     const solverCut = Number((total * BOUNTY_SOLVER_SHARE).toFixed(2));
     const platformCut = Number((total - solverCut).toFixed(2));
 
-    // Pay solver via wallet_credit (SECURITY DEFINER, safe to call as authenticated).
-    await sb.rpc("wallet_credit", { _user_id: data.solverId, _amount: solverCut });
+    // Pay solver via wallet_credit — restricted to service-role callers.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.rpc("wallet_credit", { _user_id: data.solverId, _amount: solverCut });
 
     // Ledger entry for solver.
     await sb.from("wallet_transactions").insert({
@@ -172,7 +173,6 @@ export const adminPayoutBounty = createServerFn({ method: "POST" })
     });
 
     // Credit admin bounty wallet.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await supabaseAdmin.rpc("system_wallet_credit", {
       _kind: "bounty",
       _amount: platformCut,

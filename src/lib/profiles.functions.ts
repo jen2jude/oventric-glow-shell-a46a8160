@@ -309,12 +309,15 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ profile: MyFullProfile | null }> => {
     const { supabase, userId } = context;
-    const { data: row, error } = await supabase
+    // Sensitive columns (phone, country, address, kyc_*) are not exposed through
+    // column-level grants for `authenticated`. Owner reads the full row via the
+    // service-role client, strictly scoped to their own user_id.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select(
         "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
-
       .eq("user_id", userId)
       .maybeSingle();
     if (error) {

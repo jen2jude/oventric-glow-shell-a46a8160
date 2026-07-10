@@ -201,8 +201,11 @@ export const topUpWallet = createServerFn({ method: "POST" })
     if (data.method === "wallet") throw new Error("Cannot top up wallet from wallet");
     const usd = data.amount / FX_FROM_USD[data.currency];
 
-    // Simulated card / bank / momo processing.
-    const { error: cErr } = await context.supabase.rpc("wallet_credit", {
+    // Simulated card / bank / momo processing. Wallet mutations run through the
+    // service-role client — wallet_credit/wallet_debit RPCs are no longer
+    // callable by end-user JWTs to prevent direct RPC abuse.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: cErr } = await supabaseAdmin.rpc("wallet_credit", {
       _user_id: context.userId,
       _amount: usd,
     });
@@ -299,9 +302,10 @@ export const createOrder = createServerFn({ method: "POST" })
     const fx = FX_FROM_USD[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Wallet debit if paying from wallet.
+    // Wallet debit if paying from wallet. Wallet mutations run via service-role.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.paymentMethod === "wallet") {
-      const { data: ok, error: dErr } = await supabase.rpc("wallet_debit", {
+      const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
         _user_id: userId,
         _amount: totalUSD,
       });
@@ -357,29 +361,26 @@ export const createOrder = createServerFn({ method: "POST" })
     const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
     const platformCutUSD = Number((totalUSD - sellerCutUSD).toFixed(2));
 
-    await supabase.rpc("wallet_credit", {
+    await supabaseAdmin.rpc("wallet_credit", {
       _user_id: product.sellerId,
       _amount: sellerCutUSD,
     });
 
     // Credit the admin marketplace revenue wallet via SECURITY DEFINER helper.
-    {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("system_wallet_credit", {
-        _kind: "marketplace",
-        _amount: platformCutUSD,
-        _source: "marketplace_order",
-        _ref: oRow.id as string,
-        _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
-      });
-    }
+    await supabaseAdmin.rpc("system_wallet_credit", {
+      _kind: "marketplace",
+      _amount: platformCutUSD,
+      _source: "marketplace_order",
+      _ref: oRow.id as string,
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
+    });
 
     // 2% cashback to buyer when paying from wallet.
     let cashbackUSD = 0;
     if (data.paymentMethod === "wallet") {
       cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
       if (cashbackUSD > 0) {
-        await supabase.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
         await supabase.from("wallet_transactions").insert({
           user_id: userId,
           tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,

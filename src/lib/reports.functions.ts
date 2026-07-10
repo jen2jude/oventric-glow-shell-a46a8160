@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 const ReportInput = z.object({
   targetId: z.string().trim().min(1).max(120),
@@ -9,8 +10,13 @@ const ReportInput = z.object({
 });
 
 export const submitReport = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => ReportInput.parse(input))
-  .handler(async ({ data }) => {
+  .handler(async ({ data, context }) => {
+    // Auth-only: the requireSupabaseAuth middleware blocks anonymous callers,
+    // so only signed-in users can file reports. context.userId is available
+    // for audit log correlation if needed.
+    void context.userId;
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { error } = await supabaseAdmin.from("post_reports").insert({
       target_id: data.targetId,

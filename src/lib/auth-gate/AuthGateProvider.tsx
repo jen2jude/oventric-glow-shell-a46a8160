@@ -16,7 +16,11 @@ import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
-import { resolveLoginIdentifier as resolveLoginIdentifierFn } from "@/lib/auth-lookup.functions";
+import {
+  sendLoginOtpByIdentifier as sendLoginOtpByIdentifierFn,
+  signInWithIdentifierPassword as signInWithIdentifierPasswordFn,
+  verifyLoginOtpByIdentifier as verifyLoginOtpByIdentifierFn,
+} from "@/lib/auth-lookup.functions";
 
 // ---------------------------------------------------------------------------
 // Context types
@@ -303,7 +307,9 @@ function AuthGateModal({
   const [flash, setFlash] = useState<string | null>(null);
   const otpRefs = useRef<Array<HTMLInputElement | null>>([]);
   const seedNewUser = useServerFn(seedNewUserFn);
-  const resolveLoginIdentifier = useServerFn(resolveLoginIdentifierFn);
+  const sendLoginOtpByIdentifier = useServerFn(sendLoginOtpByIdentifierFn);
+  const signInWithIdentifierPassword = useServerFn(signInWithIdentifierPasswordFn);
+  const verifyLoginOtpByIdentifier = useServerFn(verifyLoginOtpByIdentifierFn);
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
@@ -396,42 +402,33 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      let resolvedEmail = raw;
-      if (!raw.includes("@")) {
-        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
-        resolvedEmail = res.email;
-      } else {
+      // Server-side dispatch: never exposes the resolved email to the client.
+      // If the identifier is a bare email, we still route through the server
+      // fn so the response shape (masked email only) is uniform.
+      if (raw.includes("@")) {
         const parsed = emailSchema.safeParse(raw);
         if (!parsed.success) {
           setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
           setSending(false);
           return;
         }
-        resolvedEmail = parsed.data;
       }
-      const { error } = await supabase.auth.signInWithOtp({
-        email: resolvedEmail,
-        options: { shouldCreateUser: false, emailRedirectTo: window.location.origin },
-      });
-
-      if (error) {
-        const msg = error.message.toLowerCase();
-        if (msg.includes("signups not allowed") || msg.includes("not found") || msg.includes("user not found")) {
-          throw new Error("No account found. Try signing up as a new user.");
-        }
-        throw error;
+      const res = await sendLoginOtpByIdentifier({ data: { identifier: raw } });
+      if (!res.sent) {
+        throw new Error("No account found. Try signing up as a new user.");
       }
-      setEmail(resolvedEmail);
+      // Keep raw email out of client state — we rely on `identifier` at verify time.
+      setEmail("");
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(`Code sent to ${resolvedEmail}`);
+      setFlash(res.maskedEmail ? `Code sent to ${res.maskedEmail}` : "Code sent");
     } catch (err) {
       setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
       setSending(false);
     }
-  }, [identifier, resolveLoginIdentifier]);
+  }, [identifier, sendLoginOtpByIdentifier]);
 
   const signInWithPassword = useCallback(async () => {
     setIdentifierError(null);
@@ -448,30 +445,20 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      let resolvedEmail = raw;
-      if (!raw.includes("@")) {
-        const res = await resolveLoginIdentifier({ data: { identifier: raw } });
-        resolvedEmail = res.email;
-      } else {
-        const parsed = emailSchema.safeParse(raw);
-        if (!parsed.success) {
-          setIdentifierError(parsed.error.issues[0]?.message ?? "Invalid email");
-          setSending(false);
-          return;
-        }
-        resolvedEmail = parsed.data;
-      }
-      const { error } = await supabase.auth.signInWithPassword({
-        email: resolvedEmail,
-        password,
+      // Server-side sign-in returns session tokens; raw email never crosses back.
+      const res = await signInWithIdentifierPassword({
+        data: { identifier: raw, password },
       });
-      if (error) {
-        const msg = error.message.toLowerCase();
-        if (msg.includes("invalid") || msg.includes("credentials")) {
-          setPasswordError("Wrong email or password.");
-        } else {
-          setPasswordError(humanizeError(error.message));
-        }
+      if (!res.ok || !res.session) {
+        setPasswordError("Wrong email or password.");
+        return;
+      }
+      const { error: setErr } = await supabase.auth.setSession({
+        access_token: res.session.access_token,
+        refresh_token: res.session.refresh_token,
+      });
+      if (setErr) {
+        setPasswordError(humanizeError(setErr.message));
         return;
       }
       // SIGNED_IN listener in provider closes modal + fires splash + pending action.
@@ -480,7 +467,7 @@ function AuthGateModal({
     } finally {
       setSending(false);
     }
-  }, [identifier, password, resolveLoginIdentifier]);
+  }, [identifier, password, signInWithIdentifierPassword]);
 
 
 
@@ -491,13 +478,27 @@ function AuthGateModal({
       if (token.length !== OTP_LENGTH) return;
       setVerifying(true);
       try {
-        const { data, error } = await supabase.auth.verifyOtp({
-          email: email.trim(),
-          token,
-          type: "email",
-        });
-        if (error) throw error;
-        if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        // New-user tab has the raw email in state; returning-user tab keeps
+        // email out of the client and verifies via the identifier server-side.
+        if (email.trim()) {
+          const { data, error } = await supabase.auth.verifyOtp({
+            email: email.trim(),
+            token,
+            type: "email",
+          });
+          if (error) throw error;
+          if (!data.session) throw new Error("Verification succeeded but no session was returned");
+        } else {
+          const res = await verifyLoginOtpByIdentifier({
+            data: { identifier: identifier.trim(), token },
+          });
+          if (!res.ok || !res.session) throw new Error("Invalid or expired code");
+          const { error: setErr } = await supabase.auth.setSession({
+            access_token: res.session.access_token,
+            refresh_token: res.session.refresh_token,
+          });
+          if (setErr) throw setErr;
+        }
         setVerified(true);
         setFlash(null);
         try {
@@ -522,7 +523,7 @@ function AuthGateModal({
         setVerifying(false);
       }
     },
-    [email, seedNewUser, username],
+    [email, identifier, seedNewUser, username, verifyLoginOtpByIdentifier],
   );
 
   const setDigit = (idx: number, raw: string) => {

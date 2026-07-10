@@ -597,9 +597,10 @@ export const enrollPaid = createServerFn({ method: "POST" })
     const fx = FX_FROM_USD_ACADEMY[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Wallet debit path
+    // Wallet debit path — wallet mutations always run via service-role client.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     if (data.paymentMethod === "wallet") {
-      const { data: ok, error: dErr } = await supabase.rpc("wallet_debit", {
+      const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
         _user_id: userId,
         _amount: totalUSD,
       });
@@ -656,33 +657,30 @@ export const enrollPaid = createServerFn({ method: "POST" })
     const instructorCutUSD = Number((totalUSD * INSTRUCTOR_SHARE).toFixed(2));
     const platformCutUSD = Number((totalUSD - instructorCutUSD).toFixed(2));
 
-    await supabase.rpc("wallet_credit", {
+    await supabaseAdmin.rpc("wallet_credit", {
       _user_id: course.owner_id as string,
       _amount: instructorCutUSD,
     });
 
-    {
-      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-      await supabaseAdmin.rpc("system_wallet_credit", {
-        _kind: "academy",
-        _amount: platformCutUSD,
-        _source: "course_enrollment",
-        _ref: eRow.id as string,
-        _meta: {
-          enrollment_id: eRow.id,
-          course_id: data.courseId,
-          buyer_id: userId,
-          instructor_id: course.owner_id,
-        },
-      });
-    }
+    await supabaseAdmin.rpc("system_wallet_credit", {
+      _kind: "academy",
+      _amount: platformCutUSD,
+      _source: "course_enrollment",
+      _ref: eRow.id as string,
+      _meta: {
+        enrollment_id: eRow.id,
+        course_id: data.courseId,
+        buyer_id: userId,
+        instructor_id: course.owner_id,
+      },
+    });
 
     // 2% cashback for wallet payments
     let cashbackUSD = 0;
     if (data.paymentMethod === "wallet") {
       cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
       if (cashbackUSD > 0) {
-        await supabase.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
         await supabase.from("wallet_transactions").insert({
           user_id: userId,
           tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
