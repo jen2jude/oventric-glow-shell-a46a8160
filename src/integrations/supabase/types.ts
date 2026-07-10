@@ -245,6 +245,184 @@ export type Database = {
         }
         Relationships: []
       }
+      course_enrollments: {
+        Row: {
+          amount_paid_usd: number
+          completed_at: string | null
+          course_id: string
+          created_at: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          amount_paid_usd?: number
+          completed_at?: string | null
+          course_id: string
+          created_at?: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          amount_paid_usd?: number
+          completed_at?: string | null
+          course_id?: string
+          created_at?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_enrollments_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_modules: {
+        Row: {
+          course_id: string
+          created_at: string
+          description: string
+          duration_min: number
+          id: string
+          is_preview: boolean
+          position: number
+          title: string
+          updated_at: string
+          video_provider: string
+          video_url: string
+        }
+        Insert: {
+          course_id: string
+          created_at?: string
+          description?: string
+          duration_min?: number
+          id?: string
+          is_preview?: boolean
+          position?: number
+          title: string
+          updated_at?: string
+          video_provider?: string
+          video_url: string
+        }
+        Update: {
+          course_id?: string
+          created_at?: string
+          description?: string
+          duration_min?: number
+          id?: string
+          is_preview?: boolean
+          position?: number
+          title?: string
+          updated_at?: string
+          video_provider?: string
+          video_url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_modules_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      course_progress: {
+        Row: {
+          completed_at: string
+          course_id: string
+          id: string
+          module_id: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string
+          course_id: string
+          id?: string
+          module_id: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string
+          course_id?: string
+          id?: string
+          module_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "course_progress_course_id_fkey"
+            columns: ["course_id"]
+            isOneToOne: false
+            referencedRelation: "courses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "course_progress_module_id_fkey"
+            columns: ["module_id"]
+            isOneToOne: false
+            referencedRelation: "course_modules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      courses: {
+        Row: {
+          category: string
+          cover_path: string | null
+          created_at: string
+          description: string
+          id: string
+          instructor_name: string | null
+          is_free: boolean
+          is_published: boolean
+          level: string
+          owner_id: string
+          price_usd: number
+          promoted: boolean
+          slug: string
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          instructor_name?: string | null
+          is_free?: boolean
+          is_published?: boolean
+          level?: string
+          owner_id: string
+          price_usd?: number
+          promoted?: boolean
+          slug: string
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          category?: string
+          cover_path?: string | null
+          created_at?: string
+          description?: string
+          id?: string
+          instructor_name?: string | null
+          is_free?: boolean
+          is_published?: boolean
+          level?: string
+          owner_id?: string
+          price_usd?: number
+          promoted?: boolean
+          slug?: string
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           created_at: string
