@@ -444,6 +444,39 @@ export type Database = {
         }
         Relationships: []
       }
+      direct_messages: {
+        Row: {
+          body: string | null
+          created_at: string
+          id: string
+          media_path: string | null
+          media_type: string | null
+          read_at: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Insert: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          media_path?: string | null
+          media_type?: string | null
+          read_at?: string | null
+          recipient_id: string
+          sender_id: string
+        }
+        Update: {
+          body?: string | null
+          created_at?: string
+          id?: string
+          media_path?: string | null
+          media_type?: string | null
+          read_at?: string | null
+          recipient_id?: string
+          sender_id?: string
+        }
+        Relationships: []
+      }
       feature_flags: {
         Row: {
           created_at: string
