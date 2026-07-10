@@ -1,34 +1,16 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, Target, Sparkles, ShoppingBag, UserPlus, MessageCircle, Users, Flame, Package } from "lucide-react";
+import { Star, Target, Sparkles, ShoppingBag, MessageCircle, Users, Flame, Package, Megaphone, PlayCircle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-
-type Peer = { id: string; name: string; initials: string; stars: number; gradient: string; inCircle: boolean };
-
-const INITIAL_PEERS: Peer[] = [
-  { id: "aria-kessler", name: "Aria Kessler", initials: "AK", stars: 4.9, gradient: "from-purple-500 to-pink-500", inCircle: false },
-  { id: "marco-tenreiro", name: "Marco Tenreiro", initials: "MT", stars: 4.7, gradient: "from-orange-400 to-red-500", inCircle: true },
-  { id: "lena-osei", name: "Lena Osei", initials: "LO", stars: 4.8, gradient: "from-emerald-400 to-teal-500", inCircle: false },
-  { id: "davin-park", name: "Davin Park", initials: "DP", stars: 4.6, gradient: "from-sky-400 to-indigo-500", inCircle: false },
-];
+import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryProduct } from "@/lib/discovery.functions";
 
 export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
 }
-
-const bounties = [
-  { id: "b1", title: "Build a pgvector migration tool", amountUsd: 900, escrow: true },
-  { id: "b2", title: "Realtime notification fan-out on Workers", amountUsd: 1200, escrow: true },
-  { id: "b3", title: "Convert Prisma schema to Drizzle + RLS", amountUsd: 450, escrow: true },
-];
-
-const listings = [
-  { id: "l1", title: "Postgres RLS Starter Kit", category: "Scripts", priceUsd: 49, hue: "from-emerald-500 to-teal-600" },
-  { id: "l2", title: "Supabase Audit Log Middleware", category: "Plugins", priceUsd: 29, hue: "from-purple-500 to-pink-600" },
-  { id: "l3", title: "Multi-tenant Schema Blueprint", category: "HTML Blocks", priceUsd: 79, hue: "from-sky-500 to-indigo-600" },
-];
 
 function useMoney() {
   const { baseCurrency } = useOnboarding();
@@ -57,8 +39,8 @@ function PeerRowSkeleton() {
 function BountyRowSkeleton() {
   return (
     <li className="rounded-lg border border-white/5 bg-black/25 p-3 space-y-2">
+      <SkeletonBar className="h-16 w-full rounded-md" />
       <SkeletonBar className="h-3 w-4/5" />
-      <SkeletonBar className="h-3 w-3/5" />
       <div className="flex items-center justify-between pt-1">
         <SkeletonBar className="h-4 w-16" />
         <SkeletonBar className="h-3 w-10" />
@@ -112,60 +94,167 @@ function EmptyState({
   );
 }
 
+function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
+  const hasMedia = !!ad.coverUrl && ad.tier !== "text";
+  return (
+    <a
+      href={ad.ctaUrl || "#"}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      className="relative block bg-[#1E1E24] border border-fuchsia-500/30 rounded-2xl overflow-hidden rgb-pulse-glow hover:border-fuchsia-400/60 transition-colors"
+    >
+      {hasMedia && (
+        <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800">
+          <img
+            src={ad.coverUrl as string}
+            alt={ad.advertiser}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+          />
+          {ad.tier === "video" && (
+            <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 drop-shadow" />
+          )}
+        </div>
+      )}
+      <div className="p-4 text-center">
+        <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
+          <Megaphone className="w-3 h-3" /> Sponsored
+        </span>
+        <div className="mt-2 text-sm font-bold text-white leading-snug line-clamp-2">
+          {ad.title}
+        </div>
+        {ad.body && (
+          <p className="mt-1 text-[11px] text-slate-400 leading-relaxed line-clamp-2">
+            {ad.body}
+          </p>
+        )}
+        <div className="mt-3">
+          <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg">
+            {ad.ctaLabel}
+          </span>
+        </div>
+        <div className="mt-2 text-[10px] text-slate-500 truncate">by {ad.advertiser}</div>
+      </div>
+    </a>
+  );
+}
+
+function SponsoredInline({ ad }: { ad: DiscoveryAd }) {
+  return (
+    <a
+      href={ad.ctaUrl || "#"}
+      target="_blank"
+      rel="noopener noreferrer sponsored"
+      className="flex items-center gap-3 rounded-lg -mx-1 px-1 py-1 border border-fuchsia-500/25 bg-fuchsia-500/[0.04] hover:bg-fuchsia-500/10 transition-colors"
+    >
+      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800 flex items-center justify-center">
+        {ad.coverUrl && ad.tier !== "text" ? (
+          <img src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <Megaphone className="w-4 h-4 text-white/90" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-semibold text-white">{ad.title}</div>
+        <div className="mt-1 flex items-center gap-1.5">
+          <span className="inline-flex items-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-fuchsia-300">
+            <Megaphone className="w-2.5 h-2.5 mr-0.5" /> Sponsored
+          </span>
+          <span className="text-[10px] text-slate-500 truncate">{ad.advertiser}</span>
+        </div>
+      </div>
+      <span className="shrink-0 text-[11px] font-bold text-fuchsia-300">{ad.ctaLabel} →</span>
+    </a>
+  );
+}
+
+function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: number) => string }) {
+  return (
+    <Link
+      to="/product/$id"
+      params={{ id: p.id }}
+      aria-label={`Open ${p.title}`}
+      className="flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
+    >
+      <div
+        className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue} flex items-center justify-center`}
+      >
+        {p.coverUrl ? (
+          <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+        ) : (
+          <ShoppingBag className="w-4 h-4 text-white/90" />
+        )}
+      </div>
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-xs font-semibold text-white">{p.title}</div>
+        <div className="mt-1 flex items-center gap-1.5">
+          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-300">
+            {p.category}
+          </span>
+          <span className="text-[10px] text-slate-500 truncate">{p.vendor || "Trending"}</span>
+        </div>
+      </div>
+      <div className="shrink-0 text-right">
+        <div className="text-sm font-black text-white">{priceFmt(p.priceUsd)}</div>
+      </div>
+    </Link>
+  );
+}
+
 export function DiscoveryPanel() {
   const price = useMoney();
   const { require } = useOnboarding();
-  const [peers, setPeers] = useState<Peer[]>(INITIAL_PEERS);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
+  const fetchFeed = useServerFn(getDiscoveryFeed);
 
+  // Refetch every mount so the panel refreshes when the user leaves and returns.
+  const { data, isLoading } = useQuery({
+    queryKey: ["discovery-feed"],
+    queryFn: () => fetchFeed(),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
+  });
+
+  // Also invalidate on window focus so tab-switching refreshes results.
   useEffect(() => {
-    const t = setTimeout(() => setLoading(false), 700);
-    return () => clearTimeout(t);
-  }, []);
+    const onFocus = () => queryClient.invalidateQueries({ queryKey: ["discovery-feed"] });
+    window.addEventListener("focus", onFocus);
+    return () => window.removeEventListener("focus", onFocus);
+  }, [queryClient]);
 
-  const handleAddToCircle = (peer: Peer) => {
-    require(
-      1,
-      () => {
-        setPeers((prev) => prev.map((p) => (p.id === peer.id ? { ...p, inCircle: true } : p)));
-        toast.success(`Circle request sent to ${peer.name}`, {
-          description: "You'll be able to chat once they accept.",
-        });
-      },
-      "buyer",
-    );
+  const peers = data?.peers ?? [];
+  const bounties = data?.bounties ?? [];
+  const products = data?.products ?? [];
+  const ads = data?.ads ?? [];
+
+  const primaryAd = ads[0];
+  const inlineAds = ads.slice(1, 4); // interleave up to 3 inside product list
+  const trailingAd = ads[4];
+
+  // Interleave ads between products every 3 items.
+  const trendingItems: Array<
+    { kind: "product"; product: DiscoveryProduct } | { kind: "ad"; ad: DiscoveryAd }
+  > = [];
+  let adIdx = 0;
+  products.forEach((p, i) => {
+    trendingItems.push({ kind: "product", product: p });
+    if ((i + 1) % 3 === 0 && adIdx < inlineAds.length) {
+      trendingItems.push({ kind: "ad", ad: inlineAds[adIdx++] });
+    }
+  });
+
+  const handleChat = (peerName: string) => {
+    require(1, () => {
+      toast(`Opening chat with ${peerName}…`);
+      navigateSection("Messages");
+    }, "buyer");
   };
-
-  const handleChat = (peer: Peer) => {
-    require(
-      1,
-      () => {
-        toast(`Opening chat with ${peer.name}…`);
-        navigateSection("Messages");
-      },
-      "buyer",
-    );
-  };
-
-  const handleSolve = (bountyTitle: string) => {
-    require(
-      2,
-      () => {
-        toast.success("Bounty opened", { description: bountyTitle });
-        navigateSection("Bounties");
-      },
-      "solver",
-    );
-  };
-
-  const hasPeers = peers.length > 0;
-  const hasBounties = bounties.length > 0;
-  const hasListings = listings.length > 0;
 
   return (
     <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable]">
       {/* Widget A: Top Peers */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={loading}>
+      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>👑</span> Top Peers in Your Circle
@@ -177,13 +266,13 @@ export function DiscoveryPanel() {
             See all
           </button>
         </div>
-        {loading ? (
+        {isLoading ? (
           <ul className="space-y-2">
-            {Array.from({ length: 4 }).map((_, i) => (
+            {Array.from({ length: 5 }).map((_, i) => (
               <PeerRowSkeleton key={i} />
             ))}
           </ul>
-        ) : !hasPeers ? (
+        ) : peers.length === 0 ? (
           <EmptyState
             icon={Users}
             title="No peers yet"
@@ -197,15 +286,20 @@ export function DiscoveryPanel() {
               <li key={p.id} className="flex items-center gap-2.5 min-w-0">
                 <Link
                   to="/profile/$id"
-                  params={{ id: p.id }}
-                  className={`w-9 h-9 shrink-0 rounded-full bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xs`}
+                  params={{ id: p.slug }}
+                  className={`w-9 h-9 shrink-0 rounded-full overflow-hidden bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xs`}
+                  aria-label={`View ${p.name}`}
                 >
-                  {p.initials}
+                  {p.avatarUrl ? (
+                    <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
+                  ) : (
+                    p.initials
+                  )}
                 </Link>
                 <div className="min-w-0 flex-1">
                   <Link
                     to="/profile/$id"
-                    params={{ id: p.id }}
+                    params={{ id: p.slug }}
                     className="block truncate text-xs font-semibold text-white hover:text-emerald-400"
                   >
                     {p.name}
@@ -215,32 +309,21 @@ export function DiscoveryPanel() {
                     <span>{p.stars.toFixed(1)}</span>
                   </div>
                 </div>
-                {p.inCircle ? (
-                  <button
-                    onClick={() => handleChat(p)}
-                    aria-label={`Chat with ${p.name}`}
-                    className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
-                  >
-                    <MessageCircle className="w-3 h-3" /> Chat
-                  </button>
-                ) : (
-                  <button
-                    onClick={() => handleAddToCircle(p)}
-                    aria-label={`Add ${p.name} to your circle`}
-                    className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black text-[11px] font-bold"
-                  >
-                    <UserPlus className="w-3 h-3" /> Circle
-                  </button>
-                )}
+                <button
+                  onClick={() => handleChat(p.name)}
+                  aria-label={`Chat with ${p.name}`}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                >
+                  <MessageCircle className="w-3 h-3" /> Chat
+                </button>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-
-      {/* Widget B: Hot Bounties */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={loading}>
+      {/* Widget B: High-Yield Bounties */}
+      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>🔥</span> High-Yield Bounties
@@ -249,13 +332,13 @@ export function DiscoveryPanel() {
             Live
           </span>
         </div>
-        {loading ? (
+        {isLoading ? (
           <ul className="space-y-2.5">
             {Array.from({ length: 3 }).map((_, i) => (
               <BountyRowSkeleton key={i} />
             ))}
           </ul>
-        ) : !hasBounties ? (
+        ) : bounties.length === 0 ? (
           <EmptyState
             icon={Flame}
             title="No live bounties"
@@ -266,77 +349,72 @@ export function DiscoveryPanel() {
         ) : (
           <ul className="space-y-2.5">
             {bounties.map((b) => (
-              <li key={b.id} className="rounded-lg border border-white/5 bg-black/25 p-3">
-                <div className="flex items-start gap-2">
-                  <Target className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-                  <h4 className="text-xs font-semibold text-white leading-snug line-clamp-2 flex-1 min-w-0">
-                    {b.title}
-                  </h4>
-                </div>
-                <div className="mt-2 flex items-center justify-between gap-2">
-                  <div className="min-w-0">
-                    <div className="text-[9px] uppercase tracking-wider text-slate-500">Escrow locked</div>
-                    <div className="text-sm font-black text-emerald-300 truncate">{price(b.amountUsd)}</div>
+              <li key={b.id}>
+                <button
+                  onClick={() => {
+                    toast(`Opening bounty: ${b.title}`);
+                    navigateSection("Bounties");
+                  }}
+                  aria-label={`Open bounty: ${b.title}`}
+                  className="w-full text-left rounded-lg border border-white/5 bg-black/25 p-3 hover:border-emerald-500/40 hover:bg-black/40 transition-colors"
+                >
+                  {b.coverUrl && (
+                    <div className="mb-2 h-20 w-full rounded-md overflow-hidden bg-black/40">
+                      <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
+                    </div>
+                  )}
+                  <div className="flex items-start gap-2">
+                    <Target className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
+                    <h4 className="text-xs font-semibold text-white leading-snug line-clamp-2 flex-1 min-w-0">
+                      {b.title}
+                    </h4>
                   </div>
-                  <button
-                    onClick={() => handleSolve(b.title)}
-                    aria-label={`Solve bounty: ${b.title}`}
-                    className="shrink-0 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
-                  >
-                    Solve →
-                  </button>
-                </div>
+                  <div className="mt-2 flex items-center justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-[9px] uppercase tracking-wider text-slate-500">Escrow locked</div>
+                      <div className="text-sm font-black text-emerald-300 truncate">{price(b.amountUsd)}</div>
+                    </div>
+                    <span className="shrink-0 text-[11px] font-bold text-emerald-400">Solve →</span>
+                  </div>
+                </button>
               </li>
             ))}
           </ul>
         )}
       </section>
 
-      {/* Widget C: Sponsored */}
-      {loading ? (
+      {/* Widget C: Primary Sponsored */}
+      {isLoading ? (
         <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4 space-y-2" aria-busy>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-md bg-white/[0.06] animate-pulse" />
-            <SkeletonBar className="h-3 w-24" />
-          </div>
+          <SkeletonBar className="h-24 w-full" />
           <SkeletonBar className="h-3 w-4/5" />
-          <SkeletonBar className="h-2 w-full" />
           <SkeletonBar className="h-2 w-3/5" />
           <SkeletonBar className="h-8 w-full mt-1" />
         </section>
+      ) : primaryAd ? (
+        <SponsoredCard ad={primaryAd} />
       ) : (
-        <section className="relative bg-[#1E1E24] border border-white/5 rounded-2xl p-4 rgb-pulse-glow overflow-hidden">
-          <span className="absolute top-2 right-3 text-[9px] font-semibold text-slate-500 uppercase tracking-wider">
-            Sponsored
+        <section className="relative bg-[#1E1E24] border border-white/5 rounded-2xl p-4 text-center rgb-pulse-glow overflow-hidden">
+          <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
+            <Megaphone className="w-3 h-3" /> Sponsored
           </span>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="w-8 h-8 rounded-md bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
-              <Sparkles className="w-4 h-4 text-white" />
-            </div>
-            <span className="text-sm font-bold text-white">Nebula Cloud</span>
+          <div className="mt-3 mx-auto w-10 h-10 rounded-md bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
+            <Sparkles className="w-5 h-5 text-white" />
           </div>
-          <h4 className="text-sm font-bold text-white leading-snug">
-            Deploy edge-native infra in 30 seconds
+          <h4 className="mt-3 text-sm font-bold text-white leading-snug">
+            Your brand could live here
           </h4>
           <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
-            Sub-50ms cold starts across 40 regions. 10M free requests/mo for indie builders.
+            Launch an active campaign from the admin console to appear in this slot.
           </p>
-          <button
-            onClick={() => {
-              toast.success("Nebula Cloud free tier claimed", { description: "Check your inbox for onboarding steps." });
-            }}
-            className="mt-3 w-full px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold rounded-lg"
-          >
-            Claim Free Tier
-          </button>
         </section>
       )}
 
-      {/* Widget D: Trending Marketplace */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={loading}>
+      {/* Widget D: Trending Digital Assets */}
+      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-            <span>🛍️</span> Top Marketplace Files
+            <span>🛍️</span> Trending Digital Assets
           </h3>
           <button
             onClick={() => navigateSection("Marketplace")}
@@ -345,55 +423,39 @@ export function DiscoveryPanel() {
             Browse
           </button>
         </div>
-        {loading ? (
+        {isLoading ? (
           <ul className="space-y-2.5">
-            {Array.from({ length: 3 }).map((_, i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <ListingRowSkeleton key={i} />
             ))}
           </ul>
-        ) : !hasListings ? (
+        ) : products.length === 0 ? (
           <EmptyState
             icon={Package}
             title="Marketplace is quiet"
-            hint="No trending listings right now. Be the first to publish."
+            hint="No trending assets right now. Be the first to publish."
             cta="Open Marketplace"
             onCta={() => navigateSection("Marketplace")}
           />
         ) : (
           <ul className="space-y-2.5">
-            {listings.map((l) => (
-              <li key={l.id}>
-                <button
-                  onClick={() => {
-                    toast(`Opening ${l.title}`);
-                    navigateSection("Marketplace");
-                  }}
-                  aria-label={`Open marketplace listing: ${l.title}`}
-                  className="w-full flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
-                >
-                <div
-                  className={`w-11 h-11 shrink-0 rounded-lg bg-gradient-to-br ${l.hue} flex items-center justify-center`}
-                >
-                  <ShoppingBag className="w-4 h-4 text-white/90" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <div className="truncate text-xs font-semibold text-white">{l.title}</div>
-                  <div className="mt-1 flex items-center gap-1.5">
-                    <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-300">
-                      {l.category}
-                    </span>
-                    <span className="text-[10px] text-slate-500">Trending</span>
-                  </div>
-                </div>
-                <div className="shrink-0 text-right">
-                  <div className="text-sm font-black text-white">{price(l.priceUsd)}</div>
-                </div>
-                </button>
-              </li>
-            ))}
+            {trendingItems.map((it, i) =>
+              it.kind === "product" ? (
+                <li key={`p-${it.product.id}-${i}`}>
+                  <ProductRow p={it.product} priceFmt={price} />
+                </li>
+              ) : (
+                <li key={`ad-${it.ad.id}-${i}`}>
+                  <SponsoredInline ad={it.ad} />
+                </li>
+              ),
+            )}
           </ul>
         )}
       </section>
+
+      {/* Trailing sponsored card */}
+      {trailingAd && !isLoading && <SponsoredCard ad={trailingAd} />}
     </aside>
   );
 }
