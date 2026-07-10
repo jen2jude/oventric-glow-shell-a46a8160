@@ -18,6 +18,7 @@ import {
   AlertTriangle,
   Wallet as WalletIcon,
 } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAdminStore } from "@/lib/admin/store";
 
