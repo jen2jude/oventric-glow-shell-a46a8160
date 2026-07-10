@@ -516,5 +516,169 @@ export const getLiveProfileItem = createServerFn({ method: "GET" })
   });
 
 
+// ---------------------------------------------------------------------------
+// Live reputation — real metrics derived from public tables (bounties, posts,
+// products). Returns a normalized breakdown consumable by the profile UI.
+// ---------------------------------------------------------------------------
+
+export interface LiveReputationItem {
+  key: string;
+  label: string;
+  detail: string;
+  weight: number; // 0-1
+  score: number; // 0-1 normalized
+  raw: string;
+}
+
+export interface LiveReputation {
+  stars: number; // 0-5
+  items: LiveReputationItem[];
+  metrics: {
+    bountiesSolved: number;
+    bountiesPosted: number;
+    productsListed: number;
+    avgProductRating: number;
+    productReviewCount: number;
+    postsTotal: number;
+    postsLast30d: number;
+  };
+}
+
+const RepInput = z.object({ idOrSlug: z.string().trim().min(1).max(120) });
+
+export const getLiveReputation = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => RepInput.parse(input))
+  .handler(async ({ data }): Promise<{ reputation: LiveReputation | null }> => {
+    const { createClient } = await import("@supabase/supabase-js");
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      { auth: { persistSession: false, autoRefreshToken: false } },
+    );
+
+    const userId = await resolveUserId(supabase, data.idOrSlug);
+    if (!userId) return { reputation: null };
+
+    const since30d = new Date(Date.now() - 30 * 24 * 3600 * 1000).toISOString();
+
+    const [bountiesSolvedRes, bountiesPostedRes, productsRes, postsTotalRes, posts30dRes] =
+      await Promise.all([
+        supabase
+          .from("bounties")
+          .select("id", { count: "exact", head: true })
+          .eq("poster_id", userId)
+          .eq("status", "solved"),
+        supabase
+          .from("bounties")
+          .select("id", { count: "exact", head: true })
+          .eq("poster_id", userId),
+        supabase.from("products").select("rating, reviews").eq("seller_id", userId),
+        supabase
+          .from("posts")
+          .select("id", { count: "exact", head: true })
+          .eq("author_id", userId),
+        supabase
+          .from("posts")
+          .select("id", { count: "exact", head: true })
+          .eq("author_id", userId)
+          .gte("created_at", since30d),
+      ]);
+
+    const bountiesSolved = bountiesSolvedRes.count ?? 0;
+    const bountiesPosted = bountiesPostedRes.count ?? 0;
+    const productsRows = (productsRes.data ?? []) as Array<{
+      rating: number | null;
+      reviews: number | null;
+    }>;
+    const productsListed = productsRows.length;
+    let ratingWeighted = 0;
+    let reviewSum = 0;
+    for (const p of productsRows) {
+      const r = Number(p.rating ?? 0);
+      const rv = Number(p.reviews ?? 0);
+      if (rv > 0 && r > 0) {
+        ratingWeighted += r * rv;
+        reviewSum += rv;
+      }
+    }
+    const avgProductRating = reviewSum > 0 ? ratingWeighted / reviewSum : 0;
+    const postsTotal = postsTotalRes.count ?? 0;
+    const postsLast30d = posts30dRes.count ?? 0;
+
+    const clamp = (n: number) => Math.max(0, Math.min(1, n));
+    const ratingScore = clamp(avgProductRating / 5);
+    const solvedScore = clamp(bountiesSolved / 15);
+    const marketScore = clamp(productsListed / 10);
+    const activityScore = clamp(postsLast30d / 20);
+    const contribScore = clamp((postsTotal + bountiesPosted) / 60);
+
+    const items: LiveReputationItem[] = [
+      {
+        key: "rating",
+        label: "Product rating",
+        detail: "Weighted average of reviews on your marketplace listings",
+        weight: 0.3,
+        score: ratingScore,
+        raw:
+          reviewSum > 0
+            ? `${avgProductRating.toFixed(1)} ★ · ${reviewSum} review${reviewSum === 1 ? "" : "s"}`
+            : "No reviews yet",
+      },
+      {
+        key: "solved",
+        label: "Bounties solved",
+        detail: "Bounties you posted that reached a solved state",
+        weight: 0.25,
+        score: solvedScore,
+        raw: `${bountiesSolved} solved`,
+      },
+      {
+        key: "market",
+        label: "Marketplace listings",
+        detail: "Digital products currently published under your account",
+        weight: 0.15,
+        score: marketScore,
+        raw: `${productsListed} listed`,
+      },
+      {
+        key: "activity",
+        label: "Recent activity",
+        detail: "Posts published in the last 30 days",
+        weight: 0.15,
+        score: activityScore,
+        raw: `${postsLast30d} in 30d`,
+      },
+      {
+        key: "contrib",
+        label: "Overall contribution",
+        detail: "Lifetime posts + bounties posted on Oventric",
+        weight: 0.15,
+        score: contribScore,
+        raw: `${postsTotal + bountiesPosted} total`,
+      },
+    ];
+
+    const weighted = items.reduce((s, i) => s + i.score * i.weight, 0);
+    const stars = Math.round(weighted * 5 * 10) / 10;
+
+    return {
+      reputation: {
+        stars,
+        items,
+        metrics: {
+          bountiesSolved,
+          bountiesPosted,
+          productsListed,
+          avgProductRating: Math.round(avgProductRating * 10) / 10,
+          productReviewCount: reviewSum,
+          postsTotal,
+          postsLast30d,
+        },
+      },
+    };
+  });
+
+
+
 
 

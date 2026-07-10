@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getLiveProfileTab, getProfileByIdOrSlug, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, type LiveReputation, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -179,14 +179,21 @@ function ProfilePage() {
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
   const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+  const fetchReputation = useServerFn(getLiveReputation);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   useEffect(() => {
     let cancelled = false;
     (async () => {
       try {
-        const res = await fetchRealProfile({ data: { idOrSlug: id } });
-        if (!cancelled) setRealProfile(res.profile);
+        const [pRes, rRes] = await Promise.all([
+          fetchRealProfile({ data: { idOrSlug: id } }),
+          fetchReputation({ data: { idOrSlug: id } }),
+        ]);
+        if (cancelled) return;
+        setRealProfile(pRes.profile);
+        setLiveRep(rRes.reputation);
       } catch (e) {
         console.error("[profile] real load failed", e);
       }
@@ -194,7 +201,8 @@ function ProfilePage() {
     return () => {
       cancelled = true;
     };
-  }, [id, fetchRealProfile]);
+  }, [id, fetchRealProfile, fetchReputation]);
+
 
   const mainRef = useRef<HTMLElement | null>(null);
   const scrollRestoredRef = useRef(false);
@@ -440,7 +448,7 @@ function ProfilePage() {
       ? "Unverified"
       : `${realProfile.verificationTier.replace("_", " ")} Verified`
     : "Verified";
-  const displayStars = realProfile?.reputationStars ?? starBreakdown.stars;
+  const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? starBreakdown.stars;
   const circleTargetSlug = realProfile?.slug ?? profile.id;
 
   const handleJoin = () => {
@@ -707,30 +715,50 @@ function ProfilePage() {
                   label="Star Rating"
                   value={
                     <div className="flex items-center gap-1">
-                      <span className="text-white font-black">{starBreakdown.stars.toFixed(1)}</span>
-                      <StarRow value={starBreakdown.stars} />
+                      <span className="text-white font-black">{displayStars.toFixed(1)}</span>
+                      <StarRow value={displayStars} />
                     </div>
                   }
                 />
                 <RepStat
                   icon={<Target className="w-4 h-4 text-emerald-400" />}
                   label="Bounties Solved"
-                  value={<span className="text-white font-black">{rep.bountiesSolved}</span>}
+                  value={
+                    <span className="text-white font-black">
+                      {liveRep ? liveRep.metrics.bountiesSolved : "…"}
+                    </span>
+                  }
                 />
                 <RepStat
                   icon={<Award className="w-4 h-4 text-purple-400" />}
-                  label="Courses"
-                  value={<span className="text-white font-black">{rep.coursesCompleted}</span>}
+                  label="Product Rating"
+                  value={
+                    <span className="text-white font-black">
+                      {liveRep
+                        ? liveRep.metrics.productReviewCount > 0
+                          ? liveRep.metrics.avgProductRating.toFixed(1)
+                          : "—"
+                        : "…"}
+                    </span>
+                  }
                 />
                 <RepStat
                   icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
-                  label="Sales"
-                  value={<span className="text-white font-black">{rep.salesCount}</span>}
+                  label="Listings"
+                  value={
+                    <span className="text-white font-black">
+                      {liveRep ? liveRep.metrics.productsListed : "…"}
+                    </span>
+                  }
                 />
                 <RepStat
                   icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
-                  label="Dispute Rate"
-                  value={<span className="text-white font-black">{rep.disputeRate}%</span>}
+                  label="Posts (30d)"
+                  value={
+                    <span className="text-white font-black">
+                      {liveRep ? liveRep.metrics.postsLast30d : "…"}
+                    </span>
+                  }
                 />
               </div>
 
@@ -744,38 +772,45 @@ function ProfilePage() {
                     </h3>
                   </div>
                   <span className="text-[11px] text-slate-500">
-                    Weighted from live utility metrics
+                    {liveRep ? "Weighted from live activity" : "Loading live metrics…"}
                   </span>
                 </div>
-                <ul className="space-y-2.5">
-                  {starBreakdown.items.map((item) => (
-                    <li key={item.key} className="flex items-start gap-3">
-                      <div className="w-28 shrink-0">
-                        <div className="text-xs text-white font-semibold">{item.label}</div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-500">
-                          {Math.round(item.weight * 100)}% weight
+                {!liveRep ? (
+                  <div className="py-6 text-center text-[11px] text-slate-500">
+                    Fetching real metrics from bounties, marketplace, and posts…
+                  </div>
+                ) : (
+                  <ul className="space-y-2.5">
+                    {liveRep.items.map((item) => (
+                      <li key={item.key} className="flex items-start gap-3">
+                        <div className="w-28 shrink-0">
+                          <div className="text-xs text-white font-semibold">{item.label}</div>
+                          <div className="text-[10px] uppercase tracking-wider text-slate-500">
+                            {Math.round(item.weight * 100)}% weight
+                          </div>
                         </div>
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="text-[11px] text-slate-400 leading-snug">{item.detail}</div>
-                        <div className="mt-1.5 h-1.5 rounded-full bg-white/5 overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400"
-                            style={{ width: `${Math.round(item.score * 100)}%` }}
-                          />
+                        <div className="flex-1 min-w-0">
+                          <div className="text-[11px] text-slate-400 leading-snug">{item.detail}</div>
+                          <div className="mt-1.5 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                            <div
+                              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400"
+                              style={{ width: `${Math.round(item.score * 100)}%` }}
+                            />
+                          </div>
                         </div>
-                      </div>
-                      <div className="w-24 shrink-0 text-right">
-                        <div className="text-xs font-bold text-white">{item.raw}</div>
-                        <div className="text-[10px] text-slate-500">
-                          {(item.score * 5).toFixed(1)} / 5
+                        <div className="w-24 shrink-0 text-right">
+                          <div className="text-xs font-bold text-white">{item.raw}</div>
+                          <div className="text-[10px] text-slate-500">
+                            {(item.score * 5).toFixed(1)} / 5
+                          </div>
                         </div>
-                      </div>
-                    </li>
-                  ))}
-                </ul>
+                      </li>
+                    ))}
+                  </ul>
+                )}
               </div>
             </section>
+
 
 
             {/* Tabs */}
