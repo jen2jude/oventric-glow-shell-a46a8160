@@ -41,27 +41,9 @@ function StageIndicator({ current }: { current: number }) {
   );
 }
 
-function Stage1({ onClose }: { onClose: () => void }) {
-  const { advanceTo } = useOnboarding();
-  const [email, setEmail] = useState("");
-  return (
-    <ModalShell title="Activate your account" subtitle="Stage 1 of 5 · Email verification" onClose={onClose}>
-      <StageIndicator current={1} />
-      <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
-        <Mail className="w-6 h-6 text-emerald-400" />
-      </div>
-      <label className={labelCls}>Active Email Address</label>
-      <input type="email" className={inputCls} placeholder="you@builder.dev" value={email} onChange={(e) => setEmail(e.target.value)} />
-      <button
-        disabled={!email.includes("@")}
-        onClick={() => advanceTo(1)}
-        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed"}
-      >
-        Send Magic Code
-      </button>
-    </ModalShell>
-  );
-}
+// Stage 1 (email verification) is intentionally removed. Email OTP verification
+// is fully handled by the global AuthGate — no legacy progressive form.
+
 
 const COUNTRY_META: Record<Country, { label: string; currency: Currency; dial: string }> = {
   NG: { label: "Nigeria", currency: "NGN", dial: "+234" },
