@@ -208,6 +208,18 @@ export const getProfileSocialCounts = createServerFn({ method: "GET" })
 // Update the authenticated user's own profile (name, bio, avatar path).
 // ---------------------------------------------------------------------------
 
+const NotificationPrefsInput = z.object({
+  email_digest: z.boolean(),
+  dm_pings: z.boolean(),
+  bounty_invites: z.boolean(),
+});
+export type NotificationPreferences = z.infer<typeof NotificationPrefsInput>;
+export const DEFAULT_NOTIFICATION_PREFS: NotificationPreferences = {
+  email_digest: true,
+  dm_pings: true,
+  bounty_invites: true,
+};
+
 const UpdateInput = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(280).optional().nullable(),
@@ -223,7 +235,9 @@ const UpdateInput = z.object({
   phone: z.string().trim().min(6).max(24).optional().nullable(),
   country: z.string().trim().max(60).optional().nullable(),
   address: z.string().trim().max(200).optional().nullable(),
+  notificationPreferences: NotificationPrefsInput.optional(),
 });
+
 
 export const updateMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -238,6 +252,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       phone?: string | null;
       country?: string | null;
       address?: string | null;
+      notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
@@ -246,6 +261,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
     if (data.address !== undefined) patch.address = data.address;
+    if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
+
     if (Object.keys(patch).length === 0) return { ok: true };
 
     const { error } = await supabase.from("profiles").update(patch).eq("user_id", userId);
@@ -284,7 +301,9 @@ export interface MyFullProfile {
   kycIdUploaded: boolean;
   profileCompletedAt: string | null;
   joined: string;
+  notificationPreferences: NotificationPreferences;
 }
+
 
 export const getMyFullProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -293,8 +312,9 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabase
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
+
       .eq("user_id", userId)
       .maybeSingle();
     if (error) {
@@ -330,6 +350,11 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         kycIdUploaded: !!(row as { kyc_id_path?: string | null }).kyc_id_path,
         profileCompletedAt: row.profile_completed_at,
         joined: row.created_at,
+        notificationPreferences: {
+          ...DEFAULT_NOTIFICATION_PREFS,
+          ...((row as { notification_preferences?: Partial<NotificationPreferences> }).notification_preferences ?? {}),
+        },
+
       },
     };
   });

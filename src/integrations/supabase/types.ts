@@ -923,6 +923,7 @@ export type Database = {
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
+          notification_preferences: Json
           phone: string | null
           profile_completed_at: string | null
           reputation_stars: number
@@ -942,6 +943,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          notification_preferences?: Json
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
@@ -961,6 +963,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          notification_preferences?: Json
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
