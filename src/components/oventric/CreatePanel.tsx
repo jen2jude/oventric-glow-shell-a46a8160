@@ -83,6 +83,13 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         setCourseOpen(false);
         window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
       }} />
+      <BountyEditorModal
+        open={bountyOpen}
+        onClose={() => setBountyOpen(false)}
+        onPublished={() => {
+          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
+        }}
+      />
     </>
   );
 }
