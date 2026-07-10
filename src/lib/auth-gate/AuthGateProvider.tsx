@@ -13,6 +13,7 @@ import { useServerFn } from "@tanstack/react-start";
 import type { Session } from "@supabase/supabase-js";
 import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X, AlertTriangle } from "lucide-react";
 import { z } from "zod";
+import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
 import { resolveLoginIdentifier as resolveLoginIdentifierFn } from "@/lib/auth-lookup.functions";
