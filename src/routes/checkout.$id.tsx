@@ -130,7 +130,13 @@ function CheckoutPage() {
     setShortfallUSD(null);
     try {
       const res = await submitOrder({
-        data: { productId: product.id, quantity: qty, displayCurrency: baseCurrency, paymentMethod: method },
+        data: {
+          productId: product.id,
+          quantity: qty,
+          displayCurrency: baseCurrency,
+          paymentMethod: method,
+          couponCode: canUseCoupon && coupon ? coupon.code : null,
+        },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
         setShortfallUSD(res.walletShortfallUSD);
@@ -139,8 +145,13 @@ function CheckoutPage() {
         toast.error("Wallet balance too low", { description: `Top up ${fmt(res.walletShortfallUSD, baseCurrency)} to continue.` });
         return;
       }
-      toast.success("Payment successful");
+      if (res.cashbackUSD && res.cashbackUSD > 0) {
+        toast.success("Payment successful", { description: `${fmt(res.cashbackUSD, baseCurrency)} cashback credited to your wallet.` });
+      } else {
+        toast.success("Payment successful");
+      }
       navigate({ to: "/order/$id", params: { id: res.order.id } });
+
     } catch (e) {
       toast.error("Payment failed", { description: e instanceof Error ? e.message : "Try again." });
     } finally {
