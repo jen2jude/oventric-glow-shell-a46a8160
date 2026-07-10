@@ -10,7 +10,7 @@ type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: str
 const choices: Choice[] = [
   { key: "post", icon: PenSquare, title: "Drop a Post", desc: "Share updates with the community", tier: 1 },
   { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
-  { key: "sell", icon: ShoppingBag, title: "Sell an Asset", desc: "List digital goods in the marketplace", tier: 3 },
+  { key: "sell", icon: ShoppingBag, title: "Sell an Asset", desc: "List digital goods in the marketplace", tier: 2 },
   { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
   { key: "blog", icon: FileText, title: "Add Blog Article", desc: "Publish long-form technical writing", tier: 1 },
 ];

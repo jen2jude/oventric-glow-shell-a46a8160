@@ -1,9 +1,12 @@
 import { useEffect, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
-import { seedNewUser as seedNewUserFn } from "@/lib/onboarding.functions";
+import {
+  seedNewUser as seedNewUserFn,
+  getOnboardingStatus as getOnboardingStatusFn,
+} from "@/lib/onboarding.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useOnboarding, countryToCurrency, type Country } from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
@@ -18,8 +21,10 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 export function AuthSeeder() {
   const seedNewUser = useServerFn(seedNewUserFn);
   const fetchBalances = useServerFn(getWalletBalances);
-  const { setBalances } = useOnboarding();
+  const fetchStatus = useServerFn(getOnboardingStatusFn);
+  const { setBalances, advanceTo, setBaseCurrency } = useOnboarding();
   const seededFor = useRef<string | null>(null);
+
 
   useEffect(() => {
     let cancelled = false;
@@ -47,11 +52,34 @@ export function AuthSeeder() {
       try {
         await seedNewUser({ data: {} });
         await refreshBalances();
+        // Hydrate the onboarding tier from the persisted profile so returning
+        // users who already unlocked commerce don't get re-prompted.
+        try {
+          const status = await fetchStatus();
+          if (cancelled) return;
+          const country = (status.country ?? null) as Country | null;
+          if (status.profileCompleted) {
+            const currency = countryToCurrency(country);
+            setBaseCurrency(currency);
+            advanceTo(status.kycCompleted ? 5 : 2, {
+              fullName: status.displayName ?? "",
+              country,
+              phone: status.phone ?? "",
+              baseCurrency: currency,
+            });
+          } else {
+            // Signed in but no profile fields yet — Tier 1 (social only).
+            advanceTo(1);
+          }
+        } catch (err) {
+          console.error("[AuthSeeder] status fetch failed", err);
+        }
       } catch (err) {
         console.error("[AuthSeeder] seed failed", err);
         if (!cancelled) seededFor.current = null;
       }
     };
+
 
     // Initial session (page load with existing tokens)
     supabase.auth.getSession().then(({ data }) => {
@@ -87,7 +115,7 @@ export function AuthSeeder() {
       sub.subscription.unsubscribe();
       if (walletChannel) supabase.removeChannel(walletChannel);
     };
-  }, [seedNewUser, fetchBalances, setBalances]);
+  }, [seedNewUser, fetchBalances, fetchStatus, setBalances, advanceTo, setBaseCurrency]);
 
   return null;
 }
