@@ -1,13 +1,16 @@
 import { useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
+import { getProfileByIdOrSlug, updateMyProfile } from "@/lib/profiles.functions";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+
 
 
 function slugify(v: string): string {
@@ -83,6 +86,31 @@ export function ProfileDropdown() {
     // Sync default display name once fullName arrives from onboarding
     setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
   }, [fullName, storeName]);
+
+  // Load the real profile row (name, bio, avatar signed URL) once we know
+  // this session's user id.
+  const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+  useEffect(() => {
+    if (!userId || userId === "me") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchRealProfile({ data: { idOrSlug: userId } });
+        if (cancelled || !res.profile) return;
+        setProfile((p) => ({
+          displayName: res.profile!.displayName || p.displayName,
+          bio: res.profile!.bio ?? p.bio,
+          avatarDataUrl: res.profile!.avatarUrl ?? p.avatarDataUrl,
+        }));
+      } catch (e) {
+        console.error("[ProfileDropdown] real profile load failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [userId, fetchRealProfile]);
+
 
   const getMenuItems = (): HTMLElement[] => {
     if (!menuRef.current) return [];
@@ -406,8 +434,10 @@ export function ProfileDropdown() {
         open={settingsOpen}
         onClose={() => setSettingsOpen(false)}
         profile={profile}
+        userId={userId}
         onSave={persistProfile}
       />
+
     </div>
   );
 }
@@ -421,13 +451,17 @@ function ProfileSettingsModal({
   open,
   onClose,
   profile,
+  userId,
   onSave,
 }: {
   open: boolean;
   onClose: () => void;
   profile: ProfileState;
+  userId: string;
   onSave: (next: ProfileState) => void;
 }) {
+  const persistProfileRemote = useServerFn(updateMyProfile);
+  const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const [displayName, setDisplayName] = useState(profile.displayName);
   const [bio, setBio] = useState(profile.bio);
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
@@ -473,6 +507,7 @@ function ProfileSettingsModal({
       toast.error("Image too large", { description: "Keep avatars under 2 MB." });
       return;
     }
+    setAvatarFile(file);
     const reader = new FileReader();
     reader.onload = () => setAvatar(typeof reader.result === "string" ? reader.result : null);
     reader.readAsDataURL(file);
@@ -496,10 +531,32 @@ function ProfileSettingsModal({
     }
     setSaving(true);
     try {
-      await new Promise((r) => setTimeout(r, 350));
+      let avatarPath: string | null | undefined = undefined;
+      if (avatarFile && userId && userId !== "me") {
+        const ext = (avatarFile.name.split(".").pop() || "png").toLowerCase();
+        const path = `${userId}/avatar-${Date.now()}.${ext}`;
+        const { error: upErr } = await supabase.storage
+          .from("avatars")
+          .upload(path, avatarFile, { upsert: true, contentType: avatarFile.type });
+        if (upErr) throw upErr;
+        avatarPath = path;
+      }
+      await persistProfileRemote({
+        data: {
+          displayName: displayName.trim(),
+          bio: bio.trim() || null,
+          ...(avatarPath !== undefined ? { avatarPath } : {}),
+        },
+      });
       onSave({ displayName: displayName.trim(), bio: bio.trim(), avatarDataUrl: avatar });
       toast.success("Profile updated", { description: "Your workspace identity is synced." });
+      setAvatarFile(null);
       onClose();
+    } catch (err) {
+      console.error("[ProfileSettingsModal] save failed", err);
+      toast.error("Could not save profile", {
+        description: err instanceof Error ? err.message : "Please try again.",
+      });
     } finally {
       setSaving(false);
     }

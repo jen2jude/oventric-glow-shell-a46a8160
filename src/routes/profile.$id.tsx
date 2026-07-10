@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getProfileTab, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getProfileTab, getProfileByIdOrSlug, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -178,6 +178,23 @@ function ProfilePage() {
   const fetchStatus = useServerFn(getCircleStatus);
   const sendReq = useServerFn(sendCircleRequest);
   const cancelReq = useServerFn(cancelCircleRequest);
+  const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+
+  const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const res = await fetchRealProfile({ data: { idOrSlug: id } });
+        if (!cancelled) setRealProfile(res.profile);
+      } catch (e) {
+        console.error("[profile] real load failed", e);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [id, fetchRealProfile]);
 
   const mainRef = useRef<HTMLElement | null>(null);
   const scrollRestoredRef = useRef(false);
@@ -402,6 +419,29 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
+  // Real-profile overlay. When we have a live row, prefer its identity fields
+  // over the deterministic mock so the header shows the real person.
+  const displayName = realProfile?.displayName ?? profile.name;
+  const displayInitials = (() => {
+    const source = realProfile?.displayName ?? profile.name;
+    const parts = source.trim().split(/\s+/).slice(0, 2);
+    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+    return s || profile.initials;
+  })();
+  const displayBio = realProfile?.bio ?? profile.bio;
+  const displayRole = realProfile?.username ? `@${realProfile.username}` : profile.role;
+  const displayJoined = realProfile
+    ? new Date(realProfile.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : profile.joined;
+  const displayAvatar = realProfile?.avatarUrl ?? null;
+  const displayTierLabel = realProfile
+    ? realProfile.verificationTier === "TIER_0"
+      ? "Unverified"
+      : `${realProfile.verificationTier.replace("_", " ")} Verified`
+    : "Verified";
+  const displayStars = realProfile?.reputationStars ?? starBreakdown.stars;
+  const circleTargetSlug = realProfile?.slug ?? profile.id;
+
   const handleJoin = () => {
     require(1, async () => {
       setCircleBusy(true);
@@ -552,21 +592,34 @@ function ProfilePage() {
             <section className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6">
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
-                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg`}
+                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
                 >
-                  {profile.initials}
+                  {displayAvatar ? (
+                    <img
+                      src={displayAvatar}
+                      alt={`${displayName} avatar`}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    displayInitials
+                  )}
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-white text-2xl font-black">{profile.name}</h1>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" />
+                    <h1 className="text-white text-2xl font-black">{displayName}</h1>
+                    <ShieldCheck className="w-4 h-4 text-emerald-400" aria-label={displayTierLabel} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                      {displayTierLabel}
+                    </span>
                   </div>
-                  <div className="text-sm text-slate-400 mt-0.5">{profile.role}</div>
+                  <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Joined {profile.joined} · {profile.followers.toLocaleString()} followers
+                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {profile.followers.toLocaleString()} followers
                   </div>
-                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">{profile.bio}</p>
-                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${profile.name}'s circle`}>
+                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">
+                    {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
+                  </p>
+                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${circleMembers.total} members in ${displayName}'s circle`}>
                     <div className="flex -space-x-2">
                       {circleMembers.preview.map((m) => (
                         <div
