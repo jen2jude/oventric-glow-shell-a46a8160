@@ -419,6 +419,29 @@ function ProfilePage() {
   const price = (usd: number) =>
     `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: baseCurrency === "USD" ? 0 : 0 })}`;
 
+  // Real-profile overlay. When we have a live row, prefer its identity fields
+  // over the deterministic mock so the header shows the real person.
+  const displayName = realProfile?.displayName ?? profile.name;
+  const displayInitials = (() => {
+    const source = realProfile?.displayName ?? profile.name;
+    const parts = source.trim().split(/\s+/).slice(0, 2);
+    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+    return s || profile.initials;
+  })();
+  const displayBio = realProfile?.bio ?? profile.bio;
+  const displayRole = realProfile?.username ? `@${realProfile.username}` : profile.role;
+  const displayJoined = realProfile
+    ? new Date(realProfile.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : profile.joined;
+  const displayAvatar = realProfile?.avatarUrl ?? null;
+  const displayTierLabel = realProfile
+    ? realProfile.verificationTier === "TIER_0"
+      ? "Unverified"
+      : `${realProfile.verificationTier.replace("_", " ")} Verified`
+    : "Verified";
+  const displayStars = realProfile?.reputationStars ?? starBreakdown.stars;
+  const circleTargetSlug = realProfile?.slug ?? profile.id;
+
   const handleJoin = () => {
     require(1, async () => {
       setCircleBusy(true);
