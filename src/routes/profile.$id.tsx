@@ -204,7 +204,7 @@ function ProfilePage() {
     async (which: Tab, pageNum: number, reset: boolean, filters: { q: string; sort: ProfileSortKey }) => {
       const res = await fetchTab({
         data: {
-          profileId: profile.id,
+          idOrSlug: id,
           tab: which,
           page: pageNum,
           pageSize: PAGE_SIZE,
@@ -212,6 +212,7 @@ function ProfilePage() {
           sort: filters.sort,
         },
       });
+
       setTabData((s) => ({
         ...s,
         [which]: {
