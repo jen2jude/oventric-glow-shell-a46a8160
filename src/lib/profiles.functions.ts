@@ -301,7 +301,9 @@ export interface MyFullProfile {
   kycIdUploaded: boolean;
   profileCompletedAt: string | null;
   joined: string;
+  notificationPreferences: NotificationPreferences;
 }
+
 
 export const getMyFullProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
