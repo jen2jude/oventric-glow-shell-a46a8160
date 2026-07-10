@@ -72,9 +72,11 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <Bell className="w-5 h-5" />
           {unread && (
             <span
-              className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 rgb-pulse-glow"
-              aria-hidden
-            />
+              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
+              aria-label={`${unreadCount} unread notifications`}
+            >
+              {unreadCount > 9 ? "9+" : unreadCount}
+            </span>
           )}
         </button>
         <IncomingCircleInbox />
