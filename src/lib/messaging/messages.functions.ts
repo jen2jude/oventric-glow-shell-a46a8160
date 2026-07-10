@@ -1,0 +1,180 @@
+import { createServerFn } from "@tanstack/react-start";
+import { z } from "zod";
+import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+
+export interface ThreadSummary {
+  peerId: string;
+  peerName: string;
+  peerSlug: string;
+  peerInitials: string;
+  peerGradient: string;
+  preview: string;
+  lastAt: string;
+  unread: number;
+}
+
+export interface DMRow {
+  id: string;
+  sender_id: string;
+  recipient_id: string;
+  body: string | null;
+  media_path: string | null;
+  media_type: string | null;
+  created_at: string;
+  read_at: string | null;
+}
+
+const GRADIENTS = [
+  "from-purple-500 to-pink-500",
+  "from-emerald-400 to-teal-500",
+  "from-sky-400 to-indigo-500",
+  "from-amber-400 to-orange-500",
+  "from-fuchsia-500 to-pink-500",
+  "from-rose-400 to-red-500",
+  "from-cyan-400 to-blue-500",
+  "from-lime-400 to-emerald-500",
+];
+
+function gradientFor(id: string) {
+  let h = 0;
+  for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+  return GRADIENTS[h % GRADIENTS.length];
+}
+
+function initialsFor(name: string) {
+  const parts = name.trim().split(/\s+/).slice(0, 2);
+  return parts.map((p) => p[0]?.toUpperCase() ?? "").join("") || "??";
+}
+
+export const listThreads = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ThreadSummary[]> => {
+    const me = context.userId;
+    const { data: rows, error } = await context.supabase
+      .from("direct_messages")
+      .select("id, sender_id, recipient_id, body, media_path, created_at, read_at")
+      .or(`sender_id.eq.${me},recipient_id.eq.${me}`)
+      .order("created_at", { ascending: false })
+      .limit(500);
+    if (error) throw error;
+
+    const byPeer = new Map<string, { last: typeof rows[number]; unread: number }>();
+    for (const r of rows ?? []) {
+      const peer = r.sender_id === me ? r.recipient_id : r.sender_id;
+      const cur = byPeer.get(peer);
+      const isUnread = r.recipient_id === me && !r.read_at;
+      if (!cur) byPeer.set(peer, { last: r, unread: isUnread ? 1 : 0 });
+      else if (isUnread) cur.unread += 1;
+    }
+    if (byPeer.size === 0) return [];
+
+    const peerIds = [...byPeer.keys()];
+    const { data: profs, error: pErr } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug")
+      .in("user_id", peerIds);
+    if (pErr) throw pErr;
+
+    const pMap = new Map((profs ?? []).map((p) => [p.user_id, p]));
+    const out: ThreadSummary[] = peerIds.map((id) => {
+      const p = pMap.get(id);
+      const name = p?.display_name || p?.username || "Unknown peer";
+      const entry = byPeer.get(id)!;
+      const preview = entry.last.body ?? (entry.last.media_path ? "📎 Attachment" : "…");
+      return {
+        peerId: id,
+        peerName: name,
+        peerSlug: p?.slug ?? id,
+        peerInitials: initialsFor(name),
+        peerGradient: gradientFor(id),
+        preview: preview.length > 90 ? preview.slice(0, 87) + "…" : preview,
+        lastAt: entry.last.created_at,
+        unread: entry.unread,
+      };
+    });
+    out.sort((a, b) => b.lastAt.localeCompare(a.lastAt));
+    return out;
+  });
+
+export const listMessages = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ peerId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() }).parse(d))
+  .handler(async ({ data, context }): Promise<DMRow[]> => {
+    const me = context.userId;
+    const { data: rows, error } = await context.supabase
+      .from("direct_messages")
+      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at")
+      .or(
+        `and(sender_id.eq.${me},recipient_id.eq.${data.peerId}),and(sender_id.eq.${data.peerId},recipient_id.eq.${me})`,
+      )
+      .order("created_at", { ascending: true })
+      .limit(data.limit ?? 100);
+    if (error) throw error;
+    return (rows ?? []) as DMRow[];
+  });
+
+export const sendMessage = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z
+      .object({
+        recipientId: z.string().uuid(),
+        body: z.string().trim().max(4000).optional(),
+        mediaPath: z.string().max(500).optional(),
+        mediaType: z.string().max(64).optional(),
+      })
+      .refine((v) => (v.body && v.body.length > 0) || v.mediaPath, {
+        message: "Message must have a body or media attachment",
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }): Promise<DMRow> => {
+    const { data: row, error } = await context.supabase
+      .from("direct_messages")
+      .insert({
+        sender_id: context.userId,
+        recipient_id: data.recipientId,
+        body: data.body ?? null,
+        media_path: data.mediaPath ?? null,
+        media_type: data.mediaType ?? null,
+      })
+      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at")
+      .single();
+    if (error) throw error;
+    return row as DMRow;
+  });
+
+export const markThreadRead = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ peerId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { error } = await context.supabase
+      .from("direct_messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("recipient_id", context.userId)
+      .eq("sender_id", data.peerId)
+      .is("read_at", null);
+    if (error) throw error;
+    return { ok: true };
+  });
+
+export const resolvePeer = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ slug: z.string().min(1) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const { data: p, error } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug")
+      .eq("slug", data.slug)
+      .maybeSingle();
+    if (error) throw error;
+    if (!p) return null;
+    const name = p.display_name || p.username || "Unknown peer";
+    return {
+      peerId: p.user_id,
+      peerName: name,
+      peerSlug: p.slug,
+      peerInitials: initialsFor(name),
+      peerGradient: gradientFor(p.user_id),
+    };
+  });
