@@ -507,6 +507,7 @@ function ProfileSettingsModal({
       toast.error("Image too large", { description: "Keep avatars under 2 MB." });
       return;
     }
+    setAvatarFile(file);
     const reader = new FileReader();
     reader.onload = () => setAvatar(typeof reader.result === "string" ? reader.result : null);
     reader.readAsDataURL(file);
