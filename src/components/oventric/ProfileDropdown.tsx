@@ -662,6 +662,34 @@ function ProfileSettingsModal({
     }
   };
 
+  const onDeleteAccount = async () => {
+    if (!full?.email) {
+      toast.error("No email on file", { description: "Contact support to delete this account." });
+      return;
+    }
+    if (deleteConfirmEmail.trim().toLowerCase() !== full.email.toLowerCase()) {
+      toast.error("Email doesn't match", { description: "Type your account email exactly to confirm." });
+      return;
+    }
+    setDeleting(true);
+    try {
+      await deleteAccountRemote({ data: { confirmEmail: deleteConfirmEmail.trim() } });
+      await supabase.auth.signOut();
+      toast.success("Account scheduled for deletion", {
+        description: "You have 30 days to contact support to restore it.",
+      });
+      onClose();
+      navigateTop({ to: "/" });
+    } catch (err) {
+      const message = err instanceof Error ? err.message : "Please try again.";
+      toast.error("Could not delete account", { description: message });
+    } finally {
+      setDeleting(false);
+    }
+  };
+
+
+
   const tierLabel = (t?: string) => {
     switch (t) {
       case "TIER_5":
