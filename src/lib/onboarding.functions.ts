@@ -19,6 +19,9 @@ export const seedNewUser = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => Input.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId, claims } = context;
+    const isAnonymous = Boolean(
+      (claims as { is_anonymous?: boolean } | undefined)?.is_anonymous,
+    );
 
     const email = (claims as { email?: string } | undefined)?.email ?? "";
     const emailLocal = email.split("@")[0] || "architect";
