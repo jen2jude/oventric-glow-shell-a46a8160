@@ -517,3 +517,201 @@ export const getCourseCoverViewUrl = createServerFn({ method: "POST" })
       .createSignedUrl(data.path, 60 * 60 * 24 * 7);
     return { url: signed?.signedUrl ?? null };
   });
+
+// ---------- PAID ENROLLMENT ----------
+
+export type EnrollCurrency = "USD" | "NGN" | "GHS";
+export type EnrollPaymentMethod = "wallet" | "card" | "bank_transfer" | "mobile_money";
+
+export const FX_FROM_USD_ACADEMY: Record<EnrollCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+export const INSTRUCTOR_SHARE = 0.8;
+export const PLATFORM_ACADEMY_SHARE = 0.2;
+export const WALLET_CASHBACK_PCT_ACADEMY = 0.02;
+
+export interface EnrollPaidInput {
+  courseId: string;
+  displayCurrency: EnrollCurrency;
+  paymentMethod: EnrollPaymentMethod;
+  couponCode?: string | null;
+}
+
+export interface EnrollPaidResult {
+  enrollment: EnrollmentDTO | null;
+  totalUSD: number;
+  displayTotal: number;
+  displayCurrency: EnrollCurrency;
+  discountUSD?: number;
+  cashbackUSD?: number;
+  walletShortfallUSD?: number;
+}
+
+export const enrollPaid = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: EnrollPaidInput) => ({
+    courseId: String(input.courseId ?? ""),
+    displayCurrency: (input.displayCurrency ?? "USD") as EnrollCurrency,
+    paymentMethod: (input.paymentMethod ?? "wallet") as EnrollPaymentMethod,
+    couponCode: input.couponCode ? String(input.couponCode).trim().toUpperCase() : null,
+  }))
+  .handler(async ({ data, context }): Promise<EnrollPaidResult> => {
+    const { supabase, userId } = context;
+    if (!data.courseId) throw new Error("Course id required");
+
+    const { data: course, error: cErr } = await supabase
+      .from("courses")
+      .select("id, owner_id, price_usd, is_free, is_published")
+      .eq("id", data.courseId)
+      .maybeSingle();
+    if (cErr) throw new Error(cErr.message);
+    if (!course) throw new Error("Course not found");
+    if (!course.is_published) throw new Error("Course is not published");
+    if (course.is_free) throw new Error("Course is free — use enrollFree");
+    if ((course.owner_id as string) === userId) throw new Error("You already own this course");
+
+    // Already enrolled?
+    const { data: existing } = await supabase
+      .from("course_enrollments")
+      .select("id")
+      .eq("user_id", userId)
+      .eq("course_id", data.courseId)
+      .maybeSingle();
+    if (existing) throw new Error("You're already enrolled in this course");
+
+    const grossUSD = Number(Number(course.price_usd).toFixed(2));
+
+    // Coupon only for non-wallet payments (matches marketplace policy).
+    let discountUSD = 0;
+    if (data.couponCode && data.paymentMethod !== "wallet") {
+      const { data: c } = await supabase
+        .from("coupons")
+        .select("discount_pct")
+        .eq("code", data.couponCode)
+        .eq("active", true)
+        .maybeSingle();
+      if (c) {
+        const pct = Number(c.discount_pct);
+        discountUSD = Number(((grossUSD * pct) / 100).toFixed(2));
+      }
+    }
+    const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+    const fx = FX_FROM_USD_ACADEMY[data.displayCurrency];
+    const displayTotal = Number((totalUSD * fx).toFixed(2));
+
+    // Wallet debit path
+    if (data.paymentMethod === "wallet") {
+      const { data: ok, error: dErr } = await supabase.rpc("wallet_debit", {
+        _user_id: userId,
+        _amount: totalUSD,
+      });
+      if (dErr) throw new Error(dErr.message);
+      if (!ok) {
+        const { data: w } = await supabase
+          .from("wallets")
+          .select("available_balance")
+          .eq("user_id", userId)
+          .eq("currency", "USD")
+          .maybeSingle();
+        const bal = Number(w?.available_balance ?? 0);
+        return {
+          enrollment: null,
+          totalUSD,
+          displayTotal,
+          displayCurrency: data.displayCurrency,
+          walletShortfallUSD: Number((totalUSD - bal).toFixed(2)),
+        };
+      }
+    }
+
+    // Insert enrollment
+    const { data: eRow, error: eErr } = await supabase
+      .from("course_enrollments")
+      .insert({
+        user_id: userId,
+        course_id: data.courseId,
+        amount_paid_usd: totalUSD,
+        payment_method: data.paymentMethod,
+        display_currency: data.displayCurrency,
+        display_total: displayTotal,
+        coupon_code: data.couponCode,
+        discount_usd: discountUSD,
+        paid_at: new Date().toISOString(),
+      })
+      .select()
+      .single();
+    if (eErr) throw new Error(eErr.message);
+
+    // Buyer wallet ledger
+    await supabase.from("wallet_transactions").insert({
+      user_id: userId,
+      tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+      type: "Marketplace Purchase",
+      amount: displayTotal,
+      currency: data.displayCurrency,
+      inflow: false,
+      status: "success",
+      occurred_at: new Date().toISOString(),
+    });
+
+    // 80/20 split — instructor gets 80%, platform academy wallet gets 20%.
+    const instructorCutUSD = Number((totalUSD * INSTRUCTOR_SHARE).toFixed(2));
+    const platformCutUSD = Number((totalUSD - instructorCutUSD).toFixed(2));
+
+    await supabase.rpc("wallet_credit", {
+      _user_id: course.owner_id as string,
+      _amount: instructorCutUSD,
+    });
+
+    {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin.rpc("system_wallet_credit", {
+        _kind: "academy",
+        _amount: platformCutUSD,
+        _source: "course_enrollment",
+        _ref: eRow.id as string,
+        _meta: {
+          enrollment_id: eRow.id,
+          course_id: data.courseId,
+          buyer_id: userId,
+          instructor_id: course.owner_id,
+        },
+      });
+    }
+
+    // 2% cashback for wallet payments
+    let cashbackUSD = 0;
+    if (data.paymentMethod === "wallet") {
+      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
+      if (cashbackUSD > 0) {
+        await supabase.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabase.from("wallet_transactions").insert({
+          user_id: userId,
+          tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+          type: "Affiliate Cashback Payout",
+          amount: Number((cashbackUSD * fx).toFixed(2)),
+          currency: data.displayCurrency,
+          inflow: true,
+          status: "success",
+          occurred_at: new Date().toISOString(),
+        });
+        await supabase
+          .from("course_enrollments")
+          .update({ cashback_usd: cashbackUSD })
+          .eq("id", eRow.id);
+      }
+    }
+
+    return {
+      enrollment: {
+        id: eRow.id as string,
+        courseId: eRow.course_id as string,
+        createdAt: eRow.created_at as string,
+        completedAt: null,
+        completedModules: [],
+      },
+      totalUSD,
+      displayTotal,
+      displayCurrency: data.displayCurrency,
+      discountUSD: discountUSD || undefined,
+      cashbackUSD: cashbackUSD || undefined,
+    };
+  });
