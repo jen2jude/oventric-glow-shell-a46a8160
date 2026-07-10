@@ -161,7 +161,9 @@ export const getOnboardingStatus = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("profiles")
-      .select("display_name, country, phone, profile_completed_at, kyc_completed_at, kyc_selfie_path")
+      .select(
+        "display_name, country, phone, profile_completed_at, kyc_completed_at, kyc_selfie_path, kyc_id_path, verification_tier",
+      )
       .eq("user_id", userId)
       .maybeSingle();
     if (error) {
@@ -175,18 +177,22 @@ export const getOnboardingStatus = createServerFn({ method: "GET" })
       country: data?.country ?? null,
       phone: data?.phone ?? null,
       kycSelfiePath: data?.kyc_selfie_path ?? null,
+      kycIdPath: (data as { kyc_id_path?: string | null } | null)?.kyc_id_path ?? null,
+      verificationTier: (data as { verification_tier?: string } | null)?.verification_tier ?? "TIER_0",
     };
   });
 
 const SaveKycInput = z.object({
   phone: z.string().trim().min(6).max(24),
   selfiePath: z.string().trim().min(1).max(400),
+  idPath: z.string().trim().min(1).max(400),
 });
 
 /**
- * Persists the KYC selfie path + phone number and marks kyc_completed_at.
- * The selfie itself is uploaded from the browser to the private
- * `kyc-selfies` bucket (path pattern: `<user_id>/<timestamp>.jpg`).
+ * Persists the KYC selfie + government ID paths and phone, marks
+ * kyc_completed_at, and promotes verification_tier to TIER_5.
+ * Both images are uploaded from the browser to the private `kyc-selfies`
+ * bucket (paths: `<user_id>/selfie_<ts>.jpg` and `<user_id>/id_<ts>.jpg`).
  */
 export const saveKyc = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -198,7 +204,9 @@ export const saveKyc = createServerFn({ method: "POST" })
       .update({
         phone: data.phone,
         kyc_selfie_path: data.selfiePath,
+        kyc_id_path: data.idPath,
         kyc_completed_at: new Date().toISOString(),
+        verification_tier: "TIER_5",
       })
       .eq("user_id", userId);
     if (error) {
@@ -207,3 +215,4 @@ export const saveKyc = createServerFn({ method: "POST" })
     }
     return { ok: true };
   });
+
