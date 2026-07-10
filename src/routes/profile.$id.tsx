@@ -462,7 +462,7 @@ function ProfilePage() {
       try {
         await ensureSession();
         if (circle === "none") {
-          const res = await sendReq({ data: { targetSlug: profile.id } });
+          const res = await sendReq({ data: { targetSlug: circleTargetSlug } });
           setCircle(res.status);
           setCircleMeta({ sentAt: res.sentAt, acceptedAt: null, canceledAt: null });
         } else if (circle === "pending") {
