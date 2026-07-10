@@ -141,12 +141,13 @@ export function BountyEditorModal({
       // Promotion is admin-only. RLS on ad_campaigns also enforces this server-side.
       if (form.promote && isAdmin && inserted?.id) {
         const { error: adErr } = await supabase.from("ad_campaigns").insert({
+          title: form.title.trim().slice(0, 80),
           advertiser: form.title.trim().slice(0, 80),
-          placement: "bounties",
+          placements: ["bounties"],
           tier: form.promote_tier,
-          click_url: `#bounty-${inserted.id}`,
+          cta_url: `#bounty-${inserted.id}`,
+          cta_label: "View bounty",
           media_url: form.cover_preview ?? null,
-          cta: "View bounty",
           start_at: start,
           end_at: end,
           status: "active",
