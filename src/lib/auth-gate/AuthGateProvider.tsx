@@ -309,6 +309,7 @@ function AuthGateModal({
   const seedNewUser = useServerFn(seedNewUserFn);
   const sendLoginOtpByIdentifier = useServerFn(sendLoginOtpByIdentifierFn);
   const signInWithIdentifierPassword = useServerFn(signInWithIdentifierPasswordFn);
+  const verifyLoginOtpByIdentifier = useServerFn(verifyLoginOtpByIdentifierFn);
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
