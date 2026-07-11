@@ -111,7 +111,6 @@ function formatCountdown(ms: number) {
 
 export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
-  const admin = useAdminStore();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contract, setContract] = useState<ContractState | null>(null);
