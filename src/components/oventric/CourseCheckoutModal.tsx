@@ -6,7 +6,8 @@ import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { validateCoupon, topUpWallet } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES } from "@/lib/fx-display";
+import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES, validateFxSnapshot } from "@/lib/fx-display";
+import { AlertTriangle } from "lucide-react";
 
 function fmt(usd: number, cur: EnrollCurrency) {
   // Legacy USD-based display for wallet/cashback amounts that live in USD only.
