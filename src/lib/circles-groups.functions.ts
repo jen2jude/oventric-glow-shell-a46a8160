@@ -148,7 +148,12 @@ export const updateCircle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => UpdateCircleInput.parse(d))
   .handler(async ({ data, context }): Promise<{ ok: true }> => {
-    const patch: Record<string, unknown> = {};
+    const patch: {
+      name?: string;
+      description?: string | null;
+      is_private?: boolean;
+      avatar_url?: string | null;
+    } = {};
     if (data.name !== undefined) patch.name = data.name;
     if (data.description !== undefined) patch.description = data.description;
     if (data.isPrivate !== undefined) patch.is_private = data.isPrivate;
