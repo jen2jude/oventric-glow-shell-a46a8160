@@ -143,8 +143,10 @@ export function Bounties() {
   }, []);
 
   const [dbBounties, setDbBounties] = useState<Bounty[]>([]);
+  const [bountiesLoading, setBountiesLoading] = useState(true);
   useEffect(() => {
     let cancelled = false;
+    setBountiesLoading(true);
     supabase
       .from("bounties")
       .select("id, title, category, price_usd, deadline_at, end_at, created_at, status")
@@ -155,7 +157,6 @@ export function Bounties() {
         if (error) {
           // eslint-disable-next-line no-console
           console.error("Bounties fetch error:", error);
-          return;
         }
         const now = Date.now();
         const rows: Bounty[] = (data ?? [])
@@ -178,6 +179,7 @@ export function Bounties() {
             };
           });
         setDbBounties(rows);
+        setBountiesLoading(false);
       });
     return () => { cancelled = true; };
   }, [refreshTick]);
