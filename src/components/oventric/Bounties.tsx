@@ -196,7 +196,7 @@ export function Bounties() {
         setBountiesLoading(false);
       });
     return () => { cancelled = true; };
-  }, [refreshTick]);
+  }, [refreshTick, baseCurrency]);
 
   // Realtime: auto-refresh when any bounty is inserted/updated/deleted
   useEffect(() => {
