@@ -101,7 +101,7 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
-const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
+const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
 
 /** Public catalog. Anyone (including anon) can list. */
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
