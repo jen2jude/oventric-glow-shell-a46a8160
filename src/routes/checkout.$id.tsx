@@ -292,7 +292,16 @@ function CheckoutPage() {
             {/* Summary */}
             <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Summary</h2>
-              <div className={`h-20 rounded-lg bg-gradient-to-br ${product.hue} mb-3`} />
+              {product.coverUrl ? (
+                <img
+                  src={product.coverUrl}
+                  alt={product.name}
+                  className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5"
+                  loading="lazy"
+                />
+              ) : (
+                <div className={`h-20 rounded-lg bg-gradient-to-br ${product.hue} mb-3`} />
+              )}
               <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
               <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
 

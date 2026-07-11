@@ -375,9 +375,14 @@ export const createOrder = createServerFn({ method: "POST" })
       occurred_at: new Date().toISOString(),
     });
 
-    // 80/20 split — seller gets 80%, platform marketplace wallet gets 20%.
+    // Seller always gets 80%. Buyer cashback (2%) is deducted from the 20%
+    // platform commission when paying from wallet — seller keeps their full 80%.
     const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
-    const platformCutUSD = Number((totalUSD - sellerCutUSD).toFixed(2));
+    let cashbackUSD = 0;
+    if (data.paymentMethod === "wallet") {
+      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+    }
+    const platformCutUSD = Number((totalUSD - sellerCutUSD - cashbackUSD).toFixed(2));
 
     await supabaseAdmin.rpc("wallet_credit", {
       _user_id: product.sellerId,
@@ -390,26 +395,22 @@ export const createOrder = createServerFn({ method: "POST" })
       _amount: platformCutUSD,
       _source: "marketplace_order",
       _ref: oRow.id as string,
-      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId },
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD },
     });
 
-    // 2% cashback to buyer when paying from wallet.
-    let cashbackUSD = 0;
-    if (data.paymentMethod === "wallet") {
-      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
-      if (cashbackUSD > 0) {
-        await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
-        await supabase.from("wallet_transactions").insert({
-          user_id: userId,
-          tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
-          type: "Affiliate Cashback Payout",
-          amount: Number((cashbackUSD * fx).toFixed(2)),
-          currency: data.displayCurrency,
-          inflow: true,
-          status: "success",
-          occurred_at: new Date().toISOString(),
-        });
-      }
+    // 2% cashback to buyer when paying from wallet (funded from platform cut).
+    if (cashbackUSD > 0) {
+      await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+      await supabase.from("wallet_transactions").insert({
+        user_id: userId,
+        tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+        type: "Affiliate Cashback Payout",
+        amount: Number((cashbackUSD * fx).toFixed(2)),
+        currency: data.displayCurrency,
+        inflow: true,
+        status: "success",
+        occurred_at: new Date().toISOString(),
+      });
     }
 
     return {
