@@ -68,7 +68,20 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: PaystackInitInput) => input)
   .handler(async ({ data, context }): Promise<PaystackInitResult> => {
-    const email = (context.claims as { email?: string })?.email;
+    let email = (context.claims as { email?: string })?.email;
+    console.error("[paystack] claims.email:", email, "userId:", context.userId);
+    if (!email) {
+      const { data: userRes, error: uErr } = await context.supabase.auth.getUser();
+      console.error("[paystack] getUser:", userRes?.user?.email, "err:", uErr?.message);
+      email = userRes?.user?.email ?? undefined;
+    }
+    if (!email) {
+      console.error("[paystack] hasServiceRole:", !!process.env.SUPABASE_SERVICE_ROLE_KEY);
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: adminRes, error: adminErr } = await supabaseAdmin.auth.admin.getUserById(context.userId);
+      console.error("[paystack] admin.getUserById email:", adminRes?.user?.email, "err:", adminErr?.message);
+      email = adminRes?.user?.email ?? undefined;
+    }
     if (!email) throw new Error("Signed-in email required to start a payment.");
 
     let amount = 0;
