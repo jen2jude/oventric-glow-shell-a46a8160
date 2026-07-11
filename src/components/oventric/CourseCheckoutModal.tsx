@@ -6,7 +6,8 @@ import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { validateCoupon, topUpWallet } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES } from "@/lib/fx-display";
+import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES, validateFxSnapshot } from "@/lib/fx-display";
+import { AlertTriangle } from "lucide-react";
 
 function fmt(usd: number, cur: EnrollCurrency) {
   // Legacy USD-based display for wallet/cashback amounts that live in USD only.
@@ -94,6 +95,35 @@ export function CourseCheckoutModal({
     );
   }, [course, baseCurrency]);
 
+  // Validate the locked FX snapshot. Paid courses in a different original
+  // currency than the viewer's base require a valid snapshot to guarantee
+  // the price is the amount that was locked at publish time. When invalid,
+  // we still render a fallback price but block wallet checkout.
+  const fxValidation = useMemo(() => {
+    if (!course) return null;
+    return validateFxSnapshot(
+      {
+        price_usd: course.priceUSD,
+        original_currency: course.originalCurrency,
+        original_amount: course.originalAmount,
+        fx_snapshot: course.fxSnapshot,
+      },
+      baseCurrency,
+    );
+  }, [course, baseCurrency]);
+
+  const isFree = (course?.priceUSD ?? 0) <= 0;
+  const conversionNeeded = !!course && course.originalCurrency !== baseCurrency;
+  const fxInvalid = !isFree && conversionNeeded && fxValidation?.ok === false;
+  const fxBlocksCheckout = fxInvalid && fxValidation?.reason !== "missing";
+  const fxWarningMessage = !fxInvalid
+    ? null
+    : fxValidation?.reason === "missing"
+      ? "This course was published before locked exchange rates existed. The price shown is an estimate using platform fallback rates."
+      : fxValidation?.reason === "missing_rate"
+        ? `The locked exchange rate for ${fxValidation.missingRateFor ?? "your currency"} is unavailable on this course.`
+        : "The locked exchange rate for this course looks malformed.";
+
   if (!open || !course) return null;
 
   const grossFormatted = priceDisplay?.formatted ?? fmt(grossUSD, baseCurrency);
@@ -139,6 +169,10 @@ export function CourseCheckoutModal({
   };
 
   const enroll = async () => {
+    if (fxBlocksCheckout) {
+      toast.error("Checkout blocked: this course is missing a valid locked exchange rate.");
+      return;
+    }
     setBusy(true); setShortfall(null);
     try {
       const res = await runEnroll({
@@ -165,7 +199,7 @@ export function CourseCheckoutModal({
   };
 
   const canPay =
-    !busy && !done && totalUSD >= 0 &&
+    !busy && !done && totalUSD >= 0 && !fxBlocksCheckout &&
     (method !== "wallet" || (walletUSD != null && walletUSD >= totalUSD));
 
   return (
@@ -262,6 +296,31 @@ export function CourseCheckoutModal({
                   <span className="text-white font-black text-lg">{totalFormatted}</span>
                 </div>
               </div>
+
+              {fxInvalid && (
+                <div
+                  className={`p-3 rounded-lg border text-xs flex gap-2 ${
+                    fxBlocksCheckout
+                      ? "bg-rose-500/10 border-rose-500/40 text-rose-200"
+                      : "bg-amber-500/10 border-amber-500/40 text-amber-200"
+                  }`}
+                  role="alert"
+                >
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-bold">
+                      {fxBlocksCheckout ? "Exchange rate unavailable" : "Estimated exchange rate"}
+                    </div>
+                    <div className="mt-0.5 leading-relaxed">
+                      {fxWarningMessage}{" "}
+                      {fxBlocksCheckout
+                        ? "Checkout is temporarily disabled for this course — please try again later or contact the instructor."
+                        : "You can still enroll; the platform will settle at publish-time equivalents."}
+                    </div>
+                  </div>
+                </div>
+              )}
+
 
               {shortfall != null && (
                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200">

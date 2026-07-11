@@ -55,6 +55,28 @@ function normalizeSnapshot(raw: unknown): FxSnapshot | null {
   };
 }
 
+export type FxValidation =
+  | { ok: true; snapshot: FxSnapshot; missingRateFor: null }
+  | { ok: false; reason: "missing" | "malformed" | "missing_rate"; missingRateFor: Currency | null };
+
+/**
+ * Validate a row's FX snapshot against the viewer's currency. Returns a
+ * structured result so the UI can decide whether to warn or block checkout.
+ */
+export function validateFxSnapshot(row: PriceableRow | null | undefined, viewer: Currency): FxValidation {
+  if (!row) return { ok: false, reason: "missing", missingRateFor: null };
+  const raw = row.fx_snapshot;
+  if (raw === null || raw === undefined) return { ok: false, reason: "missing", missingRateFor: null };
+  const snapshot = normalizeSnapshot(raw);
+  if (!snapshot) return { ok: false, reason: "malformed", missingRateFor: null };
+  const originalCurrency: Currency = isCurrency(row.original_currency) ? row.original_currency : "USD";
+  const fromRate = snapshot.rates[originalCurrency];
+  const toRate = snapshot.rates[viewer];
+  if (!(Number(fromRate) > 0)) return { ok: false, reason: "missing_rate", missingRateFor: originalCurrency };
+  if (!(Number(toRate) > 0)) return { ok: false, reason: "missing_rate", missingRateFor: viewer };
+  return { ok: true, snapshot, missingRateFor: null };
+}
+
 /**
  * Convert an amount between two currencies using a snapshot (USD-base rates).
  * Falls back to LEGACY_USD_RATES if the snapshot is missing a rate — this is
