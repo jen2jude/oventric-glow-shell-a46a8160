@@ -129,7 +129,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const setBaseCurrency = useCallback((c: Currency) => setState((s) => ({ ...s, baseCurrency: c })), []);
+  // Base currency is LOCKED to the user's country: US/UK/OTHER → USD, NG → NGN,
+  // GH → GHS. The setter is retained for backwards compatibility but silently
+  // enforces the country-derived value — passing a different currency is a
+  // no-op. Country changes flow through advanceTo / profile hydration.
+  const setBaseCurrency = useCallback(
+    (_c: Currency) =>
+      setState((s) => ({ ...s, baseCurrency: countryToCurrency(s.country) })),
+    [],
+  );
   const updateBalance = useCallback(
     (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
     [],
