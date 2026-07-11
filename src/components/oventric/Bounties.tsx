@@ -20,7 +20,6 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useAdminStore } from "@/lib/admin/store";
 import { BountyEditorModal } from "./BountyEditorModal";
 import { Plus } from "lucide-react";
 
@@ -63,87 +62,7 @@ interface Bounty {
   ownedByMe: boolean;
 }
 
-const now = Date.now();
 const H = 3_600_000;
-
-const BOUNTIES: Bounty[] = [
-  {
-    id: "b1",
-    title: "Fix broken webhook synchronization loop between Supabase and Paystack API",
-    category: "api",
-    priceUSD: 450,
-    expiresAt: now + 26 * H + 14 * 60_000,
-    ownedByMe: true,
-    applicants: [
-      { id: "a1", name: "Ada Nwosu", handle: "@ada.builds", rating: 4.9, lmsMilestones: 5, storeSales: 18, pitch: "I've shipped 3 Paystack↔Supabase bridges with idempotent retry queues. I can reproduce your loop in staging and patch within 24h.", hue: "from-emerald-500 to-teal-700" },
-      { id: "a2", name: "Kwesi Owusu", handle: "@kwesi.dev", rating: 4.8, lmsMilestones: 3, storeSales: 12, pitch: "Specialist in webhook signature drift. Will add HMAC verification and dead-letter table with structured logs.", hue: "from-indigo-500 to-purple-700" },
-      { id: "a3", name: "Mira Okafor", handle: "@mira.stack", rating: 4.7, lmsMilestones: 4, storeSales: 7, pitch: "Recently solved a similar recursion bug for a fintech client — 6h turnaround. Includes Postgres advisory-lock fix.", hue: "from-fuchsia-500 to-rose-700" },
-    ],
-  },
-  {
-    id: "b2",
-    title: "Ship a hardened user_roles matrix with RLS on Supabase",
-    category: "database",
-    priceUSD: 320,
-    expiresAt: now + 71 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b3",
-    title: "Refactor dashboard grid to use CSS container queries + Tailwind v4",
-    category: "frontend",
-    priceUSD: 210,
-    expiresAt: now + 12 * H + 40 * 60_000,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b4",
-    title: "Design a token-gated onboarding funnel (Figma + spec)",
-    category: "uiux",
-    priceUSD: 280,
-    expiresAt: now + 48 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b5",
-    title: "Integrate Stripe Connect payouts with tiered marketplace splits",
-    category: "api",
-    priceUSD: 620,
-    expiresAt: now + 96 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b6",
-    title: "Optimize Postgres query plan for 40M-row analytics view",
-    category: "database",
-    priceUSD: 540,
-    expiresAt: now + 34 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b7",
-    title: "Polish empty-states + micro-interactions for wallet dashboard",
-    category: "uiux",
-    priceUSD: 180,
-    expiresAt: now + 20 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-  {
-    id: "b8",
-    title: "Build realtime presence widget with WebSocket reconnect",
-    category: "frontend",
-    priceUSD: 260,
-    expiresAt: now + 60 * H,
-    ownedByMe: false,
-    applicants: [],
-  },
-];
 
 type ContractStatus = "escrow" | "review" | "released" | "revisions" | "disputed";
 interface ChatMsg {
@@ -192,7 +111,6 @@ function formatCountdown(ms: number) {
 
 export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
-  const admin = useAdminStore();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [contract, setContract] = useState<ContractState | null>(null);
@@ -288,25 +206,7 @@ export function Bounties() {
 
   useTicker(1000);
 
-  const adminBounties: Bounty[] = useMemo(
-    () =>
-      admin.bounties.map((b) => {
-        const fx: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-        const usd = b.escrowAmount / fx[b.escrowCurrency];
-        return {
-          id: b.id,
-          title: b.title,
-          category: "api" as const,
-          priceUSD: Math.round(usd),
-          expiresAt: b.createdAt + 48 * 3_600_000,
-          ownedByMe: false,
-          applicants: [],
-        };
-      }),
-    [admin.bounties],
-  );
-
-  const ALL_BOUNTIES = useMemo(() => [...dbBounties, ...adminBounties, ...BOUNTIES], [dbBounties, adminBounties]);
+  const ALL_BOUNTIES = dbBounties;
 
   const filtered = useMemo(
     () => (filter === "all" ? ALL_BOUNTIES : ALL_BOUNTIES.filter((b) => b.category === filter)),
@@ -320,6 +220,13 @@ export function Bounties() {
 
   // ------- Live contract workspace -------
   if (contract) {
+    const contractBounty = ALL_BOUNTIES.find((b) => b.id === contract.bountyId);
+    const contractApplicant = contractBounty?.applicants.find((a) => a.id === contract.applicantId);
+    if (!contractBounty || !contractApplicant) {
+      setContract(null);
+      setSelectedId(null);
+      return null;
+    }
     return (
       <ContractWorkspace
         contract={contract}
@@ -327,12 +234,8 @@ export function Bounties() {
         role={role}
         setRole={setRole}
         currency={baseCurrency}
-        bounty={BOUNTIES.find((b) => b.id === contract.bountyId)!}
-        applicant={
-          BOUNTIES.find((b) => b.id === contract.bountyId)!.applicants.find(
-            (a) => a.id === contract.applicantId,
-          )!
-        }
+        bounty={contractBounty}
+        applicant={contractApplicant}
         onExit={() => {
           setContract(null);
           setSelectedId(null);
@@ -496,7 +399,7 @@ function BountyRow({
             Expires in {formatCountdown(remaining)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length || Math.floor(Math.random() * 8) + 3} Developers Applied
+            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
           </span>
         </div>
       </div>
