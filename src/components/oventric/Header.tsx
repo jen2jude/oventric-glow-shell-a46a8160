@@ -59,18 +59,15 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
 
 
       <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
-          <input
-            type="text"
-            placeholder="Search creators, bounties, assets…"
-            className="w-full h-10 pl-10 pr-4 bg-[#1E1E24] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-          />
-        </div>
+        <GlobalSearch variant="inline" />
       </div>
 
       <div className="flex items-center gap-2 ml-auto shrink-0">
-        <button className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300">
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          aria-label="Open search"
+          className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
+        >
           <Search className="w-5 h-5" />
         </button>
         <button
