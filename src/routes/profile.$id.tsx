@@ -1143,7 +1143,11 @@ function ProfilePage() {
         />
       </div>
 
-      <DMDrawer open={dmOpen} onClose={() => setDmOpen(false)} profile={profile} />
+      <MessagesDrawer
+        open={dmOpen && !!realProfile?.userId}
+        onClose={() => setDmOpen(false)}
+        initialThreadId={realProfile?.userId}
+      />
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <ReportModal
         open={reportOpen}
