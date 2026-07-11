@@ -152,7 +152,7 @@ export function Bounties() {
     setBountiesLoading(true);
     supabase
       .from("bounties")
-      .select("id, title, category, price_usd, deadline_at, end_at, created_at, status")
+      .select("id, title, category, price_usd, original_currency, original_amount, fx_snapshot, deadline_at, end_at, created_at, status")
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
@@ -171,11 +171,22 @@ export function Bounties() {
               : b.end_at
                 ? new Date(b.end_at as string).getTime()
                 : new Date(b.created_at as string).getTime() + 48 * 3_600_000;
+            const dp = computeDisplayPrice(
+              {
+                price_usd: Number(b.price_usd ?? 0),
+                original_currency: (b as { original_currency?: string | null }).original_currency ?? null,
+                original_amount: (b as { original_amount?: number | null }).original_amount ?? null,
+                fx_snapshot: (b as { fx_snapshot?: unknown }).fx_snapshot ?? null,
+              },
+              baseCurrency,
+            );
             return {
               id: b.id as string,
               title: (b.title as string) ?? "",
               category: (["frontend", "database", "api", "uiux"] as const).includes(cat) ? cat : "api",
               priceUSD: Number(b.price_usd ?? 0),
+              displayFormatted: dp.formatted,
+              originalFormatted: dp.originalFormatted,
               expiresAt,
               ownedByMe: false,
               applicants: [],
