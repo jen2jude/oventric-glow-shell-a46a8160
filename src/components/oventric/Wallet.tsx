@@ -102,6 +102,7 @@ export function Wallet() {
   const { balances, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances, baseCurrency, country } = useOnboarding();
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
+  const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -125,6 +126,19 @@ export function Wallet() {
       alive = false;
       sub.subscription.unsubscribe();
     };
+  }, []);
+
+  // External prompts (e.g. bounty publish flow) can request the top-up modal
+  // with a suggested amount already filled in.
+  useEffect(() => {
+    const onTopup = (e: Event) => {
+      const detail = (e as CustomEvent<{ amountUsd?: number }>).detail;
+      const amt = Number(detail?.amountUsd ?? 0);
+      if (amt > 0) setAddPrefillUsd(amt);
+      setAddOpen(true);
+    };
+    window.addEventListener("oventric:wallet:topup", onTopup);
+    return () => window.removeEventListener("oventric:wallet:topup", onTopup);
   }, []);
 
   useEffect(() => {
@@ -491,7 +505,15 @@ export function Wallet() {
       </section>
 
       {/* Modals */}
-      {addOpen && <AddCapitalModal onClose={() => setAddOpen(false)} />}
+      {addOpen && (
+        <AddCapitalModal
+          prefillUsd={addPrefillUsd}
+          onClose={() => {
+            setAddOpen(false);
+            setAddPrefillUsd(null);
+          }}
+        />
+      )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
     </div>
   );
@@ -553,15 +575,51 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
   );
 }
 
-function AddCapitalModal({ onClose }: { onClose: () => void }) {
+function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefillUsd?: number | null }) {
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
+  const [amount, setAmount] = useState<string>(
+    prefillUsd && prefillUsd > 0 ? prefillUsd.toFixed(2) : "",
+  );
   const options = [
     { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Global USD · Visa / Mastercard rails" },
     { id: "bank" as const, icon: Building2, title: "Direct Bank Ingestion Node", sub: "NGN via local bank APIs" },
     { id: "momo" as const, icon: Smartphone, title: "Mobile Money Fast-Track", sub: "GHS via MTN / Vodafone rails" },
   ];
+  const hasPrefill = !!(prefillUsd && prefillUsd > 0);
   return (
     <ModalShell title="Add Liquid Capital" onClose={onClose}>
+      {hasPrefill && (
+        <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-3">
+          <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
+            Suggested top-up · bounty escrow
+          </div>
+          <div className="mt-1 text-xs text-slate-300 leading-relaxed">
+            Your saved bounty draft needs{" "}
+            <span className="text-emerald-300 font-bold">${(prefillUsd ?? 0).toFixed(2)} USD</span>{" "}
+            to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
+          </div>
+        </div>
+      )}
+
+      <div>
+        <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+          Amount (USD)
+        </label>
+        <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-xl border border-[#222226] bg-[#0A0A0C] focus-within:border-emerald-500/60 transition-colors">
+          <span className="px-3 text-slate-400 text-sm">$</span>
+          <input
+            type="number"
+            min={0}
+            step="0.01"
+            inputMode="decimal"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            className="w-full bg-transparent py-2.5 pr-3 text-sm text-white placeholder:text-slate-600 outline-none tabular-nums"
+          />
+        </div>
+      </div>
+
       <p className="text-xs text-slate-400">Select a localized payment channel to route incoming funds.</p>
       <div className="space-y-2">
         {options.map((o) => {
@@ -587,8 +645,12 @@ function AddCapitalModal({ onClose }: { onClose: () => void }) {
           );
         })}
       </div>
-      <button className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2.5 text-sm transition-colors">
+      <button
+        disabled={!Number(amount) || Number(amount) <= 0}
+        className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-bold py-2.5 text-sm transition-colors"
+      >
         Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}
+        {Number(amount) > 0 ? ` · $${Number(amount).toFixed(2)}` : ""}
       </button>
     </ModalShell>
   );

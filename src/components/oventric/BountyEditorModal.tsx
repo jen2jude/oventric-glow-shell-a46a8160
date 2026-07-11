@@ -134,8 +134,18 @@ export function BountyEditorModal({
 
   const goToWallet = () => {
     saveDraft(true);
+    const need = Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0));
+    const topupUsd = Math.ceil(need * 100) / 100;
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
+    // Fire after the Wallet view mounts so its listener is attached.
+    setTimeout(() => {
+      window.dispatchEvent(
+        new CustomEvent("oventric:wallet:topup", {
+          detail: { amountUsd: topupUsd, reason: "bounty-escrow" },
+        }),
+      );
+    }, 60);
   };
 
   const handleCoverPick = async (file: File) => {
