@@ -184,10 +184,24 @@ function ProfilePage() {
   const fetchSocialCounts = useServerFn(getProfileSocialCounts);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  const [realProfileLoaded, setRealProfileLoaded] = useState(false);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setMeId(data.session?.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setMeId(session?.user?.id ?? null);
+    });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
   useEffect(() => {
     let cancelled = false;
+    setRealProfileLoaded(false);
+    setRealProfile(null);
     (async () => {
       try {
         const [pRes, rRes, cRes] = await Promise.all([
@@ -201,12 +215,17 @@ function ProfilePage() {
         setSocialCounts(cRes);
       } catch (e) {
         console.error("[profile] real load failed", e);
+      } finally {
+        if (!cancelled) setRealProfileLoaded(true);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
+  const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
 
 
 
@@ -452,25 +471,40 @@ function ProfilePage() {
 
   // Real-profile overlay. When we have a live row, prefer its identity fields
   // over the deterministic mock so the header shows the real person.
-  const displayName = realProfile?.displayName ?? profile.name;
+  // When the URL id is a raw UUID, don't derive garbage names/initials from
+  // it — wait for the real row or show a clean placeholder.
+  const hasRealProfile = !!realProfile;
+  const identityPending = isUuidId && !realProfileLoaded && !hasRealProfile;
+  const identityMissing = isUuidId && realProfileLoaded && !hasRealProfile;
+  const displayName = hasRealProfile
+    ? realProfile!.displayName || "Unnamed member"
+    : isUuidId
+      ? identityPending ? "Loading profile…" : "Profile unavailable"
+      : profile.name;
   const displayInitials = (() => {
-    const source = realProfile?.displayName ?? profile.name;
-    const parts = source.trim().split(/\s+/).slice(0, 2);
-    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
-    return s || profile.initials;
+    if (hasRealProfile) {
+      const source = realProfile!.displayName || "";
+      const parts = source.trim().split(/\s+/).slice(0, 2);
+      const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+      return s || "??";
+    }
+    if (isUuidId) return "··";
+    return profile.initials;
   })();
-  const displayBio = realProfile?.bio ?? profile.bio;
-  const displayRole = realProfile?.username ? `@${realProfile.username}` : profile.role;
-  const displayJoined = realProfile
-    ? new Date(realProfile.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
-    : profile.joined;
+  const displayBio = hasRealProfile ? realProfile!.bio ?? "" : isUuidId ? "" : profile.bio;
+  const displayRole = hasRealProfile
+    ? (realProfile!.username ? `@${realProfile!.username}` : "Member")
+    : isUuidId ? "" : profile.role;
+  const displayJoined = hasRealProfile
+    ? new Date(realProfile!.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : isUuidId ? "—" : profile.joined;
   const displayAvatar = realProfile?.avatarUrl ?? null;
-  const displayTierLabel = realProfile
-    ? realProfile.verificationTier === "TIER_0"
+  const displayTierLabel = hasRealProfile
+    ? realProfile!.verificationTier === "TIER_0"
       ? "Unverified"
-      : `${realProfile.verificationTier.replace("_", " ")} Verified`
-    : "Verified";
-  const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? starBreakdown.stars;
+      : `${realProfile!.verificationTier.replace("_", " ")} Verified`
+    : isUuidId ? "Unverified" : "Verified";
+  const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? (isUuidId ? 0 : starBreakdown.stars);
   
 
   const handleJoin = () => {
@@ -675,6 +709,7 @@ function ProfilePage() {
                   </div>
 
                 </div>
+                {!isOwnProfile && !identityMissing && (
                 <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button
                     onClick={handleJoin}
@@ -717,7 +752,7 @@ function ProfilePage() {
                   <CircleStatusNote
                     status={circle}
                     meta={circleMeta}
-                    firstName={profile.name.split(" ")[0]}
+                    firstName={(realProfile?.displayName ?? profile.name).split(" ")[0]}
                   />
                   <button
                     onClick={handleChat}
@@ -735,6 +770,20 @@ function ProfilePage() {
                     <div className="text-[11px] text-red-400 sm:text-center">{circleError}</div>
                   )}
                 </div>
+                )}
+                {isOwnProfile && (
+                  <div className="hidden sm:flex flex-col gap-2 sm:w-44 shrink-0">
+                    <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
+                      This is your profile
+                    </div>
+                    <button
+                      onClick={() => navigate({ to: "/" })}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
+                    >
+                      Back to feed
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Reputation block */}
