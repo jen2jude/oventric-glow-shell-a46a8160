@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, MessageCircle, Menu, KeyRound } from "lucide-react";
+import { Search, Bell, MessageCircle, Menu, KeyRound, X } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -8,14 +8,23 @@ import {
   useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
   const { isAuthenticated, openGate } = useAuthGate();
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [mobileSearchOpen]);
 
   return (
     <header className="sticky top-0 z-40 h-16 w-full bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
@@ -50,18 +59,15 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
 
 
       <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
-        <div className="relative group">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 transition-colors" />
-          <input
-            type="text"
-            placeholder="Search creators, bounties, assets…"
-            className="w-full h-10 pl-10 pr-4 bg-[#1E1E24] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all"
-          />
-        </div>
+        <GlobalSearch variant="inline" />
       </div>
 
       <div className="flex items-center gap-2 ml-auto shrink-0">
-        <button className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300">
+        <button
+          onClick={() => setMobileSearchOpen(true)}
+          aria-label="Open search"
+          className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
+        >
           <Search className="w-5 h-5" />
         </button>
         <button
@@ -108,6 +114,28 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
       />
+
+      {mobileSearchOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search"
+          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+        >
+          <div className="flex items-center gap-2 p-3 border-b border-white/10">
+            <div className="flex-1 min-w-0">
+              <GlobalSearch variant="sheet" autoFocus onClose={() => setMobileSearchOpen(false)} />
+            </div>
+            <button
+              onClick={() => setMobileSearchOpen(false)}
+              aria-label="Close search"
+              className="p-2 rounded-lg text-slate-300 hover:bg-white/5"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
