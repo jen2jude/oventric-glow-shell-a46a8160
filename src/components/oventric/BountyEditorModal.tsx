@@ -241,7 +241,7 @@ export function BountyEditorModal({
         price_usd: priceUsd,
         original_currency: baseCurrency,
         original_amount: rewardBase,
-        fx_snapshot: snapshot as unknown as Record<string, unknown>,
+        fx_snapshot: JSON.parse(JSON.stringify(snapshot)),
         applicant_limit: limit,
         cover_path: form.cover_path,
         start_at: start,
