@@ -399,7 +399,7 @@ function BountyRow({
             Expires in {formatCountdown(remaining)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length || Math.floor(Math.random() * 8) + 3} Developers Applied
+            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
           </span>
         </div>
       </div>
