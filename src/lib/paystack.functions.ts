@@ -83,8 +83,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           headers: { apikey: key, Authorization: `Bearer ${key}` },
         });
         const j = await r.json().catch(() => null);
-        console.error("[paystack] direct admin fetch status:", r.status, "email:", j?.email);
-        email = j?.email ?? undefined;
+        console.error("[paystack] direct admin fetch status:", r.status, "body:", JSON.stringify(j)?.slice(0, 400));
+        email = j?.email ?? j?.user?.email ?? undefined;
       }
     }
     if (!email) throw new Error("Signed-in email required to start a payment.");
