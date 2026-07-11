@@ -105,7 +105,7 @@ export function CourseCheckoutModal({
     if (shortfall == null) return;
     setToppingUp(true);
     try {
-      const amount = Number((shortfall * FX_FROM_USD_ACADEMY[baseCurrency]).toFixed(2));
+      const amount = Number((shortfall * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
       await runTopUp({ data: { amount, currency: baseCurrency, method: "card" } });
       toast.success("Wallet topped up");
       const b = await runBalances();
