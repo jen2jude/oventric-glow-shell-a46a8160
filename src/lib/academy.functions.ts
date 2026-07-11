@@ -198,6 +198,9 @@ export const createCourse = createServerFn({ method: "POST" })
     isFree?: boolean;
     isPublished?: boolean;
     promoted?: boolean;
+    originalCurrency?: CourseCurrency;
+    originalAmount?: number;
+    fxSnapshot?: CourseFxSnapshot;
   }) => ({
     title: String(input.title ?? "").trim(),
     description: String(input.description ?? "").trim(),
@@ -209,6 +212,9 @@ export const createCourse = createServerFn({ method: "POST" })
     isFree: input.isFree ?? true,
     isPublished: input.isPublished ?? true,
     promoted: Boolean(input.promoted),
+    originalCurrency: (input.originalCurrency ?? "USD") as CourseCurrency,
+    originalAmount: Number(input.originalAmount ?? input.priceUSD ?? 0),
+    fxSnapshot: input.fxSnapshot ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.title) throw new Error("Title required");
@@ -217,6 +223,7 @@ export const createCourse = createServerFn({ method: "POST" })
     const slug = `${base}-${Math.random().toString(36).slice(2, 6)}`;
     const { data: row, error } = await context.supabase
       .from("courses")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         owner_id: context.userId,
         title: data.title,
@@ -230,7 +237,11 @@ export const createCourse = createServerFn({ method: "POST" })
         is_free: data.isFree,
         is_published: data.isPublished,
         promoted: data.promoted,
-      })
+        original_currency: data.isFree ? "USD" : data.originalCurrency,
+        original_amount: data.isFree ? 0 : data.originalAmount,
+        fx_snapshot: data.isFree || !data.fxSnapshot ? null : JSON.parse(JSON.stringify(data.fxSnapshot)),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)
       .select(COURSE_COLS)
       .single();
     if (error) throw new Error(error.message);
@@ -251,6 +262,9 @@ export const updateCourse = createServerFn({ method: "POST" })
     isFree?: boolean;
     isPublished?: boolean;
     promoted?: boolean;
+    originalCurrency?: CourseCurrency;
+    originalAmount?: number;
+    fxSnapshot?: CourseFxSnapshot;
   }) => input)
   .handler(async ({ data, context }) => {
     if (!data.id) throw new Error("Course id required");
@@ -265,6 +279,11 @@ export const updateCourse = createServerFn({ method: "POST" })
     if (data.isFree !== undefined) patch.is_free = data.isFree;
     if (data.isPublished !== undefined) patch.is_published = data.isPublished;
     if (data.promoted !== undefined) patch.promoted = data.promoted;
+    if (data.originalCurrency !== undefined) patch.original_currency = data.originalCurrency;
+    if (data.originalAmount !== undefined) patch.original_amount = data.originalAmount;
+    if (data.fxSnapshot !== undefined) {
+      patch.fx_snapshot = data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null;
+    }
     const { data: row, error } = await context.supabase
       .from("courses")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
