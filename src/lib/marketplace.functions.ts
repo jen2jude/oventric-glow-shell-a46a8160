@@ -17,7 +17,7 @@ export interface ProductDTO {
   priceUSD: number;
   originalCurrency: OrderCurrency;
   originalAmount: number;
-  fxSnapshot: Record<string, unknown> | null;
+  fxSnapshot: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
   hue: string;
   vendor: string;
   rating: number;
