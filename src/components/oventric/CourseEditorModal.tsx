@@ -59,6 +59,9 @@ export function CourseEditorModal({
   const fetchCourse = useServerFn(getCourse);
   const getUpload = useServerFn(getCourseCoverUploadUrl);
 
+  const { baseCurrency } = useOnboarding();
+  const snapshotFx = useServerFn(snapshotFxRates);
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(courseId ?? null);
@@ -74,7 +77,8 @@ export function CourseEditorModal({
     level: "beginner" as CourseLevel,
     instructorName: "",
     isFree: true,
-    priceUSD: 0,
+    priceLocal: 0,
+    priceCurrency: baseCurrency,
     isPublished: true,
     promoted: false,
   });
@@ -102,7 +106,8 @@ export function CourseEditorModal({
         level: "beginner",
         instructorName: "",
         isFree: true,
-        priceUSD: 0,
+        priceLocal: 0,
+        priceCurrency: baseCurrency,
         isPublished: true,
         promoted: false,
       });
@@ -115,6 +120,11 @@ export function CourseEditorModal({
         setModules(c.modules);
         setCoverPath(c.coverPath);
         setCoverUrl(c.coverUrl);
+        // If the course was published in a currency, keep editing in that
+        // currency so the seller sees the exact amount they set. Otherwise
+        // fall back to their current base currency (legacy USD rows).
+        const editCur = c.originalCurrency ?? baseCurrency;
+        const editAmount = c.originalAmount > 0 ? c.originalAmount : c.priceUSD * LEGACY_USD_RATES[editCur];
         setForm({
           title: c.title,
           description: c.description,
@@ -122,14 +132,15 @@ export function CourseEditorModal({
           level: c.level,
           instructorName: c.instructorName,
           isFree: c.isFree,
-          priceUSD: c.priceUSD,
+          priceLocal: c.isFree ? 0 : Number(editAmount.toFixed(2)),
+          priceCurrency: editCur,
           isPublished: c.isPublished,
           promoted: c.promoted,
         });
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error((e as Error).message))
       .finally(() => setLoading(false));
-  }, [open, courseId, fetchCourse]);
+  }, [open, courseId, fetchCourse, baseCurrency]);
 
   if (!open) return null;
 
