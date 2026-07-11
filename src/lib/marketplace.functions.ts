@@ -148,6 +148,9 @@ export const createProduct = createServerFn({ method: "POST" })
     externalUrl?: string | null;
     filePath?: string | null;
     coverPath?: string | null;
+    originalCurrency?: OrderCurrency;
+    originalAmount?: number;
+    fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
   }) => ({
     name: String(input.name ?? "").trim(),
     category: input.category,
@@ -158,11 +161,14 @@ export const createProduct = createServerFn({ method: "POST" })
     externalUrl: input.externalUrl ?? null,
     filePath: input.filePath ?? null,
     coverPath: input.coverPath ?? null,
+    originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
+    originalAmount: Number(input.originalAmount ?? input.priceUSD),
+    fxSnapshot: input.fxSnapshot ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
     if (!(data.priceUSD > 0)) throw new Error("Price must be > 0");
-    
+
     const { data: row, error } = await context.supabase
       .from("products")
       .insert({
@@ -171,6 +177,9 @@ export const createProduct = createServerFn({ method: "POST" })
         category: data.category,
         description: data.description,
         price_usd: data.priceUSD,
+        original_currency: data.originalCurrency,
+        original_amount: data.originalAmount,
+        fx_snapshot: data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null,
         vendor: data.vendor,
         hue: data.hue,
         external_url: data.externalUrl,
