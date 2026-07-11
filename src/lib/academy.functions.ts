@@ -139,7 +139,7 @@ async function signCovers(
 }
 
 const COURSE_COLS =
-  "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at";
+  "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at, original_currency, original_amount, fx_snapshot";
 
 // ---------- PUBLIC LISTINGS ----------
 
