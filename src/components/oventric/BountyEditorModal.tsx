@@ -464,7 +464,7 @@ export function BountyEditorModal({
             </p>
           )}
 
-          <div className="flex gap-2 pt-3">
+          <div className="flex flex-wrap gap-2 pt-3">
             <button
               disabled={saving}
               onClick={save}
@@ -474,6 +474,13 @@ export function BountyEditorModal({
               Publish bounty
             </button>
             <button
+              type="button"
+              onClick={() => saveDraft()}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" /> Save draft
+            </button>
+            <button
               onClick={onClose}
               className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
             >
@@ -481,6 +488,47 @@ export function BountyEditorModal({
             </button>
           </div>
         </div>
+
+        {showFundPrompt && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm rounded-2xl">
+            <div className="w-full max-w-md bg-[#1a1a20] border border-amber-500/40 rounded-xl p-5 shadow-2xl">
+              <div className="flex items-center gap-2 text-amber-300 font-bold">
+                <AlertTriangle className="w-5 h-5" /> Wallet balance too low
+              </div>
+              <p className="text-sm text-slate-300 mt-2 leading-relaxed">
+                Publishing this bounty escrows <span className="text-white font-semibold">${Number(form.price_usd || 0).toFixed(2)} USD</span>.
+                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+              </p>
+              <p className="text-xs text-slate-400 mt-2">
+                Top up your wallet with at least{" "}
+                <span className="text-emerald-300 font-semibold">
+                  ${Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0)).toFixed(2)}
+                </span>{" "}
+                to publish. We&apos;ll save your draft so you can return and publish it in one click.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <button
+                  onClick={goToWallet}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2"
+                >
+                  <Wallet className="w-4 h-4" /> Save draft & top up
+                </button>
+                <button
+                  onClick={() => { saveDraft(); setShowFundPrompt(false); }}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" /> Save draft only
+                </button>
+                <button
+                  onClick={() => setShowFundPrompt(false)}
+                  className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg"
+                >
+                  Back to editor
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
