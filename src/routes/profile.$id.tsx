@@ -471,25 +471,40 @@ function ProfilePage() {
 
   // Real-profile overlay. When we have a live row, prefer its identity fields
   // over the deterministic mock so the header shows the real person.
-  const displayName = realProfile?.displayName ?? profile.name;
+  // When the URL id is a raw UUID, don't derive garbage names/initials from
+  // it — wait for the real row or show a clean placeholder.
+  const hasRealProfile = !!realProfile;
+  const identityPending = isUuidId && !realProfileLoaded && !hasRealProfile;
+  const identityMissing = isUuidId && realProfileLoaded && !hasRealProfile;
+  const displayName = hasRealProfile
+    ? realProfile!.displayName || "Unnamed member"
+    : isUuidId
+      ? identityPending ? "Loading profile…" : "Profile unavailable"
+      : profile.name;
   const displayInitials = (() => {
-    const source = realProfile?.displayName ?? profile.name;
-    const parts = source.trim().split(/\s+/).slice(0, 2);
-    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
-    return s || profile.initials;
+    if (hasRealProfile) {
+      const source = realProfile!.displayName || "";
+      const parts = source.trim().split(/\s+/).slice(0, 2);
+      const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+      return s || "??";
+    }
+    if (isUuidId) return "··";
+    return profile.initials;
   })();
-  const displayBio = realProfile?.bio ?? profile.bio;
-  const displayRole = realProfile?.username ? `@${realProfile.username}` : profile.role;
-  const displayJoined = realProfile
-    ? new Date(realProfile.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
-    : profile.joined;
+  const displayBio = hasRealProfile ? realProfile!.bio ?? "" : isUuidId ? "" : profile.bio;
+  const displayRole = hasRealProfile
+    ? (realProfile!.username ? `@${realProfile!.username}` : "Member")
+    : isUuidId ? "" : profile.role;
+  const displayJoined = hasRealProfile
+    ? new Date(realProfile!.joined).toLocaleDateString(undefined, { month: "long", year: "numeric" })
+    : isUuidId ? "—" : profile.joined;
   const displayAvatar = realProfile?.avatarUrl ?? null;
-  const displayTierLabel = realProfile
-    ? realProfile.verificationTier === "TIER_0"
+  const displayTierLabel = hasRealProfile
+    ? realProfile!.verificationTier === "TIER_0"
       ? "Unverified"
-      : `${realProfile.verificationTier.replace("_", " ")} Verified`
-    : "Verified";
-  const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? starBreakdown.stars;
+      : `${realProfile!.verificationTier.replace("_", " ")} Verified`
+    : isUuidId ? "Unverified" : "Verified";
+  const displayStars = liveRep?.stars ?? realProfile?.reputationStars ?? (isUuidId ? 0 : starBreakdown.stars);
   
 
   const handleJoin = () => {
