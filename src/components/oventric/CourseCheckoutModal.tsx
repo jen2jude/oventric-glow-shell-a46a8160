@@ -284,7 +284,7 @@ export function CourseCheckoutModal({
                 className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-sm inline-flex items-center justify-center gap-2"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-                {method === "wallet" ? "Pay from wallet" : "Continue to payment"} · {fmt(totalUSD, baseCurrency)}
+                {method === "wallet" ? "Pay from wallet" : "Continue to payment"} · {totalFormatted}
               </button>
               <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                 80% goes to the instructor · 20% to platform academy revenue · Secure ledgered payment.
