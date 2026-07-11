@@ -18,6 +18,21 @@ export function countryToCurrency(country: Country | null | undefined): Currency
   return "USD";
 }
 
+/**
+ * Countries whose native currency is USD. These users see USD only in the
+ * wallet and cannot switch to a foreign currency. Every other country keeps
+ * its local currency as the base and can additionally transact in USD.
+ */
+export function isUsdNativeCountry(country: Country | null | undefined): boolean {
+  return country === "US" || country === "UK" || country === "OTHER" || country == null;
+}
+
+export function canTransactInUsd(country: Country | null | undefined): boolean {
+  // USD is a global rail — always available. Non-USD-native countries get it
+  // as a secondary transaction currency alongside their base currency.
+  return true;
+}
+
 
 export type PayoutBank =
   | { country: "NG"; bank: string; accountNumber: string; accountName: string }
