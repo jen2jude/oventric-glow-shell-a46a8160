@@ -18,12 +18,12 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   getProduct,
   createOrder,
-  topUpWallet,
   validateCoupon,
   WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+import { initPaystackPayment } from "@/lib/paystack.functions";
 import { LEGACY_USD_RATES } from "@/lib/fx-display";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
