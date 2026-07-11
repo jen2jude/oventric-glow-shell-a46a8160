@@ -1,11 +1,11 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { Star, Target, Sparkles, ShoppingBag, MessageCircle, Users, Flame, Package, Megaphone, PlayCircle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryProduct } from "@/lib/discovery.functions";
+import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryPeer, type DiscoveryProduct } from "@/lib/discovery.functions";
 
 export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
   if (typeof window === "undefined") return;
