@@ -1,62 +1,83 @@
-This is a very large scope — a full enterprise CRM. Building all 13 sections in one turn would produce shallow, half-wired UI across the board. I'll ship it in phases, starting with the security-critical foundation this turn and confirming direction before we go deep on each module.
+## 1. Fix mobile profile "scramble"
 
-## Phase 1 — Foundation (this turn)
+The horizontal scanline/tear seen in the screenshots is the profile banner. The current header uses a fixed-height gradient banner with `bg-fixed` / heavy backdrop-blur behind translucent cards, which on mobile Chrome produces the striped artifact (a known GPU compositor issue with `background-attachment: fixed` + blur on scroll).
 
-**1. Hide Admin & gate access by role**
-- Remove any public entry point to `/admin` (nav links, buttons, `CreatePanel` tiles that expose forge to non-admins).
-- Move the admin surface under `src/routes/_authenticated/admin/*` and add a `beforeLoad` role check using existing `has_role(_user_id, 'admin')` (already in the DB). Non-admins get 404.
-- Add an `admin` login route at `/admin-console` (obscure path) that reuses the existing auth flow but redirects to `/admin` only when `has_role('admin')` returns true.
-- Bootstrap the first admin: I'll add a migration that grants `admin` role to a specific email you provide (or the first signed-up user if you prefer). **I need you to tell me the admin email.** No hardcoded credentials — you sign in normally with magic link/password and the role table decides access.
+- In `src/routes/profile.$id.tsx` replace the banner background with a static gradient (no `bg-fixed`, no blur underlay on the banner itself).
+- Reduce `backdrop-blur-*` to `backdrop-blur-sm` on cards that overlap the banner, and swap the mobile hero to a solid dark surface with a thin gradient accent.
+- Add `overflow-x-hidden` on the profile page wrapper and re-verify no drawer bleeds in on swipe.
 
-**2. New admin shell**
-- New route tree: `/admin` (overview), `/admin/users`, `/admin/products`, `/admin/orders`, `/admin/campaigns`, `/admin/bounties`, `/admin/reports`, `/admin/features`, `/admin/pricing`, `/admin/audit`, `/admin/team`, `/admin/broadcasts`.
-- Sidebar layout with KPI cards on overview (users, revenue, orders, active campaigns) using real Supabase queries.
-- Dark by default, matches existing Oventric theme tokens.
+## 2. Data model: Circles become groups, add Follows
 
-**3. Feature flags + audit log tables**
-- `feature_flags` (key, enabled, scope=global|role|user, target_id nullable) + `platform_settings` singleton (base currency, live FX toggle).
-- `audit_logs` (actor_id, action, target_kind, target_id, meta jsonb, created_at) written from all admin server fns.
-- `ad_campaigns` table replacing the in-memory admin store (title, advertiser, description, status, start_at, end_at, placements[], tier, header, body, media_path, cta_type, cta_url) — real DB-backed with RLS.
-- `marketplace_categories` (slug, name, sort_order, enabled).
+New tables (all with GRANTs + RLS):
 
-## Phase 2 — Content moderation (next turn, on your go-ahead)
+```text
+circles                id, owner_id, name, slug, description, avatar_url, is_private, created_at
+circle_members         circle_id, user_id, role ('owner'|'admin'|'member'), joined_at
+circle_join_requests   id, circle_id, requester_id, status ('pending'|'accepted'|'declined'), created_at
+follows                follower_id, followee_id, created_at        (only exists once accepted)
+follow_requests        id, requester_id, target_id, status, created_at
+```
 
-- Products moderation table: admin list of every uploaded product with edit / approve / pause / delete / flag / restore actions (add `moderation_status` + `deleted_at` to `products`).
-- Asset management view (files in `product-files` + `product-covers` with search/filter/replace).
-- Marketplace banners table + upload UI.
-- Category CRUD with drag reorder.
+The existing 1:1 `circle_requests` table stays untouched (legacy) but is no longer read by the UI. All new code targets the new tables. Notifications trigger extended: `follow_request`, `follow_accepted`, `circle_join_request`, `circle_join_accepted`.
 
-## Phase 3 — Campaigns v2 (next turn)
+RLS summary (plain English):
+- Anyone signed in can read circles marked non-private; private circles readable only by members.
+- Only the circle owner/admins can accept/decline join requests, edit the circle, or remove members.
+- Follow requests: only requester and target can read their own row. Follows row created only on accept (by target).
 
-- Rebuild AdInjector with tier-specific dynamic forms (text / image / video ≤50MB), multi-placement selector, CTA type dropdown (website/registration/landing/whatsapp/facebook/instagram/linkedin/x/youtube/telegram/custom). Video upload to a new `ad-media` bucket.
-- Placement components in Feed/Marketplace/Academy read from `ad_campaigns` scheduled window.
+## 3. Server functions
 
-## Phase 4 — Global pricing matrix
+New file `src/lib/follows.functions.ts`:
+- `sendFollowRequest({ targetId })`
+- `acceptFollowRequest({ requesterId })` / `declineFollowRequest`
+- `unfollow({ targetId })`
+- `getFollowStatus({ targetId })` → `'none' | 'pending' | 'following' | 'follows_you' | 'mutual'`
+- `listFollowers({ userId })`, `listFollowing({ userId })`
+- `listSuggestedFollows({ limit })` – ranked by shared circles + reputation, for the feed strip.
 
-- `pricing_rules` table (product_id nullable = global default markup, base_currency USD, price).
-- Server-side FX cache table refreshed from an FX API (exchangerate.host — free, no key). Admin toggle to use live vs fixed rates.
-- All price rendering routes through one `formatMoney(usd, userCurrency)` helper reading FX cache.
+New file `src/lib/circles-groups.functions.ts`:
+- `createCircle`, `updateCircle`, `deleteCircle`
+- `listMyCircles`, `listCirclesForUser({ userId })` – used by the "Join a circle" picker
+- `requestJoinCircle({ circleId })`, `cancelJoinRequest`, `leaveCircle`
+- `listIncomingCircleJoinRequests` (for owner/admin)
+- `acceptJoinRequest`, `declineJoinRequest`
 
-## Phase 5 — Users, team, permissions, communications, analytics
+Old `src/lib/circles.functions.ts` kept only for the legacy inbox until UI is fully migrated, then removed.
 
-- Full user management (suspend/ban/verify/role via Auth Admin API), team invites, per-feature per-user flags.
-- Broadcast center (in-app notifications table + email via Lovable Emails once a domain is set — I'll ask before wiring email).
-- Analytics dashboards with real chart data (recharts).
-- Audit log viewer with filters.
+## 4. UI wiring
 
-## Sovereign Mega Bounty fix (Phase 2)
+Profile page (`src/routes/profile.$id.tsx`) — viewing another user:
+- Primary CTA: **Follow** (green) — states: Follow / Requested / Following / Mutual.
+- Secondary CTA: **Join a Circle** (outlined) — opens a modal listing that user's circles; each row has its own request button. Only rows where target is owner/admin are actionable-to-that-admin, but any circle they belong to appears.
+- Tertiary: **Chat**, **Report** unchanged.
+- New tabs under the header: **Followers · Following · Circles** with counts and scrollable lists.
+- Own profile: none of the above; show "This is your profile" pill + "Edit profile".
 
-Currency selector locked to the user's wallet/country currency; escrow amount stored in USD after FX conversion, displayed in wallet currency. One-currency-only enforcement in the form.
+Feed (`src/components/oventric/Feed.tsx`):
+- Inject a horizontally-scrollable "People to follow" strip after every ~4 posts, populated by `listSuggestedFollows`, each card with an inline Follow button.
 
-## What I need from you before Phase 1 ships
+Header notification bell:
+- New buckets in `NotificationsDrawer`: **Follows** (requests + accepts), and existing **Circles** now shows group-join requests instead of 1:1 requests.
+- Circles inbox drawer (`CircleRequestsDrawer`) rewritten to list group-join requests grouped by circle, actionable only where you are owner/admin.
 
-1. **Admin email address** (the account that gets the first `admin` role). If you want more than one admin seeded, list them.
-2. Confirmation that "hide admin from frontend" means: no visible link anywhere for non-admins, and the `/admin` URL 404s for them. (Vs. a "Coming soon" page.)
-3. OK to defer Phases 2–5 to follow-up turns so each ships fully working rather than half-scaffolded.
+Header: replace the existing "Circle Requests" button with a combined **Requests** menu (Follows + Circles) showing a red dot when any pending exists.
 
-## Technical notes
+New route `src/routes/circles.tsx` (optional but recommended) — lightweight list of my circles + "Create circle" modal. Reached from sidebar and profile.
 
-- All new tables get GRANTs + RLS in the same migration; admin-only policies use `has_role(auth.uid(), 'admin')`.
-- Audit logging via a shared server-fn wrapper so every admin mutation writes a row.
-- No new secrets required for Phase 1. FX API is public. Video upload uses existing storage.
-- Existing `src/lib/admin/store.ts` in-memory store gets retired as its data moves to DB (kept temporarily as fallback).
+## 5. Live realtime
+
+Subscribe with Supabase realtime on `follow_requests`, `follows`, `circle_join_requests` so the bell + profile buttons update without refresh, same pattern already used for DMs.
+
+## Technical details
+
+- Migrations grouped: (a) new tables + RLS + GRANTs, (b) notification triggers, (c) helper functions `is_circle_admin(_uid, _circle)` for RLS reuse.
+- All buttons are optimistic with rollback on error, matching existing `Join Circle` pattern.
+- Suggested-follows query: recent active users with reputation ≥ 4.0, excluding those you already follow / requested / are yourself; cached 60s server-side.
+- Feed strip and profile lists use `useQuery` with `staleTime: 30_000` — no polling, only invalidated by realtime events.
+- No changes to auth/billing/wallets; existing `circle_requests` rows are read-only kept for audit.
+
+## Out of scope
+
+- Circle chat / group threads (only join + membership this pass).
+- Circle admins beyond the owner (schema supports it; UI to promote comes later).
+- Blocking / muting.
