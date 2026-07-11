@@ -391,15 +391,18 @@ export function BountyEditorModal({
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Escrow (USD)">
+            <Field label={`Reward (${baseCurrency})`}>
               <input
                 type="number"
-                step="0.01"
+                step={baseCurrency === "USD" ? "0.01" : "1"}
                 min="0"
                 value={form.price_usd}
                 onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
                 className={inputCls}
               />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Locked at market rate on publish. Viewers on other currencies see the equivalent.
+              </p>
             </Field>
             <Field label="Applicant limit">
               <input
