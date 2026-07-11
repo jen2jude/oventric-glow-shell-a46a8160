@@ -68,8 +68,25 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: PaystackInitInput) => input)
   .handler(async ({ data, context }): Promise<PaystackInitResult> => {
-    const email = (context.claims as { email?: string })?.email;
-    if (!email) throw new Error("Signed-in email required to start a payment.");
+    let email = (context.claims as { email?: string })?.email;
+    if (!email) {
+      const { data: userRes } = await context.supabase.auth.getUser();
+      email = userRes?.user?.email ?? undefined;
+    }
+    if (!email) {
+      const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const url = process.env.SUPABASE_URL;
+      if (key && url) {
+        const r = await fetch(`${url}/auth/v1/admin/users/${context.userId}`, {
+          headers: { apikey: key, Authorization: `Bearer ${key}` },
+        });
+        const j = await r.json().catch(() => null);
+        email = (j?.email && String(j.email)) || (j?.user?.email && String(j.user.email)) || undefined;
+      }
+    }
+    // Anonymous / phone-only users: Paystack still requires a valid-format email.
+    // Use a stable synthetic address tied to their user id.
+    if (!email) email = `guest-${context.userId}@guest.oventric.com`;
 
     let amount = 0;
     let currency: OrderCurrency = "USD";
