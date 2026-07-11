@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck, Wallet, AlertTriangle, Save } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { snapshotFxRates } from "@/lib/fx.functions";
+import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
 const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
