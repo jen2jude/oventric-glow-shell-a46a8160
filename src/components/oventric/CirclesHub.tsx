@@ -469,23 +469,14 @@ function BountyVaultTab({ circle }: { circle: Circle }) {
 
 /* ------- Tab C: Resources ------- */
 function ResourcesTab({ circle }: { circle: Circle }) {
-  const { baseCurrency, setBaseCurrency } = useOnboarding();
+  const { baseCurrency } = useOnboarding();
   return (
     <div>
       <div className="flex items-center justify-between mb-4 gap-3">
         <h3 className="text-sm font-bold text-white">Guild-uploaded resources</h3>
-        <div className="inline-flex bg-[#1E1E24] border border-white/10 rounded-lg overflow-hidden">
-          {(["USD", "NGN", "GHS"] as const).map((c) => (
-            <button
-              key={c}
-              onClick={() => setBaseCurrency(c)}
-              className={`px-2.5 py-1.5 text-[11px] font-semibold transition-colors ${
-                baseCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              {CURRENCY_SYMBOL[c]} {c}
-            </button>
-          ))}
+        <div className="inline-flex items-center gap-2 bg-[#1E1E24] border border-white/10 rounded-lg px-2.5 py-1.5">
+          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Priced in</span>
+          <span className="text-[11px] font-bold text-emerald-300">{CURRENCY_SYMBOL[baseCurrency]} {baseCurrency}</span>
         </div>
       </div>
 
