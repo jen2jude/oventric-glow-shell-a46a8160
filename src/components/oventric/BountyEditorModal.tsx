@@ -68,15 +68,36 @@ export function BountyEditorModal({
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    setShowFundPrompt(false);
     (async () => {
       const { data: session } = await supabase.auth.getUser();
-      const uid = session.user?.id;
-      if (!uid) {
-        if (!cancelled) setIsAdmin(false);
+      const _uid = session.user?.id ?? null;
+      if (cancelled) return;
+      setUid(_uid);
+      if (!_uid) {
+        setIsAdmin(false);
+        setWalletUsd(null);
         return;
       }
-      const { data, error } = await supabase.rpc("has_role", { _user_id: uid, _role: "admin" });
-      if (!cancelled) setIsAdmin(!error && data === true);
+      // Restore draft
+      try {
+        const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
+        if (raw) {
+          const parsed = JSON.parse(raw) as Partial<FormState>;
+          setForm((f) => ({ ...f, ...parsed }));
+          setDraftLoaded(true);
+        } else {
+          setDraftLoaded(false);
+        }
+      } catch { /* ignore */ }
+      // Load admin + USD wallet
+      const [{ data: roleData, error: roleErr }, { data: walletData }] = await Promise.all([
+        supabase.rpc("has_role", { _user_id: _uid, _role: "admin" }),
+        supabase.from("wallets").select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setIsAdmin(!roleErr && roleData === true);
+      setWalletUsd(Number(walletData?.available_balance ?? 0));
     })();
     return () => {
       cancelled = true;
@@ -85,7 +106,37 @@ export function BountyEditorModal({
 
   if (!open) return null;
 
-  const reset = () => setForm(emptyForm);
+  const reset = () => {
+    setForm(emptyForm);
+    setDraftLoaded(false);
+    if (uid) {
+      try { window.localStorage.removeItem(draftKey(uid)); } catch { /* ignore */ }
+    }
+  };
+
+  const saveDraft = (silent = false) => {
+    if (!uid) {
+      if (!silent) toast.error("Sign in to save a draft");
+      return false;
+    }
+    try {
+      const { cover_preview: _cp, ...persist } = form;
+      void _cp;
+      window.localStorage.setItem(draftKey(uid), JSON.stringify(persist));
+      if (!silent) toast.success("Bounty draft saved", { description: "Fund your wallet and return to publish it." });
+      setDraftLoaded(true);
+      return true;
+    } catch (e) {
+      if (!silent) toast.error("Could not save draft", { description: (e as Error).message });
+      return false;
+    }
+  };
+
+  const goToWallet = () => {
+    saveDraft(true);
+    onClose();
+    window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
+  };
 
   const handleCoverPick = async (file: File) => {
     if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
