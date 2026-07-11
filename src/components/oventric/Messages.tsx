@@ -260,6 +260,14 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           void reloadThreads();
         },
       )
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
+        (payload) => {
+          const row = payload.new as DMRow;
+          setMessages((prev) => prev.map((m) => (m.id === row.id ? { ...m, read_at: row.read_at } : m)));
+        },
+      )
       .subscribe();
     return () => {
       supabase.removeChannel(channel);
