@@ -169,6 +169,10 @@ export function CourseCheckoutModal({
   };
 
   const enroll = async () => {
+    if (fxBlocksCheckout) {
+      toast.error("Checkout blocked: this course is missing a valid locked exchange rate.");
+      return;
+    }
     setBusy(true); setShortfall(null);
     try {
       const res = await runEnroll({
