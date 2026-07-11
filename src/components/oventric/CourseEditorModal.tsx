@@ -16,6 +16,9 @@ import {
   type ModuleDTO,
   type VideoProvider,
 } from "@/lib/academy.functions";
+import { snapshotFxRates } from "@/lib/fx.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES: { key: CourseCategory; label: string }[] = [
@@ -56,6 +59,9 @@ export function CourseEditorModal({
   const fetchCourse = useServerFn(getCourse);
   const getUpload = useServerFn(getCourseCoverUploadUrl);
 
+  const { baseCurrency } = useOnboarding();
+  const snapshotFx = useServerFn(snapshotFxRates);
+
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedId, setSavedId] = useState<string | null>(courseId ?? null);
@@ -71,7 +77,8 @@ export function CourseEditorModal({
     level: "beginner" as CourseLevel,
     instructorName: "",
     isFree: true,
-    priceUSD: 0,
+    priceLocal: 0,
+    priceCurrency: baseCurrency,
     isPublished: true,
     promoted: false,
   });
@@ -99,7 +106,8 @@ export function CourseEditorModal({
         level: "beginner",
         instructorName: "",
         isFree: true,
-        priceUSD: 0,
+        priceLocal: 0,
+        priceCurrency: baseCurrency,
         isPublished: true,
         promoted: false,
       });
@@ -112,6 +120,11 @@ export function CourseEditorModal({
         setModules(c.modules);
         setCoverPath(c.coverPath);
         setCoverUrl(c.coverUrl);
+        // If the course was published in a currency, keep editing in that
+        // currency so the seller sees the exact amount they set. Otherwise
+        // fall back to their current base currency (legacy USD rows).
+        const editCur = c.originalCurrency ?? baseCurrency;
+        const editAmount = c.originalAmount > 0 ? c.originalAmount : c.priceUSD * LEGACY_USD_RATES[editCur];
         setForm({
           title: c.title,
           description: c.description,
@@ -119,14 +132,15 @@ export function CourseEditorModal({
           level: c.level,
           instructorName: c.instructorName,
           isFree: c.isFree,
-          priceUSD: c.priceUSD,
+          priceLocal: c.isFree ? 0 : Number(editAmount.toFixed(2)),
+          priceCurrency: editCur,
           isPublished: c.isPublished,
           promoted: c.promoted,
         });
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => toast.error((e as Error).message))
       .finally(() => setLoading(false));
-  }, [open, courseId, fetchCourse]);
+  }, [open, courseId, fetchCourse, baseCurrency]);
 
   if (!open) return null;
 
@@ -157,14 +171,41 @@ export function CourseEditorModal({
 
   const saveCourse = async () => {
     if (!form.title.trim()) return toast.error("Title required");
-    if (!form.isFree && !(form.priceUSD > 0)) return toast.error("Set a price or mark as free");
+    if (!form.isFree && !(form.priceLocal > 0)) return toast.error("Set a price or mark as free");
     setSaving(true);
     try {
+      let priceUSD = 0;
+      let originalCurrency = form.priceCurrency;
+      let originalAmount = form.priceLocal;
+      let fxSnapshot: Awaited<ReturnType<typeof snapshotFx>> | null = null;
+      if (!form.isFree) {
+        fxSnapshot = await snapshotFx();
+        const rate = fxSnapshot.rates[form.priceCurrency] ?? LEGACY_USD_RATES[form.priceCurrency];
+        priceUSD = form.priceCurrency === "USD" ? form.priceLocal : Number((form.priceLocal / (rate || 1)).toFixed(2));
+      } else {
+        originalCurrency = "USD";
+        originalAmount = 0;
+      }
+      const payload = {
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        level: form.level,
+        instructorName: form.instructorName,
+        isFree: form.isFree,
+        priceUSD,
+        isPublished: form.isPublished,
+        promoted: form.promoted,
+        originalCurrency,
+        originalAmount,
+        fxSnapshot,
+        coverPath,
+      };
       if (savedId) {
-        await update({ data: { id: savedId, ...form, coverPath } });
+        await update({ data: { id: savedId, ...payload } });
         toast.success("Course updated");
       } else {
-        const res = await create({ data: { ...form, coverPath } });
+        const res = await create({ data: payload });
         setSavedId(res.id);
         toast.success("Course created — now add modules");
       }
@@ -303,13 +344,31 @@ export function CourseEditorModal({
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
-                  <input type="checkbox" checked={form.isFree} onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceUSD: e.target.checked ? 0 : form.priceUSD })} className="accent-emerald-500" />
+                  <input
+                    type="checkbox"
+                    checked={form.isFree}
+                    onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceLocal: e.target.checked ? 0 : form.priceLocal })}
+                    className="accent-emerald-500"
+                  />
                   <span className="text-sm text-white">This is a free course</span>
                 </label>
-                <Field label={`Price (USD) ${form.isFree ? "· disabled" : ""}`}>
-                  <input type="number" min="0" step="1" disabled={form.isFree} value={form.priceUSD} onChange={(e) => setForm({ ...form, priceUSD: Number(e.target.value) })} className="input disabled:opacity-40" />
+                <Field label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency}) ${form.isFree ? "· disabled" : "· locked at publish"}`}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    disabled={form.isFree}
+                    value={form.priceLocal}
+                    onChange={(e) => setForm({ ...form, priceLocal: Number(e.target.value) })}
+                    className="input disabled:opacity-40"
+                  />
                 </Field>
               </div>
+              {!form.isFree && (
+                <p className="text-[11px] text-slate-500 -mt-2">
+                  Price is set in your base currency ({form.priceCurrency}). Learners on other currencies see the equivalent using the FX rate locked at publish time — the amount they pay never fluctuates after that.
+                </p>
+              )}
 
               <div className="flex flex-wrap gap-3">
                 <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">

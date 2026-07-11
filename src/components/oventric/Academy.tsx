@@ -36,11 +36,18 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { CourseEditorModal } from "./CourseEditorModal";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-function fmtPrice(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? val.toFixed(0) : Math.round(val).toLocaleString()}`;
+import { computeDisplayPrice } from "@/lib/fx-display";
+
+function courseDisplayPrice(c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown }, viewer: Currency) {
+  return computeDisplayPrice(
+    {
+      price_usd: c.priceUSD,
+      original_currency: c.originalCurrency,
+      original_amount: c.originalAmount,
+      fx_snapshot: c.fxSnapshot,
+    },
+    viewer,
+  );
 }
 
 const CATEGORIES = [
@@ -217,7 +224,7 @@ function CourseCard({ course, currency, onOpen }: { course: CourseDTO; currency:
               <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-black rounded px-2 py-1">Free</span>
             ) : (
               <span className="text-[11px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-1">
-                {fmtPrice(course.priceUSD, currency)}
+                {courseDisplayPrice(course, currency).formatted}
               </span>
             )}
           </div>
@@ -452,7 +459,7 @@ function CourseDetail({
           {!enrollment && !isOwner && (
             <button onClick={doEnroll} disabled={busy} className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2">
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-              {course.isFree ? "Enroll for free" : `Enroll · ${fmtPrice(course.priceUSD, baseCurrency)}`}
+              {course.isFree ? "Enroll for free" : `Enroll · ${courseDisplayPrice(course, baseCurrency).formatted}`}
             </button>
           )}
 
@@ -514,7 +521,7 @@ function CourseDetail({
 
       <CourseCheckoutModal
         open={checkoutOpen}
-        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl } : null}
+        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl, originalCurrency: course.originalCurrency, originalAmount: course.originalAmount, fxSnapshot: course.fxSnapshot } : null}
         onClose={() => setCheckoutOpen(false)}
         onEnrolled={() => { setCheckoutOpen(false); refetchEnrollment(); }}
       />

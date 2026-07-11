@@ -2,15 +2,18 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { X, Loader2, Wallet as WalletIcon, CreditCard, Building2, Smartphone, CheckCircle2, Tag, Sparkles } from "lucide-react";
 import { toast } from "sonner";
-import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod, FX_FROM_USD_ACADEMY } from "@/lib/academy.functions";
+import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib/academy.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { validateCoupon, topUpWallet } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES } from "@/lib/fx-display";
 
-const CURRENCY_SYMBOL: Record<EnrollCurrency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 function fmt(usd: number, cur: EnrollCurrency) {
-  const val = usd * FX_FROM_USD_ACADEMY[cur];
-  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? val.toFixed(2) : Math.round(val).toLocaleString()}`;
+  // Legacy USD-based display for wallet/cashback amounts that live in USD only.
+  const val = usd * LEGACY_USD_RATES[cur];
+  return cur === "USD"
+    ? formatMoney(val, "USD")
+    : formatMoney(val, cur);
 }
 
 const METHODS: { key: EnrollPaymentMethod; label: string; icon: typeof WalletIcon; hint: string }[] = [
@@ -26,6 +29,9 @@ interface Course {
   instructorName: string;
   priceUSD: number;
   coverUrl: string | null;
+  originalCurrency: EnrollCurrency;
+  originalAmount: number;
+  fxSnapshot: unknown;
 }
 
 export function CourseCheckoutModal({
@@ -99,7 +105,7 @@ export function CourseCheckoutModal({
     if (shortfall == null) return;
     setToppingUp(true);
     try {
-      const amount = Number((shortfall * FX_FROM_USD_ACADEMY[baseCurrency]).toFixed(2));
+      const amount = Number((shortfall * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
       await runTopUp({ data: { amount, currency: baseCurrency, method: "card" } });
       toast.success("Wallet topped up");
       const b = await runBalances();

@@ -7,6 +7,14 @@ export type CourseCategory = "frontend" | "uiux" | "ai" | "backend" | "security"
 export type CourseLevel = "beginner" | "intermediate" | "advanced";
 export type VideoProvider = "youtube" | "vimeo";
 
+export type CourseCurrency = "USD" | "NGN" | "GHS";
+export type CourseFxSnapshot = {
+  base: string;
+  rates: Record<string, number>;
+  source?: string;
+  fetched_at?: string;
+} | null;
+
 export interface CourseDTO {
   id: string;
   ownerId: string;
@@ -23,6 +31,9 @@ export interface CourseDTO {
   isPublished: boolean;
   promoted: boolean;
   createdAt: string;
+  originalCurrency: CourseCurrency;
+  originalAmount: number;
+  fxSnapshot: CourseFxSnapshot;
   moduleCount?: number;
   enrolledCount?: number;
 }
@@ -73,6 +84,10 @@ function slugify(s: string): string {
 }
 
 function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): CourseDTO {
+  const priceUSD = Number(r.price_usd ?? 0);
+  const originalCurrency = ((r.original_currency as string) ?? "USD") as CourseCurrency;
+  const originalAmount = Number(r.original_amount ?? priceUSD);
+  const fxSnapshot = (r.fx_snapshot as CourseFxSnapshot) ?? null;
   return {
     id: r.id as string,
     ownerId: r.owner_id as string,
@@ -84,11 +99,14 @@ function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): 
     instructorName: (r.instructor_name as string) ?? "",
     coverPath: (r.cover_path as string) ?? null,
     coverUrl,
-    priceUSD: Number(r.price_usd ?? 0),
+    priceUSD,
     isFree: Boolean(r.is_free),
     isPublished: Boolean(r.is_published),
     promoted: Boolean(r.promoted),
     createdAt: r.created_at as string,
+    originalCurrency,
+    originalAmount,
+    fxSnapshot,
   };
 }
 
@@ -121,7 +139,7 @@ async function signCovers(
 }
 
 const COURSE_COLS =
-  "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at";
+  "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at, original_currency, original_amount, fx_snapshot";
 
 // ---------- PUBLIC LISTINGS ----------
 
@@ -180,6 +198,9 @@ export const createCourse = createServerFn({ method: "POST" })
     isFree?: boolean;
     isPublished?: boolean;
     promoted?: boolean;
+    originalCurrency?: CourseCurrency;
+    originalAmount?: number;
+    fxSnapshot?: CourseFxSnapshot;
   }) => ({
     title: String(input.title ?? "").trim(),
     description: String(input.description ?? "").trim(),
@@ -191,6 +212,9 @@ export const createCourse = createServerFn({ method: "POST" })
     isFree: input.isFree ?? true,
     isPublished: input.isPublished ?? true,
     promoted: Boolean(input.promoted),
+    originalCurrency: (input.originalCurrency ?? "USD") as CourseCurrency,
+    originalAmount: Number(input.originalAmount ?? input.priceUSD ?? 0),
+    fxSnapshot: input.fxSnapshot ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.title) throw new Error("Title required");
@@ -199,6 +223,7 @@ export const createCourse = createServerFn({ method: "POST" })
     const slug = `${base}-${Math.random().toString(36).slice(2, 6)}`;
     const { data: row, error } = await context.supabase
       .from("courses")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       .insert({
         owner_id: context.userId,
         title: data.title,
@@ -212,7 +237,11 @@ export const createCourse = createServerFn({ method: "POST" })
         is_free: data.isFree,
         is_published: data.isPublished,
         promoted: data.promoted,
-      })
+        original_currency: data.isFree ? "USD" : data.originalCurrency,
+        original_amount: data.isFree ? 0 : data.originalAmount,
+        fx_snapshot: data.isFree || !data.fxSnapshot ? null : JSON.parse(JSON.stringify(data.fxSnapshot)),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      } as any)
       .select(COURSE_COLS)
       .single();
     if (error) throw new Error(error.message);
@@ -233,6 +262,9 @@ export const updateCourse = createServerFn({ method: "POST" })
     isFree?: boolean;
     isPublished?: boolean;
     promoted?: boolean;
+    originalCurrency?: CourseCurrency;
+    originalAmount?: number;
+    fxSnapshot?: CourseFxSnapshot;
   }) => input)
   .handler(async ({ data, context }) => {
     if (!data.id) throw new Error("Course id required");
@@ -247,6 +279,11 @@ export const updateCourse = createServerFn({ method: "POST" })
     if (data.isFree !== undefined) patch.is_free = data.isFree;
     if (data.isPublished !== undefined) patch.is_published = data.isPublished;
     if (data.promoted !== undefined) patch.promoted = data.promoted;
+    if (data.originalCurrency !== undefined) patch.original_currency = data.originalCurrency;
+    if (data.originalAmount !== undefined) patch.original_amount = data.originalAmount;
+    if (data.fxSnapshot !== undefined) {
+      patch.fx_snapshot = data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null;
+    }
     const { data: row, error } = await context.supabase
       .from("courses")
       // eslint-disable-next-line @typescript-eslint/no-explicit-any
