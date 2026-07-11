@@ -221,38 +221,67 @@ export function Wallet() {
         </button>
       </header>
 
-      {/* 1. Currency Vault Grid */}
+      {/* 1. Currency Vault — locked to the user's country currency. Non-USD
+          bases also show the USD equivalent card so users can compare against
+          the global rail without switching currencies. */}
       <section className="space-y-3">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {(Object.keys(currencyMeta) as Currency[]).map((c) => {
-            const m = currencyMeta[c];
+        <div className={`grid grid-cols-1 gap-3 ${baseCurrency !== "USD" ? "md:grid-cols-2" : ""}`}>
+          {(() => {
+            const m = currencyMeta[baseCurrency];
+            const bal = balances[baseCurrency] ?? 0;
+            const usdEq = bal / (FX_FROM_USD[baseCurrency] || 1);
             return (
-              <div
-                key={c}
-                className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 ${m.glow}`}
-              >
-                <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
-                <div className="flex items-center justify-between mb-4">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className={`w-9 h-9 rounded-lg border ${m.ring} bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0`}>
-                      {m.symbol}
+              <>
+                <div
+                  className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 ${m.glow}`}
+                >
+                  <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`w-9 h-9 rounded-lg border ${m.ring} bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0`}>
+                        {m.symbol}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Primary</div>
+                        <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">{c}</div>
-                      <div className="text-[11px] text-slate-500 truncate">{m.label}</div>
+                    <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
+                  </div>
+                  <div className={`text-2xl sm:text-3xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
+                    {hide ? mask : fmt(bal, baseCurrency)}
+                  </div>
+                  <div className="mt-2 text-[11px] text-slate-500 uppercase tracking-wider">
+                    Available balance {baseCurrency !== "USD" && !hide && (
+                      <span className="normal-case tracking-normal text-slate-400"> · ≈ ${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
+                    )}
+                  </div>
+                </div>
+
+                {baseCurrency !== "USD" && (
+                  <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(56,189,248,0.4)]">
+                    <div className="absolute inset-x-0 top-0 h-[2px] bg-sky-400/50" />
+                    <div className="flex items-center justify-between mb-4">
+                      <div className="flex items-center gap-2 min-w-0">
+                        <div className="w-9 h-9 rounded-lg border border-sky-500/40 bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0">$</div>
+                        <div className="min-w-0">
+                          <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">USD · Equivalent</div>
+                          <div className="text-[11px] text-slate-500 truncate">Global rail · read-only</div>
+                        </div>
+                      </div>
+                      <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
+                    </div>
+                    <div className={`text-2xl sm:text-3xl font-black tabular-nums text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)] ${hide ? "blur-sm select-none" : ""}`}>
+                      {hide ? mask : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    </div>
+                    <div className="mt-2 text-[11px] text-slate-500 uppercase tracking-wider">
+                      USD value of your {baseCurrency} balance
                     </div>
                   </div>
-                  <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
-                </div>
-                <div className={`text-2xl sm:text-3xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
-                  {hide ? mask : fmt(balances[c], c)}
-                </div>
-                <div className="mt-2 text-[11px] text-slate-500 uppercase tracking-wider">
-                  Available balance
-                </div>
-              </div>
+                )}
+              </>
             );
-          })}
+          })()}
         </div>
 
         {/* Cashback accumulator */}
