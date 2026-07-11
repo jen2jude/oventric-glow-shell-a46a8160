@@ -169,7 +169,17 @@ export function Feed() {
     try {
       const raw = window.localStorage.getItem("oventric.reported");
       if (!raw) return new Map();
-      return new Map(Object.entries(JSON.parse(raw) as Record<string, ReportDetails>));
+      const parsed = Object.entries(JSON.parse(raw) as Record<string, ReportDetails>);
+      return new Map(
+        parsed.map(([id, details]) => [
+          id,
+          {
+            reason: details.reason ?? "spam",
+            reasonLabel: details.reasonLabel ?? "Spam",
+            note: details.note ?? null,
+          },
+        ]),
+      );
     } catch {
       return new Map();
     }
