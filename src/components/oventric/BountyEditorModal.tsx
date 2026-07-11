@@ -179,8 +179,28 @@ export function BountyEditorModal({
     setSaving(true);
     try {
       const { data: session } = await supabase.auth.getUser();
-      const uid = session.user?.id;
-      if (!uid) throw new Error("You must be signed in to post a bounty");
+      const _uid = session.user?.id;
+      if (!_uid) throw new Error("You must be signed in to post a bounty");
+      setUid(_uid);
+
+      // Wallet balance check — must cover the escrow amount before publishing.
+      if (price > 0) {
+        const { data: walletRow, error: walletErr } = await supabase
+          .from("wallets")
+          .select("available_balance")
+          .eq("user_id", _uid)
+          .eq("currency", "USD")
+          .maybeSingle();
+        if (walletErr) throw new Error(walletErr.message);
+        const balance = Number(walletRow?.available_balance ?? 0);
+        setWalletUsd(balance);
+        if (balance < price) {
+          setShowFundPrompt(true);
+          setSaving(false);
+          return;
+        }
+      }
+      const uid = _uid;
       const { data: inserted, error } = await supabase.from("bounties").insert({
         poster_id: uid,
         title: form.title.trim(),
