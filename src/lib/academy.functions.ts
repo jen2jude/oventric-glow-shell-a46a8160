@@ -23,6 +23,9 @@ export interface CourseDTO {
   isPublished: boolean;
   promoted: boolean;
   createdAt: string;
+  originalCurrency: "USD" | "NGN" | "GHS" | null;
+  originalAmount: number | null;
+  fxSnapshot: unknown | null;
   moduleCount?: number;
   enrolledCount?: number;
 }
