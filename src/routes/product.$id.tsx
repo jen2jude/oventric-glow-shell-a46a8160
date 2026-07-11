@@ -111,8 +111,19 @@ function ProductPage() {
               <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-4">
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
-                    <div className="text-white font-black text-3xl">{fmt(product.priceUSD, baseCurrency)}</div>
-                    {baseCurrency !== "USD" && <div className="text-xs text-slate-500 mt-1">≈ ${product.priceUSD.toFixed(2)} USD</div>}
+                    {(() => {
+                      const dp = productDisplay(product, baseCurrency);
+                      return (
+                        <>
+                          <div className="text-white font-black text-3xl">{dp.formatted}</div>
+                          {dp.originalFormatted && (
+                            <div className="text-xs text-slate-500 mt-1">
+                              Locked at {dp.originalFormatted} {dp.originalCurrency}
+                            </div>
+                          )}
+                        </>
+                      );
+                    })()}
                   </div>
                   <div className="flex items-center gap-2">
                     <label className="text-xs text-slate-400 uppercase tracking-wide">Qty</label>
@@ -123,7 +134,9 @@ function ProductPage() {
                 </div>
                 <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
                   <span>Line total</span>
-                  <span className="text-white font-mono">{fmt(product.priceUSD * qty, baseCurrency)}</span>
+                  <span className="text-white font-mono">
+                    {formatMoney(productDisplay(product, baseCurrency).value * qty, baseCurrency)}
+                  </span>
                 </div>
                 <button
                   onClick={startCheckout}
