@@ -1,4 +1,4 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon } from "lucide-react";
+import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -69,11 +69,48 @@ function timeAgo(iso: string): string {
 }
 
 interface ReportDetails {
+  reason: string;
   reasonLabel: string;
   note: string | null;
 }
 
+const REASON_STYLES: Record<
+  string,
+  { icon: React.ElementType; label: string; border: string; bg: string; text: string }
+> = {
+  spam: {
+    icon: Megaphone,
+    label: "Spam",
+    border: "border-amber-500/40",
+    bg: "bg-amber-500/10",
+    text: "text-amber-300",
+  },
+  harassment: {
+    icon: ShieldAlert,
+    label: "Harassment",
+    border: "border-rose-500/40",
+    bg: "bg-rose-500/10",
+    text: "text-rose-300",
+  },
+  ip: {
+    icon: Copyright,
+    label: "IP",
+    border: "border-violet-500/40",
+    bg: "bg-violet-500/10",
+    text: "text-violet-300",
+  },
+  scam: {
+    icon: AlertTriangle,
+    label: "Scam",
+    border: "border-red-500/40",
+    bg: "bg-red-500/10",
+    text: "text-red-300",
+  },
+};
+
 function ReportedBadge({ details }: { details?: ReportDetails }) {
+  const style = details ? REASON_STYLES[details.reason] ?? REASON_STYLES.spam : REASON_STYLES.spam;
+  const Icon = style.icon;
   const tooltip = details
     ? `Reason: ${details.reasonLabel}${details.note ? `\nNote: ${details.note}` : "\nNote: (none)"}`
     : "You reported this post";
@@ -81,9 +118,9 @@ function ReportedBadge({ details }: { details?: ReportDetails }) {
     <span
       title={tooltip}
       aria-label={tooltip}
-      className="ml-auto inline-flex items-center gap-1 rounded-md border border-amber-500/40 bg-amber-500/10 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider text-amber-300 cursor-help"
+      className={`ml-auto inline-flex items-center gap-1 rounded-md border ${style.border} ${style.bg} px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${style.text} cursor-help`}
     >
-      <Flag className="w-3 h-3" /> Reported
+      <Icon className="w-3 h-3" aria-hidden="true" /> Reported
     </span>
   );
 }
@@ -132,7 +169,17 @@ export function Feed() {
     try {
       const raw = window.localStorage.getItem("oventric.reported");
       if (!raw) return new Map();
-      return new Map(Object.entries(JSON.parse(raw) as Record<string, ReportDetails>));
+      const parsed = Object.entries(JSON.parse(raw) as Record<string, ReportDetails>);
+      return new Map(
+        parsed.map(([id, details]) => [
+          id,
+          {
+            reason: details.reason ?? "spam",
+            reasonLabel: details.reasonLabel ?? "Spam",
+            note: details.note ?? null,
+          },
+        ]),
+      );
     } catch {
       return new Map();
     }
@@ -151,7 +198,7 @@ export function Feed() {
   const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
     setReported((m) => {
       const next = new Map(m);
-      next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
+      next.set(id, { reason: details.reason, reasonLabel: details.reasonLabel, note: details.note });
       return next;
     });
   const openReport = (id: string) => {
