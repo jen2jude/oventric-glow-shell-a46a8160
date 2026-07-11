@@ -521,7 +521,7 @@ function CourseDetail({
 
       <CourseCheckoutModal
         open={checkoutOpen}
-        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl } : null}
+        course={course ? { id: course.id, title: course.title, instructorName: course.instructorName, priceUSD: course.priceUSD, coverUrl: course.coverUrl, originalCurrency: course.originalCurrency, originalAmount: course.originalAmount, fxSnapshot: course.fxSnapshot } : null}
         onClose={() => setCheckoutOpen(false)}
         onEnrolled={() => { setCheckoutOpen(false); refetchEnrollment(); }}
       />
