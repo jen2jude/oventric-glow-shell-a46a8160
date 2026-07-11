@@ -46,7 +46,6 @@ function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; l
     return [
       ...base,
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Verve, Mastercard, Visa" },
-      { id: "bank_transfer", label: "Bank Transfer", Icon: Building2, hint: "NIP · settles in seconds" },
     ];
   }
   if (country === "GH") {
