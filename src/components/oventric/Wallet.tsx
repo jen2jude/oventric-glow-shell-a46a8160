@@ -128,6 +128,19 @@ export function Wallet() {
     };
   }, []);
 
+  // External prompts (e.g. bounty publish flow) can request the top-up modal
+  // with a suggested amount already filled in.
+  useEffect(() => {
+    const onTopup = (e: Event) => {
+      const detail = (e as CustomEvent<{ amountUsd?: number }>).detail;
+      const amt = Number(detail?.amountUsd ?? 0);
+      if (amt > 0) setAddPrefillUsd(amt);
+      setAddOpen(true);
+    };
+    window.addEventListener("oventric:wallet:topup", onTopup);
+    return () => window.removeEventListener("oventric:wallet:topup", onTopup);
+  }, []);
+
   useEffect(() => {
     const t = setTimeout(() => setDebounced(search.trim()), 250);
     return () => clearTimeout(t);
