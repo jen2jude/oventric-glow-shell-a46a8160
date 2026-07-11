@@ -223,7 +223,51 @@ export function DiscoveryPanel() {
     return () => window.removeEventListener("focus", onFocus);
   }, [queryClient]);
 
-  const peers = data?.peers ?? [];
+  // Peer leaderboard is sticky: never refresh on intervals. Only replace when a
+  // new peer's rating beats an existing lower-rated one. Persist to localStorage.
+  const MAX_PEERS = 10;
+  const [stickyPeers, setStickyPeers] = useState<DiscoveryPeer[]>(() => {
+    if (typeof window === "undefined") return [];
+    try {
+      const raw = window.localStorage.getItem("oventric:top-peers");
+      return raw ? (JSON.parse(raw) as DiscoveryPeer[]) : [];
+    } catch { return []; }
+  });
+
+  useEffect(() => {
+    const incoming = data?.peers ?? [];
+    if (incoming.length === 0) return;
+    setStickyPeers((prev) => {
+      const byId = new Map(prev.map((p) => [p.id, p]));
+      // Refresh existing entries' star values (rating may have gone up).
+      for (const inc of incoming) {
+        const cur = byId.get(inc.id);
+        if (cur) byId.set(inc.id, { ...cur, ...inc, stars: Math.max(cur.stars, inc.stars) });
+      }
+      let merged = Array.from(byId.values());
+      // Consider new candidates only if they beat the lowest current peer (or slot open).
+      for (const inc of incoming) {
+        if (byId.has(inc.id)) continue;
+        if (merged.length < MAX_PEERS) {
+          merged.push(inc);
+          byId.set(inc.id, inc);
+          continue;
+        }
+        merged.sort((a, b) => a.stars - b.stars);
+        const lowest = merged[0];
+        if (inc.stars > lowest.stars) {
+          merged.shift();
+          merged.push(inc);
+        }
+      }
+      merged.sort((a, b) => b.stars - a.stars);
+      merged = merged.slice(0, MAX_PEERS);
+      try { window.localStorage.setItem("oventric:top-peers", JSON.stringify(merged)); } catch { /* noop */ }
+      return merged;
+    });
+  }, [data?.peers]);
+
+  const peers = stickyPeers;
   const bounties = data?.bounties ?? [];
   const products = data?.products ?? [];
   const ads = data?.ads ?? [];
