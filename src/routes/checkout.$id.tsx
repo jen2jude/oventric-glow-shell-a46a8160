@@ -263,10 +263,23 @@ function CheckoutPage() {
               })}
 
               {insufficient && (
-                <div className="mt-2 flex items-start gap-2 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
+                <div className="mt-2 flex items-start gap-3 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-                  <div>
-                    Wallet has {fmt(balanceUSD ?? 0, baseCurrency)} — you need {fmt(totalUSD, baseCurrency)}. Fund your wallet or pick another method.
+                  <div className="flex-1">
+                    <div>
+                      Wallet has {fmt(balanceUSD ?? 0, baseCurrency)} — you need {fmt(totalUSD, baseCurrency)}.
+                    </div>
+                    <button
+                      onClick={() => {
+                        const shortfall = Math.max(0, totalUSD - (balanceUSD ?? 0));
+                        setShortfallUSD(shortfall);
+                        setTopUpAmount(String(Math.ceil(shortfall * FX_FROM_USD[baseCurrency])));
+                        setTopUpOpen(true);
+                      }}
+                      className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-400 hover:bg-amber-300 text-black text-[11px] font-black"
+                    >
+                      Fund Wallet
+                    </button>
                   </div>
                 </div>
               )}
