@@ -109,7 +109,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const advanceTo = useCallback(
     (t: Tier, patch?: Partial<OnboardingState>) => {
-      setState((s) => ({ ...s, ...patch, tier: t }));
+      setState((s) => {
+        const merged = { ...s, ...patch, tier: t };
+        // Re-derive base currency from country whenever country is set/changed
+        // so the wallet + top-up currency stay locked to the profile country.
+        if (patch && "country" in patch) {
+          merged.baseCurrency = countryToCurrency(merged.country);
+        }
+        return merged;
+      });
       // If reached the pending target, run callback and close.
       setPending((p) => {
         if (p && t >= p.minTier) {
