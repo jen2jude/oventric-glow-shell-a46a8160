@@ -280,7 +280,7 @@ export function Bounties() {
                 {
                   id: "m0",
                   from: "system",
-                  text: `Contract sealed. ${fmt(selected.priceUSD, baseCurrency)} locked in escrow.`,
+                  text: `Contract sealed. ${selected.displayFormatted} locked in escrow.`,
                   ts: Date.now(),
                 },
               ],
@@ -457,7 +457,7 @@ function BountyRow({
       <div className="flex-1 min-w-0">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
-          ACTIVE BOUNTY · {fmt(bounty.priceUSD, currency)}
+          ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
         <h3 className="mt-2 text-white font-bold text-base md:text-lg leading-snug">
           {bounty.title}
@@ -631,7 +631,7 @@ function ApplicantEvaluation({
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-5">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
-          ACTIVE BOUNTY · {fmt(bounty.priceUSD, currency)}
+          ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
         <h2 className="mt-2 text-white text-xl md:text-2xl font-black leading-tight">{bounty.title}</h2>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
@@ -757,7 +757,7 @@ function ContractWorkspace({
       status: "released",
       messages: [
         ...contract.messages,
-        { id: `m${Date.now()}`, from: "system", text: `Funds released — ${fmt(bounty.priceUSD, currency)} paid to ${applicant.name}.`, ts: Date.now() },
+        { id: `m${Date.now()}`, from: "system", text: `Funds released — ${bounty.displayFormatted} paid to ${applicant.name}.`, ts: Date.now() },
       ],
     });
     setTimeout(() => setReleaseFlash(false), 2400);
@@ -815,7 +815,7 @@ function ContractWorkspace({
             <div className="bg-black/70 backdrop-blur border border-white/20 rounded-2xl px-8 py-6 text-center">
               <CheckCircle2 className="w-10 h-10 text-emerald-300 mx-auto" />
               <div className="mt-2 text-white font-black text-xl">Payout Released</div>
-              <div className="text-emerald-300 text-sm">{fmt(bounty.priceUSD, currency)} → {applicant.name}</div>
+              <div className="text-emerald-300 text-sm">{bounty.displayFormatted} → {applicant.name}</div>
             </div>
           </div>
         </div>
@@ -855,7 +855,7 @@ function ContractWorkspace({
 
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 mb-5">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
-          <Lock className="w-3 h-3" /> LIVE CONTRACT · {fmt(bounty.priceUSD, currency)}
+          <Lock className="w-3 h-3" /> LIVE CONTRACT · {bounty.displayFormatted}
         </div>
         <h2 className="mt-2 text-white font-bold text-lg leading-snug">{bounty.title}</h2>
         <div className="mt-1 text-xs text-slate-400">
