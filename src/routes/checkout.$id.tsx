@@ -189,7 +189,13 @@ function CheckoutPage() {
     try {
       const channel = topUpMethod === "card" ? "card" : topUpMethod === "bank_transfer" ? "bank_transfer" : topUpMethod === "mobile_money" ? "mobile_money" : "card";
       const init = await initPaystack({
-        data: { purpose: "wallet_topup", amount: amt, currency: baseCurrency, channel },
+        data: {
+          purpose: "wallet_topup",
+          amount: amt,
+          currency: baseCurrency,
+          channel,
+          returnTo: `/checkout/${id}?qty=${qty}`,
+        },
       });
       window.location.href = init.authorizationUrl;
     } catch (e) {
