@@ -45,6 +45,7 @@ type WalletTopupIntent = {
   purpose: "wallet_topup";
   amount: number;
   currency: OrderCurrency;
+  returnTo?: string;
 };
 
 type OrderIntent = {
