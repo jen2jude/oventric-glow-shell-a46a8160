@@ -344,13 +344,31 @@ export function CourseEditorModal({
 
               <div className="grid sm:grid-cols-2 gap-3">
                 <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
-                  <input type="checkbox" checked={form.isFree} onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceUSD: e.target.checked ? 0 : form.priceUSD })} className="accent-emerald-500" />
+                  <input
+                    type="checkbox"
+                    checked={form.isFree}
+                    onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceLocal: e.target.checked ? 0 : form.priceLocal })}
+                    className="accent-emerald-500"
+                  />
                   <span className="text-sm text-white">This is a free course</span>
                 </label>
-                <Field label={`Price (USD) ${form.isFree ? "· disabled" : ""}`}>
-                  <input type="number" min="0" step="1" disabled={form.isFree} value={form.priceUSD} onChange={(e) => setForm({ ...form, priceUSD: Number(e.target.value) })} className="input disabled:opacity-40" />
+                <Field label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency}) ${form.isFree ? "· disabled" : "· locked at publish"}`}>
+                  <input
+                    type="number"
+                    min="0"
+                    step="1"
+                    disabled={form.isFree}
+                    value={form.priceLocal}
+                    onChange={(e) => setForm({ ...form, priceLocal: Number(e.target.value) })}
+                    className="input disabled:opacity-40"
+                  />
                 </Field>
               </div>
+              {!form.isFree && (
+                <p className="text-[11px] text-slate-500 -mt-2">
+                  Price is set in your base currency ({form.priceCurrency}). Learners on other currencies see the equivalent using the FX rate locked at publish time — the amount they pay never fluctuates after that.
+                </p>
+              )}
 
               <div className="flex flex-wrap gap-3">
                 <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
