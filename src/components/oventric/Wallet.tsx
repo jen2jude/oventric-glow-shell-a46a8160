@@ -505,7 +505,15 @@ export function Wallet() {
       </section>
 
       {/* Modals */}
-      {addOpen && <AddCapitalModal onClose={() => setAddOpen(false)} />}
+      {addOpen && (
+        <AddCapitalModal
+          prefillUsd={addPrefillUsd}
+          onClose={() => {
+            setAddOpen(false);
+            setAddPrefillUsd(null);
+          }}
+        />
+      )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
     </div>
   );
