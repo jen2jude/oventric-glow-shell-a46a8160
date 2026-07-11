@@ -195,7 +195,7 @@ export function CourseCheckoutModal({
   };
 
   const canPay =
-    !busy && !done && totalUSD >= 0 &&
+    !busy && !done && totalUSD >= 0 && !fxBlocksCheckout &&
     (method !== "wallet" || (walletUSD != null && walletUSD >= totalUSD));
 
   return (
