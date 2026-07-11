@@ -20,13 +20,16 @@ import {
   createOrder,
   topUpWallet,
   validateCoupon,
-  FX_FROM_USD,
   WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+import { LEGACY_USD_RATES } from "@/lib/fx-display";
 
-
+// Checkout works in USD canonical (the wallet is USD-native). Display
+// conversion for the viewer uses the LEGACY fallback rates; the true locked
+// price is shown on the product/listing card via computeDisplayPrice.
+const FX_FROM_USD = LEGACY_USD_RATES;
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
 function fmt(usd: number, cur: Currency) {
