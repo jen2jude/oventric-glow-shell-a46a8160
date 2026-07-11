@@ -57,6 +57,8 @@ interface Bounty {
   title: string;
   category: Exclude<Category, "all">;
   priceUSD: number;
+  displayFormatted: string;
+  originalFormatted: string | null;
   expiresAt: number; // ms epoch
   applicants: Applicant[];
   ownedByMe: boolean;
