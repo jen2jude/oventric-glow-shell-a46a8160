@@ -711,51 +711,16 @@ function ProfilePage() {
                   </div>
 
                 </div>
-                {!isOwnProfile && !identityMissing && (
+                {!isOwnProfile && !identityMissing && realProfile?.userId && (
                 <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
+                  <FollowButton targetId={realProfile.userId} className="w-full" />
                   <button
-                    onClick={handleJoin}
-                    disabled={circleBusy}
-                    className={`flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60 ${
-                      circle === "accepted"
-                        ? "bg-emerald-500/15 border border-emerald-500/50 text-emerald-300"
-                        : circle === "pending"
-                          ? "bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/15"
-                          : "bg-emerald-500 hover:bg-emerald-400 text-black"
-                    }`}
-                    aria-label={
-                      circle === "accepted"
-                        ? "In your circle"
-                        : circle === "pending"
-                          ? "Cancel circle request"
-                          : "Send circle request"
-                    }
+                    onClick={() => setJoinCircleOpen(true)}
+                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold"
+                    aria-label="Request to join one of this user's circles"
                   >
-                    {circleBusy ? (
-                      <>
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                        {circle === "pending" ? "Canceling…" : circle === "accepted" ? "Loading…" : "Sending…"}
-                      </>
-                    ) : circle === "accepted" ? (
-                      <>
-                        <Check className="w-4 h-4" /> In Circle
-                      </>
-                    ) : circle === "pending" ? (
-                      <>
-                        <Clock className="w-4 h-4" /> Pending
-                      </>
-                    ) : (
-                      <>
-                        <UserPlus className="w-4 h-4" /> Join Circle
-                      </>
-                    )}
-
+                    <Users className="w-4 h-4" /> Join Circle
                   </button>
-                  <CircleStatusNote
-                    status={circle}
-                    meta={circleMeta}
-                    firstName={(realProfile?.displayName ?? profile.name).split(" ")[0]}
-                  />
                   <button
                     onClick={handleChat}
                     className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
@@ -768,9 +733,6 @@ function ProfilePage() {
                   >
                     <Flag className="w-3.5 h-3.5" /> Report
                   </button>
-                  {circleError && (
-                    <div className="text-[11px] text-red-400 sm:text-center">{circleError}</div>
-                  )}
                 </div>
                 )}
                 {isOwnProfile && (
