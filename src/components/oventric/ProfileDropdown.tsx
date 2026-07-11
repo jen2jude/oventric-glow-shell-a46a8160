@@ -299,28 +299,24 @@ export function ProfileDropdown() {
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Base currency">
+      <div className="grid grid-cols-3 gap-2" aria-label="Base currency (locked to profile country)">
         {(["USD", "NGN", "GHS"] as Currency[]).map((c) => {
           const active = baseCurrency === c;
           return (
-            <button
+            <div
               key={c}
-              type="button"
-              role="radio"
-              aria-checked={active}
-              onClick={() => setBaseCurrency(c)}
-              className={`rounded-lg px-2 py-2 text-center transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+              className={`rounded-lg px-2 py-2 text-center transition-colors ${
                 active
                   ? "bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(16,185,129,0.9)]"
-                  : "bg-[#121214] border border-white/5 hover:border-white/20"
+                  : "bg-[#121214] border border-white/5 opacity-60"
               }`}
-              title={active ? `${c} is your active currency` : `Switch prices to ${c}`}
+              title={active ? `${c} is your locked base currency (from your country)` : `${c} is locked — set your country to switch`}
             >
-              <div className={`text-[9px] font-bold uppercase tracking-widest ${active ? "text-emerald-300" : "text-slate-500"}`}>{c}{active ? " · Active" : ""}</div>
-              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : active ? "text-emerald-100" : "text-white"}`}>
+              <div className={`text-[9px] font-bold uppercase tracking-widest ${active ? "text-emerald-300" : "text-slate-500"}`}>{c}{active ? " · Locked" : ""}</div>
+              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : active ? "text-emerald-100" : "text-slate-500"}`}>
                 {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[c]}${fmtBalance(balances[c], c)}`}
               </div>
-            </button>
+            </div>
           );
         })}
       </div>
