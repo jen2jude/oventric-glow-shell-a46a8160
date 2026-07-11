@@ -36,11 +36,18 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { CourseEditorModal } from "./CourseEditorModal";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-function fmtPrice(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? val.toFixed(0) : Math.round(val).toLocaleString()}`;
+import { computeDisplayPrice } from "@/lib/fx-display";
+
+function courseDisplayPrice(c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown }, viewer: Currency) {
+  return computeDisplayPrice(
+    {
+      price_usd: c.priceUSD,
+      original_currency: c.originalCurrency,
+      original_amount: c.originalAmount,
+      fx_snapshot: c.fxSnapshot,
+    },
+    viewer,
+  );
 }
 
 const CATEGORIES = [
