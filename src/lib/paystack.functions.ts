@@ -69,10 +69,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
   .inputValidator((input: PaystackInitInput) => input)
   .handler(async ({ data, context }): Promise<PaystackInitResult> => {
     let email = (context.claims as { email?: string })?.email;
-    console.error("[paystack] claims:", JSON.stringify(context.claims), "userId:", context.userId);
     if (!email) {
-      const { data: userRes, error: uErr } = await context.supabase.auth.getUser();
-      console.error("[paystack] getUser:", userRes?.user?.email, "err:", uErr?.message);
+      const { data: userRes } = await context.supabase.auth.getUser();
       email = userRes?.user?.email ?? undefined;
     }
     if (!email) {
@@ -83,11 +81,12 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           headers: { apikey: key, Authorization: `Bearer ${key}` },
         });
         const j = await r.json().catch(() => null);
-        console.error("[paystack] direct admin fetch status:", r.status, "body:", JSON.stringify(j)?.slice(0, 400));
-        email = j?.email ?? j?.user?.email ?? undefined;
+        email = (j?.email && String(j.email)) || (j?.user?.email && String(j.user.email)) || undefined;
       }
     }
-    if (!email) throw new Error("Signed-in email required to start a payment.");
+    // Anonymous / phone-only users: Paystack still requires a valid-format email.
+    // Use a stable synthetic address tied to their user id.
+    if (!email) email = `guest-${context.userId}@guest.oventric.com`;
 
     let amount = 0;
     let currency: OrderCurrency = "USD";
