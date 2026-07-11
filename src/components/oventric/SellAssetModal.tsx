@@ -67,8 +67,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (submitting) return;
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
-    const usd = Number(priceInput);
-    if (!(usd > 0)) return toast.error("Price must be greater than 0");
+    const priceLocal = Number(priceInput); // amount in seller's base currency
+    if (!(priceLocal > 0)) return toast.error("Price must be greater than 0");
     if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
     if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
       return toast.error("Provide a valid https:// delivery URL");
@@ -115,13 +115,24 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
         if (upErr) throw new Error(upErr.message);
         filePath = path;
       }
+
+      // Lock the FX rate at publish time — every viewer converts from the same
+      // frozen snapshot for the lifetime of this listing.
+      setProgress("Locking market rate...");
+      const snapshot = await snapshotFx();
+      const rate = Number(snapshot.rates[baseCurrency] ?? 1);
+      const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
+
       setProgress("Publishing listing...");
       const product = await persist({
         data: {
           name: name.trim(),
           category,
           description: description.trim(),
-          priceInput: usd,
+          priceUSD,
+          originalCurrency: baseCurrency,
+          originalAmount: priceLocal,
+          fxSnapshot: snapshot,
           vendor: vendorName,
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
