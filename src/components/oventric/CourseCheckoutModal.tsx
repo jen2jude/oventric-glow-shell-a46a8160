@@ -95,6 +95,35 @@ export function CourseCheckoutModal({
     );
   }, [course, baseCurrency]);
 
+  // Validate the locked FX snapshot. Paid courses in a different original
+  // currency than the viewer's base require a valid snapshot to guarantee
+  // the price is the amount that was locked at publish time. When invalid,
+  // we still render a fallback price but block wallet checkout.
+  const fxValidation = useMemo(() => {
+    if (!course) return null;
+    return validateFxSnapshot(
+      {
+        price_usd: course.priceUSD,
+        original_currency: course.originalCurrency,
+        original_amount: course.originalAmount,
+        fx_snapshot: course.fxSnapshot,
+      },
+      baseCurrency,
+    );
+  }, [course, baseCurrency]);
+
+  const isFree = (course?.priceUSD ?? 0) <= 0;
+  const conversionNeeded = !!course && course.originalCurrency !== baseCurrency;
+  const fxInvalid = !isFree && conversionNeeded && fxValidation?.ok === false;
+  const fxBlocksCheckout = fxInvalid && fxValidation?.reason !== "missing";
+  const fxWarningMessage = !fxInvalid
+    ? null
+    : fxValidation?.reason === "missing"
+      ? "This course was published before locked exchange rates existed. The price shown is an estimate using platform fallback rates."
+      : fxValidation?.reason === "missing_rate"
+        ? `The locked exchange rate for ${fxValidation.missingRateFor ?? "your currency"} is unavailable on this course.`
+        : "The locked exchange rate for this course looks malformed.";
+
   if (!open || !course) return null;
 
   const grossFormatted = priceDisplay?.formatted ?? fmt(grossUSD, baseCurrency);
