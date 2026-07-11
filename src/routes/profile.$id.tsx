@@ -709,6 +709,7 @@ function ProfilePage() {
                   </div>
 
                 </div>
+                {!isOwnProfile && !identityMissing && (
                 <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
                   <button
                     onClick={handleJoin}
@@ -751,7 +752,7 @@ function ProfilePage() {
                   <CircleStatusNote
                     status={circle}
                     meta={circleMeta}
-                    firstName={profile.name.split(" ")[0]}
+                    firstName={(realProfile?.displayName ?? profile.name).split(" ")[0]}
                   />
                   <button
                     onClick={handleChat}
@@ -769,6 +770,20 @@ function ProfilePage() {
                     <div className="text-[11px] text-red-400 sm:text-center">{circleError}</div>
                   )}
                 </div>
+                )}
+                {isOwnProfile && (
+                  <div className="hidden sm:flex flex-col gap-2 sm:w-44 shrink-0">
+                    <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
+                      This is your profile
+                    </div>
+                    <button
+                      onClick={() => navigate({ to: "/" })}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
+                    >
+                      Back to feed
+                    </button>
+                  </div>
+                )}
               </div>
 
               {/* Reputation block */}
