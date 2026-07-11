@@ -46,6 +46,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
+import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 
 const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
