@@ -293,6 +293,31 @@ export function CourseCheckoutModal({
                 </div>
               </div>
 
+              {fxInvalid && (
+                <div
+                  className={`p-3 rounded-lg border text-xs flex gap-2 ${
+                    fxBlocksCheckout
+                      ? "bg-rose-500/10 border-rose-500/40 text-rose-200"
+                      : "bg-amber-500/10 border-amber-500/40 text-amber-200"
+                  }`}
+                  role="alert"
+                >
+                  <AlertTriangle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <div>
+                    <div className="font-bold">
+                      {fxBlocksCheckout ? "Exchange rate unavailable" : "Estimated exchange rate"}
+                    </div>
+                    <div className="mt-0.5 leading-relaxed">
+                      {fxWarningMessage}{" "}
+                      {fxBlocksCheckout
+                        ? "Checkout is temporarily disabled for this course — please try again later or contact the instructor."
+                        : "You can still enroll; the platform will settle at publish-time equivalents."}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+
               {shortfall != null && (
                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200">
                   <div className="font-bold">Wallet balance too low</div>
