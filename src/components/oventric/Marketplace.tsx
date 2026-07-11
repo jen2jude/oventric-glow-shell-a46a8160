@@ -18,16 +18,6 @@ import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
-// legacy-imports and helpers below are intentionally unused now — display uses computeDisplayPrice
-// which handles snapshot-locked FX conversion transparently.
-type _CategoryKey = never;
-
-const CATEGORY_LABELS: Record<CategoryKey, { label: string; emoji: string; title: string; Icon: typeof Layers }> = {
-  themes: { label: "Themes", emoji: "🎨", title: "🎨 Top Themes", Icon: Palette },
-  plugins: { label: "Plugins", emoji: "🧩", title: "🧩 Top Plugins", Icon: Puzzle },
-  blocks: { label: "Blocks", emoji: "🧱", title: "🧱 Top Blocks", Icon: Blocks },
-  scripts: { label: "Scripts", emoji: "📜", title: "📜 Top Scripts", Icon: Code2 },
-};
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -41,12 +31,16 @@ const CATEGORY_META: Record<
   scripts: { label: "Scripts", emoji: "📜", title: "📜 Top Scripts", Icon: Code2 },
 };
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
-function formatPrice(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  const rounded = cur === "USD" ? val.toFixed(2) : Math.round(val).toLocaleString();
-  return `${CURRENCY_SYMBOL[cur]}${rounded}`;
+function displayPriceForProduct(p: ProductDTO, viewer: Currency) {
+  return computeDisplayPrice(
+    {
+      price_usd: p.priceUSD,
+      original_currency: p.originalCurrency,
+      original_amount: p.originalAmount,
+      fx_snapshot: p.fxSnapshot,
+    },
+    viewer,
+  );
 }
 
 export function Marketplace() {
