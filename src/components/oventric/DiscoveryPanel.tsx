@@ -319,8 +319,8 @@ export function DiscoveryPanel() {
         ) : peers.length === 0 ? (
           <EmptyState
             icon={Users}
-            title="No peers yet"
-            hint="Grow your circle to see top collaborators here."
+            title="No top-rated peers yet"
+            hint="Only creators with a 4.0★+ reputation appear here — check back as members earn stars."
             cta="Explore Circles"
             onCta={() => navigateSection("Circles")}
           />
