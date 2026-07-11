@@ -281,7 +281,7 @@ function ProductCard({
         </div>
       </div>
       <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
-        <div className="text-white font-black text-base">{formatPrice(p.priceUSD, currency)}</div>
+        <div className="text-white font-black text-base">{displayPriceForProduct(p, currency).formatted}</div>
         <button
           onClick={onBuy}
           className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
