@@ -611,6 +611,7 @@ export type Database = {
           id: string
           paid_at: string | null
           payment_method: string
+          paystack_ref: string | null
           product_id: string
           quantity: number
           seller_id: string
@@ -628,6 +629,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           payment_method: string
+          paystack_ref?: string | null
           product_id: string
           quantity?: number
           seller_id: string
@@ -645,6 +647,7 @@ export type Database = {
           id?: string
           paid_at?: string | null
           payment_method?: string
+          paystack_ref?: string | null
           product_id?: string
           quantity?: number
           seller_id?: string
@@ -1087,6 +1090,7 @@ export type Database = {
           id: string
           inflow: boolean
           occurred_at: string
+          paystack_ref: string | null
           status: Database["public"]["Enums"]["wallet_tx_status"]
           tx_hash: string
           type: Database["public"]["Enums"]["wallet_tx_type"]
@@ -1099,6 +1103,7 @@ export type Database = {
           id?: string
           inflow: boolean
           occurred_at?: string
+          paystack_ref?: string | null
           status?: Database["public"]["Enums"]["wallet_tx_status"]
           tx_hash: string
           type: Database["public"]["Enums"]["wallet_tx_type"]
@@ -1111,6 +1116,7 @@ export type Database = {
           id?: string
           inflow?: boolean
           occurred_at?: string
+          paystack_ref?: string | null
           status?: Database["public"]["Enums"]["wallet_tx_status"]
           tx_hash?: string
           type?: Database["public"]["Enums"]["wallet_tx_type"]
