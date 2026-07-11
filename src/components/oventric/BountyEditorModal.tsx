@@ -191,8 +191,8 @@ export function BountyEditorModal({
 
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
-    const price = Number(form.price_usd);
-    if (!(price >= 0)) return toast.error("Escrow must be >= 0");
+    const rewardBase = Number(form.price_usd); // amount in user's base currency
+    if (!(rewardBase >= 0)) return toast.error("Reward must be >= 0");
     const limit = Number(form.applicant_limit);
     if (!(limit > 0)) return toast.error("Applicant limit must be > 0");
     const start = fromLocalInput(form.start_at);
@@ -208,8 +208,15 @@ export function BountyEditorModal({
       if (!_uid) throw new Error("You must be signed in to post a bounty");
       setUid(_uid);
 
-      // Wallet balance check — must cover the escrow amount before publishing.
-      if (price > 0) {
+      // Snapshot the live FX rate once — this locks the bounty's value forever.
+      const snapshot = rewardBase > 0
+        ? await snapshotFx()
+        : { base: "USD" as const, rates: { USD: 1, NGN: 1500, GHS: 14 }, source: "fallback" as const, fetched_at: new Date().toISOString() };
+      const rateForBase = Number(snapshot.rates[baseCurrency] ?? 1);
+      const priceUsd = baseCurrency === "USD" ? rewardBase : Number((rewardBase / rateForBase).toFixed(2));
+
+      // Wallet balance check — must cover the escrow amount (USD) before publishing.
+      if (priceUsd > 0) {
         const { data: walletRow, error: walletErr } = await supabase
           .from("wallets")
           .select("available_balance")
@@ -219,7 +226,7 @@ export function BountyEditorModal({
         if (walletErr) throw new Error(walletErr.message);
         const balance = Number(walletRow?.available_balance ?? 0);
         setWalletUsd(balance);
-        if (balance < price) {
+        if (balance < priceUsd) {
           setShowFundPrompt(true);
           setSaving(false);
           return;
@@ -231,7 +238,10 @@ export function BountyEditorModal({
         title: form.title.trim(),
         description: form.description,
         category: form.category,
-        price_usd: price,
+        price_usd: priceUsd,
+        original_currency: baseCurrency,
+        original_amount: rewardBase,
+        fx_snapshot: snapshot,
         applicant_limit: limit,
         cover_path: form.cover_path,
         start_at: start,
