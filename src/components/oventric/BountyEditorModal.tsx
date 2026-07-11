@@ -265,6 +265,20 @@ export function BountyEditorModal({
           </button>
         </div>
 
+        {draftLoaded && (
+          <div className="mb-3 flex items-center justify-between gap-2 p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-200">
+            <span className="inline-flex items-center gap-2">
+              <Save className="w-3.5 h-3.5" /> Draft restored — continue editing and publish when your wallet is funded.
+            </span>
+            <button
+              onClick={() => reset()}
+              className="text-emerald-300 hover:text-white underline underline-offset-2"
+            >
+              Discard draft
+            </button>
+          </div>
+        )}
+
         <div className="space-y-3">
           <div>
             <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Cover image</span>
