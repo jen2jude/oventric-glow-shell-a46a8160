@@ -155,7 +155,10 @@ export type Database = {
           deadline_at: string | null
           description: string
           end_at: string | null
+          fx_snapshot: Json | null
           id: string
+          original_amount: number | null
+          original_currency: string | null
           poster_id: string
           price_usd: number
           start_at: string | null
@@ -171,7 +174,10 @@ export type Database = {
           deadline_at?: string | null
           description?: string
           end_at?: string | null
+          fx_snapshot?: Json | null
           id?: string
+          original_amount?: number | null
+          original_currency?: string | null
           poster_id: string
           price_usd: number
           start_at?: string | null
@@ -187,7 +193,10 @@ export type Database = {
           deadline_at?: string | null
           description?: string
           end_at?: string | null
+          fx_snapshot?: Json | null
           id?: string
+          original_amount?: number | null
+          original_currency?: string | null
           poster_id?: string
           price_usd?: number
           start_at?: string | null
@@ -396,11 +405,14 @@ export type Database = {
           cover_path: string | null
           created_at: string
           description: string
+          fx_snapshot: Json | null
           id: string
           instructor_name: string | null
           is_free: boolean
           is_published: boolean
           level: string
+          original_amount: number | null
+          original_currency: string | null
           owner_id: string
           price_usd: number
           promoted: boolean
@@ -413,11 +425,14 @@ export type Database = {
           cover_path?: string | null
           created_at?: string
           description?: string
+          fx_snapshot?: Json | null
           id?: string
           instructor_name?: string | null
           is_free?: boolean
           is_published?: boolean
           level?: string
+          original_amount?: number | null
+          original_currency?: string | null
           owner_id: string
           price_usd?: number
           promoted?: boolean
@@ -430,11 +445,14 @@ export type Database = {
           cover_path?: string | null
           created_at?: string
           description?: string
+          fx_snapshot?: Json | null
           id?: string
           instructor_name?: string | null
           is_free?: boolean
           is_published?: boolean
           level?: string
+          original_amount?: number | null
+          original_currency?: string | null
           owner_id?: string
           price_usd?: number
           promoted?: boolean
@@ -863,9 +881,12 @@ export type Database = {
           description: string
           external_url: string | null
           file_path: string | null
+          fx_snapshot: Json | null
           hue: string
           id: string
           name: string
+          original_amount: number | null
+          original_currency: string | null
           price_usd: number
           promoted: boolean
           rating: number
@@ -881,9 +902,12 @@ export type Database = {
           description?: string
           external_url?: string | null
           file_path?: string | null
+          fx_snapshot?: Json | null
           hue?: string
           id?: string
           name: string
+          original_amount?: number | null
+          original_currency?: string | null
           price_usd: number
           promoted?: boolean
           rating?: number
@@ -899,9 +923,12 @@ export type Database = {
           description?: string
           external_url?: string | null
           file_path?: string | null
+          fx_snapshot?: Json | null
           hue?: string
           id?: string
           name?: string
+          original_amount?: number | null
+          original_currency?: string | null
           price_usd?: number
           promoted?: boolean
           rating?: number
