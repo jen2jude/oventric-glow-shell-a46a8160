@@ -14,6 +14,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as PaymentReturnRouteImport } from './routes/payment.return'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
@@ -29,6 +30,7 @@ import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const AdminRoute = AdminRouteImport.update({
@@ -54,6 +56,11 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PaymentReturnRoute = PaymentReturnRouteImport.update({
+  id: '/payment/return',
+  path: '/payment/return',
   getParentRoute: () => rootRouteImport,
 } as any)
 const OrderIdRoute = OrderIdRouteImport.update({
@@ -131,6 +138,12 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
+const ApiPublicPaystackWebhookRoute =
+  ApiPublicPaystackWebhookRouteImport.update({
+    id: '/api/public/paystack-webhook',
+    path: '/api/public/paystack-webhook',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -155,9 +168,11 @@ export interface FileRoutesByFullPath {
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
+  '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
@@ -177,9 +192,11 @@ export interface FileRoutesByTo {
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
+  '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin': typeof AdminIndexRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
@@ -201,9 +218,11 @@ export interface FileRoutesById {
   '/admin/users': typeof AdminUsersRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
+  '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
@@ -226,9 +245,11 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
+    | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin/'
+    | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -248,9 +269,11 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
+    | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin'
+    | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   id:
     | '__root__'
@@ -271,9 +294,11 @@ export interface FileRouteTypes {
     | '/admin/users'
     | '/checkout/$id'
     | '/order/$id'
+    | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin/'
+    | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
@@ -282,8 +307,10 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   CheckoutIdRoute: typeof CheckoutIdRoute
   OrderIdRoute: typeof OrderIdRoute
+  PaymentReturnRoute: typeof PaymentReturnRoute
   ProductIdRoute: typeof ProductIdRoute
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
+  ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -321,6 +348,13 @@ declare module '@tanstack/react-router' {
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/payment/return': {
+      id: '/payment/return'
+      path: '/payment/return'
+      fullPath: '/payment/return'
+      preLoaderRoute: typeof PaymentReturnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/order/$id': {
@@ -428,6 +462,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/api/public/paystack-webhook': {
+      id: '/api/public/paystack-webhook'
+      path: '/api/public/paystack-webhook'
+      fullPath: '/api/public/paystack-webhook'
+      preLoaderRoute: typeof ApiPublicPaystackWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
       path: '/item/$kind/$itemId'
@@ -491,8 +532,10 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   CheckoutIdRoute: CheckoutIdRoute,
   OrderIdRoute: OrderIdRoute,
+  PaymentReturnRoute: PaymentReturnRoute,
   ProductIdRoute: ProductIdRoute,
   ProfileIdRoute: ProfileIdRouteWithChildren,
+  ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

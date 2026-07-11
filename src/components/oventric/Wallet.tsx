@@ -26,6 +26,7 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions, getWalletBalances } from "@/lib/wallet.functions";
+import { initPaystackPayment } from "@/lib/paystack.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
@@ -576,16 +577,37 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
 }
 
 function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefillUsd?: number | null }) {
+  const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
   const [amount, setAmount] = useState<string>(
     prefillUsd && prefillUsd > 0 ? prefillUsd.toFixed(2) : "",
   );
+  const [busy, setBusy] = useState(false);
+  const initPaystack = useServerFn(initPaystackPayment);
   const options = [
-    { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Global USD · Visa / Mastercard rails" },
-    { id: "bank" as const, icon: Building2, title: "Direct Bank Ingestion Node", sub: "NGN via local bank APIs" },
-    { id: "momo" as const, icon: Smartphone, title: "Mobile Money Fast-Track", sub: "GHS via MTN / Vodafone rails" },
+    { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Visa / Mastercard / Verve · secured by Paystack" },
+    { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack" },
+    { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: "MTN · Vodafone · AirtelTigo (Ghana)" },
   ];
   const hasPrefill = !!(prefillUsd && prefillUsd > 0);
+  const fund = async () => {
+    const usd = Number(amount);
+    if (!(usd > 0)) return;
+    setBusy(true);
+    try {
+      // Charge amount in user's locked base currency (Paystack supports NGN/GHS/USD).
+      const FX: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+      const chargeAmount = Number((usd * FX[baseCurrency]).toFixed(2));
+      const channel = pick === "card" ? "card" : pick === "bank" ? "bank_transfer" : "mobile_money";
+      const init = await initPaystack({
+        data: { purpose: "wallet_topup", amount: chargeAmount, currency: baseCurrency, channel },
+      });
+      window.location.href = init.authorizationUrl;
+    } catch (e) {
+      toast.error("Could not start payment", { description: e instanceof Error ? e.message : "Try again." });
+      setBusy(false);
+    }
+  };
   return (
     <ModalShell title="Add Liquid Capital" onClose={onClose}>
       {hasPrefill && (
@@ -618,9 +640,19 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
             className="w-full bg-transparent py-2.5 pr-3 text-sm text-white placeholder:text-slate-600 outline-none tabular-nums"
           />
         </div>
+        {baseCurrency !== "USD" && Number(amount) > 0 && (
+          <div className="mt-1 text-[11px] text-slate-500">
+            You&apos;ll be charged approximately{" "}
+            <span className="text-slate-300 font-semibold">
+              {baseCurrency === "NGN" ? "₦" : "₵"}
+              {Math.round(Number(amount) * (baseCurrency === "NGN" ? 1500 : 14)).toLocaleString()}
+            </span>{" "}
+            via Paystack.
+          </div>
+        )}
       </div>
 
-      <p className="text-xs text-slate-400">Select a localized payment channel to route incoming funds.</p>
+      <p className="text-xs text-slate-400">Select a payment channel — Paystack will handle the secure checkout.</p>
       <div className="space-y-2">
         {options.map((o) => {
           const Icon = o.icon;
@@ -646,15 +678,19 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
         })}
       </div>
       <button
-        disabled={!Number(amount) || Number(amount) <= 0}
-        className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-bold py-2.5 text-sm transition-colors"
+        onClick={fund}
+        disabled={!Number(amount) || Number(amount) <= 0 || busy}
+        className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-bold py-2.5 text-sm transition-colors inline-flex items-center justify-center gap-2"
       >
-        Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}
-        {Number(amount) > 0 ? ` · $${Number(amount).toFixed(2)}` : ""}
+        {busy ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…</> : <>Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}{Number(amount) > 0 ? ` · $${Number(amount).toFixed(2)}` : ""}</>}
       </button>
+      <div className="mt-1 text-[10px] text-slate-500 inline-flex items-center gap-1">
+        <ShieldCheck className="w-3 h-3 text-emerald-400" /> Payments processed securely by Paystack
+      </div>
     </ModalShell>
   );
 }
+
 
 type Rail = {
   c: Currency;
