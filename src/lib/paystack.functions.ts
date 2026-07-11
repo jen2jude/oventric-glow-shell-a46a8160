@@ -100,6 +100,9 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       amount = Number(data.amount);
       currency = data.currency;
       if (!(amount > 0)) throw new Error("Top-up amount must be greater than zero.");
+      if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
+        metadata.return_to = data.returnTo;
+      }
     } else {
       // Order — resolve authoritative price from DB.
       const { data: p, error } = await context.supabase
