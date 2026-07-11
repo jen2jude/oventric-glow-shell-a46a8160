@@ -15,6 +15,9 @@ export interface ProductDTO {
   category: ProductCategory;
   description: string;
   priceUSD: number;
+  originalCurrency: OrderCurrency;
+  originalAmount: number;
+  fxSnapshot: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
   hue: string;
   vendor: string;
   rating: number;
@@ -60,6 +63,9 @@ function serverPublicClient() {
 }
 
 function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null): ProductDTO {
+  const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
+  const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
+  const snap = r.fx_snapshot as ProductDTO["fxSnapshot"] | null | undefined;
   return {
     id: r.id as string,
     sellerId: r.seller_id as string,
@@ -67,6 +73,9 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     category: r.category as ProductCategory,
     description: (r.description as string) ?? "",
     priceUSD: Number(r.price_usd),
+    originalCurrency,
+    originalAmount,
+    fxSnapshot: snap ?? null,
     hue: (r.hue as string) ?? "from-emerald-500 to-teal-700",
     vendor: r.vendor as string,
     rating: Number(r.rating),
@@ -92,7 +101,7 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
-const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
+const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
 
 /** Public catalog. Anyone (including anon) can list. */
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
@@ -139,6 +148,9 @@ export const createProduct = createServerFn({ method: "POST" })
     externalUrl?: string | null;
     filePath?: string | null;
     coverPath?: string | null;
+    originalCurrency?: OrderCurrency;
+    originalAmount?: number;
+    fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
   }) => ({
     name: String(input.name ?? "").trim(),
     category: input.category,
@@ -149,11 +161,14 @@ export const createProduct = createServerFn({ method: "POST" })
     externalUrl: input.externalUrl ?? null,
     filePath: input.filePath ?? null,
     coverPath: input.coverPath ?? null,
+    originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
+    originalAmount: Number(input.originalAmount ?? input.priceUSD),
+    fxSnapshot: input.fxSnapshot ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
     if (!(data.priceUSD > 0)) throw new Error("Price must be > 0");
-    
+
     const { data: row, error } = await context.supabase
       .from("products")
       .insert({
@@ -162,6 +177,9 @@ export const createProduct = createServerFn({ method: "POST" })
         category: data.category,
         description: data.description,
         price_usd: data.priceUSD,
+        original_currency: data.originalCurrency,
+        original_amount: data.originalAmount,
+        fx_snapshot: data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null,
         vendor: data.vendor,
         hue: data.hue,
         external_url: data.externalUrl,

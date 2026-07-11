@@ -1,7 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck, Wallet, AlertTriangle, Save } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { snapshotFxRates } from "@/lib/fx.functions";
+import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
 const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
@@ -55,6 +59,8 @@ export function BountyEditorModal({
   onClose: () => void;
   onPublished?: (bountyId: string) => void;
 }) {
+  const { baseCurrency } = useOnboarding();
+  const snapshotFx = useServerFn(snapshotFxRates);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
@@ -132,10 +138,19 @@ export function BountyEditorModal({
     }
   };
 
+  // Convert the user's base-currency input to USD using LEGACY fallback rates.
+  // This is only for the immediate top-up hint before publish; the *actual*
+  // snapshot is fetched once on Publish and locked onto the bounty row.
+  const inputBase = Number(form.price_usd || 0); // amount in baseCurrency (field kept for backwards compat)
+  const inputUsdApprox =
+    baseCurrency === "USD"
+      ? inputBase
+      : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
+  const shortfallUsd = Math.max(0, inputUsdApprox - (walletUsd ?? 0));
+
   const goToWallet = () => {
     saveDraft(true);
-    const need = Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0));
-    const topupUsd = Math.ceil(need * 100) / 100;
+    const topupUsd = Math.ceil(shortfallUsd * 100) / 100;
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
     // Fire after the Wallet view mounts so its listener is attached.
@@ -176,8 +191,8 @@ export function BountyEditorModal({
 
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
-    const price = Number(form.price_usd);
-    if (!(price >= 0)) return toast.error("Escrow must be >= 0");
+    const rewardBase = Number(form.price_usd); // amount in user's base currency
+    if (!(rewardBase >= 0)) return toast.error("Reward must be >= 0");
     const limit = Number(form.applicant_limit);
     if (!(limit > 0)) return toast.error("Applicant limit must be > 0");
     const start = fromLocalInput(form.start_at);
@@ -193,8 +208,15 @@ export function BountyEditorModal({
       if (!_uid) throw new Error("You must be signed in to post a bounty");
       setUid(_uid);
 
-      // Wallet balance check — must cover the escrow amount before publishing.
-      if (price > 0) {
+      // Snapshot the live FX rate once — this locks the bounty's value forever.
+      const snapshot = rewardBase > 0
+        ? await snapshotFx()
+        : { base: "USD" as const, rates: { USD: 1, NGN: 1500, GHS: 14 }, source: "fallback" as const, fetched_at: new Date().toISOString() };
+      const rateForBase = Number(snapshot.rates[baseCurrency] ?? 1);
+      const priceUsd = baseCurrency === "USD" ? rewardBase : Number((rewardBase / rateForBase).toFixed(2));
+
+      // Wallet balance check — must cover the escrow amount (USD) before publishing.
+      if (priceUsd > 0) {
         const { data: walletRow, error: walletErr } = await supabase
           .from("wallets")
           .select("available_balance")
@@ -204,7 +226,7 @@ export function BountyEditorModal({
         if (walletErr) throw new Error(walletErr.message);
         const balance = Number(walletRow?.available_balance ?? 0);
         setWalletUsd(balance);
-        if (balance < price) {
+        if (balance < priceUsd) {
           setShowFundPrompt(true);
           setSaving(false);
           return;
@@ -216,7 +238,10 @@ export function BountyEditorModal({
         title: form.title.trim(),
         description: form.description,
         category: form.category,
-        price_usd: price,
+        price_usd: priceUsd,
+        original_currency: baseCurrency,
+        original_amount: rewardBase,
+        fx_snapshot: JSON.parse(JSON.stringify(snapshot)),
         applicant_limit: limit,
         cover_path: form.cover_path,
         start_at: start,
@@ -366,15 +391,18 @@ export function BountyEditorModal({
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
-            <Field label="Escrow (USD)">
+            <Field label={`Reward (${baseCurrency})`}>
               <input
                 type="number"
-                step="0.01"
+                step={baseCurrency === "USD" ? "0.01" : "1"}
                 min="0"
                 value={form.price_usd}
                 onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
                 className={inputCls}
               />
+              <p className="text-[10px] text-slate-500 mt-1">
+                Locked at market rate on publish. Viewers on other currencies see the equivalent.
+              </p>
             </Field>
             <Field label="Applicant limit">
               <input
@@ -506,13 +534,17 @@ export function BountyEditorModal({
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows <span className="text-white font-semibold">${Number(form.price_usd || 0).toFixed(2)} USD</span>.
-                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+                Publishing this bounty escrows{" "}
+                <span className="text-white font-semibold">
+                  {formatMoney(inputBase, baseCurrency)}
+                </span>{" "}
+                (≈ ${inputUsdApprox.toFixed(2)} USD). Your current wallet balance is{" "}
+                <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
               </p>
               <p className="text-xs text-slate-400 mt-2">
                 Top up your wallet with at least{" "}
                 <span className="text-emerald-300 font-semibold">
-                  ${Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0)).toFixed(2)}
+                  ${shortfallUsd.toFixed(2)}
                 </span>{" "}
                 to publish. We&apos;ll save your draft so you can return and publish it in one click.
               </p>

@@ -5,6 +5,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { createProduct, type ProductCategory } from "@/lib/marketplace.functions";
+import { snapshotFxRates } from "@/lib/fx.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: "themes", label: "Themes" },
@@ -18,10 +20,12 @@ const MAX_FILE_MB = 50;
 export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const persist = useServerFn(createProduct);
+  const snapshotFx = useServerFn(snapshotFxRates);
+  const { baseCurrency } = useOnboarding();
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProductCategory>("themes");
   const [description, setDescription] = useState("");
-  const [priceUSD, setPriceUSD] = useState("");
+  const [priceInput, setPriceInput] = useState("");
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
@@ -33,7 +37,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setDescription(""); setPriceUSD("");
+    setName(""); setDescription(""); setPriceInput("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setCover(null);
     if (coverPreview) URL.revokeObjectURL(coverPreview);
@@ -63,8 +67,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (submitting) return;
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
-    const usd = Number(priceUSD);
-    if (!(usd > 0)) return toast.error("Price must be greater than 0");
+    const priceLocal = Number(priceInput); // amount in seller's base currency
+    if (!(priceLocal > 0)) return toast.error("Price must be greater than 0");
     if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
     if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
       return toast.error("Provide a valid https:// delivery URL");
@@ -111,13 +115,24 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
         if (upErr) throw new Error(upErr.message);
         filePath = path;
       }
+
+      // Lock the FX rate at publish time — every viewer converts from the same
+      // frozen snapshot for the lifetime of this listing.
+      setProgress("Locking market rate...");
+      const snapshot = await snapshotFx();
+      const rate = Number(snapshot.rates[baseCurrency] ?? 1);
+      const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
+
       setProgress("Publishing listing...");
       const product = await persist({
         data: {
           name: name.trim(),
           category,
           description: description.trim(),
-          priceUSD: usd,
+          priceUSD,
+          originalCurrency: baseCurrency,
+          originalAmount: priceLocal,
+          fxSnapshot: snapshot,
           vendor: vendorName,
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
@@ -175,8 +190,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
               </select>
             </label>
             <label className="block">
-              <span className="text-xs font-medium text-slate-300">Price (USD)</span>
-              <input value={priceUSD} onChange={(e) => setPriceUSD(e.target.value)} inputMode="decimal" placeholder="29.00"
+              <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
+              <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
                 className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
             </label>
           </div>

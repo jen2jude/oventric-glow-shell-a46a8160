@@ -16,7 +16,8 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
-import { listProducts, FX_FROM_USD, type ProductDTO } from "@/lib/marketplace.functions";
+import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
+import { computeDisplayPrice } from "@/lib/fx-display";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -30,12 +31,16 @@ const CATEGORY_META: Record<
   scripts: { label: "Scripts", emoji: "📜", title: "📜 Top Scripts", Icon: Code2 },
 };
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
-function formatPrice(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  const rounded = cur === "USD" ? val.toFixed(2) : Math.round(val).toLocaleString();
-  return `${CURRENCY_SYMBOL[cur]}${rounded}`;
+function displayPriceForProduct(p: ProductDTO, viewer: Currency) {
+  return computeDisplayPrice(
+    {
+      price_usd: p.priceUSD,
+      original_currency: p.originalCurrency,
+      original_amount: p.originalAmount,
+      fx_snapshot: p.fxSnapshot,
+    },
+    viewer,
+  );
 }
 
 export function Marketplace() {
@@ -276,7 +281,7 @@ function ProductCard({
         </div>
       </div>
       <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
-        <div className="text-white font-black text-base">{formatPrice(p.priceUSD, currency)}</div>
+        <div className="text-white font-black text-base">{displayPriceForProduct(p, currency).formatted}</div>
         <button
           onClick={onBuy}
           className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
