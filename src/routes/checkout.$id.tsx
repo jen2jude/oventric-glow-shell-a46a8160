@@ -132,6 +132,27 @@ function CheckoutPage() {
     setSubmitting(true);
     setShortfallUSD(null);
     try {
+      // Non-wallet methods: initialize Paystack and redirect to secure checkout.
+      if (method !== "wallet") {
+        const channel: "card" | "bank_transfer" | "mobile_money" | undefined =
+          method === "card" ? "card"
+          : method === "bank_transfer" ? "bank_transfer"
+          : method === "mobile_money" ? "mobile_money"
+          : undefined;
+        const init = await initPaystack({
+          data: {
+            purpose: "order",
+            productId: product.id,
+            quantity: qty,
+            displayCurrency: baseCurrency,
+            couponCode: canUseCoupon && coupon ? coupon.code : null,
+            channel,
+          },
+        });
+        window.location.href = init.authorizationUrl;
+        return;
+      }
+
       const res = await submitOrder({
         data: {
           productId: product.id,
@@ -167,16 +188,17 @@ function CheckoutPage() {
     if (!(amt > 0)) { toast.error("Enter a valid amount"); return; }
     setTopUpBusy(true);
     try {
-      await submitTopUp({ data: { amount: amt, currency: baseCurrency, method: topUpMethod } });
-      toast.success("Wallet funded", { description: `Added ${fmt(amt / FX_FROM_USD[baseCurrency], baseCurrency)} to your wallet.` });
-      setTopUpOpen(false);
-      setShortfallUSD(null);
+      const channel = topUpMethod === "card" ? "card" : topUpMethod === "bank_transfer" ? "bank_transfer" : topUpMethod === "mobile_money" ? "mobile_money" : "card";
+      const init = await initPaystack({
+        data: { purpose: "wallet_topup", amount: amt, currency: baseCurrency, channel },
+      });
+      window.location.href = init.authorizationUrl;
     } catch (e) {
       toast.error("Top-up failed", { description: e instanceof Error ? e.message : "Try again." });
-    } finally {
       setTopUpBusy(false);
     }
   };
+
 
   return (
     <div className="min-h-screen bg-[#121214] text-slate-200">
