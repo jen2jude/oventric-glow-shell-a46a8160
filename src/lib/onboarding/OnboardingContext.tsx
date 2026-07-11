@@ -18,6 +18,21 @@ export function countryToCurrency(country: Country | null | undefined): Currency
   return "USD";
 }
 
+/**
+ * Countries whose native currency is USD. These users see USD only in the
+ * wallet and cannot switch to a foreign currency. Every other country keeps
+ * its local currency as the base and can additionally transact in USD.
+ */
+export function isUsdNativeCountry(country: Country | null | undefined): boolean {
+  return country === "US" || country === "UK" || country === "OTHER" || country == null;
+}
+
+export function canTransactInUsd(country: Country | null | undefined): boolean {
+  // USD is a global rail — always available. Non-USD-native countries get it
+  // as a secondary transaction currency alongside their base currency.
+  return true;
+}
+
 
 export type PayoutBank =
   | { country: "NG"; bank: string; accountNumber: string; accountName: string }
@@ -94,7 +109,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
 
   const advanceTo = useCallback(
     (t: Tier, patch?: Partial<OnboardingState>) => {
-      setState((s) => ({ ...s, ...patch, tier: t }));
+      setState((s) => {
+        const merged = { ...s, ...patch, tier: t };
+        // Re-derive base currency from country whenever country is set/changed
+        // so the wallet + top-up currency stay locked to the profile country.
+        if (patch && "country" in patch) {
+          merged.baseCurrency = countryToCurrency(merged.country);
+        }
+        return merged;
+      });
       // If reached the pending target, run callback and close.
       setPending((p) => {
         if (p && t >= p.minTier) {
@@ -114,7 +137,15 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [],
   );
 
-  const setBaseCurrency = useCallback((c: Currency) => setState((s) => ({ ...s, baseCurrency: c })), []);
+  // Base currency is LOCKED to the user's country: US/UK/OTHER → USD, NG → NGN,
+  // GH → GHS. The setter is retained for backwards compatibility but silently
+  // enforces the country-derived value — passing a different currency is a
+  // no-op. Country changes flow through advanceTo / profile hydration.
+  const setBaseCurrency = useCallback(
+    (_c: Currency) =>
+      setState((s) => ({ ...s, baseCurrency: countryToCurrency(s.country) })),
+    [],
+  );
   const updateBalance = useCallback(
     (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
     [],
