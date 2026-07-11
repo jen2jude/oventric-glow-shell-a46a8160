@@ -37,7 +37,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setDescription(""); setPriceUSD("");
+    setName(""); setDescription(""); setPriceInput("");
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setCover(null);
     if (coverPreview) URL.revokeObjectURL(coverPreview);
@@ -67,7 +67,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (submitting) return;
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
-    const usd = Number(priceUSD);
+    const usd = Number(priceInput);
     if (!(usd > 0)) return toast.error("Price must be greater than 0");
     if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
     if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
@@ -121,7 +121,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           name: name.trim(),
           category,
           description: description.trim(),
-          priceUSD: usd,
+          priceInput: usd,
           vendor: vendorName,
           externalUrl: mode === "url" ? externalUrl.trim() : null,
           filePath,
@@ -180,7 +180,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
             </label>
             <label className="block">
               <span className="text-xs font-medium text-slate-300">Price (USD)</span>
-              <input value={priceUSD} onChange={(e) => setPriceUSD(e.target.value)} inputMode="decimal" placeholder="29.00"
+              <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
                 className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
             </label>
           </div>
