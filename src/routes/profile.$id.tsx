@@ -45,6 +45,8 @@ import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { FollowButton } from "@/components/oventric/FollowButton";
+import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
 
 const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
