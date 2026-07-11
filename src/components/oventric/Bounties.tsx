@@ -143,8 +143,10 @@ export function Bounties() {
   }, []);
 
   const [dbBounties, setDbBounties] = useState<Bounty[]>([]);
+  const [bountiesLoading, setBountiesLoading] = useState(true);
   useEffect(() => {
     let cancelled = false;
+    setBountiesLoading(true);
     supabase
       .from("bounties")
       .select("id, title, category, price_usd, deadline_at, end_at, created_at, status")
@@ -155,7 +157,6 @@ export function Bounties() {
         if (error) {
           // eslint-disable-next-line no-console
           console.error("Bounties fetch error:", error);
-          return;
         }
         const now = Date.now();
         const rows: Bounty[] = (data ?? [])
@@ -178,6 +179,7 @@ export function Bounties() {
             };
           });
         setDbBounties(rows);
+        setBountiesLoading(false);
       });
     return () => { cancelled = true; };
   }, [refreshTick]);
@@ -337,25 +339,62 @@ export function Bounties() {
 
       {/* Bounty stream */}
       <div className="space-y-3">
-        {filtered.map((b, idx) => {
-          const rows: React.ReactNode[] = [
-            <BountyRow
-              key={b.id}
-              bounty={b}
-              currency={baseCurrency}
-              onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
-              isNew={highlightId === b.id}
-            />,
-          ];
-          if ((idx + 1) % 4 === 0) {
-            rows.push(<LiveAdSlot key={`ad-${b.id}`} index={idx} ads={bountyAds} loading={adsLoading} />);
-          }
-          return rows;
-        })}
-        {filtered.length === 0 && (
-          <div className="text-center text-slate-500 py-16">
-            No bounties match this filter yet.
+        {bountiesLoading ? (
+          <div className="space-y-3">
+            <BountySkeleton />
+            <BountySkeleton />
+            <BountySkeleton />
+            <BountySkeleton />
+            <BountySkeleton />
           </div>
+        ) : dbBounties.length === 0 ? (
+          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center">
+            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+              <Target className="w-7 h-7 text-emerald-400" />
+            </div>
+            <h3 className="text-white text-lg font-bold mb-2">No live bounties yet</h3>
+            <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+              The board is clear right now. Be the first to post a task and start attracting verified solvers.
+            </p>
+            <button
+              onClick={() => require(1, () => setPostOpen(true), "issuer")}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold transition-colors"
+            >
+              <Plus className="w-4 h-4" /> Post the first bounty
+            </button>
+          </div>
+        ) : filtered.length === 0 ? (
+          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center">
+            <div className="w-14 h-14 mx-auto rounded-full bg-slate-500/10 flex items-center justify-center mb-4">
+              <Clock className="w-7 h-7 text-slate-400" />
+            </div>
+            <h3 className="text-white text-lg font-bold mb-2">No matches for this filter</h3>
+            <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+              No active bounties in this category right now. Try another filter or post a new task.
+            </p>
+            <button
+              onClick={() => setFilter("all")}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold transition-colors"
+            >
+              <ArrowLeft className="w-4 h-4" /> Show all bounties
+            </button>
+          </div>
+        ) : (
+          filtered.map((b, idx) => {
+            const rows: React.ReactNode[] = [
+              <BountyRow
+                key={b.id}
+                bounty={b}
+                currency={baseCurrency}
+                onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
+                isNew={highlightId === b.id}
+              />,
+            ];
+            if ((idx + 1) % 4 === 0) {
+              rows.push(<LiveAdSlot key={`ad-${b.id}`} index={idx} ads={bountyAds} loading={adsLoading} />);
+            }
+            return rows;
+          })
         )}
       </div>
 
@@ -367,6 +406,22 @@ export function Bounties() {
           setHighlightId(id);
         }}
       />
+    </div>
+  );
+}
+
+function BountySkeleton() {
+  return (
+    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse">
+      <div className="flex-1 min-w-0 space-y-3">
+        <div className="h-5 w-28 rounded bg-slate-700" />
+        <div className="h-5 w-3/4 rounded bg-slate-700" />
+        <div className="flex items-center gap-4">
+          <div className="h-3.5 w-28 rounded bg-slate-700" />
+          <div className="h-3.5 w-24 rounded bg-slate-700" />
+        </div>
+      </div>
+      <div className="h-10 w-32 rounded-lg bg-slate-700 shrink-0" />
     </div>
   );
 }
