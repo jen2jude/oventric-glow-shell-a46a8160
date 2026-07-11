@@ -66,7 +66,7 @@ export function ProfileDropdown() {
   }, []);
 
 
-  const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName, baseCurrency, setBaseCurrency } = useOnboarding();
+  const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName, baseCurrency } = useOnboarding();
 
   const [profile, setProfile] = useState<ProfileState>(() => loadProfile(fullName || storeName || "Sovereign Architect"));
 
