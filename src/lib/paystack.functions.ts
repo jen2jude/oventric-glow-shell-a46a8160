@@ -69,7 +69,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
   .inputValidator((input: PaystackInitInput) => input)
   .handler(async ({ data, context }): Promise<PaystackInitResult> => {
     let email = (context.claims as { email?: string })?.email;
-    console.error("[paystack] claims.email:", email, "userId:", context.userId);
+    console.error("[paystack] claims:", JSON.stringify(context.claims), "userId:", context.userId);
     if (!email) {
       const { data: userRes, error: uErr } = await context.supabase.auth.getUser();
       console.error("[paystack] getUser:", userRes?.user?.email, "err:", uErr?.message);
