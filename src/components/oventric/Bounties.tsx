@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
 import { Plus } from "lucide-react";
 
