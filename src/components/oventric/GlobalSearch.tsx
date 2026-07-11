@@ -1,19 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
-import { useQuery } from "@tanstack/react-query";
-import { useServerFn } from "@tanstack/react-start";
-import { Search, X, Star, Coins, Store, User, Loader2 } from "lucide-react";
-import { searchGlobal } from "@/lib/search.functions";
+import { Search, X, Star, Coins, Store, User } from "lucide-react";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
-
-function useDebounced<T>(value: T, delay = 250): T {
-  const [v, setV] = useState(value);
-  useEffect(() => {
-    const t = setTimeout(() => setV(value), delay);
-    return () => clearTimeout(t);
-  }, [value, delay]);
-  return v;
-}
 
 interface GlobalSearchProps {
   variant?: "inline" | "sheet";
@@ -21,73 +9,80 @@ interface GlobalSearchProps {
   autoFocus?: boolean;
 }
 
+// Fixed mock catalog — keeps the search UI responsive without any fetching.
+const MOCK_PEERS = [
+  { id: "p1", slug: "ada-okoye", name: "Ada Okoye", username: "ada", stars: 4.9 },
+  { id: "p2", slug: "leo-martin", name: "Leo Martin", username: "leo", stars: 4.8 },
+  { id: "p3", slug: "sasha-kim", name: "Sasha Kim", username: "sasha", stars: 4.7 },
+  { id: "p4", slug: "noah-bello", name: "Noah Bello", username: "noah", stars: 4.6 },
+  { id: "p5", slug: "mira-chen", name: "Mira Chen", username: "mira", stars: 4.5 },
+];
+
+const MOCK_BOUNTIES = [
+  { id: "b1", title: "Ship a Stripe billing portal", amountUsd: 1200, category: "Backend" },
+  { id: "b2", title: "Design a dark-mode dashboard", amountUsd: 800, category: "Design" },
+  { id: "b3", title: "Write technical launch copy", amountUsd: 450, category: "Writing" },
+  { id: "b4", title: "Build a Chrome extension MVP", amountUsd: 1500, category: "Frontend" },
+  { id: "b5", title: "Refactor auth flow with SSR", amountUsd: 900, category: "Fullstack" },
+];
+
+const MOCK_PRODUCTS = [
+  { id: "m1", title: "SaaS Starter Kit", category: "Templates", priceUsd: 79, vendor: "Oventric Labs" },
+  { id: "m2", title: "Icon Pack — Neon 400", category: "Assets", priceUsd: 29, vendor: "Studio Foxglove" },
+  { id: "m3", title: "Framer Motion Playbook", category: "Courses", priceUsd: 49, vendor: "Motion School" },
+  { id: "m4", title: "Landing Page Boilerplate", category: "Templates", priceUsd: 59, vendor: "Ship Fast" },
+  { id: "m5", title: "AI Prompt Vault (2026)", category: "Guides", priceUsd: 19, vendor: "Prompt Foundry" },
+];
+
 export function GlobalSearch({ variant = "inline", onClose, autoFocus }: GlobalSearchProps) {
   const [q, setQ] = useState("");
   const [open, setOpen] = useState(false);
-  const debouncedQ = useDebounced(q.trim(), 250);
   const wrapRef = useRef<HTMLDivElement | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const navigate = useNavigate();
-  const runSearch = useServerFn(searchGlobal);
 
-  const enabled = debouncedQ.length >= 2;
-  const { data, isFetching } = useQuery({
-    queryKey: ["global-search", debouncedQ],
-    queryFn: () => runSearch({ data: { q: debouncedQ } }),
-    enabled,
-    staleTime: 15_000,
-  });
+  const query = q.trim().toLowerCase();
+  const enabled = query.length >= 1;
+
+  const results = useMemo(() => {
+    if (!enabled) return { peers: [], bounties: [], products: [] };
+    const match = (s: string) => s.toLowerCase().includes(query);
+    return {
+      peers: MOCK_PEERS.filter((p) => match(p.name) || match(p.username) || match(p.slug)).slice(0, 5),
+      bounties: MOCK_BOUNTIES.filter((b) => match(b.title) || match(b.category)).slice(0, 5),
+      products: MOCK_PRODUCTS.filter((p) => match(p.title) || match(p.category) || match(p.vendor)).slice(0, 5),
+    };
+  }, [enabled, query]);
 
   const flat = useMemo(() => {
-    if (!data) return [] as Array<{ label: string; onSelect: () => void; key: string; sub?: string; icon: React.ReactNode }>;
-    const items: Array<{ label: string; onSelect: () => void; key: string; sub?: string; icon: React.ReactNode }> = [];
-    data.peers.forEach((p) => {
-      items.push({
-        key: `peer-${p.id}`,
-        label: p.name,
-        sub: p.username ? `@${p.username}` : `${p.stars}★`,
-        icon: p.avatarUrl ? (
-          <img src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
-        ) : (
-          <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center"><User className="w-3.5 h-3.5" /></div>
-        ),
-        onSelect: () => {
-          navigate({ to: "/profile/$id", params: { id: p.slug } });
-        },
-      });
-    });
-    data.bounties.forEach((b) => {
-      items.push({
-        key: `bounty-${b.id}`,
-        label: b.title,
-        sub: `$${b.amountUsd.toLocaleString()}${b.category ? ` · ${b.category}` : ""}`,
-        icon: b.coverUrl ? (
-          <img src={b.coverUrl} alt="" className="w-7 h-7 rounded-md object-cover" />
-        ) : (
-          <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-300 flex items-center justify-center"><Coins className="w-3.5 h-3.5" /></div>
-        ),
-        onSelect: () => navigateSection("Bounties"),
-      });
-    });
-    data.products.forEach((p) => {
-      items.push({
-        key: `product-${p.id}`,
-        label: p.title,
-        sub: `$${p.priceUsd.toLocaleString()} · ${p.category}${p.vendor ? ` · ${p.vendor}` : ""}`,
-        icon: p.coverUrl ? (
-          <img src={p.coverUrl} alt="" className="w-7 h-7 rounded-md object-cover" />
-        ) : (
-          <div className="w-7 h-7 rounded-md bg-sky-500/20 text-sky-300 flex items-center justify-center"><Store className="w-3.5 h-3.5" /></div>
-        ),
-        onSelect: () => navigateSection("Marketplace"),
-      });
-    });
+    const items: Array<{ key: string; label: string; sub: string; icon: React.ReactNode; onSelect: () => void; trailing?: React.ReactNode; trailingLabel?: string }> = [];
+    results.peers.forEach((p) => items.push({
+      key: `peer-${p.id}`,
+      label: p.name,
+      sub: `@${p.username}`,
+      icon: <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center"><User className="w-3.5 h-3.5" /></div>,
+      trailing: <Star className="w-3 h-3 text-amber-400" />,
+      trailingLabel: String(p.stars),
+      onSelect: () => navigate({ to: "/profile/$id", params: { id: p.slug } }),
+    }));
+    results.bounties.forEach((b) => items.push({
+      key: `bounty-${b.id}`,
+      label: b.title,
+      sub: `$${b.amountUsd.toLocaleString()} · ${b.category}`,
+      icon: <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-300 flex items-center justify-center"><Coins className="w-3.5 h-3.5" /></div>,
+      onSelect: () => navigateSection("Bounties"),
+    }));
+    results.products.forEach((p) => items.push({
+      key: `product-${p.id}`,
+      label: p.title,
+      sub: `$${p.priceUsd.toLocaleString()} · ${p.category} · ${p.vendor}`,
+      icon: <div className="w-7 h-7 rounded-md bg-sky-500/20 text-sky-300 flex items-center justify-center"><Store className="w-3.5 h-3.5" /></div>,
+      onSelect: () => navigateSection("Marketplace"),
+    }));
     return items;
-  }, [data, navigate]);
+  }, [results, navigate]);
 
-  useEffect(() => {
-    if (autoFocus) inputRef.current?.focus();
-  }, [autoFocus]);
+  useEffect(() => { if (autoFocus) inputRef.current?.focus(); }, [autoFocus]);
 
   useEffect(() => {
     if (variant !== "inline") return;
@@ -100,8 +95,7 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus }: GlobalS
   }, [variant]);
 
   const showResults = enabled && (variant === "sheet" || open);
-  const empty = enabled && !isFetching && flat.length === 0;
-
+  const empty = enabled && flat.length === 0;
   const listMaxH = variant === "sheet" ? "max-h-[70vh]" : "max-h-96";
 
   const handleSelect = (fn: () => void) => {
@@ -147,39 +141,30 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus }: GlobalS
           role="listbox"
           className={`${variant === "sheet" ? "mt-3" : "absolute left-0 right-0 mt-2 z-50"} bg-[#141418] border border-white/10 rounded-xl shadow-2xl overflow-hidden`}
         >
-          {isFetching && (
-            <div className="px-4 py-6 flex items-center gap-2 text-slate-400 text-sm">
-              <Loader2 className="w-4 h-4 animate-spin" /> Searching…
-            </div>
-          )}
-          {!isFetching && empty && (
+          {empty ? (
             <div className="px-4 py-6 text-center text-slate-400 text-sm">
-              No matches for “{debouncedQ}”.
+              No matches for “{q.trim()}”.
             </div>
-          )}
-          {!isFetching && flat.length > 0 && (
+          ) : (
             <ul className={`${listMaxH} overflow-y-auto py-1`}>
-              {data && data.peers.length > 0 && (
+              {results.peers.length > 0 && (
                 <li className="px-4 pt-2 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><User className="w-3 h-3" /> Peers</li>
               )}
-              {data?.peers.map((p) => {
-                const item = flat.find((f) => f.key === `peer-${p.id}`)!;
-                return <ResultRow key={item.key} item={item} onSelect={handleSelect} trailing={<Star className="w-3 h-3 text-amber-400" />} trailingLabel={String(p.stars)} />;
-              })}
-              {data && data.bounties.length > 0 && (
+              {flat.filter((f) => f.key.startsWith("peer-")).map((item) => (
+                <ResultRow key={item.key} item={item} onSelect={handleSelect} trailing={item.trailing} trailingLabel={item.trailingLabel} />
+              ))}
+              {results.bounties.length > 0 && (
                 <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><Coins className="w-3 h-3" /> Bounties</li>
               )}
-              {data?.bounties.map((b) => {
-                const item = flat.find((f) => f.key === `bounty-${b.id}`)!;
-                return <ResultRow key={item.key} item={item} onSelect={handleSelect} />;
-              })}
-              {data && data.products.length > 0 && (
+              {flat.filter((f) => f.key.startsWith("bounty-")).map((item) => (
+                <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+              ))}
+              {results.products.length > 0 && (
                 <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><Store className="w-3 h-3" /> Marketplace</li>
               )}
-              {data?.products.map((p) => {
-                const item = flat.find((f) => f.key === `product-${p.id}`)!;
-                return <ResultRow key={item.key} item={item} onSelect={handleSelect} />;
-              })}
+              {flat.filter((f) => f.key.startsWith("product-")).map((item) => (
+                <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+              ))}
             </ul>
           )}
         </div>
