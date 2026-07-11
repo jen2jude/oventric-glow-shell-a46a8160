@@ -224,7 +224,7 @@ function CourseCard({ course, currency, onOpen }: { course: CourseDTO; currency:
               <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500 text-black rounded px-2 py-1">Free</span>
             ) : (
               <span className="text-[11px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-1">
-                {fmtPrice(course.priceUSD, currency)}
+                {courseDisplayPrice(course, currency).formatted}
               </span>
             )}
           </div>
@@ -459,7 +459,7 @@ function CourseDetail({
           {!enrollment && !isOwner && (
             <button onClick={doEnroll} disabled={busy} className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2">
               {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-              {course.isFree ? "Enroll for free" : `Enroll · ${fmtPrice(course.priceUSD, baseCurrency)}`}
+              {course.isFree ? "Enroll for free" : `Enroll · ${courseDisplayPrice(course, baseCurrency).formatted}`}
             </button>
           )}
 
