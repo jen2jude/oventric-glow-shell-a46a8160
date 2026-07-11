@@ -16,7 +16,18 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
-import { listProducts, FX_FROM_USD, type ProductDTO } from "@/lib/marketplace.functions";
+import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
+import { computeDisplayPrice } from "@/lib/fx-display";
+// legacy-imports and helpers below are intentionally unused now — display uses computeDisplayPrice
+// which handles snapshot-locked FX conversion transparently.
+type _CategoryKey = never;
+
+const CATEGORY_LABELS: Record<CategoryKey, { label: string; emoji: string; title: string; Icon: typeof Layers }> = {
+  themes: { label: "Themes", emoji: "🎨", title: "🎨 Top Themes", Icon: Palette },
+  plugins: { label: "Plugins", emoji: "🧩", title: "🧩 Top Plugins", Icon: Puzzle },
+  blocks: { label: "Blocks", emoji: "🧱", title: "🧱 Top Blocks", Icon: Blocks },
+  scripts: { label: "Scripts", emoji: "📜", title: "📜 Top Scripts", Icon: Code2 },
+};
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
