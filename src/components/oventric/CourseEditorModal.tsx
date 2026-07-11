@@ -171,14 +171,41 @@ export function CourseEditorModal({
 
   const saveCourse = async () => {
     if (!form.title.trim()) return toast.error("Title required");
-    if (!form.isFree && !(form.priceUSD > 0)) return toast.error("Set a price or mark as free");
+    if (!form.isFree && !(form.priceLocal > 0)) return toast.error("Set a price or mark as free");
     setSaving(true);
     try {
+      let priceUSD = 0;
+      let originalCurrency = form.priceCurrency;
+      let originalAmount = form.priceLocal;
+      let fxSnapshot: Awaited<ReturnType<typeof snapshotFx>> | null = null;
+      if (!form.isFree) {
+        fxSnapshot = await snapshotFx();
+        const rate = fxSnapshot.rates[form.priceCurrency] ?? LEGACY_USD_RATES[form.priceCurrency];
+        priceUSD = form.priceCurrency === "USD" ? form.priceLocal : Number((form.priceLocal / (rate || 1)).toFixed(2));
+      } else {
+        originalCurrency = "USD";
+        originalAmount = 0;
+      }
+      const payload = {
+        title: form.title,
+        description: form.description,
+        category: form.category,
+        level: form.level,
+        instructorName: form.instructorName,
+        isFree: form.isFree,
+        priceUSD,
+        isPublished: form.isPublished,
+        promoted: form.promoted,
+        originalCurrency,
+        originalAmount,
+        fxSnapshot,
+        coverPath,
+      };
       if (savedId) {
-        await update({ data: { id: savedId, ...form, coverPath } });
+        await update({ data: { id: savedId, ...payload } });
         toast.success("Course updated");
       } else {
-        const res = await create({ data: { ...form, coverPath } });
+        const res = await create({ data: payload });
         setSavedId(res.id);
         toast.success("Course created — now add modules");
       }
