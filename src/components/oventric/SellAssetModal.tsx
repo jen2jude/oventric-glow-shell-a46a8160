@@ -5,6 +5,8 @@ import { useNavigate } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { createProduct, type ProductCategory } from "@/lib/marketplace.functions";
+import { snapshotFxRates } from "@/lib/fx.functions";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: "themes", label: "Themes" },
@@ -18,10 +20,12 @@ const MAX_FILE_MB = 50;
 export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
   const persist = useServerFn(createProduct);
+  const snapshotFx = useServerFn(snapshotFxRates);
+  const { baseCurrency } = useOnboarding();
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProductCategory>("themes");
   const [description, setDescription] = useState("");
-  const [priceUSD, setPriceUSD] = useState("");
+  const [priceInput, setPriceInput] = useState("");
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
