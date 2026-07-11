@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck } from "lucide-react";
+import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck, Wallet, AlertTriangle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
+const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
 type Category = (typeof CATEGORIES)[number];
