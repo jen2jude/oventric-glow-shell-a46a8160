@@ -5,9 +5,6 @@ import {
   ArrowLeft,
   Wallet as WalletIcon,
   CreditCard,
-  Building2,
-
-
   Smartphone,
   ShieldCheck,
   Loader2,
