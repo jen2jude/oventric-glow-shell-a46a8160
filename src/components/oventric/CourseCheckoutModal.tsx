@@ -8,10 +8,12 @@ import { validateCoupon, topUpWallet } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES } from "@/lib/fx-display";
 
-const CURRENCY_SYMBOL: Record<EnrollCurrency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 function fmt(usd: number, cur: EnrollCurrency) {
-  const val = usd * FX_FROM_USD_ACADEMY[cur];
-  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? val.toFixed(2) : Math.round(val).toLocaleString()}`;
+  // Legacy USD-based display for wallet/cashback amounts that live in USD only.
+  const val = usd * LEGACY_USD_RATES[cur];
+  return cur === "USD"
+    ? formatMoney(val, "USD")
+    : formatMoney(val, cur);
 }
 
 const METHODS: { key: EnrollPaymentMethod; label: string; icon: typeof WalletIcon; hint: string }[] = [
@@ -27,6 +29,9 @@ interface Course {
   instructorName: string;
   priceUSD: number;
   coverUrl: string | null;
+  originalCurrency: EnrollCurrency;
+  originalAmount: number;
+  fxSnapshot: unknown;
 }
 
 export function CourseCheckoutModal({
