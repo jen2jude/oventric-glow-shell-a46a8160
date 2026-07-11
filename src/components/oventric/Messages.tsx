@@ -134,8 +134,17 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
         {msg.media_path && (
           <div className="mt-1 text-[11px] italic opacity-80">📎 attachment</div>
         )}
-        <div className={`text-[10px] mt-1 ${mine ? "text-emerald-100/80" : "text-slate-500"}`}>
-          {formatTime(msg.created_at)}
+        <div className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-emerald-100/80 justify-end" : "text-slate-500"}`}>
+          <span>{formatTime(msg.created_at)}</span>
+          {mine && !msg.id.startsWith("tmp-") && (
+            <span
+              className={msg.read_at ? "text-sky-200" : "text-emerald-100/60"}
+              title={msg.read_at ? `Read ${formatTime(msg.read_at)}` : "Sent"}
+              aria-label={msg.read_at ? "Read" : "Sent"}
+            >
+              {msg.read_at ? "✓✓" : "✓"}
+            </span>
+          )}
         </div>
       </div>
     </div>
