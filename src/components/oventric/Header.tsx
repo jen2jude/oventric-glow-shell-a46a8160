@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, MessageCircle, Menu, KeyRound } from "lucide-react";
+import { Search, Bell, MessageCircle, Menu, KeyRound, X } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -8,14 +8,23 @@ import {
   useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
+  const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
   const { isAuthenticated, openGate } = useAuthGate();
+
+  useEffect(() => {
+    if (!mobileSearchOpen) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = prev; };
+  }, [mobileSearchOpen]);
 
   return (
     <header className="sticky top-0 z-40 h-16 w-full bg-[#121214]/90 backdrop-blur-md border-b border-white/10 flex items-center gap-3 px-4 md:px-6">
