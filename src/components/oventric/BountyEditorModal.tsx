@@ -1,7 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck } from "lucide-react";
+import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck, Wallet, AlertTriangle, Save } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+
+const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
+const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
 type Category = (typeof CATEGORIES)[number];
@@ -56,20 +59,45 @@ export function BountyEditorModal({
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [uid, setUid] = useState<string | null>(null);
+  const [walletUsd, setWalletUsd] = useState<number | null>(null);
+  const [showFundPrompt, setShowFundPrompt] = useState(false);
+  const [draftLoaded, setDraftLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
     if (!open) return;
     let cancelled = false;
+    setShowFundPrompt(false);
     (async () => {
       const { data: session } = await supabase.auth.getUser();
-      const uid = session.user?.id;
-      if (!uid) {
-        if (!cancelled) setIsAdmin(false);
+      const _uid = session.user?.id ?? null;
+      if (cancelled) return;
+      setUid(_uid);
+      if (!_uid) {
+        setIsAdmin(false);
+        setWalletUsd(null);
         return;
       }
-      const { data, error } = await supabase.rpc("has_role", { _user_id: uid, _role: "admin" });
-      if (!cancelled) setIsAdmin(!error && data === true);
+      // Restore draft
+      try {
+        const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
+        if (raw) {
+          const parsed = JSON.parse(raw) as Partial<FormState>;
+          setForm((f) => ({ ...f, ...parsed }));
+          setDraftLoaded(true);
+        } else {
+          setDraftLoaded(false);
+        }
+      } catch { /* ignore */ }
+      // Load admin + USD wallet
+      const [{ data: roleData, error: roleErr }, { data: walletData }] = await Promise.all([
+        supabase.rpc("has_role", { _user_id: _uid, _role: "admin" }),
+        supabase.from("wallets").select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle(),
+      ]);
+      if (cancelled) return;
+      setIsAdmin(!roleErr && roleData === true);
+      setWalletUsd(Number(walletData?.available_balance ?? 0));
     })();
     return () => {
       cancelled = true;
@@ -78,7 +106,37 @@ export function BountyEditorModal({
 
   if (!open) return null;
 
-  const reset = () => setForm(emptyForm);
+  const reset = () => {
+    setForm(emptyForm);
+    setDraftLoaded(false);
+    if (uid) {
+      try { window.localStorage.removeItem(draftKey(uid)); } catch { /* ignore */ }
+    }
+  };
+
+  const saveDraft = (silent = false) => {
+    if (!uid) {
+      if (!silent) toast.error("Sign in to save a draft");
+      return false;
+    }
+    try {
+      const { cover_preview: _cp, ...persist } = form;
+      void _cp;
+      window.localStorage.setItem(draftKey(uid), JSON.stringify(persist));
+      if (!silent) toast.success("Bounty draft saved", { description: "Fund your wallet and return to publish it." });
+      setDraftLoaded(true);
+      return true;
+    } catch (e) {
+      if (!silent) toast.error("Could not save draft", { description: (e as Error).message });
+      return false;
+    }
+  };
+
+  const goToWallet = () => {
+    saveDraft(true);
+    onClose();
+    window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
+  };
 
   const handleCoverPick = async (file: File) => {
     if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
@@ -121,8 +179,28 @@ export function BountyEditorModal({
     setSaving(true);
     try {
       const { data: session } = await supabase.auth.getUser();
-      const uid = session.user?.id;
-      if (!uid) throw new Error("You must be signed in to post a bounty");
+      const _uid = session.user?.id;
+      if (!_uid) throw new Error("You must be signed in to post a bounty");
+      setUid(_uid);
+
+      // Wallet balance check — must cover the escrow amount before publishing.
+      if (price > 0) {
+        const { data: walletRow, error: walletErr } = await supabase
+          .from("wallets")
+          .select("available_balance")
+          .eq("user_id", _uid)
+          .eq("currency", "USD")
+          .maybeSingle();
+        if (walletErr) throw new Error(walletErr.message);
+        const balance = Number(walletRow?.available_balance ?? 0);
+        setWalletUsd(balance);
+        if (balance < price) {
+          setShowFundPrompt(true);
+          setSaving(false);
+          return;
+        }
+      }
+      const uid = _uid;
       const { data: inserted, error } = await supabase.from("bounties").insert({
         poster_id: uid,
         title: form.title.trim(),
@@ -173,7 +251,7 @@ export function BountyEditorModal({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-      <div className="w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+      <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-400" /> Post a bounty
@@ -186,6 +264,20 @@ export function BountyEditorModal({
             <X className="w-4 h-4" />
           </button>
         </div>
+
+        {draftLoaded && (
+          <div className="mb-3 flex items-center justify-between gap-2 p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-200">
+            <span className="inline-flex items-center gap-2">
+              <Save className="w-3.5 h-3.5" /> Draft restored — continue editing and publish when your wallet is funded.
+            </span>
+            <button
+              onClick={() => reset()}
+              className="text-emerald-300 hover:text-white underline underline-offset-2"
+            >
+              Discard draft
+            </button>
+          </div>
+        )}
 
         <div className="space-y-3">
           <div>
@@ -372,7 +464,7 @@ export function BountyEditorModal({
             </p>
           )}
 
-          <div className="flex gap-2 pt-3">
+          <div className="flex flex-wrap gap-2 pt-3">
             <button
               disabled={saving}
               onClick={save}
@@ -382,6 +474,13 @@ export function BountyEditorModal({
               Publish bounty
             </button>
             <button
+              type="button"
+              onClick={() => saveDraft()}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+            >
+              <Save className="w-4 h-4" /> Save draft
+            </button>
+            <button
               onClick={onClose}
               className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
             >
@@ -389,6 +488,47 @@ export function BountyEditorModal({
             </button>
           </div>
         </div>
+
+        {showFundPrompt && (
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm rounded-2xl">
+            <div className="w-full max-w-md bg-[#1a1a20] border border-amber-500/40 rounded-xl p-5 shadow-2xl">
+              <div className="flex items-center gap-2 text-amber-300 font-bold">
+                <AlertTriangle className="w-5 h-5" /> Wallet balance too low
+              </div>
+              <p className="text-sm text-slate-300 mt-2 leading-relaxed">
+                Publishing this bounty escrows <span className="text-white font-semibold">${Number(form.price_usd || 0).toFixed(2)} USD</span>.
+                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+              </p>
+              <p className="text-xs text-slate-400 mt-2">
+                Top up your wallet with at least{" "}
+                <span className="text-emerald-300 font-semibold">
+                  ${Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0)).toFixed(2)}
+                </span>{" "}
+                to publish. We&apos;ll save your draft so you can return and publish it in one click.
+              </p>
+              <div className="flex flex-wrap gap-2 mt-4">
+                <button
+                  onClick={goToWallet}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2"
+                >
+                  <Wallet className="w-4 h-4" /> Save draft & top up
+                </button>
+                <button
+                  onClick={() => { saveDraft(); setShowFundPrompt(false); }}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+                >
+                  <Save className="w-4 h-4" /> Save draft only
+                </button>
+                <button
+                  onClick={() => setShowFundPrompt(false)}
+                  className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg"
+                >
+                  Back to editor
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
