@@ -188,7 +188,7 @@ export function Feed() {
   const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
     setReported((m) => {
       const next = new Map(m);
-      next.set(id, { reasonLabel: details.reasonLabel, note: details.note });
+      next.set(id, { reason: details.reason, reasonLabel: details.reasonLabel, note: details.note });
       return next;
     });
   const openReport = (id: string) => {
