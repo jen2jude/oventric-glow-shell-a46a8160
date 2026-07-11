@@ -7,6 +7,14 @@ export type CourseCategory = "frontend" | "uiux" | "ai" | "backend" | "security"
 export type CourseLevel = "beginner" | "intermediate" | "advanced";
 export type VideoProvider = "youtube" | "vimeo";
 
+export type CourseCurrency = "USD" | "NGN" | "GHS";
+export type CourseFxSnapshot = {
+  base: string;
+  rates: Record<string, number>;
+  source?: string;
+  fetched_at?: string;
+} | null;
+
 export interface CourseDTO {
   id: string;
   ownerId: string;
@@ -23,9 +31,9 @@ export interface CourseDTO {
   isPublished: boolean;
   promoted: boolean;
   createdAt: string;
-  originalCurrency: "USD" | "NGN" | "GHS" | null;
-  originalAmount: number | null;
-  fxSnapshot: unknown | null;
+  originalCurrency: CourseCurrency;
+  originalAmount: number;
+  fxSnapshot: CourseFxSnapshot;
   moduleCount?: number;
   enrolledCount?: number;
 }
