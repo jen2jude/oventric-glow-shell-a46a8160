@@ -84,6 +84,10 @@ function slugify(s: string): string {
 }
 
 function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): CourseDTO {
+  const priceUSD = Number(r.price_usd ?? 0);
+  const originalCurrency = ((r.original_currency as string) ?? "USD") as CourseCurrency;
+  const originalAmount = Number(r.original_amount ?? priceUSD);
+  const fxSnapshot = (r.fx_snapshot as CourseFxSnapshot) ?? null;
   return {
     id: r.id as string,
     ownerId: r.owner_id as string,
@@ -95,11 +99,14 @@ function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): 
     instructorName: (r.instructor_name as string) ?? "",
     coverPath: (r.cover_path as string) ?? null,
     coverUrl,
-    priceUSD: Number(r.price_usd ?? 0),
+    priceUSD,
     isFree: Boolean(r.is_free),
     isPublished: Boolean(r.is_published),
     promoted: Boolean(r.promoted),
     createdAt: r.created_at as string,
+    originalCurrency,
+    originalAmount,
+    fxSnapshot,
   };
 }
 
