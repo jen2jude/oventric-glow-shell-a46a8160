@@ -310,7 +310,7 @@ export function DiscoveryPanel() {
             See all
           </button>
         </div>
-        {isLoading ? (
+        {isLoading && peers.length === 0 ? (
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <PeerRowSkeleton key={i} />
