@@ -138,10 +138,19 @@ export function BountyEditorModal({
     }
   };
 
+  // Convert the user's base-currency input to USD using LEGACY fallback rates.
+  // This is only for the immediate top-up hint before publish; the *actual*
+  // snapshot is fetched once on Publish and locked onto the bounty row.
+  const inputBase = Number(form.price_usd || 0); // amount in baseCurrency (field kept for backwards compat)
+  const inputUsdApprox =
+    baseCurrency === "USD"
+      ? inputBase
+      : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
+  const shortfallUsd = Math.max(0, inputUsdApprox - (walletUsd ?? 0));
+
   const goToWallet = () => {
     saveDraft(true);
-    const need = Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0));
-    const topupUsd = Math.ceil(need * 100) / 100;
+    const topupUsd = Math.ceil(shortfallUsd * 100) / 100;
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
     // Fire after the Wallet view mounts so its listener is attached.
