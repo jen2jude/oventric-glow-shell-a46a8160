@@ -148,3 +148,5 @@
     color: oklch(0.9 0.01 260);
   }
 }
+
+html, body { overflow-x: hidden; }

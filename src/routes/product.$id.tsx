@@ -56,7 +56,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200">
+    <div className="min-h-screen overflow-x-hidden bg-[#121214] text-slate-200">
       <Header onOpenMessages={() => {}} />
       <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
         <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6">
