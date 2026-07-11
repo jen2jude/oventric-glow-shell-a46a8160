@@ -5,13 +5,19 @@ import { ArrowLeft, Star, ShoppingCart, Flame, Sparkles, Loader2 } from "lucide-
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getProduct, FX_FROM_USD, type ProductDTO } from "@/lib/marketplace.functions";
+import { getProduct, type ProductDTO } from "@/lib/marketplace.functions";
+import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
-function fmt(usd: number, cur: Currency) {
-  const v = usd * FX_FROM_USD[cur];
-  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
+function productDisplay(p: ProductDTO, viewer: Currency) {
+  return computeDisplayPrice(
+    {
+      price_usd: p.priceUSD,
+      original_currency: p.originalCurrency,
+      original_amount: p.originalAmount,
+      fx_snapshot: p.fxSnapshot,
+    },
+    viewer,
+  );
 }
 
 export const Route = createFileRoute("/product/$id")({
