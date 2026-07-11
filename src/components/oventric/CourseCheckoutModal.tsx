@@ -252,14 +252,14 @@ export function CourseCheckoutModal({
               )}
 
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
-                <Row label="Course price" value={fmt(grossUSD, baseCurrency)} />
+                <Row label="Course price" value={grossFormatted} />
                 {discountUSD > 0 && <Row label="Coupon discount" value={`- ${fmt(discountUSD, baseCurrency)}`} accent="text-emerald-300" />}
                 {method === "wallet" && (
                   <Row label="Wallet cashback (2%)" value={`+ ${fmt(totalUSD * 0.02, baseCurrency)}`} accent="text-emerald-300" />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
-                  <span className="text-white font-black text-lg">{fmt(totalUSD, baseCurrency)}</span>
+                  <span className="text-white font-black text-lg">{totalFormatted}</span>
                 </div>
               </div>
 
