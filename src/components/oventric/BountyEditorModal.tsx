@@ -534,13 +534,17 @@ export function BountyEditorModal({
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows <span className="text-white font-semibold">${Number(form.price_usd || 0).toFixed(2)} USD</span>.
-                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+                Publishing this bounty escrows{" "}
+                <span className="text-white font-semibold">
+                  {formatMoney(inputBase, baseCurrency)}
+                </span>{" "}
+                (≈ ${inputUsdApprox.toFixed(2)} USD). Your current wallet balance is{" "}
+                <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
               </p>
               <p className="text-xs text-slate-400 mt-2">
                 Top up your wallet with at least{" "}
                 <span className="text-emerald-300 font-semibold">
-                  ${Math.max(0, Number(form.price_usd || 0) - (walletUsd ?? 0)).toFixed(2)}
+                  ${shortfallUsd.toFixed(2)}
                 </span>{" "}
                 to publish. We&apos;ll save your draft so you can return and publish it in one click.
               </p>
