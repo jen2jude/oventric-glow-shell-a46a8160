@@ -63,6 +63,9 @@ function serverPublicClient() {
 }
 
 function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null): ProductDTO {
+  const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
+  const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
+  const snap = r.fx_snapshot as ProductDTO["fxSnapshot"] | null | undefined;
   return {
     id: r.id as string,
     sellerId: r.seller_id as string,
@@ -70,6 +73,9 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     category: r.category as ProductCategory,
     description: (r.description as string) ?? "",
     priceUSD: Number(r.price_usd),
+    originalCurrency,
+    originalAmount,
+    fxSnapshot: snap ?? null,
     hue: (r.hue as string) ?? "from-emerald-500 to-teal-700",
     vendor: r.vendor as string,
     rating: Number(r.rating),
