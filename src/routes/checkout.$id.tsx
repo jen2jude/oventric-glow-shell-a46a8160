@@ -76,7 +76,7 @@ function CheckoutPage() {
 
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
-  const submitTopUp = useServerFn(topUpWallet);
+  const initPaystack = useServerFn(initPaystackPayment);
   const checkCoupon = useServerFn(validateCoupon);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
