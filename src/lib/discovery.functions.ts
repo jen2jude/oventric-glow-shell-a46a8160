@@ -103,13 +103,14 @@ async function signBucket(
 export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
   async (): Promise<DiscoveryFeed> => {
     const sb = serverPublicClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const [profilesRes, bountiesRes, productsRes, adsRes] = await Promise.all([
-      sb
+      supabaseAdmin
         .from("profiles")
-        .select("user_id, slug, display_name, username, avatar_path, reputation_stars")
-        .order("reputation_stars", { ascending: false, nullsFirst: false })
-        .limit(40),
+        .select("user_id, slug, display_name, username, avatar_path")
+        .not("display_name", "is", null)
+        .limit(200),
       sb
         .from("bounties")
         .select("id, title, price_usd, cover_path, category, status, end_at")
@@ -130,25 +131,93 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
         .limit(20),
     ]);
 
-    // ---- Peers (top 10, real users only — must have a display_name) ----
+    // ---- Peers: compute REAL reputation stars from live activity; keep only top-tier (>= 4.0) ----
     const profileRows = (profilesRes.data ?? []).filter(
-      (p) => !!p.display_name && p.slug && !/^user-[a-f0-9]+$/i.test(p.slug),
+      (p) => !!p.display_name && p.slug && !/^user-[a-f0-9]+$/i.test(p.slug as string),
     );
-    const topProfiles = profileRows.slice(0, 20);
-    const avatarUrls = await signBucket(sb, "avatars", topProfiles.map((p) => p.avatar_path));
-    const peersAll: DiscoveryPeer[] = topProfiles.map((p, i) => {
-      const name = (p.display_name || p.username || p.slug) as string;
+    const candidateIds = profileRows.map((p) => p.user_id as string);
+
+    let allProducts: Array<{ seller_id: string; rating: number | null; reviews: number | null }> = [];
+    let allBounties: Array<{ poster_id: string; status: string | null }> = [];
+    let allPosts: Array<{ author_id: string; created_at: string }> = [];
+
+    if (candidateIds.length > 0) {
+      const [prodAll, bntAll, postAll] = await Promise.all([
+        supabaseAdmin.from("products").select("seller_id, rating, reviews").in("seller_id", candidateIds),
+        supabaseAdmin.from("bounties").select("poster_id, status").in("poster_id", candidateIds),
+        supabaseAdmin.from("posts").select("author_id, created_at").in("author_id", candidateIds),
+      ]);
+      allProducts = (prodAll.data ?? []) as typeof allProducts;
+      allBounties = (bntAll.data ?? []) as typeof allBounties;
+      allPosts = (postAll.data ?? []) as typeof allPosts;
+    }
+
+    const since30d = Date.now() - 30 * 24 * 3600 * 1000;
+    const clamp01 = (n: number) => Math.max(0, Math.min(1, n));
+
+    const statsByUser = new Map<string, {
+      ratingWeighted: number; reviewSum: number; productsListed: number;
+      bountiesSolved: number; bountiesPosted: number;
+      postsTotal: number; postsLast30d: number;
+    }>();
+    const stat = (uid: string) => {
+      let s = statsByUser.get(uid);
+      if (!s) {
+        s = { ratingWeighted: 0, reviewSum: 0, productsListed: 0, bountiesSolved: 0, bountiesPosted: 0, postsTotal: 0, postsLast30d: 0 };
+        statsByUser.set(uid, s);
+      }
+      return s;
+    };
+    for (const p of allProducts) {
+      const s = stat(p.seller_id);
+      s.productsListed += 1;
+      const r = Number(p.rating ?? 0);
+      const rv = Number(p.reviews ?? 0);
+      if (rv > 0 && r > 0) { s.ratingWeighted += r * rv; s.reviewSum += rv; }
+    }
+    for (const b of allBounties) {
+      const s = stat(b.poster_id);
+      s.bountiesPosted += 1;
+      if (b.status === "solved") s.bountiesSolved += 1;
+    }
+    for (const p of allPosts) {
+      const s = stat(p.author_id);
+      s.postsTotal += 1;
+      if (new Date(p.created_at).getTime() >= since30d) s.postsLast30d += 1;
+    }
+
+    const scored = profileRows.map((p) => {
+      const s = statsByUser.get(p.user_id as string) ?? { ratingWeighted: 0, reviewSum: 0, productsListed: 0, bountiesSolved: 0, bountiesPosted: 0, postsTotal: 0, postsLast30d: 0 };
+      const avgRating = s.reviewSum > 0 ? s.ratingWeighted / s.reviewSum : 0;
+      const weighted =
+        clamp01(avgRating / 5) * 0.3 +
+        clamp01(s.bountiesSolved / 15) * 0.25 +
+        clamp01(s.productsListed / 10) * 0.15 +
+        clamp01(s.postsLast30d / 20) * 0.15 +
+        clamp01((s.postsTotal + s.bountiesPosted) / 60) * 0.15;
+      const stars = Math.round(weighted * 5 * 10) / 10;
+      return { p, stars };
+    });
+
+    // Only top-tier peers (>= 4.0 stars), highest first.
+    const topScored = scored
+      .filter((x) => x.stars >= 4.0)
+      .sort((a, b) => b.stars - a.stars)
+      .slice(0, 10);
+
+    const avatarUrls = await signBucket(sb, "avatars", topScored.map((x) => x.p.avatar_path));
+    const peers: DiscoveryPeer[] = topScored.map((x, i) => {
+      const name = (x.p.display_name || x.p.username || x.p.slug) as string;
       return {
-        id: p.user_id as string,
-        slug: p.slug as string,
+        id: x.p.user_id as string,
+        slug: x.p.slug as string,
         name,
         initials: initialsFor(name),
-        stars: Number(p.reputation_stars ?? 0),
+        stars: x.stars,
         avatarUrl: avatarUrls[i],
         gradient: GRADIENTS[i % GRADIENTS.length],
       };
     });
-    const peers = shuffle(peersAll).slice(0, 10);
 
     // ---- Bounties (top 5 by escrow) ----
     const bRows = bountiesRes.data ?? [];
