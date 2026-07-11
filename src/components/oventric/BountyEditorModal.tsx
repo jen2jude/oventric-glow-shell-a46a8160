@@ -59,6 +59,8 @@ export function BountyEditorModal({
   onClose: () => void;
   onPublished?: (bountyId: string) => void;
 }) {
+  const { baseCurrency } = useOnboarding();
+  const snapshotFx = useServerFn(snapshotFxRates);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
