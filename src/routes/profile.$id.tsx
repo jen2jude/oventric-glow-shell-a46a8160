@@ -184,10 +184,24 @@ function ProfilePage() {
   const fetchSocialCounts = useServerFn(getProfileSocialCounts);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  const [realProfileLoaded, setRealProfileLoaded] = useState(false);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
+  useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setMeId(data.session?.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setMeId(session?.user?.id ?? null);
+    });
+    return () => { alive = false; sub.subscription.unsubscribe(); };
+  }, []);
   useEffect(() => {
     let cancelled = false;
+    setRealProfileLoaded(false);
+    setRealProfile(null);
     (async () => {
       try {
         const [pRes, rRes, cRes] = await Promise.all([
@@ -201,12 +215,17 @@ function ProfilePage() {
         setSocialCounts(cRes);
       } catch (e) {
         console.error("[profile] real load failed", e);
+      } finally {
+        if (!cancelled) setRealProfileLoaded(true);
       }
     })();
     return () => {
       cancelled = true;
     };
   }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
+  const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
+  const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
 
 
 
