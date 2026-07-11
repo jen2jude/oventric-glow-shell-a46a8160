@@ -169,8 +169,9 @@ export const completeProfile = createServerFn({ method: "POST" })
 export const getOnboardingStatus = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { supabase, userId } = context;
-    const { data, error } = await supabase
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("profiles")
       .select(
         "display_name, country, phone, profile_completed_at, kyc_completed_at, kyc_selfie_path, kyc_id_path, verification_tier",
@@ -192,6 +193,7 @@ export const getOnboardingStatus = createServerFn({ method: "GET" })
       verificationTier: (data as { verification_tier?: string } | null)?.verification_tier ?? "TIER_0",
     };
   });
+
 
 const SaveKycInput = z.object({
   phone: z.string().trim().min(6).max(24),
