@@ -108,27 +108,59 @@ export interface DisplayPrice {
  * - Otherwise: treat `price_usd` as USD-native and convert with fallback rates.
  */
 export function computeDisplayPrice(row: PriceableRow, viewer: Currency): DisplayPrice {
-  const snapshot = normalizeSnapshot(row.fx_snapshot);
-  const originalCurrency: Currency = isCurrency(row.original_currency)
-    ? row.original_currency
-    : "USD";
-  const originalAmount = Number(row.original_amount ?? row.price_usd ?? 0);
+  // Defensive: any malformed input should still yield a renderable price so
+  // the UI (and checkout) never crashes on a bad/missing fx_snapshot.
+  try {
+    const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
+    const snapshot = normalizeSnapshot(row?.fx_snapshot);
+    const originalCurrency: Currency = isCurrency(row?.original_currency)
+      ? row.original_currency
+      : "USD";
+    const rawAmount = Number(row?.original_amount ?? row?.price_usd ?? 0);
+    const originalAmount = Number.isFinite(rawAmount) && rawAmount >= 0 ? rawAmount : 0;
 
-  const value = convertViaSnapshot(originalAmount, originalCurrency, viewer, snapshot);
-  const usd =
-    originalCurrency === "USD"
-      ? originalAmount
-      : convertViaSnapshot(originalAmount, originalCurrency, "USD", snapshot);
+    const value = convertViaSnapshot(originalAmount, originalCurrency, safeViewer, snapshot);
+    const usd =
+      originalCurrency === "USD"
+        ? originalAmount
+        : convertViaSnapshot(originalAmount, originalCurrency, "USD", snapshot);
 
-  return {
-    value,
-    currency: viewer,
-    formatted: formatMoney(value, viewer),
-    originalFormatted:
-      originalCurrency !== viewer ? formatMoney(originalAmount, originalCurrency) : null,
-    originalCurrency,
-    originalAmount,
-    usd,
-    isLocked: snapshot !== null,
-  };
+    const safeValue = Number.isFinite(value) ? value : originalAmount;
+    const safeUsd = Number.isFinite(usd) ? usd : originalAmount;
+
+    return {
+      value: safeValue,
+      currency: safeViewer,
+      formatted: formatMoney(safeValue, safeViewer),
+      originalFormatted:
+        originalCurrency !== safeViewer ? formatMoney(originalAmount, originalCurrency) : null,
+      originalCurrency,
+      originalAmount,
+      usd: safeUsd,
+      isLocked: snapshot !== null,
+    };
+  } catch {
+    const fallbackAmount = Number(row?.price_usd ?? row?.original_amount ?? 0) || 0;
+    const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
+    const converted = fallbackAmount * (LEGACY_USD_RATES[safeViewer] ?? 1);
+    return {
+      value: converted,
+      currency: safeViewer,
+      formatted: formatMoney(converted, safeViewer),
+      originalFormatted: null,
+      originalCurrency: "USD",
+      originalAmount: fallbackAmount,
+      usd: fallbackAmount,
+      isLocked: false,
+    };
+  }
+}
+
+/**
+ * Safe wrapper for callers that want a plain formatted string. Guarantees a
+ * renderable value even when `row` is null/undefined or the snapshot is junk.
+ */
+export function safeFormatDisplayPrice(row: PriceableRow | null | undefined, viewer: Currency): string {
+  if (!row) return formatMoney(0, isCurrency(viewer) ? viewer : "USD");
+  return computeDisplayPrice(row, viewer).formatted;
 }

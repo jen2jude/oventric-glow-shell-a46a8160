@@ -79,7 +79,27 @@ export function CourseCheckoutModal({
   }, [grossUSD, couponPct, method]);
   const totalUSD = Math.max(0, Number((grossUSD - discountUSD).toFixed(2)));
 
+  // Snapshot-aware display for the course price. Falls back safely inside
+  // computeDisplayPrice when fxSnapshot is missing/invalid.
+  const priceDisplay = useMemo(() => {
+    if (!course) return null;
+    return computeDisplayPrice(
+      {
+        price_usd: course.priceUSD,
+        original_currency: course.originalCurrency,
+        original_amount: course.originalAmount,
+        fx_snapshot: course.fxSnapshot,
+      },
+      baseCurrency,
+    );
+  }, [course, baseCurrency]);
+
   if (!open || !course) return null;
+
+  const grossFormatted = priceDisplay?.formatted ?? fmt(grossUSD, baseCurrency);
+  const totalFormatted = priceDisplay
+    ? formatMoney(Math.max(0, priceDisplay.value - priceDisplay.value * (couponPct / 100)), baseCurrency)
+    : fmt(totalUSD, baseCurrency);
 
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
@@ -232,14 +252,14 @@ export function CourseCheckoutModal({
               )}
 
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
-                <Row label="Course price" value={fmt(grossUSD, baseCurrency)} />
+                <Row label="Course price" value={grossFormatted} />
                 {discountUSD > 0 && <Row label="Coupon discount" value={`- ${fmt(discountUSD, baseCurrency)}`} accent="text-emerald-300" />}
                 {method === "wallet" && (
                   <Row label="Wallet cashback (2%)" value={`+ ${fmt(totalUSD * 0.02, baseCurrency)}`} accent="text-emerald-300" />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
-                  <span className="text-white font-black text-lg">{fmt(totalUSD, baseCurrency)}</span>
+                  <span className="text-white font-black text-lg">{totalFormatted}</span>
                 </div>
               </div>
 
@@ -264,7 +284,7 @@ export function CourseCheckoutModal({
                 className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-sm inline-flex items-center justify-center gap-2"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-                {method === "wallet" ? "Pay from wallet" : "Continue to payment"} · {fmt(totalUSD, baseCurrency)}
+                {method === "wallet" ? "Pay from wallet" : "Continue to payment"} · {totalFormatted}
               </button>
               <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                 80% goes to the instructor · 20% to platform academy revenue · Secure ledgered payment.
