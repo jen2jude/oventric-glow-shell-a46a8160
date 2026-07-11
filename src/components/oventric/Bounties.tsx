@@ -206,25 +206,7 @@ export function Bounties() {
 
   useTicker(1000);
 
-  const adminBounties: Bounty[] = useMemo(
-    () =>
-      admin.bounties.map((b) => {
-        const fx: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-        const usd = b.escrowAmount / fx[b.escrowCurrency];
-        return {
-          id: b.id,
-          title: b.title,
-          category: "api" as const,
-          priceUSD: Math.round(usd),
-          expiresAt: b.createdAt + 48 * 3_600_000,
-          ownedByMe: false,
-          applicants: [],
-        };
-      }),
-    [admin.bounties],
-  );
-
-  const ALL_BOUNTIES = useMemo(() => [...dbBounties, ...adminBounties, ...BOUNTIES], [dbBounties, adminBounties]);
+  const ALL_BOUNTIES = dbBounties;
 
   const filtered = useMemo(
     () => (filter === "all" ? ALL_BOUNTIES : ALL_BOUNTIES.filter((b) => b.category === filter)),
@@ -238,6 +220,13 @@ export function Bounties() {
 
   // ------- Live contract workspace -------
   if (contract) {
+    const contractBounty = ALL_BOUNTIES.find((b) => b.id === contract.bountyId);
+    const contractApplicant = contractBounty?.applicants.find((a) => a.id === contract.applicantId);
+    if (!contractBounty || !contractApplicant) {
+      setContract(null);
+      setSelectedId(null);
+      return null;
+    }
     return (
       <ContractWorkspace
         contract={contract}
@@ -245,12 +234,8 @@ export function Bounties() {
         role={role}
         setRole={setRole}
         currency={baseCurrency}
-        bounty={BOUNTIES.find((b) => b.id === contract.bountyId)!}
-        applicant={
-          BOUNTIES.find((b) => b.id === contract.bountyId)!.applicants.find(
-            (a) => a.id === contract.applicantId,
-          )!
-        }
+        bounty={contractBounty}
+        applicant={contractApplicant}
         onExit={() => {
           setContract(null);
           setSelectedId(null);
