@@ -226,6 +226,7 @@ export function DiscoveryPanel() {
   // Peer leaderboard is sticky: never refresh on intervals. Only replace when a
   // new peer's rating beats an existing lower-rated one. Persist to localStorage.
   const MAX_PEERS = 10;
+  const DEBUG_PEERS = typeof window !== "undefined" && window.localStorage.getItem("oventric:debug:peers") === "true";
   const [stickyPeers, setStickyPeers] = useState<DiscoveryPeer[]>(() => {
     if (typeof window === "undefined") return [];
     try {
@@ -247,6 +248,10 @@ export function DiscoveryPanel() {
         if (merged.length < MAX_PEERS) {
           merged.push(inc);
           existingIds.add(inc.id);
+          if (DEBUG_PEERS) {
+            // eslint-disable-next-line no-console
+            console.log(`[oventric:peers] added ${inc.name} (${inc.stars.toFixed(2)}★) — slot ${merged.length}/${MAX_PEERS}`);
+          }
           continue;
         }
         let lowestIdx = 0;
@@ -254,7 +259,12 @@ export function DiscoveryPanel() {
           if (merged[i].stars < merged[lowestIdx].stars) lowestIdx = i;
         }
         if (inc.stars > merged[lowestIdx].stars) {
-          existingIds.delete(merged[lowestIdx].id);
+          const outgoing = merged[lowestIdx];
+          if (DEBUG_PEERS) {
+            // eslint-disable-next-line no-console
+            console.log(`[oventric:peers] replaced ${outgoing.name} (${outgoing.stars.toFixed(2)}★) with ${inc.name} (${inc.stars.toFixed(2)}★)`);
+          }
+          existingIds.delete(outgoing.id);
           merged[lowestIdx] = inc;
           existingIds.add(inc.id);
         }
@@ -263,7 +273,7 @@ export function DiscoveryPanel() {
       try { window.localStorage.setItem("oventric:top-peers", JSON.stringify(merged)); } catch { /* noop */ }
       return merged;
     });
-  }, [data?.peers]);
+  }, [data?.peers, DEBUG_PEERS]);
 
   const peers = stickyPeers;
   const bounties = data?.bounties ?? [];
