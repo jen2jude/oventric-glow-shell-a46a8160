@@ -45,6 +45,7 @@ type WalletTopupIntent = {
   purpose: "wallet_topup";
   amount: number;
   currency: OrderCurrency;
+  returnTo?: string;
 };
 
 type OrderIntent = {
@@ -99,6 +100,9 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       amount = Number(data.amount);
       currency = data.currency;
       if (!(amount > 0)) throw new Error("Top-up amount must be greater than zero.");
+      if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
+        metadata.return_to = data.returnTo;
+      }
     } else {
       // Order — resolve authoritative price from DB.
       const { data: p, error } = await context.supabase
@@ -341,7 +345,8 @@ export async function verifyAndSettleByReference(reference: string) {
   }
 
   await settleWalletTopup(userId, payload.reference, amount, currency);
-  return { ok: true as const, status: "success", redirectTo: `/?wallet=funded` };
+  const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?wallet=funded";
+  return { ok: true as const, status: "success", redirectTo: returnTo };
 }
 
 export const verifyPaystackPayment = createServerFn({ method: "POST" })

@@ -5,7 +5,6 @@ import {
   ArrowLeft,
   Wallet as WalletIcon,
   CreditCard,
-  Building2,
   Smartphone,
   ShieldCheck,
   Loader2,
@@ -46,7 +45,6 @@ function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; l
     return [
       ...base,
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Verve, Mastercard, Visa" },
-      { id: "bank_transfer", label: "Bank Transfer", Icon: Building2, hint: "NIP · settles in seconds" },
     ];
   }
   if (country === "GH") {
@@ -190,7 +188,13 @@ function CheckoutPage() {
     try {
       const channel = topUpMethod === "card" ? "card" : topUpMethod === "bank_transfer" ? "bank_transfer" : topUpMethod === "mobile_money" ? "mobile_money" : "card";
       const init = await initPaystack({
-        data: { purpose: "wallet_topup", amount: amt, currency: baseCurrency, channel },
+        data: {
+          purpose: "wallet_topup",
+          amount: amt,
+          currency: baseCurrency,
+          channel,
+          returnTo: `/checkout/${id}?qty=${qty}`,
+        },
       });
       window.location.href = init.authorizationUrl;
     } catch (e) {
