@@ -114,6 +114,28 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
       />
+
+      {mobileSearchOpen && (
+        <div
+          role="dialog"
+          aria-modal="true"
+          aria-label="Search"
+          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+        >
+          <div className="flex items-center gap-2 p-3 border-b border-white/10">
+            <div className="flex-1 min-w-0">
+              <GlobalSearch variant="sheet" autoFocus onClose={() => setMobileSearchOpen(false)} />
+            </div>
+            <button
+              onClick={() => setMobileSearchOpen(false)}
+              aria-label="Close search"
+              className="p-2 rounded-lg text-slate-300 hover:bg-white/5"
+            >
+              <X className="w-5 h-5" />
+            </button>
+          </div>
+        </div>
+      )}
     </header>
   );
 }
