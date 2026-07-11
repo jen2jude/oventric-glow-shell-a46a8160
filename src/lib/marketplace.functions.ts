@@ -15,6 +15,9 @@ export interface ProductDTO {
   category: ProductCategory;
   description: string;
   priceUSD: number;
+  originalCurrency: OrderCurrency;
+  originalAmount: number;
+  fxSnapshot: unknown | null;
   hue: string;
   vendor: string;
   rating: number;
