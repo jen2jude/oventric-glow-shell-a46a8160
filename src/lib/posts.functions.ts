@@ -134,6 +134,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       author_id: r.author_id,
       author_name: name,
       author_slug: prof?.slug ?? null,
+      author_avatar_url: prof?.avatar_path ? (avatarByPath.get(prof.avatar_path) ?? null) : null,
       initials: initialsFrom(name, "OV"),
       text: r.text,
       created_at: r.created_at,
