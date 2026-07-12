@@ -181,7 +181,7 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
   const handleSubmit = () => {
     const t = text.trim();
     if (!t) return;
-    require(2, () => addMut.mutate({ text: t, parentId: replyTo?.id ?? null }), "either");
+    require(2, () => addMut.mutate({ text: t, parentId: replyTo?.id ?? null }), "interaction");
   };
 
   return (
@@ -257,7 +257,7 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
                   setReplyTo(p);
                   inputRef.current?.focus();
                 }}
-                onReact={(id, r) => require(2, () => reactMut.mutate({ commentId: id, reaction: r }), "either")}
+                onReact={(id, r) => require(2, () => reactMut.mutate({ commentId: id, reaction: r }), "interaction")}
               />
             ))
           )}
