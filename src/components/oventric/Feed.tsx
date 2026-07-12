@@ -1067,9 +1067,6 @@ export function Feed() {
             }}
             onOpenComments={(postId) => setCommentsSheetPostId(postId)}
             onReport={(postId) => setReportOpen(postId)}
-            onShare={() => { /* future: share sheet */ }}
-            onSave={() => { /* future: save-to-collection */ }}
-            onPin={() => { /* future: pin */ }}
           />
         );
       })()}
