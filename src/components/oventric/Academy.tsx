@@ -162,8 +162,8 @@ export function Academy() {
         {courses !== null && filtered.length === 0 && (
           <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
             <GraduationCap className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <div className="text-white font-bold">No courses yet in this category</div>
-            <p className="text-sm text-slate-500 mt-1">Be the first to publish one.</p>
+            <div className="text-white font-bold">No courses yet</div>
+            <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
             {userId && (
               <button onClick={() => { setEditingId(undefined); setEditorOpen(true); }} className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm">
                 Publish a Course
