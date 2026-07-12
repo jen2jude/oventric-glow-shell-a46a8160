@@ -1049,6 +1049,43 @@ export function Feed() {
         />
       </div>
       <DiscoveryPanel />
+
+      {lightbox && (
+        <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
+      )}
+      {videoStartId && (() => {
+        const videos = posts.filter((p) => p.media_type === "video" && p.media_url);
+        if (!videos.some((v) => v.id === videoStartId)) return null;
+        return (
+          <VideoPlayerModal
+            videos={videos}
+            startId={videoStartId}
+            onClose={() => setVideoStartId(null)}
+            onReact={(postId, reaction) => {
+              const p = posts.find((x) => x.id === postId);
+              if (p) handleReact(p, reaction);
+            }}
+            onOpenComments={(postId) => setCommentsSheetPostId(postId)}
+            onReport={(postId) => setReportOpen(postId)}
+            onShare={() => { /* future: share sheet */ }}
+            onSave={() => { /* future: save-to-collection */ }}
+            onPin={() => { /* future: pin */ }}
+          />
+        );
+      })()}
+      {commentsSheetPostId && (() => {
+        const p = posts.find((x) => x.id === commentsSheetPostId);
+        if (!p) return null;
+        return (
+          <CommentsSheet
+            postId={p.id}
+            postAuthorName={p.author_name}
+            onClose={() => setCommentsSheetPostId(null)}
+            viewerName="You"
+            viewerInitials="OV"
+          />
+        );
+      })()}
     </div>
   );
 }
