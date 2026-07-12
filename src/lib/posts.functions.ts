@@ -13,6 +13,7 @@ export interface FeedPost {
   author_id: string;
   author_name: string;
   author_slug: string | null;
+  author_avatar_url: string | null;
   initials: string;
   text: string;
   created_at: string;
