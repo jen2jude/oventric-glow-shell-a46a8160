@@ -1,4 +1,4 @@
-import { Paperclip, Heart, MessageSquare, Share2, Sparkles, Target, Users, ShoppingCart, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle } from "lucide-react";
+import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -19,9 +19,19 @@ import {
   listPosts as listPostsFn,
   createPost as createPostFn,
   deletePost as deletePostFn,
-  toggleLike as toggleLikeFn,
+  setReaction as setReactionFn,
   type FeedPost,
+  type ReactionType,
 } from "@/lib/posts.functions";
+import {
+  ReactionPicker,
+  ReactionSplash,
+  ReactionImageBadge,
+  REACTION_META,
+} from "@/components/oventric/feed/Reactions";
+import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { VideoPlayerModal } from "@/components/oventric/feed/VideoPlayerModal";
+import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
 
 interface Comment {
   id: string;
