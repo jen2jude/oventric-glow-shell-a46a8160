@@ -149,6 +149,7 @@ export function Feed() {
   const [postError, setPostError] = useState<string | null>(null);
   const MAX_MEDIA_BYTES = 50 * 1024 * 1024; // 50 MB
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const [attachment, setAttachment] = useState<{
     file: File;
     previewUrl: string;
