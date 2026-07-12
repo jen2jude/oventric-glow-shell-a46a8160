@@ -136,7 +136,11 @@
   will-change: background-position;
   transform: translateZ(0);
   backface-visibility: hidden;
-  contain: strict;
+  /* Note: do NOT use `contain: strict` — it applies size containment which
+     collapses wrappers that use this class as a gradient border (e.g. the
+     auth-gate modal's `rgb-neon-bg rounded-2xl p-[1.5px]` shell), leaving
+     only a thin RGB line. `layout paint style` still isolates repaints. */
+  contain: layout paint style;
 }
 @media (prefers-reduced-motion: reduce) {
   .rgb-neon-bg { animation: none; }
