@@ -88,9 +88,9 @@ export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const Icon = m.Icon;
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-      <div className="rgb-neon-border-wrapper rounded-full">
+      <div className="relative rgb-neon-bg rounded-full p-[2px]">
         <div
-          className="rounded-full bg-black/70 backdrop-blur px-2.5 py-2 flex items-center justify-center"
+          className="rounded-full bg-[#1E1E24] w-10 h-10 flex items-center justify-center"
           style={{ color: m.color, animation: "reaction-breathe 2.4s ease-in-out infinite" }}
         >
           <Icon className="w-5 h-5 fill-current" />
