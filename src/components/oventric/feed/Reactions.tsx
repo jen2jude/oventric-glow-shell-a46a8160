@@ -18,9 +18,11 @@ export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"]
 export function ReactionPicker({
   onPick,
   onClose,
+  align = "left",
 }: {
   onPick: (r: ReactionType) => void;
   onClose: () => void;
+  align?: "left" | "right" | "center";
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -30,10 +32,14 @@ export function ReactionPicker({
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [onClose]);
+  const alignCls =
+    align === "right" ? "right-0"
+    : align === "center" ? "left-1/2 -translate-x-1/2"
+    : "left-0";
   return (
     <div
       ref={ref}
-      className="absolute bottom-full left-0 mb-2 z-30 flex items-center gap-1 rounded-full bg-[#1a1a1e] border border-white/15 px-2 py-1.5 shadow-lg shadow-black/50 animate-in fade-in slide-in-from-bottom-2 duration-150"
+      className={`absolute bottom-full ${alignCls} mb-2 z-30 flex items-center gap-1 rounded-full bg-[#1a1a1e] border border-white/15 px-2 py-1.5 shadow-lg shadow-black/50 animate-in fade-in slide-in-from-bottom-2 duration-150`}
     >
       {REACTION_ORDER.map((r) => {
         const m = REACTION_META[r];
