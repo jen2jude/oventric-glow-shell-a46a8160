@@ -701,8 +701,9 @@ export function Feed() {
     <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+        <div id="oventric-composer" className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
           <textarea
+            ref={composerRef}
             rows={2}
             value={composerDraft}
             onChange={(e) => setComposerDraft(e.target.value)}
