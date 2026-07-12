@@ -401,7 +401,7 @@ export function Feed() {
       return;
     }
     if (file.size > MAX_MEDIA_BYTES) {
-      setPostError("File is too large. Max size is 10 MB.");
+      setPostError("File is too large. Max size is 50 MB.");
       if (fileInputRef.current) fileInputRef.current.value = "";
       return;
     }
@@ -763,7 +763,7 @@ export function Feed() {
               {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
             </button>
           </div>
-          <p className="mt-2 text-[10px] text-slate-500">Images or short videos, up to 10 MB.</p>
+          <p className="mt-2 text-[10px] text-slate-500">Images or short videos, up to 50 MB.</p>
           {postError && <div className="mt-2 text-[11px] text-red-400">{postError}</div>}
         </div>
 
