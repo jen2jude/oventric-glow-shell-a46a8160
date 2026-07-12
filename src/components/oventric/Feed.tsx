@@ -881,30 +881,104 @@ export function Feed() {
                   {post.text}
                 </p>
                 {post.media_url && post.media_type === "image" && (
-                  <img
-                    src={post.media_url}
-                    alt="Post attachment"
-                    loading="lazy"
-                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
-                  />
+                  <div className="relative mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setLightbox(post.media_url!)}
+                      className="block w-full"
+                      aria-label="Open image"
+                    >
+                      <img
+                        src={post.media_url}
+                        alt="Post attachment"
+                        loading="lazy"
+                        className="max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
+                      />
+                    </button>
+                    {splash && splash.postId === post.id && (
+                      <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
+                    )}
+                    {post.viewer_reaction && (
+                      <ReactionImageBadge reaction={post.viewer_reaction} />
+                    )}
+                  </div>
                 )}
                 {post.media_url && post.media_type === "video" && (
-                  <video
-                    src={post.media_url}
-                    controls
-                    preload="metadata"
-                    className="mt-3 max-h-[520px] w-full rounded-lg border border-white/10 bg-black"
-                  />
+                  <div className="relative mt-3">
+                    <button
+                      type="button"
+                      onClick={() => setVideoStartId(post.id)}
+                      className="relative block w-full aspect-video rounded-lg border border-white/10 bg-black overflow-hidden group"
+                      aria-label="Play video"
+                    >
+                      <video
+                        src={post.media_url}
+                        preload="metadata"
+                        muted
+                        playsInline
+                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                      />
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
+                        <div className="p-4 rounded-full bg-black/70 border border-white/25 backdrop-blur">
+                          <Play className="w-8 h-8 text-white fill-white" />
+                        </div>
+                      </div>
+                    </button>
+                    {splash && splash.postId === post.id && (
+                      <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
+                    )}
+                    {post.viewer_reaction && (
+                      <ReactionImageBadge reaction={post.viewer_reaction} />
+                    )}
+                  </div>
                 )}
-                <div className="flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
+
+                {/* Action bar */}
+                <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
+                  <div className="relative">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (post.viewer_reaction) {
+                          handleReact(post, null);
+                        } else {
+                          setPickerFor((v) => (v === post.id ? null : post.id));
+                        }
+                      }}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                      style={{
+                        color: post.viewer_reaction ? REACTION_META[post.viewer_reaction].color : undefined,
+                      }}
+                      aria-pressed={post.viewer_liked}
+                      aria-label="React"
+                    >
+                      {(() => {
+                        const key: ReactionType = post.viewer_reaction ?? "love";
+                        const Icon = REACTION_META[key].Icon;
+                        return (
+                          <Icon
+                            className={`w-4 h-4 ${post.viewer_reaction ? "fill-current" : ""}`}
+                          />
+                        );
+                      })()}
+                      <span>{post.likes_count}</span>
+                    </button>
+                    {pickerFor === post.id && (
+                      <ReactionPicker
+                        onPick={(r) => {
+                          setPickerFor(null);
+                          handleReact(post, r);
+                        }}
+                        onClose={() => setPickerFor(null)}
+                      />
+                    )}
+                  </div>
                   <button
-                    onClick={() => handleLike(post)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors ${post.viewer_liked ? "text-emerald-400" : "hover:text-emerald-400"}`}
-                    aria-pressed={post.viewer_liked}
+                    type="button"
+                    onClick={() => setCommentsSheetPostId(post.id)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors"
+                    aria-label="Open comments"
                   >
-                    <Heart className={`w-4 h-4 ${post.viewer_liked ? "fill-current" : ""}`} /> {post.likes_count}
-                  </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors">
                     <MessageSquare className="w-4 h-4" /> {post.comments_count}
                   </button>
                   <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto">
@@ -912,179 +986,47 @@ export function Feed() {
                   </button>
                 </div>
 
-                {/* Comments */}
-                <div className="mt-4 space-y-2">
+                {/* Comments preview: latest one, tap count → sheet */}
+                <div className="mt-3">
                   {comments.length === 0 ? (
-                    <div className="rounded-lg border border-dashed border-white/10 bg-black/20 px-3 py-4 text-center text-xs text-slate-500">
-                      <MessageSquare className="w-4 h-4 mx-auto mb-1 opacity-60" />
-                      No comments yet. Be the first to reply.
-                    </div>
-                  ) : (
-                    <>
-                      {comments
-                        .slice(0, visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)
-                        .map((c) => (
-                        <div key={c.id} className={`flex items-start gap-2 ${c.status === "pending" ? "opacity-60" : ""}`}>
-                          <Link
-                            to="/profile/$id"
-                            params={{ id: c.authorId }}
-                            className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold"
-                          >
-                            {c.initials}
-                          </Link>
-                          <div className={`group flex-1 border rounded-lg px-3 py-2 ${c.status === "failed" ? "bg-red-500/10 border-red-500/60 ring-1 ring-red-500/30" : "bg-black/30 border-white/5"}`}>
-                            {c.status === "failed" && (
-                              <span className="absolute -mt-4 -ml-1 inline-block w-2 h-2 rounded-full bg-red-500 shadow-[0_0_8px_rgba(239,68,68,0.9)]" aria-hidden />
-                            )}
-                            <div className="flex items-center gap-2">
-                              <Link
-                                to="/profile/$id"
-                                params={{ id: c.authorId }}
-                                className="text-xs font-semibold text-white hover:text-emerald-400"
-                              >
-                                {c.author}
-                              </Link>
-                              {c.status === "pending" && (
-                                <span className="text-[10px] text-slate-500 italic">Sending…</span>
-                              )}
-                              {c.status === "failed" && (
-                                <span className="flex items-center gap-1 text-[10px] text-red-400">
-                                  <AlertCircle className="w-3 h-3" /> Failed to send
-                                </span>
-                              )}
-                              {!c.status && meId && c.authorId === meId && editing?.id !== c.id && (
-                                <div className="ml-auto flex items-center gap-1 opacity-0 group-hover:opacity-100 focus-within:opacity-100 transition-opacity">
-                                  <button
-                                    type="button"
-                                    onClick={() => startEdit(c)}
-                                    aria-label="Edit comment"
-                                    className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-emerald-400"
-                                  >
-                                    <Pencil className="w-3 h-3" />
-                                  </button>
-                                  <button
-                                    type="button"
-                                    onClick={() => removeComment(c.id)}
-                                    aria-label="Delete comment"
-                                    className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-red-400"
-                                  >
-                                    <Trash2 className="w-3 h-3" />
-                                  </button>
-                                </div>
-                              )}
-                            </div>
-                            {editing?.id === c.id ? (
-                              <div className="mt-1 flex items-center gap-1">
-                                <input
-                                  value={editing.text}
-                                  onChange={(e) => setEditing({ id: c.id, text: e.target.value })}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") saveEdit();
-                                    else if (e.key === "Escape") cancelEdit();
-                                  }}
-                                  autoFocus
-                                  className="flex-1 bg-black/40 border border-emerald-500/40 rounded px-2 py-1 text-xs text-slate-100 focus:outline-none focus:border-emerald-500"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={saveEdit}
-                                  disabled={savingEdit || !editing.text.trim() || editing.text.trim() === c.text}
-                                  aria-label="Save edit"
-                                  className="p-1 rounded bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
-                                >
-                                  <Check className="w-3 h-3" />
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={cancelEdit}
-                                  aria-label="Cancel edit"
-                                  className="p-1 rounded hover:bg-white/5 text-slate-400"
-                                >
-                                  <X className="w-3 h-3" />
-                                </button>
-                              </div>
-                            ) : (
-                              <div className="text-xs text-slate-300 mt-0.5 leading-relaxed whitespace-pre-wrap break-words">
-                                {c.text}
-                              </div>
-                            )}
-                            {c.status === "failed" && (
-                              <div
-                                role="alert"
-                                aria-live="polite"
-                                className="mt-2 flex items-start gap-1.5 text-[11px] text-red-300 border-l-2 border-red-500 pl-2"
-                              >
-                                <AlertCircle className="w-3 h-3 mt-0.5 shrink-0" />
-                                <span className="leading-snug">{c.errorMessage ?? "Couldn't post this comment."}</span>
-                              </div>
-                            )}
-                            {c.status === "failed" && (
-                              <div className="mt-2 flex items-center gap-2">
-                                <button
-                                  type="button"
-                                  onClick={() => retryComment(post.id, c.id, c.text)}
-                                  disabled={!!commentPosting[c.id]}
-                                  className="inline-flex items-center gap-1 text-[11px] font-medium text-emerald-400 hover:text-emerald-300 disabled:opacity-50"
-                                >
-                                  <RotateCcw className={`w-3 h-3 ${commentPosting[c.id] ? "animate-spin" : ""}`} />
-                                  {commentPosting[c.id] ? "Retrying…" : "Retry"}
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => discardFailedComment(post.id, c.id)}
-                                  className="text-[11px] font-medium text-slate-400 hover:text-red-400"
-                                >
-                                  Discard
-                                </button>
-                              </div>
-                            )}
-                          </div>
-                        </div>
-
-                      ))}
-                      {comments.length > (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE) && (
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setVisibleComments((prev) => ({
-                              ...prev,
-                              [post.id]: (prev[post.id] ?? COMMENTS_PAGE_SIZE) + COMMENTS_PAGE_SIZE,
-                            }))
-                          }
-                          className="w-full text-center text-xs font-medium text-emerald-400 hover:text-emerald-300 hover:bg-white/5 rounded-lg py-2 transition-colors"
-                        >
-                          Load more comments ({comments.length - (visibleComments[post.id] ?? COMMENTS_PAGE_SIZE)} remaining)
-                        </button>
-                      )}
-                    </>
-                  )}
-                </div>
-
-
-                {/* Inline comment input */}
-                <div className="mt-3 flex items-center gap-2">
-                  <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">
-                    OV
-                  </div>
-                  <div className="flex-1 flex items-center gap-2 bg-black/30 border border-white/10 rounded-lg pl-3 pr-1 py-1 focus-within:border-emerald-500/60 transition-colors">
-                    <input
-                      value={commentDrafts[post.id] ?? ""}
-                      onChange={(e) =>
-                        setCommentDrafts((d) => ({ ...d, [post.id]: e.target.value }))
-                      }
-                      onKeyDown={(e) => e.key === "Enter" && submitComment(post.id)}
-                      placeholder={isLoggedIn ? "Write a comment…" : "Sign in to comment"}
-                      className="flex-1 bg-transparent text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none"
-                    />
                     <button
-                      onClick={() => submitComment(post.id)}
-                      disabled={!(commentDrafts[post.id] ?? "").trim() || !!commentPosting[post.id]}
-                      className="p-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black"
-                      aria-label="Send comment"
+                      type="button"
+                      onClick={() => setCommentsSheetPostId(post.id)}
+                      className="w-full rounded-lg border border-dashed border-white/10 bg-black/20 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 hover:border-white/20 transition-colors"
                     >
-                      <Send className={`w-3.5 h-3.5 ${commentPosting[post.id] ? "animate-pulse" : ""}`} />
+                      No comments yet — be the first to reply.
                     </button>
-                  </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      {(() => {
+                        const latest = comments[comments.length - 1];
+                        return (
+                          <div className="flex items-start gap-2">
+                            <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">
+                              {latest.initials}
+                            </div>
+                            <div className="flex-1 min-w-0 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
+                              <div className="text-xs font-semibold text-white truncate">
+                                {latest.author}
+                              </div>
+                              <div className="text-xs text-slate-300 mt-0.5 line-clamp-2 whitespace-pre-wrap break-words">
+                                {latest.text}
+                              </div>
+                            </div>
+                          </div>
+                        );
+                      })()}
+                      <button
+                        type="button"
+                        onClick={() => setCommentsSheetPostId(post.id)}
+                        className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 ml-9"
+                      >
+                        {post.comments_count > 1
+                          ? `View all ${post.comments_count} comments`
+                          : "Reply"}
+                      </button>
+                    </div>
+                  )}
                 </div>
               </article>
             );
