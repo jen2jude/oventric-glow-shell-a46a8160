@@ -41,18 +41,28 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         aria-label="Oventric"
         className="flex items-center shrink-0"
       >
-        {/* Mobile: ring-only mark */}
+        {/* Mobile: ring-only mark — perfectly round with feathered edge blending into dark bg */}
         <img
           src={logoMark.url}
           alt="Oventric"
-          className="sm:hidden h-9 w-9 object-contain [mix-blend-mode:screen]"
+          className="sm:hidden h-9 w-9 object-cover rounded-full"
+          style={{
+            WebkitMaskImage: "radial-gradient(circle, black 82%, transparent 100%)",
+            maskImage: "radial-gradient(circle, black 82%, transparent 100%)",
+          }}
           draggable={false}
         />
-        {/* Tablet & desktop: full wordmark */}
+        {/* Tablet & desktop: full wordmark — 10px rounded with feathered horizontal edges */}
         <img
           src={logoFull.url}
           alt="Oventric"
-          className="hidden sm:block h-9 w-auto object-contain [mix-blend-mode:screen]"
+          className="hidden sm:block h-9 w-auto object-contain rounded-[10px] [mix-blend-mode:screen]"
+          style={{
+            WebkitMaskImage:
+              "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
+            maskImage:
+              "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
+          }}
           draggable={false}
         />
       </Link>
