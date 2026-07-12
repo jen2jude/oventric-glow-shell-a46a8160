@@ -1,7 +1,27 @@
-import { useEffect, useRef, useState } from "react";
-import { X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag,
+  ThumbsUp, ThumbsDown, EyeOff, Download,
+} from "lucide-react";
 import { ReactionPicker, ReactionSplash, REACTION_META } from "./Reactions";
 import type { FeedPost, ReactionType } from "@/lib/posts.functions";
+
+const PIN_KEY = "oventric:pinned_videos";
+const HIDE_KEY = "oventric:hidden_videos";
+const INTEREST_KEY = "oventric:video_interest"; // { [postId]: 1 | -1 }
+
+function readSet(key: string): Set<string> {
+  try { return new Set(JSON.parse(localStorage.getItem(key) ?? "[]")); } catch { return new Set(); }
+}
+function writeSet(key: string, s: Set<string>) {
+  try { localStorage.setItem(key, JSON.stringify(Array.from(s))); } catch {}
+}
+function readMap(key: string): Record<string, number> {
+  try { return JSON.parse(localStorage.getItem(key) ?? "{}") ?? {}; } catch { return {}; }
+}
+function writeMap(key: string, m: Record<string, number>) {
+  try { localStorage.setItem(key, JSON.stringify(m)); } catch {}
+}
 
 interface Props {
   videos: FeedPost[];
@@ -9,25 +29,56 @@ interface Props {
   onClose: () => void;
   onReact: (postId: string, reaction: ReactionType | null) => void;
   onOpenComments: (postId: string) => void;
-  onPin?: (postId: string) => void;
   onReport?: (postId: string) => void;
-  onShare?: (postId: string) => void;
-  onSave?: (postId: string) => void;
+}
+
+async function downloadVideo(url: string, filename: string) {
+  try {
+    const res = await fetch(url);
+    const blob = await res.blob();
+    const objUrl = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = objUrl;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(objUrl), 1500);
+  } catch {
+    window.open(url, "_blank");
+  }
+}
+
+async function shareVideo(post: FeedPost) {
+  const url = post.media_url ?? window.location.href;
+  const shareData = { title: `@${post.author_slug ?? post.author_name}`, text: post.text, url };
+  if (navigator.share) {
+    try { await navigator.share(shareData); return; } catch { /* cancelled */ }
+  }
+  try { await navigator.clipboard.writeText(url); alert("Link copied to clipboard"); } catch { /* ignore */ }
 }
 
 function VideoItem({
   post,
   active,
+  pinned,
   onReact,
   onOpenComments,
-  onPin,
+  onTogglePin,
   onReport,
-  onShare,
-  onSave,
+  onInterest,
+  onHide,
 }: {
   post: FeedPost;
   active: boolean;
-} & Omit<Props, "videos" | "startId" | "onClose">) {
+  pinned: boolean;
+  onReact: (postId: string, reaction: ReactionType | null) => void;
+  onOpenComments: (postId: string) => void;
+  onTogglePin: (postId: string) => void;
+  onReport?: (postId: string) => void;
+  onInterest: (postId: string, value: 1 | -1) => void;
+  onHide: (postId: string) => void;
+}) {
   const vRef = useRef<HTMLVideoElement | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -63,14 +114,11 @@ function VideoItem({
         className="max-h-full max-w-full object-contain"
         loop
         playsInline
+        preload="metadata"
         onClick={() => {
           const v = vRef.current;
           if (!v) return;
-          if (v.paused) {
-            v.play(); setPaused(false);
-          } else {
-            v.pause(); setPaused(true);
-          }
+          if (v.paused) { v.play(); setPaused(false); } else { v.pause(); setPaused(true); }
         }}
       />
       {paused && (
@@ -86,10 +134,23 @@ function VideoItem({
 
       {splash && <ReactionSplash reaction={splash.r} keyId={splash.id} />}
 
-      {/* Caption */}
-      <div className="absolute left-3 right-20 bottom-6 z-10">
-        <div className="text-[13px] font-semibold text-white/95">@{post.author_slug ?? post.author_name}</div>
-        <div className="text-[12px] text-white/85 line-clamp-3 mt-0.5">{post.text}</div>
+      {/* Caption with avatar */}
+      <div className="absolute left-3 right-20 bottom-6 z-10 flex items-start gap-2">
+        {post.author_avatar_url ? (
+          <img
+            src={post.author_avatar_url}
+            alt={post.author_name}
+            className="w-9 h-9 rounded-full object-cover border border-white/30 shrink-0"
+          />
+        ) : (
+          <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[11px] font-semibold text-emerald-300 shrink-0">
+            {post.initials}
+          </div>
+        )}
+        <div className="min-w-0">
+          <div className="text-[13px] font-semibold text-white/95">@{post.author_slug ?? post.author_name}</div>
+          <div className="text-[12px] text-white/85 line-clamp-3 mt-0.5">{post.text}</div>
+        </div>
       </div>
 
       {/* Side actions */}
@@ -110,10 +171,8 @@ function VideoItem({
           <span className="text-[11px] text-white/90 mt-1">{post.likes_count}</span>
           {pickerOpen && (
             <ReactionPicker
-              onPick={(r) => {
-                setPickerOpen(false);
-                doReact(r);
-              }}
+              align="right"
+              onPick={(r) => { setPickerOpen(false); doReact(r); }}
               onClose={() => setPickerOpen(false)}
             />
           )}
@@ -129,11 +188,13 @@ function VideoItem({
         <span className="text-[11px] text-white/90 -mt-3">{post.comments_count}</span>
         <button
           type="button"
-          onClick={() => onPin?.(post.id)}
-          className="p-3 rounded-full bg-black/50 border border-white/20 text-white"
-          aria-label="Pin"
+          onClick={() => onTogglePin(post.id)}
+          className={`p-3 rounded-full bg-black/50 border backdrop-blur transition-colors ${
+            pinned ? "border-emerald-400 text-emerald-300" : "border-white/20 text-white"
+          }`}
+          aria-label={pinned ? "Unpin" : "Pin"}
         >
-          <Pin className="w-6 h-6" />
+          <Pin className={`w-6 h-6 ${pinned ? "fill-current" : ""}`} />
         </button>
         <div className="relative">
           <button
@@ -145,15 +206,52 @@ function VideoItem({
             <MoreHorizontal className="w-6 h-6" />
           </button>
           {menuOpen && (
-            <div className="absolute right-0 bottom-full mb-2 min-w-[10rem] rounded-xl bg-[#1a1a1e] border border-white/15 shadow-xl py-1 text-[13px] text-slate-100">
-              <button className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2" onClick={() => { setMenuOpen(false); onSave?.(post.id); }}>
-                <Bookmark className="w-4 h-4" /> Save
+            <div className="absolute right-0 bottom-full mb-2 min-w-[11rem] rounded-xl bg-[#1a1a1e] border border-white/15 shadow-xl py-1 text-[13px] text-slate-100">
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => { setMenuOpen(false); onInterest(post.id, 1); }}
+              >
+                <ThumbsUp className="w-4 h-4" /> Interested
               </button>
-              <button className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2" onClick={() => { setMenuOpen(false); onShare?.(post.id); }}>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => { setMenuOpen(false); onInterest(post.id, -1); }}
+              >
+                <ThumbsDown className="w-4 h-4" /> Not interested
+              </button>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => { setMenuOpen(false); onHide(post.id); }}
+              >
+                <EyeOff className="w-4 h-4" /> Hide reel
+              </button>
+              <div className="my-1 h-px bg-white/10" />
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  if (post.media_url) downloadVideo(post.media_url, `oventric-${post.id}.mp4`);
+                }}
+              >
+                <Download className="w-4 h-4" /> Save
+              </button>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => { setMenuOpen(false); shareVideo(post); }}
+              >
                 <Share2 className="w-4 h-4" /> Share
               </button>
-              <button className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2 text-rose-300" onClick={() => { setMenuOpen(false); onReport?.(post.id); }}>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2 text-rose-300"
+                onClick={() => { setMenuOpen(false); onReport?.(post.id); }}
+              >
                 <Flag className="w-4 h-4" /> Report
+              </button>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => { setMenuOpen(false); if (post.media_url) shareVideo(post); }}
+              >
+                <Bookmark className="w-4 h-4" /> Copy link
               </button>
             </div>
           )}
@@ -163,9 +261,24 @@ function VideoItem({
   );
 }
 
-export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComments, onPin, onReport, onShare, onSave }: Props) {
+export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComments, onReport }: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeId, setActiveId] = useState(startId);
+  const [pinned, setPinned] = useState<Set<string>>(() => readSet(PIN_KEY));
+  const [hidden, setHidden] = useState<Set<string>>(() => readSet(HIDE_KEY));
+  const [interest, setInterest] = useState<Record<string, number>>(() => readMap(INTEREST_KEY));
+
+  // Build ordered list: start video first, pinned videos next, then remaining (interest weighted, hidden excluded).
+  const ordered = useMemo(() => {
+    const visible = videos.filter((v) => !hidden.has(v.id) || v.id === startId);
+    const start = visible.find((v) => v.id === startId);
+    const rest = visible.filter((v) => v.id !== startId);
+    const pinnedOrdered = rest.filter((v) => pinned.has(v.id));
+    const others = rest
+      .filter((v) => !pinned.has(v.id))
+      .sort((a, b) => (interest[b.id] ?? 0) - (interest[a.id] ?? 0));
+    return start ? [start, ...pinnedOrdered, ...others] : [...pinnedOrdered, ...others];
+  }, [videos, pinned, hidden, interest, startId]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
@@ -175,13 +288,11 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
     return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
   }, [onClose]);
 
-  // Scroll to start video on mount
   useEffect(() => {
     const el = scrollRef.current?.querySelector<HTMLElement>(`[data-video-id="${startId}"]`);
     el?.scrollIntoView({ block: "start", behavior: "instant" as ScrollBehavior });
   }, [startId]);
 
-  // Track which item is currently in view
   useEffect(() => {
     const root = scrollRef.current;
     if (!root) return;
@@ -198,7 +309,31 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
     );
     root.querySelectorAll<HTMLElement>("[data-video-id]").forEach((el) => observer.observe(el));
     return () => observer.disconnect();
-  }, [videos.length]);
+  }, [ordered.length]);
+
+  const togglePin = (id: string) => {
+    setPinned((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      writeSet(PIN_KEY, next);
+      return next;
+    });
+  };
+  const hideVideo = (id: string) => {
+    setHidden((prev) => {
+      const next = new Set(prev);
+      next.add(id);
+      writeSet(HIDE_KEY, next);
+      return next;
+    });
+  };
+  const markInterest = (id: string, v: 1 | -1) => {
+    setInterest((prev) => {
+      const next = { ...prev, [id]: v };
+      writeMap(INTEREST_KEY, next);
+      return next;
+    });
+  };
 
   return (
     <div className="fixed inset-0 z-[105] bg-black">
@@ -210,21 +345,19 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
       >
         <X className="w-5 h-5" />
       </button>
-      <div
-        ref={scrollRef}
-        className="h-full w-full overflow-y-auto snap-y snap-mandatory"
-      >
-        {videos.map((v) => (
+      <div ref={scrollRef} className="h-full w-full overflow-y-auto snap-y snap-mandatory">
+        {ordered.map((v) => (
           <div key={v.id} data-video-id={v.id} className="w-full h-[100dvh]">
             <VideoItem
               post={v}
               active={v.id === activeId}
+              pinned={pinned.has(v.id)}
               onReact={onReact}
               onOpenComments={onOpenComments}
-              onPin={onPin}
+              onTogglePin={togglePin}
               onReport={onReport}
-              onShare={onShare}
-              onSave={onSave}
+              onInterest={markInterest}
+              onHide={hideVideo}
             />
           </div>
         ))}

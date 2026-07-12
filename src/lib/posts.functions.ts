@@ -13,6 +13,7 @@ export interface FeedPost {
   author_id: string;
   author_name: string;
   author_slug: string | null;
+  author_avatar_url: string | null;
   initials: string;
   text: string;
   created_at: string;
@@ -82,10 +83,19 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   const postIds = rows.map((r) => r.id);
 
   const [{ data: profiles }, likesRes, { data: commentRows }] = await Promise.all([
-    sb.from("profiles").select("user_id, display_name, username, slug").in("user_id", authorIds),
+    sb.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", authorIds),
     sb.from("post_likes").select("post_id, user_id, reaction" as any).in("post_id", postIds),
     sb.from("post_comments").select("post_id").in("post_id", postIds),
   ]);
+
+  const avatarPaths = Array.from(
+    new Set(((profiles ?? []).map((p) => p.avatar_path).filter((p): p is string => !!p))),
+  );
+  const avatarByPath = new Map<string, string>();
+  if (avatarPaths.length) {
+    const { data: signed } = await sb.storage.from("avatars").createSignedUrls(avatarPaths, 60 * 60 * 6);
+    (signed ?? []).forEach((s) => { if (s.path && s.signedUrl) avatarByPath.set(s.path, s.signedUrl); });
+  }
 
   const mediaPaths = userId
     ? rows.map((r) => r.media_path).filter((p): p is string => !!p)
@@ -124,6 +134,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       author_id: r.author_id,
       author_name: name,
       author_slug: prof?.slug ?? null,
+      author_avatar_url: prof?.avatar_path ? (avatarByPath.get(prof.avatar_path) ?? null) : null,
       initials: initialsFrom(name, "OV"),
       text: r.text,
       created_at: r.created_at,

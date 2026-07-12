@@ -149,6 +149,7 @@ export function Feed() {
   const [postError, setPostError] = useState<string | null>(null);
   const MAX_MEDIA_BYTES = 50 * 1024 * 1024; // 50 MB
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const composerRef = useRef<HTMLTextAreaElement | null>(null);
   const [attachment, setAttachment] = useState<{
     file: File;
     previewUrl: string;
@@ -242,6 +243,19 @@ export function Feed() {
       const { data } = await supabase.auth.getUser();
       if (data.user?.id) setMeId(data.user.id);
     })();
+  }, []);
+
+  // Focus composer when the create panel dispatches a "post" action.
+  useEffect(() => {
+    const onCreate = (e: Event) => {
+      const kind = (e as CustomEvent<{ kind?: string }>).detail?.kind;
+      if (kind !== "post") return;
+      const el = document.getElementById("oventric-composer");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      setTimeout(() => composerRef.current?.focus(), 350);
+    };
+    window.addEventListener("oventric:create", onCreate);
+    return () => window.removeEventListener("oventric:create", onCreate);
   }, []);
 
   // Initial posts load
@@ -700,8 +714,9 @@ export function Feed() {
     <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+        <div id="oventric-composer" className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
           <textarea
+            ref={composerRef}
             rows={2}
             value={composerDraft}
             onChange={(e) => setComposerDraft(e.target.value)}
@@ -1067,9 +1082,6 @@ export function Feed() {
             }}
             onOpenComments={(postId) => setCommentsSheetPostId(postId)}
             onReport={(postId) => setReportOpen(postId)}
-            onShare={() => { /* future: share sheet */ }}
-            onSave={() => { /* future: save-to-collection */ }}
-            onPin={() => { /* future: pin */ }}
           />
         );
       })()}

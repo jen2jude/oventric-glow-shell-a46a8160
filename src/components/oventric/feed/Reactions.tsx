@@ -18,9 +18,11 @@ export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"]
 export function ReactionPicker({
   onPick,
   onClose,
+  align = "left",
 }: {
   onPick: (r: ReactionType) => void;
   onClose: () => void;
+  align?: "left" | "right" | "center";
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   useEffect(() => {
@@ -30,10 +32,14 @@ export function ReactionPicker({
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [onClose]);
+  const alignCls =
+    align === "right" ? "right-0"
+    : align === "center" ? "left-1/2 -translate-x-1/2"
+    : "left-0";
   return (
     <div
       ref={ref}
-      className="absolute bottom-full left-0 mb-2 z-30 flex items-center gap-1 rounded-full bg-[#1a1a1e] border border-white/15 px-2 py-1.5 shadow-lg shadow-black/50 animate-in fade-in slide-in-from-bottom-2 duration-150"
+      className={`absolute bottom-full ${alignCls} mb-2 z-30 flex items-center gap-1 rounded-full bg-[#1a1a1e] border border-white/15 px-2 py-1.5 shadow-lg shadow-black/50 animate-in fade-in slide-in-from-bottom-2 duration-150`}
     >
       {REACTION_ORDER.map((r) => {
         const m = REACTION_META[r];
@@ -88,9 +94,9 @@ export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const Icon = m.Icon;
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-      <div className="rgb-neon-border-wrapper rounded-full">
+      <div className="relative rgb-neon-bg rounded-full p-[2px]">
         <div
-          className="rounded-full bg-black/70 backdrop-blur px-2.5 py-2 flex items-center justify-center"
+          className="rounded-full bg-[#1E1E24] w-10 h-10 flex items-center justify-center"
           style={{ color: m.color, animation: "reaction-breathe 2.4s ease-in-out infinite" }}
         >
           <Icon className="w-5 h-5 fill-current" />
