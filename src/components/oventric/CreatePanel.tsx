@@ -40,7 +40,11 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         return;
       }
       onClose();
-      window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: c.key } }));
+      window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Feed" } }));
+      // Delay so Feed can mount before we scroll/focus its composer.
+      setTimeout(() => {
+        window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: c.key } }));
+      }, 80);
     });
   };
 
