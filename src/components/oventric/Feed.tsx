@@ -454,28 +454,48 @@ export function Feed() {
   };
 
 
-  const handleLike = (post: FeedPost) => {
+  // Splash + picker state, keyed by post id.
+  const [pickerFor, setPickerFor] = useState<string | null>(null);
+  const [splash, setSplash] = useState<{ postId: string; reaction: ReactionType; id: number } | null>(null);
+  const [lightbox, setLightbox] = useState<string | null>(null);
+  const [videoStartId, setVideoStartId] = useState<string | null>(null);
+  const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
+
+  const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, laugh: 0, crown: 0 });
+
+  const handleReact = (post: FeedPost, reaction: ReactionType | null) => {
     require(1, async () => {
-      const nextLiked = !post.viewer_liked;
+      const prevReaction = post.viewer_reaction;
+      // Optimistic update
       setPosts((prev) =>
-        prev.map((p) =>
-          p.id === post.id
-            ? {
-                ...p,
-                viewer_liked: nextLiked,
-                likes_count: Math.max(0, p.likes_count + (nextLiked ? 1 : -1)),
-              }
-            : p,
-        ),
+        prev.map((p) => {
+          if (p.id !== post.id) return p;
+          const counts = { ...(p.reactions ?? zeroCounts()) };
+          if (prevReaction) counts[prevReaction] = Math.max(0, counts[prevReaction] - 1);
+          if (reaction) counts[reaction] = (counts[reaction] ?? 0) + 1;
+          const total = counts.love + counts.like + counts.laugh + counts.crown;
+          return {
+            ...p,
+            reactions: counts,
+            viewer_reaction: reaction,
+            viewer_liked: reaction !== null,
+            likes_count: total,
+          };
+        }),
       );
+      if (reaction) {
+        setSplash({ postId: post.id, reaction, id: Date.now() });
+        setTimeout(() => setSplash((s) => (s && s.postId === post.id ? null : s)), 950);
+      }
       try {
-        await toggleLike({ data: { postId: post.id, like: nextLiked } });
+        await setReaction({ data: { postId: post.id, reaction } });
       } catch (e) {
         console.error(e);
+        // Revert on failure
         setPosts((prev) =>
           prev.map((p) =>
             p.id === post.id
-              ? { ...p, viewer_liked: post.viewer_liked, likes_count: post.likes_count }
+              ? { ...p, viewer_reaction: prevReaction, viewer_liked: prevReaction !== null, reactions: post.reactions, likes_count: post.likes_count }
               : p,
           ),
         );
