@@ -669,8 +669,10 @@ function ProfilePage() {
                     <ResponsiveImage
                       src={displayAvatar}
                       alt={`${displayName} avatar`}
+                      sizes="80px"
                       className="w-full h-full object-cover"
                     />
+
                   ) : (
                     displayInitials
                   )}
