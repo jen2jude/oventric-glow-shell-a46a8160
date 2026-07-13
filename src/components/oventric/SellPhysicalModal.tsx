@@ -80,14 +80,15 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (submitting) return;
-    if (!title.trim()) return toast.error("Title required");
-    if (!category) return toast.error("Choose a category");
-    if (!description.trim()) return toast.error("Description required");
-    if (images.length < 3) return toast.error("Upload at least 3 product images");
+    if (!title.trim()) return toast.error("Title required", { description: "Add a product title before posting." });
+    if (!category) return toast.error("Choose a category", { description: "Pick the category that best fits your product." });
+    if (!description.trim()) return toast.error("Description required", { description: "Describe the product for buyers." });
+    if (images.length < 3) return toast.error(`Upload at least 3 product images (you have ${images.length})`, { description: "The first image will be the cover." });
     const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) return toast.error("Price must be greater than 0");
+    if (!(priceLocal > 0)) return toast.error("Enter a price greater than 0", { description: `Price is in ${baseCurrency}.` });
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) return toast.error("Enter a valid phone number");
+    if (digits.length < 6) return toast.error("Enter a valid phone number", { description: "Include your country code, digits only." });
+
 
     setSubmitting(true);
     try {
