@@ -341,6 +341,7 @@ function BlogEditorPage() {
             ref={editorRef}
             contentEditable
             suppressContentEditableWarning
+            onInput={(e) => setBodyHtml((e.target as HTMLDivElement).innerHTML)}
             className="prose-editor min-h-[420px] bg-[#141418] border border-white/10 border-t-0 rounded-b-lg px-5 py-4 text-slate-200 leading-relaxed focus:outline-none"
             style={{ minHeight: 420 }}
           />
