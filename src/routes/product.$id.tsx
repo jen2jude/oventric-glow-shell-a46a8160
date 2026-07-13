@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Star, ShoppingCart, Flame, Sparkles, Loader2, Phone, MessageCircle, MapPin, X, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Flame, Sparkles, Loader2, Phone, MessageCircle, MapPin, X, AlertTriangle, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
@@ -264,7 +265,22 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
             </div>
           </div>
           <div className="border-t border-white/10 bg-[#0f1012] px-3 py-2">
-            <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">WhatsApp message preview</div>
+            <div className="flex items-center justify-between gap-2 mb-1">
+              <div className="text-[10px] uppercase tracking-widest text-slate-500">WhatsApp message preview</div>
+              <button
+                onClick={async () => {
+                  try {
+                    await navigator.clipboard.writeText(message);
+                    toast.success("WhatsApp message copied");
+                  } catch {
+                    toast.error("Could not copy message");
+                  }
+                }}
+                className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 hover:text-emerald-200"
+              >
+                <Copy className="w-3 h-3" /> Copy message
+              </button>
+            </div>
             <pre className="text-xs text-slate-200 whitespace-pre-wrap font-sans leading-relaxed break-words">{message}</pre>
           </div>
         </div>
