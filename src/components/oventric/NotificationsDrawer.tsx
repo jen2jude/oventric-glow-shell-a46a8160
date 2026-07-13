@@ -359,12 +359,13 @@ export function NotificationsDrawer({
             <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
               {viewing.body ? (
                 <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
-                  {viewing.body}
+                  {renderLinkified(viewing.body)}
                 </p>
               ) : (
                 <p className="text-sm text-slate-500 italic">No additional content.</p>
               )}
             </div>
+
             {viewing.link && (
               <div className="px-5 py-3 border-t border-white/5 bg-[#121214]">
                 <button
