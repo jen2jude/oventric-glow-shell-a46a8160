@@ -3,7 +3,8 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff } from "lucide-react";
+import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff, Package } from "lucide-react";
+import { MyListingsModal } from "@/components/oventric/MyListingsModal";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -50,6 +51,7 @@ export function ProfileDropdown() {
   const [isMobile, setIsMobile] = useState(false);
   const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
+  const [listingsOpen, setListingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -353,6 +355,19 @@ export function ProfileDropdown() {
           <div className="text-[10px] text-slate-500 truncate">Name, bio, avatar, verification docs</div>
         </div>
       </button>
+      <button
+        type="button"
+        role="menuitem"
+        tabIndex={-1}
+        onClick={() => { closeMenu(false); setListingsOpen(true); }}
+        className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
+      >
+        <Package className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
+        <div className="min-w-0">
+          <div className="font-semibold truncate">My Listings</div>
+          <div className="text-[10px] text-slate-500 truncate">Track status · edit & resubmit rejected items</div>
+        </div>
+      </button>
     </div>
   );
 
@@ -435,6 +450,9 @@ export function ProfileDropdown() {
         userId={userId}
         onSave={persistProfile}
       />
+
+      <MyListingsModal open={listingsOpen} onClose={() => setListingsOpen(false)} />
+
 
     </div>
   );

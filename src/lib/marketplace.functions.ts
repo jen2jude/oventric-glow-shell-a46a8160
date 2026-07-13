@@ -346,8 +346,167 @@ export const listMyProducts = createServerFn({ method: "GET" })
       .eq("seller_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
-    return (data ?? []).map((r) => mapProduct(r as Record<string, unknown>));
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const out: ProductDTO[] = [];
+    for (const r of rows) {
+      const cover = (r.cover_path as string) ?? null;
+      let coverUrl: string | null = null;
+      if (cover) {
+        const { data: sig } = await context.supabase.storage
+          .from("product-covers")
+          .createSignedUrl(cover, 60 * 60 * 24);
+        coverUrl = sig?.signedUrl ?? null;
+      }
+      const paths = Array.isArray(r.image_paths) ? (r.image_paths as string[]) : [];
+      const imageUrls: string[] = [];
+      for (const p of paths) {
+        const { data: sig } = await context.supabase.storage
+          .from("product-covers")
+          .createSignedUrl(p, 60 * 60 * 24);
+        imageUrls.push(sig?.signedUrl ?? "");
+      }
+      out.push(mapProduct(r, coverUrl, imageUrls));
+    }
+    return out;
   });
+
+/**
+ * Update a rejected listing and resubmit it for review. Only the owner can call
+ * this, and only when the product is currently in the `rejected` state.
+ * Status transitions back to `pending`, reject_reason is cleared, and the admin
+ * team receives a system notification (with the seller's optional response).
+ */
+export const updateAndResubmitProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    id: string;
+    name?: string;
+    category?: string;
+    subcategory?: string | null;
+    description?: string;
+    priceUSD?: number;
+    originalCurrency?: OrderCurrency;
+    originalAmount?: number;
+    fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
+    externalUrl?: string | null;
+    filePath?: string | null;
+    coverPath?: string | null;
+    imagePaths?: string[];
+    condition?: string | null;
+    brand?: string | null;
+    location?: string | null;
+    negotiable?: string | null;
+    delivery?: string | null;
+    sellerPhone?: string | null;
+    whatsappNumber?: string | null;
+    socialLink?: string | null;
+    sellerResponse?: string | null;
+  }) => ({
+    id: String(input.id ?? ""),
+    name: input.name !== undefined ? String(input.name).trim() : undefined,
+    category: input.category !== undefined ? String(input.category).trim() : undefined,
+    subcategory: input.subcategory !== undefined ? (input.subcategory ? String(input.subcategory).trim() : null) : undefined,
+    description: input.description !== undefined ? String(input.description).trim() : undefined,
+    priceUSD: input.priceUSD !== undefined ? Number(input.priceUSD) : undefined,
+    originalCurrency: input.originalCurrency,
+    originalAmount: input.originalAmount !== undefined ? Number(input.originalAmount) : undefined,
+    fxSnapshot: input.fxSnapshot ?? undefined,
+    externalUrl: input.externalUrl,
+    filePath: input.filePath,
+    coverPath: input.coverPath,
+    imagePaths: input.imagePaths,
+    condition: input.condition,
+    brand: input.brand,
+    location: input.location,
+    negotiable: input.negotiable,
+    delivery: input.delivery,
+    sellerPhone: input.sellerPhone !== undefined && input.sellerPhone !== null
+      ? String(input.sellerPhone).replace(/\D/g, "")
+      : input.sellerPhone,
+    whatsappNumber: input.whatsappNumber !== undefined && input.whatsappNumber !== null
+      ? String(input.whatsappNumber).replace(/\D/g, "")
+      : input.whatsappNumber,
+    socialLink: input.socialLink,
+    sellerResponse: input.sellerResponse ? String(input.sellerResponse).trim().slice(0, 1000) : null,
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.id) throw new Error("Product id required");
+
+    // Load and verify ownership + rejected state.
+    const { data: current, error: loadErr } = await context.supabase
+      .from("products")
+      .select("id, seller_id, status, kind, name")
+      .eq("id", data.id)
+      .maybeSingle();
+    if (loadErr) throw new Error(loadErr.message);
+    if (!current) throw new Error("Listing not found");
+    if ((current.seller_id as string) !== context.userId) throw new Error("You can only resubmit your own listings");
+    if ((current.status as string) !== "rejected") throw new Error("Only rejected listings can be resubmitted");
+
+    const patch: Record<string, unknown> = {
+      status: "pending",
+      reject_reason: null,
+    };
+    if (data.name !== undefined) patch.name = data.name;
+    if (data.category !== undefined) patch.category = data.category;
+    if (data.subcategory !== undefined) patch.subcategory = data.subcategory;
+    if (data.description !== undefined) patch.description = data.description;
+    if (data.priceUSD !== undefined) patch.price_usd = data.priceUSD;
+    if (data.originalCurrency !== undefined) patch.original_currency = data.originalCurrency;
+    if (data.originalAmount !== undefined) patch.original_amount = data.originalAmount;
+    if (data.fxSnapshot !== undefined) patch.fx_snapshot = data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null;
+    if (data.externalUrl !== undefined) patch.external_url = data.externalUrl;
+    if (data.filePath !== undefined) patch.file_path = data.filePath;
+    if (data.coverPath !== undefined) patch.cover_path = data.coverPath;
+    if (data.imagePaths !== undefined) {
+      patch.image_paths = data.imagePaths;
+      if (data.imagePaths.length > 0) patch.cover_path = data.imagePaths[0];
+    }
+    if (data.condition !== undefined) patch.condition = data.condition;
+    if (data.brand !== undefined) patch.brand = data.brand;
+    if (data.location !== undefined) patch.location = data.location;
+    if (data.negotiable !== undefined) patch.negotiable = data.negotiable;
+    if (data.delivery !== undefined) patch.delivery = data.delivery;
+    if (data.sellerPhone !== undefined) patch.seller_phone = data.sellerPhone;
+    if (data.whatsappNumber !== undefined) patch.whatsapp_number = data.whatsappNumber;
+    if (data.socialLink !== undefined) patch.social_link = data.socialLink;
+
+    const { error: updErr } = await context.supabase
+      .from("products")
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      .update(patch as any)
+      .eq("id", data.id)
+      .eq("seller_id", context.userId);
+    if (updErr) throw new Error(updErr.message);
+
+    // Notify admins so the resubmission surfaces in their moderation queue.
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: admins } = await supabaseAdmin
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+      const body = data.sellerResponse
+        ? `Seller resubmitted "${current.name as string}" for review. Response: ${data.sellerResponse}`
+        : `Seller resubmitted "${current.name as string}" for review.`;
+      const rows = (admins ?? []).map((a) => ({
+        user_id: a.user_id as string,
+        kind: "system" as const,
+        title: "Listing resubmitted for review",
+        body,
+        link: `/admin/products`,
+        from_user_id: context.userId,
+      }));
+      if (rows.length > 0) {
+        await supabaseAdmin.from("notifications").insert(rows);
+      }
+    } catch (err) {
+      console.error("[updateAndResubmitProduct] admin notify failed", err);
+    }
+
+    return { id: data.id, status: "pending" as const };
+  });
+
 
 
 /** Wallet top-up (mock card/bank/momo processing). Credits the user's wallet in USD equivalent. */
