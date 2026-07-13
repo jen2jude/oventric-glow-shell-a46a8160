@@ -20,7 +20,7 @@ export function shareUrl(url: string, title = "Oventric") {
 const LS = {
   saved: "oventric.saved_posts",
   hidden: "oventric.hidden_posts",
-  interest: "oventric.interested_posts",
+  interested: "oventric.interested_posts",
 };
 
 function readSet(key: string): Set<string> {
