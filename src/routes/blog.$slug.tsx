@@ -100,19 +100,27 @@ function BlogArticle() {
   };
 
   if (post === undefined) {
-    return <div className="min-h-screen bg-[#0b0b0d] flex justify-center pt-20"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return (
+      <PublicChrome>
+        <div className="min-h-screen bg-[#0b0b0d] flex justify-center pt-20"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
+      </PublicChrome>
+    );
   }
   if (post === null) {
     return (
-      <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex flex-col items-center justify-center p-6">
-        <p className="text-white text-xl font-black">Article not found.</p>
-        <Link to="/blog" className="mt-3 text-emerald-400 hover:text-emerald-300 text-sm">← Back to blog</Link>
-      </div>
+      <PublicChrome>
+        <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex flex-col items-center justify-center p-6">
+          <p className="text-white text-xl font-black">Article not found.</p>
+          <Link to="/blog" className="mt-3 text-emerald-400 hover:text-emerald-300 text-sm">← Back to blog</Link>
+        </div>
+      </PublicChrome>
     );
   }
 
   return (
+    <PublicChrome>
     <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+
       <div className="max-w-3xl mx-auto px-4 py-8">
         <Link to="/blog" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm mb-6">
           <ArrowLeft className="w-4 h-4" /> Blog
