@@ -11,6 +11,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { PublicChrome } from "@/components/oventric/PublicChrome";
+import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/$slug")({
@@ -47,6 +48,7 @@ function BlogArticle() {
   const [posting, setPosting] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; author: string } | null>(null);
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set());
+  const [shareOpen, setShareOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const r = await getFn({ data: { slug } });
@@ -59,13 +61,7 @@ function BlogArticle() {
 
   useEffect(() => { refresh(); }, [refresh]);
 
-  const share = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "";
-    try {
-      if (navigator.share) await navigator.share({ title: post?.title ?? "Oventric Blog", url });
-      else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
-    } catch { /* cancelled */ }
-  };
+  const openShare = () => setShareOpen(true);
 
   const react = (r: BlogReaction) => {
     require(1, async () => {
@@ -169,7 +165,7 @@ function BlogArticle() {
             })}
             <span className="text-sm text-slate-400 ml-2">{post.reactions_count}</span>
           </div>
-          <button onClick={share} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
+          <button onClick={openShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
             <Share2 className="w-4 h-4" /> Share
           </button>
         </div>
@@ -223,6 +219,13 @@ function BlogArticle() {
           </div>
         </section>
       </div>
+      <ShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={typeof window !== "undefined" ? window.location.href : ""}
+        title={post.title}
+        text={post.excerpt || undefined}
+      />
       <ReportModal
         open={!!reportTarget}
         onClose={() => setReportTarget(null)}
