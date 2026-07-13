@@ -19,7 +19,11 @@ const META: Record<SystemWalletKind, { label: string; sub: string; icon: React.C
   marketplace: { label: "Marketplace Revenue", sub: "20% of every marketplace sale", icon: ShoppingBag, hue: "from-emerald-500/25 to-teal-700/10 border-emerald-500/30" },
   bounty:      { label: "Bounty Revenue",      sub: "20% of every bounty payout",   icon: Target,      hue: "from-amber-500/25 to-orange-700/10 border-amber-500/30" },
   ads:         { label: "Ads & Promo Revenue", sub: "Advertising and promoted posts", icon: Megaphone, hue: "from-sky-500/25 to-indigo-700/10 border-sky-500/30" },
+  academy:     { label: "Academy Revenue",     sub: "Course sales and enrollments",   icon: GraduationCap, hue: "from-fuchsia-500/25 to-purple-700/10 border-fuchsia-500/30" },
 };
+const KINDS: SystemWalletKind[] = ["marketplace", "bounty", "ads", "academy"];
+const FALLBACK_META = { label: "Other Revenue", sub: "", icon: ShoppingBag, hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30" } as const;
+const metaFor = (k: string) => (META as Record<string, typeof FALLBACK_META>)[k] ?? FALLBACK_META;
 
 function fmtUsd(n: number) {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
