@@ -48,9 +48,13 @@ function BlogEditorPage() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [autosavedAt, setAutosavedAt] = useState<number | null>(null);
+  const [bodyHtml, setBodyHtml] = useState<string>("");
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const hydratedRef = useRef(false);
+  const draftKey = `blog-editor-draft:${routeId}`;
 
   useEffect(() => {
     (async () => {
@@ -61,28 +65,87 @@ function BlogEditorPage() {
   }, [catFn, tagFn]);
 
   useEffect(() => {
-    if (isNew) return;
+    if (isNew) {
+      // Restore local draft for a brand-new post if present
+      try {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          const d = JSON.parse(raw);
+          setTitle(d.title ?? "");
+          setSlug(d.slug ?? "");
+          setExcerpt(d.excerpt ?? "");
+          setCoverPath(d.coverPath ?? null);
+          setCoverUrl(d.coverUrl ?? null);
+          setStatus(d.status ?? "draft");
+          setScheduledAt(d.scheduledAt ?? "");
+          setCategoryId(d.categoryId ?? null);
+          setTagIds(d.tagIds ?? []);
+          setBodyHtml(d.bodyHtml ?? "");
+          if (editorRef.current) editorRef.current.innerHTML = d.bodyHtml ?? "";
+          setAutosavedAt(d.savedAt ?? null);
+        }
+      } catch {}
+      hydratedRef.current = true;
+      return;
+    }
     (async () => {
       const res = await getFn({ data: { id: routeId } });
       const p: any = res.post;
       setId(p.id);
-      setTitle(p.title);
-      setSlug(p.slug);
-      setExcerpt(p.excerpt ?? "");
-      setCoverPath(p.cover_path ?? null);
-      setCoverUrl(p.cover_url ?? null);
-      setStatus(p.status);
-      setScheduledAt(p.scheduled_at ? new Date(p.scheduled_at).toISOString().slice(0, 16) : "");
-      setCategoryId(p.category_id ?? null);
-      setTagIds(p.tag_ids ?? []);
-      if (editorRef.current) editorRef.current.innerHTML = p.body_html ?? "";
+      let restored = false;
+      let d: any = null;
+      try {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          d = JSON.parse(raw);
+          const serverTs = p.updated_at ? new Date(p.updated_at).getTime() : 0;
+          if (d.savedAt && d.savedAt > serverTs && confirm("A newer local draft was found. Restore it? (Cancel loads the saved version.)")) {
+            restored = true;
+          } else {
+            localStorage.removeItem(draftKey);
+          }
+        }
+      } catch {}
+      const src = restored ? d : p;
+      setTitle(src.title ?? "");
+      setSlug(src.slug ?? "");
+      setExcerpt(src.excerpt ?? "");
+      setCoverPath(src.cover_path ?? src.coverPath ?? null);
+      setCoverUrl(src.cover_url ?? src.coverUrl ?? null);
+      setStatus(src.status ?? "draft");
+      setScheduledAt(restored ? (d.scheduledAt ?? "") : (p.scheduled_at ? new Date(p.scheduled_at).toISOString().slice(0, 16) : ""));
+      setCategoryId(src.category_id ?? src.categoryId ?? null);
+      setTagIds(src.tag_ids ?? src.tagIds ?? []);
+      const html = restored ? (d.bodyHtml ?? "") : (p.body_html ?? "");
+      setBodyHtml(html);
+      if (editorRef.current) editorRef.current.innerHTML = html;
+      if (restored) setAutosavedAt(d.savedAt ?? null);
       setLoading(false);
+      hydratedRef.current = true;
     })();
-  }, [isNew, routeId, getFn]);
+  }, [isNew, routeId, getFn, draftKey]);
+
+  // Autosave draft to localStorage (debounced)
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const t = setTimeout(() => {
+      try {
+        const savedAt = Date.now();
+        localStorage.setItem(draftKey, JSON.stringify({
+          title, slug, excerpt, coverPath, coverUrl, status, scheduledAt,
+          categoryId, tagIds, bodyHtml, savedAt,
+        }));
+        setAutosavedAt(savedAt);
+      } catch {}
+    }, 800);
+    return () => clearTimeout(t);
+  }, [draftKey, title, slug, excerpt, coverPath, coverUrl, status, scheduledAt, categoryId, tagIds, bodyHtml]);
+
 
   const exec = (cmd: string, arg?: string) => {
     editorRef.current?.focus();
     document.execCommand(cmd, false, arg);
+    if (editorRef.current) setBodyHtml(editorRef.current.innerHTML);
   };
   const setBlock = (tag: string) => exec("formatBlock", tag);
 
@@ -178,6 +241,11 @@ function BlogEditorPage() {
       });
       setId(res.id);
       setStatus(s);
+      try { localStorage.removeItem(draftKey); } catch {}
+      if (isNew) {
+        try { localStorage.removeItem(`blog-editor-draft:${res.id}`); } catch {}
+      }
+      setAutosavedAt(null);
       alert(s === "published" ? "Published!" : s === "scheduled" ? "Scheduled." : "Draft saved.");
       if (isNew) navigate({ to: "/admin/blog/$id", params: { id: res.id } });
     } catch (e) {
@@ -203,6 +271,11 @@ function BlogEditorPage() {
           <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">
             {isNew ? "New post" : "Edit post"}
           </span>
+          {autosavedAt && (
+            <span className="text-[10px] text-slate-500 hidden sm:inline">
+              Autosaved · {new Date(autosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
@@ -274,6 +347,7 @@ function BlogEditorPage() {
             ref={editorRef}
             contentEditable
             suppressContentEditableWarning
+            onInput={(e) => setBodyHtml((e.target as HTMLDivElement).innerHTML)}
             className="prose-editor min-h-[420px] bg-[#141418] border border-white/10 border-t-0 rounded-b-lg px-5 py-4 text-slate-200 leading-relaxed focus:outline-none"
             style={{ minHeight: 420 }}
           />
