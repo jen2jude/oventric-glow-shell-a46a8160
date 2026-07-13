@@ -19,6 +19,7 @@ const CATEGORIES = [
 
 const CONDITIONS = ["Brand New", "Used", "Refurbished"];
 const YN = ["Yes", "No", "Maybe"];
+const MAX_IMAGE_MB = 50;
 
 export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolean; onClose: () => void; onPublished?: () => void }) {
   const persist = useServerFn(createPhysicalProduct);
@@ -69,13 +70,18 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     const valid: File[] = [];
     for (const f of list) {
       if (!f.type.startsWith("image/")) { fail("Only images allowed", `${f.name} is not an image file.`); continue; }
-      if (f.size > 5 * 1024 * 1024) { fail(`${f.name} exceeds 5MB`, "Choose a smaller image before posting."); continue; }
+      if (f.size > MAX_IMAGE_MB * 1024 * 1024) { fail(`${f.name} exceeds ${MAX_IMAGE_MB}MB`, "Choose a smaller image before posting."); continue; }
       valid.push(f);
     }
     const next = [...images, ...valid].slice(0, 8);
     previews.forEach((p) => URL.revokeObjectURL(p));
     setImages(next);
     setPreviews(next.map((f) => URL.createObjectURL(f)));
+    if (next.length > 0 && next.length < 3) {
+      setProgress(`${next.length}/3 photos attached — add ${3 - next.length} more before posting.`);
+    } else if (next.length >= 3) {
+      setProgress(`${next.length} photos attached. Ready to post once the other fields are complete.`);
+    }
   };
 
   const removeImage = (idx: number) => {
@@ -253,7 +259,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
-                  <div className="text-xs text-slate-400">Click to add images (up to 8). PNG/JPG up to 5MB each.</div>
+                  <div className="text-xs text-slate-400">Click to add images (up to 8). PNG/JPG/phone photos up to {MAX_IMAGE_MB}MB each.</div>
                 </label>
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-4 gap-2">
@@ -338,7 +344,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                     className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40">
                     Cancel
                   </button>
-                  <button type="button" onClick={() => void submit()} disabled={submitting} aria-busy={submitting}
+                  <button type="button" onPointerUp={(e) => { e.preventDefault(); void submit(); }} onClick={() => void submit()} disabled={submitting} aria-busy={submitting} aria-label="Post physical product for approval"
                     className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60">
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Publishing…" : "Post product"}
