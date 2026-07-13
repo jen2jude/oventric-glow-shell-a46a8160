@@ -185,6 +185,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     Map<string, { name: string; slug: string; initials: string; gradient: string }>
   >(new Map());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [peerTyping, setPeerTyping] = useState(false);
+  const typingChanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const lastTypingSentRef = useRef(0);
+  const peerTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+
 
 
   const activeThread = useMemo(
