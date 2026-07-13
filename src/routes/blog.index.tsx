@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2 } from "lucide-react";
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { PublicChrome } from "@/components/oventric/PublicChrome";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
@@ -23,8 +24,10 @@ function BlogIndex() {
   useEffect(() => { listFn().then((r) => setRows(r.posts)).catch(() => setRows([])); }, [listFn]);
 
   return (
+    <PublicChrome>
     <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
       <div className="max-w-6xl mx-auto px-4 py-10">
+
         <header className="mb-8">
           <h1 className="text-white text-4xl font-black">The Oventric Blog</h1>
           <p className="text-slate-400 mt-2">Deep dives, playbooks, and lessons from the network.</p>
@@ -65,5 +68,6 @@ function BlogIndex() {
         )}
       </div>
     </div>
+    </PublicChrome>
   );
 }
