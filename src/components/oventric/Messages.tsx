@@ -463,6 +463,65 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
   }, [me, activePeer, reloadThreads, markRead]);
 
+  // Typing indicator — shared broadcast channel keyed by the sorted user-id pair.
+  useEffect(() => {
+    setPeerTyping(false);
+    if (peerTypingTimerRef.current) {
+      clearTimeout(peerTypingTimerRef.current);
+      peerTypingTimerRef.current = null;
+    }
+    if (!me || !activePeer) {
+      typingChanRef.current = null;
+      return;
+    }
+    const key = [me, activePeer].sort().join(":");
+    const channel = supabase.channel(`dm-typing:${key}`, {
+      config: { broadcast: { self: false } },
+    });
+    channel
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const from = (payload.payload as { from?: string } | undefined)?.from;
+        if (from !== activePeer) return;
+        setPeerTyping(true);
+        if (peerTypingTimerRef.current) clearTimeout(peerTypingTimerRef.current);
+        peerTypingTimerRef.current = setTimeout(() => setPeerTyping(false), 3500);
+      })
+      .on("broadcast", { event: "stop" }, (payload) => {
+        const from = (payload.payload as { from?: string } | undefined)?.from;
+        if (from !== activePeer) return;
+        if (peerTypingTimerRef.current) clearTimeout(peerTypingTimerRef.current);
+        setPeerTyping(false);
+      })
+      .subscribe();
+    typingChanRef.current = channel;
+    return () => {
+      typingChanRef.current = null;
+      if (peerTypingTimerRef.current) {
+        clearTimeout(peerTypingTimerRef.current);
+        peerTypingTimerRef.current = null;
+      }
+      supabase.removeChannel(channel);
+    };
+  }, [me, activePeer]);
+
+  const emitTyping = useCallback(
+    (isTyping: boolean) => {
+      const chan = typingChanRef.current;
+      if (!chan || !me || !activePeer) return;
+      if (isTyping) {
+        const now = Date.now();
+        if (now - lastTypingSentRef.current < 1500) return;
+        lastTypingSentRef.current = now;
+        void chan.send({ type: "broadcast", event: "typing", payload: { from: me } });
+      } else {
+        lastTypingSentRef.current = 0;
+        void chan.send({ type: "broadcast", event: "stop", payload: { from: me } });
+      }
+    },
+    [me, activePeer],
+  );
+
+
   const lastMsgId = messages[messages.length - 1]?.id ?? null;
   useEffect(() => {
     if (scrollRef.current) {
