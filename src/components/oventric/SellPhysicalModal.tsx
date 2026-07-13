@@ -256,11 +256,12 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Category</span>
-                  <select value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(""); }}
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                  <select data-field="category" value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(""); clearField("category"); }}
+                    className={fieldCls("category", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white")}>
                     <option value="">Select category…</option>
                     {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>)}
                   </select>
+                  <FieldError k="category" />
                 </label>
                 {chosenCat && chosenCat.subs.length > 0 && (
                   <label className="block">
