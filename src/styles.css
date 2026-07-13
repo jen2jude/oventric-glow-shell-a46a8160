@@ -200,6 +200,8 @@ html, body {
 .prose-editor pre { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.85rem; margin: 0.75rem 0; overflow-x: auto; }
 .prose-editor a { color: #34d399; text-decoration: underline; }
 .prose-editor img { max-width: 100%; border-radius: 8px; margin: 0.75rem 0; }
+.prose-editor:empty::before { content: "Start writing your story…"; color: rgba(148, 163, 184, 0.5); pointer-events: none; }
+.prose-editor:focus:empty::before { color: rgba(148, 163, 184, 0.35); }
 
 .blog-article h1 { font-size: 2rem; font-weight: 900; color: #fff; margin: 1.5rem 0 0.75rem; }
 .blog-article h2 { font-size: 1.625rem; font-weight: 800; color: #fff; margin: 1.5rem 0 0.75rem; }
