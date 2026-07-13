@@ -278,7 +278,7 @@ export const updateCircle = createServerFn({ method: "POST" })
     if (data.emoji !== undefined) patch.emoji = data.emoji;
     if (data.codeOfConduct !== undefined) patch.code_of_conduct = data.codeOfConduct;
     if (Object.keys(patch).length === 0) return { ok: true };
-    const { error } = await context.supabase.from("circles").update(patch).eq("id", data.circleId);
+    const { error } = await context.supabase.from("circles").update(patch as any).eq("id", data.circleId);
     if (error) throw new Error("Failed to update circle");
     return { ok: true };
   });
