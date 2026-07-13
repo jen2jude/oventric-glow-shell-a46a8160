@@ -232,5 +232,6 @@ function BlogArticle() {
         onReported={(id) => setReportedIds((s) => new Set(s).add(id))}
       />
     </div>
+    </PublicChrome>
   );
 }
