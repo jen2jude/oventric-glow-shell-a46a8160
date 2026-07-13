@@ -68,5 +68,6 @@ function BlogIndex() {
         )}
       </div>
     </div>
+    </PublicChrome>
   );
 }
