@@ -955,8 +955,10 @@ export function Feed() {
                         src={post.media_url}
                         alt="Post attachment"
                         loading="lazy"
+                        sizes="(min-width: 768px) 640px, 100vw"
                         className="max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
                       />
+
                     </button>
                     {splash && splash.postId === post.id && (
                       <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
