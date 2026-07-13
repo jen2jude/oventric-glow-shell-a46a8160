@@ -101,9 +101,9 @@ export const listAdminUsers = createServerFn({ method: "GET" })
     const sb = context.supabase as any;
     const { data: profiles, error } = await sb
       .from("profiles")
-      .select("user_id, username, display_name, country, verification_tier, reputation_stars, suspended, created_at")
+      .select("user_id, username, display_name, country, verification_tier, reputation_stars, created_at")
       .order("created_at", { ascending: false })
-      .limit(500);
+      .limit(1000);
     if (error) throw new Error(error.message);
     const { data: roles } = await sb.from("user_roles").select("user_id, role");
     const rmap = new Map<string, string[]>();
