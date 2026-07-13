@@ -11,14 +11,15 @@ async function assertAdmin(ctx: { supabase: ReturnType<typeof Object>; userId: s
 
 async function writeAudit(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sb: any,
+  _sb: any,
   actorId: string,
   action: string,
   targetKind: string | null,
   targetId: string | null,
   meta: Record<string, unknown> = {},
 ) {
-  await sb.from("audit_logs").insert({
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await supabaseAdmin.from("audit_logs").insert({
     actor_id: actorId,
     action,
     target_kind: targetKind,

@@ -679,7 +679,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
     if (eErr) throw new Error(eErr.message);
 
     // Buyer wallet ledger
-    await supabase.from("wallet_transactions").insert({
+    await supabaseAdmin.from("wallet_transactions").insert({
       user_id: userId,
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Marketplace Purchase",
@@ -718,7 +718,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
       cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
       if (cashbackUSD > 0) {
         await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
-        await supabase.from("wallet_transactions").insert({
+        await supabaseAdmin.from("wallet_transactions").insert({
           user_id: userId,
           tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
           type: "Affiliate Cashback Payout",

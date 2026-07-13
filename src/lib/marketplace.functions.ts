@@ -229,7 +229,7 @@ export const topUpWallet = createServerFn({ method: "POST" })
     });
     if (cErr) throw new Error(cErr.message);
 
-    await context.supabase.from("wallet_transactions").insert({
+    await supabaseAdmin.from("wallet_transactions").insert({
       user_id: context.userId,
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Wallet Top-Up",
@@ -364,7 +364,7 @@ export const createOrder = createServerFn({ method: "POST" })
     if (oErr) throw new Error(oErr.message);
 
     // Ledger entry for buyer.
-    await supabase.from("wallet_transactions").insert({
+    await supabaseAdmin.from("wallet_transactions").insert({
       user_id: userId,
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Marketplace Purchase",
@@ -401,7 +401,7 @@ export const createOrder = createServerFn({ method: "POST" })
     // 2% cashback to buyer when paying from wallet (funded from platform cut).
     if (cashbackUSD > 0) {
       await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
-      await supabase.from("wallet_transactions").insert({
+      await supabaseAdmin.from("wallet_transactions").insert({
         user_id: userId,
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
         type: "Affiliate Cashback Payout",

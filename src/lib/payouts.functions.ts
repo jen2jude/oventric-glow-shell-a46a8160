@@ -3,14 +3,15 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
 async function writePayoutAudit(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sb: any,
+  _sb: any,
   actorId: string,
   action: "payout.approve" | "payout.reject" | "payout.mark_paid",
   payoutId: string,
   meta: Record<string, unknown>,
 ) {
   try {
-    await sb.from("audit_logs").insert({
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    await supabaseAdmin.from("audit_logs").insert({
       actor_id: actorId,
       action,
       target_kind: "payout_request",
