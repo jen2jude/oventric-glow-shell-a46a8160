@@ -1,11 +1,11 @@
 import { useState } from "react";
-import { X, PenSquare, Target, ShoppingBag, FileText, GraduationCap } from "lucide-react";
+import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellAssetModal } from "./SellAssetModal";
 import { CourseEditorModal } from "./CourseEditorModal";
 import { BountyEditorModal } from "./BountyEditorModal";
 
-type ChoiceKey = "post" | "bounty" | "sell" | "blog" | "course";
+type ChoiceKey = "post" | "bounty" | "sell" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
 
 const choices: Choice[] = [
@@ -13,7 +13,6 @@ const choices: Choice[] = [
   { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
   { key: "sell", icon: ShoppingBag, title: "Sell an Asset", desc: "List digital goods in the marketplace", tier: 2 },
   { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
-  { key: "blog", icon: FileText, title: "Add Blog Article", desc: "Publish long-form technical writing", tier: 1 },
 ];
 
 export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
