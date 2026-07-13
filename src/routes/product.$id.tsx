@@ -211,21 +211,26 @@ function ProductPage() {
 }
 
 function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
+  const { baseCurrency } = useOnboarding();
   const phone = (product.sellerPhone ?? "").replace(/\D/g, "");
   const wa = (product.whatsappNumber ?? phone).replace(/\D/g, "");
+  const dp = productDisplay(product, baseCurrency);
   const priceLine = product.originalAmount && product.originalCurrency
     ? `${product.originalCurrency} ${product.originalAmount}`
     : `$${product.priceUSD}`;
   const productUrl = typeof window !== "undefined"
     ? `${window.location.origin}/product/${product.id}`
     : `https://oventric.com/product/${product.id}`;
-  const message = `Hi! I saw your product "${product.name}" (${priceLine}${product.location ? ` — ${product.location}` : ""}) on Oventric. I would like to purchase it.\n\n${productUrl}`;
+  const [note, setNote] = useState("");
+  const baseMsg = `Hi! I saw your product "${product.name}" (${priceLine}${product.location ? ` — ${product.location}` : ""}) on Oventric. I would like to purchase it.`;
+  const message = `${baseMsg}${note.trim() ? `\n\n${note.trim()}` : ""}\n\n${productUrl}`;
   const waUrl = `https://wa.me/${wa}?text=${encodeURIComponent(message)}`;
   const canCall = phone.length >= 6;
+  const cover = (product.kind === "physical" && product.imageUrls[0]) || product.coverUrl;
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
+      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
@@ -233,8 +238,48 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           </div>
           <button onClick={onClose} className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
         </div>
-        <p className="text-sm text-slate-300 leading-relaxed mb-5">
-          You will be redirected to deal with the seller directly. Take precaution — Oventric does not monitor or mediate between buyers and sellers on physical goods.
+
+        {/* Live preview card — mirrors what the seller will see */}
+        <div className="mb-4 rounded-xl border border-white/10 bg-[#121214] overflow-hidden">
+          <div className="flex gap-3 p-3">
+            <div className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${product.hue}`}>
+              {cover ? (
+                <img src={cover} alt={product.name} className="w-full h-full object-cover" />
+              ) : null}
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
+                {product.category}{product.subcategory ? ` · ${product.subcategory}` : ""}
+              </div>
+              <div className="text-sm font-bold text-white truncate">{product.name}</div>
+              <div className="text-xs text-slate-400 truncate">by {product.vendor}</div>
+              <div className="mt-1 flex items-center justify-between gap-2">
+                <div className="text-emerald-300 font-black text-sm">{dp.formatted}</div>
+                {product.location && (
+                  <span className="text-[10px] text-slate-400 inline-flex items-center gap-1 truncate">
+                    <MapPin className="w-3 h-3" /> {product.location}
+                  </span>
+                )}
+              </div>
+            </div>
+          </div>
+          <div className="border-t border-white/10 bg-[#0f1012] px-3 py-2">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">WhatsApp message preview</div>
+            <pre className="text-xs text-slate-200 whitespace-pre-wrap font-sans leading-relaxed break-words">{message}</pre>
+          </div>
+        </div>
+
+        <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1">Add a note (optional)</label>
+        <textarea
+          value={note}
+          onChange={(e) => setNote(e.target.value.slice(0, 240))}
+          rows={2}
+          placeholder="e.g. Is this still available? Can I pick up today?"
+          className="w-full mb-4 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50"
+        />
+
+        <p className="text-xs text-slate-400 leading-relaxed mb-4">
+          You will deal with the seller directly. Take precaution — Oventric does not monitor or mediate physical-goods transactions.
         </p>
         <div className="grid grid-cols-2 gap-3">
           <a
@@ -257,3 +302,4 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
     </div>
   );
 }
+
