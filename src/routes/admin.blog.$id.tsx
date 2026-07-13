@@ -145,6 +145,7 @@ function BlogEditorPage() {
   const exec = (cmd: string, arg?: string) => {
     editorRef.current?.focus();
     document.execCommand(cmd, false, arg);
+    if (editorRef.current) setBodyHtml(editorRef.current.innerHTML);
   };
   const setBlock = (tag: string) => exec("formatBlock", tag);
 
