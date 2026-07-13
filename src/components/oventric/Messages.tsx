@@ -513,6 +513,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         if (now - lastTypingSentRef.current < 1500) return;
         lastTypingSentRef.current = now;
         void chan.send({ type: "broadcast", event: "typing", payload: { from: me } });
+        // Also fan out to the recipient's inbox channel so their Header can
+        // surface an unobtrusive toast / badge when the chat isn't visible.
+        const inbox = supabase.channel(`dm-typing-inbox:${activePeer}`);
+        void inbox.send({ type: "broadcast", event: "typing", payload: { from: me } })
+          .finally(() => { supabase.removeChannel(inbox); });
       } else {
         lastTypingSentRef.current = 0;
         void chan.send({ type: "broadcast", event: "stop", payload: { from: me } });
@@ -520,6 +525,16 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     },
     [me, activePeer],
   );
+
+  // Publish the currently-viewed peer so the Header can suppress typing
+  // toasts for the chat the user is already reading.
+  useEffect(() => {
+    const w = window as unknown as { __oventricActiveChatPeer?: string | null };
+    w.__oventricActiveChatPeer = activePeer;
+    return () => {
+      w.__oventricActiveChatPeer = null;
+    };
+  }, [activePeer]);
 
 
   const lastMsgId = messages[messages.length - 1]?.id ?? null;
