@@ -480,6 +480,7 @@ export function Feed() {
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
   const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
   const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
+  const [blogShare, setBlogShare] = useState<BlogListItem | null>(null);
   const listBlogFn = useServerFn(listBlogPosts);
 
   useEffect(() => {
