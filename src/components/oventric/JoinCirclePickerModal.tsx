@@ -2,13 +2,13 @@ import { useEffect, useState } from "react";
 import { X, Lock, Users2, Loader2, Check, Clock } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-import { ResponsiveImage } from "@/components/ui/responsive-image";
   listCirclesForUser,
   requestJoinCircle,
   cancelJoinRequest,
   type CircleSummary,
 } from "@/lib/circles-groups.functions";
 
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 interface Props {
   open: boolean;
   onClose: () => void;

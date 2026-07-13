@@ -5,7 +5,6 @@ import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive } from "
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
-import { ResponsiveImage } from "@/components/ui/responsive-image";
   listAllProducts,
   deleteProductAdmin,
   setProductPromoted,
@@ -13,6 +12,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
   adminUpdateProduct,
 } from "@/lib/admin.functions";
 
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 export const Route = createFileRoute("/admin/products")({
   head: () => ({ meta: [{ title: "Products · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ProductsPage,

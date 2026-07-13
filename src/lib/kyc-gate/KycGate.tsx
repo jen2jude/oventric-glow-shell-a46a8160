@@ -26,11 +26,11 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
-import { ResponsiveImage } from "@/components/ui/responsive-image";
   getOnboardingStatus as getStatusFn,
   saveKyc as saveKycFn,
 } from "@/lib/onboarding.functions";
 
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------

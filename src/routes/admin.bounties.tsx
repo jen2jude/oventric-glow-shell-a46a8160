@@ -5,13 +5,13 @@ import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar } from "l
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
-import { ResponsiveImage } from "@/components/ui/responsive-image";
   listAllBounties,
   adminCreateBounty,
   adminUpdateBounty,
   adminDeleteBounty,
 } from "@/lib/bounties.functions";
 
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 export const Route = createFileRoute("/admin/bounties")({
   head: () => ({ meta: [{ title: "Bounties · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: BountiesAdminPage,
