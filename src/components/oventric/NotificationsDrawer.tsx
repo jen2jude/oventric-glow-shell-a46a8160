@@ -369,14 +369,14 @@ export function NotificationsDrawer({
 
       {viewing && (
         <div
-          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4"
+          className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
           onClick={() => setViewing(null)}
           role="dialog"
           aria-modal="true"
           aria-label={viewing.title}
         >
           <div
-            className="w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+            className="w-full max-w-md my-auto bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-start gap-3 px-5 py-4 border-b border-white/5">
