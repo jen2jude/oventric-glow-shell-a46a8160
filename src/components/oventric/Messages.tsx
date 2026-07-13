@@ -555,6 +555,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
     setMessages((prev) => [...prev, optimistic]);
     setDraft("");
+    emitTyping(false);
+
     try {
       const row = await postMessage({ data: { recipientId: activePeer, body } });
       setMessages((prev) => prev.map((m) => (m.id === optimistic.id ? row : m)));
