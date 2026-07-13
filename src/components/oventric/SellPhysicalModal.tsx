@@ -300,15 +300,16 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                 </div>
               </div>
 
-              <div>
+              <div data-field="images" tabIndex={-1}>
                 <span className="text-xs font-medium text-slate-300">Product images (min 3, first is cover)</span>
-                <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60">
+                <label className={`mt-2 flex items-center gap-3 border border-dashed rounded-lg p-3 cursor-pointer hover:border-emerald-500/60 ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}>
                   <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addImages(e.target.files)} />
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-xs text-slate-400">Click to add images (up to 8). PNG/JPG/phone photos up to {MAX_IMAGE_MB}MB each.</div>
                 </label>
+                <FieldError k="images" />
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-4 gap-2">
                     {previews.map((src, i) => (
