@@ -146,6 +146,210 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_categories: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+        }
+        Relationships: []
+      }
+      blog_comments: {
+        Row: {
+          author_name: string
+          created_at: string
+          id: string
+          initials: string
+          post_id: string
+          text: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          initials?: string
+          post_id: string
+          text: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          author_name?: string
+          created_at?: string
+          id?: string
+          initials?: string
+          post_id?: string
+          text?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_post_tags_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_post_tags_tag_id_fkey"
+            columns: ["tag_id"]
+            isOneToOne: false
+            referencedRelation: "blog_tags"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string
+          body_html: string
+          category_id: string | null
+          cover_path: string | null
+          created_at: string
+          excerpt: string
+          id: string
+          published_at: string | null
+          scheduled_at: string | null
+          slug: string
+          status: Database["public"]["Enums"]["blog_status"]
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          author_id: string
+          body_html?: string
+          category_id?: string | null
+          cover_path?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          slug: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          author_id?: string
+          body_html?: string
+          category_id?: string | null
+          cover_path?: string | null
+          created_at?: string
+          excerpt?: string
+          id?: string
+          published_at?: string | null
+          scheduled_at?: string | null
+          slug?: string
+          status?: Database["public"]["Enums"]["blog_status"]
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_posts_category_id_fkey"
+            columns: ["category_id"]
+            isOneToOne: false
+            referencedRelation: "blog_categories"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_reactions: {
+        Row: {
+          created_at: string
+          id: string
+          post_id: string
+          reaction: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          post_id: string
+          reaction?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          post_id?: string
+          reaction?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       bounties: {
         Row: {
           applicant_limit: number
@@ -1483,6 +1687,7 @@ export type Database = {
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
+      blog_status: "draft" | "published" | "scheduled"
       circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
       report_status: "pending" | "approved" | "hidden"
@@ -1623,6 +1828,7 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "moderator", "user"],
+      blog_status: ["draft", "published", "scheduled"],
       circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],
       report_status: ["pending", "approved", "hidden"],

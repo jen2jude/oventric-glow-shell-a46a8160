@@ -1,84 +1,80 @@
+# Blog CMS + Feed post-action polish
 
-This is a large feature. I'll ship it in one pass, but flagging trade-offs so you can steer.
+Two parallel workstreams. Both land in one push.
 
-## 1. Mobile access to Circles
+## 1. Blog CMS (admin-only)
 
-- Add a **Circles** entry point on mobile in two places:
-  - **Mobile header**: shield icon next to the search/notification icons.
-  - **User profile page**: a "Circles" chip in the profile action row (both own profile and others').
-- On desktop the sidebar already exposes it — no change.
+### Frontend gate
+- Remove "Add Blog Article" from `CreatePanel.tsx` (front-end users lose the option entirely).
 
-## 2. Kill the mocks, real data everywhere
+### Database (one migration)
+- `blog_categories(id, slug UNIQUE, name, sort_order, created_at)`
+- `blog_tags(id, slug UNIQUE, name, created_at)`
+- `blog_posts(id, author_id → auth.users, title, slug UNIQUE, excerpt, body_html, cover_path, category_id → blog_categories, status ENUM 'draft'|'published'|'scheduled', published_at, scheduled_at, created_at, updated_at)`
+- `blog_post_tags(post_id, tag_id, PK composite)`
+- `blog_reactions(id, post_id, user_id, reaction, UNIQUE(post_id, user_id))`
+- `blog_comments(id, post_id, user_id, author_name, initials, text, created_at, updated_at)`
+- `blog-covers` storage bucket (public read).
+- RLS:
+  - Categories / tags: anon SELECT, admin write.
+  - `blog_posts`: anon SELECT where `status='published' AND (published_at IS NULL OR published_at <= now())`; admin full write.
+  - `blog_reactions` / `blog_comments`: authenticated write-own; anon read; delete-own.
+- Trigger: on publish/schedule transitions, keep `published_at`/`scheduled_at` coherent.
 
-Replace `MOCK_CIRCLES` / `mockCircles.ts` usage in `CirclesHub.tsx` with real server functions backed by the existing `circles`, `circle_members`, `circle_join_requests`, `posts` tables.
+### Admin editor route `src/routes/admin.blog.tsx` (list) + `src/routes/admin.blog.$id.tsx` (editor)
+- List: rows with status pill, cover thumb, title, category, date. Buttons: New Post, Edit, Delete.
+- Editor (WordPress-like):
+  - Title input.
+  - Cover image upload (drag/click).
+  - Rich body editor: contentEditable + toolbar using `document.execCommand`. Buttons: H1/H2/H3/P, Bold, Italic, Underline, Strike, UL, OL, Link (prompt URL), Insert Image (upload → returns signed URL → insertHTML `<img>`), Quote, Code, Clear.
+  - Excerpt textarea (auto-derived if empty).
+  - Category select with "+ Add new" inline (creates row).
+  - Tags multi-select w/ typeahead + "add new".
+  - Status radio: Save as Draft / Publish now / Schedule (datetime picker → `scheduled_at`).
+- Server functions in `src/lib/blog.functions.ts`: `listBlogAdmin`, `getBlogAdmin`, `upsertBlogPost`, `deleteBlogPost`, `listCategoriesAdmin`, `upsertCategory`, `listTagsAdmin`, `upsertTag`.
 
-New / expanded server fns in `src/lib/circles.functions.ts`:
-- `listCircles({ category?, q?, sort? })` — public + circles the viewer belongs to, with member count, my membership status, category, avatar, banner hue.
-- `listTrendingCircles()` — top 8 circles ranked by a composite score:
-  - members × 1 + posts_last_14d × 2 + accepted_bounty_reward_usd_30d × 3
-  - Split into 3 rails on the hub: **Trending** (composite), **Most Active** (posts_last_14d), **Top Earners** (bounty $ solved by members).
-- `getCircle({ slug })` — full detail incl. my role + join status.
-- `listCirclePosts({ circleId })` / `createCirclePost` — watercooler feed backed by `posts` with a new `circle_id` column.
-- `listCircleMembers({ circleId })` — with each member's follow status vs me (for the "Follow" button per row).
-- `listCircleBounties({ circleId })` — bounties posted by any member of this circle, showing accept/apply state.
+### Public reading route `src/routes/blog.$slug.tsx`
+- Renders cover, category, title, published_at, author, sanitised body_html.
+- Reactions bar (uses new `blog_reactions`) w/ same 4 emotes as feed.
+- Comments section (new `blog_comments`) w/ inline composer.
+- Share button (native `navigator.share` w/ clipboard fallback).
+- SSR head() sets OG title/description/image from the post row.
 
-## 3. Join gating + Code of Conduct
+### Public list route `src/routes/blog.index.tsx`
+- Grid of published posts (cover + category + title + excerpt + date).
 
-Schema migration:
-- Add `circles.code_of_conduct jsonb` — up to 5 admin-authored questions + a kindness pledge string.
-- Add `circle_members.coc_accepted_at timestamptz`.
-- Add `circle_join_requests.coc_answers jsonb` (populated when the requester answers after approval).
+### Feed injection
+- `listPostsPublic` extended to also return injected blog cards.
+- `Feed.tsx`: build a rendered items array. After every 10 social posts, splice in the next unshown blog card. Blog card component: cover + "BLOG • {category}" tag + title (large) + 3-line excerpt + `Read article →` (routes to `/blog/$slug`) + separate row w/ reaction count, comment count, share (all click-through to blog page).
 
-Flow:
-1. Non-member visits circle → sees a **"Request to Join"** CTA. Watercooler composer and reactions are disabled with a "Members only" hint.
-2. Admin sees the request in the existing Circle Requests inbox and clicks **Accept**.
-3. On accept, we don't add them to `circle_members` yet — status becomes `awaiting_coc`. A **notification** is fired with a link that opens the **Code of Conduct modal** (up to 5 questions + kindness statement + "I agree" checkbox).
-4. On submit + agree → server writes `coc_answers`, inserts into `circle_members`, sets `coc_accepted_at`. They're now in.
-5. Owner/admin can view answers in the Requests drawer.
+## 2. Feed post polish
 
-Admins can edit the CoC questions from a new **"Circle Settings"** sheet (visible only to owner/admin).
+### 3-dot menu (replaces Flag icon)
+- Extract the fullscreen video 3-dot menu from `VideoPlayerModal.tsx` into a shared `PostActionsMenu` component so it can be reused in `Feed.tsx` post header.
+- Menu items wired live:
+  - **Interested** → local `oventric:interest` map (post prioritisation later), toast "Got it, we'll show more like this."
+  - **Not interested** → mark hidden locally + toast.
+  - **Hide post** → add id to `oventric:hidden_posts`; filter out in Feed render.
+  - **Save** → add to `oventric:saved_posts`; toast "Saved."
+  - **Share** → `navigator.share` w/ clipboard fallback (same as video).
+  - **Report** → opens existing `ReportModal`.
+- Persist all state to `localStorage`; Feed already respects same pattern (see reported set).
 
-## 4. Watercooler upgrades
+### Fix Share icon (bottom-right of post)
+- Currently a dead `<button>`. Wire it to the same `sharePost()` helper.
 
-- Real post composer wired to `createCirclePost` (members only, hard-gated server-side by RLS + membership check).
-- Post author name/avatar is clickable → opens the user's profile.
-- On profile there's already the DM button, so private chat works out of the box.
-- Reactions & comments reuse the existing feed reaction/comment stack (`post_likes`, `post_comments`) filtered by `circle_id`.
+### Video fullscreen menu
+- Deduplicate: video reel uses the same `PostActionsMenu` component so both surfaces stay in sync.
 
-## 5. Members & Follow
+## Technical notes
 
-- **Members tab** (new): grid of members with their reputation badge and a **Follow / Requested / Following** button using the existing `follows.functions.ts`.
+- Rich text uses `document.execCommand` (works on all modern browsers, no deps). Sanitise output with a whitelist regex before storing — strip `<script>` and `on*=` attributes. Render with `dangerouslySetInnerHTML` inside a scoped `.prose` wrapper.
+- Blog cover uploads: signed URL via existing pattern in `SellAssetModal`. Public bucket for covers so OG images work.
+- Blog card injection reuses `ResponsiveImage`.
+- No changes to onboarding tiers required.
 
-## 6. Group Challenges / Bounty Vault
+## Out of scope
 
-- Bounty Vault tab lists real bounties whose author is any circle member (`bounties` joined via `circle_members`).
-- Non-authors see an **"Apply"** button that routes into the existing bounty apply flow — individual, not group. Clear helper text: *"Applications are individual. Discuss strategy in the Watercooler."*
-
-## 7. Shared Resources
-
-Keep the tab, but replace mock resources with a simple list from a new `circle_resources` table (title, url, added_by, created_at). Members can add, admins can pin/delete. If you'd rather I punt on this table for now and hide the tab until v2, say the word.
-
-## 8. Technical
-
-Schema migration in one call:
-- new columns on `circles`, `circle_members`, `circle_join_requests`, `posts (circle_id, indexed)`
-- `circle_resources` table + RLS + GRANTs
-- RLS updates:
-  - `posts`: insert allowed only if `circle_id IS NULL` (public feed) or `is_circle_member(auth.uid(), circle_id)` = true.
-  - `posts` SELECT for a circle post: only members of that circle (or public if circle is public).
-- Trigger to fire `circle_coc_pending` notification when a request is accepted.
-
-Frontend edits:
-- Rewrite `CirclesHub.tsx` (drop `mockCircles.ts` usage, keep visual shell).
-- New `CircleCoCModal.tsx` and `CoCEditorSheet.tsx`.
-- New `CircleMembersTab.tsx`.
-- Update `MobileNav`/`Header` to expose the Circles entry point.
-- Update `profile.$id.tsx` with a "Circles" chip.
-
-## Open questions before I start
-
-1. **Shared Resources tab** — build the real `circle_resources` table now, or hide the tab until v2?
-2. **Watercooler comments** — do you want threaded comments (like the main feed) inside circle posts, or flat comments for v1?
-3. **CoC editor** — should new circles auto-seed with 5 default questions I write ("What will you contribute?", "Have you read the pinned rules?", etc.), or start empty and let the owner author them?
-
-If you're good with the defaults (build resources now, threaded comments, auto-seed CoC), just say "go" and I'll ship it.
+- Full multi-user blog authorship (only admins).
+- Live realtime for blog comments (simple refetch after post).
+- Draft autosave.
