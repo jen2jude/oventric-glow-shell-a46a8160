@@ -63,11 +63,12 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setFieldErrors({}); setProgress(""); setProgressPct(0); setUploadStatus(null);
   };
 
-  const fail = (message: string, description: string) => {
+  const fail = (message: string, description: string, field?: string) => {
     setProgress("");
     setProgressPct(0);
     setUploadStatus(null);
     setFormError(`${message} ${description}`);
+    if (field) setFieldErrors((prev) => ({ ...prev, [field]: `${message}. ${description}` }));
     toast.error(message, { description });
   };
 
