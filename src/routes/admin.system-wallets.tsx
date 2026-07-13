@@ -110,7 +110,7 @@ function SystemWalletsPage() {
             tx.map((t) => (
               <div key={t.id} className="p-4 flex items-center justify-between text-sm">
                 <div>
-                  <div className="text-white font-semibold">{META[t.kind].label}</div>
+                  <div className="text-white font-semibold">{metaFor(t.kind).label}</div>
                   <div className="text-[11px] text-slate-500 font-mono">{t.source} · {new Date(t.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="text-emerald-300 font-mono font-bold">+ {fmtUsd(t.amountUSD)}</div>
