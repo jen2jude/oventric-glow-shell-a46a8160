@@ -1,9 +1,11 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag,
-  ThumbsUp, ThumbsDown, EyeOff, Download,
+  ThumbsUp, ThumbsDown, EyeOff, Download, Link2,
 } from "lucide-react";
 import { ReactionPicker, ReactionSplash, REACTION_META } from "./Reactions";
+import { togglePostSet } from "@/components/oventric/PostActionsMenu";
+import { toast } from "sonner";
 import type { FeedPost, ReactionType } from "@/lib/posts.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -235,10 +237,20 @@ function VideoItem({
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
                 onClick={() => {
                   setMenuOpen(false);
+                  togglePostSet("saved", post.id, true);
+                  toast.success("Saved to your bookmarks.");
+                }}
+              >
+                <Bookmark className="w-4 h-4" /> Save
+              </button>
+              <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => {
+                  setMenuOpen(false);
                   if (post.media_url) downloadVideo(post.media_url, `oventric-${post.id}.mp4`);
                 }}
               >
-                <Download className="w-4 h-4" /> Save
+                <Download className="w-4 h-4" /> Download
               </button>
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
@@ -247,16 +259,23 @@ function VideoItem({
                 <Share2 className="w-4 h-4" /> Share
               </button>
               <button
+                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
+                onClick={() => {
+                  setMenuOpen(false);
+                  const url = post.media_url ?? window.location.href;
+                  navigator.clipboard.writeText(url).then(
+                    () => toast.success("Link copied"),
+                    () => toast.error("Could not copy link"),
+                  );
+                }}
+              >
+                <Link2 className="w-4 h-4" /> Copy link
+              </button>
+              <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2 text-rose-300"
                 onClick={() => { setMenuOpen(false); onReport?.(post.id); }}
               >
                 <Flag className="w-4 h-4" /> Report
-              </button>
-              <button
-                className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                onClick={() => { setMenuOpen(false); if (post.media_url) shareVideo(post); }}
-              >
-                <Bookmark className="w-4 h-4" /> Copy link
               </button>
             </div>
           )}
