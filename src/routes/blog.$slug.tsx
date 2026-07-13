@@ -219,6 +219,13 @@ function BlogArticle() {
           </div>
         </section>
       </div>
+      <ShareSheet
+        open={shareOpen}
+        onClose={() => setShareOpen(false)}
+        url={typeof window !== "undefined" ? window.location.href : ""}
+        title={post.title}
+        text={post.excerpt ?? undefined}
+      />
       <ReportModal
         open={!!reportTarget}
         onClose={() => setReportTarget(null)}
