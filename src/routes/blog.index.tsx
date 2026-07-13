@@ -1,10 +1,11 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2 } from "lucide-react";
+import { Loader2, Share2 } from "lucide-react";
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { PublicChrome } from "@/components/oventric/PublicChrome";
+import { ShareSheet } from "@/components/oventric/ShareSheet";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
