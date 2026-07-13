@@ -64,10 +64,10 @@ function SystemWalletsPage() {
       {!wallets ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500" />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {(["marketplace", "bounty", "ads"] as SystemWalletKind[]).map((k) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {KINDS.map((k) => {
             const w = wallets.find((x) => x.kind === k);
-            const m = META[k];
+            const m = metaFor(k);
             const Icon = m.icon;
             return (
               <div key={k} className={`bg-gradient-to-br ${m.hue} border rounded-2xl p-5`}>
