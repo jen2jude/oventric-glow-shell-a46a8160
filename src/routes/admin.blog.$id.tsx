@@ -327,6 +327,13 @@ function BlogEditorPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowPreview((v) => !v)}
+            className={`px-3 py-2 rounded-lg border text-sm inline-flex items-center gap-1 ${showPreview ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200"}`}
+            title={showPreview ? "Back to editor" : "Live preview"}
+          >
+            {showPreview ? <><Pencil className="w-4 h-4" /> Edit</> : <><Eye className="w-4 h-4" /> Preview</>}
+          </button>
+          <button
             onClick={() => save("draft")}
             disabled={saving}
             className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm inline-flex items-center gap-1"
