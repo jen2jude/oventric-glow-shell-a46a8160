@@ -77,10 +77,12 @@ function EmptyChat({ hasThreads }: { hasThreads: boolean }) {
 function ThreadRow({
   thread,
   active,
+  online,
   onClick,
 }: {
   thread: ThreadSummary;
   active: boolean;
+  online: boolean;
   onClick: () => void;
 }) {
   const unread = thread.unread > 0;
@@ -101,12 +103,19 @@ function ThreadRow({
         >
           {thread.peerInitials}
         </div>
+        {online && (
+          <span
+            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+            title="Online"
+          />
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="flex items-center gap-1.5">
           <span className="text-sm font-semibold text-white truncate">{thread.peerName}</span>
           <span className="ml-auto shrink-0 text-[10px] text-slate-500">{formatTime(thread.lastAt)}</span>
         </div>
+
         <div className="flex items-center gap-2 mt-0.5">
           <div className="text-xs text-slate-400 truncate flex-1">{thread.preview}</div>
           {unread && (
