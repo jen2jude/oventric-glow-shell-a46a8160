@@ -185,6 +185,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     Map<string, { name: string; slug: string; initials: string; gradient: string }>
   >(new Map());
   const scrollRef = useRef<HTMLDivElement>(null);
+  const [peerTyping, setPeerTyping] = useState(false);
+  const typingChanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
+  const lastTypingSentRef = useRef(0);
+  const peerTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+
 
 
   const activeThread = useMemo(
@@ -457,6 +463,65 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
   }, [me, activePeer, reloadThreads, markRead]);
 
+  // Typing indicator — shared broadcast channel keyed by the sorted user-id pair.
+  useEffect(() => {
+    setPeerTyping(false);
+    if (peerTypingTimerRef.current) {
+      clearTimeout(peerTypingTimerRef.current);
+      peerTypingTimerRef.current = null;
+    }
+    if (!me || !activePeer) {
+      typingChanRef.current = null;
+      return;
+    }
+    const key = [me, activePeer].sort().join(":");
+    const channel = supabase.channel(`dm-typing:${key}`, {
+      config: { broadcast: { self: false } },
+    });
+    channel
+      .on("broadcast", { event: "typing" }, (payload) => {
+        const from = (payload.payload as { from?: string } | undefined)?.from;
+        if (from !== activePeer) return;
+        setPeerTyping(true);
+        if (peerTypingTimerRef.current) clearTimeout(peerTypingTimerRef.current);
+        peerTypingTimerRef.current = setTimeout(() => setPeerTyping(false), 3500);
+      })
+      .on("broadcast", { event: "stop" }, (payload) => {
+        const from = (payload.payload as { from?: string } | undefined)?.from;
+        if (from !== activePeer) return;
+        if (peerTypingTimerRef.current) clearTimeout(peerTypingTimerRef.current);
+        setPeerTyping(false);
+      })
+      .subscribe();
+    typingChanRef.current = channel;
+    return () => {
+      typingChanRef.current = null;
+      if (peerTypingTimerRef.current) {
+        clearTimeout(peerTypingTimerRef.current);
+        peerTypingTimerRef.current = null;
+      }
+      supabase.removeChannel(channel);
+    };
+  }, [me, activePeer]);
+
+  const emitTyping = useCallback(
+    (isTyping: boolean) => {
+      const chan = typingChanRef.current;
+      if (!chan || !me || !activePeer) return;
+      if (isTyping) {
+        const now = Date.now();
+        if (now - lastTypingSentRef.current < 1500) return;
+        lastTypingSentRef.current = now;
+        void chan.send({ type: "broadcast", event: "typing", payload: { from: me } });
+      } else {
+        lastTypingSentRef.current = 0;
+        void chan.send({ type: "broadcast", event: "stop", payload: { from: me } });
+      }
+    },
+    [me, activePeer],
+  );
+
+
   const lastMsgId = messages[messages.length - 1]?.id ?? null;
   useEffect(() => {
     if (scrollRef.current) {
@@ -490,6 +555,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
     setMessages((prev) => [...prev, optimistic]);
     setDraft("");
+    emitTyping(false);
+
     try {
       const row = await postMessage({ data: { recipientId: activePeer, body } });
       setMessages((prev) => prev.map((m) => (m.id === optimistic.id ? row : m)));
@@ -653,12 +720,15 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {onlinePeers.has(activeThread.peerId) ? (
+                  {peerTyping ? (
+                    <span className="text-emerald-400 font-semibold">typing…</span>
+                  ) : onlinePeers.has(activeThread.peerId) ? (
                     <span className="text-emerald-400 font-semibold">● Online now</span>
                   ) : (
                     <>last active {relative(activeThread.lastAt)}</>
                   )}
                 </div>
+
               </div>
 
               <Link
@@ -701,13 +771,34 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   {messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)}
                 </>
               )}
+              {peerTyping && activeThread && (
+                <div className="flex justify-start">
+                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-[#2A2A32] border border-white/5">
+                    <span className="text-[11px] text-slate-400">
+                      {activeThread.peerName.split(/\s+/)[0]} is typing
+                    </span>
+                    <span className="flex items-end gap-0.5" aria-hidden="true">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" />
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
+
 
             <div className="border-t border-white/10 bg-[#16161B] p-3">
               <div className="flex items-end gap-2">
                 <textarea
                   value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setDraft(v);
+                    if (v.trim().length > 0) emitTyping(true);
+                    else emitTyping(false);
+                  }}
+
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
