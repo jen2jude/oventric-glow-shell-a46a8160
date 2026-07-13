@@ -861,33 +861,41 @@ export function Feed() {
               if ((i + 1) % 10 === 0 && blogPosts[blogIdx]) {
                 const b = blogPosts[blogIdx++];
                 items.push(
-                  <Link
-                    key={`blog-${b.id}`}
-                    to="/blog/$slug"
-                    params={{ slug: b.slug }}
-                    className="block bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition"
-                  >
-                    {b.cover_url && (
-                      <ResponsiveImage src={b.cover_url} alt={b.title} sizes="(min-width: 768px) 640px, 100vw" className="w-full aspect-[16/7] object-cover" />
-                    )}
+                  <div key={`blog-${b.id}`} className="relative bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition">
+                    <Link
+                      to="/blog/$slug"
+                      params={{ slug: b.slug }}
+                      className="block"
+                    >
+                      {b.cover_url && (
+                        <ResponsiveImage src={b.cover_url} alt={b.title} sizes="(min-width: 768px) 640px, 100vw" className="w-full aspect-[16/7] object-cover" />
+                      )}
 
-                    <div className="p-4">
-                      <div className="flex items-center gap-2 mb-1">
-                        <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                        <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
-                          Blog{b.category_name ? ` · ${b.category_name}` : ""}
-                        </span>
+                      <div className="p-4">
+                        <div className="flex items-center gap-2 mb-1">
+                          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                          <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                            Blog{b.category_name ? ` · ${b.category_name}` : ""}
+                          </span>
+                        </div>
+                        <h3 className="text-white text-lg font-black leading-tight">{b.title}</h3>
+                        <p className="mt-1.5 text-sm text-slate-400 line-clamp-3">{b.excerpt}</p>
+                        <div className="mt-3 flex items-center justify-between">
+                          <span className="text-[11px] text-slate-500">By {b.author_name}</span>
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
+                            Read article →
+                          </span>
+                        </div>
                       </div>
-                      <h3 className="text-white text-lg font-black leading-tight">{b.title}</h3>
-                      <p className="mt-1.5 text-sm text-slate-400 line-clamp-3">{b.excerpt}</p>
-                      <div className="mt-3 flex items-center justify-between">
-                        <span className="text-[11px] text-slate-500">By {b.author_name}</span>
-                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
-                          Read article →
-                        </span>
-                      </div>
-                    </div>
-                  </Link>,
+                    </Link>
+                    <button
+                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setBlogShare(b); }}
+                      className="absolute top-2 right-2 p-2 rounded-full bg-black/60 backdrop-blur border border-white/10 text-slate-200 hover:text-white hover:bg-black/80"
+                      aria-label="Share article"
+                    >
+                      <Share2 className="w-4 h-4" />
+                    </button>
+                  </div>,
                 );
               }
             });
