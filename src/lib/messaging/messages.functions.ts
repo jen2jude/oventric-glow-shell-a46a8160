@@ -96,21 +96,42 @@ export const listThreads = createServerFn({ method: "GET" })
     return out;
   });
 
+export interface MessagePage {
+  rows: DMRow[];
+  hasMore: boolean;
+}
+
 export const listMessages = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((d) => z.object({ peerId: z.string().uuid(), limit: z.number().int().min(1).max(200).optional() }).parse(d))
-  .handler(async ({ data, context }): Promise<DMRow[]> => {
+  .inputValidator((d) =>
+    z
+      .object({
+        peerId: z.string().uuid(),
+        limit: z.number().int().min(1).max(200).optional(),
+        before: z.string().datetime().optional(),
+      })
+      .parse(d),
+  )
+  .handler(async ({ data, context }): Promise<MessagePage> => {
     const me = context.userId;
-    const { data: rows, error } = await context.supabase
+    const limit = data.limit ?? 30;
+    let q = context.supabase
       .from("direct_messages")
       .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at")
       .or(
         `and(sender_id.eq.${me},recipient_id.eq.${data.peerId}),and(sender_id.eq.${data.peerId},recipient_id.eq.${me})`,
       )
-      .order("created_at", { ascending: true })
-      .limit(data.limit ?? 100);
+      .order("created_at", { ascending: false })
+      .limit(limit + 1);
+    if (data.before) q = q.lt("created_at", data.before);
+    const { data: rows, error } = await q;
     if (error) throw error;
-    return (rows ?? []) as DMRow[];
+    const list = (rows ?? []) as DMRow[];
+    const hasMore = list.length > limit;
+    const page = hasMore ? list.slice(0, limit) : list;
+    // Return ascending (oldest → newest) for easy append/prepend in UI.
+    page.reverse();
+    return { rows: page, hasMore };
   });
 
 export const sendMessage = createServerFn({ method: "POST" })

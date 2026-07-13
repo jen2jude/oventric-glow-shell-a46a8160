@@ -174,6 +174,9 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const [activePeer, setActivePeer] = useState<string | null>(initialThreadId ?? null);
   const [messages, setMessages] = useState<DMRow[]>([]);
   const [loadingMessages, setLoadingMessages] = useState(false);
+  const [hasMoreOlder, setHasMoreOlder] = useState(false);
+  const [loadingOlder, setLoadingOlder] = useState(false);
+  const PAGE_SIZE = 30;
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
@@ -352,18 +355,20 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   }, [me, activePeer, threads]);
 
 
-  // Load active peer messages
+  // Load latest page of messages for active peer
   useEffect(() => {
     if (!me || !activePeer) {
       setMessages([]);
+      setHasMoreOlder(false);
       return;
     }
     let cancel = false;
     setLoadingMessages(true);
-    fetchMessages({ data: { peerId: activePeer } })
-      .then((rows) => {
+    fetchMessages({ data: { peerId: activePeer, limit: PAGE_SIZE } })
+      .then((page) => {
         if (cancel) return;
-        setMessages(rows);
+        setMessages(page.rows);
+        setHasMoreOlder(page.hasMore);
       })
       .catch((e) => console.error("messages load failed", e))
       .finally(() => {
@@ -379,6 +384,36 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       cancel = true;
     };
   }, [me, activePeer, fetchMessages, markRead]);
+
+  const loadOlder = useCallback(async () => {
+    if (!activePeer || loadingOlder || !hasMoreOlder) return;
+    const oldest = messages[0];
+    if (!oldest) return;
+    const el = scrollRef.current;
+    const prevHeight = el?.scrollHeight ?? 0;
+    const prevTop = el?.scrollTop ?? 0;
+    setLoadingOlder(true);
+    try {
+      const page = await fetchMessages({
+        data: { peerId: activePeer, limit: PAGE_SIZE, before: oldest.created_at },
+      });
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.id));
+        const merged = [...page.rows.filter((r) => !seen.has(r.id)), ...prev];
+        return merged;
+      });
+      setHasMoreOlder(page.hasMore);
+      // Preserve scroll position after prepending
+      requestAnimationFrame(() => {
+        const nextEl = scrollRef.current;
+        if (nextEl) nextEl.scrollTop = nextEl.scrollHeight - prevHeight + prevTop;
+      });
+    } catch (e) {
+      console.error("load older failed", e);
+    } finally {
+      setLoadingOlder(false);
+    }
+  }, [activePeer, loadingOlder, hasMoreOlder, messages, fetchMessages]);
 
   // Realtime subscription
   useEffect(() => {
@@ -422,11 +457,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
   }, [me, activePeer, reloadThreads, markRead]);
 
+  const lastMsgId = messages[messages.length - 1]?.id ?? null;
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [activePeer, messages.length]);
+  }, [activePeer, lastMsgId]);
 
   const selectThread = (peerId: string) => {
     setActivePeer(peerId);
@@ -644,7 +680,26 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   No messages yet — say hello.
                 </div>
               ) : (
-                messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)
+                <>
+                  {hasMoreOlder && (
+                    <div className="flex justify-center pb-2">
+                      <button
+                        onClick={() => void loadOlder()}
+                        disabled={loadingOlder}
+                        className="inline-flex items-center gap-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/60 rounded-full px-3 py-1 disabled:opacity-50"
+                      >
+                        {loadingOlder ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" /> Loading older…
+                          </>
+                        ) : (
+                          <>Load older messages</>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                  {messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)}
+                </>
               )}
             </div>
 
