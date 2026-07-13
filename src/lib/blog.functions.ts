@@ -225,8 +225,9 @@ export const listBlogComments = createServerFn({ method: "GET" })
     const { sb } = await getViewerClient();
     const { data: rows, error } = await sb
       .from("blog_comments")
-      .select("id, post_id, user_id, author_name, initials, text, created_at")
+      .select("id, post_id, user_id, author_name, initials, text, created_at, is_hidden")
       .eq("post_id", data.postId)
+      .eq("is_hidden", false)
       .order("created_at", { ascending: true });
     if (error) throw new Error(error.message);
     return { comments: rows ?? [] };
