@@ -235,7 +235,9 @@ export const createProduct = createServerFn({ method: "POST" })
         external_url: data.externalUrl,
         file_path: data.filePath,
         cover_path: data.coverPath,
-        promoted: true,
+        promoted: false,
+        kind: "digital",
+        status: "pending",
       })
       .select()
       .single();
