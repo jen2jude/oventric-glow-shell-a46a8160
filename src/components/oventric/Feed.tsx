@@ -1041,7 +1041,10 @@ export function Feed() {
                   >
                     <MessageSquare className="w-4 h-4" /> {post.comments_count}
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto">
+                  <button
+                    onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto"
+                  >
                     <Share2 className="w-4 h-4" /> Share
                   </button>
                 </div>
