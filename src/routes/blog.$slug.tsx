@@ -8,9 +8,9 @@ import {
 } from "@/lib/blog.functions";
 import { REACTION_META } from "@/components/oventric/feed/Reactions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
-import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { PublicChrome } from "@/components/oventric/PublicChrome";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/$slug")({
