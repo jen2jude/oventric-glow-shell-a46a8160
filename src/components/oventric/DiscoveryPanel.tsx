@@ -110,7 +110,7 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
             alt={ad.advertiser}
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
-          />
+           decoding="async" />
           {ad.tier === "video" && (
             <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 drop-shadow" />
           )}
@@ -149,7 +149,7 @@ function SponsoredInline({ ad }: { ad: DiscoveryAd }) {
     >
       <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800 flex items-center justify-center">
         {ad.coverUrl && ad.tier !== "text" ? (
-          <img src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy" />
+          <img src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
         ) : (
           <Megaphone className="w-4 h-4 text-white/90" />
         )}
@@ -180,7 +180,7 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
         className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue} flex items-center justify-center`}
       >
         {p.coverUrl ? (
-          <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
+          <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
         ) : (
           <ShoppingBag className="w-4 h-4 text-white/90" />
         )}
@@ -343,7 +343,7 @@ export function DiscoveryPanel() {
                   aria-label={`View ${p.name}`}
                 >
                   {p.avatarUrl ? (
-                    <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy" />
+                    <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
                   ) : (
                     p.initials
                   )}
@@ -412,7 +412,7 @@ export function DiscoveryPanel() {
                 >
                   {b.coverUrl && (
                     <div className="mb-2 h-20 w-full rounded-md overflow-hidden bg-black/40">
-                      <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy" />
+                      <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
                     </div>
                   )}
                   <div className="flex items-start gap-2">

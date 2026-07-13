@@ -596,7 +596,7 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
               <div className="flex items-center gap-2 mb-2">
                 {p.authorAvatar ? (
                   // eslint-disable-next-line @next/next/no-img-element
-                  <img src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                  <img src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover"  loading="lazy" decoding="async" />
                 ) : (
                   <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
                     {p.authorName.slice(0, 1).toUpperCase()}
@@ -639,7 +639,7 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
         <div key={m.userId} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3">
           {m.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <img src={m.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+            <img src={m.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0"  loading="lazy" decoding="async" />
           ) : (
             <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold shrink-0">
               {m.name.slice(0, 1).toUpperCase()}

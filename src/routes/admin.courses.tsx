@@ -128,7 +128,7 @@ function AdminCourses() {
           <div key={c.id} className="p-4 bg-[#1E1E24] border border-white/10 rounded-xl flex items-center gap-4">
             <div className="w-16 h-10 rounded bg-black/40 overflow-hidden shrink-0 flex items-center justify-center">
               {c.coverUrl ? (
-                <img src={c.coverUrl} alt="" className="w-full h-full object-cover" />
+                <img src={c.coverUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
               ) : (
                 <GraduationCap className="w-5 h-5 text-slate-600" />
               )}

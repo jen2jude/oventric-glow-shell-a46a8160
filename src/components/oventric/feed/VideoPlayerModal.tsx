@@ -61,6 +61,7 @@ async function shareVideo(post: FeedPost) {
 function VideoItem({
   post,
   active,
+  preload,
   pinned,
   onReact,
   onOpenComments,
@@ -70,6 +71,7 @@ function VideoItem({
   onHide,
 }: {
   post: FeedPost;
+  preload: boolean;
   active: boolean;
   pinned: boolean;
   onReact: (postId: string, reaction: ReactionType | null) => void;
@@ -114,7 +116,7 @@ function VideoItem({
         className="max-h-full max-w-full object-contain"
         loop
         playsInline
-        preload="metadata"
+        preload={active ? "auto" : preload ? "auto" : "metadata"}
         onClick={() => {
           const v = vRef.current;
           if (!v) return;
@@ -346,21 +348,26 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
         <X className="w-5 h-5" />
       </button>
       <div ref={scrollRef} className="h-full w-full overflow-y-auto snap-y snap-mandatory">
-        {ordered.map((v) => (
-          <div key={v.id} data-video-id={v.id} className="w-full h-[100dvh]">
-            <VideoItem
-              post={v}
-              active={v.id === activeId}
-              pinned={pinned.has(v.id)}
-              onReact={onReact}
-              onOpenComments={onOpenComments}
-              onTogglePin={togglePin}
-              onReport={onReport}
-              onInterest={markInterest}
-              onHide={hideVideo}
-            />
-          </div>
-        ))}
+        {ordered.map((v, i) => {
+          const activeIdx = ordered.findIndex((o) => o.id === activeId);
+          const dist = Math.abs(i - activeIdx);
+          return (
+            <div key={v.id} data-video-id={v.id} className="w-full h-[100dvh]">
+              <VideoItem
+                post={v}
+                active={v.id === activeId}
+                preload={dist <= 1}
+                pinned={pinned.has(v.id)}
+                onReact={onReact}
+                onOpenComments={onOpenComments}
+                onTogglePin={togglePin}
+                onReport={onReport}
+                onInterest={markInterest}
+                onHide={hideVideo}
+              />
+            </div>
+          );
+        })}
       </div>
     </div>
   );
