@@ -61,6 +61,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
   const fail = (message: string, description: string) => {
     setProgress("");
+    setProgressPct(0);
+    setUploadStatus(null);
     setFormError(`${message} ${description}`);
     toast.error(message, { description });
   };
