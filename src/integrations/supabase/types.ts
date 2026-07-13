@@ -1430,6 +1430,44 @@ export type Database = {
           },
         ]
       }
+      product_contacts: {
+        Row: {
+          buyer_id: string
+          created_at: string
+          id: string
+          method: string
+          note: string | null
+          product_id: string
+          seller_id: string
+        }
+        Insert: {
+          buyer_id: string
+          created_at?: string
+          id?: string
+          method: string
+          note?: string | null
+          product_id: string
+          seller_id: string
+        }
+        Update: {
+          buyer_id?: string
+          created_at?: string
+          id?: string
+          method?: string
+          note?: string | null
+          product_id?: string
+          seller_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "product_contacts_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       products: {
         Row: {
           brand: string | null

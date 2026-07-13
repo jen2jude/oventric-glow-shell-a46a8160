@@ -798,3 +798,171 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
       downloadUrl,
     };
   });
+
+export interface PurchaseDTO {
+  orderId: string;
+  productId: string;
+  productName: string;
+  category: string;
+  vendor: string;
+  hue: string;
+  coverUrl: string | null;
+  quantity: number;
+  totalUSD: number;
+  displayCurrency: OrderCurrency;
+  displayTotal: number;
+  status: OrderStatus;
+  paidAt: string | null;
+  createdAt: string;
+  hasFile: boolean;
+  externalUrl: string | null;
+}
+
+/** All digital purchases for the signed-in buyer. */
+export const listMyPurchases = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PurchaseDTO[]> => {
+    const { data, error } = await context.supabase
+      .from("orders")
+      .select("id, product_id, quantity, unit_price_usd, total_usd, display_currency, display_total, status, paid_at, created_at, products:product_id (name, category, vendor, hue, cover_path, file_path, external_url)")
+      .eq("buyer_id", context.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const out: PurchaseDTO[] = [];
+    for (const r of rows) {
+      const p = (r.products ?? {}) as Record<string, unknown>;
+      const coverPath = (p.cover_path as string) ?? null;
+      let coverUrl: string | null = null;
+      if (coverPath) {
+        const { data: sig } = await context.supabase.storage
+          .from("product-covers")
+          .createSignedUrl(coverPath, 60 * 60 * 24);
+        coverUrl = sig?.signedUrl ?? null;
+      }
+      out.push({
+        orderId: r.id as string,
+        productId: r.product_id as string,
+        productName: (p.name as string) ?? "Digital product",
+        category: (p.category as string) ?? "themes",
+        vendor: (p.vendor as string) ?? "",
+        hue: (p.hue as string) ?? "from-emerald-500 to-teal-700",
+        coverUrl,
+        quantity: Number(r.quantity),
+        totalUSD: Number(r.total_usd),
+        displayCurrency: (r.display_currency as OrderCurrency) ?? "USD",
+        displayTotal: Number(r.display_total ?? 0),
+        status: (r.status as OrderStatus) ?? "pending",
+        paidAt: (r.paid_at as string) ?? null,
+        createdAt: r.created_at as string,
+        hasFile: !!(p.file_path as string),
+        externalUrl: (p.external_url as string) ?? null,
+      });
+    }
+    return out;
+  });
+
+export interface ContactedSellerDTO {
+  id: string;
+  productId: string;
+  productName: string;
+  category: string;
+  vendor: string;
+  hue: string;
+  coverUrl: string | null;
+  location: string | null;
+  priceUSD: number;
+  displayCurrency: OrderCurrency;
+  originalAmount: number;
+  originalCurrency: OrderCurrency;
+  sellerPhone: string | null;
+  whatsappNumber: string | null;
+  method: "call" | "whatsapp";
+  createdAt: string;
+  productStatus: ProductStatus;
+}
+
+/** Log a physical-product seller contact (Call / WhatsApp click). */
+export const logProductContact = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { productId: string; method: "call" | "whatsapp"; note?: string | null }) => ({
+    productId: String(input.productId ?? ""),
+    method: input.method === "call" ? "call" as const : "whatsapp" as const,
+    note: input.note ? String(input.note).slice(0, 500) : null,
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.productId) throw new Error("Missing product id");
+    const { data: p, error: pe } = await context.supabase
+      .from("products")
+      .select("id, seller_id, kind")
+      .eq("id", data.productId)
+      .maybeSingle();
+    if (pe) throw new Error(pe.message);
+    if (!p) throw new Error("Product not found");
+    if ((p.seller_id as string) === context.userId) return { id: null }; // don't log self-contact
+    const { data: ins, error } = await context.supabase
+      .from("product_contacts")
+      .insert({
+        product_id: data.productId,
+        buyer_id: context.userId,
+        seller_id: p.seller_id as string,
+        method: data.method,
+        note: data.note,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: (ins?.id as string) ?? null };
+  });
+
+/** Sellers the signed-in buyer has contacted (physical goods). Latest per product. */
+export const listMyContactedSellers = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<ContactedSellerDTO[]> => {
+    const { data, error } = await context.supabase
+      .from("product_contacts")
+      .select("id, product_id, method, created_at, products:product_id (name, category, vendor, hue, cover_path, image_paths, location, price_usd, original_currency, original_amount, seller_phone, whatsapp_number, status)")
+      .eq("buyer_id", context.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    const rows = (data ?? []) as Record<string, unknown>[];
+    const seen = new Set<string>();
+    const out: ContactedSellerDTO[] = [];
+    for (const r of rows) {
+      const pid = r.product_id as string;
+      if (seen.has(pid)) continue;
+      seen.add(pid);
+      const p = (r.products ?? {}) as Record<string, unknown>;
+      const coverPath = (p.cover_path as string) ?? null;
+      const imgs = Array.isArray(p.image_paths) ? (p.image_paths as string[]) : [];
+      const firstImg = coverPath ?? imgs[0] ?? null;
+      let coverUrl: string | null = null;
+      if (firstImg) {
+        const { data: sig } = await context.supabase.storage
+          .from("product-covers")
+          .createSignedUrl(firstImg, 60 * 60 * 24);
+        coverUrl = sig?.signedUrl ?? null;
+      }
+      out.push({
+        id: r.id as string,
+        productId: pid,
+        productName: (p.name as string) ?? "Listing",
+        category: (p.category as string) ?? "",
+        vendor: (p.vendor as string) ?? "",
+        hue: (p.hue as string) ?? "from-emerald-500 to-teal-700",
+        coverUrl,
+        location: (p.location as string) ?? null,
+        priceUSD: Number(p.price_usd ?? 0),
+        displayCurrency: ((p.original_currency as string) ?? "USD") as OrderCurrency,
+        originalAmount: Number(p.original_amount ?? p.price_usd ?? 0),
+        originalCurrency: ((p.original_currency as string) ?? "USD") as OrderCurrency,
+        sellerPhone: (p.seller_phone as string) ?? null,
+        whatsappNumber: (p.whatsapp_number as string) ?? null,
+        method: (r.method as "call" | "whatsapp") ?? "whatsapp",
+        createdAt: r.created_at as string,
+        productStatus: ((p.status as string) ?? "active") as ProductStatus,
+      });
+    }
+    return out;
+  });
+

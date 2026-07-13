@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getProduct, type ProductDTO } from "@/lib/marketplace.functions";
+import { getProduct, logProductContact, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -213,6 +213,10 @@ function ProductPage() {
 
 function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
   const { baseCurrency } = useOnboarding();
+  const logContact = useServerFn(logProductContact);
+  const handleContact = (method: "call" | "whatsapp") => {
+    void logContact({ data: { productId: product.id, method, note: note?.trim() || null } }).catch(() => {});
+  };
   const phone = (product.sellerPhone ?? "").replace(/\D/g, "");
   const wa = (product.whatsappNumber ?? phone).replace(/\D/g, "");
   const dp = productDisplay(product, baseCurrency);
@@ -301,6 +305,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           <a
             href={canCall ? `tel:+${phone}` : undefined}
             aria-disabled={!canCall}
+            onClick={() => canCall && handleContact("call")}
             className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? "bg-white/10 text-white hover:bg-white/15" : "bg-white/5 text-slate-500 pointer-events-none"}`}
           >
             <Phone className="w-4 h-4" /> Call Seller
@@ -309,6 +314,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
             href={wa ? waUrl : undefined}
             target="_blank"
             rel="noopener noreferrer"
+            onClick={() => wa && handleContact("whatsapp")}
             className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${wa ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-white/5 text-slate-500 pointer-events-none"}`}
           >
             <MessageCircle className="w-4 h-4" /> Chat Seller
