@@ -270,6 +270,11 @@ function BlogEditorPage() {
           <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">
             {isNew ? "New post" : "Edit post"}
           </span>
+          {autosavedAt && (
+            <span className="text-[10px] text-slate-500 hidden sm:inline">
+              Autosaved · {new Date(autosavedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
         </div>
         <div className="flex items-center gap-2">
           <button
