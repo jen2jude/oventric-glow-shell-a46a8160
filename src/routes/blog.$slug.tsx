@@ -189,19 +189,40 @@ function BlogArticle() {
             </button>
           </div>
           <div className="mt-4 space-y-3">
-            {comments.map((c) => (
+            {comments.map((c) => {
+              const reported = reportedIds.has(c.id);
+              return (
               <div key={c.id} className="flex items-start gap-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">{c.initials}</div>
                 <div className="flex-1 bg-[#141418] border border-white/10 rounded-lg px-3 py-2">
-                  <div className="text-xs font-bold text-white">{c.author_name}</div>
+                  <div className="flex items-center justify-between gap-2">
+                    <div className="text-xs font-bold text-white">{c.author_name}</div>
+                    <button
+                      onClick={() => require(1, () => setReportTarget({ id: c.id, author: c.author_name }), "interaction")}
+                      disabled={reported}
+                      className="text-[10px] inline-flex items-center gap-1 text-slate-500 hover:text-red-300 disabled:opacity-60 disabled:hover:text-slate-500"
+                      title={reported ? "Reported" : "Report comment"}
+                    >
+                      <Flag className="w-3 h-3" /> {reported ? "Reported" : "Report"}
+                    </button>
+                  </div>
                   <div className="text-sm text-slate-300 whitespace-pre-wrap mt-0.5">{c.text}</div>
                 </div>
               </div>
-            ))}
+              );
+            })}
             {comments.length === 0 && <p className="text-sm text-slate-500 text-center py-4">Be the first to comment.</p>}
           </div>
         </section>
       </div>
+      <ReportModal
+        open={!!reportTarget}
+        onClose={() => setReportTarget(null)}
+        target={reportTarget ? `comment by ${reportTarget.author}` : "comment"}
+        targetId={reportTarget?.id}
+        targetKind="blog_comment"
+        onReported={(id) => setReportedIds((s) => new Set(s).add(id))}
+      />
     </div>
   );
 }
