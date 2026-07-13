@@ -3,7 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-export type ProductCategory = "themes" | "plugins" | "blocks" | "scripts";
+export type ProductCategory = string;
+export type ProductKind = "digital" | "physical";
+export type ProductStatus = "pending" | "active" | "rejected";
 export type OrderCurrency = "USD" | "NGN" | "GHS";
 export type PaymentMethod = "wallet" | "card" | "bank_transfer" | "mobile_money";
 export type OrderStatus = "pending" | "paid" | "failed" | "refunded";
@@ -13,6 +15,7 @@ export interface ProductDTO {
   sellerId: string;
   name: string;
   category: ProductCategory;
+  subcategory: string | null;
   description: string;
   priceUSD: number;
   originalCurrency: OrderCurrency;
@@ -28,6 +31,21 @@ export interface ProductDTO {
   coverPath: string | null;
   coverUrl: string | null;
   createdAt: string;
+  // Kind + moderation
+  kind: ProductKind;
+  status: ProductStatus;
+  rejectReason: string | null;
+  // Physical fields
+  condition: string | null;
+  brand: string | null;
+  location: string | null;
+  negotiable: string | null;
+  delivery: string | null;
+  sellerPhone: string | null;
+  whatsappNumber: string | null;
+  socialLink: string | null;
+  imagePaths: string[];
+  imageUrls: string[];
 }
 
 export interface OrderDTO {
@@ -62,7 +80,11 @@ function serverPublicClient() {
   });
 }
 
-function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null): ProductDTO {
+function mapProduct(
+  r: Record<string, unknown>,
+  coverUrl: string | null = null,
+  imageUrls: string[] = [],
+): ProductDTO {
   const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
   const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
   const snap = r.fx_snapshot as ProductDTO["fxSnapshot"] | null | undefined;
@@ -71,6 +93,7 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     sellerId: r.seller_id as string,
     name: r.name as string,
     category: r.category as ProductCategory,
+    subcategory: (r.subcategory as string) ?? null,
     description: (r.description as string) ?? "",
     priceUSD: Number(r.price_usd),
     originalCurrency,
@@ -86,6 +109,19 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     coverPath: (r.cover_path as string) ?? null,
     coverUrl,
     createdAt: r.created_at as string,
+    kind: ((r.kind as string) ?? "digital") as ProductKind,
+    status: ((r.status as string) ?? "active") as ProductStatus,
+    rejectReason: (r.reject_reason as string) ?? null,
+    condition: (r.condition as string) ?? null,
+    brand: (r.brand as string) ?? null,
+    location: (r.location as string) ?? null,
+    negotiable: (r.negotiable as string) ?? null,
+    delivery: (r.delivery as string) ?? null,
+    sellerPhone: (r.seller_phone as string) ?? null,
+    whatsappNumber: (r.whatsapp_number as string) ?? null,
+    socialLink: (r.social_link as string) ?? null,
+    imagePaths: Array.isArray(r.image_paths) ? (r.image_paths as string[]) : [],
+    imageUrls,
   };
 }
 
@@ -101,17 +137,29 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
-const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
+const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, seller_phone, whatsapp_number, social_link, image_paths";
 
-/** Public catalog. Anyone (including anon) can list. */
+async function signImagePaths(
+  sb: ReturnType<typeof serverPublicClient>,
+  paths: string[],
+): Promise<string[]> {
+  if (paths.length === 0) return [];
+  const { data } = await sb.storage.from("product-covers").createSignedUrls(paths, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+  return paths.map((p) => map.get(p) ?? "").filter(Boolean);
+}
+
+/** Public catalog. Anyone (including anon) can list. RLS filters to status='active'. */
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublicClient();
   const { data, error } = await sb
     .from("products")
     .select(PRODUCT_COLS)
+    .eq("status", "active")
     .order("promoted", { ascending: false })
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(400);
   if (error) throw new Error(error.message);
   const rows = data ?? [];
   const urls = await signCovers(sb, rows.map((r) => (r.cover_path as string) ?? null));
@@ -132,7 +180,9 @@ export const getProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Product not found");
     const [url] = await signCovers(sb, [(row.cover_path as string) ?? null]);
-    return mapProduct(row as Record<string, unknown>, url);
+    const imgs = Array.isArray(row.image_paths) ? (row.image_paths as string[]) : [];
+    const imgUrls = await signImagePaths(sb, imgs);
+    return mapProduct(row as Record<string, unknown>, url, imgUrls);
   });
 
 /** Authenticated seller creates a product (used by Admin Forge). */
@@ -200,6 +250,104 @@ export const createProduct = createServerFn({ method: "POST" })
     return mapProduct(row as Record<string, unknown>, coverUrl);
   });
 
+/** Authenticated seller creates a physical product listing. Enters as 'pending' for admin approval. */
+export const createPhysicalProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: {
+    name: string;
+    category: string;
+    subcategory?: string | null;
+    description: string;
+    priceUSD: number;
+    vendor: string;
+    hue?: string;
+    imagePaths: string[];
+    condition: string;
+    brand?: string | null;
+    location?: string | null;
+    negotiable: string;
+    delivery: string;
+    sellerPhone: string;
+    whatsappNumber?: string | null;
+    socialLink?: string | null;
+    originalCurrency?: OrderCurrency;
+    originalAmount?: number;
+    fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
+  }) => ({
+    name: String(input.name ?? "").trim(),
+    category: String(input.category ?? "").trim() || "other",
+    subcategory: input.subcategory ? String(input.subcategory).trim() : null,
+    description: String(input.description ?? "").trim(),
+    priceUSD: Number(input.priceUSD),
+    vendor: String(input.vendor ?? "").trim(),
+    hue: input.hue ?? "from-emerald-500 to-teal-700",
+    imagePaths: (input.imagePaths ?? []).filter(Boolean),
+    condition: String(input.condition ?? "new"),
+    brand: input.brand ? String(input.brand).trim() : null,
+    location: input.location ? String(input.location).trim() : null,
+    negotiable: String(input.negotiable ?? "maybe"),
+    delivery: String(input.delivery ?? "maybe"),
+    sellerPhone: String(input.sellerPhone ?? "").replace(/\D/g, ""),
+    whatsappNumber: input.whatsappNumber
+      ? String(input.whatsappNumber).replace(/\D/g, "")
+      : String(input.sellerPhone ?? "").replace(/\D/g, ""),
+    socialLink: input.socialLink ? String(input.socialLink).trim() : null,
+    originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
+    originalAmount: Number(input.originalAmount ?? input.priceUSD),
+    fxSnapshot: input.fxSnapshot ?? null,
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.name) throw new Error("Product title required");
+    if (!(data.priceUSD > 0)) throw new Error("Price must be greater than 0");
+    if (data.imagePaths.length < 3) throw new Error("Please upload at least 3 product images");
+    if (!data.sellerPhone || data.sellerPhone.length < 6) throw new Error("A valid phone number is required");
+
+    const { data: row, error } = await context.supabase
+      .from("products")
+      .insert({
+        seller_id: context.userId,
+        name: data.name,
+        category: data.category,
+        subcategory: data.subcategory,
+        description: data.description,
+        price_usd: data.priceUSD,
+        original_currency: data.originalCurrency,
+        original_amount: data.originalAmount,
+        fx_snapshot: data.fxSnapshot ? JSON.parse(JSON.stringify(data.fxSnapshot)) : null,
+        vendor: data.vendor,
+        hue: data.hue,
+        cover_path: data.imagePaths[0] ?? null,
+        image_paths: data.imagePaths,
+        kind: "physical",
+        status: "pending",
+        condition: data.condition,
+        brand: data.brand,
+        location: data.location,
+        negotiable: data.negotiable,
+        delivery: data.delivery,
+        seller_phone: data.sellerPhone,
+        whatsapp_number: data.whatsappNumber,
+        social_link: data.socialLink,
+        promoted: false,
+      })
+      .select()
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: row.id as string };
+  });
+
+/** Signed-in seller lists their own products regardless of status. */
+export const listMyProducts = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data, error } = await context.supabase
+      .from("products")
+      .select(PRODUCT_COLS)
+      .eq("seller_id", context.userId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => mapProduct(r as Record<string, unknown>));
+  });
 
 
 /** Wallet top-up (mock card/bank/momo processing). Credits the user's wallet in USD equivalent. */

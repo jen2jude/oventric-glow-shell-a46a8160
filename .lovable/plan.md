@@ -1,80 +1,86 @@
-# Blog CMS + Feed post-action polish
 
-Two parallel workstreams. Both land in one push.
+# Physical Marketplace — Major Update
 
-## 1. Blog CMS (admin-only)
+Scope is large; I'll ship it in one coherent pass. Here's what will change and how.
 
-### Frontend gate
-- Remove "Add Blog Article" from `CreatePanel.tsx` (front-end users lose the option entirely).
+## 1. Database (single migration)
 
-### Database (one migration)
-- `blog_categories(id, slug UNIQUE, name, sort_order, created_at)`
-- `blog_tags(id, slug UNIQUE, name, created_at)`
-- `blog_posts(id, author_id → auth.users, title, slug UNIQUE, excerpt, body_html, cover_path, category_id → blog_categories, status ENUM 'draft'|'published'|'scheduled', published_at, scheduled_at, created_at, updated_at)`
-- `blog_post_tags(post_id, tag_id, PK composite)`
-- `blog_reactions(id, post_id, user_id, reaction, UNIQUE(post_id, user_id))`
-- `blog_comments(id, post_id, user_id, author_name, initials, text, created_at, updated_at)`
-- `blog-covers` storage bucket (public read).
-- RLS:
-  - Categories / tags: anon SELECT, admin write.
-  - `blog_posts`: anon SELECT where `status='published' AND (published_at IS NULL OR published_at <= now())`; admin full write.
-  - `blog_reactions` / `blog_comments`: authenticated write-own; anon read; delete-own.
-- Trigger: on publish/schedule transitions, keep `published_at`/`scheduled_at` coherent.
+Extend `products` (keep digital flow intact) with:
+- `kind` text — `'digital' | 'physical'` (default `'digital'`)
+- `condition` text — `'new' | 'used'` (nullable)
+- `brand` text (nullable)
+- `location` text (nullable)
+- `negotiable` text — `'yes' | 'no' | 'maybe'`
+- `delivery` text — `'yes' | 'no' | 'maybe'`
+- `seller_phone` text (E.164 digits, physical only)
+- `whatsapp_number` text (same digits, used for wa.me link)
+- `social_link` text (optional YouTube/Facebook)
+- `image_urls` text[] (cover = index 0, min 3 for physical)
+- `subcategory` text (nullable)
+- `status` — ensure `'pending' | 'active' | 'rejected'` allowed
+- `reject_reason` text (nullable)
 
-### Admin editor route `src/routes/admin.blog.tsx` (list) + `src/routes/admin.blog.$id.tsx` (editor)
-- List: rows with status pill, cover thumb, title, category, date. Buttons: New Post, Edit, Delete.
-- Editor (WordPress-like):
-  - Title input.
-  - Cover image upload (drag/click).
-  - Rich body editor: contentEditable + toolbar using `document.execCommand`. Buttons: H1/H2/H3/P, Bold, Italic, Underline, Strike, UL, OL, Link (prompt URL), Insert Image (upload → returns signed URL → insertHTML `<img>`), Quote, Code, Clear.
-  - Excerpt textarea (auto-derived if empty).
-  - Category select with "+ Add new" inline (creates row).
-  - Tags multi-select w/ typeahead + "add new".
-  - Status radio: Save as Draft / Publish now / Schedule (datetime picker → `scheduled_at`).
-- Server functions in `src/lib/blog.functions.ts`: `listBlogAdmin`, `getBlogAdmin`, `upsertBlogPost`, `deleteBlogPost`, `listCategoriesAdmin`, `upsertCategory`, `listTagsAdmin`, `upsertTag`.
+RLS: public SELECT only when `status='active'`; owners can see their own regardless; admins see all. Physical products never require file downloads.
 
-### Public reading route `src/routes/blog.$slug.tsx`
-- Renders cover, category, title, published_at, author, sanitised body_html.
-- Reactions bar (uses new `blog_reactions`) w/ same 4 emotes as feed.
-- Comments section (new `blog_comments`) w/ inline composer.
-- Share button (native `navigator.share` w/ clipboard fallback).
-- SSR head() sets OG title/description/image from the post row.
+## 2. Marketplace UI (`Marketplace.tsx`)
 
-### Public list route `src/routes/blog.index.tsx`
-- Grid of published posts (cover + category + title + excerpt + date).
+- Add a **segmented toggle** at the top: `Digital ⇆ Physical` with the same smooth animated switch used in the onboarding "Let's get started" modal.
+- Default: Digital. State persists in `localStorage`.
+- Replace the "View all" glowing rectangular button with a **round RGB-animated button** matching the `+` create button style.
+- Digital view: unchanged (categories + products as-is).
+- Physical view: physical categories rail + physical product cards (same card chrome, no "digital download" affordance).
 
-### Feed injection
-- `listPostsPublic` extended to also return injected blog cards.
-- `Feed.tsx`: build a rendered items array. After every 10 social posts, splice in the next unshown blog card. Blog card component: cover + "BLOG • {category}" tag + title (large) + 3-line excerpt + `Read article →` (routes to `/blog/$slug`) + separate row w/ reaction count, comment count, share (all click-through to blog page).
+## 3. Product page (`product.$id.tsx`)
 
-## 2. Feed post polish
+- If `kind='physical'` → replace **Buy Now** with **Contact Seller**.
+- On click: modal with disclaimer text:
+  > You will be redirected to deal with the seller directly. Take precaution — Oventric does not monitor or mediate between buyers and sellers.
+- Two buttons:
+  - **Call Seller** → `tel:${seller_phone}`
+  - **Chat on WhatsApp** → `https://wa.me/${whatsapp_number}?text=<prefilled>` where prefilled = `Hi! I saw your product "<name>" (<price>) — <product URL>. I'd like to purchase it.`
+- Additional images (2+) become a toggleable gallery on the product page.
 
-### 3-dot menu (replaces Flag icon)
-- Extract the fullscreen video 3-dot menu from `VideoPlayerModal.tsx` into a shared `PostActionsMenu` component so it can be reused in `Feed.tsx` post header.
-- Menu items wired live:
-  - **Interested** → local `oventric:interest` map (post prioritisation later), toast "Got it, we'll show more like this."
-  - **Not interested** → mark hidden locally + toast.
-  - **Hide post** → add id to `oventric:hidden_posts`; filter out in Feed render.
-  - **Save** → add to `oventric:saved_posts`; toast "Saved."
-  - **Share** → `navigator.share` w/ clipboard fallback (same as video).
-  - **Report** → opens existing `ReportModal`.
-- Persist all state to `localStorage`; Feed already respects same pattern (see reported set).
+## 4. Sell flow (from `+` button)
 
-### Fix Share icon (bottom-right of post)
-- Currently a dead `<button>`. Wire it to the same `sharePost()` helper.
+- Rename entry to just **Sell**. On click opens a **switchable modal** (same smooth toggle) with two tabs:
+  - **Digital Assets** → existing `SellAssetModal` form untouched.
+  - **Physical Goods** → new `SellPhysicalModal`:
+    - Title
+    - Category (dropdown) → on select, subcategory picker with category image
+    - Location
+    - Images (min 3, first = cover, drag-reorder)
+    - Social video link (optional)
+    - Brand (optional)
+    - Condition (Brand New / Used) — pill buttons
+    - Description
+    - Price (locked to seller's base currency, same FX snapshot as digital)
+    - Negotiable (Yes / No / Maybe)
+    - Delivery (Yes / No / Maybe)
+    - Phone number (digits only, validated)
+    - **Save draft** / **Post product**
+- On Post: server fn inserts with `status='pending'`, then shows a success modal:
+  > Your product has been published for review. It will go live once an admin approves it. Note: you might be contacted if needed.
+  > [OK → home]
 
-### Video fullscreen menu
-- Deduplicate: video reel uses the same `PostActionsMenu` component so both surfaces stay in sync.
+## 5. Admin
 
-## Technical notes
+- **Admin → Products**: single tab list showing both digital and physical (filter chip: All / Digital / Physical / Pending / Active / Rejected).
+- Row actions: **View**, **Approve** (sets `status='active'`), **Reject** (opens dialog for reason + optional recommendation).
+- Reject sends a **system direct message / notification** to the seller with the reason + recommendation (uses the existing notifications table, kind `system`).
+- Admin Sell form: same two-mode modal as user side, so admins can post either type directly (auto-approved).
 
-- Rich text uses `document.execCommand` (works on all modern browsers, no deps). Sanitise output with a whitelist regex before storing — strip `<script>` and `on*=` attributes. Render with `dangerouslySetInnerHTML` inside a scoped `.prose` wrapper.
-- Blog cover uploads: signed URL via existing pattern in `SellAssetModal`. Public bucket for covers so OG images work.
-- Blog card injection reuses `ResponsiveImage`.
-- No changes to onboarding tiers required.
+## 6. Admin Users tab fix
 
-## Out of scope
+- `admin.users.tsx` doesn't load real users. Fix the server fn to page real profiles via `supabaseAdmin` (list all profile rows joined with `auth.users` for email/created_at, filtered by admin role gate).
 
-- Full multi-user blog authorship (only admins).
-- Live realtime for blog comments (simple refetch after post).
-- Draft autosave.
+## Confirmation on the WhatsApp model
+
+Your model works. One clarification: `wa.me` requires **international format without `+` or leading zero** (e.g. `2348012345678`). I'll enforce a country-code prefix in the phone field (default from seller's profile country) so WhatsApp always opens correctly. The dialer `tel:` link accepts the same format.
+
+## Files touched (approx.)
+
+- Migration: `products` table + RLS + notifications kind allowlist if needed
+- New: `src/components/oventric/SellPhysicalModal.tsx`, `src/components/oventric/PhysicalMarketplace.tsx`, `src/components/oventric/ContactSellerModal.tsx`, `src/components/oventric/MarketplaceModeToggle.tsx`
+- Edited: `Marketplace.tsx`, `CreatePanel.tsx` (Sell entry), `product.$id.tsx`, `admin.products.tsx`, `admin.users.tsx`, `src/lib/marketplace.functions.ts`, `src/lib/admin.functions.ts`
+
+Reply **go** to build it, or tell me what to adjust (categories list for physical, currency handling, whether admin-posted products should auto-approve, etc.).

@@ -1432,67 +1432,106 @@ export type Database = {
       }
       products: {
         Row: {
+          brand: string | null
           category: string
+          condition: string | null
           cover_path: string | null
           created_at: string
+          delivery: string | null
           description: string
           external_url: string | null
           file_path: string | null
           fx_snapshot: Json | null
           hue: string
           id: string
+          image_paths: string[]
+          kind: string
+          location: string | null
           name: string
+          negotiable: string | null
           original_amount: number | null
           original_currency: string | null
           price_usd: number
           promoted: boolean
           rating: number
+          reject_reason: string | null
           reviews: number
           seller_id: string
+          seller_phone: string | null
+          social_link: string | null
+          status: string
+          subcategory: string | null
           updated_at: string
           vendor: string
+          whatsapp_number: string | null
         }
         Insert: {
+          brand?: string | null
           category: string
+          condition?: string | null
           cover_path?: string | null
           created_at?: string
+          delivery?: string | null
           description?: string
           external_url?: string | null
           file_path?: string | null
           fx_snapshot?: Json | null
           hue?: string
           id?: string
+          image_paths?: string[]
+          kind?: string
+          location?: string | null
           name: string
+          negotiable?: string | null
           original_amount?: number | null
           original_currency?: string | null
           price_usd: number
           promoted?: boolean
           rating?: number
+          reject_reason?: string | null
           reviews?: number
           seller_id: string
+          seller_phone?: string | null
+          social_link?: string | null
+          status?: string
+          subcategory?: string | null
           updated_at?: string
           vendor?: string
+          whatsapp_number?: string | null
         }
         Update: {
+          brand?: string | null
           category?: string
+          condition?: string | null
           cover_path?: string | null
           created_at?: string
+          delivery?: string | null
           description?: string
           external_url?: string | null
           file_path?: string | null
           fx_snapshot?: Json | null
           hue?: string
           id?: string
+          image_paths?: string[]
+          kind?: string
+          location?: string | null
           name?: string
+          negotiable?: string | null
           original_amount?: number | null
           original_currency?: string | null
           price_usd?: number
           promoted?: boolean
           rating?: number
+          reject_reason?: string | null
           reviews?: number
           seller_id?: string
+          seller_phone?: string | null
+          social_link?: string | null
+          status?: string
+          subcategory?: string | null
           updated_at?: string
           vendor?: string
+          whatsapp_number?: string | null
         }
         Relationships: []
       }
