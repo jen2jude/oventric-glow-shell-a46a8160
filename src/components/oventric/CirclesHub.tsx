@@ -654,7 +654,7 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
             <div className="text-sm font-semibold text-white truncate">{m.name}</div>
             <div className="text-[10px] uppercase tracking-wider text-slate-500">{m.role}</div>
           </button>
-          <FollowButton targetUserId={m.userId} size="sm" />
+          <FollowButton targetId={m.userId} compact />
         </div>
       ))}
     </div>
