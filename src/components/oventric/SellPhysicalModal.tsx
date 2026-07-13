@@ -42,6 +42,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState("");
+  const [progressPct, setProgressPct] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState<{ done: number; total: number } | null>(null);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
 
@@ -54,11 +56,13 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     setBrand(""); setCondition("Brand New"); setDescription(""); setPriceInput("");
     setNegotiable("Yes"); setDelivery("No"); setPhone(""); setSocialLink("");
     previews.forEach((p) => URL.revokeObjectURL(p));
-    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress("");
+    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress(""); setProgressPct(0); setUploadStatus(null);
   };
 
   const fail = (message: string, description: string) => {
     setProgress("");
+    setProgressPct(0);
+    setUploadStatus(null);
     setFormError(`${message} ${description}`);
     toast.error(message, { description });
   };
@@ -95,6 +99,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     if (submitting) return;
     setFormError("");
     setProgress("Checking listing details...");
+    setProgressPct(5);
+    setUploadStatus(null);
 
     if (!title.trim()) return fail("Title required", "Add a product title before posting.");
     if (!category) return fail("Choose a category", "Pick the category that best fits your product.");
@@ -116,22 +122,34 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
         .from("profiles").select("display_name, username").eq("user_id", uid).maybeSingle();
       const vendorName = (prof?.display_name || prof?.username || userData.user.email?.split("@")[0] || "Member") as string;
 
-      setProgress("Uploading product images...");
+      const total = images.length;
+      setUploadStatus({ done: 0, total });
+      setProgress(`Uploading images (0/${total})…`);
+      setProgressPct(10);
       const paths: string[] = [];
-      for (const img of images) {
+      // Reserve 10%..80% of the bar for uploads
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
         const safe = img.name.replace(/[^\w.\-]+/g, "_");
         const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safe}`;
+        setProgress(`Uploading “${img.name}” (${i + 1}/${total})…`);
         const { error } = await supabase.storage.from("product-covers").upload(path, img, { contentType: img.type, upsert: false });
         if (error) throw new Error(error.message);
         paths.push(path);
+        const done = i + 1;
+        setUploadStatus({ done, total });
+        setProgressPct(10 + Math.round((done / total) * 70));
       }
 
-      setProgress("Locking market rate...");
+      setUploadStatus(null);
+      setProgress("Locking market rate (FX snapshot)…");
+      setProgressPct(85);
       const snapshot = await snapshotFx();
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
 
-      setProgress("Submitting for review...");
+      setProgress("Submitting listing for review…");
+      setProgressPct(95);
       await persist({
         data: {
           name: title.trim(),
@@ -155,6 +173,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
         },
       });
 
+      setProgressPct(100);
       setSuccess(true);
       onPublished?.();
     } catch (err) {
@@ -164,6 +183,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     } finally {
       setSubmitting(false);
       setProgress("");
+      setProgressPct(0);
+      setUploadStatus(null);
     }
   };
 
@@ -334,7 +355,26 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                     role={formError ? "alert" : "status"}
                     aria-live="polite"
                   >
-                    {formError || progress}
+                    <div className="flex items-center gap-2">
+                      {submitting && !formError && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />}
+                      <span className="flex-1">{formError || progress}</span>
+                      {!formError && progressPct > 0 && (
+                        <span className="text-[10px] font-semibold tabular-nums text-emerald-300">{progressPct}%</span>
+                      )}
+                    </div>
+                    {!formError && submitting && (
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-400 transition-all duration-300 ease-out"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                    )}
+                    {!formError && uploadStatus && (
+                      <div className="mt-1.5 text-[10px] text-emerald-300/80">
+                        Image {uploadStatus.done} of {uploadStatus.total} uploaded
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-3">
