@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive } from "lucide-react";
+import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive, Check, XCircle, Eye } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -10,6 +10,8 @@ import {
   setProductPromoted,
   adminCreateProduct,
   adminUpdateProduct,
+  approveProduct,
+  rejectProduct,
 } from "@/lib/admin.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
