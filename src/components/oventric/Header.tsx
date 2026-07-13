@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Search, Bell, MessageCircle, Menu, KeyRound, X, Shield } from "lucide-react";
+import { toast } from "sonner";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
