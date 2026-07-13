@@ -224,7 +224,7 @@ function BlogArticle() {
         onClose={() => setShareOpen(false)}
         url={typeof window !== "undefined" ? window.location.href : ""}
         title={post.title}
-        text={post.excerpt ?? undefined}
+        text={post.excerpt || undefined}
       />
       <ReportModal
         open={!!reportTarget}
