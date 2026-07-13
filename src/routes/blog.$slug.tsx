@@ -1,0 +1,204 @@
+import { createFileRoute, Link, useParams } from "@tanstack/react-router";
+import { useEffect, useState, useCallback } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Loader2, ArrowLeft, Share2, MessageSquare, Send } from "lucide-react";
+import {
+  getBlogPost, listBlogComments, addBlogComment, setBlogReaction,
+  type BlogDetail, type BlogReaction,
+} from "@/lib/blog.functions";
+import { REACTION_META } from "@/components/oventric/feed/Reactions";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { supabase } from "@/integrations/supabase/client";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { toast } from "sonner";
+
+export const Route = createFileRoute("/blog/$slug")({
+  head: ({ params }) => ({
+    meta: [
+      { title: `Reading… — Oventric Blog` },
+      { name: "description", content: "Read this article on the Oventric Blog." },
+      { property: "og:title", content: `Oventric Blog — /${params.slug}` },
+    ],
+  }),
+  component: BlogArticle,
+});
+
+type Comment = {
+  id: string;
+  post_id: string;
+  author_name: string;
+  initials: string;
+  text: string;
+  created_at: string;
+};
+
+function BlogArticle() {
+  const { slug } = useParams({ from: "/blog/$slug" });
+  const { require } = useOnboarding();
+  const getFn = useServerFn(getBlogPost);
+  const listCmtFn = useServerFn(listBlogComments);
+  const addCmtFn = useServerFn(addBlogComment);
+  const reactFn = useServerFn(setBlogReaction);
+
+  const [post, setPost] = useState<BlogDetail | null | undefined>(undefined);
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [draft, setDraft] = useState("");
+  const [posting, setPosting] = useState(false);
+
+  const refresh = useCallback(async () => {
+    const r = await getFn({ data: { slug } });
+    setPost(r.post);
+    if (r.post) {
+      const c = await listCmtFn({ data: { postId: r.post.id } });
+      setComments(c.comments as any);
+    }
+  }, [getFn, listCmtFn, slug]);
+
+  useEffect(() => { refresh(); }, [refresh]);
+
+  const share = async () => {
+    const url = typeof window !== "undefined" ? window.location.href : "";
+    try {
+      if (navigator.share) await navigator.share({ title: post?.title ?? "Oventric Blog", url });
+      else { await navigator.clipboard.writeText(url); toast.success("Link copied"); }
+    } catch { /* cancelled */ }
+  };
+
+  const react = (r: BlogReaction) => {
+    require(1, async () => {
+      if (!post) return;
+      const prev = post.viewer_reaction;
+      const next = prev === r ? null : r;
+      setPost({
+        ...post,
+        viewer_reaction: next,
+        reactions_count: post.reactions_count + (next ? (prev ? 0 : 1) : -1),
+      });
+      try {
+        await reactFn({ data: { postId: post.id, reaction: next } });
+      } catch { refresh(); }
+    }, "interaction");
+  };
+
+  const submit = () => {
+    const text = draft.trim();
+    if (!text || !post) return;
+    require(1, async () => {
+      setPosting(true);
+      try {
+        await addCmtFn({ data: { postId: post.id, text } });
+        setDraft("");
+        const c = await listCmtFn({ data: { postId: post.id } });
+        setComments(c.comments as any);
+      } catch (e) {
+        toast.error((e as Error).message);
+      } finally { setPosting(false); }
+    }, "interaction");
+  };
+
+  if (post === undefined) {
+    return <div className="min-h-screen bg-[#0b0b0d] flex justify-center pt-20"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  }
+  if (post === null) {
+    return (
+      <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex flex-col items-center justify-center p-6">
+        <p className="text-white text-xl font-black">Article not found.</p>
+        <Link to="/blog" className="mt-3 text-emerald-400 hover:text-emerald-300 text-sm">← Back to blog</Link>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+      <div className="max-w-3xl mx-auto px-4 py-8">
+        <Link to="/blog" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm mb-6">
+          <ArrowLeft className="w-4 h-4" /> Blog
+        </Link>
+        {post.category_name && (
+          <div className="text-xs uppercase tracking-wider text-emerald-400 font-bold mb-2">{post.category_name}</div>
+        )}
+        <h1 className="text-white text-3xl sm:text-4xl font-black leading-tight">{post.title}</h1>
+        <div className="mt-3 text-sm text-slate-500">
+          By {post.author_name} · {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
+        </div>
+        {post.cover_url && (
+          <ResponsiveImage src={post.cover_url} alt={post.title} className="w-full mt-6 rounded-xl border border-white/10 aspect-video object-cover" />
+        )}
+
+        <article
+          className="blog-article mt-8 text-slate-200 leading-relaxed"
+          dangerouslySetInnerHTML={{ __html: post.body_html }}
+        />
+
+        {post.tags.length > 0 && (
+          <div className="mt-8 flex flex-wrap gap-1">
+            {post.tags.map((t) => (
+              <span key={t.slug} className="text-[10px] px-2 py-1 rounded-full border border-white/10 text-slate-400">#{t.name}</span>
+            ))}
+          </div>
+        )}
+
+        {/* Reactions + share */}
+        <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-4">
+          <div className="flex items-center gap-1">
+            {(["love", "like", "laugh", "crown"] as BlogReaction[]).map((r) => {
+              const Icon = REACTION_META[r].Icon;
+              const on = post.viewer_reaction === r;
+              return (
+                <button
+                  key={r}
+                  onClick={() => react(r)}
+                  className={`p-2 rounded-lg hover:bg-white/5 ${on ? "bg-white/5" : ""}`}
+                  style={{ color: on ? REACTION_META[r].color : undefined }}
+                  aria-label={r}
+                >
+                  <Icon className={`w-5 h-5 ${on ? "fill-current" : ""}`} />
+                </button>
+              );
+            })}
+            <span className="text-sm text-slate-400 ml-2">{post.reactions_count}</span>
+          </div>
+          <button onClick={share} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
+            <Share2 className="w-4 h-4" /> Share
+          </button>
+        </div>
+
+        {/* Comments */}
+        <section className="mt-6">
+          <h2 className="text-white text-lg font-bold flex items-center gap-2">
+            <MessageSquare className="w-4 h-4" /> Comments ({comments.length})
+          </h2>
+          <div className="mt-3 flex items-start gap-2">
+            <textarea
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              rows={2}
+              placeholder="Write a comment…"
+              className="flex-1 bg-[#141418] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200"
+            />
+            <button
+              onClick={submit}
+              disabled={!draft.trim() || posting}
+              className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-bold text-sm inline-flex items-center gap-1"
+            >
+              {posting ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+              Post
+            </button>
+          </div>
+          <div className="mt-4 space-y-3">
+            {comments.map((c) => (
+              <div key={c.id} className="flex items-start gap-2">
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">{c.initials}</div>
+                <div className="flex-1 bg-[#141418] border border-white/10 rounded-lg px-3 py-2">
+                  <div className="text-xs font-bold text-white">{c.author_name}</div>
+                  <div className="text-sm text-slate-300 whitespace-pre-wrap mt-0.5">{c.text}</div>
+                </div>
+              </div>
+            ))}
+            {comments.length === 0 && <p className="text-sm text-slate-500 text-center py-4">Be the first to comment.</p>}
+          </div>
+        </section>
+      </div>
+    </div>
+  );
+}
