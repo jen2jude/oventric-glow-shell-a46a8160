@@ -401,7 +401,7 @@ function ProductsPage() {
                 {String(p.kind ?? "digital")} · {String(p.category ?? "")} · ${Number(p.price_usd).toFixed(2)}
                 {p.location ? ` · ${p.location as string}` : ""}
               </div>
-              {p.description && <p className="text-sm text-slate-300 whitespace-pre-wrap mb-3">{p.description as string}</p>}
+              {Boolean(p.description) && <p className="text-sm text-slate-300 whitespace-pre-wrap mb-3">{p.description as string}</p>}
               <dl className="grid grid-cols-2 gap-2 text-xs text-slate-300">
                 {p.brand ? <><dt className="text-slate-500">Brand</dt><dd>{p.brand as string}</dd></> : null}
                 {p.condition ? <><dt className="text-slate-500">Condition</dt><dd>{p.condition as string}</dd></> : null}
