@@ -298,7 +298,7 @@ function AdminReportsPage() {
                           disabled={busyId === r.id}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black text-xs font-bold"
                         >
-                          <Check className="w-3.5 h-3.5" /> Approve post
+                          <Check className="w-3.5 h-3.5" /> Approve
                         </button>
                       )}
                       {r.status !== "hidden" && (
@@ -307,7 +307,7 @@ function AdminReportsPage() {
                           disabled={busyId === r.id}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/50 hover:bg-red-500/25 disabled:opacity-40 text-red-200 text-xs font-bold"
                         >
-                          <EyeOff className="w-3.5 h-3.5" /> Hide post
+                          <EyeOff className="w-3.5 h-3.5" /> Hide
                         </button>
                       )}
                       {r.status !== "pending" && (
