@@ -1,0 +1,1 @@
+DROP TRIGGER IF EXISTS trg_notify_direct_message ON public.direct_messages;
