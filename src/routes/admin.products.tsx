@@ -305,52 +305,49 @@ function ProductsPage() {
                     <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
                   )}
                 </div>
-                {status === "pending" && (
-                  <>
-                    <button
-                      onClick={() => setPreviewId(id)}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                      aria-label="Preview"
-                    ><Eye className="w-4 h-4" /></button>
-                    <button
-                      onClick={async () => {
-                        setBusy(id);
-                        try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
-                        catch (e) { toast.error((e as Error).message); }
-                        setBusy(null);
-                      }}
-                      disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                    ><Check className="w-3.5 h-3.5" /> Approve</button>
-                    <button
-                      onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
-                      disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                    ><XCircle className="w-3.5 h-3.5" /> Reject</button>
-                  </>
-                )}
-                {kind === "digital" && (
+                <button
+                  onClick={() => setPreviewId(id)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                  aria-label="Preview"
+                ><Eye className="w-4 h-4" /></button>
+                {status !== "active" && (
                   <button
                     onClick={async () => {
                       setBusy(id);
-                      try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
+                      try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
                       catch (e) { toast.error((e as Error).message); }
                       setBusy(null);
                     }}
                     disabled={busy === id}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
-                    aria-label="Toggle promoted"
-                  >
-                    <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
-                  </button>
+                    className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                  ><Check className="w-3.5 h-3.5" /> Approve</button>
                 )}
-                {kind === "digital" && (
+                {status !== "rejected" && (
                   <button
-                    onClick={() => openEdit(p)}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                    aria-label="Edit product"
-                  ><Pencil className="w-4 h-4" /></button>
+                    onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
+                    disabled={busy === id}
+                    className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                  ><XCircle className="w-3.5 h-3.5" /> Reject</button>
                 )}
+                <button
+                  onClick={async () => {
+                    setBusy(id);
+                    try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
+                    catch (e) { toast.error((e as Error).message); }
+                    setBusy(null);
+                  }}
+                  disabled={busy === id}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
+                  aria-label="Toggle promoted"
+                >
+                  <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
+                </button>
+                <button
+                  onClick={() => openEdit(p)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                  aria-label="Edit product"
+                ><Pencil className="w-4 h-4" /></button>
+
                 <button
                   onClick={async () => {
                     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
