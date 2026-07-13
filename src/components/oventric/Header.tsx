@@ -115,7 +115,16 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+          {unreadMessages > 0 ? (
+            <span
+              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
+              aria-label={`${unreadMessages} unread messages`}
+            >
+              {unreadMessages > 9 ? "9+" : unreadMessages}
+            </span>
+          ) : (
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400/40" />
+          )}
         </button>
         {isAuthenticated ? (
           <ProfileDropdown />
