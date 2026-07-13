@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
-import { SellAssetModal } from "./SellAssetModal";
+import { SellSwitcherModal } from "./SellSwitcherModal";
 import { CourseEditorModal } from "./CourseEditorModal";
 import { BountyEditorModal } from "./BountyEditorModal";
 
@@ -11,7 +11,7 @@ type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: str
 const choices: Choice[] = [
   { key: "post", icon: PenSquare, title: "Drop a Post", desc: "Share updates with the community", tier: 1 },
   { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
-  { key: "sell", icon: ShoppingBag, title: "Sell an Asset", desc: "List digital goods in the marketplace", tier: 2 },
+  { key: "sell", icon: ShoppingBag, title: "Sell", desc: "List digital assets or physical goods", tier: 2 },
   { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
 ];
 
