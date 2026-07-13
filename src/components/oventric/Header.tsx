@@ -11,6 +11,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -42,7 +43,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         className="flex items-center shrink-0"
       >
         {/* Mobile: ring-only mark — perfectly round with feathered edge blending into dark bg */}
-        <img
+        <ResponsiveImage
           src={logoMark.url}
           alt="Oventric"
           className="sm:hidden h-9 w-9 object-cover rounded-full"
@@ -53,7 +54,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           draggable={false}
         />
         {/* Tablet & desktop: full wordmark — 10px rounded with feathered horizontal edges */}
-        <img
+        <ResponsiveImage
           src={logoFull.url}
           alt="Oventric"
           className="hidden sm:block h-9 w-auto object-contain rounded-[10px] [mix-blend-mode:screen]"

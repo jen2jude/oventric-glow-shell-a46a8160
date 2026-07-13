@@ -32,6 +32,7 @@ import {
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { VideoPlayerModal } from "@/components/oventric/feed/VideoPlayerModal";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 interface Comment {
   id: string;
@@ -726,7 +727,7 @@ export function Feed() {
           {attachment && (
             <div className="mt-3 relative inline-block max-w-full">
               {attachment.kind === "image" ? (
-                <img
+                <ResponsiveImage
                   src={attachment.previewUrl}
                   alt="Attachment preview"
                   className="max-h-64 rounded-lg border border-white/10 object-cover"
@@ -903,7 +904,7 @@ export function Feed() {
                       className="block w-full"
                       aria-label="Open image"
                     >
-                      <img
+                      <ResponsiveImage
                         src={post.media_url}
                         alt="Post attachment"
                         loading="lazy"

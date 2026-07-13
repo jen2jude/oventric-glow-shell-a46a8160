@@ -24,6 +24,7 @@ import {
 } from "@/lib/marketplace.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import { LEGACY_USD_RATES } from "@/lib/fx-display";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
 // conversion for the viewer uses the LEGACY fallback rates; the true locked
@@ -293,7 +294,7 @@ function CheckoutPage() {
             <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Summary</h2>
               {product.coverUrl ? (
-                <img
+                <ResponsiveImage
                   src={product.coverUrl}
                   alt={product.name}
                   className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5"

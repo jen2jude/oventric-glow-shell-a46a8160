@@ -47,6 +47,7 @@ import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
@@ -665,7 +666,7 @@ function ProfilePage() {
                   className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
                 >
                   {displayAvatar ? (
-                    <img
+                    <ResponsiveImage
                       src={displayAvatar}
                       alt={`${displayName} avatar`}
                       className="w-full h-full object-cover"

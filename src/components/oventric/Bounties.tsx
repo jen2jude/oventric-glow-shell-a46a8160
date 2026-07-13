@@ -23,6 +23,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
 import { Plus } from "lucide-react";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
@@ -590,7 +591,7 @@ function LiveAdSlot({
           )}
         </div>
         {hasMedia ? (
-          <img
+          <ResponsiveImage
             src={ad.media_url ?? undefined}
             alt={ad.advertiser}
             className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/10"
