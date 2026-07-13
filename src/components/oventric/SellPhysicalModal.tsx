@@ -45,30 +45,36 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [progressPct, setProgressPct] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<{ done: number; total: number } | null>(null);
   const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
 
   if (!open) return null;
 
   const chosenCat = CATEGORIES.find((c) => c.value === category);
+  const clearField = (k: string) => setFieldErrors((prev) => { if (!prev[k]) return prev; const n = { ...prev }; delete n[k]; return n; });
+  const fieldCls = (k: string, base: string) => `${base} ${fieldErrors[k] ? "border-red-400/60 focus:border-red-400/80" : ""}`;
+  const FieldError = ({ k }: { k: string }) => fieldErrors[k] ? <span className="mt-1 block text-[11px] text-red-300">{fieldErrors[k]}</span> : null;
 
   const reset = () => {
     setTitle(""); setCategory(""); setSubcategory(""); setLocation("");
     setBrand(""); setCondition("Brand New"); setDescription(""); setPriceInput("");
     setNegotiable("Yes"); setDelivery("No"); setPhone(""); setSocialLink("");
     previews.forEach((p) => URL.revokeObjectURL(p));
-    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress(""); setProgressPct(0); setUploadStatus(null);
+    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setFieldErrors({}); setProgress(""); setProgressPct(0); setUploadStatus(null);
   };
 
-  const fail = (message: string, description: string) => {
+  const fail = (message: string, description: string, field?: string) => {
     setProgress("");
     setProgressPct(0);
     setUploadStatus(null);
     setFormError(`${message} ${description}`);
+    if (field) setFieldErrors((prev) => ({ ...prev, [field]: `${message}. ${description}` }));
     toast.error(message, { description });
   };
 
   const addImages = (files: FileList | null) => {
     setFormError("");
+    clearField("images");
     if (!files) return;
     const list = Array.from(files);
     const valid: File[] = [];
@@ -98,18 +104,37 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const submit = async () => {
     if (submitting) return;
     setFormError("");
+    setFieldErrors({});
     setProgress("Checking listing details...");
     setProgressPct(5);
     setUploadStatus(null);
 
-    if (!title.trim()) return fail("Title required", "Add a product title before posting.");
-    if (!category) return fail("Choose a category", "Pick the category that best fits your product.");
-    if (!description.trim()) return fail("Description required", "Describe the product for buyers.");
-    if (images.length < 3) return fail(`Upload at least 3 product images (you have ${images.length})`, "The first image will be the cover.");
+    const errors: Record<string, string> = {};
+    if (!title.trim()) errors.title = "Add a product title before posting.";
+    if (!category) errors.category = "Pick the category that best fits your product.";
+    if (!description.trim()) errors.description = "Describe the product for buyers.";
+    if (images.length < 3) errors.images = `Upload at least 3 product images (you have ${images.length}). The first image will be the cover.`;
     const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) return fail("Enter a price greater than 0", `Price is in ${baseCurrency}.`);
+    if (!(priceLocal > 0)) errors.price = `Enter a price greater than 0 in ${baseCurrency}.`;
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) return fail("Enter a valid phone number", "Include your country code, digits only.");
+    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only).";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      const firstKey = Object.keys(errors)[0];
+      setFormError(`Please fix the highlighted ${Object.keys(errors).length === 1 ? "field" : "fields"} below.`);
+      setProgress("");
+      setProgressPct(0);
+      toast.error("Check the highlighted fields", { description: errors[firstKey] });
+      // Scroll to first error
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-field="${firstKey}"]`) as HTMLElement | null;
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        el?.focus?.();
+      });
+      return;
+    }
+
 
 
     setSubmitting(true);
@@ -223,18 +248,20 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
             <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="space-y-4">
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Title</span>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="iPhone 15 Pro Max 256GB"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                <input data-field="title" value={title} onChange={(e) => { setTitle(e.target.value); clearField("title"); }} placeholder="iPhone 15 Pro Max 256GB"
+                  className={fieldCls("title", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                <FieldError k="title" />
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Category</span>
-                  <select value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(""); }}
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
+                  <select data-field="category" value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(""); clearField("category"); }}
+                    className={fieldCls("category", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white")}>
                     <option value="">Select category…</option>
                     {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>)}
                   </select>
+                  <FieldError k="category" />
                 </label>
                 {chosenCat && chosenCat.subs.length > 0 && (
                   <label className="block">
@@ -273,15 +300,16 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                 </div>
               </div>
 
-              <div>
+              <div data-field="images" tabIndex={-1}>
                 <span className="text-xs font-medium text-slate-300">Product images (min 3, first is cover)</span>
-                <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60">
+                <label className={`mt-2 flex items-center gap-3 border border-dashed rounded-lg p-3 cursor-pointer hover:border-emerald-500/60 ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}>
                   <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addImages(e.target.files)} />
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-xs text-slate-400">Click to add images (up to 8). PNG/JPG/phone photos up to {MAX_IMAGE_MB}MB each.</div>
                 </label>
+                <FieldError k="images" />
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-4 gap-2">
                     {previews.map((src, i) => (
@@ -305,21 +333,24 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Description</span>
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4}
+                <textarea data-field="description" value={description} onChange={(e) => { setDescription(e.target.value); clearField("description"); }} rows={4}
                   placeholder="Describe the product, specifications, what's included…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none" />
+                  className={fieldCls("description", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none")} />
+                <FieldError k="description" />
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
-                  <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="0.00"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                  <input data-field="price" value={priceInput} onChange={(e) => { setPriceInput(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="0.00"
+                    className={fieldCls("price", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                  <FieldError k="price" />
                 </label>
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Phone number (digits only, incl. country code)</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="2348012345678"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                  <input data-field="phone" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "")); clearField("phone"); }} inputMode="numeric" placeholder="2348012345678"
+                    className={fieldCls("phone", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                  <FieldError k="phone" />
                 </label>
               </div>
 
