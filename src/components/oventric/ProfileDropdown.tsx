@@ -451,6 +451,9 @@ export function ProfileDropdown() {
         onSave={persistProfile}
       />
 
+      <MyListingsModal open={listingsOpen} onClose={() => setListingsOpen(false)} />
+
+
     </div>
   );
 }
