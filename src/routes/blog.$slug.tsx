@@ -48,6 +48,7 @@ function BlogArticle() {
   const [posting, setPosting] = useState(false);
   const [reportTarget, setReportTarget] = useState<{ id: string; author: string } | null>(null);
   const [reportedIds, setReportedIds] = useState<Set<string>>(new Set());
+  const [shareOpen, setShareOpen] = useState(false);
 
   const refresh = useCallback(async () => {
     const r = await getFn({ data: { slug } });
