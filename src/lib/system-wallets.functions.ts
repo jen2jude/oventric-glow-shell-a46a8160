@@ -1,7 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 
-export type SystemWalletKind = "marketplace" | "bounty" | "ads";
+export type SystemWalletKind = "marketplace" | "bounty" | "ads" | "academy";
 
 export interface SystemWalletDTO {
   kind: SystemWalletKind;
