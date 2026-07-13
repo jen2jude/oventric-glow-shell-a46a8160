@@ -171,3 +171,59 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
     </header>
   );
 }
+
+function useUnreadMessagesCount() {
+  const { isAuthenticated } = useAuthGate();
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCount(0);
+      return;
+    }
+    let cancelled = false;
+    let userId: string | null = null;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
+
+    const load = async () => {
+      if (!userId) return;
+      const { count: c } = await supabase
+        .from("direct_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("recipient_id", userId)
+        .is("read_at", null);
+      if (!cancelled) setCount(c ?? 0);
+    };
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+      if (!userId || cancelled) return;
+      await load();
+      channelSub = supabase
+        .channel(`dm-count-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${userId}` },
+          () => {
+            void load();
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${userId}` },
+          () => {
+            void load();
+          },
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated]);
+
+  return count;
+}
