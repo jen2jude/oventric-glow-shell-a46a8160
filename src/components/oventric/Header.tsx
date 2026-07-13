@@ -81,6 +81,13 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           <Search className="w-5 h-5" />
         </button>
         <button
+          onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
+          aria-label="Circles & Guilds"
+          className="md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+        >
+          <Shield className="w-5 h-5" />
+        </button>
+        <button
           onClick={() => setNotifOpen(true)}
           aria-label="Open notifications"
           className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
