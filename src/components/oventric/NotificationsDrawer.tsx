@@ -106,6 +106,8 @@ export function NotificationsDrawer({
     }
   }, [fetchList, isAuthenticated]);
 
+  const [viewing, setViewing] = useState<DbNotif | null>(null);
+
   useEffect(() => {
     if (open) void refresh();
   }, [open, refresh]);
@@ -116,6 +118,8 @@ export function NotificationsDrawer({
     let userId: string | null = null;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
     let cancelled = false;
+
+
 
     (async () => {
       const { data } = await supabase.auth.getUser();
