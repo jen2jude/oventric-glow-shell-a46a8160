@@ -53,6 +53,54 @@ function BlogEditorPage() {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [imgMenu, setImgMenu] = useState<{ top: number; left: number; width: number } | null>(null);
+  const activeImgRef = useRef<HTMLImageElement | null>(null);
+
+  const openImgMenuFor = (img: HTMLImageElement) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const er = editor.getBoundingClientRect();
+    const ir = img.getBoundingClientRect();
+    activeImgRef.current = img;
+    const currentPct = Math.round((img.getBoundingClientRect().width / editor.clientWidth) * 100);
+    setImgMenu({
+      top: ir.bottom - er.top + 8,
+      left: Math.max(0, ir.left - er.left),
+      width: isFinite(currentPct) ? currentPct : 100,
+    });
+  };
+
+  const applyImgWidth = (pct: number) => {
+    const img = activeImgRef.current;
+    if (!img) return;
+    img.style.width = `${pct}%`;
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    img.setAttribute("data-resizable", "true");
+    setImgMenu((m) => (m ? { ...m, width: pct } : m));
+    setBodyHtml(editorRef.current?.innerHTML ?? "");
+  };
+
+  const removeActiveImg = () => {
+    const img = activeImgRef.current;
+    if (!img) return;
+    const parent = img.parentElement;
+    img.remove();
+    if (parent && parent.tagName === "P" && !parent.textContent?.trim() && parent.children.length === 0) parent.remove();
+    activeImgRef.current = null;
+    setImgMenu(null);
+    setBodyHtml(editorRef.current?.innerHTML ?? "");
+  };
+
+  const onEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement;
+    if (t.tagName === "IMG") {
+      e.preventDefault();
+      openImgMenuFor(t as HTMLImageElement);
+    } else {
+      setImgMenu(null);
+    }
+  };
   const hydratedRef = useRef(false);
   const draftKey = `blog-editor-draft:${routeId}`;
 
@@ -192,7 +240,7 @@ function BlogEditorPage() {
     setUploading(true);
     try {
       const { url } = await uploadFileToBucket(f);
-      exec("insertHTML", `<p><img src="${url}" alt="" style="max-width:100%;border-radius:8px" /></p>`);
+      exec("insertHTML", `<p><img src="${url}" alt="" data-resizable="true" style="width:100%;max-width:100%;border-radius:8px;cursor:pointer" /></p>`);
     } catch (err) {
       alert((err as Error).message);
     } finally {
@@ -343,14 +391,43 @@ function BlogEditorPage() {
             <button className={btn} onClick={() => exec("undo")} title="Undo"><Undo className="w-4 h-4" /></button>
             <button className={btn} onClick={() => exec("redo")} title="Redo"><Redo className="w-4 h-4" /></button>
           </div>
-          <div
-            ref={editorRef}
-            contentEditable
-            suppressContentEditableWarning
-            onInput={(e) => setBodyHtml((e.target as HTMLDivElement).innerHTML)}
-            className="prose-editor min-h-[420px] bg-[#141418] border border-white/10 border-t-0 rounded-b-lg px-5 py-4 text-slate-200 leading-relaxed focus:outline-none"
-            style={{ minHeight: 420 }}
-          />
+          <div className="relative">
+            <div
+              ref={editorRef}
+              contentEditable
+              suppressContentEditableWarning
+              onInput={(e) => setBodyHtml((e.target as HTMLDivElement).innerHTML)}
+              onClick={onEditorClick}
+              className="prose-editor min-h-[420px] bg-[#141418] border border-white/10 border-t-0 rounded-b-lg px-5 py-4 text-slate-200 leading-relaxed focus:outline-none"
+              style={{ minHeight: 420 }}
+            />
+            {imgMenu && (
+              <div
+                className="absolute z-20 bg-[#1a1a20] border border-white/15 rounded-xl shadow-2xl p-2 flex items-center gap-1"
+                style={{ top: imgMenu.top, left: imgMenu.left }}
+                onMouseDown={(e) => e.preventDefault()}
+              >
+                <button onClick={() => applyImgWidth(25)} className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width <= 30 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}>Small</button>
+                <button onClick={() => applyImgWidth(50)} className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width > 30 && imgMenu.width <= 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}>Medium</button>
+                <button onClick={() => applyImgWidth(100)} className={`px-2 py-1 rounded-md text-xs font-semibold ${imgMenu.width > 70 ? "bg-emerald-500 text-black" : "bg-white/5 text-slate-200 hover:bg-white/10"}`}>Full</button>
+                <span className="w-px h-5 bg-white/10 mx-1" />
+                <input
+                  type="range"
+                  min={10}
+                  max={100}
+                  step={5}
+                  value={imgMenu.width}
+                  onChange={(e) => applyImgWidth(Number(e.target.value))}
+                  className="w-28 accent-emerald-500"
+                  title="Custom width"
+                />
+                <span className="text-[10px] tabular-nums text-slate-400 w-8 text-right">{imgMenu.width}%</span>
+                <span className="w-px h-5 bg-white/10 mx-1" />
+                <button onClick={removeActiveImg} className="px-2 py-1 rounded-md text-xs font-semibold bg-red-500/20 hover:bg-red-500/30 text-red-200" title="Remove image">Remove</button>
+                <button onClick={() => setImgMenu(null)} className="p-1 rounded-md hover:bg-white/10 text-slate-400" title="Close"><X className="w-3.5 h-3.5" /></button>
+              </div>
+            )}
+          </div>
 
           <textarea
             value={excerpt}
