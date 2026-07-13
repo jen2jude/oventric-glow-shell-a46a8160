@@ -6,6 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
 const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
@@ -336,7 +337,7 @@ export function BountyEditorModal({
               className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
             >
               {form.cover_preview ? (
-                <img src={form.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
+                <ResponsiveImage src={form.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
               ) : (
                 <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
                   <ImagePlus className="w-6 h-6" />

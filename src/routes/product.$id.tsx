@@ -7,6 +7,7 @@ import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { getProduct, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 function productDisplay(p: ProductDTO, viewer: Currency) {
   return computeDisplayPrice(
@@ -84,7 +85,7 @@ function ProductPage() {
             <div>
               <div className={`relative aspect-[4/3] rounded-2xl bg-gradient-to-br ${product.hue} overflow-hidden`}>
                 {product.coverUrl ? (
-                  <img src={product.coverUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover"  loading="lazy" decoding="async" />
+                  <ResponsiveImage src={product.coverUrl} alt={product.name} className="absolute inset-0 w-full h-full object-cover"  loading="lazy" decoding="async" />
                 ) : (
                   <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 55%)" }} />
                 )}

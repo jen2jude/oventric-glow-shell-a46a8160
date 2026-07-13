@@ -18,6 +18,7 @@ import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
 import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -257,7 +258,7 @@ function ProductCard({
     >
       <div className={`relative h-28 rounded-lg bg-gradient-to-br ${p.hue} mb-3 overflow-hidden`}>
         {p.coverUrl ? (
-          <img src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy"  decoding="async" />
+          <ResponsiveImage src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy"  decoding="async" />
         ) : (
           <div className="absolute inset-0 opacity-30" style={{
             backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
