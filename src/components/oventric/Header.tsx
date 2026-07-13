@@ -12,12 +12,14 @@ import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
+  const unreadMessages = useUnreadMessagesCount();
   const { isAuthenticated, openGate } = useAuthGate();
 
   useEffect(() => {
@@ -113,7 +115,16 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
         >
           <MessageCircle className="w-5 h-5" />
-          <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+          {unreadMessages > 0 ? (
+            <span
+              className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
+              aria-label={`${unreadMessages} unread messages`}
+            >
+              {unreadMessages > 9 ? "9+" : unreadMessages}
+            </span>
+          ) : (
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400/40" />
+          )}
         </button>
         {isAuthenticated ? (
           <ProfileDropdown />
@@ -159,4 +170,60 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
       )}
     </header>
   );
+}
+
+function useUnreadMessagesCount() {
+  const { isAuthenticated } = useAuthGate();
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCount(0);
+      return;
+    }
+    let cancelled = false;
+    let userId: string | null = null;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
+
+    const load = async () => {
+      if (!userId) return;
+      const { count: c } = await supabase
+        .from("direct_messages")
+        .select("id", { count: "exact", head: true })
+        .eq("recipient_id", userId)
+        .is("read_at", null);
+      if (!cancelled) setCount(c ?? 0);
+    };
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      userId = data.user?.id ?? null;
+      if (!userId || cancelled) return;
+      await load();
+      channelSub = supabase
+        .channel(`dm-count-${userId}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${userId}` },
+          () => {
+            void load();
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${userId}` },
+          () => {
+            void load();
+          },
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated]);
+
+  return count;
 }

@@ -43,8 +43,10 @@ const CHANNELS: { key: Channel; label: string }[] = [
 
 function channelForKind(kind: string): Exclude<Channel, "all"> {
   if (/wallet|payout|escrow|order|payment|cashback/i.test(kind)) return "financials";
-  if (/circle|peer/i.test(kind)) return "circles";
+  if (/circle|peer|follow/i.test(kind)) return "circles";
   if (/bounty/i.test(kind)) return "bounties";
+  // System bucket = admin-originated only: announcements, admin direct
+  // messages, alerts, and anything explicitly marked system.
   return "system";
 }
 
