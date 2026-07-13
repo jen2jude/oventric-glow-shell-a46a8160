@@ -213,6 +213,10 @@ function ProductPage() {
 
 function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
   const { baseCurrency } = useOnboarding();
+  const logContact = useServerFn(logProductContact);
+  const handleContact = (method: "call" | "whatsapp") => {
+    void logContact({ data: { productId: product.id, method, note: note?.trim() || null } }).catch(() => {});
+  };
   const phone = (product.sellerPhone ?? "").replace(/\D/g, "");
   const wa = (product.whatsappNumber ?? phone).replace(/\D/g, "");
   const dp = productDisplay(product, baseCurrency);
