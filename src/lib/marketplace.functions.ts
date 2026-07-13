@@ -80,7 +80,11 @@ function serverPublicClient() {
   });
 }
 
-function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null): ProductDTO {
+function mapProduct(
+  r: Record<string, unknown>,
+  coverUrl: string | null = null,
+  imageUrls: string[] = [],
+): ProductDTO {
   const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
   const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
   const snap = r.fx_snapshot as ProductDTO["fxSnapshot"] | null | undefined;
@@ -89,6 +93,7 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     sellerId: r.seller_id as string,
     name: r.name as string,
     category: r.category as ProductCategory,
+    subcategory: (r.subcategory as string) ?? null,
     description: (r.description as string) ?? "",
     priceUSD: Number(r.price_usd),
     originalCurrency,
@@ -104,6 +109,19 @@ function mapProduct(r: Record<string, unknown>, coverUrl: string | null = null):
     coverPath: (r.cover_path as string) ?? null,
     coverUrl,
     createdAt: r.created_at as string,
+    kind: ((r.kind as string) ?? "digital") as ProductKind,
+    status: ((r.status as string) ?? "active") as ProductStatus,
+    rejectReason: (r.reject_reason as string) ?? null,
+    condition: (r.condition as string) ?? null,
+    brand: (r.brand as string) ?? null,
+    location: (r.location as string) ?? null,
+    negotiable: (r.negotiable as string) ?? null,
+    delivery: (r.delivery as string) ?? null,
+    sellerPhone: (r.seller_phone as string) ?? null,
+    whatsappNumber: (r.whatsapp_number as string) ?? null,
+    socialLink: (r.social_link as string) ?? null,
+    imagePaths: Array.isArray(r.image_paths) ? (r.image_paths as string[]) : [],
+    imageUrls,
   };
 }
 
