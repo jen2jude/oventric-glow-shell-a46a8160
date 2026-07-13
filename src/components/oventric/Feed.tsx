@@ -742,8 +742,10 @@ export function Feed() {
                 <ResponsiveImage
                   src={attachment.previewUrl}
                   alt="Attachment preview"
+                  sizes="(min-width: 768px) 640px, 100vw"
                   className="max-h-64 rounded-lg border border-white/10 object-cover"
                 />
+
               ) : (
                 <video
                   src={attachment.previewUrl}
