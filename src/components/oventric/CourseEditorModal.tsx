@@ -20,6 +20,7 @@ import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const CATEGORIES: { key: CourseCategory; label: string }[] = [
   { key: "frontend", label: "Frontend Dev" },
@@ -333,7 +334,7 @@ export function CourseEditorModal({
 
               <Field label="Cover image (optional, up to 5MB)">
                 <div className="flex items-center gap-3">
-                  {coverUrl && <img src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10"  loading="lazy" decoding="async" />}
+                  {coverUrl && <ResponsiveImage src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10"  loading="lazy" decoding="async" />}
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
                     <Upload className="w-4 h-4" />
                     {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}

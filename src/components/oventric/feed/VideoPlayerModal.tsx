@@ -5,6 +5,7 @@ import {
 } from "lucide-react";
 import { ReactionPicker, ReactionSplash, REACTION_META } from "./Reactions";
 import type { FeedPost, ReactionType } from "@/lib/posts.functions";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const PIN_KEY = "oventric:pinned_videos";
 const HIDE_KEY = "oventric:hidden_videos";
@@ -139,7 +140,7 @@ function VideoItem({
       {/* Caption with avatar */}
       <div className="absolute left-3 right-20 bottom-6 z-10 flex items-start gap-2">
         {post.author_avatar_url ? (
-          <img
+          <ResponsiveImage
             src={post.author_avatar_url}
             alt={post.author_name}
             className="w-9 h-9 rounded-full object-cover border border-white/30 shrink-0"

@@ -1,5 +1,6 @@
 import { Megaphone, PlayCircle } from "lucide-react";
 import type { AdminAd } from "@/lib/admin/store";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 export function AdCard({ ad, variant = "card" }: { ad: AdminAd; variant?: "card" | "banner" }) {
   const isBanner = variant === "banner";
@@ -15,7 +16,7 @@ export function AdCard({ ad, variant = "card" }: { ad: AdminAd; variant?: "card"
       {ad.tier !== "text" && (
         <div className={`relative bg-gradient-to-br from-fuchsia-600 to-purple-800 ${isBanner ? "h-24" : "h-32"} overflow-hidden`}>
           {ad.mediaUrl && (
-            <img src={ad.mediaUrl} alt={ad.advertiser} className="absolute inset-0 w-full h-full object-cover opacity-70"  loading="lazy" decoding="async" />
+            <ResponsiveImage src={ad.mediaUrl} alt={ad.advertiser} className="absolute inset-0 w-full h-full object-cover opacity-70"  loading="lazy" decoding="async" />
           )}
           {ad.tier === "video" && (
             <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90" />

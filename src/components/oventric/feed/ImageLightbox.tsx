@@ -1,5 +1,6 @@
 import { useEffect } from "react";
 import { X } from "lucide-react";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 export function ImageLightbox({
   src,
@@ -37,7 +38,7 @@ export function ImageLightbox({
       >
         <X className="w-5 h-5" />
       </button>
-      <img
+      <ResponsiveImage
         src={src}
         alt={alt ?? "Full-size media"}
         className="max-h-full max-w-full object-contain rounded-lg"

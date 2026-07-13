@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { createProduct, type ProductCategory } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const CATEGORIES: { value: ProductCategory; label: string }[] = [
   { value: "themes", label: "Themes" },
@@ -211,7 +212,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 onChange={(e) => handleCover(e.target.files?.[0] ?? null)} />
               {coverPreview ? (
                 <>
-                  <img src={coverPreview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
+                  <ResponsiveImage src={coverPreview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
                   <div className="text-xs text-slate-300 flex-1 min-w-0">
                     <div className="font-medium truncate">{cover?.name}</div>
                     <div className="text-slate-500 mt-0.5">{cover ? (cover.size / (1024 * 1024)).toFixed(2) : 0} MB — click to replace</div>

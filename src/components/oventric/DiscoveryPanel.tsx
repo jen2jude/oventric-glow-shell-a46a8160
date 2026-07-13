@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { Star, Target, Sparkles, ShoppingBag, MessageCircle, Users, Flame, Package, Megaphone, PlayCircle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryPeer, type DiscoveryProduct } from "@/lib/discovery.functions";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
   if (typeof window === "undefined") return;
@@ -105,7 +106,7 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
     >
       {hasMedia && (
         <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800">
-          <img
+          <ResponsiveImage
             src={ad.coverUrl as string}
             alt={ad.advertiser}
             className="absolute inset-0 w-full h-full object-cover"
@@ -149,7 +150,7 @@ function SponsoredInline({ ad }: { ad: DiscoveryAd }) {
     >
       <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800 flex items-center justify-center">
         {ad.coverUrl && ad.tier !== "text" ? (
-          <img src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+          <ResponsiveImage src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
         ) : (
           <Megaphone className="w-4 h-4 text-white/90" />
         )}
@@ -180,7 +181,7 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
         className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue} flex items-center justify-center`}
       >
         {p.coverUrl ? (
-          <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+          <ResponsiveImage src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
         ) : (
           <ShoppingBag className="w-4 h-4 text-white/90" />
         )}
@@ -343,7 +344,7 @@ export function DiscoveryPanel() {
                   aria-label={`View ${p.name}`}
                 >
                   {p.avatarUrl ? (
-                    <img src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+                    <ResponsiveImage src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
                   ) : (
                     p.initials
                   )}
@@ -412,7 +413,7 @@ export function DiscoveryPanel() {
                 >
                   {b.coverUrl && (
                     <div className="mb-2 h-20 w-full rounded-md overflow-hidden bg-black/40">
-                      <img src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+                      <ResponsiveImage src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
                     </div>
                   )}
                   <div className="flex items-start gap-2">

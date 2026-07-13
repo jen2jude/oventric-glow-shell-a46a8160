@@ -30,6 +30,7 @@ import {
   saveKyc as saveKycFn,
 } from "@/lib/onboarding.functions";
 
+import { ResponsiveImage } from "@/components/ui/responsive-image";
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
@@ -533,7 +534,7 @@ function KycLivenessModal({
           <div className="space-y-4">
             <div className="rgb-neon-bg rounded-2xl p-[2px]">
               <div className="bg-black rounded-2xl overflow-hidden">
-                <img src={idUrl} alt="Captured ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
+                <ResponsiveImage src={idUrl} alt="Captured ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
               </div>
             </div>
             <p className="text-xs text-slate-400 text-center">
@@ -616,13 +617,13 @@ function KycLivenessModal({
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">Government ID</div>
                 <div className="rounded-lg overflow-hidden border border-white/10 bg-black">
-                  <img src={idUrl} alt="ID document" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
+                  <ResponsiveImage src={idUrl} alt="ID document" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
                 </div>
               </div>
               <div>
                 <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">Liveness</div>
                 <div className="rounded-lg overflow-hidden border border-emerald-500/40 bg-black">
-                  <img src={selfieUrl} alt="Captured selfie" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
+                  <ResponsiveImage src={selfieUrl} alt="Captured selfie" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
                 </div>
               </div>
             </div>
@@ -664,7 +665,7 @@ function KycLivenessModal({
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">Reference</div>
                 <div className="aspect-square rounded-lg overflow-hidden border border-white/10 bg-black">
                   {referenceUrl ? (
-                    <img src={referenceUrl} alt="Stored reference" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+                    <ResponsiveImage src={referenceUrl} alt="Stored reference" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
@@ -676,7 +677,7 @@ function KycLivenessModal({
                 <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">Live capture</div>
                 <div className="aspect-square rounded-lg overflow-hidden border border-emerald-500/40 bg-black">
                   {selfieUrl ? (
-                    <img src={selfieUrl} alt="Live capture" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+                    <ResponsiveImage src={selfieUrl} alt="Live capture" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
                   ) : null}
                 </div>
               </div>
@@ -782,7 +783,7 @@ function FallbackIdPreview({ path }: { path: string }) {
         Your stored ID on file
       </div>
       <div className="rounded-lg overflow-hidden border border-white/10 bg-black">
-        <img src={url} alt="Stored ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
+        <ResponsiveImage src={url} alt="Stored ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
       </div>
     </div>
   );
