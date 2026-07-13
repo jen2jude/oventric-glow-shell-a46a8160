@@ -143,8 +143,10 @@ function VideoItem({
           <ResponsiveImage
             src={post.author_avatar_url}
             alt={post.author_name}
+            sizes="36px"
             className="w-9 h-9 rounded-full object-cover border border-white/30 shrink-0"
           />
+
         ) : (
           <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[11px] font-semibold text-emerald-300 shrink-0">
             {post.initials}
