@@ -42,6 +42,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState("");
+  const [progressPct, setProgressPct] = useState(0);
+  const [uploadStatus, setUploadStatus] = useState<{ done: number; total: number } | null>(null);
   const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
 
