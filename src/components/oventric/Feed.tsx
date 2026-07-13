@@ -477,6 +477,16 @@ export function Feed() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
+  const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
+  const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
+  const listBlogFn = useServerFn(listBlogPosts);
+
+  useEffect(() => {
+    listBlogFn().then((r) => setBlogPosts(r.posts)).catch(() => {});
+    const onUpdate = () => setHiddenPosts(getHiddenPosts());
+    window.addEventListener("oventric:posts-updated", onUpdate);
+    return () => window.removeEventListener("oventric:posts-updated", onUpdate);
+  }, [listBlogFn]);
 
   const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, laugh: 0, crown: 0 });
 
