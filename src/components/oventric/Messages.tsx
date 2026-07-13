@@ -768,7 +768,22 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   {messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)}
                 </>
               )}
+              {peerTyping && activeThread && (
+                <div className="flex justify-start">
+                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-[#2A2A32] border border-white/5">
+                    <span className="text-[11px] text-slate-400">
+                      {activeThread.peerName.split(/\s+/)[0]} is typing
+                    </span>
+                    <span className="flex items-end gap-0.5" aria-hidden="true">
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.3s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce [animation-delay:-0.15s]" />
+                      <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-bounce" />
+                    </span>
+                  </div>
+                </div>
+              )}
             </div>
+
 
             <div className="border-t border-white/10 bg-[#16161B] p-3">
               <div className="flex items-end gap-2">
