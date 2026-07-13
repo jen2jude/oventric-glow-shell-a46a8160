@@ -217,6 +217,79 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     void reloadThreads();
   }, [reloadThreads]);
 
+  // Realtime presence — instantly reflects who is online / goes offline.
+  useEffect(() => {
+    if (!me) {
+      setOnlinePeers(new Map());
+      return;
+    }
+    let cancelled = false;
+    const channel = supabase.channel("oventric:presence", {
+      config: { presence: { key: me } },
+    });
+
+    const GRADS = [
+      "from-purple-500 to-pink-500",
+      "from-emerald-400 to-teal-500",
+      "from-sky-400 to-indigo-500",
+      "from-amber-400 to-orange-500",
+      "from-fuchsia-500 to-pink-500",
+      "from-rose-400 to-red-500",
+      "from-cyan-400 to-blue-500",
+      "from-lime-400 to-emerald-500",
+    ];
+    const gradFor = (id: string) => {
+      let h = 0;
+      for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
+      return GRADS[h % GRADS.length];
+    };
+    const initialsFor = (name: string) => {
+      const parts = name.trim().split(/\s+/).slice(0, 2);
+      return parts.map((s) => s[0]?.toUpperCase() ?? "").join("") || "??";
+    };
+
+    const syncFromState = () => {
+      if (cancelled) return;
+      const state = channel.presenceState<{ user_id: string; name?: string; slug?: string }>();
+      const next = new Map<string, { name: string; slug: string; initials: string; gradient: string }>();
+      for (const key of Object.keys(state)) {
+        if (key === me) continue;
+        const meta = state[key][0];
+        const name = meta?.name || "Peer";
+        next.set(key, {
+          name,
+          slug: meta?.slug || key,
+          initials: initialsFor(name),
+          gradient: gradFor(key),
+        });
+      }
+      setOnlinePeers(next);
+    };
+
+    channel
+      .on("presence", { event: "sync" }, syncFromState)
+      .on("presence", { event: "join" }, syncFromState)
+      .on("presence", { event: "leave" }, syncFromState)
+      .subscribe(async (status) => {
+        if (status !== "SUBSCRIBED" || cancelled) return;
+        // Load own profile to publish minimal metadata.
+        const { data: p } = await supabase
+          .from("profiles")
+          .select("display_name, username, slug")
+          .eq("user_id", me)
+          .maybeSingle();
+        if (cancelled) return;
+        const name = p?.display_name || p?.username || "Peer";
+        await channel.track({ user_id: me, name, slug: p?.slug || me, online_at: new Date().toISOString() });
+      });
+
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(channel);
+    };
+  }, [me]);
+
+
   // Sync activePeer when initialThreadId changes (e.g., opening chat from a new profile)
   useEffect(() => {
     if (initialThreadId) {
