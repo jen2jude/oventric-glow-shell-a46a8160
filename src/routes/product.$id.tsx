@@ -41,11 +41,14 @@ function ProductPage() {
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
+  const [contactOpen, setContactOpen] = useState(false);
+  const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
     setError(null);
     setProduct(null);
+    setActiveImage(0);
     load({ data: { id } })
       .then((p) => { if (!cancelled) setProduct(p); })
       .catch((e: Error) => { if (!cancelled) setError(e.message || "Failed to load"); });
@@ -54,6 +57,10 @@ function ProductPage() {
 
   const startCheckout = () => {
     require(2, () => navigate({ to: "/checkout/$id", params: { id }, search: { qty } }), "buyer");
+  };
+
+  const openContact = () => {
+    require(1, () => setContactOpen(true), "buyer");
   };
 
   return (
