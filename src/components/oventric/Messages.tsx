@@ -355,18 +355,20 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   }, [me, activePeer, threads]);
 
 
-  // Load active peer messages
+  // Load latest page of messages for active peer
   useEffect(() => {
     if (!me || !activePeer) {
       setMessages([]);
+      setHasMoreOlder(false);
       return;
     }
     let cancel = false;
     setLoadingMessages(true);
-    fetchMessages({ data: { peerId: activePeer } })
-      .then((rows) => {
+    fetchMessages({ data: { peerId: activePeer, limit: PAGE_SIZE } })
+      .then((page) => {
         if (cancel) return;
-        setMessages(rows);
+        setMessages(page.rows);
+        setHasMoreOlder(page.hasMore);
       })
       .catch((e) => console.error("messages load failed", e))
       .finally(() => {
@@ -382,6 +384,36 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       cancel = true;
     };
   }, [me, activePeer, fetchMessages, markRead]);
+
+  const loadOlder = useCallback(async () => {
+    if (!activePeer || loadingOlder || !hasMoreOlder) return;
+    const oldest = messages[0];
+    if (!oldest) return;
+    const el = scrollRef.current;
+    const prevHeight = el?.scrollHeight ?? 0;
+    const prevTop = el?.scrollTop ?? 0;
+    setLoadingOlder(true);
+    try {
+      const page = await fetchMessages({
+        data: { peerId: activePeer, limit: PAGE_SIZE, before: oldest.created_at },
+      });
+      setMessages((prev) => {
+        const seen = new Set(prev.map((m) => m.id));
+        const merged = [...page.rows.filter((r) => !seen.has(r.id)), ...prev];
+        return merged;
+      });
+      setHasMoreOlder(page.hasMore);
+      // Preserve scroll position after prepending
+      requestAnimationFrame(() => {
+        const nextEl = scrollRef.current;
+        if (nextEl) nextEl.scrollTop = nextEl.scrollHeight - prevHeight + prevTop;
+      });
+    } catch (e) {
+      console.error("load older failed", e);
+    } finally {
+      setLoadingOlder(false);
+    }
+  }, [activePeer, loadingOlder, hasMoreOlder, messages, fetchMessages]);
 
   // Realtime subscription
   useEffect(() => {
