@@ -137,17 +137,29 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
-const PRODUCT_COLS = "id, seller_id, name, category, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at";
+const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, seller_phone, whatsapp_number, social_link, image_paths";
 
-/** Public catalog. Anyone (including anon) can list. */
+async function signImagePaths(
+  sb: ReturnType<typeof serverPublicClient>,
+  paths: string[],
+): Promise<string[]> {
+  if (paths.length === 0) return [];
+  const { data } = await sb.storage.from("product-covers").createSignedUrls(paths, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+  return paths.map((p) => map.get(p) ?? "").filter(Boolean);
+}
+
+/** Public catalog. Anyone (including anon) can list. RLS filters to status='active'. */
 export const listProducts = createServerFn({ method: "GET" }).handler(async () => {
   const sb = serverPublicClient();
   const { data, error } = await sb
     .from("products")
     .select(PRODUCT_COLS)
+    .eq("status", "active")
     .order("promoted", { ascending: false })
     .order("created_at", { ascending: false })
-    .limit(200);
+    .limit(400);
   if (error) throw new Error(error.message);
   const rows = data ?? [];
   const urls = await signCovers(sb, rows.map((r) => (r.cover_path as string) ?? null));
@@ -168,7 +180,9 @@ export const getProduct = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     if (!row) throw new Error("Product not found");
     const [url] = await signCovers(sb, [(row.cover_path as string) ?? null]);
-    return mapProduct(row as Record<string, unknown>, url);
+    const imgs = Array.isArray(row.image_paths) ? (row.image_paths as string[]) : [];
+    const imgUrls = await signImagePaths(sb, imgs);
+    return mapProduct(row as Record<string, unknown>, url, imgUrls);
   });
 
 /** Authenticated seller creates a product (used by Admin Forge). */
