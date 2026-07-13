@@ -601,6 +601,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 >
                   {activeThread.peerInitials}
                 </div>
+                {onlinePeers.has(activeThread.peerId) && (
+                  <span
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+                    title="Online"
+                  />
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
@@ -610,8 +616,15 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                     peer
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500">last active {relative(activeThread.lastAt)}</div>
+                <div className="text-[11px] text-slate-500">
+                  {onlinePeers.has(activeThread.peerId) ? (
+                    <span className="text-emerald-400 font-semibold">● Online now</span>
+                  ) : (
+                    <>last active {relative(activeThread.lastAt)}</>
+                  )}
+                </div>
               </div>
+
               <Link
                 to="/profile/$id"
                 params={{ id: activeThread.peerSlug }}
