@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Bold, Italic, Underline as UnderlineIcon, Heading1, Heading2, Heading3, List, ListOrdered,
-  Link2, Image as ImageIcon, Quote, Code, Loader2, ArrowLeft, Save, X, Plus, Strikethrough, Undo, Redo,
+  Link2, Image as ImageIcon, Quote, Code, Loader2, ArrowLeft, Save, X, Plus, Strikethrough, Undo, Redo, Eye, Pencil,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
