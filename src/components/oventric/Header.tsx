@@ -46,6 +46,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         <ResponsiveImage
           src={logoMark.url}
           alt="Oventric"
+          sizes="36px"
           className="sm:hidden h-9 w-9 object-cover rounded-full"
           style={{
             WebkitMaskImage: "radial-gradient(circle, black 82%, transparent 100%)",
@@ -57,6 +58,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
         <ResponsiveImage
           src={logoFull.url}
           alt="Oventric"
+          sizes="160px"
           className="hidden sm:block h-9 w-auto object-contain rounded-[10px] [mix-blend-mode:screen]"
           style={{
             WebkitMaskImage:
@@ -66,6 +68,7 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           }}
           draggable={false}
         />
+
       </Link>
 
 

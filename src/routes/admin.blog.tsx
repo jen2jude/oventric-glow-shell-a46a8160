@@ -52,7 +52,7 @@ function BlogListPage() {
             <div key={r.id} className="bg-[#141418] border border-white/10 rounded-xl p-3 flex items-center gap-3">
               <div className="w-16 h-16 shrink-0 rounded-lg overflow-hidden bg-black/40 border border-white/10">
                 {r.cover_url ? (
-                  <ResponsiveImage src={r.cover_url} alt="" className="w-full h-full object-cover" />
+                  <ResponsiveImage sizes="96px" src={r.cover_url} alt="" className="w-full h-full object-cover" />
                 ) : null}
               </div>
               <div className="flex-1 min-w-0">

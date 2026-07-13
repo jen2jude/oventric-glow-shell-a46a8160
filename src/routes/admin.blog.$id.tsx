@@ -288,7 +288,7 @@ function BlogEditorPage() {
             <h3 className="text-white text-sm font-bold mb-2">Cover image</h3>
             {coverUrl ? (
               <div className="relative">
-                <ResponsiveImage src={coverUrl} alt="" className="w-full aspect-video rounded-lg object-cover" />
+                <ResponsiveImage sizes="(min-width: 768px) 640px, 100vw" src={coverUrl} alt="" className="w-full aspect-video rounded-lg object-cover" />
                 <button
                   onClick={() => { setCoverPath(null); setCoverUrl(null); }}
                   className="absolute top-2 right-2 p-1 rounded-md bg-black/70 text-white"

@@ -101,7 +101,7 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
               className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 transition-colors"
             >
               <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black overflow-hidden shrink-0">
-                {c.avatarUrl ? <ResponsiveImage src={c.avatarUrl} alt={c.name} className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : c.name.slice(0, 2).toUpperCase()}
+                {c.avatarUrl ? <ResponsiveImage sizes="48px" src={c.avatarUrl} alt={c.name} className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : c.name.slice(0, 2).toUpperCase()}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">

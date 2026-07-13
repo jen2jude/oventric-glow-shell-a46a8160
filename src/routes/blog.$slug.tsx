@@ -122,7 +122,7 @@ function BlogArticle() {
           By {post.author_name} · {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
         </div>
         {post.cover_url && (
-          <ResponsiveImage src={post.cover_url} alt={post.title} className="w-full mt-6 rounded-xl border border-white/10 aspect-video object-cover" />
+          <ResponsiveImage sizes="(min-width: 768px) 768px, 100vw" src={post.cover_url} alt={post.title} className="w-full mt-6 rounded-xl border border-white/10 aspect-video object-cover" />
         )}
 
         <article

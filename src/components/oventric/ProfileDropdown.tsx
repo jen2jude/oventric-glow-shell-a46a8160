@@ -252,7 +252,7 @@ export function ProfileDropdown() {
       className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
       {profile.avatarDataUrl ? (
-        <ResponsiveImage src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+        <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
       ) : (
         <span>{initials}</span>
       )}
@@ -263,7 +263,7 @@ export function ProfileDropdown() {
   const identityBanner = (
     <div className="flex items-center gap-3">
       <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-black font-black text-base flex items-center justify-center shrink-0 overflow-hidden">
-        {profile.avatarDataUrl ? <ResponsiveImage src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : initials}
+        {profile.avatarDataUrl ? <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : initials}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-white font-black text-sm truncate">{profile.displayName}</div>
@@ -787,7 +787,7 @@ function ProfileSettingsModal({
           <div className="flex items-center gap-4">
             <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
               {avatar ? (
-                <ResponsiveImage src={avatar} alt="Avatar preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+                <ResponsiveImage sizes="96px" src={avatar} alt="Avatar preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
               ) : (
                 <div className="w-full h-full flex items-center justify-center text-black font-black">
                   {displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "OV"}
