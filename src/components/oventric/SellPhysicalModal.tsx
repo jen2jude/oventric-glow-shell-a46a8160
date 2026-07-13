@@ -248,8 +248,9 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
             <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="space-y-4">
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Title</span>
-                <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="iPhone 15 Pro Max 256GB"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                <input data-field="title" value={title} onChange={(e) => { setTitle(e.target.value); clearField("title"); }} placeholder="iPhone 15 Pro Max 256GB"
+                  className={fieldCls("title", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                <FieldError k="title" />
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
