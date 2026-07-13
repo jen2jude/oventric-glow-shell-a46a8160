@@ -33,6 +33,7 @@ import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
@@ -157,6 +158,11 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AdminBlogRoute,
+} as any)
 const ApiPublicPaystackWebhookRoute =
   ApiPublicPaystackWebhookRouteImport.update({
     id: '/api/public/paystack-webhook',
@@ -201,12 +207,12 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -229,6 +235,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
@@ -259,6 +266,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
@@ -290,12 +298,12 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog/'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin/audit'
-    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -318,6 +326,7 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog'
     | '/profile/$id/item/$kind/$itemId'
   id:
     | '__root__'
@@ -347,6 +356,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog/'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
@@ -533,6 +543,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/blog/': {
+      id: '/admin/blog/'
+      path: '/'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminBlogIndexRouteImport
+      parentRoute: typeof AdminBlogRoute
+    }
     '/api/public/paystack-webhook': {
       id: '/api/public/paystack-webhook'
       path: '/api/public/paystack-webhook'
@@ -559,10 +576,12 @@ declare module '@tanstack/react-router' {
 
 interface AdminBlogRouteChildren {
   AdminBlogIdRoute: typeof AdminBlogIdRoute
+  AdminBlogIndexRoute: typeof AdminBlogIndexRoute
 }
 
 const AdminBlogRouteChildren: AdminBlogRouteChildren = {
   AdminBlogIdRoute: AdminBlogIdRoute,
+  AdminBlogIndexRoute: AdminBlogIndexRoute,
 }
 
 const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(

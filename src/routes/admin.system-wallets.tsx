@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, ShoppingBag, Target, Megaphone, ArrowUpRight } from "lucide-react";
+import { Loader2, ShoppingBag, Target, Megaphone, GraduationCap, ArrowUpRight } from "lucide-react";
 import {
   getSystemWallets,
   listSystemWalletTx,
@@ -19,7 +19,11 @@ const META: Record<SystemWalletKind, { label: string; sub: string; icon: React.C
   marketplace: { label: "Marketplace Revenue", sub: "20% of every marketplace sale", icon: ShoppingBag, hue: "from-emerald-500/25 to-teal-700/10 border-emerald-500/30" },
   bounty:      { label: "Bounty Revenue",      sub: "20% of every bounty payout",   icon: Target,      hue: "from-amber-500/25 to-orange-700/10 border-amber-500/30" },
   ads:         { label: "Ads & Promo Revenue", sub: "Advertising and promoted posts", icon: Megaphone, hue: "from-sky-500/25 to-indigo-700/10 border-sky-500/30" },
+  academy:     { label: "Academy Revenue",     sub: "Course sales and enrollments",   icon: GraduationCap, hue: "from-fuchsia-500/25 to-purple-700/10 border-fuchsia-500/30" },
 };
+const KINDS: SystemWalletKind[] = ["marketplace", "bounty", "ads", "academy"];
+const FALLBACK_META = { label: "Other Revenue", sub: "", icon: ShoppingBag, hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30" } as const;
+const metaFor = (k: string) => (META as Record<string, typeof FALLBACK_META>)[k] ?? FALLBACK_META;
 
 function fmtUsd(n: number) {
   return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -60,10 +64,10 @@ function SystemWalletsPage() {
       {!wallets ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500" />
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          {(["marketplace", "bounty", "ads"] as SystemWalletKind[]).map((k) => {
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+          {KINDS.map((k) => {
             const w = wallets.find((x) => x.kind === k);
-            const m = META[k];
+            const m = metaFor(k);
             const Icon = m.icon;
             return (
               <div key={k} className={`bg-gradient-to-br ${m.hue} border rounded-2xl p-5`}>
@@ -94,6 +98,7 @@ function SystemWalletsPage() {
             <option value="marketplace">Marketplace</option>
             <option value="bounty">Bounty</option>
             <option value="ads">Ads</option>
+            <option value="academy">Academy</option>
           </select>
         </div>
         <div className="divide-y divide-white/5">
@@ -105,7 +110,7 @@ function SystemWalletsPage() {
             tx.map((t) => (
               <div key={t.id} className="p-4 flex items-center justify-between text-sm">
                 <div>
-                  <div className="text-white font-semibold">{META[t.kind].label}</div>
+                  <div className="text-white font-semibold">{metaFor(t.kind).label}</div>
                   <div className="text-[11px] text-slate-500 font-mono">{t.source} · {new Date(t.createdAt).toLocaleString()}</div>
                 </div>
                 <div className="text-emerald-300 font-mono font-bold">+ {fmtUsd(t.amountUSD)}</div>
