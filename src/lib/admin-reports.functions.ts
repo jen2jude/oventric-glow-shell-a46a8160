@@ -15,6 +15,8 @@ export interface AdminReport {
   created_at: string;
   resolved_at: string | null;
   resolved_by: string | null;
+  target_preview: string | null;
+  target_author: string | null;
 }
 
 async function assertAdmin(ctx: { supabase: any; userId: string }) {
@@ -27,6 +29,34 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
     throw new Error("Failed to verify admin role");
   }
   if (!data) throw new Error("Forbidden: admin role required");
+}
+
+async function attachTargetPreviews(sb: any, reports: any[]): Promise<AdminReport[]> {
+  const commentIds = reports
+    .filter((r) => r.target_kind === "blog_comment")
+    .map((r) => r.target_id);
+  let commentMap = new Map<string, { text: string; author_name: string }>();
+  if (commentIds.length) {
+    const { data } = await sb
+      .from("blog_comments")
+      .select("id, text, author_name")
+      .in("id", commentIds);
+    (data ?? []).forEach((c: any) =>
+      commentMap.set(c.id, { text: c.text, author_name: c.author_name }),
+    );
+  }
+  return reports.map((r) => {
+    let preview: string | null = null;
+    let author: string | null = null;
+    if (r.target_kind === "blog_comment") {
+      const c = commentMap.get(r.target_id);
+      if (c) {
+        preview = c.text.slice(0, 320);
+        author = c.author_name;
+      }
+    }
+    return { ...r, target_preview: preview, target_author: author } as AdminReport;
+  });
 }
 
 export const listPendingReports = createServerFn({ method: "GET" })
@@ -51,7 +81,8 @@ export const listPendingReports = createServerFn({ method: "GET" })
       console.error("[listPendingReports]", error);
       throw new Error("Failed to load reports");
     }
-    return { reports: (rows ?? []) as AdminReport[] };
+    const enriched = await attachTargetPreviews(context.supabase, rows ?? []);
+    return { reports: enriched };
   });
 
 export const resolveReport = createServerFn({ method: "POST" })
@@ -83,5 +114,22 @@ export const resolveReport = createServerFn({ method: "POST" })
       throw new Error("Failed to update report");
     }
     if (!row) throw new Error("Report not found");
-    return { report: row as AdminReport };
+
+    // Apply moderation side-effect for blog comments.
+    if (row.target_kind === "blog_comment") {
+      if (data.action === "hide") {
+        await context.supabase
+          .from("blog_comments")
+          .update({ is_hidden: true })
+          .eq("id", row.target_id);
+      } else if (data.action === "reset" || data.action === "approve") {
+        await context.supabase
+          .from("blog_comments")
+          .update({ is_hidden: false })
+          .eq("id", row.target_id);
+      }
+    }
+
+    const [enriched] = await attachTargetPreviews(context.supabase, [row]);
+    return { report: enriched };
   });
