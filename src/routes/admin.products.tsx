@@ -281,7 +281,7 @@ function ProductsPage() {
                     {p.category as string} · ${Number(p.price_usd).toFixed(2)} · by {(p.vendor as string) ?? "—"}
                     {p.location ? ` · ${p.location as string}` : ""}
                   </div>
-                  {status === "rejected" && p.reject_reason && (
+                  {status === "rejected" && Boolean(p.reject_reason) && (
                     <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
                   )}
                 </div>
