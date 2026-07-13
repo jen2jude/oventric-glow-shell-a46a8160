@@ -53,6 +53,54 @@ function BlogEditorPage() {
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const [imgMenu, setImgMenu] = useState<{ top: number; left: number; width: number } | null>(null);
+  const activeImgRef = useRef<HTMLImageElement | null>(null);
+
+  const openImgMenuFor = (img: HTMLImageElement) => {
+    const editor = editorRef.current;
+    if (!editor) return;
+    const er = editor.getBoundingClientRect();
+    const ir = img.getBoundingClientRect();
+    activeImgRef.current = img;
+    const currentPct = Math.round((img.getBoundingClientRect().width / editor.clientWidth) * 100);
+    setImgMenu({
+      top: ir.bottom - er.top + 8,
+      left: Math.max(0, ir.left - er.left),
+      width: isFinite(currentPct) ? currentPct : 100,
+    });
+  };
+
+  const applyImgWidth = (pct: number) => {
+    const img = activeImgRef.current;
+    if (!img) return;
+    img.style.width = `${pct}%`;
+    img.style.maxWidth = "100%";
+    img.style.height = "auto";
+    img.setAttribute("data-resizable", "true");
+    setImgMenu((m) => (m ? { ...m, width: pct } : m));
+    setBodyHtml(editorRef.current?.innerHTML ?? "");
+  };
+
+  const removeActiveImg = () => {
+    const img = activeImgRef.current;
+    if (!img) return;
+    const parent = img.parentElement;
+    img.remove();
+    if (parent && parent.tagName === "P" && !parent.textContent?.trim() && parent.children.length === 0) parent.remove();
+    activeImgRef.current = null;
+    setImgMenu(null);
+    setBodyHtml(editorRef.current?.innerHTML ?? "");
+  };
+
+  const onEditorClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const t = e.target as HTMLElement;
+    if (t.tagName === "IMG") {
+      e.preventDefault();
+      openImgMenuFor(t as HTMLImageElement);
+    } else {
+      setImgMenu(null);
+    }
+  };
   const hydratedRef = useRef(false);
   const draftKey = `blog-editor-draft:${routeId}`;
 
