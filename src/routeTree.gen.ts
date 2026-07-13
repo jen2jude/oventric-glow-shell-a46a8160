@@ -36,6 +36,7 @@ import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
+import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const AdminRoute = AdminRouteImport.update({
@@ -174,6 +175,12 @@ const AdminBlogIdRoute = AdminBlogIdRouteImport.update({
   path: '/$id',
   getParentRoute: () => AdminBlogRoute,
 } as any)
+const LovableEmailQueueProcessRoute =
+  LovableEmailQueueProcessRouteImport.update({
+    id: '/lovable/email/queue/process',
+    path: '/lovable/email/queue/process',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -208,6 +215,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
@@ -236,6 +244,7 @@ export interface FileRoutesByTo {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog': typeof AdminBlogIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
@@ -267,6 +276,7 @@ export interface FileRoutesById {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
@@ -299,6 +309,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -327,6 +338,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog'
+    | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
   id:
     | '__root__'
@@ -357,6 +369,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
@@ -371,6 +384,7 @@ export interface RootRouteChildren {
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -564,6 +578,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBlogIdRouteImport
       parentRoute: typeof AdminBlogRoute
     }
+    '/lovable/email/queue/process': {
+      id: '/lovable/email/queue/process'
+      path: '/lovable/email/queue/process'
+      fullPath: '/lovable/email/queue/process'
+      preLoaderRoute: typeof LovableEmailQueueProcessRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
       path: '/item/$kind/$itemId'
@@ -649,6 +670,7 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileIdRoute: ProfileIdRouteWithChildren,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
