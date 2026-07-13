@@ -116,7 +116,7 @@ function VideoItem({
         className="max-h-full max-w-full object-contain"
         loop
         playsInline
-        preload="metadata"
+        preload={active ? "auto" : preload ? "auto" : "metadata"}
         onClick={() => {
           const v = vRef.current;
           if (!v) return;
