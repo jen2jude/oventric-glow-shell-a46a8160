@@ -74,6 +74,47 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function renderLinkified(text: string) {
+  // Detects http(s) URLs and internal paths starting with '/'.
+  const parts = text.split(/(\bhttps?:\/\/[^\s]+|(?:^|\s)\/[A-Za-z0-9/_\-?=&.#%]+)/g);
+  return parts.map((part, i) => {
+    if (!part) return null;
+    const trimmed = part.trim();
+    const isExternal = /^https?:\/\//i.test(trimmed);
+    const isInternal = trimmed.startsWith("/");
+    if (isExternal) {
+      return (
+        <a
+          key={i}
+          href={trimmed}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300 break-all"
+        >
+          {trimmed}
+        </a>
+      );
+    }
+    if (isInternal) {
+      const leading = part.startsWith(" ") ? " " : "";
+      return (
+        <span key={i}>
+          {leading}
+          <a
+            href={trimmed}
+            className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300 break-all"
+          >
+            {trimmed}
+          </a>
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+
+
 export function NotificationsDrawer({
   open,
   onClose,
@@ -106,26 +147,67 @@ export function NotificationsDrawer({
     }
   }, [fetchList, isAuthenticated]);
 
+  const [viewing, setViewing] = useState<DbNotif | null>(null);
+
   useEffect(() => {
     if (open) void refresh();
   }, [open, refresh]);
 
   // Realtime subscription — always on while authenticated so unread badge stays live.
+  // Also raises a native browser push notification for new admin-originated items
+  // (announcements, system messages, alerts, admin DMs) when permission is granted.
   useEffect(() => {
     if (!isAuthenticated) return;
     let userId: string | null = null;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
     let cancelled = false;
 
+    const raisePush = (row: DbNotif) => {
+      if (typeof window === "undefined" || !("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+      const pushKinds = ["announcement", "system", "alert", "direct_message"];
+      if (!pushKinds.includes(row.kind)) return;
+      try {
+        const n = new Notification(row.title, {
+          body: row.body ?? "",
+          icon: "/favicon.ico",
+          tag: row.id,
+        });
+        n.onclick = () => {
+          window.focus();
+          if (row.link) window.location.href = row.link;
+          n.close();
+        };
+      } catch {
+        /* ignore */
+      }
+    };
+
     (async () => {
       const { data } = await supabase.auth.getUser();
       userId = data.user?.id ?? null;
       if (!userId || cancelled) return;
+      // Ask for notification permission opportunistically (idempotent).
+      if ("Notification" in window && Notification.permission === "default") {
+        try {
+          void Notification.requestPermission();
+        } catch {
+          /* ignore */
+        }
+      }
       channelSub = supabase
         .channel(`notif-${userId}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          (payload) => {
+            raisePush(payload.new as DbNotif);
+            void refresh();
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           () => {
             void refresh();
           },
@@ -138,6 +220,7 @@ export function NotificationsDrawer({
       if (channelSub) supabase.removeChannel(channelSub);
     };
   }, [isAuthenticated, refresh]);
+
 
   const filtered = useMemo(
     () => (channel === "all" ? items : items.filter((n) => channelForKind(n.kind) === channel)),
@@ -153,8 +236,9 @@ export function NotificationsDrawer({
         /* ignore */
       }
     }
-    if (n.link) window.location.href = n.link;
+    setViewing({ ...n, read_at: n.read_at ?? new Date().toISOString() });
   };
+
 
   const handleMarkAll = async () => {
     setItems((prev) => prev.map((p) => ({ ...p, read_at: p.read_at ?? new Date().toISOString() })));
@@ -282,8 +366,72 @@ export function NotificationsDrawer({
           </button>
         </div>
       </aside>
+
+      {viewing && (
+        <div
+          className="fixed inset-0 z-[60] flex items-center justify-center bg-black/70 backdrop-blur-sm animate-fade-in p-4"
+          onClick={() => setViewing(null)}
+          role="dialog"
+          aria-modal="true"
+          aria-label={viewing.title}
+        >
+          <div
+            className="w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-start gap-3 px-5 py-4 border-b border-white/5">
+              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#121214] border border-white/10 shrink-0">
+                {iconForKind(viewing.kind)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <p className="text-white font-bold text-sm">{viewing.title}</p>
+                <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-0.5">
+                  {viewing.kind.replace(/_/g, " ")} · {timeAgo(viewing.created_at)}
+                </p>
+              </div>
+              <button
+                onClick={() => setViewing(null)}
+                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
+              {viewing.body ? (
+                <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+                  {renderLinkified(viewing.body)}
+                </p>
+              ) : (
+                <p className="text-sm text-slate-500 italic">No additional content.</p>
+              )}
+            </div>
+
+            {viewing.link && (
+              <div className="px-5 py-3 border-t border-white/5 bg-[#121214]">
+                <button
+                  onClick={() => {
+                    const url = viewing.link!;
+                    setViewing(null);
+                    onClose();
+                    if (/^https?:\/\//i.test(url)) {
+                      window.open(url, "_blank", "noopener,noreferrer");
+                    } else {
+                      window.location.href = url;
+                    }
+                  }}
+                  className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold flex items-center justify-center gap-2"
+                >
+                  Open link <ArrowRight className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
+
 }
 
 /**
