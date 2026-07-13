@@ -215,7 +215,7 @@ function ProductsPage() {
       <header className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-black">Products</h1>
-          <p className="text-sm text-slate-400">{rows?.length ?? 0} listings</p>
+          <p className="text-sm text-slate-400">{filtered.length} of {rows?.length ?? 0} listings</p>
         </div>
         <button
           onClick={openCreate}
@@ -225,19 +225,52 @@ function ProductsPage() {
         </button>
       </header>
 
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(["pending", "active", "rejected", "all"] as const).map((s) => {
+          const count = s === "all" ? (rows?.length ?? 0) : (rows ?? []).filter((r) => r.status === s).length;
+          return (
+            <button
+              key={s}
+              onClick={() => setStatusFilter(s)}
+              className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusFilter === s ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#1E1E24] border-white/10 text-slate-300"}`}
+            >
+              {s.charAt(0).toUpperCase() + s.slice(1)} ({count})
+            </button>
+          );
+        })}
+        <span className="w-px h-6 bg-white/10 mx-1" />
+        {(["all", "digital", "physical"] as const).map((k) => (
+          <button
+            key={k}
+            onClick={() => setKindFilter(k)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border ${kindFilter === k ? "bg-sky-500/15 border-sky-500/50 text-sky-300" : "bg-[#1E1E24] border-white/10 text-slate-300"}`}
+          >
+            {k === "all" ? "All types" : k.charAt(0).toUpperCase() + k.slice(1)}
+          </button>
+        ))}
+      </div>
+
       {!rows ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" />
-      ) : rows.length === 0 ? (
-        <p className="text-sm text-slate-500 text-center mt-10">No products yet.</p>
+      ) : filtered.length === 0 ? (
+        <p className="text-sm text-slate-500 text-center mt-10">No products in this view.</p>
       ) : (
         <div className="grid gap-3">
-          {rows.map((p) => {
+          {filtered.map((p) => {
             const id = p.id as string;
+            const status = (p.status as string) ?? "active";
+            const kind = (p.kind as string) ?? "digital";
             return (
-              <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex items-center gap-4">
+              <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3">
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2">
+                  <div className="flex flex-wrap items-center gap-2">
                     <span className="text-white font-bold truncate">{p.name as string}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
+                      status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
+                      status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
+                      "bg-red-500/15 border-red-500/40 text-red-300"
+                    }`}>{status}</span>
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-white/5 border-white/10 text-slate-400"}`}>{kind}</span>
                     {(p.promoted as boolean) && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-200 uppercase font-bold">
                         Promoted
@@ -246,28 +279,58 @@ function ProductsPage() {
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
                     {p.category as string} · ${Number(p.price_usd).toFixed(2)} · by {(p.vendor as string) ?? "—"}
+                    {p.location ? ` · ${p.location as string}` : ""}
                   </div>
+                  {status === "rejected" && p.reject_reason && (
+                    <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
+                  )}
                 </div>
-                <button
-                  onClick={async () => {
-                    setBusy(id);
-                    try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
-                    catch (e) { toast.error((e as Error).message); }
-                    setBusy(null);
-                  }}
-                  disabled={busy === id}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
-                  aria-label="Toggle promoted"
-                >
-                  <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
-                </button>
-                <button
-                  onClick={() => openEdit(p)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                  aria-label="Edit product"
-                >
-                  <Pencil className="w-4 h-4" />
-                </button>
+                {status === "pending" && (
+                  <>
+                    <button
+                      onClick={() => setPreviewId(id)}
+                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                      aria-label="Preview"
+                    ><Eye className="w-4 h-4" /></button>
+                    <button
+                      onClick={async () => {
+                        setBusy(id);
+                        try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
+                        catch (e) { toast.error((e as Error).message); }
+                        setBusy(null);
+                      }}
+                      disabled={busy === id}
+                      className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                    ><Check className="w-3.5 h-3.5" /> Approve</button>
+                    <button
+                      onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
+                      disabled={busy === id}
+                      className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                    ><XCircle className="w-3.5 h-3.5" /> Reject</button>
+                  </>
+                )}
+                {kind === "digital" && (
+                  <button
+                    onClick={async () => {
+                      setBusy(id);
+                      try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
+                      catch (e) { toast.error((e as Error).message); }
+                      setBusy(null);
+                    }}
+                    disabled={busy === id}
+                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
+                    aria-label="Toggle promoted"
+                  >
+                    <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
+                  </button>
+                )}
+                {kind === "digital" && (
+                  <button
+                    onClick={() => openEdit(p)}
+                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                    aria-label="Edit product"
+                  ><Pencil className="w-4 h-4" /></button>
+                )}
                 <button
                   onClick={async () => {
                     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
@@ -287,6 +350,70 @@ function ProductsPage() {
           })}
         </div>
       )}
+
+      {rejectingId && (
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+          <div className="w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl p-5">
+            <h3 className="text-white font-bold text-lg mb-3">Reject product</h3>
+            <label className="block mb-3">
+              <span className="text-xs text-slate-300">Reason (sent to seller)</span>
+              <textarea rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white" />
+            </label>
+            <label className="block mb-4">
+              <span className="text-xs text-slate-300">Recommendation (optional)</span>
+              <textarea rows={2} value={rejectHint} onChange={(e) => setRejectHint(e.target.value)}
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white" />
+            </label>
+            <div className="flex justify-end gap-2">
+              <button onClick={() => setRejectingId(null)} className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 text-sm">Cancel</button>
+              <button
+                onClick={async () => {
+                  if (!rejectReason.trim()) return toast.error("Reason is required");
+                  const id = rejectingId;
+                  setBusy(id);
+                  try {
+                    await rejectFn({ data: { id, reason: rejectReason.trim(), recommendation: rejectHint.trim() || undefined } });
+                    toast.success("Rejected — seller notified");
+                    setRejectingId(null);
+                    refresh();
+                  } catch (e) { toast.error((e as Error).message); }
+                  setBusy(null);
+                }}
+                className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-bold"
+              >Send rejection</button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {previewId && (() => {
+        const p = (rows ?? []).find((r) => r.id === previewId);
+        if (!p) return null;
+        return (
+          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+            <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[85vh] overflow-y-auto">
+              <div className="flex items-start justify-between mb-3">
+                <h3 className="text-white font-bold text-lg">{p.name as string}</h3>
+                <button onClick={() => setPreviewId(null)} className="p-1 hover:bg-white/5 rounded"><X className="w-4 h-4 text-slate-400" /></button>
+              </div>
+              <div className="text-xs text-slate-400 mb-3">
+                {String(p.kind ?? "digital")} · {String(p.category ?? "")} · ${Number(p.price_usd).toFixed(2)}
+                {p.location ? ` · ${p.location as string}` : ""}
+              </div>
+              {p.description && <p className="text-sm text-slate-300 whitespace-pre-wrap mb-3">{p.description as string}</p>}
+              <dl className="grid grid-cols-2 gap-2 text-xs text-slate-300">
+                {p.brand ? <><dt className="text-slate-500">Brand</dt><dd>{p.brand as string}</dd></> : null}
+                {p.condition ? <><dt className="text-slate-500">Condition</dt><dd>{p.condition as string}</dd></> : null}
+                {p.negotiable ? <><dt className="text-slate-500">Negotiable</dt><dd>{p.negotiable as string}</dd></> : null}
+                {p.delivery ? <><dt className="text-slate-500">Delivery</dt><dd>{p.delivery as string}</dd></> : null}
+                {p.seller_phone ? <><dt className="text-slate-500">Phone</dt><dd>+{p.seller_phone as string}</dd></> : null}
+              </dl>
+            </div>
+          </div>
+        );
+      })()}
+
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
