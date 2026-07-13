@@ -11,6 +11,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { PublicChrome } from "@/components/oventric/PublicChrome";
+import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/$slug")({
