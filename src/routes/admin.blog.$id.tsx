@@ -65,24 +65,82 @@ function BlogEditorPage() {
   }, [catFn, tagFn]);
 
   useEffect(() => {
-    if (isNew) return;
+    if (isNew) {
+      // Restore local draft for a brand-new post if present
+      try {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          const d = JSON.parse(raw);
+          setTitle(d.title ?? "");
+          setSlug(d.slug ?? "");
+          setExcerpt(d.excerpt ?? "");
+          setCoverPath(d.coverPath ?? null);
+          setCoverUrl(d.coverUrl ?? null);
+          setStatus(d.status ?? "draft");
+          setScheduledAt(d.scheduledAt ?? "");
+          setCategoryId(d.categoryId ?? null);
+          setTagIds(d.tagIds ?? []);
+          setBodyHtml(d.bodyHtml ?? "");
+          if (editorRef.current) editorRef.current.innerHTML = d.bodyHtml ?? "";
+          setAutosavedAt(d.savedAt ?? null);
+        }
+      } catch {}
+      hydratedRef.current = true;
+      return;
+    }
     (async () => {
       const res = await getFn({ data: { id: routeId } });
       const p: any = res.post;
       setId(p.id);
-      setTitle(p.title);
-      setSlug(p.slug);
-      setExcerpt(p.excerpt ?? "");
-      setCoverPath(p.cover_path ?? null);
-      setCoverUrl(p.cover_url ?? null);
-      setStatus(p.status);
-      setScheduledAt(p.scheduled_at ? new Date(p.scheduled_at).toISOString().slice(0, 16) : "");
-      setCategoryId(p.category_id ?? null);
-      setTagIds(p.tag_ids ?? []);
-      if (editorRef.current) editorRef.current.innerHTML = p.body_html ?? "";
+      let restored = false;
+      let d: any = null;
+      try {
+        const raw = localStorage.getItem(draftKey);
+        if (raw) {
+          d = JSON.parse(raw);
+          const serverTs = p.updated_at ? new Date(p.updated_at).getTime() : 0;
+          if (d.savedAt && d.savedAt > serverTs && confirm("A newer local draft was found. Restore it? (Cancel loads the saved version.)")) {
+            restored = true;
+          } else {
+            localStorage.removeItem(draftKey);
+          }
+        }
+      } catch {}
+      const src = restored ? d : p;
+      setTitle(src.title ?? "");
+      setSlug(src.slug ?? "");
+      setExcerpt(src.excerpt ?? "");
+      setCoverPath(src.cover_path ?? src.coverPath ?? null);
+      setCoverUrl(src.cover_url ?? src.coverUrl ?? null);
+      setStatus(src.status ?? "draft");
+      setScheduledAt(restored ? (d.scheduledAt ?? "") : (p.scheduled_at ? new Date(p.scheduled_at).toISOString().slice(0, 16) : ""));
+      setCategoryId(src.category_id ?? src.categoryId ?? null);
+      setTagIds(src.tag_ids ?? src.tagIds ?? []);
+      const html = restored ? (d.bodyHtml ?? "") : (p.body_html ?? "");
+      setBodyHtml(html);
+      if (editorRef.current) editorRef.current.innerHTML = html;
+      if (restored) setAutosavedAt(d.savedAt ?? null);
       setLoading(false);
+      hydratedRef.current = true;
     })();
-  }, [isNew, routeId, getFn]);
+  }, [isNew, routeId, getFn, draftKey]);
+
+  // Autosave draft to localStorage (debounced)
+  useEffect(() => {
+    if (!hydratedRef.current) return;
+    const t = setTimeout(() => {
+      try {
+        const savedAt = Date.now();
+        localStorage.setItem(draftKey, JSON.stringify({
+          title, slug, excerpt, coverPath, coverUrl, status, scheduledAt,
+          categoryId, tagIds, bodyHtml, savedAt,
+        }));
+        setAutosavedAt(savedAt);
+      } catch {}
+    }, 800);
+    return () => clearTimeout(t);
+  }, [draftKey, title, slug, excerpt, coverPath, coverUrl, status, scheduledAt, categoryId, tagIds, bodyHtml]);
+
 
   const exec = (cmd: string, arg?: string) => {
     editorRef.current?.focus();
