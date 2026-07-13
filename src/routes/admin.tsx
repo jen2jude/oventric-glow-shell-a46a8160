@@ -19,6 +19,7 @@ import {
   Wallet,
   GraduationCap,
   Banknote,
+  BookOpen,
 } from "lucide-react";
 
 
