@@ -355,7 +355,26 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                     role={formError ? "alert" : "status"}
                     aria-live="polite"
                   >
-                    {formError || progress}
+                    <div className="flex items-center gap-2">
+                      {submitting && !formError && <Loader2 className="w-3.5 h-3.5 animate-spin shrink-0" />}
+                      <span className="flex-1">{formError || progress}</span>
+                      {!formError && progressPct > 0 && (
+                        <span className="text-[10px] font-semibold tabular-nums text-emerald-300">{progressPct}%</span>
+                      )}
+                    </div>
+                    {!formError && submitting && (
+                      <div className="mt-2 h-1.5 w-full rounded-full bg-white/10 overflow-hidden">
+                        <div
+                          className="h-full bg-emerald-400 transition-all duration-300 ease-out"
+                          style={{ width: `${progressPct}%` }}
+                        />
+                      </div>
+                    )}
+                    {!formError && uploadStatus && (
+                      <div className="mt-1.5 text-[10px] text-emerald-300/80">
+                        Image {uploadStatus.done} of {uploadStatus.total} uploaded
+                      </div>
+                    )}
                   </div>
                 )}
                 <div className="flex items-center justify-between gap-3">
