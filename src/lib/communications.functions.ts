@@ -13,14 +13,15 @@ async function assertAdmin(ctx: { supabase: any; userId: string }) {
 }
 
 async function writeAudit(
-  sb: any,
+  _sb: any,
   actorId: string,
   action: string,
   targetKind: string | null,
   targetId: string | null,
   meta: Record<string, unknown> = {},
 ) {
-  await sb.from("audit_logs").insert({
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await (supabaseAdmin as any).from("audit_logs").insert({
     actor_id: actorId,
     action,
     target_kind: targetKind,

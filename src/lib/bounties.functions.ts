@@ -11,13 +11,14 @@ async function assertAdmin(ctx: { supabase: ReturnType<typeof Object>; userId: s
 
 async function writeAudit(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  sb: any,
+  _sb: any,
   actorId: string,
   action: string,
   targetId: string | null,
   meta: Record<string, unknown> = {},
 ) {
-  await sb.from("audit_logs").insert({
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  await (supabaseAdmin as any).from("audit_logs").insert({
     actor_id: actorId,
     action,
     target_kind: "bounty",
@@ -161,7 +162,7 @@ export const adminPayoutBounty = createServerFn({ method: "POST" })
     await supabaseAdmin.rpc("wallet_credit", { _user_id: data.solverId, _amount: solverCut });
 
     // Ledger entry for solver.
-    await sb.from("wallet_transactions").insert({
+    await supabaseAdmin.from("wallet_transactions").insert({
       user_id: data.solverId,
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Gig Bounty Escrowed",
