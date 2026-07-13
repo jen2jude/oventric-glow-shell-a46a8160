@@ -720,12 +720,15 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   </span>
                 </div>
                 <div className="text-[11px] text-slate-500">
-                  {onlinePeers.has(activeThread.peerId) ? (
+                  {peerTyping ? (
+                    <span className="text-emerald-400 font-semibold">typing…</span>
+                  ) : onlinePeers.has(activeThread.peerId) ? (
                     <span className="text-emerald-400 font-semibold">● Online now</span>
                   ) : (
                     <>last active {relative(activeThread.lastAt)}</>
                   )}
                 </div>
+
               </div>
 
               <Link
