@@ -41,6 +41,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState("");
+  const [formError, setFormError] = useState("");
   const [success, setSuccess] = useState(false);
 
   if (!open) return null;
@@ -52,16 +53,23 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     setBrand(""); setCondition("Brand New"); setDescription(""); setPriceInput("");
     setNegotiable("Yes"); setDelivery("No"); setPhone(""); setSocialLink("");
     previews.forEach((p) => URL.revokeObjectURL(p));
-    setImages([]); setPreviews([]); setSuccess(false);
+    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress("");
+  };
+
+  const fail = (message: string, description: string) => {
+    setProgress("");
+    setFormError(`${message} ${description}`);
+    toast.error(message, { description });
   };
 
   const addImages = (files: FileList | null) => {
+    setFormError("");
     if (!files) return;
     const list = Array.from(files);
     const valid: File[] = [];
     for (const f of list) {
-      if (!f.type.startsWith("image/")) { toast.error("Only images allowed"); continue; }
-      if (f.size > 5 * 1024 * 1024) { toast.error(`${f.name} exceeds 5MB`); continue; }
+      if (!f.type.startsWith("image/")) { fail("Only images allowed", `${f.name} is not an image file.`); continue; }
+      if (f.size > 5 * 1024 * 1024) { fail(`${f.name} exceeds 5MB`, "Choose a smaller image before posting."); continue; }
       valid.push(f);
     }
     const next = [...images, ...valid].slice(0, 8);
@@ -77,17 +85,19 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     setPreviews(next.map((f) => URL.createObjectURL(f)));
   };
 
-  const submit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const submit = async () => {
     if (submitting) return;
-    if (!title.trim()) return toast.error("Title required", { description: "Add a product title before posting." });
-    if (!category) return toast.error("Choose a category", { description: "Pick the category that best fits your product." });
-    if (!description.trim()) return toast.error("Description required", { description: "Describe the product for buyers." });
-    if (images.length < 3) return toast.error(`Upload at least 3 product images (you have ${images.length})`, { description: "The first image will be the cover." });
+    setFormError("");
+    setProgress("Checking listing details...");
+
+    if (!title.trim()) return fail("Title required", "Add a product title before posting.");
+    if (!category) return fail("Choose a category", "Pick the category that best fits your product.");
+    if (!description.trim()) return fail("Description required", "Describe the product for buyers.");
+    if (images.length < 3) return fail(`Upload at least 3 product images (you have ${images.length})`, "The first image will be the cover.");
     const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) return toast.error("Enter a price greater than 0", { description: `Price is in ${baseCurrency}.` });
+    if (!(priceLocal > 0)) return fail("Enter a price greater than 0", `Price is in ${baseCurrency}.`);
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) return toast.error("Enter a valid phone number", { description: "Include your country code, digits only." });
+    if (digits.length < 6) return fail("Enter a valid phone number", "Include your country code, digits only.");
 
 
     setSubmitting(true);
@@ -142,7 +152,9 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
       setSuccess(true);
       onPublished?.();
     } catch (err) {
-      toast.error("Could not submit", { description: err instanceof Error ? err.message : "Try again." });
+      const message = err instanceof Error ? err.message : "Try again.";
+      setFormError(`Could not submit. ${message}`);
+      toast.error("Could not submit", { description: message });
     } finally {
       setSubmitting(false);
       setProgress("");
@@ -181,7 +193,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
               </button>
             </div>
 
-            <form onSubmit={submit} className="space-y-4">
+            <form onSubmit={(e) => { e.preventDefault(); void submit(); }} className="space-y-4">
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Title</span>
                 <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="iPhone 15 Pro Max 256GB"
@@ -305,18 +317,33 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                 </div>
               </div>
 
-              <div className="flex items-center justify-between pt-2 border-t border-white/5">
-                <div className="text-xs text-slate-400 min-h-[1rem]">{progress}</div>
+              <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24]/95 backdrop-blur border-t border-white/5">
+                {(formError || progress) && (
+                  <div
+                    className={`mb-3 rounded-lg border px-3 py-2 text-xs ${
+                      formError
+                        ? "border-red-400/30 bg-red-500/10 text-red-200"
+                        : "border-emerald-400/30 bg-emerald-500/10 text-emerald-200"
+                    }`}
+                    role={formError ? "alert" : "status"}
+                    aria-live="polite"
+                  >
+                    {formError || progress}
+                  </div>
+                )}
+                <div className="flex items-center justify-between gap-3">
+                <div className="text-xs text-slate-400 min-h-[1rem]">{images.length}/3 required images</div>
                 <div className="flex gap-2">
                   <button type="button" onClick={onClose} disabled={submitting}
                     className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40">
                     Cancel
                   </button>
-                  <button type="submit" disabled={submitting}
+                  <button type="button" onClick={() => void submit()} disabled={submitting} aria-busy={submitting}
                     className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60">
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Publishing…" : "Post product"}
                   </button>
+                </div>
                 </div>
               </div>
             </form>
