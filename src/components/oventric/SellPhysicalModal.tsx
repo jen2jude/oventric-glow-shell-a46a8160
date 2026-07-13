@@ -104,18 +104,37 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const submit = async () => {
     if (submitting) return;
     setFormError("");
+    setFieldErrors({});
     setProgress("Checking listing details...");
     setProgressPct(5);
     setUploadStatus(null);
 
-    if (!title.trim()) return fail("Title required", "Add a product title before posting.");
-    if (!category) return fail("Choose a category", "Pick the category that best fits your product.");
-    if (!description.trim()) return fail("Description required", "Describe the product for buyers.");
-    if (images.length < 3) return fail(`Upload at least 3 product images (you have ${images.length})`, "The first image will be the cover.");
+    const errors: Record<string, string> = {};
+    if (!title.trim()) errors.title = "Add a product title before posting.";
+    if (!category) errors.category = "Pick the category that best fits your product.";
+    if (!description.trim()) errors.description = "Describe the product for buyers.";
+    if (images.length < 3) errors.images = `Upload at least 3 product images (you have ${images.length}). The first image will be the cover.`;
     const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) return fail("Enter a price greater than 0", `Price is in ${baseCurrency}.`);
+    if (!(priceLocal > 0)) errors.price = `Enter a price greater than 0 in ${baseCurrency}.`;
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) return fail("Enter a valid phone number", "Include your country code, digits only.");
+    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only).";
+
+    if (Object.keys(errors).length > 0) {
+      setFieldErrors(errors);
+      const firstKey = Object.keys(errors)[0];
+      setFormError(`Please fix the highlighted ${Object.keys(errors).length === 1 ? "field" : "fields"} below.`);
+      setProgress("");
+      setProgressPct(0);
+      toast.error("Check the highlighted fields", { description: errors[firstKey] });
+      // Scroll to first error
+      requestAnimationFrame(() => {
+        const el = document.querySelector(`[data-field="${firstKey}"]`) as HTMLElement | null;
+        el?.scrollIntoView({ behavior: "smooth", block: "center" });
+        el?.focus?.();
+      });
+      return;
+    }
+
 
 
     setSubmitting(true);
