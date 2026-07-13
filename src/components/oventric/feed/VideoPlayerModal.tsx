@@ -4,6 +4,8 @@ import {
   ThumbsUp, ThumbsDown, EyeOff, Download,
 } from "lucide-react";
 import { ReactionPicker, ReactionSplash, REACTION_META } from "./Reactions";
+import { togglePostSet } from "@/components/oventric/PostActionsMenu";
+import { toast } from "sonner";
 import type { FeedPost, ReactionType } from "@/lib/posts.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
