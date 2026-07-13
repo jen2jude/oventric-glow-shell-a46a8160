@@ -240,6 +240,11 @@ function BlogEditorPage() {
       });
       setId(res.id);
       setStatus(s);
+      try { localStorage.removeItem(draftKey); } catch {}
+      if (isNew) {
+        try { localStorage.removeItem(`blog-editor-draft:${res.id}`); } catch {}
+      }
+      setAutosavedAt(null);
       alert(s === "published" ? "Published!" : s === "scheduled" ? "Scheduled." : "Draft saved.");
       if (isNew) navigate({ to: "/admin/blog/$id", params: { id: res.id } });
     } catch (e) {
