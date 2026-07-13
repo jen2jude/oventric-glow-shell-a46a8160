@@ -178,7 +178,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
   const [showListOnMobile, setShowListOnMobile] = useState(!initialThreadId);
+  const [onlinePeers, setOnlinePeers] = useState<
+    Map<string, { name: string; slug: string; initials: string; gradient: string }>
+  >(new Map());
   const scrollRef = useRef<HTMLDivElement>(null);
+
 
   const activeThread = useMemo(
     () => threads.find((t) => t.peerId === activePeer) ?? null,
