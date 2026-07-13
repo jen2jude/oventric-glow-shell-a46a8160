@@ -342,13 +342,15 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
-                  <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="0.00"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                  <input data-field="price" value={priceInput} onChange={(e) => { setPriceInput(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="0.00"
+                    className={fieldCls("price", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                  <FieldError k="price" />
                 </label>
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Phone number (digits only, incl. country code)</span>
-                  <input value={phone} onChange={(e) => setPhone(e.target.value.replace(/\D/g, ""))} inputMode="numeric" placeholder="2348012345678"
-                    className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                  <input data-field="phone" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "")); clearField("phone"); }} inputMode="numeric" placeholder="2348012345678"
+                    className={fieldCls("phone", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                  <FieldError k="phone" />
                 </label>
               </div>
 
