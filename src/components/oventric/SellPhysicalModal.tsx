@@ -99,6 +99,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     if (submitting) return;
     setFormError("");
     setProgress("Checking listing details...");
+    setProgressPct(5);
+    setUploadStatus(null);
 
     if (!title.trim()) return fail("Title required", "Add a product title before posting.");
     if (!category) return fail("Choose a category", "Pick the category that best fits your product.");
@@ -120,22 +122,34 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
         .from("profiles").select("display_name, username").eq("user_id", uid).maybeSingle();
       const vendorName = (prof?.display_name || prof?.username || userData.user.email?.split("@")[0] || "Member") as string;
 
-      setProgress("Uploading product images...");
+      const total = images.length;
+      setUploadStatus({ done: 0, total });
+      setProgress(`Uploading images (0/${total})…`);
+      setProgressPct(10);
       const paths: string[] = [];
-      for (const img of images) {
+      // Reserve 10%..80% of the bar for uploads
+      for (let i = 0; i < images.length; i++) {
+        const img = images[i];
         const safe = img.name.replace(/[^\w.\-]+/g, "_");
         const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safe}`;
+        setProgress(`Uploading “${img.name}” (${i + 1}/${total})…`);
         const { error } = await supabase.storage.from("product-covers").upload(path, img, { contentType: img.type, upsert: false });
         if (error) throw new Error(error.message);
         paths.push(path);
+        const done = i + 1;
+        setUploadStatus({ done, total });
+        setProgressPct(10 + Math.round((done / total) * 70));
       }
 
-      setProgress("Locking market rate...");
+      setUploadStatus(null);
+      setProgress("Locking market rate (FX snapshot)…");
+      setProgressPct(85);
       const snapshot = await snapshotFx();
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
 
-      setProgress("Submitting for review...");
+      setProgress("Submitting listing for review…");
+      setProgressPct(95);
       await persist({
         data: {
           name: title.trim(),
@@ -159,6 +173,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
         },
       });
 
+      setProgressPct(100);
       setSuccess(true);
       onPublished?.();
     } catch (err) {
@@ -168,6 +183,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     } finally {
       setSubmitting(false);
       setProgress("");
+      setProgressPct(0);
+      setUploadStatus(null);
     }
   };
 
