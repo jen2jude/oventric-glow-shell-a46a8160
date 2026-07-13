@@ -1100,7 +1100,8 @@ export function Feed() {
                 </div>
               </article>
             );
-          })
+            }
+          })()
         )}
         {commentError && (
           <div className="text-[11px] text-red-400 -mt-2">{commentError}</div>
