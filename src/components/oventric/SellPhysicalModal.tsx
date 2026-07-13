@@ -344,7 +344,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                     className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40">
                     Cancel
                   </button>
-                  <button type="button" onPointerUp={(e) => { e.preventDefault(); void submit(); }} onClick={() => void submit()} disabled={submitting} aria-busy={submitting} aria-label="Post physical product for approval"
+                  <button type="button" onClick={() => void submit()} disabled={submitting} aria-busy={submitting} aria-label="Post physical product for approval"
                     className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60">
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Publishing…" : "Post product"}
