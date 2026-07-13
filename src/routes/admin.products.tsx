@@ -210,6 +210,12 @@ function ProductsPage() {
     }
   };
 
+  const byKind = (rows ?? []).filter((p) => kindFilter === "all" ? true : ((p.kind as string) ?? "digital") === kindFilter);
+  const kindCount = (k: "all" | "digital" | "physical") =>
+    k === "all" ? (rows?.length ?? 0) : (rows ?? []).filter((r) => ((r.kind as string) ?? "digital") === k).length;
+  const statusCountInKind = (s: "all" | "pending" | "active" | "rejected") =>
+    s === "all" ? byKind.length : byKind.filter((r) => (r.status as string) === s).length;
+
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <header className="mb-4 flex items-center justify-between gap-4">
@@ -225,30 +231,44 @@ function ProductsPage() {
         </button>
       </header>
 
-      <div className="mb-4 flex flex-wrap gap-2">
-        {(["pending", "active", "rejected", "all"] as const).map((s) => {
-          const count = s === "all" ? (rows?.length ?? 0) : (rows ?? []).filter((r) => r.status === s).length;
-          return (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(s)}
-              className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusFilter === s ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#1E1E24] border-white/10 text-slate-300"}`}
-            >
-              {s.charAt(0).toUpperCase() + s.slice(1)} ({count})
-            </button>
-          );
-        })}
-        <span className="w-px h-6 bg-white/10 mx-1" />
+      {/* Primary: product type */}
+      <div className="mb-3 inline-flex rounded-xl bg-[#141418] border border-white/10 p-1">
         {(["all", "digital", "physical"] as const).map((k) => (
           <button
             key={k}
             onClick={() => setKindFilter(k)}
-            className={`px-3 py-1.5 rounded-full text-xs font-medium border ${kindFilter === k ? "bg-sky-500/15 border-sky-500/50 text-sky-300" : "bg-[#1E1E24] border-white/10 text-slate-300"}`}
+            className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
+              kindFilter === k
+                ? "bg-emerald-500 text-black"
+                : "text-slate-300 hover:text-white"
+            }`}
           >
-            {k === "all" ? "All types" : k.charAt(0).toUpperCase() + k.slice(1)}
+            {k === "all" ? "All" : k === "digital" ? "Digital Products" : "Physical Products"}
+            <span className={`ml-2 text-[11px] font-bold ${kindFilter === k ? "text-black/70" : "text-slate-500"}`}>{kindCount(k)}</span>
           </button>
         ))}
       </div>
+
+      {/* Secondary: status within selected type */}
+      <div className="mb-4 flex flex-wrap gap-2">
+        {(["pending", "active", "rejected", "all"] as const).map((s) => (
+          <button
+            key={s}
+            onClick={() => setStatusFilter(s)}
+            className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
+              statusFilter === s
+                ? s === "pending" ? "bg-amber-500/15 border-amber-500/50 text-amber-200"
+                : s === "active" ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                : s === "rejected" ? "bg-red-500/15 border-red-500/50 text-red-300"
+                : "bg-white/10 border-white/20 text-white"
+                : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white"
+            }`}
+          >
+            {s === "pending" ? "Pending Approval" : s.charAt(0).toUpperCase() + s.slice(1)} ({statusCountInKind(s)})
+          </button>
+        ))}
+      </div>
+
 
       {!rows ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" />
@@ -285,52 +305,49 @@ function ProductsPage() {
                     <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
                   )}
                 </div>
-                {status === "pending" && (
-                  <>
-                    <button
-                      onClick={() => setPreviewId(id)}
-                      className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                      aria-label="Preview"
-                    ><Eye className="w-4 h-4" /></button>
-                    <button
-                      onClick={async () => {
-                        setBusy(id);
-                        try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
-                        catch (e) { toast.error((e as Error).message); }
-                        setBusy(null);
-                      }}
-                      disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                    ><Check className="w-3.5 h-3.5" /> Approve</button>
-                    <button
-                      onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
-                      disabled={busy === id}
-                      className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                    ><XCircle className="w-3.5 h-3.5" /> Reject</button>
-                  </>
-                )}
-                {kind === "digital" && (
+                <button
+                  onClick={() => setPreviewId(id)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                  aria-label="Preview"
+                ><Eye className="w-4 h-4" /></button>
+                {status !== "active" && (
                   <button
                     onClick={async () => {
                       setBusy(id);
-                      try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
+                      try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
                       catch (e) { toast.error((e as Error).message); }
                       setBusy(null);
                     }}
                     disabled={busy === id}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
-                    aria-label="Toggle promoted"
-                  >
-                    <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
-                  </button>
+                    className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                  ><Check className="w-3.5 h-3.5" /> Approve</button>
                 )}
-                {kind === "digital" && (
+                {status !== "rejected" && (
                   <button
-                    onClick={() => openEdit(p)}
-                    className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                    aria-label="Edit product"
-                  ><Pencil className="w-4 h-4" /></button>
+                    onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
+                    disabled={busy === id}
+                    className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
+                  ><XCircle className="w-3.5 h-3.5" /> Reject</button>
                 )}
+                <button
+                  onClick={async () => {
+                    setBusy(id);
+                    try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
+                    catch (e) { toast.error((e as Error).message); }
+                    setBusy(null);
+                  }}
+                  disabled={busy === id}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
+                  aria-label="Toggle promoted"
+                >
+                  <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
+                </button>
+                <button
+                  onClick={() => openEdit(p)}
+                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
+                  aria-label="Edit product"
+                ><Pencil className="w-4 h-4" /></button>
+
                 <button
                   onClick={async () => {
                     if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;

@@ -140,13 +140,13 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           coverPath,
         },
       });
-      toast.success("Asset listed", {
-        description: `${product.name} is now live in the marketplace.`,
+      toast.success("Submitted for review", {
+        description: `${product.name} will go live once an admin approves it.`,
         icon: <CheckCircle2 className="w-4 h-4 text-emerald-400" />,
       });
       reset();
       onClose();
-      navigate({ to: "/product/$id", params: { id: product.id } });
+      navigate({ to: "/" });
     } catch (err) {
       toast.error("Listing failed", {
         description: err instanceof Error ? err.message : "Something went wrong. Try again.",
