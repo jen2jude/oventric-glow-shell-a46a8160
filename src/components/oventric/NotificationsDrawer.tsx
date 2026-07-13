@@ -195,8 +195,9 @@ export function NotificationsDrawer({
         /* ignore */
       }
     }
-    if (n.link) window.location.href = n.link;
+    setViewing({ ...n, read_at: n.read_at ?? new Date().toISOString() });
   };
+
 
   const handleMarkAll = async () => {
     setItems((prev) => prev.map((p) => ({ ...p, read_at: p.read_at ?? new Date().toISOString() })));
