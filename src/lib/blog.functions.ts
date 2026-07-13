@@ -300,7 +300,7 @@ export const listBlogAdmin = createServerFn({ method: "GET" })
       title: r.title,
       status: r.status,
       category_id: r.category_id,
-      category_name: r.category_id ? catName.get(r.category_id) ?? null : null,
+      category_name: r.category_id ? ((catName.get(r.category_id) as string | undefined) ?? null) : null,
       published_at: r.published_at,
       scheduled_at: r.scheduled_at,
       cover_url: r.cover_path ? covers.get(r.cover_path) ?? null : null,
