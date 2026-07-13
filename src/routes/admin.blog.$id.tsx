@@ -48,9 +48,13 @@ function BlogEditorPage() {
   const [loading, setLoading] = useState(!isNew);
   const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
+  const [autosavedAt, setAutosavedAt] = useState<number | null>(null);
+  const [bodyHtml, setBodyHtml] = useState<string>("");
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const hydratedRef = useRef(false);
+  const draftKey = `blog-editor-draft:${routeId}`;
 
   useEffect(() => {
     (async () => {
