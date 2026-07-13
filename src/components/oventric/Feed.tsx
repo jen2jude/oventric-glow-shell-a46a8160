@@ -866,8 +866,9 @@ export function Feed() {
                     className="block bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition"
                   >
                     {b.cover_url && (
-                      <ResponsiveImage src={b.cover_url} alt={b.title} className="w-full aspect-[16/7] object-cover" />
+                      <ResponsiveImage src={b.cover_url} alt={b.title} sizes="(min-width: 768px) 640px, 100vw" className="w-full aspect-[16/7] object-cover" />
                     )}
+
                     <div className="p-4">
                       <div className="flex items-center gap-2 mb-1">
                         <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
