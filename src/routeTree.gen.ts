@@ -31,8 +31,8 @@ import { Route as AdminCommunicationsRouteImport } from './routes/admin.communic
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
-import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
@@ -147,14 +147,14 @@ const AdminBountiesRoute = AdminBountiesRouteImport.update({
   path: '/bounties',
   getParentRoute: () => AdminRoute,
 } as any)
-const AdminBlogRoute = AdminBlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => AdminRoute,
-} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => AdminRoute,
 } as any)
 const ApiPublicPaystackWebhookRoute =
@@ -164,9 +164,9 @@ const ApiPublicPaystackWebhookRoute =
     getParentRoute: () => rootRouteImport,
   } as any)
 const AdminBlogIdRoute = AdminBlogIdRouteImport.update({
-  id: '/$id',
-  path: '/$id',
-  getParentRoute: () => AdminBlogRoute,
+  id: '/blog/$id',
+  path: '/blog/$id',
+  getParentRoute: () => AdminRoute,
 } as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
@@ -178,7 +178,6 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -201,12 +200,12 @@ export interface FileRoutesByFullPath {
   '/blog/': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -229,6 +228,7 @@ export interface FileRoutesByTo {
   '/blog': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesById {
@@ -236,7 +236,6 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
-  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -259,6 +258,7 @@ export interface FileRoutesById {
   '/blog/': typeof BlogIndexRoute
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
+  '/admin/blog/': typeof AdminBlogIndexRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRouteTypes {
@@ -267,7 +267,6 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/audit'
-    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -290,12 +289,12 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog/'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin/audit'
-    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -318,13 +317,13 @@ export interface FileRouteTypes {
     | '/blog'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog'
     | '/profile/$id/item/$kind/$itemId'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/admin/audit'
-    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -347,6 +346,7 @@ export interface FileRouteTypes {
     | '/blog/'
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
+    | '/admin/blog/'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
 }
@@ -519,18 +519,18 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBountiesRouteImport
       parentRoute: typeof AdminRoute
     }
-    '/admin/blog': {
-      id: '/admin/blog'
-      path: '/blog'
-      fullPath: '/admin/blog'
-      preLoaderRoute: typeof AdminBlogRouteImport
-      parentRoute: typeof AdminRoute
-    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/audit'
       fullPath: '/admin/audit'
       preLoaderRoute: typeof AdminAuditRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/blog/': {
+      id: '/admin/blog/'
+      path: '/blog'
+      fullPath: '/admin/blog/'
+      preLoaderRoute: typeof AdminBlogIndexRouteImport
       parentRoute: typeof AdminRoute
     }
     '/api/public/paystack-webhook': {
@@ -542,10 +542,10 @@ declare module '@tanstack/react-router' {
     }
     '/admin/blog/$id': {
       id: '/admin/blog/$id'
-      path: '/$id'
+      path: '/blog/$id'
       fullPath: '/admin/blog/$id'
       preLoaderRoute: typeof AdminBlogIdRouteImport
-      parentRoute: typeof AdminBlogRoute
+      parentRoute: typeof AdminRoute
     }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
@@ -557,21 +557,8 @@ declare module '@tanstack/react-router' {
   }
 }
 
-interface AdminBlogRouteChildren {
-  AdminBlogIdRoute: typeof AdminBlogIdRoute
-}
-
-const AdminBlogRouteChildren: AdminBlogRouteChildren = {
-  AdminBlogIdRoute: AdminBlogIdRoute,
-}
-
-const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(
-  AdminBlogRouteChildren,
-)
-
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
-  AdminBlogRoute: typeof AdminBlogRouteWithChildren
   AdminBountiesRoute: typeof AdminBountiesRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
@@ -585,11 +572,12 @@ interface AdminRouteChildren {
   AdminSystemWalletsRoute: typeof AdminSystemWalletsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
+  AdminBlogIdRoute: typeof AdminBlogIdRoute
+  AdminBlogIndexRoute: typeof AdminBlogIndexRoute
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
-  AdminBlogRoute: AdminBlogRouteWithChildren,
   AdminBountiesRoute: AdminBountiesRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
@@ -603,6 +591,8 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSystemWalletsRoute: AdminSystemWalletsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
+  AdminBlogIdRoute: AdminBlogIdRoute,
+  AdminBlogIndexRoute: AdminBlogIndexRoute,
 }
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)

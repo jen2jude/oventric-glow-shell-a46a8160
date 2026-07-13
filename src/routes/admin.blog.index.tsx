@@ -5,7 +5,7 @@ import { Loader2, Plus, Trash2, Pencil } from "lucide-react";
 import { listBlogAdmin, deleteBlogPost, type BlogAdminRow } from "@/lib/blog.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
-export const Route = createFileRoute("/admin/blog")({
+export const Route = createFileRoute("/admin/blog/")({
   head: () => ({ meta: [{ title: "Blog · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: BlogListPage,
 });
