@@ -680,7 +680,26 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   No messages yet — say hello.
                 </div>
               ) : (
-                messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)
+                <>
+                  {hasMoreOlder && (
+                    <div className="flex justify-center pb-2">
+                      <button
+                        onClick={() => void loadOlder()}
+                        disabled={loadingOlder}
+                        className="inline-flex items-center gap-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/60 rounded-full px-3 py-1 disabled:opacity-50"
+                      >
+                        {loadingOlder ? (
+                          <>
+                            <Loader2 className="w-3 h-3 animate-spin" /> Loading older…
+                          </>
+                        ) : (
+                          <>Load older messages</>
+                        )}
+                      </button>
+                    </div>
+                  )}
+                  {messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)}
+                </>
               )}
             </div>
 
