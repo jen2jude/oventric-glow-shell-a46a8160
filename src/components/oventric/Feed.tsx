@@ -1118,6 +1118,13 @@ export function Feed() {
         {/* Mock marketplace, sponsored, and bounty cards removed — live data lives in the DiscoveryPanel and dedicated routes. */}
 
 
+        <ShareSheet
+          open={!!blogShare}
+          onClose={() => setBlogShare(null)}
+          url={blogShare ? `${typeof window !== "undefined" ? window.location.origin : ""}/blog/${blogShare.slug}` : ""}
+          title={blogShare?.title ?? "Oventric Blog"}
+          text={blogShare?.excerpt || undefined}
+        />
         <ReportModal
           open={!!reportOpen}
           onClose={() => setReportOpen(null)}
