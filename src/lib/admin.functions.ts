@@ -143,11 +143,71 @@ export const listAllProducts = createServerFn({ method: "GET" })
     const sb = context.supabase as any;
     const { data, error } = await sb
       .from("products")
-      .select("id, name, category, vendor, price_usd, promoted, seller_id, created_at")
+      .select("id, name, category, subcategory, vendor, price_usd, promoted, seller_id, created_at, kind, status, reject_reason, description, cover_path, image_paths, seller_phone, whatsapp_number, location, brand, condition, negotiable, delivery")
       .order("created_at", { ascending: false })
-      .limit(500);
+      .limit(1000);
     if (error) throw new Error(error.message);
     return data ?? [];
+  });
+
+/** Approve a pending product (admin only). Sends a system notification to the seller. */
+export const approveProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: row, error } = await sb
+      .from("products")
+      .update({ status: "active", reject_reason: null })
+      .eq("id", data.id)
+      .select("id, name, seller_id")
+      .single();
+    if (error) throw new Error(error.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdmin as any).from("notifications").insert({
+      user_id: row.seller_id,
+      kind: "system",
+      title: "Your product is live",
+      body: `"${row.name}" has been approved and is now visible in the marketplace.`,
+      link: `/product/${row.id}`,
+    });
+    await writeAudit(sb, context.userId, "product.approve", "product", data.id);
+    return { ok: true };
+  });
+
+/** Reject a pending product with a reason (admin only). Sends a system message to the seller. */
+export const rejectProduct = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string; reason: string; recommendation?: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const reason = String(data.reason ?? "").trim();
+    if (!reason) throw new Error("Rejection reason is required");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const combined = data.recommendation
+      ? `${reason}\n\nRecommendation: ${data.recommendation}`
+      : reason;
+    const { data: row, error } = await sb
+      .from("products")
+      .update({ status: "rejected", reject_reason: combined })
+      .eq("id", data.id)
+      .select("id, name, seller_id")
+      .single();
+    if (error) throw new Error(error.message);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdmin as any).from("notifications").insert({
+      user_id: row.seller_id,
+      kind: "system",
+      title: "Product needs changes",
+      body: `Your submission "${row.name}" was not approved.\n\nReason: ${reason}${data.recommendation ? `\n\nRecommendation: ${data.recommendation}` : ""}\n\nUpdate and resubmit any time.`,
+    });
+    await writeAudit(sb, context.userId, "product.reject", "product", data.id, { reason });
+    return { ok: true };
   });
 
 export const deleteProductAdmin = createServerFn({ method: "POST" })
