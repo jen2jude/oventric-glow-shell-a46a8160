@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag,
-  ThumbsUp, ThumbsDown, EyeOff, Download,
+  ThumbsUp, ThumbsDown, EyeOff, Download, Link2,
 } from "lucide-react";
 import { ReactionPicker, ReactionSplash, REACTION_META } from "./Reactions";
 import { togglePostSet } from "@/components/oventric/PostActionsMenu";
