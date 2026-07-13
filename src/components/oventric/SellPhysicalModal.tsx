@@ -45,11 +45,15 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [progressPct, setProgressPct] = useState(0);
   const [uploadStatus, setUploadStatus] = useState<{ done: number; total: number } | null>(null);
   const [formError, setFormError] = useState("");
+  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
 
   if (!open) return null;
 
   const chosenCat = CATEGORIES.find((c) => c.value === category);
+  const clearField = (k: string) => setFieldErrors((prev) => { if (!prev[k]) return prev; const n = { ...prev }; delete n[k]; return n; });
+  const fieldCls = (k: string, base: string) => `${base} ${fieldErrors[k] ? "border-red-400/60 focus:border-red-400/80" : ""}`;
+  const FieldError = ({ k }: { k: string }) => fieldErrors[k] ? <span className="mt-1 block text-[11px] text-red-300">{fieldErrors[k]}</span> : null;
 
   const reset = () => {
     setTitle(""); setCategory(""); setSubcategory(""); setLocation("");
