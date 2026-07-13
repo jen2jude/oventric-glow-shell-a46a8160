@@ -457,11 +457,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
   }, [me, activePeer, reloadThreads, markRead]);
 
+  const lastMsgId = messages[messages.length - 1]?.id ?? null;
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
-  }, [activePeer, messages.length]);
+  }, [activePeer, lastMsgId]);
 
   const selectThread = (peerId: string) => {
     setActivePeer(peerId);
