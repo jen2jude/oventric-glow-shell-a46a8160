@@ -11,7 +11,7 @@ async function writePayoutAudit(
 ) {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    await supabaseAdmin.from("audit_logs").insert({
+    await (supabaseAdmin as any).from("audit_logs").insert({
       actor_id: actorId,
       action,
       target_kind: "payout_request",
