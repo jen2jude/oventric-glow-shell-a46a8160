@@ -61,16 +61,30 @@ function ProductsPage() {
   const promFn = useServerFn(setProductPromoted);
   const createFn = useServerFn(adminCreateProduct);
   const updateFn = useServerFn(adminUpdateProduct);
+  const approveFn = useServerFn(approveProduct);
+  const rejectFn = useServerFn(rejectProduct);
 
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [modal, setModal] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "active" | "rejected">("pending");
+  const [kindFilter, setKindFilter] = useState<"all" | "digital" | "physical">("all");
+  const [rejectingId, setRejectingId] = useState<string | null>(null);
+  const [rejectReason, setRejectReason] = useState("");
+  const [rejectHint, setRejectHint] = useState("");
+  const [previewId, setPreviewId] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
   }, [listFn]);
   useEffect(() => { refresh(); }, [refresh]);
+
+  const filtered = (rows ?? []).filter((p) => {
+    if (statusFilter !== "all" && (p.status as string) !== statusFilter) return false;
+    if (kindFilter !== "all" && ((p.kind as string) ?? "digital") !== kindFilter) return false;
+    return true;
+  });
 
   const openCreate = () => setModal({ ...emptyForm });
   const openEdit = async (p: Row) => {
