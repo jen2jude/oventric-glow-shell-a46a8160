@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, MessageCircle, Menu, KeyRound, X } from "lucide-react";
+import { Search, Bell, MessageCircle, Menu, KeyRound, X, Shield } from "lucide-react";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -79,6 +79,13 @@ export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => vo
           className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
         >
           <Search className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
+          aria-label="Circles & Guilds"
+          className="md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+        >
+          <Shield className="w-5 h-5" />
         </button>
         <button
           onClick={() => setNotifOpen(true)}

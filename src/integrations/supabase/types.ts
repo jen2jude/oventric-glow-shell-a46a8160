@@ -209,6 +209,7 @@ export type Database = {
       circle_join_requests: {
         Row: {
           circle_id: string
+          coc_answers: Json | null
           created_at: string
           id: string
           requester_id: string
@@ -217,6 +218,7 @@ export type Database = {
         }
         Insert: {
           circle_id: string
+          coc_answers?: Json | null
           created_at?: string
           id?: string
           requester_id: string
@@ -225,6 +227,7 @@ export type Database = {
         }
         Update: {
           circle_id?: string
+          coc_answers?: Json | null
           created_at?: string
           id?: string
           requester_id?: string
@@ -244,18 +247,21 @@ export type Database = {
       circle_members: {
         Row: {
           circle_id: string
+          coc_accepted_at: string | null
           joined_at: string
           role: string
           user_id: string
         }
         Insert: {
           circle_id: string
+          coc_accepted_at?: string | null
           joined_at?: string
           role?: string
           user_id: string
         }
         Update: {
           circle_id?: string
+          coc_accepted_at?: string | null
           joined_at?: string
           role?: string
           user_id?: string
@@ -297,11 +303,57 @@ export type Database = {
         }
         Relationships: []
       }
+      circle_resources: {
+        Row: {
+          added_by: string
+          circle_id: string
+          created_at: string
+          id: string
+          kind: string
+          pinned: boolean
+          title: string
+          url: string
+        }
+        Insert: {
+          added_by: string
+          circle_id: string
+          created_at?: string
+          id?: string
+          kind?: string
+          pinned?: boolean
+          title: string
+          url: string
+        }
+        Update: {
+          added_by?: string
+          circle_id?: string
+          created_at?: string
+          id?: string
+          kind?: string
+          pinned?: boolean
+          title?: string
+          url?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "circle_resources_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circles: {
         Row: {
+          avatar_hue: string
           avatar_url: string | null
+          banner_hue: string
+          category: string
+          code_of_conduct: Json
           created_at: string
           description: string | null
+          emoji: string
           id: string
           is_private: boolean
           name: string
@@ -310,9 +362,14 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          avatar_hue?: string
           avatar_url?: string | null
+          banner_hue?: string
+          category?: string
+          code_of_conduct?: Json
           created_at?: string
           description?: string | null
+          emoji?: string
           id?: string
           is_private?: boolean
           name: string
@@ -321,9 +378,14 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          avatar_hue?: string
           avatar_url?: string | null
+          banner_hue?: string
+          category?: string
+          code_of_conduct?: Json
           created_at?: string
           description?: string | null
+          emoji?: string
           id?: string
           is_private?: boolean
           name?: string
@@ -1036,6 +1098,7 @@ export type Database = {
       posts: {
         Row: {
           author_id: string
+          circle_id: string | null
           created_at: string
           id: string
           media_path: string | null
@@ -1045,6 +1108,7 @@ export type Database = {
         }
         Insert: {
           author_id: string
+          circle_id?: string | null
           created_at?: string
           id?: string
           media_path?: string | null
@@ -1054,6 +1118,7 @@ export type Database = {
         }
         Update: {
           author_id?: string
+          circle_id?: string | null
           created_at?: string
           id?: string
           media_path?: string | null
@@ -1061,7 +1126,15 @@ export type Database = {
           text?: string
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "posts_circle_id_fkey"
+            columns: ["circle_id"]
+            isOneToOne: false
+            referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       products: {
         Row: {

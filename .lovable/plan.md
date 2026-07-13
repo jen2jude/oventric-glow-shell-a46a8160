@@ -1,83 +1,84 @@
-## 1. Fix mobile profile "scramble"
 
-The horizontal scanline/tear seen in the screenshots is the profile banner. The current header uses a fixed-height gradient banner with `bg-fixed` / heavy backdrop-blur behind translucent cards, which on mobile Chrome produces the striped artifact (a known GPU compositor issue with `background-attachment: fixed` + blur on scroll).
+This is a large feature. I'll ship it in one pass, but flagging trade-offs so you can steer.
 
-- In `src/routes/profile.$id.tsx` replace the banner background with a static gradient (no `bg-fixed`, no blur underlay on the banner itself).
-- Reduce `backdrop-blur-*` to `backdrop-blur-sm` on cards that overlap the banner, and swap the mobile hero to a solid dark surface with a thin gradient accent.
-- Add `overflow-x-hidden` on the profile page wrapper and re-verify no drawer bleeds in on swipe.
+## 1. Mobile access to Circles
 
-## 2. Data model: Circles become groups, add Follows
+- Add a **Circles** entry point on mobile in two places:
+  - **Mobile header**: shield icon next to the search/notification icons.
+  - **User profile page**: a "Circles" chip in the profile action row (both own profile and others').
+- On desktop the sidebar already exposes it — no change.
 
-New tables (all with GRANTs + RLS):
+## 2. Kill the mocks, real data everywhere
 
-```text
-circles                id, owner_id, name, slug, description, avatar_url, is_private, created_at
-circle_members         circle_id, user_id, role ('owner'|'admin'|'member'), joined_at
-circle_join_requests   id, circle_id, requester_id, status ('pending'|'accepted'|'declined'), created_at
-follows                follower_id, followee_id, created_at        (only exists once accepted)
-follow_requests        id, requester_id, target_id, status, created_at
-```
+Replace `MOCK_CIRCLES` / `mockCircles.ts` usage in `CirclesHub.tsx` with real server functions backed by the existing `circles`, `circle_members`, `circle_join_requests`, `posts` tables.
 
-The existing 1:1 `circle_requests` table stays untouched (legacy) but is no longer read by the UI. All new code targets the new tables. Notifications trigger extended: `follow_request`, `follow_accepted`, `circle_join_request`, `circle_join_accepted`.
+New / expanded server fns in `src/lib/circles.functions.ts`:
+- `listCircles({ category?, q?, sort? })` — public + circles the viewer belongs to, with member count, my membership status, category, avatar, banner hue.
+- `listTrendingCircles()` — top 8 circles ranked by a composite score:
+  - members × 1 + posts_last_14d × 2 + accepted_bounty_reward_usd_30d × 3
+  - Split into 3 rails on the hub: **Trending** (composite), **Most Active** (posts_last_14d), **Top Earners** (bounty $ solved by members).
+- `getCircle({ slug })` — full detail incl. my role + join status.
+- `listCirclePosts({ circleId })` / `createCirclePost` — watercooler feed backed by `posts` with a new `circle_id` column.
+- `listCircleMembers({ circleId })` — with each member's follow status vs me (for the "Follow" button per row).
+- `listCircleBounties({ circleId })` — bounties posted by any member of this circle, showing accept/apply state.
 
-RLS summary (plain English):
-- Anyone signed in can read circles marked non-private; private circles readable only by members.
-- Only the circle owner/admins can accept/decline join requests, edit the circle, or remove members.
-- Follow requests: only requester and target can read their own row. Follows row created only on accept (by target).
+## 3. Join gating + Code of Conduct
 
-## 3. Server functions
+Schema migration:
+- Add `circles.code_of_conduct jsonb` — up to 5 admin-authored questions + a kindness pledge string.
+- Add `circle_members.coc_accepted_at timestamptz`.
+- Add `circle_join_requests.coc_answers jsonb` (populated when the requester answers after approval).
 
-New file `src/lib/follows.functions.ts`:
-- `sendFollowRequest({ targetId })`
-- `acceptFollowRequest({ requesterId })` / `declineFollowRequest`
-- `unfollow({ targetId })`
-- `getFollowStatus({ targetId })` → `'none' | 'pending' | 'following' | 'follows_you' | 'mutual'`
-- `listFollowers({ userId })`, `listFollowing({ userId })`
-- `listSuggestedFollows({ limit })` – ranked by shared circles + reputation, for the feed strip.
+Flow:
+1. Non-member visits circle → sees a **"Request to Join"** CTA. Watercooler composer and reactions are disabled with a "Members only" hint.
+2. Admin sees the request in the existing Circle Requests inbox and clicks **Accept**.
+3. On accept, we don't add them to `circle_members` yet — status becomes `awaiting_coc`. A **notification** is fired with a link that opens the **Code of Conduct modal** (up to 5 questions + kindness statement + "I agree" checkbox).
+4. On submit + agree → server writes `coc_answers`, inserts into `circle_members`, sets `coc_accepted_at`. They're now in.
+5. Owner/admin can view answers in the Requests drawer.
 
-New file `src/lib/circles-groups.functions.ts`:
-- `createCircle`, `updateCircle`, `deleteCircle`
-- `listMyCircles`, `listCirclesForUser({ userId })` – used by the "Join a circle" picker
-- `requestJoinCircle({ circleId })`, `cancelJoinRequest`, `leaveCircle`
-- `listIncomingCircleJoinRequests` (for owner/admin)
-- `acceptJoinRequest`, `declineJoinRequest`
+Admins can edit the CoC questions from a new **"Circle Settings"** sheet (visible only to owner/admin).
 
-Old `src/lib/circles.functions.ts` kept only for the legacy inbox until UI is fully migrated, then removed.
+## 4. Watercooler upgrades
 
-## 4. UI wiring
+- Real post composer wired to `createCirclePost` (members only, hard-gated server-side by RLS + membership check).
+- Post author name/avatar is clickable → opens the user's profile.
+- On profile there's already the DM button, so private chat works out of the box.
+- Reactions & comments reuse the existing feed reaction/comment stack (`post_likes`, `post_comments`) filtered by `circle_id`.
 
-Profile page (`src/routes/profile.$id.tsx`) — viewing another user:
-- Primary CTA: **Follow** (green) — states: Follow / Requested / Following / Mutual.
-- Secondary CTA: **Join a Circle** (outlined) — opens a modal listing that user's circles; each row has its own request button. Only rows where target is owner/admin are actionable-to-that-admin, but any circle they belong to appears.
-- Tertiary: **Chat**, **Report** unchanged.
-- New tabs under the header: **Followers · Following · Circles** with counts and scrollable lists.
-- Own profile: none of the above; show "This is your profile" pill + "Edit profile".
+## 5. Members & Follow
 
-Feed (`src/components/oventric/Feed.tsx`):
-- Inject a horizontally-scrollable "People to follow" strip after every ~4 posts, populated by `listSuggestedFollows`, each card with an inline Follow button.
+- **Members tab** (new): grid of members with their reputation badge and a **Follow / Requested / Following** button using the existing `follows.functions.ts`.
 
-Header notification bell:
-- New buckets in `NotificationsDrawer`: **Follows** (requests + accepts), and existing **Circles** now shows group-join requests instead of 1:1 requests.
-- Circles inbox drawer (`CircleRequestsDrawer`) rewritten to list group-join requests grouped by circle, actionable only where you are owner/admin.
+## 6. Group Challenges / Bounty Vault
 
-Header: replace the existing "Circle Requests" button with a combined **Requests** menu (Follows + Circles) showing a red dot when any pending exists.
+- Bounty Vault tab lists real bounties whose author is any circle member (`bounties` joined via `circle_members`).
+- Non-authors see an **"Apply"** button that routes into the existing bounty apply flow — individual, not group. Clear helper text: *"Applications are individual. Discuss strategy in the Watercooler."*
 
-New route `src/routes/circles.tsx` (optional but recommended) — lightweight list of my circles + "Create circle" modal. Reached from sidebar and profile.
+## 7. Shared Resources
 
-## 5. Live realtime
+Keep the tab, but replace mock resources with a simple list from a new `circle_resources` table (title, url, added_by, created_at). Members can add, admins can pin/delete. If you'd rather I punt on this table for now and hide the tab until v2, say the word.
 
-Subscribe with Supabase realtime on `follow_requests`, `follows`, `circle_join_requests` so the bell + profile buttons update without refresh, same pattern already used for DMs.
+## 8. Technical
 
-## Technical details
+Schema migration in one call:
+- new columns on `circles`, `circle_members`, `circle_join_requests`, `posts (circle_id, indexed)`
+- `circle_resources` table + RLS + GRANTs
+- RLS updates:
+  - `posts`: insert allowed only if `circle_id IS NULL` (public feed) or `is_circle_member(auth.uid(), circle_id)` = true.
+  - `posts` SELECT for a circle post: only members of that circle (or public if circle is public).
+- Trigger to fire `circle_coc_pending` notification when a request is accepted.
 
-- Migrations grouped: (a) new tables + RLS + GRANTs, (b) notification triggers, (c) helper functions `is_circle_admin(_uid, _circle)` for RLS reuse.
-- All buttons are optimistic with rollback on error, matching existing `Join Circle` pattern.
-- Suggested-follows query: recent active users with reputation ≥ 4.0, excluding those you already follow / requested / are yourself; cached 60s server-side.
-- Feed strip and profile lists use `useQuery` with `staleTime: 30_000` — no polling, only invalidated by realtime events.
-- No changes to auth/billing/wallets; existing `circle_requests` rows are read-only kept for audit.
+Frontend edits:
+- Rewrite `CirclesHub.tsx` (drop `mockCircles.ts` usage, keep visual shell).
+- New `CircleCoCModal.tsx` and `CoCEditorSheet.tsx`.
+- New `CircleMembersTab.tsx`.
+- Update `MobileNav`/`Header` to expose the Circles entry point.
+- Update `profile.$id.tsx` with a "Circles" chip.
 
-## Out of scope
+## Open questions before I start
 
-- Circle chat / group threads (only join + membership this pass).
-- Circle admins beyond the owner (schema supports it; UI to promote comes later).
-- Blocking / muting.
+1. **Shared Resources tab** — build the real `circle_resources` table now, or hide the tab until v2?
+2. **Watercooler comments** — do you want threaded comments (like the main feed) inside circle posts, or flat comments for v1?
+3. **CoC editor** — should new circles auto-seed with 5 default questions I write ("What will you contribute?", "Have you read the pinned rules?", etc.), or start empty and let the owner author them?
+
+If you're good with the defaults (build resources now, threaded comments, auto-seed CoC), just say "go" and I'll ship it.
