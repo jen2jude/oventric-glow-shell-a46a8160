@@ -50,6 +50,7 @@ function BlogEditorPage() {
   const [uploading, setUploading] = useState(false);
   const [autosavedAt, setAutosavedAt] = useState<number | null>(null);
   const [bodyHtml, setBodyHtml] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
