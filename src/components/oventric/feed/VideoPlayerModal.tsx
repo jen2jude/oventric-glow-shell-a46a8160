@@ -61,6 +61,7 @@ async function shareVideo(post: FeedPost) {
 function VideoItem({
   post,
   active,
+  preload,
   pinned,
   onReact,
   onOpenComments,
@@ -70,6 +71,7 @@ function VideoItem({
   onHide,
 }: {
   post: FeedPost;
+  preload: boolean;
   active: boolean;
   pinned: boolean;
   onReact: (postId: string, reaction: ReactionType | null) => void;
