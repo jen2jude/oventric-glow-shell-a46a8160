@@ -920,24 +920,14 @@ export function Feed() {
                     <ReportedBadge details={reported.get(post.id)} />
                   ) : (
                     <div className="ml-auto flex items-center gap-1">
-                      {meId === post.author_id && (
-                        <button
-                          onClick={() => handleDeletePost(post.id)}
-                          className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                          aria-label="Delete post"
-                          title="Delete post"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => openReport(post.id)}
-                        className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                        aria-label="Report post"
-                        title="Report post"
-                      >
-                        <Flag className="w-4 h-4" />
-                      </button>
+                      <PostActionsMenu
+                        postId={post.id}
+                        shareTitle={`${post.author_name} on Oventric`}
+                        shareHref={shareHref}
+                        onReport={() => openReport(post.id)}
+                        isOwn={meId === post.author_id}
+                        onDelete={() => handleDeletePost(post.id)}
+                      />
                     </div>
                   )}
                 </header>
