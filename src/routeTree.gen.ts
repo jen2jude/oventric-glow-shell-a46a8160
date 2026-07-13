@@ -11,12 +11,14 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as PaymentReturnRouteImport } from './routes/payment.return'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
@@ -29,8 +31,10 @@ import { Route as AdminCommunicationsRouteImport } from './routes/admin.communic
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
+import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
+import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const AdminRoute = AdminRouteImport.update({
@@ -41,6 +45,11 @@ const AdminRoute = AdminRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/blog/',
+  path: '/blog/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminIndexRoute = AdminIndexRouteImport.update({
@@ -71,6 +80,11 @@ const OrderIdRoute = OrderIdRouteImport.update({
 const CheckoutIdRoute = CheckoutIdRouteImport.update({
   id: '/checkout/$id',
   path: '/checkout/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/blog/$slug',
+  path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
@@ -133,6 +147,11 @@ const AdminBountiesRoute = AdminBountiesRouteImport.update({
   path: '/bounties',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminBlogRoute = AdminBlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAuditRoute = AdminAuditRouteImport.update({
   id: '/audit',
   path: '/audit',
@@ -144,6 +163,11 @@ const ApiPublicPaystackWebhookRoute =
     path: '/api/public/paystack-webhook',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AdminBlogIdRoute = AdminBlogIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdminBlogRoute,
+} as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -154,6 +178,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -166,18 +191,22 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -190,12 +219,15 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin': typeof AdminIndexRoute
+  '/blog': typeof BlogIndexRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
@@ -204,6 +236,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRouteWithChildren
   '/admin/audit': typeof AdminAuditRoute
+  '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/categories': typeof AdminCategoriesRoute
@@ -216,12 +249,15 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/admin/': typeof AdminIndexRoute
+  '/blog/': typeof BlogIndexRoute
+  '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
 }
@@ -231,6 +267,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/audit'
+    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -243,18 +280,22 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin/'
+    | '/blog/'
+    | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/admin/audit'
+    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -267,12 +308,15 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin'
+    | '/blog'
+    | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   id:
@@ -280,6 +324,7 @@ export interface FileRouteTypes {
     | '/'
     | '/admin'
     | '/admin/audit'
+    | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
     | '/admin/categories'
@@ -292,12 +337,15 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
     | '/admin/'
+    | '/blog/'
+    | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/profile/$id/item/$kind/$itemId'
   fileRoutesById: FileRoutesById
@@ -305,11 +353,13 @@ export interface FileRouteTypes {
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRouteWithChildren
+  BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
   OrderIdRoute: typeof OrderIdRoute
   PaymentReturnRoute: typeof PaymentReturnRoute
   ProductIdRoute: typeof ProductIdRoute
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
+  BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
 }
 
@@ -327,6 +377,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/blog'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/': {
@@ -369,6 +426,13 @@ declare module '@tanstack/react-router' {
       path: '/checkout/$id'
       fullPath: '/checkout/$id'
       preLoaderRoute: typeof CheckoutIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/blog/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin/users': {
@@ -455,6 +519,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminBountiesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/blog': {
+      id: '/admin/blog'
+      path: '/blog'
+      fullPath: '/admin/blog'
+      preLoaderRoute: typeof AdminBlogRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/audit': {
       id: '/admin/audit'
       path: '/audit'
@@ -469,6 +540,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPaystackWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/admin/blog/$id': {
+      id: '/admin/blog/$id'
+      path: '/$id'
+      fullPath: '/admin/blog/$id'
+      preLoaderRoute: typeof AdminBlogIdRouteImport
+      parentRoute: typeof AdminBlogRoute
+    }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
       path: '/item/$kind/$itemId'
@@ -479,8 +557,21 @@ declare module '@tanstack/react-router' {
   }
 }
 
+interface AdminBlogRouteChildren {
+  AdminBlogIdRoute: typeof AdminBlogIdRoute
+}
+
+const AdminBlogRouteChildren: AdminBlogRouteChildren = {
+  AdminBlogIdRoute: AdminBlogIdRoute,
+}
+
+const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(
+  AdminBlogRouteChildren,
+)
+
 interface AdminRouteChildren {
   AdminAuditRoute: typeof AdminAuditRoute
+  AdminBlogRoute: typeof AdminBlogRouteWithChildren
   AdminBountiesRoute: typeof AdminBountiesRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
@@ -498,6 +589,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAuditRoute: AdminAuditRoute,
+  AdminBlogRoute: AdminBlogRouteWithChildren,
   AdminBountiesRoute: AdminBountiesRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
@@ -530,11 +622,13 @@ const ProfileIdRouteWithChildren = ProfileIdRoute._addFileChildren(
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRouteWithChildren,
+  BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
   OrderIdRoute: OrderIdRoute,
   PaymentReturnRoute: PaymentReturnRoute,
   ProductIdRoute: ProductIdRoute,
   ProfileIdRoute: ProfileIdRouteWithChildren,
+  BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
 }
 export const routeTree = rootRouteImport

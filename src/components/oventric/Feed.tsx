@@ -1,4 +1,4 @@
-import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play } from "lucide-react";
+import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -33,6 +33,8 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { VideoPlayerModal } from "@/components/oventric/feed/VideoPlayerModal";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric/PostActionsMenu";
+import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 
 interface Comment {
   id: string;
@@ -475,6 +477,16 @@ export function Feed() {
   const [lightbox, setLightbox] = useState<string | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
+  const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
+  const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
+  const listBlogFn = useServerFn(listBlogPosts);
+
+  useEffect(() => {
+    listBlogFn().then((r) => setBlogPosts(r.posts)).catch(() => {});
+    const onUpdate = () => setHiddenPosts(getHiddenPosts());
+    window.addEventListener("oventric:posts-updated", onUpdate);
+    return () => window.removeEventListener("oventric:posts-updated", onUpdate);
+  }, [listBlogFn]);
 
   const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, laugh: 0, crown: 0 });
 
@@ -835,11 +847,53 @@ export function Feed() {
           </div>
 
         ) : (
-          posts.map((post) => {
-            const comments = commentsByPost[post.id] ?? [];
-            const isReported = reported.has(post.id);
-            const profileSlug = post.author_slug ?? post.author_id;
-            return (
+          (() => {
+            const shareOrigin = typeof window !== "undefined" ? window.location.origin : "";
+            const visible = posts.filter((p) => !hiddenPosts.has(p.id));
+            const items: React.ReactNode[] = [];
+            let blogIdx = 0;
+            visible.forEach((post, i) => {
+              items.push(renderPost(post));
+              if ((i + 1) % 10 === 0 && blogPosts[blogIdx]) {
+                const b = blogPosts[blogIdx++];
+                items.push(
+                  <Link
+                    key={`blog-${b.id}`}
+                    to="/blog/$slug"
+                    params={{ slug: b.slug }}
+                    className="block bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition"
+                  >
+                    {b.cover_url && (
+                      <ResponsiveImage src={b.cover_url} alt={b.title} className="w-full aspect-[16/7] object-cover" />
+                    )}
+                    <div className="p-4">
+                      <div className="flex items-center gap-2 mb-1">
+                        <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
+                        <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                          Blog{b.category_name ? ` · ${b.category_name}` : ""}
+                        </span>
+                      </div>
+                      <h3 className="text-white text-lg font-black leading-tight">{b.title}</h3>
+                      <p className="mt-1.5 text-sm text-slate-400 line-clamp-3">{b.excerpt}</p>
+                      <div className="mt-3 flex items-center justify-between">
+                        <span className="text-[11px] text-slate-500">By {b.author_name}</span>
+                        <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
+                          Read article →
+                        </span>
+                      </div>
+                    </div>
+                  </Link>,
+                );
+              }
+            });
+            return items;
+
+            function renderPost(post: FeedPost) {
+              const comments = commentsByPost[post.id] ?? [];
+              const isReported = reported.has(post.id);
+              const profileSlug = post.author_slug ?? post.author_id;
+              const shareHref = `${shareOrigin}/#post-${post.id}`;
+              return (
               <article
                 key={post.id}
                 className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
@@ -866,24 +920,14 @@ export function Feed() {
                     <ReportedBadge details={reported.get(post.id)} />
                   ) : (
                     <div className="ml-auto flex items-center gap-1">
-                      {meId === post.author_id && (
-                        <button
-                          onClick={() => handleDeletePost(post.id)}
-                          className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                          aria-label="Delete post"
-                          title="Delete post"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      )}
-                      <button
-                        onClick={() => openReport(post.id)}
-                        className="p-1.5 rounded-md text-slate-500 hover:text-red-400 hover:bg-white/5 transition-colors"
-                        aria-label="Report post"
-                        title="Report post"
-                      >
-                        <Flag className="w-4 h-4" />
-                      </button>
+                      <PostActionsMenu
+                        postId={post.id}
+                        shareTitle={`${post.author_name} on Oventric`}
+                        shareHref={shareHref}
+                        onReport={() => openReport(post.id)}
+                        isOwn={meId === post.author_id}
+                        onDelete={() => handleDeletePost(post.id)}
+                      />
                     </div>
                   )}
                 </header>
@@ -997,7 +1041,10 @@ export function Feed() {
                   >
                     <MessageSquare className="w-4 h-4" /> {post.comments_count}
                   </button>
-                  <button className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto">
+                  <button
+                    onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto"
+                  >
                     <Share2 className="w-4 h-4" /> Share
                   </button>
                 </div>
@@ -1046,7 +1093,8 @@ export function Feed() {
                 </div>
               </article>
             );
-          })
+            }
+          })()
         )}
         {commentError && (
           <div className="text-[11px] text-red-400 -mt-2">{commentError}</div>

@@ -19,6 +19,7 @@ import {
   Wallet,
   GraduationCap,
   Banknote,
+  BookOpen,
 } from "lucide-react";
 
 
@@ -64,6 +65,7 @@ const NAV = [
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
   { to: "/admin/bounties", label: "Bounties", icon: Target },
   { to: "/admin/courses", label: "Academy", icon: GraduationCap },
+  { to: "/admin/blog", label: "Blog", icon: BookOpen },
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
   { to: "/admin/payouts", label: "Payouts", icon: Banknote },
 
