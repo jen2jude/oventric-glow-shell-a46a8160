@@ -74,6 +74,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
   const addImages = (files: FileList | null) => {
     setFormError("");
+    clearField("images");
     if (!files) return;
     const list = Array.from(files);
     const valid: File[] = [];
