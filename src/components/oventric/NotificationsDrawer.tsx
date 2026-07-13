@@ -368,68 +368,71 @@ export function NotificationsDrawer({
         </div>
       </aside>
 
-      {viewing && (
-        <div
-          className="fixed inset-0 z-[60] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
-          onClick={() => setViewing(null)}
-          role="dialog"
-          aria-modal="true"
-          aria-label={viewing.title}
-        >
+      {viewing &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            className="w-full max-w-md my-auto bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()}
+            className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
+            onClick={() => setViewing(null)}
+            role="dialog"
+            aria-modal="true"
+            aria-label={viewing.title}
           >
-            <div className="flex items-start gap-3 px-5 py-4 border-b border-white/5">
-              <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#121214] border border-white/10 shrink-0">
-                {iconForKind(viewing.kind)}
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-white font-bold text-sm">{viewing.title}</p>
-                <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-0.5">
-                  {viewing.kind.replace(/_/g, " ")} · {timeAgo(viewing.created_at)}
-                </p>
-              </div>
-              <button
-                onClick={() => setViewing(null)}
-                className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
-                aria-label="Close"
-              >
-                <X className="w-4 h-4" />
-              </button>
-            </div>
-            <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
-              {viewing.body ? (
-                <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
-                  {renderLinkified(viewing.body)}
-                </p>
-              ) : (
-                <p className="text-sm text-slate-500 italic">No additional content.</p>
-              )}
-            </div>
-
-            {viewing.link && (
-              <div className="px-5 py-3 border-t border-white/5 bg-[#121214]">
+            <div
+              className="w-full max-w-md my-auto bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="flex items-start gap-3 px-5 py-4 border-b border-white/5">
+                <div className="w-9 h-9 rounded-lg flex items-center justify-center bg-[#121214] border border-white/10 shrink-0">
+                  {iconForKind(viewing.kind)}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="text-white font-bold text-sm">{viewing.title}</p>
+                  <p className="text-[10px] uppercase tracking-wider text-slate-500 mt-0.5">
+                    {viewing.kind.replace(/_/g, " ")} · {timeAgo(viewing.created_at)}
+                  </p>
+                </div>
                 <button
-                  onClick={() => {
-                    const url = viewing.link!;
-                    setViewing(null);
-                    onClose();
-                    if (/^https?:\/\//i.test(url)) {
-                      window.open(url, "_blank", "noopener,noreferrer");
-                    } else {
-                      window.location.href = url;
-                    }
-                  }}
-                  className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold flex items-center justify-center gap-2"
+                  onClick={() => setViewing(null)}
+                  className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+                  aria-label="Close"
                 >
-                  Open link <ArrowRight className="w-4 h-4" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
-            )}
-          </div>
-        </div>
-      )}
+              <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
+                {viewing.body ? (
+                  <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+                    {renderLinkified(viewing.body)}
+                  </p>
+                ) : (
+                  <p className="text-sm text-slate-500 italic">No additional content.</p>
+                )}
+              </div>
+
+              {viewing.link && (
+                <div className="px-5 py-3 border-t border-white/5 bg-[#121214]">
+                  <button
+                    onClick={() => {
+                      const url = viewing.link!;
+                      setViewing(null);
+                      onClose();
+                      if (/^https?:\/\//i.test(url)) {
+                        window.open(url, "_blank", "noopener,noreferrer");
+                      } else {
+                        window.location.href = url;
+                      }
+                    }}
+                    className="w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold flex items-center justify-center gap-2"
+                  >
+                    Open link <ArrowRight className="w-4 h-4" />
+                  </button>
+                </div>
+              )}
+            </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 
