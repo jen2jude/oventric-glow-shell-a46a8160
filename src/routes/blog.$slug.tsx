@@ -45,6 +45,8 @@ function BlogArticle() {
   const [comments, setComments] = useState<Comment[]>([]);
   const [draft, setDraft] = useState("");
   const [posting, setPosting] = useState(false);
+  const [reportTarget, setReportTarget] = useState<{ id: string; author: string } | null>(null);
+  const [reportedIds, setReportedIds] = useState<Set<string>>(new Set());
 
   const refresh = useCallback(async () => {
     const r = await getFn({ data: { slug } });
