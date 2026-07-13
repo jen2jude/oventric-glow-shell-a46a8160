@@ -113,23 +113,60 @@ export function NotificationsDrawer({
   }, [open, refresh]);
 
   // Realtime subscription — always on while authenticated so unread badge stays live.
+  // Also raises a native browser push notification for new admin-originated items
+  // (announcements, system messages, alerts, admin DMs) when permission is granted.
   useEffect(() => {
     if (!isAuthenticated) return;
     let userId: string | null = null;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
     let cancelled = false;
 
-
+    const raisePush = (row: DbNotif) => {
+      if (typeof window === "undefined" || !("Notification" in window)) return;
+      if (Notification.permission !== "granted") return;
+      const pushKinds = ["announcement", "system", "alert", "direct_message"];
+      if (!pushKinds.includes(row.kind)) return;
+      try {
+        const n = new Notification(row.title, {
+          body: row.body ?? "",
+          icon: "/favicon.ico",
+          tag: row.id,
+        });
+        n.onclick = () => {
+          window.focus();
+          if (row.link) window.location.href = row.link;
+          n.close();
+        };
+      } catch {
+        /* ignore */
+      }
+    };
 
     (async () => {
       const { data } = await supabase.auth.getUser();
       userId = data.user?.id ?? null;
       if (!userId || cancelled) return;
+      // Ask for notification permission opportunistically (idempotent).
+      if ("Notification" in window && Notification.permission === "default") {
+        try {
+          void Notification.requestPermission();
+        } catch {
+          /* ignore */
+        }
+      }
       channelSub = supabase
         .channel(`notif-${userId}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          (payload) => {
+            raisePush(payload.new as DbNotif);
+            void refresh();
+          },
+        )
+        .on(
+          "postgres_changes",
+          { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           () => {
             void refresh();
           },
@@ -142,6 +179,7 @@ export function NotificationsDrawer({
       if (channelSub) supabase.removeChannel(channelSub);
     };
   }, [isAuthenticated, refresh]);
+
 
   const filtered = useMemo(
     () => (channel === "all" ? items : items.filter((n) => channelForKind(n.kind) === channel)),
