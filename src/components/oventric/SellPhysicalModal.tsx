@@ -333,9 +333,10 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Description</span>
-                <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={4}
+                <textarea data-field="description" value={description} onChange={(e) => { setDescription(e.target.value); clearField("description"); }} rows={4}
                   placeholder="Describe the product, specifications, what's included…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none" />
+                  className={fieldCls("description", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none")} />
+                <FieldError k="description" />
               </label>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
