@@ -74,6 +74,57 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function renderLinkified(text: string) {
+  // Detects http(s) URLs and internal paths starting with '/'.
+  const parts = text.split(/(\bhttps?:\/\/[^\s]+|(?:^|\s)\/[A-Za-z0-9/_\-?=&.#%]+)/g);
+  return parts.map((part, i) => {
+    if (!part) return null;
+    const trimmed = part.trim();
+    const isExternal = /^https?:\/\//i.test(trimmed);
+    const isInternal = trimmed.startsWith("/");
+    if (isExternal) {
+      return (
+        <a
+          key={i}
+          href={trimmed}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300 break-all"
+        >
+          {trimmed}
+        </a>
+      );
+    }
+    if (isInternal) {
+      const leading = part.startsWith(" ") ? " " : "";
+      return (
+        <span key={i}>
+          {leading}
+          <a
+            href={trimmed}
+            className="text-emerald-400 underline underline-offset-2 hover:text-emerald-300 break-all"
+          >
+            {trimmed}
+          </a>
+        </span>
+      );
+    }
+    return <span key={i}>{part}</span>;
+  });
+}
+
+  const d = new Date(iso).getTime();
+  const diff = Math.max(0, Date.now() - d);
+  const m = Math.floor(diff / 60000);
+  if (m < 1) return "just now";
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  const days = Math.floor(h / 24);
+  if (days < 7) return `${days}d`;
+  return new Date(iso).toLocaleDateString();
+}
+
 export function NotificationsDrawer({
   open,
   onClose,
