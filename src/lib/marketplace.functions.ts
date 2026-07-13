@@ -3,7 +3,9 @@ import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-export type ProductCategory = "themes" | "plugins" | "blocks" | "scripts";
+export type ProductCategory = string;
+export type ProductKind = "digital" | "physical";
+export type ProductStatus = "pending" | "active" | "rejected";
 export type OrderCurrency = "USD" | "NGN" | "GHS";
 export type PaymentMethod = "wallet" | "card" | "bank_transfer" | "mobile_money";
 export type OrderStatus = "pending" | "paid" | "failed" | "refunded";
@@ -13,6 +15,7 @@ export interface ProductDTO {
   sellerId: string;
   name: string;
   category: ProductCategory;
+  subcategory: string | null;
   description: string;
   priceUSD: number;
   originalCurrency: OrderCurrency;
@@ -28,6 +31,21 @@ export interface ProductDTO {
   coverPath: string | null;
   coverUrl: string | null;
   createdAt: string;
+  // Kind + moderation
+  kind: ProductKind;
+  status: ProductStatus;
+  rejectReason: string | null;
+  // Physical fields
+  condition: string | null;
+  brand: string | null;
+  location: string | null;
+  negotiable: string | null;
+  delivery: string | null;
+  sellerPhone: string | null;
+  whatsappNumber: string | null;
+  socialLink: string | null;
+  imagePaths: string[];
+  imageUrls: string[];
 }
 
 export interface OrderDTO {
