@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Bold, Italic, Underline as UnderlineIcon, Heading1, Heading2, Heading3, List, ListOrdered,
-  Link2, Image as ImageIcon, Quote, Code, Loader2, ArrowLeft, Save, X, Plus, Strikethrough, Undo, Redo,
+  Link2, Image as ImageIcon, Quote, Code, Loader2, ArrowLeft, Save, X, Plus, Strikethrough, Undo, Redo, Eye, Pencil,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -50,6 +50,7 @@ function BlogEditorPage() {
   const [uploading, setUploading] = useState(false);
   const [autosavedAt, setAutosavedAt] = useState<number | null>(null);
   const [bodyHtml, setBodyHtml] = useState<string>("");
+  const [showPreview, setShowPreview] = useState(false);
   const editorRef = useRef<HTMLDivElement | null>(null);
   const coverInputRef = useRef<HTMLInputElement | null>(null);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
@@ -327,6 +328,13 @@ function BlogEditorPage() {
         </div>
         <div className="flex items-center gap-2">
           <button
+            onClick={() => setShowPreview((v) => !v)}
+            className={`px-3 py-2 rounded-lg border text-sm inline-flex items-center gap-1 ${showPreview ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-200" : "bg-white/5 hover:bg-white/10 border-white/10 text-slate-200"}`}
+            title={showPreview ? "Back to editor" : "Live preview"}
+          >
+            {showPreview ? <><Pencil className="w-4 h-4" /> Edit</> : <><Eye className="w-4 h-4" /> Preview</>}
+          </button>
+          <button
             onClick={() => save("draft")}
             disabled={saving}
             className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm inline-flex items-center gap-1"
@@ -352,8 +360,47 @@ function BlogEditorPage() {
       </div>
 
       <div className="grid lg:grid-cols-3 gap-6">
-        {/* Main editor */}
+        {/* Main editor / Preview */}
         <div className="lg:col-span-2 space-y-4">
+          {showPreview ? (
+            <div className="bg-[#0b0b0d] border border-white/10 rounded-xl p-5 sm:p-8">
+              <div className="text-[10px] uppercase tracking-widest text-emerald-400/70 font-bold mb-3">Live preview · public reader</div>
+              {(() => {
+                const cat = categories.find((c) => c.id === categoryId);
+                return cat ? (
+                  <div className="text-xs uppercase tracking-wider text-emerald-400 font-bold mb-2">{cat.name}</div>
+                ) : null;
+              })()}
+              <h1 className="text-white text-3xl sm:text-4xl font-black leading-tight">{title || "Untitled post"}</h1>
+              <div className="mt-3 text-sm text-slate-500">
+                By You · {new Date().toLocaleDateString()}
+              </div>
+              {coverUrl && (
+                <img src={coverUrl} alt="" className="w-full mt-6 rounded-xl border border-white/10 aspect-video object-cover" />
+              )}
+              {bodyHtml.trim() ? (
+                <article
+                  className="blog-article mt-8 text-slate-200 leading-relaxed"
+                  dangerouslySetInnerHTML={{ __html: bodyHtml }}
+                />
+              ) : (
+                <p className="mt-8 text-slate-500 italic text-sm">Start writing to see your post appear here…</p>
+              )}
+              {tagIds.length > 0 && (
+                <div className="mt-8 flex flex-wrap gap-1">
+                  {tags.filter((t) => tagIds.includes(t.id)).map((t) => (
+                    <span key={t.id} className="text-[10px] px-2 py-1 rounded-full border border-white/10 text-slate-400">#{t.name}</span>
+                  ))}
+                </div>
+              )}
+              {excerpt && (
+                <div className="mt-6 text-xs text-slate-500 border-t border-white/5 pt-3">
+                  <span className="uppercase tracking-wider text-slate-600 font-bold">Excerpt · </span>{excerpt}
+                </div>
+              )}
+            </div>
+          ) : (
+          <>
           <input
             value={title}
             onChange={(e) => setTitle(e.target.value)}
@@ -436,6 +483,8 @@ function BlogEditorPage() {
             placeholder="Excerpt (optional — auto-derived if empty)"
             className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200"
           />
+          </>
+          )}
         </div>
 
         {/* Sidebar */}
