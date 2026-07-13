@@ -789,7 +789,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               <div className="flex items-end gap-2">
                 <textarea
                   value={draft}
-                  onChange={(e) => setDraft(e.target.value)}
+                  onChange={(e) => {
+                    const v = e.target.value;
+                    setDraft(v);
+                    if (v.trim().length > 0) emitTyping(true);
+                    else emitTyping(false);
+                  }}
+
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
