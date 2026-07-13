@@ -109,9 +109,11 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
           <ResponsiveImage
             src={ad.coverUrl as string}
             alt={ad.advertiser}
+            sizes="(min-width: 1024px) 320px, 50vw"
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
            decoding="async" />
+
           {ad.tier === "video" && (
             <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 drop-shadow" />
           )}
