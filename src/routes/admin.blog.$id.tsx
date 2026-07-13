@@ -196,9 +196,14 @@ function BlogEditorPage() {
   return (
     <div className="p-6 max-w-6xl mx-auto">
       <div className="mb-4 flex items-center justify-between">
-        <Link to="/admin/blog" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm">
-          <ArrowLeft className="w-4 h-4" /> Back
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link to="/admin/blog" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm">
+            <ArrowLeft className="w-4 h-4" /> Back
+          </Link>
+          <span className="text-xs uppercase tracking-wider text-slate-500 font-bold">
+            {isNew ? "New post" : "Edit post"}
+          </span>
+        </div>
         <div className="flex items-center gap-2">
           <button
             onClick={() => save("draft")}
