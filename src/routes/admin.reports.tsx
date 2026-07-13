@@ -223,8 +223,18 @@ function AdminReportsPage() {
                           </span>
                         </div>
                         <div className="mt-1 text-sm text-white font-semibold break-all">
-                          {r.target_id}
+                          {r.target_author ? `${r.target_author} · ` : ""}{r.target_id}
                         </div>
+                        {r.target_preview && (
+                          <div className="mt-2 rounded-lg border border-white/10 bg-black/40 p-2.5">
+                            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                              Reported {r.target_kind === "blog_comment" ? "comment" : "content"}
+                            </div>
+                            <p className={`mt-0.5 text-xs text-slate-200 leading-relaxed whitespace-pre-wrap ${isOpen ? "" : "line-clamp-3"}`}>
+                              {r.target_preview}
+                            </p>
+                          </div>
+                        )}
                         {r.note ? (
                           <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/10 bg-black/30 p-2.5">
                             <MessageSquareQuote className="w-3.5 h-3.5 text-amber-300 mt-0.5 shrink-0" />
@@ -288,7 +298,7 @@ function AdminReportsPage() {
                           disabled={busyId === r.id}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black text-xs font-bold"
                         >
-                          <Check className="w-3.5 h-3.5" /> Approve post
+                          <Check className="w-3.5 h-3.5" /> Approve
                         </button>
                       )}
                       {r.status !== "hidden" && (
@@ -297,7 +307,7 @@ function AdminReportsPage() {
                           disabled={busyId === r.id}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/50 hover:bg-red-500/25 disabled:opacity-40 text-red-200 text-xs font-bold"
                         >
-                          <EyeOff className="w-3.5 h-3.5" /> Hide post
+                          <EyeOff className="w-3.5 h-3.5" /> Hide
                         </button>
                       )}
                       {r.status !== "pending" && (
