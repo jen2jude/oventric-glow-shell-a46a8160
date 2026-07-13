@@ -176,6 +176,7 @@ export type Database = {
           created_at: string
           id: string
           initials: string
+          is_hidden: boolean
           post_id: string
           text: string
           updated_at: string
@@ -186,6 +187,7 @@ export type Database = {
           created_at?: string
           id?: string
           initials?: string
+          is_hidden?: boolean
           post_id: string
           text: string
           updated_at?: string
@@ -196,6 +198,7 @@ export type Database = {
           created_at?: string
           id?: string
           initials?: string
+          is_hidden?: boolean
           post_id?: string
           text?: string
           updated_at?: string
