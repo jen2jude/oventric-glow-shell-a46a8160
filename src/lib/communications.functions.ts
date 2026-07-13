@@ -133,17 +133,28 @@ export const broadcastAnnouncement = createServerFn({ method: "POST" })
       .maybeSingle();
     if (annErr) throw new Error(annErr.message);
     if (!ann) throw new Error("Announcement not found");
+    if (!ann.active) throw new Error("Activate the announcement before broadcasting");
 
+    // Only signed-in users have a profile row; both audience values target
+    // signed-in users for in-app delivery. Anonymous visitors see active
+    // public announcements on public surfaces (public policy) but do not
+    // receive an inbox entry.
     const { data: profiles, error: pErr } = await sb.from("profiles").select("user_id");
     if (pErr) throw new Error(pErr.message);
 
-    const rows = ((profiles ?? []) as Array<{ user_id: string }>).map((p) => ({
-      user_id: p.user_id,
-      kind: "announcement",
-      title: ann.title,
-      body: ann.body,
-      from_user_id: context.userId,
-    }));
+    // Only fan out to the inbox when the admin selected the in_app channel.
+    const wantsInApp = Array.isArray(ann.channels) && ann.channels.includes("in_app");
+
+    const rows = wantsInApp
+      ? ((profiles ?? []) as Array<{ user_id: string }>).map((p) => ({
+          user_id: p.user_id,
+          kind: "announcement",
+          title: ann.title,
+          body: ann.body,
+          from_user_id: context.userId,
+        }))
+      : [];
+
 
     let delivered = 0;
     if (rows.length) {
