@@ -1,7 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, Star, ShoppingCart, Flame, Sparkles, Loader2, Phone, MessageCircle, MapPin, X, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Star, ShoppingCart, Flame, Sparkles, Loader2, Phone, MessageCircle, MapPin, X, AlertTriangle, Copy } from "lucide-react";
+import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
