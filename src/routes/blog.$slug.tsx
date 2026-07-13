@@ -1,7 +1,7 @@
 import { createFileRoute, Link, useParams } from "@tanstack/react-router";
 import { useEffect, useState, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, ArrowLeft, Share2, MessageSquare, Send } from "lucide-react";
+import { Loader2, ArrowLeft, Share2, MessageSquare, Send, Flag } from "lucide-react";
 import {
   getBlogPost, listBlogComments, addBlogComment, setBlogReaction,
   type BlogDetail, type BlogReaction,
@@ -10,6 +10,7 @@ import { REACTION_META } from "@/components/oventric/feed/Reactions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { ReportModal } from "@/components/oventric/ReportModal";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/$slug")({
