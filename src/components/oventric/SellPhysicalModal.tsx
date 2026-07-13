@@ -56,7 +56,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     setBrand(""); setCondition("Brand New"); setDescription(""); setPriceInput("");
     setNegotiable("Yes"); setDelivery("No"); setPhone(""); setSocialLink("");
     previews.forEach((p) => URL.revokeObjectURL(p));
-    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress("");
+    setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setProgress(""); setProgressPct(0); setUploadStatus(null);
   };
 
   const fail = (message: string, description: string) => {
