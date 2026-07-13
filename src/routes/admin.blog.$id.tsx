@@ -192,7 +192,7 @@ function BlogEditorPage() {
     setUploading(true);
     try {
       const { url } = await uploadFileToBucket(f);
-      exec("insertHTML", `<p><img src="${url}" alt="" style="max-width:100%;border-radius:8px" /></p>`);
+      exec("insertHTML", `<p><img src="${url}" alt="" data-resizable="true" style="width:100%;max-width:100%;border-radius:8px;cursor:pointer" /></p>`);
     } catch (err) {
       alert((err as Error).message);
     } finally {
