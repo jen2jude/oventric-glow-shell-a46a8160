@@ -98,6 +98,7 @@ function SystemWalletsPage() {
             <option value="marketplace">Marketplace</option>
             <option value="bounty">Bounty</option>
             <option value="ads">Ads</option>
+            <option value="academy">Academy</option>
           </select>
         </div>
         <div className="divide-y divide-white/5">
