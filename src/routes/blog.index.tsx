@@ -4,6 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2 } from "lucide-react";
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { PublicChrome } from "@/components/oventric/PublicChrome";
 
 export const Route = createFileRoute("/blog/")({
   head: () => ({
