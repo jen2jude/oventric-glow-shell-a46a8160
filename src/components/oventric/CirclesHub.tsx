@@ -1,4 +1,6 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
   Plus,
@@ -9,56 +11,133 @@ import {
   Globe2,
   Target,
   X,
-  ShoppingCart,
-  Heart,
   MessageCircle,
   Sparkles,
   ShieldCheck,
-  Megaphone,
+  Trophy,
+  Link2,
+  Pin,
+  Trash2,
+  Check,
+  UserPlus,
+  Send,
 } from "lucide-react";
-import { MOCK_CIRCLES, CIRCLE_CATEGORIES, type Circle, type CircleCategory } from "@/lib/circles-hub/mockCircles";
-import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import {
+  getCircleCatalog,
+  getCircleBySlug,
+  createCircle,
+  requestJoinCircle,
+  cancelJoinRequest,
+  leaveCircle,
+  submitCircleCoc,
+  listCirclePosts,
+  createCirclePost,
+  listCircleMembers,
+  listCircleResources,
+  addCircleResource,
+  removeCircleResource,
+  listCircleBounties,
+  type CircleSummary,
+} from "@/lib/circles-groups.functions";
+import { FollowButton } from "@/components/oventric/FollowButton";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-function fmtPrice(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  const rounded = cur === "USD" ? val.toFixed(0) : Math.round(val).toLocaleString();
-  return `${CURRENCY_SYMBOL[cur]}${rounded}`;
+const CATEGORIES = [
+  "All",
+  "SaaS Builders",
+  "AI Engineering",
+  "Design Systems",
+  "Web3/Crypto",
+  "Mobile Apps",
+  "Infra & DevOps",
+  "Community",
+] as const;
+type CatFilter = (typeof CATEGORIES)[number];
+
+function timeAgo(iso: string) {
+  const diff = Date.now() - new Date(iso).getTime();
+  const s = Math.floor(diff / 1000);
+  if (s < 60) return "just now";
+  const m = Math.floor(s / 60);
+  if (m < 60) return `${m}m`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h}h`;
+  return `${Math.floor(h / 24)}d`;
 }
+
 function fmtPeers(n: number) {
   return n >= 1000 ? `${(n / 1000).toFixed(1)}k` : `${n}`;
 }
 
+/* ============================ Root ============================ */
+
 export function CirclesHub() {
-  const [circles, setCircles] = useState<Circle[]>(MOCK_CIRCLES);
-  const [activeCategory, setActiveCategory] = useState<"All Guilds" | CircleCategory>("All Guilds");
+  const { isAuthenticated, openGate } = useAuthGate();
+  const catalogFn = useServerFn(getCircleCatalog);
+  const catalogQ = useQuery({
+    queryKey: ["circle-catalog"],
+    queryFn: () => catalogFn(),
+    enabled: isAuthenticated,
+  });
+
+  const [activeCategory, setActiveCategory] = useState<CatFilter>("All");
   const [query, setQuery] = useState("");
-  const [openCircle, setOpenCircle] = useState<Circle | null>(null);
+  const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
 
+  // Open from deep-link ?circle=slug
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const u = new URL(window.location.href);
+    const c = u.searchParams.get("circle");
+    if (c) setOpenSlug(c);
+  }, []);
+
+  const catalog = catalogQ.data;
   const filtered = useMemo(() => {
-    return circles.filter((c) => {
-      const catOk = activeCategory === "All Guilds" || c.category === activeCategory;
+    const all = catalog?.all ?? [];
+    return all.filter((c) => {
+      const catOk = activeCategory === "All" || c.category === activeCategory;
       const q = query.trim().toLowerCase();
-      const qOk = !q || c.name.toLowerCase().includes(q) || c.bio.toLowerCase().includes(q);
+      const qOk =
+        !q ||
+        c.name.toLowerCase().includes(q) ||
+        (c.description ?? "").toLowerCase().includes(q);
       return catOk && qOk;
     });
-  }, [circles, activeCategory, query]);
+  }, [catalog, activeCategory, query]);
 
-  const trending = useMemo(() => circles.filter((c) => c.trending), [circles]);
+  if (openSlug) {
+    return <CircleWorkspace slug={openSlug} onBack={() => setOpenSlug(null)} />;
+  }
 
-  if (openCircle) {
-    return <CircleWorkspace circle={openCircle} onBack={() => setOpenCircle(null)} />;
+  if (!isAuthenticated) {
+    return (
+      <div className="max-w-3xl mx-auto px-4 py-12 text-center">
+        <div className="text-4xl mb-3">🛡️</div>
+        <h1 className="text-2xl font-black text-white">Circles & Guilds</h1>
+        <p className="text-slate-400 mt-2">Sign in to discover and join real builder guilds.</p>
+        <button
+          onClick={() => openGate("generic")}
+          className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 text-black font-bold text-sm"
+        >
+          Sign in to continue
+        </button>
+      </div>
+    );
   }
 
   return (
     <div className="max-w-7xl mx-auto w-full px-4 py-6">
       {/* Header row */}
-      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6 sm:flex sm:justify-between">
+      <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
         <div className="min-w-0">
-          <h1 className="text-2xl md:text-3xl font-black text-white truncate">🛡️ Circles & Guilds</h1>
-          <p className="text-sm text-slate-400 mt-1">Find your crew. Build together. Split the bag.</p>
+          <h1 className="text-2xl md:text-3xl font-black text-white truncate">
+            🛡️ Circles & Guilds
+          </h1>
+          <p className="text-sm text-slate-400 mt-1">
+            Find your crew. Build together. Split the bag.
+          </p>
         </div>
         <button
           onClick={() => setForgeOpen(true)}
@@ -70,21 +149,42 @@ export function CirclesHub() {
         </button>
       </div>
 
-      {/* Trending row */}
-      <section className="mb-8">
-        <div className="flex items-center gap-2 mb-3">
-          <Flame className="w-4 h-4 text-orange-400" />
-          <h2 className="text-lg font-black text-white">Trending Circles</h2>
-        </div>
-        <div className="flex gap-4 overflow-x-auto snap-x scrollbar-none pb-3 -mx-1 px-1">
-          {trending.map((c) => (
-            <TrendingCard key={c.id} circle={c} onOpen={() => setOpenCircle(c)} />
-          ))}
-        </div>
-      </section>
+      {/* My Circles */}
+      {catalog && catalog.mine.length > 0 && (
+        <Rail
+          title="Your Circles"
+          icon={<Users className="w-4 h-4 text-emerald-300" />}
+          items={catalog.mine}
+          onOpen={(c) => setOpenSlug(c.slug)}
+        />
+      )}
+
+      {/* Trending */}
+      <Rail
+        title="Trending Circles"
+        icon={<Flame className="w-4 h-4 text-orange-400" />}
+        items={catalog?.trending ?? []}
+        onOpen={(c) => setOpenSlug(c.slug)}
+      />
+
+      {/* Most Active */}
+      <Rail
+        title="Most Active"
+        icon={<MessageCircle className="w-4 h-4 text-sky-400" />}
+        items={catalog?.mostActive ?? []}
+        onOpen={(c) => setOpenSlug(c.slug)}
+      />
+
+      {/* Top Earners */}
+      <Rail
+        title="Top-Earning Guilds"
+        icon={<Trophy className="w-4 h-4 text-yellow-400" />}
+        items={catalog?.topEarners ?? []}
+        onOpen={(c) => setOpenSlug(c.slug)}
+      />
 
       {/* Search + Category Bar */}
-      <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-5">
+      <div className="flex flex-col sm:flex-row gap-3 sm:items-center mb-5 mt-8">
         <div className="relative sm:w-72 shrink-0">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
@@ -95,7 +195,7 @@ export function CirclesHub() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-none min-w-0">
-          {CIRCLE_CATEGORIES.map((cat) => {
+          {CATEGORIES.map((cat) => {
             const active = activeCategory === cat;
             return (
               <button
@@ -115,24 +215,26 @@ export function CirclesHub() {
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((c) => (
-          <CircleCard key={c.id} circle={c} onOpen={() => setOpenCircle(c)} />
-        ))}
-        {filtered.length === 0 && (
-          <div className="col-span-full bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
-            <p className="text-slate-400 text-sm">No circles match your filters yet. Try clearing the search or forging a new one.</p>
-          </div>
-        )}
-      </div>
+      {catalogQ.isLoading ? (
+        <div className="text-center text-slate-500 py-8 text-sm">Loading circles…</div>
+      ) : filtered.length === 0 ? (
+        <div className="text-center text-slate-500 py-12 text-sm">
+          No circles yet. Be the first to forge one for your niche.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {filtered.map((c) => (
+            <CircleCard key={c.id} circle={c} onOpen={() => setOpenSlug(c.slug)} />
+          ))}
+        </div>
+      )}
 
       {forgeOpen && (
         <ForgeCircleModal
           onClose={() => setForgeOpen(false)}
-          onCreate={(c) => {
-            setCircles((prev) => [c, ...prev]);
+          onCreated={(slug) => {
             setForgeOpen(false);
-            setOpenCircle(c);
+            setOpenSlug(slug);
           }}
         />
       )}
@@ -140,70 +242,96 @@ export function CirclesHub() {
   );
 }
 
-function TrendingCard({ circle, onOpen }: { circle: Circle; onOpen: () => void }) {
+/* ============================ Cards / Rails ============================ */
+
+function Rail({
+  title,
+  icon,
+  items,
+  onOpen,
+}: {
+  title: string;
+  icon: React.ReactNode;
+  items: CircleSummary[];
+  onOpen: (c: CircleSummary) => void;
+}) {
+  if (items.length === 0) return null;
   return (
-    <button
-      onClick={onOpen}
-      className="snap-start shrink-0 w-[280px] sm:w-[320px] rgb-pulse-glow rounded-2xl text-left"
-    >
-      <div className="bg-[#1E1E24] rounded-[14px] overflow-hidden">
-        <div className={`relative h-24 bg-gradient-to-br ${circle.bannerHue}`}>
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 55%)"
-          }} />
-          <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-widest bg-black/60 text-orange-300 border border-orange-400/50 rounded px-1.5 py-0.5">
-            <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Trending
-          </span>
-          <span className="absolute right-3 bottom-3 text-3xl drop-shadow">{circle.emoji}</span>
-        </div>
-        <div className="p-3">
-          <div className="flex items-center justify-between gap-2 mb-1">
-            <h3 className="text-white font-bold text-sm truncate">{circle.name}</h3>
-            {circle.private && <Lock className="w-3.5 h-3.5 text-slate-400 shrink-0" />}
-          </div>
-          <div className="text-[11px] text-emerald-300 mb-2 truncate">{circle.category}</div>
-          <div className="flex items-center gap-1.5 text-[11px] text-slate-400">
-            <Users className="w-3.5 h-3.5" />
-            <span className="font-semibold text-slate-200">👤 {fmtPeers(circle.peers)}</span>
-            <span>Peers Active</span>
-          </div>
-        </div>
+    <section className="mb-8">
+      <div className="flex items-center gap-2 mb-3">
+        {icon}
+        <h2 className="text-lg font-black text-white">{title}</h2>
       </div>
-    </button>
+      <div className="flex gap-4 overflow-x-auto snap-x scrollbar-none pb-3 -mx-1 px-1">
+        {items.map((c) => (
+          <button
+            key={c.id}
+            onClick={() => onOpen(c)}
+            className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
+          >
+            <div className={`h-16 bg-gradient-to-br ${c.bannerHue} relative`}>
+              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg">
+                {c.emoji}
+              </div>
+              {c.isPrivate && (
+                <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
+                  <Lock className="w-3 h-3" /> Private
+                </span>
+              )}
+            </div>
+            <div className="pt-6 pb-3 px-3">
+              <div className="text-white font-bold text-sm truncate">{c.name}</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+                {c.category}
+              </div>
+              <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
+                <Users className="w-3 h-3" /> {fmtPeers(c.memberCount)} members
+              </div>
+            </div>
+          </button>
+        ))}
+      </div>
+    </section>
   );
 }
 
-function CircleCard({ circle, onOpen }: { circle: Circle; onOpen: () => void }) {
+function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => void }) {
   return (
     <button
       onClick={onOpen}
-      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors"
+      className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
     >
-      <div className={`relative h-20 bg-gradient-to-br ${circle.bannerHue}`}>
-        <span className="absolute right-3 bottom-3 text-2xl drop-shadow">{circle.emoji}</span>
-        {circle.private ? (
-          <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-widest bg-black/60 text-slate-200 border border-white/20 rounded px-1.5 py-0.5 inline-flex items-center gap-1">
+      <div className={`h-20 bg-gradient-to-br ${circle.bannerHue} relative`}>
+        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl">
+          {circle.emoji}
+        </div>
+        {circle.isPrivate && (
+          <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
             <Lock className="w-3 h-3" /> Private
-          </span>
-        ) : (
-          <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-widest bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5 inline-flex items-center gap-1">
-            <Globe2 className="w-3 h-3" /> Public
           </span>
         )}
       </div>
-      <div className="p-3">
-        <div className="flex items-center justify-between gap-2 mb-1">
-          <h3 className="text-white font-bold text-sm truncate">{circle.name}</h3>
-          <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded px-1.5 py-0.5 shrink-0">
-            {circle.category}
-          </span>
+      <div className="pt-7 pb-4 px-4">
+        <div className="text-white font-bold text-base truncate">{circle.name}</div>
+        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+          {circle.category}
         </div>
-        <p className="text-xs text-slate-400 line-clamp-2 mb-3">{circle.bio}</p>
-        <div className="flex items-center justify-between text-[11px] text-slate-400">
-          <span className="inline-flex items-center gap-1">
-            <Users className="w-3.5 h-3.5" /> 👤 {fmtPeers(circle.peers)} Peers Active
-          </span>
-          <span className="text-emerald-300 font-semibold">Enter →</span>
+        <p className="text-xs text-slate-400 line-clamp-2 min-h-[32px]">
+          {circle.description || "A guild forged by builders."}
+        </p>
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
+          <div className="flex items-center gap-1 text-xs text-slate-400">
+            <Users className="w-3 h-3" /> {fmtPeers(circle.memberCount)}
+          </div>
+          <div className="text-[11px] font-semibold text-emerald-300">
+            {circle.myStatus === "member"
+              ? "Joined"
+              : circle.myStatus === "awaiting_coc"
+              ? "Accept CoC"
+              : circle.myStatus === "pending"
+              ? "Pending"
+              : "View"}
+          </div>
         </div>
       </div>
     </button>
@@ -212,331 +340,520 @@ function CircleCard({ circle, onOpen }: { circle: Circle; onOpen: () => void }) 
 
 /* ============================ Workspace ============================ */
 
-type WorkspaceTab = "watercooler" | "bounties" | "resources";
+type Tab = "watercooler" | "members" | "bounties" | "resources";
 
-function CircleWorkspace({ circle, onBack }: { circle: Circle; onBack: () => void }) {
-  const [tab, setTab] = useState<WorkspaceTab>("watercooler");
+function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void }) {
+  const qc = useQueryClient();
+  const getCircle = useServerFn(getCircleBySlug);
+  const circleQ = useQuery({ queryKey: ["circle", slug], queryFn: () => getCircle({ data: { slug } }) });
+  const circle = circleQ.data;
 
-  return (
-    <div className="max-w-7xl mx-auto w-full">
-      {/* Top back bar */}
-      <div className="sticky top-0 z-30 bg-[#121214]/90 backdrop-blur border-b border-white/5 px-4 py-3">
-        <button
-          onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Group Discovery
-        </button>
-      </div>
+  const [tab, setTab] = useState<Tab>("watercooler");
+  const [cocOpen, setCocOpen] = useState(false);
 
-      {/* Community Header */}
-      <div className="px-4 pt-4">
-        <div className={`relative h-40 sm:h-56 rounded-2xl overflow-hidden bg-gradient-to-br ${circle.bannerHue}`}>
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: "radial-gradient(circle at 20% 20%, rgba(255,255,255,0.4), transparent 55%)"
-          }} />
-          <span className="absolute right-6 bottom-6 text-6xl drop-shadow">{circle.emoji}</span>
-        </div>
+  useEffect(() => {
+    if (circle && circle.myStatus === "awaiting_coc") setCocOpen(true);
+  }, [circle]);
 
-        <div className="relative -mt-8 sm:-mt-10 px-2 sm:px-4">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] items-end gap-4 sm:flex sm:justify-between">
-            <div className="flex items-end gap-3 min-w-0">
-              <div className={`w-16 h-16 sm:w-20 sm:h-20 shrink-0 rounded-2xl bg-gradient-to-br ${circle.avatarHue} border-4 border-[#121214] grid place-items-center text-3xl sm:text-4xl`}>
-                {circle.emoji}
-              </div>
-              <div className="min-w-0 pb-1">
-                <h1 className="text-xl sm:text-3xl font-black text-white truncate">{circle.name}</h1>
-                <div className="flex items-center gap-2 mt-1 flex-wrap">
-                  <span className="text-[10px] font-semibold text-emerald-300 bg-emerald-500/10 border border-emerald-500/30 rounded px-1.5 py-0.5">
-                    {circle.category}
-                  </span>
-                  <span className="text-[11px] text-slate-400 inline-flex items-center gap-1">
-                    <Users className="w-3.5 h-3.5" /> {fmtPeers(circle.peers)} peers
-                  </span>
-                  {circle.private ? (
-                    <span className="text-[10px] text-slate-300 inline-flex items-center gap-1">
-                      <Lock className="w-3 h-3" /> Private Vault
-                    </span>
-                  ) : (
-                    <span className="text-[10px] text-slate-300 inline-flex items-center gap-1">
-                      <Globe2 className="w-3 h-3" /> Public Discovery
-                    </span>
-                  )}
-                </div>
-              </div>
-            </div>
-            <div className="pb-1 shrink-0">
-              <div className="rgb-neon-border-wrapper rounded-xl">
-                <div className="bg-[#1E1E24] rounded-[10px] px-3 sm:px-4 py-2 sm:py-2.5">
-                  <div className="text-[9px] sm:text-[10px] uppercase tracking-widest text-slate-400 font-semibold">Total Group Bounty Earnings</div>
-                  <div className="text-lg sm:text-2xl font-black text-emerald-300">
-                    ${circle.totalEarningsUSD.toLocaleString()}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          <p className="text-sm text-slate-400 mt-3 max-w-2xl">{circle.bio}</p>
-        </div>
-      </div>
+  const requestFn = useServerFn(requestJoinCircle);
+  const cancelFn = useServerFn(cancelJoinRequest);
+  const leaveFn = useServerFn(leaveCircle);
 
-      {/* Tab nav */}
-      <div className="px-4 mt-6">
-        <div className="flex gap-2 overflow-x-auto scrollbar-none border-b border-white/10">
-          {(
-            [
-              { key: "watercooler", label: "💬 Guild Watercooler" },
-              { key: "bounties", label: "🎯 Team Bounty Vault" },
-              { key: "resources", label: "🗂 Shared Resources" },
-            ] as const
-          ).map((t) => {
-            const active = tab === t.key;
-            return (
-              <button
-                key={t.key}
-                onClick={() => setTab(t.key)}
-                className={`shrink-0 px-4 py-2.5 -mb-px text-sm font-semibold border-b-2 transition-colors whitespace-nowrap ${
-                  active ? "border-emerald-400 text-white" : "border-transparent text-slate-400 hover:text-white"
-                }`}
-              >
-                {t.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
-
-      <div className="px-4 py-6">
-        {tab === "watercooler" && <WatercoolerTab circle={circle} />}
-        {tab === "bounties" && <BountyVaultTab circle={circle} />}
-        {tab === "resources" && <ResourcesTab circle={circle} />}
-      </div>
-    </div>
-  );
-}
-
-/* ------- Tab A: Watercooler ------- */
-function WatercoolerTab({ circle }: { circle: Circle }) {
-  const [draft, setDraft] = useState("");
-  const [posts, setPosts] = useState(circle.posts);
-
-  const submit = () => {
-    if (!draft.trim()) return;
-    setPosts((prev) => [
-      {
-        id: `local-${Date.now()}`,
-        author: "You",
-        initials: "YO",
-        hue: "from-emerald-500 to-teal-700",
-        time: "now",
-        text: draft.trim(),
-        likes: 0,
-        comments: 0,
-      },
-      ...prev,
-    ]);
-    setDraft("");
-  };
-
-  const items: Array<{ kind: "post"; post: (typeof posts)[number] } | { kind: "ad"; id: string }> = [];
-  posts.forEach((p, i) => {
-    items.push({ kind: "post", post: p });
-    if ((i + 1) % 4 === 0) items.push({ kind: "ad", id: `ad-${i}` });
+  const joinM = useMutation({
+    mutationFn: (id: string) => requestFn({ data: { circleId: id } }),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ["circle", slug] });
+      qc.invalidateQueries({ queryKey: ["circle-catalog"] });
+    },
+  });
+  const cancelM = useMutation({
+    mutationFn: (id: string) => cancelFn({ data: { circleId: id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["circle", slug] }),
+  });
+  const leaveM = useMutation({
+    mutationFn: (id: string) => leaveFn({ data: { circleId: id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["circle", slug] }),
   });
 
+  if (circleQ.isLoading) {
+    return <div className="p-8 text-center text-slate-500 text-sm">Loading circle…</div>;
+  }
+  if (!circle) {
+    return (
+      <div className="p-8 text-center">
+        <button onClick={onBack} className="text-emerald-400 text-sm">
+          ← Back
+        </button>
+        <p className="text-slate-400 mt-4">This circle no longer exists.</p>
+      </div>
+    );
+  }
+
+  const isMember = circle.myStatus === "member";
+
   return (
-    <div className="max-w-3xl mx-auto space-y-4">
-      {/* Composer */}
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
-        <textarea
-          value={draft}
-          onChange={(e) => setDraft(e.target.value)}
-          placeholder={`Share a breakthrough with ${circle.name} · ask for a code review · request advice…`}
-          className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 resize-none focus:outline-none min-h-[70px]"
-        />
-        <div className="flex items-center justify-between pt-2 border-t border-white/5">
-          <div className="text-[11px] text-slate-500">Members-only · {fmtPeers(circle.peers)} peers will see this</div>
-          <button
-            onClick={submit}
-            disabled={!draft.trim()}
-            className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-500 text-black font-semibold text-xs rounded-lg transition-colors"
-          >
-            Post to Guild
-          </button>
+    <div className="max-w-6xl mx-auto w-full">
+      {/* Banner */}
+      <div className={`h-40 md:h-48 bg-gradient-to-br ${circle.bannerHue} relative`}>
+        <button
+          onClick={onBack}
+          className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 text-white text-sm backdrop-blur-sm"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+        {circle.isPrivate && (
+          <span className="absolute top-4 right-4 inline-flex items-center gap-1 px-2 py-1 rounded-full bg-black/50 border border-white/20 text-xs font-bold text-white">
+            <Lock className="w-3 h-3" /> Private
+          </span>
+        )}
+      </div>
+
+      <div className="px-4 md:px-6 -mt-10 relative">
+        <div className="flex items-end gap-4">
+          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br ${circle.avatarHue} border-4 border-[#121214] flex items-center justify-center text-3xl md:text-4xl shrink-0`}>
+            {circle.emoji}
+          </div>
+          <div className="flex-1 min-w-0 pb-2">
+            <h1 className="text-xl md:text-2xl font-black text-white truncate">{circle.name}</h1>
+            <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap">
+              <span className="uppercase tracking-wider font-bold">{circle.category}</span>
+              <span className="inline-flex items-center gap-1">
+                <Users className="w-3 h-3" /> {fmtPeers(circle.memberCount)} members
+              </span>
+              {circle.isPrivate ? (
+                <span className="inline-flex items-center gap-1">
+                  <Lock className="w-3 h-3" /> Private
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1">
+                  <Globe2 className="w-3 h-3" /> Public
+                </span>
+              )}
+            </div>
+          </div>
+        </div>
+
+        <p className="text-sm text-slate-300 mt-4">{circle.description || "A guild for builders."}</p>
+
+        {/* Join / status / leave */}
+        <div className="mt-4 flex flex-wrap items-center gap-2">
+          {circle.myStatus === "none" && (
+            <button
+              onClick={() => joinM.mutate(circle.id)}
+              disabled={joinM.isPending}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+            >
+              <UserPlus className="w-4 h-4" /> Request to Join
+            </button>
+          )}
+          {circle.myStatus === "pending" && (
+            <>
+              <span className="px-3 py-2 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                Request pending admin approval
+              </span>
+              <button
+                onClick={() => cancelM.mutate(circle.id)}
+                className="px-3 py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs"
+              >
+                Cancel request
+              </button>
+            </>
+          )}
+          {circle.myStatus === "awaiting_coc" && (
+            <button
+              onClick={() => setCocOpen(true)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+            >
+              <ShieldCheck className="w-4 h-4" /> Accept Code of Conduct
+            </button>
+          )}
+          {isMember && circle.ownerId !== undefined && (
+            <>
+              <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-xs font-bold">
+                <Check className="w-3 h-3" /> Member
+              </span>
+              {circle.myRole !== "owner" && (
+                <button
+                  onClick={() => leaveM.mutate(circle.id)}
+                  className="px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs"
+                >
+                  Leave
+                </button>
+              )}
+            </>
+          )}
+        </div>
+
+        {/* Tabs */}
+        <div className="mt-6 border-b border-white/10 flex gap-4 overflow-x-auto">
+          {(
+            [
+              ["watercooler", "Water Cooler"],
+              ["members", "Members"],
+              ["bounties", "Bounty Vault"],
+              ["resources", "Resources"],
+            ] as [Tab, string][]
+          ).map(([id, label]) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={`shrink-0 pb-2 -mb-px text-sm font-bold border-b-2 ${
+                tab === id
+                  ? "border-emerald-500 text-white"
+                  : "border-transparent text-slate-400 hover:text-white"
+              }`}
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+
+        <div className="py-5">
+          {tab === "watercooler" && <WatercoolerTab circle={circle} isMember={isMember} />}
+          {tab === "members" && <MembersTab circle={circle} />}
+          {tab === "bounties" && <BountiesTab circle={circle} />}
+          {tab === "resources" && <ResourcesTab circle={circle} isMember={isMember} />}
         </div>
       </div>
 
-      {items.map((it, idx) =>
-        it.kind === "ad" ? (
-          <NativeAdRow key={`${it.id}-${idx}`} />
-        ) : (
-          <PostRow key={it.post.id} post={it.post} />
-        )
+      {cocOpen && (
+        <CoCAcceptModal
+          circle={circle}
+          onClose={() => setCocOpen(false)}
+          onDone={() => {
+            setCocOpen(false);
+            qc.invalidateQueries({ queryKey: ["circle", slug] });
+            qc.invalidateQueries({ queryKey: ["circle-catalog"] });
+          }}
+        />
       )}
     </div>
   );
 }
 
-function PostRow({ post }: { post: { id: string; author: string; initials: string; hue: string; time: string; text: string; likes: number; comments: number } }) {
+/* ---- Tab: Watercooler ---- */
+function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember: boolean }) {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listCirclePosts);
+  const createFn = useServerFn(createCirclePost);
+  const postsQ = useQuery({
+    queryKey: ["circle-posts", circle.id],
+    queryFn: () => listFn({ data: { circleId: circle.id } }),
+    enabled: isMember,
+  });
+  const [text, setText] = useState("");
+  const postM = useMutation({
+    mutationFn: () => createFn({ data: { circleId: circle.id, text } }),
+    onSuccess: () => {
+      setText("");
+      qc.invalidateQueries({ queryKey: ["circle-posts", circle.id] });
+    },
+  });
+
+  if (!isMember) {
+    return (
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center">
+        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2" />
+        <p className="text-sm text-slate-300 font-semibold">Members-only conversation</p>
+        <p className="text-xs text-slate-500 mt-1">
+          Request to join. Once an admin approves, accept the code of conduct to unlock posting.
+        </p>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3.5">
-      <div className="flex items-center gap-2.5 mb-2">
-        <div className={`w-9 h-9 shrink-0 rounded-full bg-gradient-to-br ${post.hue} grid place-items-center text-[11px] font-bold text-white`}>
-          {post.initials}
-        </div>
-        <div className="min-w-0">
-          <div className="text-sm font-semibold text-white truncate">{post.author}</div>
-          <div className="text-[11px] text-slate-500">{post.time}</div>
+    <div className="space-y-4">
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+        <textarea
+          value={text}
+          onChange={(e) => setText(e.target.value)}
+          maxLength={4000}
+          placeholder="Share with the circle…"
+          className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none min-h-[60px]"
+        />
+        <div className="flex justify-end pt-2 border-t border-white/5">
+          <button
+            onClick={() => postM.mutate()}
+            disabled={!text.trim() || postM.isPending}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-bold text-xs"
+          >
+            <Send className="w-3.5 h-3.5" /> Post
+          </button>
         </div>
       </div>
-      <p className="text-sm text-slate-200 leading-relaxed">{post.text}</p>
-      <div className="flex items-center gap-4 mt-3 text-[11px] text-slate-400">
-        <button className="inline-flex items-center gap-1 hover:text-rose-400 transition-colors">
-          <Heart className="w-3.5 h-3.5" /> {post.likes}
-        </button>
-        <button className="inline-flex items-center gap-1 hover:text-emerald-300 transition-colors">
-          <MessageCircle className="w-3.5 h-3.5" /> {post.comments}
-        </button>
-      </div>
+
+      {postsQ.isLoading ? (
+        <div className="text-center text-slate-500 text-sm py-6">Loading…</div>
+      ) : (postsQ.data ?? []).length === 0 ? (
+        <div className="text-center text-slate-500 text-sm py-8">
+          Be the first to say hi to the circle.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {postsQ.data!.map((p) => (
+            <div key={p.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+              <div className="flex items-center gap-2 mb-2">
+                {p.authorAvatar ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
+                    {p.authorName.slice(0, 1).toUpperCase()}
+                  </div>
+                )}
+                <button
+                  onClick={() =>
+                    (window.location.href = p.authorSlug
+                      ? `/profile/${p.authorSlug}`
+                      : `/profile/${p.authorId}`)
+                  }
+                  className="text-sm font-semibold text-white hover:text-emerald-300"
+                >
+                  {p.authorName}
+                </button>
+                <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
+              </div>
+              <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
-function NativeAdRow() {
+/* ---- Tab: Members ---- */
+function MembersTab({ circle }: { circle: CircleSummary }) {
+  const listFn = useServerFn(listCircleMembers);
+  const q = useQuery({
+    queryKey: ["circle-members", circle.id],
+    queryFn: () => listFn({ data: { circleId: circle.id } }),
+  });
+  if (q.isLoading) return <div className="text-center text-slate-500 text-sm py-6">Loading members…</div>;
+  const rows = q.data ?? [];
+  if (rows.length === 0) return <div className="text-center text-slate-500 text-sm py-6">No members yet.</div>;
   return (
-    <a
-      href="#"
-      onClick={(e) => e.preventDefault()}
-      className="block bg-[#1E1E24] border border-fuchsia-500/30 hover:border-fuchsia-400/60 rounded-xl p-3.5 transition-colors"
-    >
-      <div className="flex items-center gap-2 mb-1.5">
-        <span className="text-[9px] font-black uppercase tracking-widest bg-black/60 text-fuchsia-300 border border-fuchsia-400/50 rounded px-1.5 py-0.5">
-          <Megaphone className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Sponsored
-        </span>
-        <span className="text-[11px] text-slate-500">Promoted for this guild</span>
-      </div>
-      <div className="text-sm font-semibold text-white">Kessler Labs · Ship RLS-safe Postgres in an afternoon</div>
-      <div className="text-xs text-slate-400 mt-0.5">Battle-tested policies, has_role helpers, and audit trails. 30% off this week.</div>
-    </a>
-  );
-}
-
-/* ------- Tab B: Bounty Vault ------- */
-function BountyVaultTab({ circle }: { circle: Circle }) {
-  return (
-    <div className="max-w-4xl mx-auto space-y-3">
-      <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Sparkles className="w-4 h-4 text-emerald-300" />
-          <div className="text-sm font-bold text-white">Team-bid enabled</div>
-        </div>
-        <p className="text-xs text-slate-400">
-          Members can pool their profile star ratings and apply as a unified guild. Payouts split transparently across contributors on completion.
-        </p>
-      </div>
-
-      {circle.bounties.map((b) => (
-        <div key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-          <div className="grid grid-cols-[minmax(0,1fr)_auto] gap-3 items-start sm:flex sm:justify-between">
-            <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wide mb-2">
-                <Target className="w-3 h-3" />
-                ACTIVE BOUNTY · ${b.budgetUSD.toLocaleString()}
-              </div>
-              <h3 className="text-white font-bold text-sm sm:text-base leading-snug">{b.title}</h3>
-              <div className="flex items-center gap-4 mt-2 text-[11px] text-slate-400 flex-wrap">
-                <span>{b.applicants} guild applicants</span>
-                <span>Closes in {b.closesInDays}d</span>
-                <span className="inline-flex items-center gap-1">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400" /> Escrow-protected
-                </span>
-              </div>
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {rows.map((m) => (
+        <div key={m.userId} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3">
+          {m.avatar ? (
+            // eslint-disable-next-line @next/next/no-img-element
+            <img src={m.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0" />
+          ) : (
+            <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold shrink-0">
+              {m.name.slice(0, 1).toUpperCase()}
             </div>
-            <div className="flex flex-col gap-2 shrink-0">
-              <button className="px-3 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors whitespace-nowrap">
-                Apply as a Guild
-              </button>
-              <button className="px-3 py-1.5 bg-[#121214] border border-white/10 hover:border-white/20 text-slate-200 font-medium text-xs rounded-lg transition-colors whitespace-nowrap">
-                Solo apply
-              </button>
-            </div>
-          </div>
+          )}
+          <button
+            onClick={() =>
+              (window.location.href = m.slug ? `/profile/${m.slug}` : `/profile/${m.userId}`)
+            }
+            className="min-w-0 flex-1 text-left"
+          >
+            <div className="text-sm font-semibold text-white truncate">{m.name}</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500">{m.role}</div>
+          </button>
+          <FollowButton targetUserId={m.userId} size="sm" />
         </div>
       ))}
     </div>
   );
 }
 
-/* ------- Tab C: Resources ------- */
-function ResourcesTab({ circle }: { circle: Circle }) {
-  const { baseCurrency } = useOnboarding();
+/* ---- Tab: Bounties ---- */
+function BountiesTab({ circle }: { circle: CircleSummary }) {
+  const listFn = useServerFn(listCircleBounties);
+  const q = useQuery({
+    queryKey: ["circle-bounties", circle.id],
+    queryFn: () => listFn({ data: { circleId: circle.id } }),
+  });
   return (
-    <div>
-      <div className="flex items-center justify-between mb-4 gap-3">
-        <h3 className="text-sm font-bold text-white">Guild-uploaded resources</h3>
-        <div className="inline-flex items-center gap-2 bg-[#1E1E24] border border-white/10 rounded-lg px-2.5 py-1.5">
-          <span className="text-[10px] font-semibold uppercase tracking-widest text-slate-500">Priced in</span>
-          <span className="text-[11px] font-bold text-emerald-300">{CURRENCY_SYMBOL[baseCurrency]} {baseCurrency}</span>
+    <div className="max-w-4xl space-y-3">
+      <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Sparkles className="w-4 h-4 text-emerald-300" />
+          <div className="text-sm font-bold text-white">Bounties posted by circle members</div>
         </div>
+        <p className="text-xs text-slate-400">
+          Discuss and coordinate here; each member still applies individually via their profile.
+        </p>
       </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {circle.assets.map((a) => (
-          <div key={a.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex flex-col">
-            <div className={`relative h-24 rounded-lg bg-gradient-to-br ${a.hue} mb-3 overflow-hidden`}>
-              <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)" }} />
-              <span className="absolute top-2 left-2 text-[9px] font-black uppercase tracking-widest bg-black/60 text-slate-100 border border-white/20 rounded px-1.5 py-0.5">
-                {a.kind}
-              </span>
-            </div>
-            <div className="flex-1">
-              <h4 className="text-white text-sm font-semibold truncate">{a.name}</h4>
-              <div className="text-[11px] text-slate-500 truncate">by {a.vendor}</div>
-            </div>
-            <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
-              <div className="text-white font-black text-base">{fmtPrice(a.priceUSD, baseCurrency)}</div>
-              <button className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors">
-                <ShoppingCart className="w-3.5 h-3.5" /> Buy
-              </button>
+      {q.isLoading ? (
+        <div className="text-center text-slate-500 text-sm py-6">Loading bounties…</div>
+      ) : (q.data ?? []).length === 0 ? (
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center text-slate-500 text-sm">
+          No open bounties from members yet.
+        </div>
+      ) : (
+        q.data!.map((b) => (
+          <div key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+            <div className="flex items-start justify-between gap-3">
+              <div className="min-w-0">
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wide mb-2">
+                  <Target className="w-3 h-3" />
+                  {b.status.toUpperCase()} · ${b.priceUsd.toLocaleString()}
+                </div>
+                <h3 className="text-white font-bold text-sm leading-snug">{b.title}</h3>
+                <div className="text-xs text-slate-500 mt-1">
+                  by {b.posterName}
+                  {b.category ? ` · ${b.category}` : ""}
+                </div>
+              </div>
             </div>
           </div>
-        ))}
+        ))
+      )}
+    </div>
+  );
+}
+
+/* ---- Tab: Resources ---- */
+function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: boolean }) {
+  const qc = useQueryClient();
+  const listFn = useServerFn(listCircleResources);
+  const addFn = useServerFn(addCircleResource);
+  const rmFn = useServerFn(removeCircleResource);
+  const q = useQuery({
+    queryKey: ["circle-resources", circle.id],
+    queryFn: () => listFn({ data: { circleId: circle.id } }),
+    enabled: isMember,
+  });
+  const [title, setTitle] = useState("");
+  const [url, setUrl] = useState("");
+  const addM = useMutation({
+    mutationFn: () => addFn({ data: { circleId: circle.id, title, url } }),
+    onSuccess: () => {
+      setTitle("");
+      setUrl("");
+      qc.invalidateQueries({ queryKey: ["circle-resources", circle.id] });
+    },
+  });
+  const rmM = useMutation({
+    mutationFn: (id: string) => rmFn({ data: { id } }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["circle-resources", circle.id] }),
+  });
+
+  if (!isMember) {
+    return (
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center">
+        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2" />
+        <p className="text-sm text-slate-300 font-semibold">Members only.</p>
       </div>
+    );
+  }
+
+  return (
+    <div className="space-y-3">
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_auto] gap-2">
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="Title"
+          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+        />
+        <input
+          value={url}
+          onChange={(e) => setUrl(e.target.value)}
+          placeholder="https://…"
+          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+        />
+        <button
+          onClick={() => addM.mutate()}
+          disabled={!title.trim() || !url.trim() || addM.isPending}
+          className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-xs disabled:opacity-40"
+        >
+          Share
+        </button>
+      </div>
+
+      {q.isLoading ? (
+        <div className="text-center text-slate-500 text-sm py-6">Loading resources…</div>
+      ) : (q.data ?? []).length === 0 ? (
+        <div className="text-center text-slate-500 text-sm py-8">
+          No resources shared yet. Drop a link, template, or repo above.
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          {q.data!.map((r) => (
+            <div key={r.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-start gap-3">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                {r.pinned ? (
+                  <Pin className="w-4 h-4 text-emerald-300" />
+                ) : (
+                  <Link2 className="w-4 h-4 text-emerald-300" />
+                )}
+              </div>
+              <div className="min-w-0 flex-1">
+                <a
+                  href={r.url}
+                  target="_blank"
+                  rel="noreferrer noopener"
+                  className="text-sm font-semibold text-white hover:text-emerald-300 break-words"
+                >
+                  {r.title}
+                </a>
+                <div className="text-[10px] text-slate-500 truncate">{r.url}</div>
+              </div>
+              <button
+                onClick={() => rmM.mutate(r.id)}
+                className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5"
+                aria-label="Remove"
+              >
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+      )}
     </div>
   );
 }
 
 /* ============================ Forge Modal ============================ */
-function ForgeCircleModal({ onClose, onCreate }: { onClose: () => void; onCreate: (c: Circle) => void }) {
+function ForgeCircleModal({
+  onClose,
+  onCreated,
+}: {
+  onClose: () => void;
+  onCreated: (slug: string) => void;
+}) {
+  const createFn = useServerFn(createCircle);
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [category, setCategory] = useState<CircleCategory>("SaaS Builders");
+  const [category, setCategory] = useState("SaaS Builders");
+  const [emoji, setEmoji] = useState("🛡️");
   const [isPrivate, setIsPrivate] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const create = () => {
-    if (!name.trim()) return;
-    const id = `local-${Date.now()}`;
-    onCreate({
-      id,
-      name: name.trim(),
-      bio: bio.trim() || "A new guild forged by the sovereign creator.",
-      category,
-      peers: 1,
-      totalEarningsUSD: 0,
-      emoji: "🛡️",
-      bannerHue: "from-emerald-500 via-teal-600 to-cyan-700",
-      avatarHue: "from-emerald-500 to-teal-700",
-      private: isPrivate,
-      posts: [],
-      bounties: [
-        { id: "b1", title: `${category} · Seed bounty for founding members`, budgetUSD: 500, tag: category, applicants: 0, closesInDays: 14 },
-      ],
-      assets: [],
-    });
+  const submit = async () => {
+    if (!name.trim() || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      const c = await createFn({
+        data: {
+          name: name.trim(),
+          description: bio.trim() || undefined,
+          isPrivate,
+          category,
+          emoji,
+        },
+      });
+      onCreated(c.slug);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to forge circle");
+    } finally {
+      setBusy(false);
+    }
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" onClick={onClose}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden"
         onClick={(e) => e.stopPropagation()}
@@ -551,31 +868,41 @@ function ForgeCircleModal({ onClose, onCreate }: { onClose: () => void; onCreate
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-4">
-          <div>
-            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Circle Name</label>
-            <input
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              maxLength={60}
-              placeholder="e.g. Edge Runtime Council"
-              className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
-            />
+        <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+          <div className="grid grid-cols-[auto_1fr] gap-3 items-end">
+            <div>
+              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Icon</label>
+              <input
+                value={emoji}
+                onChange={(e) => setEmoji(e.target.value.slice(0, 4))}
+                className="mt-1 w-14 bg-[#121214] border border-white/10 rounded-lg px-2 py-2 text-center text-lg"
+              />
+            </div>
+            <div>
+              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Circle Name</label>
+              <input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                maxLength={60}
+                placeholder="e.g. Edge Runtime Council"
+                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+              />
+            </div>
           </div>
           <div>
             <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Scope / Bio</label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
-              maxLength={200}
+              maxLength={500}
               placeholder="What will this guild ship together?"
-              className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none min-h-[80px]"
+              className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[70px]"
             />
           </div>
           <div>
             <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Category</label>
             <div className="mt-1 flex flex-wrap gap-2">
-              {(CIRCLE_CATEGORIES.filter((c) => c !== "All Guilds") as CircleCategory[]).map((c) => {
+              {CATEGORIES.filter((c) => c !== "All").map((c) => {
                 const active = category === c;
                 return (
                   <button
@@ -599,41 +926,174 @@ function ForgeCircleModal({ onClose, onCreate }: { onClose: () => void; onCreate
               <button
                 onClick={() => setIsPrivate(false)}
                 className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-colors ${
-                  !isPrivate ? "border-emerald-500/50 bg-emerald-500/10" : "border-white/10 bg-[#121214] hover:border-white/20"
+                  !isPrivate
+                    ? "border-emerald-500/50 bg-emerald-500/10"
+                    : "border-white/10 bg-[#121214] hover:border-white/20"
                 }`}
               >
                 <Globe2 className="w-4 h-4 text-emerald-300 mt-0.5 shrink-0" />
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-white">Public Discovery</div>
-                  <div className="text-[10px] text-slate-400">Any builder can find & join.</div>
+                <div>
+                  <div className="text-xs font-bold text-white">Public</div>
+                  <div className="text-[10px] text-slate-400">Anyone can find & request.</div>
                 </div>
               </button>
               <button
                 onClick={() => setIsPrivate(true)}
                 className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-colors ${
-                  isPrivate ? "border-emerald-500/50 bg-emerald-500/10" : "border-white/10 bg-[#121214] hover:border-white/20"
+                  isPrivate
+                    ? "border-emerald-500/50 bg-emerald-500/10"
+                    : "border-white/10 bg-[#121214] hover:border-white/20"
                 }`}
               >
-                <Lock className="w-4 h-4 text-slate-200 mt-0.5 shrink-0" />
-                <div className="min-w-0">
-                  <div className="text-xs font-bold text-white">Invite-Only Vault</div>
-                  <div className="text-[10px] text-slate-400">Members join by invite only.</div>
+                <Lock className="w-4 h-4 text-emerald-300 mt-0.5 shrink-0" />
+                <div>
+                  <div className="text-xs font-bold text-white">Private</div>
+                  <div className="text-[10px] text-slate-400">Invite / approve only.</div>
                 </div>
               </button>
             </div>
           </div>
+
+          <div className="bg-[#121214] border border-white/10 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-300" />
+              <div className="text-xs font-bold text-white">Code of conduct auto-attached</div>
+            </div>
+            <p className="text-[11px] text-slate-500">
+              5 default questions and a kindness pledge will be shown to approved members before they join. Edit later in your circle settings.
+            </p>
+          </div>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">{error}</div>
+          )}
         </div>
 
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50">
-          <button onClick={onClose} className="px-3 py-1.5 text-sm text-slate-300 hover:text-white rounded-lg hover:bg-white/5">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5">
             Cancel
           </button>
           <button
-            onClick={create}
-            disabled={!name.trim()}
-            className="inline-flex items-center gap-1.5 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:text-slate-500 text-black font-bold text-sm rounded-lg transition-colors"
+            onClick={submit}
+            disabled={!name.trim() || busy}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
           >
-            <Plus className="w-4 h-4" /> Forge Circle
+            <Plus className="w-4 h-4" /> {busy ? "Forging…" : "Forge Circle"}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+/* ============================ Code-of-Conduct Modal ============================ */
+function CoCAcceptModal({
+  circle,
+  onClose,
+  onDone,
+}: {
+  circle: CircleSummary;
+  onClose: () => void;
+  onDone: () => void;
+}) {
+  const submitFn = useServerFn(submitCircleCoc);
+  const questions = circle.codeOfConduct.questions;
+  const [answers, setAnswers] = useState<Record<string, string>>({});
+  const [agreed, setAgreed] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const allAnswered = questions.every((q) => (answers[q.id] ?? "").trim().length > 0);
+
+  const submit = async () => {
+    if (!allAnswered || !agreed || busy) return;
+    setBusy(true);
+    setError(null);
+    try {
+      await submitFn({
+        data: {
+          circleId: circle.id,
+          agreedPledge: true,
+          answers: questions.map((q) => ({ id: q.id, text: (answers[q.id] ?? "").trim() })),
+        },
+      });
+      onDone();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Failed to submit");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden max-h-[90vh] flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+          <div>
+            <h2 className="text-white font-black text-lg">Accept the Code of Conduct</h2>
+            <p className="text-xs text-slate-400">One last step to join {circle.name}.</p>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="px-5 py-4 space-y-4 overflow-y-auto">
+          <div className="bg-emerald-500/10 border border-emerald-500/30 rounded-lg p-3">
+            <div className="flex items-center gap-2 mb-1">
+              <ShieldCheck className="w-4 h-4 text-emerald-300" />
+              <div className="text-xs font-bold text-white">Circle Pledge</div>
+            </div>
+            <p className="text-xs text-slate-200 whitespace-pre-wrap">{circle.codeOfConduct.pledge}</p>
+          </div>
+
+          {questions.map((q, idx) => (
+            <div key={q.id}>
+              <label className="text-xs font-semibold text-slate-300">
+                {idx + 1}. {q.text}
+              </label>
+              <textarea
+                value={answers[q.id] ?? ""}
+                onChange={(e) => setAnswers((prev) => ({ ...prev, [q.id]: e.target.value }))}
+                maxLength={1000}
+                className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
+              />
+            </div>
+          ))}
+
+          <label className="flex items-start gap-2 cursor-pointer">
+            <input
+              type="checkbox"
+              checked={agreed}
+              onChange={(e) => setAgreed(e.target.checked)}
+              className="mt-1 accent-emerald-500"
+            />
+            <span className="text-xs text-slate-300">
+              I agree to the pledge and to treat every member of {circle.name} with respect.
+            </span>
+          </label>
+
+          {error && (
+            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">{error}</div>
+          )}
+        </div>
+
+        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5">
+            Later
+          </button>
+          <button
+            onClick={submit}
+            disabled={!allAnswered || !agreed || busy}
+            className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm disabled:opacity-40"
+          >
+            <Check className="w-4 h-4" /> {busy ? "Joining…" : "Join Circle"}
           </button>
         </div>
       </div>
