@@ -216,7 +216,10 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
   const priceLine = product.originalAmount && product.originalCurrency
     ? `${product.originalCurrency} ${product.originalAmount}`
     : `$${product.priceUSD}`;
-  const message = `Hi! I saw your product "${product.name}" (${priceLine}${product.location ? ` — ${product.location}` : ""}) on Oventric. I would like to purchase it.`;
+  const productUrl = typeof window !== "undefined"
+    ? `${window.location.origin}/product/${product.id}`
+    : `https://oventric.com/product/${product.id}`;
+  const message = `Hi! I saw your product "${product.name}" (${priceLine}${product.location ? ` — ${product.location}` : ""}) on Oventric. I would like to purchase it.\n\n${productUrl}`;
   const waUrl = `https://wa.me/${wa}?text=${encodeURIComponent(message)}`;
   const canCall = phone.length >= 6;
   return (
