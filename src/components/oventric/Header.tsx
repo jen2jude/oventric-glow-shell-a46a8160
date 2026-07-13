@@ -12,12 +12,14 @@ import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoMark from "@/assets/oventric-mark.asset.json";
 import logoFull from "@/assets/oventric-full.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { supabase } from "@/integrations/supabase/client";
 
 export function Header({ onMenuClick, onOpenMessages }: { onMenuClick?: () => void; onOpenMessages?: () => void }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
+  const unreadMessages = useUnreadMessagesCount();
   const { isAuthenticated, openGate } = useAuthGate();
 
   useEffect(() => {
