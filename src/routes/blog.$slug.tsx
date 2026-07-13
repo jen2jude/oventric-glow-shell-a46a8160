@@ -165,7 +165,7 @@ function BlogArticle() {
             })}
             <span className="text-sm text-slate-400 ml-2">{post.reactions_count}</span>
           </div>
-          <button onClick={share} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
+          <button onClick={openShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
             <Share2 className="w-4 h-4" /> Share
           </button>
         </div>
