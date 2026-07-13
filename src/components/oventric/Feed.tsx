@@ -35,6 +35,7 @@ import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric/PostActionsMenu";
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
+import { ShareSheet } from "@/components/oventric/ShareSheet";
 
 interface Comment {
   id: string;
