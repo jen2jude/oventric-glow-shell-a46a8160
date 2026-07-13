@@ -33,6 +33,8 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { VideoPlayerModal } from "@/components/oventric/feed/VideoPlayerModal";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric/PostActionsMenu";
+import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 
 interface Comment {
   id: string;
