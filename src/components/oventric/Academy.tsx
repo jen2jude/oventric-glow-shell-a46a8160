@@ -198,7 +198,7 @@ function CourseCard({ course, currency, onOpen }: { course: CourseDTO; currency:
       <button onClick={onOpen} className="block w-full text-left">
         <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40 overflow-hidden">
           {course.coverUrl ? (
-            <ResponsiveImage src={course.coverUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover"  loading="lazy" decoding="async" />
+            <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={course.coverUrl} alt={course.title} className="absolute inset-0 w-full h-full object-cover"  loading="lazy" decoding="async" />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
               <GraduationCap className="w-16 h-16 text-white/30" />

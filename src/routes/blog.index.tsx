@@ -44,7 +44,7 @@ function BlogIndex() {
               >
                 <div className="aspect-video bg-black/50 overflow-hidden">
                   {p.cover_url ? (
-                    <ResponsiveImage src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
+                    <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
                   ) : null}
                 </div>
                 <div className="p-4">

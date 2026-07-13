@@ -510,7 +510,7 @@ function AdInjector() {
             {tier !== "text" && mediaUrl.trim() && (
               <div className="aspect-[16/9] rounded-lg bg-[#121214] border border-white/10 mb-3 overflow-hidden">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <ResponsiveImage src={mediaUrl.trim()} alt="Creative preview" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
+                <ResponsiveImage sizes="(min-width: 640px) 480px, 100vw" src={mediaUrl.trim()} alt="Creative preview" loading="lazy" decoding="async" className="w-full h-full object-cover" onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }} />
               </div>
             )}
             <div className="text-white font-black text-base mb-1">{advertiser.trim() || "Advertiser"}</div>

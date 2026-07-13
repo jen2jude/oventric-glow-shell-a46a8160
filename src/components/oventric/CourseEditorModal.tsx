@@ -334,7 +334,7 @@ export function CourseEditorModal({
 
               <Field label="Cover image (optional, up to 5MB)">
                 <div className="flex items-center gap-3">
-                  {coverUrl && <ResponsiveImage src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10"  loading="lazy" decoding="async" />}
+                  {coverUrl && <ResponsiveImage sizes="96px" src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10"  loading="lazy" decoding="async" />}
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
                     <Upload className="w-4 h-4" />
                     {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
