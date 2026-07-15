@@ -313,8 +313,8 @@ function AuthGateModal({
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
-    if (m.includes("token has expired") || m.includes("expired")) return "That code expired. Tap Resend to get a fresh one.";
-    if (m.includes("invalid") && m.includes("token")) return "That code isn't right. Double-check the 6 digits from your inbox.";
+    if (m.includes("token has expired") || m.includes("expired")) return "That login link expired. Tap Resend to get a fresh one.";
+    if (m.includes("invalid") && m.includes("token")) return "That login link isn't valid. Try the code from the email or tap Resend.";
     if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a moment before trying again.";
     if (m.includes("network") || m.includes("fetch")) return "Network hiccup. Check your connection and retry.";
     return msg;
