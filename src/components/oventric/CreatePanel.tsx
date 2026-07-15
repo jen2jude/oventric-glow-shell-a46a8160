@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellSwitcherModal } from "./SellSwitcherModal";
-import { CourseEditorModal } from "./CourseEditorModal";
+import { CoursePublishWizard } from "./CoursePublishWizard";
 import { BountyEditorModal } from "./BountyEditorModal";
 
 type ChoiceKey = "post" | "bounty" | "sell" | "course";
