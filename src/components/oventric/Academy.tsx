@@ -186,12 +186,20 @@ export function Academy() {
         ))}
       </div>
 
-      <CourseEditorModal
-        open={editorOpen}
-        courseId={editingId}
-        onClose={() => setEditorOpen(false)}
-        onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
-      />
+      {editingId ? (
+        <CourseEditorModal
+          open={editorOpen}
+          courseId={editingId}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
+        />
+      ) : (
+        <CoursePublishWizard
+          open={editorOpen}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
+        />
+      )}
     </div>
   );
 }
