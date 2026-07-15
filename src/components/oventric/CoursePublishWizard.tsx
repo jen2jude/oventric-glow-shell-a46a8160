@@ -783,7 +783,7 @@ function QuestionCard({
 function SettingsStep(props: {
   isFree: boolean; setIsFree: (v: boolean) => void;
   priceLocal: number; setPriceLocal: (v: number) => void;
-  baseCurrency: string;
+  baseCurrency: Currency;
   requireLinear: boolean; setRequireLinear: (v: boolean) => void;
   issueCertificate: boolean; setIssueCertificate: (v: boolean) => void;
   certificateTemplate: string; setCertificateTemplate: (v: string) => void;
@@ -851,7 +851,7 @@ function SettingsStep(props: {
 function ReviewStep(props: {
   title: string; subtitle: string;
   sections: Section[]; quizzes: Quiz[];
-  isFree: boolean; priceLocal: number; baseCurrency: string;
+  isFree: boolean; priceLocal: number; baseCurrency: Currency;
   requireLinear: boolean; issueCertificate: boolean; certificateTemplate: string;
   totalLessons: number;
 }) {
