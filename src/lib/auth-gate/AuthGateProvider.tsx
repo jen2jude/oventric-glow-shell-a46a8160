@@ -369,8 +369,8 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      // Include emailRedirectTo so the email contains a magic link users can
-      // click to auto-verify (the 6-digit code is still included as a fallback).
+      // Include emailRedirectTo so the email contains a one-time login link
+      // users can click to auto-verify (the 6-digit code is still included as a fallback).
       const { error } = await supabase.auth.signInWithOtp({
         email: parsedEmail.data,
         options: {
