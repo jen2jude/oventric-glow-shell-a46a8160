@@ -44,12 +44,13 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "digital" | "physical";
+type Tab = "digital" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
   const purchasesFn = useServerFn(listMyPurchases);
   const contactsFn = useServerFn(listMyContactedSellers);
+  const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
 
@@ -57,7 +58,10 @@ function DashboardPage() {
   const [tab, setTab] = useState<Tab>("digital");
   const [purchases, setPurchases] = useState<PurchaseDTO[] | null>(null);
   const [contacts, setContacts] = useState<ContactedSellerDTO[] | null>(null);
+  const [listings, setListings] = useState<ProductDTO[] | null>(null);
+  const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
 
   useEffect(() => {
     let alive = true;
