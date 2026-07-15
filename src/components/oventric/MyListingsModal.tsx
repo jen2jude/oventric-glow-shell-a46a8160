@@ -56,59 +56,61 @@ export function MyListingsModal({ open, onClose }: Props) {
 
   return (
     <>
-      <div className="fixed inset-0 z-[110] flex items-center justify-center" role="dialog" aria-modal="true">
+      <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-        <div className="slide-up relative w-full max-w-3xl max-h-[92vh] overflow-y-auto bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
-          <div className="flex items-center justify-between mb-5">
-            <div>
-              <h2 className="text-xl font-bold text-white flex items-center gap-2">
-                <Package className="w-5 h-5 text-emerald-400" />
-                My Listings
+        <div className="slide-up relative w-full max-w-3xl max-h-[85dvh] sm:max-h-[90dvh] overflow-hidden bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col">
+          <header className="shrink-0 flex items-center justify-between gap-3 p-4 sm:p-5 border-b border-white/5">
+            <div className="min-w-0">
+              <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
+                <Package className="w-5 h-5 text-emerald-400 shrink-0" />
+                <span className="truncate">My Listings</span>
               </h2>
               <p className="text-xs text-slate-400 mt-1">Track approval status and resubmit rejected listings.</p>
             </div>
-            <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
+            <button onClick={onClose} className="shrink-0 p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
               <X className="w-5 h-5" />
             </button>
+          </header>
+
+          <div className="flex-1 overflow-y-auto p-4 sm:p-5">
+            {loading && (
+              <div className="flex items-center gap-2 text-sm text-slate-400">
+                <Loader2 className="w-4 h-4 animate-spin" /> Loading your listings…
+              </div>
+            )}
+
+            {!loading && items && items.length === 0 && (
+              <div className="text-center py-10 text-sm text-slate-400">
+                You haven't created any listings yet. Use the <span className="text-white">+</span> button to sell your first product.
+              </div>
+            )}
+
+            {!loading && items && items.length > 0 && (
+              <div className="space-y-6">
+                {(["rejected", "pending", "active"] as const).map((key) => {
+                  const list = groups[key];
+                  if (list.length === 0) return null;
+                  const meta = STATUS_META[key];
+                  return (
+                    <section key={key}>
+                      <div className={`inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest border rounded-full px-2.5 py-1 mb-3 ${meta.cls}`}>
+                        <meta.icon className="w-3 h-3" /> {meta.label} · {list.length}
+                      </div>
+                      <div className="space-y-3">
+                        {list.map((p) => (
+                          <ListingRow
+                            key={p.id}
+                            product={p}
+                            onEdit={() => setEditing(p)}
+                          />
+                        ))}
+                      </div>
+                    </section>
+                  );
+                })}
+              </div>
+            )}
           </div>
-
-          {loading && (
-            <div className="flex items-center gap-2 text-sm text-slate-400">
-              <Loader2 className="w-4 h-4 animate-spin" /> Loading your listings…
-            </div>
-          )}
-
-          {!loading && items && items.length === 0 && (
-            <div className="text-center py-10 text-sm text-slate-400">
-              You haven't created any listings yet. Use the <span className="text-white">+</span> button to sell your first product.
-            </div>
-          )}
-
-          {!loading && items && items.length > 0 && (
-            <div className="space-y-6">
-              {(["rejected", "pending", "active"] as const).map((key) => {
-                const list = groups[key];
-                if (list.length === 0) return null;
-                const meta = STATUS_META[key];
-                return (
-                  <section key={key}>
-                    <div className={`inline-flex items-center gap-2 text-[11px] font-bold uppercase tracking-widest border rounded-full px-2.5 py-1 mb-3 ${meta.cls}`}>
-                      <meta.icon className="w-3 h-3" /> {meta.label} · {list.length}
-                    </div>
-                    <div className="space-y-3">
-                      {list.map((p) => (
-                        <ListingRow
-                          key={p.id}
-                          product={p}
-                          onEdit={() => setEditing(p)}
-                        />
-                      ))}
-                    </div>
-                  </section>
-                );
-              })}
-            </div>
-          )}
         </div>
       </div>
 
