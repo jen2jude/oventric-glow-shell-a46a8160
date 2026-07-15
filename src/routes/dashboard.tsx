@@ -237,17 +237,22 @@ function DashboardPage() {
 
         <header className="mb-6">
           <h1 className="text-white text-3xl font-black">My Dashboard</h1>
-          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — purchases, seller chats, and your own listings.</p>
+          <p className="text-slate-400 mt-1 text-sm">Your full Oventric hub — wallet, bounties, courses, marketplace and social.</p>
         </header>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={Download} label="Downloads" value={stats.digital} accent="text-emerald-300" />
-          <StatCard icon={Clock} label="Pending orders" value={stats.pending} accent="text-amber-300" />
-          <StatCard icon={MessageCircle} label="Sellers contacted" value={stats.contacts} accent="text-sky-300" />
-          <StatCard icon={Store} label="My listings" value={stats.listings} accent="text-fuchsia-300" />
-        </div>
-
-        <div className="inline-flex flex-wrap rounded-xl bg-[#141418] border border-white/10 p-1 mb-5 gap-1">
+        <div className="flex flex-wrap gap-1 rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
+          <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
+            <LayoutDashboard className="w-4 h-4" /> Overview
+          </TabButton>
+          <TabButton active={tab === "bounties"} onClick={() => setTab("bounties")}>
+            <Target className="w-4 h-4" /> Bounties
+          </TabButton>
+          <TabButton active={tab === "courses"} onClick={() => setTab("courses")}>
+            <GraduationCap className="w-4 h-4" /> Courses
+          </TabButton>
+          <TabButton active={tab === "wallet"} onClick={() => setTab("wallet")}>
+            <WalletIcon className="w-4 h-4" /> Wallet
+          </TabButton>
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-4 h-4" /> Digital Purchases
           </TabButton>
@@ -262,14 +267,17 @@ function DashboardPage() {
               </span>
             )}
           </TabButton>
+          <TabButton active={tab === "social"} onClick={() => setTab("social")}>
+            <Users className="w-4 h-4" /> Social
+          </TabButton>
         </div>
 
+        {tab === "overview" && <OverviewPane overview={overview} onGoto={setTab} />}
+        {tab === "bounties" && <BountiesPane data={bounties} />}
+        {tab === "courses" && <CoursesPane data={courses} />}
+        {tab === "wallet" && <WalletPane data={walletSummary} />}
         {tab === "digital" && (
-          <DigitalList
-            rows={purchases}
-            downloadingId={downloadingId}
-            onDownload={handleDownload}
-          />
+          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} />
         )}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
@@ -279,7 +287,9 @@ function DashboardPage() {
             onEdit={(p) => setEditing(p)}
           />
         )}
+        {tab === "social" && <SocialPane data={social} />}
       </div>
+
 
       {editing && (
         <EditListingModal
