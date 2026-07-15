@@ -384,7 +384,7 @@ function AuthGateModal({
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(`Code sent to ${parsedEmail.data}`);
+      setFlash(`Login link sent to ${parsedEmail.data}`);
     } catch (err) {
       setEmailError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
