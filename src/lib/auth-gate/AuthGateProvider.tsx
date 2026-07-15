@@ -39,7 +39,7 @@ export type AuthGateContextKey =
 const COPY: Record<AuthGateContextKey, { title: string; subtitle: string }> = {
   generic: {
     title: "Connect your account",
-    subtitle: "Sign in with a 6-digit email code to unlock this action.",
+    subtitle: "Sign in with a one-time login link sent to your email.",
   },
   buyer: {
     title: "Secure your access",
@@ -122,12 +122,12 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     const errCode = params.get("error_code") || params.get("error");
     const errDesc = params.get("error_description");
     if (!errCode && !errDesc) return;
-    let message = "Your sign-in link is invalid or has expired. Send a new code to continue.";
+    let message = "Your sign-in link is invalid or has expired. Send a new link to continue.";
     const code = (errCode || "").toLowerCase();
     if (code.includes("otp_expired") || code.includes("expired")) {
-      message = "This sign-in link has expired. Send a new code to continue.";
+      message = "This sign-in link has expired. Send a new link to continue.";
     } else if (code.includes("access_denied") || code.includes("used")) {
-      message = "This sign-in link has already been used or was denied. Send a new code to continue.";
+      message = "This sign-in link has already been used or was denied. Send a new link to continue.";
     } else if (errDesc) {
       message = decodeURIComponent(errDesc.replace(/\+/g, " "));
     }
@@ -313,8 +313,8 @@ function AuthGateModal({
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
-    if (m.includes("token has expired") || m.includes("expired")) return "That code expired. Tap Resend to get a fresh one.";
-    if (m.includes("invalid") && m.includes("token")) return "That code isn't right. Double-check the 6 digits from your inbox.";
+    if (m.includes("token has expired") || m.includes("expired")) return "That login link expired. Tap Resend to get a fresh one.";
+    if (m.includes("invalid") && m.includes("token")) return "That login link isn't valid. Try the code from the email or tap Resend.";
     if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a moment before trying again.";
     if (m.includes("network") || m.includes("fetch")) return "Network hiccup. Check your connection and retry.";
     return msg;
@@ -369,8 +369,8 @@ function AuthGateModal({
     }
     setSending(true);
     try {
-      // Include emailRedirectTo so the email contains a magic link users can
-      // click to auto-verify (the 6-digit code is still included as a fallback).
+      // Include emailRedirectTo so the email contains a one-time login link
+      // users can click to auto-verify (the 6-digit code is still included as a fallback).
       const { error } = await supabase.auth.signInWithOtp({
         email: parsedEmail.data,
         options: {
@@ -384,7 +384,7 @@ function AuthGateModal({
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(`Code sent to ${parsedEmail.data}`);
+      setFlash(`Login link sent to ${parsedEmail.data}`);
     } catch (err) {
       setEmailError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
@@ -413,7 +413,9 @@ function AuthGateModal({
           return;
         }
       }
-      const res = await sendLoginOtpByIdentifier({ data: { identifier: raw } });
+      const res = await sendLoginOtpByIdentifier({
+        data: { identifier: raw, redirectTo: window.location.origin },
+      });
       if (!res.sent) {
         throw new Error("No account found. Try signing up as a new user.");
       }
@@ -422,7 +424,7 @@ function AuthGateModal({
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(res.maskedEmail ? `Code sent to ${res.maskedEmail}` : "Code sent");
+      setFlash(res.maskedEmail ? `Login link sent to ${res.maskedEmail}` : "Login link sent");
     } catch (err) {
       setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
@@ -611,10 +613,10 @@ function AuthGateModal({
               </h1>
               <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
                 {stage === "otp"
-                  ? `Enter the 6-digit code sent to ${email || "your inbox"}.`
+                  ? `Click the one-time login link sent to ${email || "your email"}.`
                   : mode === "new"
                     ? copy.subtitle
-                    : "Sign in with your email or username — we'll send a 6-digit code."}
+                    : "Sign in with your email or username — we'll send a one-time login link."}
               </p>
             </header>
 
@@ -750,7 +752,7 @@ function AuthGateModal({
                       {sending && mode === "new" ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
                       ) : (
-                        <>Send Verification Code <ArrowRight className="w-4 h-4" /></>
+                        <>Send login link <ArrowRight className="w-4 h-4" /></>
                       )}
                     </button>
 
@@ -874,7 +876,7 @@ function AuthGateModal({
                       ) : returningMethod === "password" ? (
                         <>Sign in <ArrowRight className="w-4 h-4" /></>
                       ) : (
-                        <>Send Login Code <ArrowRight className="w-4 h-4" /></>
+                        <>Send login link <ArrowRight className="w-4 h-4" /></>
                       )}
                     </button>
 
@@ -893,6 +895,9 @@ function AuthGateModal({
               </div>
             ) : (
               <div className="space-y-4">
+                <p className="text-[11px] text-slate-500 text-center">
+                  Didn&apos;t receive the link? You can enter the 6-digit code from the email instead.
+                </p>
                 <div className="flex justify-between gap-2" role="group" aria-label="6-digit verification code">
                   {otpDigits.map((d, i) => (
                     <input
@@ -927,7 +932,7 @@ function AuthGateModal({
                     className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-[12px] text-emerald-300 inline-flex items-center gap-2 w-full"
                   >
                     <ShieldCheck className="w-4 h-4 shrink-0" />
-                    <span className="font-semibold">Code verified. Signing you in…</span>
+                    <span className="font-semibold">Email verified. Signing you in…</span>
                   </div>
                 ) : otpError ? (
                   <p role="alert" className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
@@ -950,7 +955,7 @@ function AuthGateModal({
                   ) : verified ? (
                     <><ShieldCheck className="w-4 h-4 text-emerald-300" /> Verified</>
                   ) : (
-                    <>Submit Code <ArrowRight className="w-4 h-4" /></>
+                    <>Verify code <ArrowRight className="w-4 h-4" /></>
                   )}
                 </button>
 
@@ -970,7 +975,7 @@ function AuthGateModal({
                     className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${sending ? "animate-spin" : ""}`} />
-                    {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend Code"}
+                    {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend link"}
                   </button>
                 </div>
               </div>

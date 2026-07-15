@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const Input = z.object({
   identifier: z.string().trim().min(2).max(254),
+  redirectTo: z.string().trim().url().optional(),
 });
 
 const PasswordInput = z.object({
@@ -60,7 +61,12 @@ export const sendLoginOtpByIdentifier = createServerFn({ method: "POST" })
     });
     const { error } = await sb.auth.signInWithOtp({
       email,
-      options: { shouldCreateUser: false },
+      options: {
+        shouldCreateUser: false,
+        // Include a redirect URL so the email contains a one-time login link
+        // in addition to the 6-digit code fallback.
+        emailRedirectTo: data.redirectTo,
+      },
     });
     if (error) {
       // Swallow provider details; log server-side for operators.
