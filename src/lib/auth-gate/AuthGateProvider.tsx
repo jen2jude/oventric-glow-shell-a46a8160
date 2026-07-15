@@ -413,7 +413,9 @@ function AuthGateModal({
           return;
         }
       }
-      const res = await sendLoginOtpByIdentifier({ data: { identifier: raw } });
+      const res = await sendLoginOtpByIdentifier({
+        data: { identifier: raw, redirectTo: window.location.origin },
+      });
       if (!res.sent) {
         throw new Error("No account found. Try signing up as a new user.");
       }
