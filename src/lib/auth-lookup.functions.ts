@@ -3,6 +3,7 @@ import { z } from "zod";
 
 const Input = z.object({
   identifier: z.string().trim().min(2).max(254),
+  redirectTo: z.string().trim().url().optional(),
 });
 
 const PasswordInput = z.object({
