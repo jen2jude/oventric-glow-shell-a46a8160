@@ -611,10 +611,10 @@ function AuthGateModal({
               </h1>
               <p className="text-[12px] text-slate-400 mt-1.5 leading-relaxed">
                 {stage === "otp"
-                  ? `Enter the 6-digit code sent to ${email || "your inbox"}.`
+                  ? `Click the one-time login link sent to ${email || "your email"}.`
                   : mode === "new"
                     ? copy.subtitle
-                    : "Sign in with your email or username — we'll send a 6-digit code."}
+                    : "Sign in with your email or username — we'll send a one-time login link."}
               </p>
             </header>
 
