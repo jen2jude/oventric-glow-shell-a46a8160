@@ -930,7 +930,7 @@ function AuthGateModal({
                     className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 px-3 py-2.5 text-[12px] text-emerald-300 inline-flex items-center gap-2 w-full"
                   >
                     <ShieldCheck className="w-4 h-4 shrink-0" />
-                    <span className="font-semibold">Code verified. Signing you in…</span>
+                    <span className="font-semibold">Email verified. Signing you in…</span>
                   </div>
                 ) : otpError ? (
                   <p role="alert" className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
