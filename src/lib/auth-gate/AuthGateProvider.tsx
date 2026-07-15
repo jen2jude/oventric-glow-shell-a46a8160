@@ -750,7 +750,7 @@ function AuthGateModal({
                       {sending && mode === "new" ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
                       ) : (
-                        <>Send Verification Code <ArrowRight className="w-4 h-4" /></>
+                        <>Send login link <ArrowRight className="w-4 h-4" /></>
                       )}
                     </button>
 
