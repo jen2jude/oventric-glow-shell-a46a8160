@@ -55,7 +55,9 @@ export function MyListingsModal({ open, onClose }: Props) {
     active: (items ?? []).filter((p) => p.status === "active"),
   };
 
-  return (
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
     <>
       <div className="fixed inset-0 z-[110] flex items-center justify-center p-3 sm:p-4" role="dialog" aria-modal="true">
         <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
@@ -124,7 +126,8 @@ export function MyListingsModal({ open, onClose }: Props) {
           }}
         />
       )}
-    </>
+    </>,
+    document.body,
   );
 }
 
