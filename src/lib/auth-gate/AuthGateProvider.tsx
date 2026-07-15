@@ -874,7 +874,7 @@ function AuthGateModal({
                       ) : returningMethod === "password" ? (
                         <>Sign in <ArrowRight className="w-4 h-4" /></>
                       ) : (
-                        <>Send Login Code <ArrowRight className="w-4 h-4" /></>
+                        <>Send login link <ArrowRight className="w-4 h-4" /></>
                       )}
                     </button>
 
