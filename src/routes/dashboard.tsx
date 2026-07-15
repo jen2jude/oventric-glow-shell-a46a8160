@@ -86,11 +86,17 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setContacts([]); }
   }, [contactsFn]);
 
+  const loadListings = useCallback(async () => {
+    try { setListings(await listingsFn()); }
+    catch (e) { toast.error((e as Error).message); setListings([]); }
+  }, [listingsFn]);
+
   useEffect(() => {
     if (!authChecked) return;
     if (tab === "digital" && purchases === null) void loadPurchases();
     if (tab === "physical" && contacts === null) void loadContacts();
-  }, [authChecked, tab, purchases, contacts, loadPurchases, loadContacts]);
+    if (tab === "listings" && listings === null) void loadListings();
+  }, [authChecked, tab, purchases, contacts, listings, loadPurchases, loadContacts, loadListings]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
@@ -103,9 +109,13 @@ function DashboardPage() {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => {
         void loadPurchases();
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products" }, () => {
+        void loadListings();
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [authChecked, loadContacts, loadPurchases]);
+  }, [authChecked, loadContacts, loadPurchases, loadListings]);
+
 
   const handleDownload = async (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => {
     setDownloadingId(orderId);
