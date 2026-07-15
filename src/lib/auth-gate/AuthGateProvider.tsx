@@ -953,7 +953,7 @@ function AuthGateModal({
                   ) : verified ? (
                     <><ShieldCheck className="w-4 h-4 text-emerald-300" /> Verified</>
                   ) : (
-                    <>Submit Code <ArrowRight className="w-4 h-4" /></>
+                    <>Verify code <ArrowRight className="w-4 h-4" /></>
                   )}
                 </button>
 
