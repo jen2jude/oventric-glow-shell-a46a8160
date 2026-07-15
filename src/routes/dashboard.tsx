@@ -125,12 +125,42 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setListings([]); }
   }, [listingsFn]);
 
+  const loadOverview = useCallback(async () => {
+    try { setOverview(await overviewFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [overviewFn]);
+
+  const loadBounties = useCallback(async () => {
+    try { setBounties(await bountiesFn()); }
+    catch (e) { toast.error((e as Error).message); setBounties({ posted: [], solved: [] }); }
+  }, [bountiesFn]);
+
+  const loadCourses = useCallback(async () => {
+    try { setCourses(await coursesFn()); }
+    catch (e) { toast.error((e as Error).message); setCourses({ enrolled: [], published: [] }); }
+  }, [coursesFn]);
+
+  const loadWallet = useCallback(async () => {
+    try { setWalletSummary(await walletFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [walletFn]);
+
+  const loadSocial = useCallback(async () => {
+    try { setSocial(await socialFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [socialFn]);
+
   useEffect(() => {
     if (!authChecked) return;
+    if (tab === "overview" && overview === null) void loadOverview();
     if (tab === "digital" && purchases === null) void loadPurchases();
     if (tab === "physical" && contacts === null) void loadContacts();
     if (tab === "listings" && listings === null) void loadListings();
-  }, [authChecked, tab, purchases, contacts, listings, loadPurchases, loadContacts, loadListings]);
+    if (tab === "bounties" && bounties === null) void loadBounties();
+    if (tab === "courses" && courses === null) void loadCourses();
+    if (tab === "wallet" && walletSummary === null) void loadWallet();
+    if (tab === "social" && social === null) void loadSocial();
+  }, [authChecked, tab, overview, purchases, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
@@ -177,6 +207,7 @@ function DashboardPage() {
   };
 
   const stats = useMemo(() => ({
+
     digital: purchases?.filter((p) => p.status === "paid").length ?? 0,
     pending: purchases?.filter((p) => p.status === "pending").length ?? 0,
     contacts: contacts?.length ?? 0,
