@@ -39,7 +39,7 @@ export type AuthGateContextKey =
 const COPY: Record<AuthGateContextKey, { title: string; subtitle: string }> = {
   generic: {
     title: "Connect your account",
-    subtitle: "Sign in with a 6-digit email code to unlock this action.",
+    subtitle: "Sign in with a one-time login link sent to your email.",
   },
   buyer: {
     title: "Secure your access",
