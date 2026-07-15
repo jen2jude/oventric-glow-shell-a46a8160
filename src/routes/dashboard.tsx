@@ -146,7 +146,11 @@ function DashboardPage() {
     digital: purchases?.filter((p) => p.status === "paid").length ?? 0,
     pending: purchases?.filter((p) => p.status === "pending").length ?? 0,
     contacts: contacts?.length ?? 0,
-  }), [purchases, contacts]);
+    listings: listings?.length ?? 0,
+    listingsPending: listings?.filter((l) => l.status === "pending").length ?? 0,
+    listingsActive: listings?.filter((l) => l.status === "active").length ?? 0,
+    listingsRejected: listings?.filter((l) => l.status === "rejected").length ?? 0,
+  }), [purchases, contacts, listings]);
 
   if (!authChecked) {
     return (
@@ -168,37 +172,61 @@ function DashboardPage() {
 
         <header className="mb-6">
           <h1 className="text-white text-3xl font-black">My Dashboard</h1>
-          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — digital downloads and seller conversations.</p>
+          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — purchases, seller chats, and your own listings.</p>
         </header>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <StatCard icon={Download} label="Downloads" value={stats.digital} accent="text-emerald-300" />
           <StatCard icon={Clock} label="Pending orders" value={stats.pending} accent="text-amber-300" />
           <StatCard icon={MessageCircle} label="Sellers contacted" value={stats.contacts} accent="text-sky-300" />
+          <StatCard icon={Store} label="My listings" value={stats.listings} accent="text-fuchsia-300" />
         </div>
 
-        <div className="inline-flex rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
+        <div className="inline-flex flex-wrap rounded-xl bg-[#141418] border border-white/10 p-1 mb-5 gap-1">
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-4 h-4" /> Digital Purchases
           </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
             <ShoppingBag className="w-4 h-4" /> Contacted Sellers
           </TabButton>
+          <TabButton active={tab === "listings"} onClick={() => setTab("listings")}>
+            <Store className="w-4 h-4" /> My Listings
+            {stats.listingsRejected > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                {stats.listingsRejected}
+              </span>
+            )}
+          </TabButton>
         </div>
 
-        {tab === "digital" ? (
+        {tab === "digital" && (
           <DigitalList
             rows={purchases}
             downloadingId={downloadingId}
             onDownload={handleDownload}
           />
-        ) : (
-          <PhysicalList rows={contacts} onRelog={relogContact} />
+        )}
+        {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
+        {tab === "listings" && (
+          <ListingsList
+            rows={listings}
+            counts={{ pending: stats.listingsPending, active: stats.listingsActive, rejected: stats.listingsRejected }}
+            onEdit={(p) => setEditing(p)}
+          />
         )}
       </div>
+
+      {editing && (
+        <EditListingModal
+          product={editing}
+          onClose={() => setEditing(null)}
+          onResubmitted={() => { void loadListings(); }}
+        />
+      )}
     </div>
   );
 }
+
 
 function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; label: string; value: number; accent: string }) {
   return (
