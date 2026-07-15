@@ -17,6 +17,15 @@ import {
   Store,
   Pencil,
   Eye,
+  LayoutDashboard,
+  Target,
+  GraduationCap,
+  Wallet as WalletIcon,
+  Users,
+  ArrowUpRight,
+  ArrowDownRight,
+  Trophy,
+  Bell,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -29,6 +38,20 @@ import {
   type ContactedSellerDTO,
   type ProductDTO,
 } from "@/lib/marketplace.functions";
+import {
+  getDashboardOverview,
+  listMyBounties,
+  listMyCourses,
+  getMyWalletSummary,
+  getMySocial,
+  type DashboardOverview,
+  type DashboardBountyPosted,
+  type DashboardBountySolved,
+  type DashboardEnrolledCourse,
+  type DashboardPublishedCourse,
+  type DashboardWalletSummary,
+  type DashboardSocial,
+} from "@/lib/dashboard.functions";
 import { toast } from "sonner";
 import { EditListingModal } from "@/components/oventric/EditListingModal";
 
@@ -38,13 +61,13 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "My Dashboard — Oventric" },
-      { name: "description", content: "Manage your marketplace activity — digital downloads and physical seller conversations." },
+      { name: "description", content: "Manage your Oventric activity — purchases, listings, bounties, courses, wallet, and social." },
     ],
   }),
   component: DashboardPage,
 });
 
-type Tab = "digital" | "physical" | "listings";
+type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -53,14 +76,25 @@ function DashboardPage() {
   const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
+  const overviewFn = useServerFn(getDashboardOverview);
+  const bountiesFn = useServerFn(listMyBounties);
+  const coursesFn = useServerFn(listMyCourses);
+  const walletFn = useServerFn(getMyWalletSummary);
+  const socialFn = useServerFn(getMySocial);
 
   const [authChecked, setAuthChecked] = useState(false);
-  const [tab, setTab] = useState<Tab>("digital");
+  const [tab, setTab] = useState<Tab>("overview");
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [purchases, setPurchases] = useState<PurchaseDTO[] | null>(null);
   const [contacts, setContacts] = useState<ContactedSellerDTO[] | null>(null);
   const [listings, setListings] = useState<ProductDTO[] | null>(null);
+  const [bounties, setBounties] = useState<{ posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null>(null);
+  const [courses, setCourses] = useState<{ enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null>(null);
+  const [walletSummary, setWalletSummary] = useState<DashboardWalletSummary | null>(null);
+  const [social, setSocial] = useState<DashboardSocial | null>(null);
   const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
 
 
   useEffect(() => {
