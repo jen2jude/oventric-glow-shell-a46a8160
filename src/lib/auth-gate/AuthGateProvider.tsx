@@ -893,6 +893,9 @@ function AuthGateModal({
               </div>
             ) : (
               <div className="space-y-4">
+                <p className="text-[11px] text-slate-500 text-center">
+                  Didn&apos;t receive the link? You can enter the 6-digit code from the email instead.
+                </p>
                 <div className="flex justify-between gap-2" role="group" aria-label="6-digit verification code">
                   {otpDigits.map((d, i) => (
                     <input
