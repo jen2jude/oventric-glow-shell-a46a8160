@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { CoursePublishWizard } from "./CoursePublishWizard";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
 import { computeDisplayPrice } from "@/lib/fx-display";
@@ -96,7 +97,10 @@ export function Academy() {
   useEffect(() => {
     fetchList()
       .then(setCourses)
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setCourses([]);
+      });
   }, [fetchList, refreshKey]);
 
   if (view === "landing") {
@@ -182,12 +186,20 @@ export function Academy() {
         ))}
       </div>
 
-      <CourseEditorModal
-        open={editorOpen}
-        courseId={editingId}
-        onClose={() => setEditorOpen(false)}
-        onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
-      />
+      {editingId ? (
+        <CourseEditorModal
+          open={editorOpen}
+          courseId={editingId}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
+        />
+      ) : (
+        <CoursePublishWizard
+          open={editorOpen}
+          onClose={() => setEditorOpen(false)}
+          onSaved={() => { setEditorOpen(false); setRefreshKey((k) => k + 1); }}
+        />
+      )}
     </div>
   );
 }

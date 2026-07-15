@@ -2,7 +2,7 @@ import { useState } from "react";
 import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellSwitcherModal } from "./SellSwitcherModal";
-import { CourseEditorModal } from "./CourseEditorModal";
+import { CoursePublishWizard } from "./CoursePublishWizard";
 import { BountyEditorModal } from "./BountyEditorModal";
 
 type ChoiceKey = "post" | "bounty" | "sell" | "course";
@@ -82,7 +82,7 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         </div>
       )}
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
-      <CourseEditorModal open={courseOpen} onClose={() => setCourseOpen(false)} onSaved={() => {
+      <CoursePublishWizard open={courseOpen} onClose={() => setCourseOpen(false)} onSaved={() => {
         setCourseOpen(false);
         window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
       }} />
