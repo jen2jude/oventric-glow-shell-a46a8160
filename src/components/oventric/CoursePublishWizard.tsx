@@ -16,7 +16,7 @@ import {
   type WizardQuizInput,
 } from "@/lib/academy.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
-import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
 
