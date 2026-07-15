@@ -34,6 +34,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { CourseEditorModal } from "./CourseEditorModal";
+import { CoursePublishWizard } from "./CoursePublishWizard";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
 import { computeDisplayPrice } from "@/lib/fx-display";
