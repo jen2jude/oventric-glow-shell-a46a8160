@@ -973,7 +973,7 @@ function AuthGateModal({
                     className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >
                     <RotateCw className={`w-3.5 h-3.5 ${sending ? "animate-spin" : ""}`} />
-                    {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend Code"}
+                    {resendIn > 0 ? `Resend in ${resendIn}s` : "Resend link"}
                   </button>
                 </div>
               </div>
