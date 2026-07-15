@@ -750,3 +750,154 @@ export const enrollPaid = createServerFn({ method: "POST" })
       cashbackUSD: cashbackUSD || undefined,
     };
   });
+
+// ---------- WIZARD (5-step publish flow) ----------
+
+export type LessonType = "video" | "text" | "pdf";
+
+export interface WizardLessonInput {
+  title: string;
+  type: LessonType;
+  isPreview?: boolean;
+  durationMin?: number;
+  // For video: { url, provider }; text: { html }; pdf: { url }
+  content: Record<string, unknown>;
+}
+
+export interface WizardSectionInput {
+  title: string;
+  lessons: WizardLessonInput[];
+}
+
+export interface WizardQuizQuestion {
+  text: string;
+  type: "multiple" | "boolean";
+  options: { text: string; correct: boolean }[];
+}
+
+export interface WizardQuizInput {
+  title: string;
+  passingGrade: number; // 0-100
+  questions: WizardQuizQuestion[];
+}
+
+export interface SaveCourseWizardInput {
+  id?: string; // update if provided
+  // Basics
+  title: string;
+  subtitle?: string;
+  description?: string; // short
+  longDescription?: string;
+  category?: CourseCategory;
+  level?: CourseLevel;
+  instructorName?: string;
+  coverPath?: string | null;
+  // Curriculum
+  sections: WizardSectionInput[];
+  // Quizzes (course-level, plus optional per-module quizzes future work)
+  quizzes: WizardQuizInput[];
+  // Access & settings
+  isFree: boolean;
+  priceUSD?: number;
+  originalCurrency?: CourseCurrency;
+  originalAmount?: number;
+  fxSnapshot?: CourseFxSnapshot;
+  requireLinear?: boolean;
+  issueCertificate?: boolean;
+  certificateTemplate?: string | null;
+  // Launch
+  isPublished: boolean;
+}
+
+export const saveCourseWizard = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: SaveCourseWizardInput) => input)
+  .handler(async ({ data, context }) => {
+    if (!data.title?.trim()) throw new Error("Course title is required");
+    const totalLessons = (data.sections ?? []).reduce((n, s) => n + (s.lessons?.length ?? 0), 0);
+    if (data.isPublished && totalLessons === 0) throw new Error("Add at least one lesson before publishing");
+    if (!data.isFree && !(Number(data.priceUSD ?? 0) > 0)) throw new Error("Paid courses require a price");
+
+    const sb = context.supabase;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sbAny = sb as any;
+
+    const patch: Record<string, unknown> = {
+      title: data.title.trim(),
+      subtitle: data.subtitle ?? null,
+      description: (data.description ?? "").trim(),
+      long_description: data.longDescription ?? null,
+      category: data.category ?? "frontend",
+      level: data.level ?? "beginner",
+      instructor_name: data.instructorName?.trim() || null,
+      cover_path: data.coverPath ?? null,
+      is_free: data.isFree,
+      price_usd: data.isFree ? 0 : Number(data.priceUSD ?? 0),
+      original_currency: data.isFree ? "USD" : (data.originalCurrency ?? "USD"),
+      original_amount: data.isFree ? 0 : Number(data.originalAmount ?? data.priceUSD ?? 0),
+      fx_snapshot: data.isFree || !data.fxSnapshot ? null : JSON.parse(JSON.stringify(data.fxSnapshot)),
+      require_linear: Boolean(data.requireLinear),
+      issue_certificate: Boolean(data.issueCertificate),
+      certificate_template: data.certificateTemplate ?? null,
+      quizzes: JSON.parse(JSON.stringify(data.quizzes ?? [])),
+      is_published: Boolean(data.isPublished),
+    };
+
+    let courseId = data.id ?? "";
+    if (courseId) {
+      const { data: existing } = await sb
+        .from("courses")
+        .select("owner_id")
+        .eq("id", courseId)
+        .maybeSingle();
+      if (!existing) throw new Error("Course not found");
+      const { error } = await sbAny.from("courses").update(patch).eq("id", courseId);
+      if (error) throw new Error(error.message);
+    } else {
+      const base = slugify(data.title);
+      const slug = `${base}-${Math.random().toString(36).slice(2, 6)}`;
+      const insertRow = { ...patch, owner_id: context.userId, slug };
+      const { data: row, error } = await sbAny
+        .from("courses")
+        .insert(insertRow)
+        .select("id")
+        .single();
+      if (error) throw new Error(error.message);
+      courseId = row.id as string;
+    }
+
+    // Replace curriculum: delete existing modules for this course, then re-insert.
+    await sb.from("course_modules").delete().eq("course_id", courseId);
+
+    const rows: Record<string, unknown>[] = [];
+    let pos = 0;
+    (data.sections ?? []).forEach((section, sIdx) => {
+      (section.lessons ?? []).forEach((lesson) => {
+        const type: LessonType = lesson.type === "text" || lesson.type === "pdf" ? lesson.type : "video";
+        const isVideo = type === "video";
+        const videoUrl = isVideo ? String((lesson.content?.url as string) ?? "") : null;
+        const provider =
+          isVideo && /vimeo\.com/i.test(videoUrl ?? "") ? "vimeo" : "youtube";
+        rows.push({
+          course_id: courseId,
+          position: pos++,
+          title: (lesson.title ?? "Untitled lesson").trim() || "Untitled lesson",
+          description: "",
+          video_url: videoUrl,
+          video_provider: provider,
+          duration_min: Number(lesson.durationMin ?? 0),
+          is_preview: Boolean(lesson.isPreview),
+          section_title: section.title ?? null,
+          section_position: sIdx,
+          content_type: type,
+          content_data: JSON.parse(JSON.stringify(lesson.content ?? {})),
+        });
+      });
+    });
+    if (rows.length > 0) {
+      const { error: mErr } = await sbAny.from("course_modules").insert(rows);
+      if (mErr) throw new Error(mErr.message);
+    }
+
+    return { id: courseId };
+  });
