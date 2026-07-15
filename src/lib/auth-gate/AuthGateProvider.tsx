@@ -122,12 +122,12 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     const errCode = params.get("error_code") || params.get("error");
     const errDesc = params.get("error_description");
     if (!errCode && !errDesc) return;
-    let message = "Your sign-in link is invalid or has expired. Send a new code to continue.";
+    let message = "Your sign-in link is invalid or has expired. Send a new link to continue.";
     const code = (errCode || "").toLowerCase();
     if (code.includes("otp_expired") || code.includes("expired")) {
-      message = "This sign-in link has expired. Send a new code to continue.";
+      message = "This sign-in link has expired. Send a new link to continue.";
     } else if (code.includes("access_denied") || code.includes("used")) {
-      message = "This sign-in link has already been used or was denied. Send a new code to continue.";
+      message = "This sign-in link has already been used or was denied. Send a new link to continue.";
     } else if (errDesc) {
       message = decodeURIComponent(errDesc.replace(/\+/g, " "));
     }
