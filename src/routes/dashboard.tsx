@@ -445,3 +445,139 @@ function PhysicalList({
     </div>
   );
 }
+
+function ListingStatusBadge({ status }: { status: ProductDTO["status"] }) {
+  const meta = {
+    pending: { label: "Pending review", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
+    active: { label: "Live", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
+    rejected: { label: "Rejected", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
+  }[status] ?? { label: status, cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle };
+  const Icon = meta.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+      <Icon className="w-3 h-3" /> {meta.label}
+    </span>
+  );
+}
+
+function ListingsList({
+  rows,
+  counts,
+  onEdit,
+}: {
+  rows: ProductDTO[] | null;
+  counts: { pending: number; active: number; rejected: number };
+  onEdit: (p: ProductDTO) => void;
+}) {
+  const [filter, setFilter] = useState<"all" | "pending" | "active" | "rejected">("all");
+
+  if (rows === null) {
+    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  }
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Store}
+        title="You haven't published any listings yet"
+        hint="Tap the + button on the home screen to sell a digital asset or physical product."
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Go to marketplace</Link>}
+      />
+    );
+  }
+
+  const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  const chips: { key: typeof filter; label: string; count: number }[] = [
+    { key: "all", label: "All", count: rows.length },
+    { key: "pending", label: "Pending", count: counts.pending },
+    { key: "active", label: "Live", count: counts.active },
+    { key: "rejected", label: "Rejected", count: counts.rejected },
+  ];
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            onClick={() => setFilter(c.key)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+              filter === c.key
+                ? "bg-emerald-500 border-emerald-400 text-black"
+                : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+            }`}
+          >
+            {c.label}
+            <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
+              filter === c.key ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"
+            }`}>{c.count}</span>
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 bg-[#111114] p-8 text-center text-sm text-slate-500">
+          No listings in this bucket.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((p) => (
+            <div key={p.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
+              <Link to="/product/$id" params={{ id: p.id }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue}`}>
+                {p.coverUrl ? <img src={p.coverUrl} alt={p.name} className="w-full h-full object-cover" /> : null}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
+                      {p.kind === "physical" ? "Physical" : "Digital"} · {p.category}
+                    </div>
+                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                      {p.name}
+                    </Link>
+                    <div className="text-xs text-slate-400">
+                      ${p.priceUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {p.location ? <span className="ml-2 inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.location}</span> : null}
+                    </div>
+                  </div>
+                  <ListingStatusBadge status={p.status} />
+                </div>
+
+                {p.status === "rejected" && p.rejectReason && (
+                  <div className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-amber-300 mb-0.5">Moderator note</div>
+                    <div className="text-xs text-amber-100 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
+                  </div>
+                )}
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {p.status === "rejected" && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(p)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                    >
+                      <Pencil className="w-3.5 h-3.5" /> Edit & Resubmit
+                    </button>
+                  )}
+                  {p.status === "active" && (
+                    <Link
+                      to="/product/$id"
+                      params={{ id: p.id }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View live
+                    </Link>
+                  )}
+                  {p.status === "pending" && (
+                    <span className="text-[11px] text-slate-500">Awaiting admin approval.</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
