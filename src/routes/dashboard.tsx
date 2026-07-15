@@ -17,6 +17,15 @@ import {
   Store,
   Pencil,
   Eye,
+  LayoutDashboard,
+  Target,
+  GraduationCap,
+  Wallet as WalletIcon,
+  Users,
+  ArrowUpRight,
+  ArrowDownRight,
+  Trophy,
+  Bell,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -29,6 +38,20 @@ import {
   type ContactedSellerDTO,
   type ProductDTO,
 } from "@/lib/marketplace.functions";
+import {
+  getDashboardOverview,
+  listMyBounties,
+  listMyCourses,
+  getMyWalletSummary,
+  getMySocial,
+  type DashboardOverview,
+  type DashboardBountyPosted,
+  type DashboardBountySolved,
+  type DashboardEnrolledCourse,
+  type DashboardPublishedCourse,
+  type DashboardWalletSummary,
+  type DashboardSocial,
+} from "@/lib/dashboard.functions";
 import { toast } from "sonner";
 import { EditListingModal } from "@/components/oventric/EditListingModal";
 
@@ -38,13 +61,13 @@ export const Route = createFileRoute("/dashboard")({
   head: () => ({
     meta: [
       { title: "My Dashboard — Oventric" },
-      { name: "description", content: "Manage your marketplace activity — digital downloads and physical seller conversations." },
+      { name: "description", content: "Manage your Oventric activity — purchases, listings, bounties, courses, wallet, and social." },
     ],
   }),
   component: DashboardPage,
 });
 
-type Tab = "digital" | "physical" | "listings";
+type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -53,14 +76,25 @@ function DashboardPage() {
   const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
+  const overviewFn = useServerFn(getDashboardOverview);
+  const bountiesFn = useServerFn(listMyBounties);
+  const coursesFn = useServerFn(listMyCourses);
+  const walletFn = useServerFn(getMyWalletSummary);
+  const socialFn = useServerFn(getMySocial);
 
   const [authChecked, setAuthChecked] = useState(false);
-  const [tab, setTab] = useState<Tab>("digital");
+  const [tab, setTab] = useState<Tab>("overview");
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [purchases, setPurchases] = useState<PurchaseDTO[] | null>(null);
   const [contacts, setContacts] = useState<ContactedSellerDTO[] | null>(null);
   const [listings, setListings] = useState<ProductDTO[] | null>(null);
+  const [bounties, setBounties] = useState<{ posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null>(null);
+  const [courses, setCourses] = useState<{ enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null>(null);
+  const [walletSummary, setWalletSummary] = useState<DashboardWalletSummary | null>(null);
+  const [social, setSocial] = useState<DashboardSocial | null>(null);
   const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
 
 
   useEffect(() => {
@@ -91,12 +125,42 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setListings([]); }
   }, [listingsFn]);
 
+  const loadOverview = useCallback(async () => {
+    try { setOverview(await overviewFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [overviewFn]);
+
+  const loadBounties = useCallback(async () => {
+    try { setBounties(await bountiesFn()); }
+    catch (e) { toast.error((e as Error).message); setBounties({ posted: [], solved: [] }); }
+  }, [bountiesFn]);
+
+  const loadCourses = useCallback(async () => {
+    try { setCourses(await coursesFn()); }
+    catch (e) { toast.error((e as Error).message); setCourses({ enrolled: [], published: [] }); }
+  }, [coursesFn]);
+
+  const loadWallet = useCallback(async () => {
+    try { setWalletSummary(await walletFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [walletFn]);
+
+  const loadSocial = useCallback(async () => {
+    try { setSocial(await socialFn()); }
+    catch (e) { toast.error((e as Error).message); }
+  }, [socialFn]);
+
   useEffect(() => {
     if (!authChecked) return;
+    if (tab === "overview" && overview === null) void loadOverview();
     if (tab === "digital" && purchases === null) void loadPurchases();
     if (tab === "physical" && contacts === null) void loadContacts();
     if (tab === "listings" && listings === null) void loadListings();
-  }, [authChecked, tab, purchases, contacts, listings, loadPurchases, loadContacts, loadListings]);
+    if (tab === "bounties" && bounties === null) void loadBounties();
+    if (tab === "courses" && courses === null) void loadCourses();
+    if (tab === "wallet" && walletSummary === null) void loadWallet();
+    if (tab === "social" && social === null) void loadSocial();
+  }, [authChecked, tab, overview, purchases, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
@@ -143,6 +207,7 @@ function DashboardPage() {
   };
 
   const stats = useMemo(() => ({
+
     digital: purchases?.filter((p) => p.status === "paid").length ?? 0,
     pending: purchases?.filter((p) => p.status === "pending").length ?? 0,
     contacts: contacts?.length ?? 0,
@@ -172,17 +237,22 @@ function DashboardPage() {
 
         <header className="mb-6">
           <h1 className="text-white text-3xl font-black">My Dashboard</h1>
-          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — purchases, seller chats, and your own listings.</p>
+          <p className="text-slate-400 mt-1 text-sm">Your full Oventric hub — wallet, bounties, courses, marketplace and social.</p>
         </header>
 
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-          <StatCard icon={Download} label="Downloads" value={stats.digital} accent="text-emerald-300" />
-          <StatCard icon={Clock} label="Pending orders" value={stats.pending} accent="text-amber-300" />
-          <StatCard icon={MessageCircle} label="Sellers contacted" value={stats.contacts} accent="text-sky-300" />
-          <StatCard icon={Store} label="My listings" value={stats.listings} accent="text-fuchsia-300" />
-        </div>
-
-        <div className="inline-flex flex-wrap rounded-xl bg-[#141418] border border-white/10 p-1 mb-5 gap-1">
+        <div className="flex flex-wrap gap-1 rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
+          <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
+            <LayoutDashboard className="w-4 h-4" /> Overview
+          </TabButton>
+          <TabButton active={tab === "bounties"} onClick={() => setTab("bounties")}>
+            <Target className="w-4 h-4" /> Bounties
+          </TabButton>
+          <TabButton active={tab === "courses"} onClick={() => setTab("courses")}>
+            <GraduationCap className="w-4 h-4" /> Courses
+          </TabButton>
+          <TabButton active={tab === "wallet"} onClick={() => setTab("wallet")}>
+            <WalletIcon className="w-4 h-4" /> Wallet
+          </TabButton>
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-4 h-4" /> Digital Purchases
           </TabButton>
@@ -197,14 +267,17 @@ function DashboardPage() {
               </span>
             )}
           </TabButton>
+          <TabButton active={tab === "social"} onClick={() => setTab("social")}>
+            <Users className="w-4 h-4" /> Social
+          </TabButton>
         </div>
 
+        {tab === "overview" && <OverviewPane overview={overview} onGoto={setTab} />}
+        {tab === "bounties" && <BountiesPane data={bounties} />}
+        {tab === "courses" && <CoursesPane data={courses} />}
+        {tab === "wallet" && <WalletPane data={walletSummary} />}
         {tab === "digital" && (
-          <DigitalList
-            rows={purchases}
-            downloadingId={downloadingId}
-            onDownload={handleDownload}
-          />
+          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} />
         )}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
@@ -214,7 +287,9 @@ function DashboardPage() {
             onEdit={(p) => setEditing(p)}
           />
         )}
+        {tab === "social" && <SocialPane data={social} />}
       </div>
+
 
       {editing && (
         <EditListingModal
@@ -580,4 +655,271 @@ function ListingsList({
     </div>
   );
 }
+
+/* -------------------------------------------------------------------------- */
+/*  Overview                                                                   */
+/* -------------------------------------------------------------------------- */
+
+function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null; onGoto: (t: Tab) => void }) {
+  if (!overview) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  const w = overview.wallet;
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 to-emerald-500/0 p-5 hover:border-emerald-400/60 transition">
+          <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
+          <div className="mt-2 text-3xl font-black text-white">
+            {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
+          </div>
+          <div className="text-xs text-slate-400 mt-1">{w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}</div>
+        </button>
+        <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-300" /> Bounties earned</div>
+          <div className="mt-2 text-3xl font-black text-amber-300">${overview.bounties.earnedUSD.toFixed(2)}</div>
+          <div className="text-xs text-slate-400 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
+        </button>
+        <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Network</div>
+          <div className="mt-2 text-3xl font-black text-fuchsia-300">{overview.social.followers}</div>
+          <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
+        </button>
+      </div>
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
+        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-amber-300" />
+        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-sky-300" />
+        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-fuchsia-300" />
+        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-cyan-300" />
+        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-emerald-300" />
+        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-amber-300" />
+        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-rose-300" />
+      </div>
+    </div>
+  );
+}
+
+function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null }) {
+  const [sub, setSub] = useState<"posted" | "solved">("posted");
+  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  return (
+    <div>
+      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
+        <TabButton active={sub === "posted"} onClick={() => setSub("posted")}>Posted by me ({data.posted.length})</TabButton>
+        <TabButton active={sub === "solved"} onClick={() => setSub("solved")}>Solved by me ({data.solved.length})</TabButton>
+      </div>
+      {sub === "posted" && (
+        data.posted.length === 0 ? (
+          <EmptyState icon={Target} title="No bounties posted yet" hint="Post a bounty from the + menu to get expert help." />
+        ) : (
+          <div className="space-y-2">
+            {data.posted.map((b) => (
+              <div key={b.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-white font-semibold truncate">{b.title}</div>
+                  <div className="text-xs text-slate-500 mt-1">{b.category} · Created {new Date(b.createdAt).toLocaleDateString()}</div>
+                </div>
+                <div className="text-right">
+                  <div className="text-emerald-300 font-black">${b.priceUSD.toFixed(2)}</div>
+                  <div className={`text-[10px] font-bold uppercase mt-1 ${b.status === "active" ? "text-emerald-300" : b.status === "closed" ? "text-slate-400" : "text-amber-300"}`}>{b.status}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+      {sub === "solved" && (
+        data.solved.length === 0 ? (
+          <EmptyState icon={Trophy} title="No bounties solved yet" hint="Payouts you receive as a solver will appear here." />
+        ) : (
+          <div className="space-y-2">
+            {data.solved.map((s) => (
+              <div key={s.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-white font-semibold truncate">{s.title}</div>
+                  <div className="text-xs text-slate-500 mt-1">Solved {new Date(s.solvedAt).toLocaleDateString()}</div>
+                </div>
+                <div className="text-emerald-300 font-black">+${s.payoutUSD.toFixed(2)}</div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
+function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null }) {
+  const [sub, setSub] = useState<"enrolled" | "published">("enrolled");
+  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  return (
+    <div>
+      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
+        <TabButton active={sub === "enrolled"} onClick={() => setSub("enrolled")}>Enrolled ({data.enrolled.length})</TabButton>
+        <TabButton active={sub === "published"} onClick={() => setSub("published")}>Published ({data.published.length})</TabButton>
+      </div>
+      {sub === "enrolled" && (
+        data.enrolled.length === 0 ? (
+          <EmptyState icon={GraduationCap} title="No courses yet" hint="Enroll from Academy to see your progress here." />
+        ) : (
+          <div className="space-y-2">
+            {data.enrolled.map((c) => {
+              const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
+              return (
+                <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
+                  <div className="flex items-center justify-between gap-3 mb-2">
+                    <div className="min-w-0">
+                      <div className="text-white font-semibold truncate">{c.title}</div>
+                      <div className="text-xs text-slate-500 mt-1">
+                        {c.completedModules}/{c.totalModules} modules · Enrolled {new Date(c.enrolledAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="text-xs font-bold text-emerald-300">{pct}%</div>
+                  </div>
+                  <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+                    <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct}%` }} />
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )
+      )}
+      {sub === "published" && (
+        data.published.length === 0 ? (
+          <EmptyState icon={GraduationCap} title="No courses published" hint="Publish a course from the + menu to teach and earn." />
+        ) : (
+          <div className="space-y-2">
+            {data.published.map((c) => (
+              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-white font-semibold truncate">{c.title}</div>
+                  <div className="text-xs text-slate-500 mt-1">
+                    {c.isPublished ? <span className="text-emerald-300">Published</span> : <span className="text-amber-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <div className="text-right">
+                  <div className="text-white font-black">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
+                  {c.revenueUSD > 0 && <div className="text-[10px] text-emerald-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
+                </div>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
+function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
+  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  return (
+    <div className="space-y-5">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {data.balances.length === 0 ? (
+          <div className="md:col-span-2"><EmptyState icon={WalletIcon} title="No wallet yet" hint="Your wallet appears once you receive your first credit or fund it." /></div>
+        ) : data.balances.map((b) => (
+          <div key={b.currency} className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 to-emerald-500/0 p-5">
+            <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">{b.currency} balance</div>
+            <div className="mt-2 text-3xl font-black text-white">{b.currency} {b.available.toFixed(2)}</div>
+            <div className="text-xs text-slate-400 mt-1">Escrow {b.currency} {b.escrow.toFixed(2)}</div>
+          </div>
+        ))}
+      </div>
+      {data.pendingPayouts.length > 0 && (
+        <div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Pending payouts</div>
+          <div className="space-y-2">
+            {data.pendingPayouts.map((p) => (
+              <div key={p.id} className="rounded-xl border border-amber-400/30 bg-amber-500/5 p-3 flex items-center justify-between">
+                <div>
+                  <div className="text-white font-semibold">{p.currency} {p.amount.toFixed(2)}</div>
+                  <div className="text-xs text-slate-400 mt-0.5">{p.method.toUpperCase()} · Requested {new Date(p.createdAt).toLocaleDateString()}</div>
+                </div>
+                <span className="text-[10px] font-bold uppercase text-amber-300">{p.status}</span>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+      <div>
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Recent transactions</div>
+        {data.recent.length === 0 ? (
+          <EmptyState icon={WalletIcon} title="No transactions yet" hint="Sales, purchases and payouts will show here." />
+        ) : (
+          <div className="rounded-xl border border-white/10 bg-[#141418] overflow-hidden divide-y divide-white/5">
+            {data.recent.map((r) => (
+              <div key={r.id} className="p-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${r.inflow ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"}`}>
+                    {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-white font-semibold text-sm truncate">{r.type}</div>
+                    <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
+                  </div>
+                </div>
+                <div className={`font-black text-sm shrink-0 ${r.inflow ? "text-emerald-300" : "text-rose-300"}`}>{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function SocialPane({ data }: { data: DashboardSocial | null }) {
+  const [sub, setSub] = useState<"followers" | "following" | "circles">("followers");
+  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  const rows = sub === "followers" ? data.followers : sub === "following" ? data.following : [];
+  return (
+    <div>
+      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
+        <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
+        <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
+        <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>My Circles ({data.circles.length})</TabButton>
+      </div>
+      {(sub === "followers" || sub === "following") && (
+        rows.length === 0 ? (
+          <EmptyState icon={Users} title={sub === "followers" ? "No followers yet" : "Not following anyone yet"} hint="Discover peers from the community and connect." />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {rows.map((u) => (
+              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-emerald-400/40 transition">
+                <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-400/30 overflow-hidden flex items-center justify-center text-emerald-300 font-bold">
+                  {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.slice(0, 1).toUpperCase()}
+                </div>
+                <div className="min-w-0">
+                  <div className="text-white font-semibold text-sm truncate">{u.name}</div>
+                  <div className="text-[11px] text-slate-500 truncate">@{u.slug}</div>
+                </div>
+              </Link>
+            ))}
+          </div>
+        )
+      )}
+      {sub === "circles" && (
+        data.circles.length === 0 ? (
+          <EmptyState icon={Users} title="No circles yet" hint="Join or create a circle to collaborate with peers." />
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+            {data.circles.map((c) => (
+              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-3 min-w-0">
+                  <div className="w-10 h-10 rounded-lg bg-fuchsia-500/10 border border-fuchsia-400/30 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
+                  <div className="min-w-0">
+                    <div className="text-white font-semibold text-sm truncate">{c.name}</div>
+                    <div className="text-[11px] text-slate-500">Joined {new Date(c.joinedAt).toLocaleDateString()}</div>
+                  </div>
+                </div>
+                <span className="text-[10px] font-bold uppercase text-fuchsia-300">{c.role}</span>
+              </div>
+            ))}
+          </div>
+        )
+      )}
+    </div>
+  );
+}
+
 
