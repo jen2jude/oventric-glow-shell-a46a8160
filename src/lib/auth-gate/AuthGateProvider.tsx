@@ -422,7 +422,7 @@ function AuthGateModal({
       setStage("otp");
       setOtpDigits(Array(OTP_LENGTH).fill(""));
       setResendIn(RESEND_SECONDS);
-      setFlash(res.maskedEmail ? `Code sent to ${res.maskedEmail}` : "Code sent");
+      setFlash(res.maskedEmail ? `Login link sent to ${res.maskedEmail}` : "Login link sent");
     } catch (err) {
       setIdentifierError(humanizeError(err instanceof Error ? err.message : "Could not send code"));
     } finally {
