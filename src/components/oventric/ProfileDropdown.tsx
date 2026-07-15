@@ -448,10 +448,6 @@ export function ProfileDropdown() {
         userId={userId}
         onSave={persistProfile}
       />
-
-      <MyListingsModal open={listingsOpen} onClose={() => setListingsOpen(false)} />
-
-
     </div>
   );
 }
