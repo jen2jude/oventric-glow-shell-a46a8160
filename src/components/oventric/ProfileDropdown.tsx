@@ -50,7 +50,6 @@ export function ProfileDropdown() {
   const [isMobile, setIsMobile] = useState(false);
   const [userId, setUserId] = useState<string>("me");
   const [settingsOpen, setSettingsOpen] = useState(false);
-  const [listingsOpen, setListingsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const menuRef = useRef<HTMLDivElement>(null);
