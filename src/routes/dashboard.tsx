@@ -14,17 +14,24 @@ import {
   CheckCircle2,
   AlertTriangle,
   MapPin,
+  Store,
+  Pencil,
+  Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listMyPurchases,
   listMyContactedSellers,
+  listMyProducts,
   getOrderWithDownload,
   logProductContact,
   type PurchaseDTO,
   type ContactedSellerDTO,
+  type ProductDTO,
 } from "@/lib/marketplace.functions";
 import { toast } from "sonner";
+import { EditListingModal } from "@/components/oventric/EditListingModal";
+
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
