@@ -14,17 +14,24 @@ import {
   CheckCircle2,
   AlertTriangle,
   MapPin,
+  Store,
+  Pencil,
+  Eye,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listMyPurchases,
   listMyContactedSellers,
+  listMyProducts,
   getOrderWithDownload,
   logProductContact,
   type PurchaseDTO,
   type ContactedSellerDTO,
+  type ProductDTO,
 } from "@/lib/marketplace.functions";
 import { toast } from "sonner";
+import { EditListingModal } from "@/components/oventric/EditListingModal";
+
 
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
@@ -37,12 +44,13 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "digital" | "physical";
+type Tab = "digital" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
   const purchasesFn = useServerFn(listMyPurchases);
   const contactsFn = useServerFn(listMyContactedSellers);
+  const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
 
@@ -50,7 +58,10 @@ function DashboardPage() {
   const [tab, setTab] = useState<Tab>("digital");
   const [purchases, setPurchases] = useState<PurchaseDTO[] | null>(null);
   const [contacts, setContacts] = useState<ContactedSellerDTO[] | null>(null);
+  const [listings, setListings] = useState<ProductDTO[] | null>(null);
+  const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+
 
   useEffect(() => {
     let alive = true;
@@ -75,11 +86,17 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setContacts([]); }
   }, [contactsFn]);
 
+  const loadListings = useCallback(async () => {
+    try { setListings(await listingsFn()); }
+    catch (e) { toast.error((e as Error).message); setListings([]); }
+  }, [listingsFn]);
+
   useEffect(() => {
     if (!authChecked) return;
     if (tab === "digital" && purchases === null) void loadPurchases();
     if (tab === "physical" && contacts === null) void loadContacts();
-  }, [authChecked, tab, purchases, contacts, loadPurchases, loadContacts]);
+    if (tab === "listings" && listings === null) void loadListings();
+  }, [authChecked, tab, purchases, contacts, listings, loadPurchases, loadContacts, loadListings]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
@@ -92,9 +109,13 @@ function DashboardPage() {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => {
         void loadPurchases();
       })
+      .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products" }, () => {
+        void loadListings();
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [authChecked, loadContacts, loadPurchases]);
+  }, [authChecked, loadContacts, loadPurchases, loadListings]);
+
 
   const handleDownload = async (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => {
     setDownloadingId(orderId);
@@ -125,7 +146,11 @@ function DashboardPage() {
     digital: purchases?.filter((p) => p.status === "paid").length ?? 0,
     pending: purchases?.filter((p) => p.status === "pending").length ?? 0,
     contacts: contacts?.length ?? 0,
-  }), [purchases, contacts]);
+    listings: listings?.length ?? 0,
+    listingsPending: listings?.filter((l) => l.status === "pending").length ?? 0,
+    listingsActive: listings?.filter((l) => l.status === "active").length ?? 0,
+    listingsRejected: listings?.filter((l) => l.status === "rejected").length ?? 0,
+  }), [purchases, contacts, listings]);
 
   if (!authChecked) {
     return (
@@ -147,37 +172,61 @@ function DashboardPage() {
 
         <header className="mb-6">
           <h1 className="text-white text-3xl font-black">My Dashboard</h1>
-          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — digital downloads and seller conversations.</p>
+          <p className="text-slate-400 mt-1 text-sm">Your marketplace activity — purchases, seller chats, and your own listings.</p>
         </header>
 
-        <div className="grid grid-cols-3 gap-3 mb-6">
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
           <StatCard icon={Download} label="Downloads" value={stats.digital} accent="text-emerald-300" />
           <StatCard icon={Clock} label="Pending orders" value={stats.pending} accent="text-amber-300" />
           <StatCard icon={MessageCircle} label="Sellers contacted" value={stats.contacts} accent="text-sky-300" />
+          <StatCard icon={Store} label="My listings" value={stats.listings} accent="text-fuchsia-300" />
         </div>
 
-        <div className="inline-flex rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
+        <div className="inline-flex flex-wrap rounded-xl bg-[#141418] border border-white/10 p-1 mb-5 gap-1">
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-4 h-4" /> Digital Purchases
           </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
             <ShoppingBag className="w-4 h-4" /> Contacted Sellers
           </TabButton>
+          <TabButton active={tab === "listings"} onClick={() => setTab("listings")}>
+            <Store className="w-4 h-4" /> My Listings
+            {stats.listingsRejected > 0 && (
+              <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+                {stats.listingsRejected}
+              </span>
+            )}
+          </TabButton>
         </div>
 
-        {tab === "digital" ? (
+        {tab === "digital" && (
           <DigitalList
             rows={purchases}
             downloadingId={downloadingId}
             onDownload={handleDownload}
           />
-        ) : (
-          <PhysicalList rows={contacts} onRelog={relogContact} />
+        )}
+        {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
+        {tab === "listings" && (
+          <ListingsList
+            rows={listings}
+            counts={{ pending: stats.listingsPending, active: stats.listingsActive, rejected: stats.listingsRejected }}
+            onEdit={(p) => setEditing(p)}
+          />
         )}
       </div>
+
+      {editing && (
+        <EditListingModal
+          product={editing}
+          onClose={() => setEditing(null)}
+          onResubmitted={() => { void loadListings(); }}
+        />
+      )}
     </div>
   );
 }
+
 
 function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; label: string; value: number; accent: string }) {
   return (
@@ -396,3 +445,139 @@ function PhysicalList({
     </div>
   );
 }
+
+function ListingStatusBadge({ status }: { status: ProductDTO["status"] }) {
+  const meta = {
+    pending: { label: "Pending review", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
+    active: { label: "Live", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
+    rejected: { label: "Rejected", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
+  }[status] ?? { label: status, cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle };
+  const Icon = meta.icon;
+  return (
+    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+      <Icon className="w-3 h-3" /> {meta.label}
+    </span>
+  );
+}
+
+function ListingsList({
+  rows,
+  counts,
+  onEdit,
+}: {
+  rows: ProductDTO[] | null;
+  counts: { pending: number; active: number; rejected: number };
+  onEdit: (p: ProductDTO) => void;
+}) {
+  const [filter, setFilter] = useState<"all" | "pending" | "active" | "rejected">("all");
+
+  if (rows === null) {
+    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  }
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Store}
+        title="You haven't published any listings yet"
+        hint="Tap the + button on the home screen to sell a digital asset or physical product."
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Go to marketplace</Link>}
+      />
+    );
+  }
+
+  const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  const chips: { key: typeof filter; label: string; count: number }[] = [
+    { key: "all", label: "All", count: rows.length },
+    { key: "pending", label: "Pending", count: counts.pending },
+    { key: "active", label: "Live", count: counts.active },
+    { key: "rejected", label: "Rejected", count: counts.rejected },
+  ];
+
+  return (
+    <div>
+      <div className="flex flex-wrap gap-2 mb-4">
+        {chips.map((c) => (
+          <button
+            key={c.key}
+            onClick={() => setFilter(c.key)}
+            className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
+              filter === c.key
+                ? "bg-emerald-500 border-emerald-400 text-black"
+                : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+            }`}
+          >
+            {c.label}
+            <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
+              filter === c.key ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"
+            }`}>{c.count}</span>
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="rounded-2xl border border-dashed border-white/10 bg-[#111114] p-8 text-center text-sm text-slate-500">
+          No listings in this bucket.
+        </div>
+      ) : (
+        <div className="space-y-3">
+          {filtered.map((p) => (
+            <div key={p.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
+              <Link to="/product/$id" params={{ id: p.id }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue}`}>
+                {p.coverUrl ? <img src={p.coverUrl} alt={p.name} className="w-full h-full object-cover" /> : null}
+              </Link>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
+                      {p.kind === "physical" ? "Physical" : "Digital"} · {p.category}
+                    </div>
+                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                      {p.name}
+                    </Link>
+                    <div className="text-xs text-slate-400">
+                      ${p.priceUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
+                      {p.location ? <span className="ml-2 inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.location}</span> : null}
+                    </div>
+                  </div>
+                  <ListingStatusBadge status={p.status} />
+                </div>
+
+                {p.status === "rejected" && p.rejectReason && (
+                  <div className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-amber-300 mb-0.5">Moderator note</div>
+                    <div className="text-xs text-amber-100 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
+                  </div>
+                )}
+
+                <div className="mt-2 flex flex-wrap items-center gap-2">
+                  {p.status === "rejected" && (
+                    <button
+                      type="button"
+                      onClick={() => onEdit(p)}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                    >
+                      <Pencil className="w-3.5 h-3.5" /> Edit & Resubmit
+                    </button>
+                  )}
+                  {p.status === "active" && (
+                    <Link
+                      to="/product/$id"
+                      params={{ id: p.id }}
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold"
+                    >
+                      <Eye className="w-3.5 h-3.5" /> View live
+                    </Link>
+                  )}
+                  {p.status === "pending" && (
+                    <span className="text-[11px] text-slate-500">Awaiting admin approval.</span>
+                  )}
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
