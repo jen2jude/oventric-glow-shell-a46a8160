@@ -96,7 +96,10 @@ export function Academy() {
   useEffect(() => {
     fetchList()
       .then(setCourses)
-      .catch((e) => toast.error(e.message));
+      .catch((e) => {
+        toast.error(e.message);
+        setCourses([]);
+      });
   }, [fetchList, refreshKey]);
 
   if (view === "landing") {
