@@ -710,6 +710,8 @@ export type Database = {
       }
       course_modules: {
         Row: {
+          content_data: Json
+          content_type: string
           course_id: string
           created_at: string
           description: string
@@ -717,12 +719,16 @@ export type Database = {
           id: string
           is_preview: boolean
           position: number
+          section_position: number
+          section_title: string | null
           title: string
           updated_at: string
           video_provider: string
-          video_url: string
+          video_url: string | null
         }
         Insert: {
+          content_data?: Json
+          content_type?: string
           course_id: string
           created_at?: string
           description?: string
@@ -730,12 +736,16 @@ export type Database = {
           id?: string
           is_preview?: boolean
           position?: number
+          section_position?: number
+          section_title?: string | null
           title: string
           updated_at?: string
           video_provider?: string
-          video_url: string
+          video_url?: string | null
         }
         Update: {
+          content_data?: Json
+          content_type?: string
           course_id?: string
           created_at?: string
           description?: string
@@ -743,10 +753,12 @@ export type Database = {
           id?: string
           is_preview?: boolean
           position?: number
+          section_position?: number
+          section_title?: string | null
           title?: string
           updated_at?: string
           video_provider?: string
-          video_url?: string
+          video_url?: string | null
         }
         Relationships: [
           {
@@ -800,6 +812,7 @@ export type Database = {
       courses: {
         Row: {
           category: string
+          certificate_template: string | null
           cover_path: string | null
           created_at: string
           description: string
@@ -808,18 +821,24 @@ export type Database = {
           instructor_name: string | null
           is_free: boolean
           is_published: boolean
+          issue_certificate: boolean
           level: string
+          long_description: string | null
           original_amount: number | null
           original_currency: string | null
           owner_id: string
           price_usd: number
           promoted: boolean
+          quizzes: Json
+          require_linear: boolean
           slug: string
+          subtitle: string | null
           title: string
           updated_at: string
         }
         Insert: {
           category?: string
+          certificate_template?: string | null
           cover_path?: string | null
           created_at?: string
           description?: string
@@ -828,18 +847,24 @@ export type Database = {
           instructor_name?: string | null
           is_free?: boolean
           is_published?: boolean
+          issue_certificate?: boolean
           level?: string
+          long_description?: string | null
           original_amount?: number | null
           original_currency?: string | null
           owner_id: string
           price_usd?: number
           promoted?: boolean
+          quizzes?: Json
+          require_linear?: boolean
           slug: string
+          subtitle?: string | null
           title: string
           updated_at?: string
         }
         Update: {
           category?: string
+          certificate_template?: string | null
           cover_path?: string | null
           created_at?: string
           description?: string
@@ -848,13 +873,18 @@ export type Database = {
           instructor_name?: string | null
           is_free?: boolean
           is_published?: boolean
+          issue_certificate?: boolean
           level?: string
+          long_description?: string | null
           original_amount?: number | null
           original_currency?: string | null
           owner_id?: string
           price_usd?: number
           promoted?: boolean
+          quizzes?: Json
+          require_linear?: boolean
           slug?: string
+          subtitle?: string | null
           title?: string
           updated_at?: string
         }
