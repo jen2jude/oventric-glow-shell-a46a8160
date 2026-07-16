@@ -212,6 +212,56 @@ function ProfilePage() {
       .catch(() => {});
   }, [fetchSocialCounts, id]);
 
+  // ------- Avatar & cover image upload (own profile only) -------
+  const updateProfileFn = useServerFn(updateMyProfile);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+  const reloadRealProfile = useCallback(async () => {
+    try {
+      const p = await fetchRealProfile({ data: { idOrSlug: id } });
+      setRealProfile(p.profile);
+    } catch (e) {
+      console.error("[profile] reload after upload failed", e);
+    }
+  }, [fetchRealProfile, id]);
+  const handleImagePicked = useCallback(
+    async (kind: "avatar" | "cover", file: File | null | undefined) => {
+      if (!file || !meId) return;
+      if (!file.type.startsWith("image/")) {
+        alert("Please choose an image file.");
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        alert("Image is too large (max 8MB).");
+        return;
+      }
+      const bucket = kind === "avatar" ? "avatars" : "profile-covers";
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 6) || "jpg";
+      const path = `${meId}/${crypto.randomUUID()}.${ext}`;
+      setUploading(kind);
+      try {
+        const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+        if (upErr) throw upErr;
+        await updateProfileFn({
+          data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
+        });
+        await reloadRealProfile();
+      } catch (e) {
+        console.error("[profile] upload failed", e);
+        alert("Upload failed. Please try again.");
+      } finally {
+        setUploading(null);
+      }
+    },
+    [meId, updateProfileFn, reloadRealProfile],
+  );
+
+
   useEffect(() => {
     let cancelled = false;
     setRealProfileLoaded(false);
