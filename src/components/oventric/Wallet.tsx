@@ -690,7 +690,7 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
     }
   };
   return (
-    <ModalShell title="Add Liquid Capital" onClose={onClose}>
+    <ModalShell title="Fund Wallet" onClose={onClose}>
       {hasPrefill && (
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-3">
           <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
