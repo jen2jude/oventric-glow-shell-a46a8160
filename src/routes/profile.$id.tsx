@@ -664,6 +664,7 @@ function ProfilePage() {
                  static noise) seen on some mobile Chromium builds. Heavier
                  texture/glow effects are reserved for sm: and larger. */}
             <section
+              data-testid="profile-banner"
               className="bg-gradient-to-b from-[#1E1E24] to-[#121214] sm:bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6"
               style={{
                 transform: "translate3d(0,0,0)",
