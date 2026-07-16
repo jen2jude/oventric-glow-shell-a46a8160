@@ -575,6 +575,8 @@ export interface CreateOrderInput {
   displayCurrency: OrderCurrency;
   paymentMethod: PaymentMethod;
   couponCode?: string | null;
+  deliveryEmail?: string | null;
+  deliveryWhatsapp?: string | null;
 }
 
 export interface CreateOrderResult {
