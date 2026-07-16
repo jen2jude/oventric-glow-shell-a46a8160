@@ -1191,6 +1191,7 @@ function ProfilePage() {
         initialThreadId={realProfile?.userId}
       />
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
+      <FollowRequestsDrawer open={followRequestsOpen} onClose={() => setFollowRequestsOpen(false)} />
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
