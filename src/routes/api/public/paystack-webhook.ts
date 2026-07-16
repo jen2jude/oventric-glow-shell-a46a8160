@@ -42,7 +42,6 @@ export const Route = createFileRoute("/api/public/paystack-webhook")({
               transfer_code: typeof d.transfer_code === "string" ? d.transfer_code : undefined,
               reason: typeof d.reason === "string" ? d.reason : undefined,
             });
-            void handleTransferEvent; // silence unused
           }
         } catch (e) {
           console.error("[paystack-webhook] handler error", e);
