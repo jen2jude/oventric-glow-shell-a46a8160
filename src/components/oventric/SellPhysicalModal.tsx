@@ -3,7 +3,7 @@ import { X, ImagePlus, Loader2, CheckCircle2, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createPhysicalProduct, listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
+import { createPhysicalProduct, listMarketplaceCategories, estimateSellerNetUSD, FX_FROM_USD, type CategoryNode, type OrderCurrency } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
@@ -359,6 +359,28 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                   <FieldError k="phone" />
                 </label>
               </div>
+
+              {Number(priceInput) > 0 && (() => {
+                const cur = baseCurrency as OrderCurrency;
+                const fx = FX_FROM_USD[cur] || 1;
+                const priceLocal = Number(priceInput);
+                const priceUSD = priceLocal / fx;
+                const netUSD = estimateSellerNetUSD(priceUSD, cur, "card", fx);
+                const netLocal = netUSD * fx;
+                const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: 2 }).format(n);
+                return (
+                  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs">
+                    <div className="flex items-center justify-between text-slate-300">
+                      <span>You'll receive after fees</span>
+                      <span className="font-semibold text-emerald-300">{fmt(netLocal)}</span>
+                    </div>
+                    <div className="mt-1.5 text-[10px] leading-relaxed text-slate-500">
+                      Buyer pays exactly {fmt(priceLocal)}. Oventric absorbs the Paystack processing fee into the split — you get 80% of what's left, Oventric keeps 20%.
+                    </div>
+                  </div>
+                );
+              })()}
+
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div>

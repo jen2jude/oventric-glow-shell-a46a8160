@@ -638,6 +638,53 @@ export const SELLER_SHARE = 0.8;
 export const PLATFORM_SHARE = 0.2;
 export const WALLET_CASHBACK_PCT = 0.02;
 
+/**
+ * Estimate the Paystack processing fee in USD for a given order.
+ * Buyer pays the sticker price; this fee is skimmed off the top before the
+ * platform/seller split (buyer never sees a surcharge line at checkout).
+ * Rates are Paystack's standard published rates as of 2025.
+ *   NGN: 1.5%, +₦100 if txn ≥ ₦2,500, capped at ₦2,000
+ *   GHS: 1.95%
+ *   USD/international: 3.9% + $0.30
+ * Wallet payments settle internally with no gateway fee.
+ */
+export function estimatePaystackFeeUSD(
+  totalUSD: number,
+  displayCurrency: OrderCurrency,
+  paymentMethod: PaymentMethod,
+  fxFromUSD: number,
+): number {
+  if (paymentMethod === "wallet") return 0;
+  if (totalUSD <= 0) return 0;
+  if (displayCurrency === "NGN") {
+    const ngn = totalUSD * fxFromUSD;
+    let feeNgn = ngn * 0.015 + (ngn >= 2500 ? 100 : 0);
+    if (feeNgn > 2000) feeNgn = 2000;
+    return Number((feeNgn / fxFromUSD).toFixed(2));
+  }
+  if (displayCurrency === "GHS") {
+    return Number((totalUSD * 0.0195).toFixed(2));
+  }
+  return Number((totalUSD * 0.039 + 0.30).toFixed(2));
+}
+
+/**
+ * What the seller actually receives, in USD, for a sale at `totalUSD`.
+ * The gateway fee is absorbed before the split so the seller shares in it
+ * (industry-standard on Selar / Paystack Storefront / Gumroad).
+ */
+export function estimateSellerNetUSD(
+  totalUSD: number,
+  displayCurrency: OrderCurrency,
+  paymentMethod: PaymentMethod,
+  fxFromUSD: number,
+): number {
+  const fee = estimatePaystackFeeUSD(totalUSD, displayCurrency, paymentMethod, fxFromUSD);
+  const net = Math.max(0, totalUSD - fee);
+  return Number((net * SELLER_SHARE).toFixed(2));
+}
+
+
 /** Public: validate a coupon code. Returns the discount percent or null. */
 export const validateCoupon = createServerFn({ method: "POST" })
   .inputValidator((i: { code: string }) => ({ code: String(i?.code ?? "").trim().toUpperCase() }))
@@ -755,14 +802,17 @@ export const createOrder = createServerFn({ method: "POST" })
       occurred_at: new Date().toISOString(),
     });
 
-    // Seller always gets 80%. Buyer cashback (2%) is deducted from the 20%
-    // platform commission when paying from wallet — seller keeps their full 80%.
-    const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
+    // Buyer pays the exact sticker price (no visible surcharge). The gateway
+    // fee (Paystack) is skimmed off the top; the remainder splits 80/20
+    // between seller and platform. Wallet payments have zero gateway fee.
+    const gatewayFeeUSD = estimatePaystackFeeUSD(totalUSD, data.displayCurrency, data.paymentMethod, fx);
+    const netAfterGatewayUSD = Number(Math.max(0, totalUSD - gatewayFeeUSD).toFixed(2));
+    const sellerCutUSD = Number((netAfterGatewayUSD * SELLER_SHARE).toFixed(2));
     let cashbackUSD = 0;
     if (data.paymentMethod === "wallet") {
-      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+      cashbackUSD = Number((netAfterGatewayUSD * WALLET_CASHBACK_PCT).toFixed(2));
     }
-    const platformCutUSD = Number((totalUSD - sellerCutUSD - cashbackUSD).toFixed(2));
+    const platformCutUSD = Number((netAfterGatewayUSD - sellerCutUSD - cashbackUSD).toFixed(2));
 
     await supabaseAdmin.rpc("wallet_credit", {
       _user_id: product.sellerId,
@@ -775,8 +825,9 @@ export const createOrder = createServerFn({ method: "POST" })
       _amount: platformCutUSD,
       _source: "marketplace_order",
       _ref: oRow.id as string,
-      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD },
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod },
     });
+
 
     // 2% cashback to buyer when paying from wallet (funded from platform cut).
     if (cashbackUSD > 0) {
