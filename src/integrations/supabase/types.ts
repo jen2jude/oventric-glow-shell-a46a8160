@@ -1609,6 +1609,7 @@ export type Database = {
           avatar_path: string | null
           bio: string | null
           country: string | null
+          cover_path: string | null
           created_at: string
           display_name: string | null
           kyc_completed_at: string | null
@@ -1629,6 +1630,7 @@ export type Database = {
           avatar_path?: string | null
           bio?: string | null
           country?: string | null
+          cover_path?: string | null
           created_at?: string
           display_name?: string | null
           kyc_completed_at?: string | null
@@ -1649,6 +1651,7 @@ export type Database = {
           avatar_path?: string | null
           bio?: string | null
           country?: string | null
+          cover_path?: string | null
           created_at?: string
           display_name?: string | null
           kyc_completed_at?: string | null
