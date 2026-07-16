@@ -44,6 +44,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
+import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
