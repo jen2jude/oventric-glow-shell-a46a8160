@@ -15,11 +15,19 @@ function UsersPage() {
   const listFn = useServerFn(listAdminUsers);
   const roleFn = useServerFn(setUserRole);
   const [rows, setRows] = useState<Row[] | null>(null);
+  const [loadErr, setLoadErr] = useState<string | null>(null);
   const [q, setQ] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
 
   const refresh = useCallback(() => {
-    listFn().then((r) => setRows(r as Row[]));
+    setLoadErr(null);
+    listFn()
+      .then((r) => setRows(r as Row[]))
+      .catch((e) => {
+        console.error("[admin.users] list failed", e);
+        setLoadErr(e instanceof Error ? e.message : "Failed to load users");
+        setRows([]);
+      });
   }, [listFn]);
   useEffect(() => { refresh(); }, [refresh]);
 
