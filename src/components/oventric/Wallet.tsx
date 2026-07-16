@@ -172,6 +172,15 @@ export function Wallet() {
     if (d) setBalances(d.balances, d.escrow, d.cashback);
   }, [balancesQuery.data, setBalances]);
 
+  const fetchEarnings = useServerFn(getWalletEarnings);
+  const earningsQuery = useQuery({
+    queryKey: ["wallet-earnings", userId],
+    enabled: authReady && !!userId,
+    queryFn: () => fetchEarnings(),
+    staleTime: 15_000,
+  });
+  const earnings = earningsQuery.data ?? { cashbackUSD: 0, bountyUSD: 0, affiliateUSD: 0 };
+
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!userId) return;
