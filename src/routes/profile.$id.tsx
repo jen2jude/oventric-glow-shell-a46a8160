@@ -10,7 +10,7 @@ import {
   cancelCircleRequest,
   type CircleStatus,
 } from "@/lib/circles.functions";
-import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, getProfileSocialCounts, type LiveReputation, type ProfileSocialCounts, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
+import { getLiveProfileTab, getLiveReputation, getProfileByIdOrSlug, getProfileSocialCounts, updateMyProfile, type LiveReputation, type ProfileSocialCounts, type RealProfileView, type ProfileTabPage, type ProfileSortKey } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
   ProfileGroup,
@@ -37,6 +37,8 @@ import {
   RefreshCw,
   Clock,
   Loader2,
+  Camera,
+
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -209,6 +211,56 @@ function ProfilePage() {
       .then((c) => setSocialCounts(c))
       .catch(() => {});
   }, [fetchSocialCounts, id]);
+
+  // ------- Avatar & cover image upload (own profile only) -------
+  const updateProfileFn = useServerFn(updateMyProfile);
+  const avatarInputRef = useRef<HTMLInputElement | null>(null);
+  const coverInputRef = useRef<HTMLInputElement | null>(null);
+  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+  const reloadRealProfile = useCallback(async () => {
+    try {
+      const p = await fetchRealProfile({ data: { idOrSlug: id } });
+      setRealProfile(p.profile);
+    } catch (e) {
+      console.error("[profile] reload after upload failed", e);
+    }
+  }, [fetchRealProfile, id]);
+  const handleImagePicked = useCallback(
+    async (kind: "avatar" | "cover", file: File | null | undefined) => {
+      if (!file || !meId) return;
+      if (!file.type.startsWith("image/")) {
+        alert("Please choose an image file.");
+        return;
+      }
+      if (file.size > 8 * 1024 * 1024) {
+        alert("Image is too large (max 8MB).");
+        return;
+      }
+      const bucket = kind === "avatar" ? "avatars" : "profile-covers";
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 6) || "jpg";
+      const path = `${meId}/${crypto.randomUUID()}.${ext}`;
+      setUploading(kind);
+      try {
+        const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
+          cacheControl: "3600",
+          upsert: false,
+          contentType: file.type,
+        });
+        if (upErr) throw upErr;
+        await updateProfileFn({
+          data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
+        });
+        await reloadRealProfile();
+      } catch (e) {
+        console.error("[profile] upload failed", e);
+        alert("Upload failed. Please try again.");
+      } finally {
+        setUploading(null);
+      }
+    },
+    [meId, updateProfileFn, reloadRealProfile],
+  );
+
 
   useEffect(() => {
     let cancelled = false;
@@ -745,27 +797,103 @@ function ProfilePage() {
                  producing scanline / static noise between the reputation
                  stat grid and the rating breakdown. Keep the background
                  flat; let the browser composite normally. */}
+            {/* Hidden file inputs for avatar / cover uploads (own profile). */}
+            {isOwnProfile && (
+              <>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    handleImagePicked("avatar", f);
+                    if (e.target) e.target.value = "";
+                  }}
+                />
+                <input
+                  ref={coverInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    handleImagePicked("cover", f);
+                    if (e.target) e.target.value = "";
+                  }}
+                />
+              </>
+            )}
+
+            {/* Cover banner — solid fallback gradient when no image set. Kept
+                simple: no filters, no backdrop-blur, no compositor promotion. */}
+            <div className="relative mb-4 h-32 sm:h-48 rounded-xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#1E1E24] via-[#22222b] to-[#121214]">
+              {realProfile?.coverUrl ? (
+                <ResponsiveImage
+                  src={realProfile.coverUrl}
+                  alt={`${displayName} cover`}
+                  sizes="(min-width: 768px) 768px, 100vw"
+                  className="w-full h-full object-cover"
+                />
+              ) : null}
+              {isOwnProfile && (
+                <button
+                  type="button"
+                  onClick={() => coverInputRef.current?.click()}
+                  disabled={uploading === "cover"}
+                  aria-label="Change cover image"
+                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/80 border border-white/20 text-white text-xs font-semibold backdrop-blur-none"
+                >
+                  {uploading === "cover" ? (
+                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  ) : (
+                    <Camera className="w-3.5 h-3.5" />
+                  )}
+                  <span className="hidden sm:inline">
+                    {uploading === "cover" ? "Uploading…" : realProfile?.coverUrl ? "Change cover" : "Add cover"}
+                  </span>
+                </button>
+              )}
+            </div>
+
             <section
               data-testid="profile-banner"
               className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-4 sm:p-6"
               style={{ overscrollBehavior: "contain" }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                <div
-                  className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
-                >
-                  {displayAvatar ? (
-                    <ResponsiveImage
-                      src={displayAvatar}
-                      alt={`${displayName} avatar`}
-                      sizes="80px"
-                      className="w-full h-full object-cover"
-                    />
-
-                  ) : (
-                    displayInitials
+                <div className="relative shrink-0">
+                  <div
+                    className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shadow-lg overflow-hidden`}
+                  >
+                    {displayAvatar ? (
+                      <ResponsiveImage
+                        src={displayAvatar}
+                        alt={`${displayName} avatar`}
+                        sizes="80px"
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      displayInitials
+                    )}
+                  </div>
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      onClick={() => avatarInputRef.current?.click()}
+                      disabled={uploading === "avatar"}
+                      aria-label="Change profile picture"
+                      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black border-2 border-[#1E1E24] flex items-center justify-center shadow-lg"
+                    >
+                      {uploading === "avatar" ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : (
+                        <Camera className="w-4 h-4" strokeWidth={2.4} />
+                      )}
+                    </button>
                   )}
                 </div>
+
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-white text-2xl font-black">{displayName}</h1>

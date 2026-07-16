@@ -93,6 +93,8 @@ export interface RealProfileView {
   username: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
+
   verificationTier: string;
   reputationStars: number;
   country: string | null;
@@ -115,7 +117,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabase
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, verification_tier, reputation_stars, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, created_at",
       )
       .limit(1);
 
@@ -137,6 +139,13 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
       avatarUrl = signed?.signedUrl ?? null;
     }
+    let coverUrl: string | null = null;
+    if (row.cover_path) {
+      const { data: signed } = await supabase.storage
+        .from("profile-covers")
+        .createSignedUrl(row.cover_path, 60 * 60 * 24 * 7);
+      coverUrl = signed?.signedUrl ?? null;
+    }
 
     return {
       profile: {
@@ -146,6 +155,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         username: row.username,
         bio: row.bio,
         avatarUrl,
+        coverUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: null,
@@ -153,6 +163,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
       },
     };
   });
+
 
 
 // ---------------------------------------------------------------------------
@@ -242,6 +253,8 @@ const UpdateInput = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(280).optional().nullable(),
   avatarPath: z.string().trim().max(300).optional().nullable(),
+  coverPath: z.string().trim().max(300).optional().nullable(),
+
   username: z
     .string()
     .trim()
@@ -266,6 +279,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       display_name?: string;
       bio?: string | null;
       avatar_path?: string | null;
+      cover_path?: string | null;
       username?: string | null;
       phone?: string | null;
       country?: string | null;
@@ -275,6 +289,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.avatarPath !== undefined) patch.avatar_path = data.avatarPath;
+    if (data.coverPath !== undefined) patch.cover_path = data.coverPath;
+
     if (data.username !== undefined) patch.username = data.username;
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
