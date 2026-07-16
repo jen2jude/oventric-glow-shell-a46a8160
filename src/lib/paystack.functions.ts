@@ -348,6 +348,8 @@ export async function verifyAndSettleByReference(reference: string) {
       quantity: Number(meta.quantity ?? 1),
       displayCurrency: (meta.display_currency as OrderCurrency) ?? currency,
       couponCode: (meta.coupon_code as string | null) ?? null,
+      deliveryEmail: (meta.delivery_email as string | null) ?? null,
+      deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
     });
     return { ok: true as const, status: "success", redirectTo: `/order/${res.orderId}` };
   }
