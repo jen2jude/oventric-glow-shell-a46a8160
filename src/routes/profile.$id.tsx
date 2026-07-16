@@ -659,11 +659,24 @@ function ProfilePage() {
               </div>
             </div>
 
-            {/* Hero */}
-            <section className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6">
+            {/* Hero — mobile uses a solid gradient with hardware-accel safety
+                 rules to prevent GPU rendering artifacts (scanline tearing,
+                 static noise) seen on some mobile Chromium builds. Heavier
+                 texture/glow effects are reserved for sm: and larger. */}
+            <section
+              className="bg-gradient-to-b from-[#1E1E24] to-[#121214] sm:bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6"
+              style={{
+                transform: "translate3d(0,0,0)",
+                backfaceVisibility: "hidden",
+              }}
+            >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
                   className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
+                  style={{
+                    transform: "translate3d(0,0,0)",
+                    backfaceVisibility: "hidden",
+                  }}
                 >
                   {displayAvatar ? (
                     <ResponsiveImage
