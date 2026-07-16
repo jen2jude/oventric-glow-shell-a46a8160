@@ -92,6 +92,8 @@ function CheckoutPage() {
   const [couponBusy, setCouponBusy] = useState(false);
   const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
   const [couponErr, setCouponErr] = useState<string | null>(null);
+  const [deliveryEmail, setDeliveryEmail] = useState("");
+  const [deliveryWhatsapp, setDeliveryWhatsapp] = useState("");
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
