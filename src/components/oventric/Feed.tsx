@@ -6,6 +6,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
 import {
