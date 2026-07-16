@@ -178,6 +178,40 @@
   }
 }
 
+/* -------------------------------------------------------------------------
+   Global mobile GPU-safety pass (Chrome Android + certain Mali/PowerVR GPUs)
+   Neutralizes the CSS patterns known to trigger rasterization corruption:
+   backdrop-filter, mix-blend-mode, filter:url(#...), animated backgrounds,
+   and compositor-promotion hints. Applied app-wide under 768px so no
+   individual screen has to remember the rules.
+   ------------------------------------------------------------------------- */
+@media (max-width: 767px) {
+  *,
+  *::before,
+  *::after {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+  }
+
+  /* Kill filter:url() SVG filters (feTurbulence/feDisplacementMap noise). */
+  [style*="filter: url"],
+  [style*="filter:url"] {
+    filter: none !important;
+  }
+
+  /* Neutralize the animated RGB spectrum surfaces on mobile. */
+  .rgb-neon-border-wrapper {
+    background: rgba(255, 255, 255, 0.08) !important;
+    animation: none !important;
+  }
+  .rgb-pulse-glow {
+    animation: none !important;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.6) !important;
+  }
+}
+
 
 .rgb-neon-border-wrapper {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
