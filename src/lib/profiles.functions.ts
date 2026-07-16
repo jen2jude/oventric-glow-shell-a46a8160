@@ -253,6 +253,8 @@ const UpdateInput = z.object({
   displayName: z.string().trim().min(1).max(80).optional(),
   bio: z.string().trim().max(280).optional().nullable(),
   avatarPath: z.string().trim().max(300).optional().nullable(),
+  coverPath: z.string().trim().max(300).optional().nullable(),
+
   username: z
     .string()
     .trim()
