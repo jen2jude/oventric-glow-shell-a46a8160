@@ -123,6 +123,7 @@ function mapProduct(
     socialLink: (r.social_link as string) ?? null,
     imagePaths: Array.isArray(r.image_paths) ? (r.image_paths as string[]) : [],
     imageUrls,
+    requiresManualDelivery: Boolean(r.requires_manual_delivery),
   };
 }
 
