@@ -377,29 +377,10 @@ export function Wallet() {
             </div>
           );
         })()}
-
-
-        {/* Cashback accumulator */}
-        <div className="relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5">
-          <div className="absolute -right-16 -top-16 w-48 h-48 rounded-full bg-emerald-500/10 blur-3xl" />
-          <div className="relative grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-4">
-            <div className="w-11 h-11 rounded-xl border border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center shrink-0">
-              <Sparkles className="w-5 h-5 text-emerald-300" />
-            </div>
-            <div className="min-w-0">
-              <div className="text-[11px] uppercase tracking-wider text-emerald-300/80 font-semibold">
-                Internal Cashback Accumulator
-              </div>
-              <div className="text-xs text-slate-400 mt-0.5 truncate">
-                2%–5% active engine · marketplace bonus capital ready to deploy
-              </div>
-            </div>
-            <div className={`text-xl sm:text-2xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)] ${hide ? "blur-sm select-none" : ""}`}>
-              {hide ? mask : fmt(cashback * (FX_FROM_USD[baseCurrency] || 1), baseCurrency)}
-            </div>
-          </div>
-        </div>
       </section>
+
+
+
 
       {/* 2. Ingestion & Extraction */}
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
