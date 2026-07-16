@@ -121,22 +121,25 @@ export function Marketplace() {
   if (!products) return <MarketplaceSkeleton />;
 
   const ModeToggle = () => (
-    <div className="relative inline-flex bg-[#1E1E24] border border-white/10 rounded-full p-1 select-none">
-      <div
-        className="absolute top-1 bottom-1 w-1/2 rounded-full rgb-neon-bg transition-transform duration-300 ease-out"
-        style={{ transform: mode === "digital" ? "translateX(0%)" : "translateX(100%)" }}
-      />
-      {(["digital", "physical"] as const).map((m) => (
-        <button
-          key={m}
-          onClick={() => { setMode(m); setFullCategory(null); setActiveTab("all"); }}
-          className={`relative z-10 px-5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
-            mode === m ? "text-black" : "text-slate-300 hover:text-white"
-          }`}
-        >
-          {m === "digital" ? "Digital" : "Physical"}
-        </button>
-      ))}
+    <div className="inline-flex items-center gap-2 bg-[#1E1E24] border border-white/10 rounded-full p-1 select-none">
+      {(["digital", "physical"] as const).map((m) => {
+        const active = mode === m;
+        return (
+          <button
+            key={m}
+            onClick={() => { setMode(m); setFullCategory(null); setActiveTab("all"); }}
+            className={`rounded-full transition-all ${active ? "rgb-neon-bg p-[2px]" : "p-0"}`}
+          >
+            <span
+              className={`block px-5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
+                active ? "bg-[#1E1E24] text-white" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              {m === "digital" ? "Digital" : "Physical"}
+            </span>
+          </button>
+        );
+      })}
     </div>
   );
 
