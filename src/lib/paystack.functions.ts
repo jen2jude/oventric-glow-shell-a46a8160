@@ -54,6 +54,8 @@ type OrderIntent = {
   quantity: number;
   displayCurrency: OrderCurrency;
   couponCode?: string | null;
+  deliveryEmail?: string | null;
+  deliveryWhatsapp?: string | null;
 };
 
 export type PaystackInitInput = (WalletTopupIntent | OrderIntent) & {
