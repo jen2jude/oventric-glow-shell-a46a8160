@@ -249,14 +249,16 @@ export function ProfileDropdown() {
       aria-expanded={open}
       aria-controls={open ? menuId : undefined}
       aria-label="Open profile menu"
-      className="rgb-pulse-glow relative w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
+      className="rgb-neon-bg relative w-9 h-9 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
-      {profile.avatarDataUrl ? (
-        <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
-      ) : (
-        <span>{initials}</span>
-      )}
-      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#121214] bg-emerald-400" aria-hidden />
+      <span className="absolute inset-[2px] rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden">
+        {profile.avatarDataUrl ? (
+          <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <span>{initials}</span>
+        )}
+      </span>
+      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#121214] bg-emerald-400 z-10" aria-hidden />
     </button>
   );
 
