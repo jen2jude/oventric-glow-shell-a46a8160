@@ -816,7 +816,9 @@ function ProfilePage() {
                   ref={avatarInputRef}
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }}
+                  aria-hidden="true"
+                  tabIndex={-1}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     handleImagePicked("avatar", f);
@@ -827,13 +829,16 @@ function ProfilePage() {
                   ref={coverInputRef}
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }}
+                  aria-hidden="true"
+                  tabIndex={-1}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     handleImagePicked("cover", f);
                     if (e.target) e.target.value = "";
                   }}
                 />
+
               </>
             )}
 
