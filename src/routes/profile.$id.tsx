@@ -1469,15 +1469,20 @@ function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string;
 function MobileRepLine({
   label,
   value,
+  icon,
   last = false,
 }: {
   label: string;
   value: React.ReactNode;
+  icon?: React.ReactNode;
   last?: boolean;
 }) {
   return (
     <div className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30]"}`}>
-      <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+      <div className="flex min-w-0 items-center gap-2">
+        {icon ? <span className="shrink-0 inline-flex">{icon}</span> : null}
+        <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+      </div>
       <div className="shrink-0 text-sm font-black text-white">{value}</div>
     </div>
   );
