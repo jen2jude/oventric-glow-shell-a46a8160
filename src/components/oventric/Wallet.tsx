@@ -27,6 +27,17 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions, getWalletBalances, getWalletEarnings } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
+import {
+  listBanksForCurrency,
+  resolveBankAccount,
+  listMyRecipients,
+  createMyRecipient,
+  deleteMyRecipient,
+  estimatePayoutFee,
+  createLivePayout,
+  createPayoutRequest,
+  type PayoutRecipientDTO,
+} from "@/lib/payouts.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
