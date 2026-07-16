@@ -101,6 +101,26 @@ export const sendFollowRequest = createServerFn({ method: "POST" })
       console.error("[sendFollowRequest]", error);
       throw new Error("Failed to send follow request");
     }
+    // Fire a notification for the target so they see the request in their bell.
+    try {
+      const { data: meProfile } = await context.supabase
+        .from("profiles")
+        .select("display_name, username, slug")
+        .eq("user_id", me)
+        .maybeSingle();
+      const name = meProfile?.display_name || meProfile?.username || "Someone";
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as any).from("notifications").insert({
+        user_id: data.targetId,
+        from_user_id: me,
+        kind: "follow_request",
+        title: `${name} wants to follow you`,
+        body: "Open your profile to accept or decline.",
+        link: meProfile?.slug ? `/profile/${meProfile.slug}` : null,
+      });
+    } catch (nErr) {
+      console.error("[sendFollowRequest] notify", nErr);
+    }
     const { data: theyFollow } = await context.supabase
       .from("follows")
       .select("follower_id")
