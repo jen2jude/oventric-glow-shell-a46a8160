@@ -144,7 +144,14 @@ export const completeProfile = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => CompleteProfileInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, unknown> = {
+    const patch: {
+      display_name: string;
+      country: string;
+      verification_tier: string;
+      profile_completed_at: string;
+      address?: string;
+      phone?: string;
+    } = {
       display_name: data.fullName,
       country: data.country,
       verification_tier: "TIER_2",
