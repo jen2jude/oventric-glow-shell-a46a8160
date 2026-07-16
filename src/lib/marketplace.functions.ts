@@ -68,6 +68,9 @@ export interface OrderDTO {
   paidAt: string | null;
   externalUrl: string | null;
   filePath: string | null;
+  deliveryEmail: string | null;
+  deliveryWhatsapp: string | null;
+  requiresManualDelivery: boolean;
 }
 
 export const FX_FROM_USD: Record<OrderCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
