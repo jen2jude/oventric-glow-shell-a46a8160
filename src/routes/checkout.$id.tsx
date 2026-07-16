@@ -314,6 +314,40 @@ function CheckoutPage() {
                   </div>
                 </div>
               )}
+
+              {needsDelivery && (
+                <div className="mt-2 rounded-xl border border-white/10 bg-[#1E1E24] p-4">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Delivery details</div>
+                  <p className="text-[11px] text-slate-500 mb-3">
+                    {product.requiresManualDelivery
+                      ? "This product requires manual deployment. After payment is verified, the seller will use these details to deliver your purchase."
+                      : "We’ll send the receipt and download link here after payment is verified."}
+                  </p>
+                  <label className="block mb-2">
+                    <span className="text-xs text-slate-300">Email</span>
+                    <input
+                      type="email"
+                      value={deliveryEmail}
+                      onChange={(e) => setDeliveryEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-slate-300">WhatsApp number</span>
+                    <input
+                      inputMode="tel"
+                      value={deliveryWhatsapp}
+                      onChange={(e) => setDeliveryWhatsapp(e.target.value)}
+                      placeholder="+234 800 000 0000"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    />
+                  </label>
+                  {!deliveryValid && (deliveryEmail || deliveryWhatsapp) && (
+                    <div className="text-[11px] text-red-300 mt-2">Enter a valid email and phone number with at least 6 digits.</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Summary */}
