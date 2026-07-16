@@ -206,7 +206,10 @@ export function Wallet() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
-        () => queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] }),
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+          queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
+        },
       )
       .subscribe();
     return () => {
