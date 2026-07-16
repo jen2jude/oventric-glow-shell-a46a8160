@@ -1,6 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "@/integrations/supabase/types";
 
 import type {
   ProfileBounty,
@@ -86,6 +88,61 @@ export const getProfileItem = createServerFn({ method: "GET" })
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
+function isNewSupabaseApiKey(value: string): boolean {
+  return value.startsWith("sb_publishable_") || value.startsWith("sb_secret_");
+}
+
+function createSupabaseFetch(supabaseKey: string): typeof fetch {
+  return (input, init) => {
+    const headers = new Headers(
+      typeof Request !== "undefined" && input instanceof Request ? input.headers : undefined,
+    );
+
+    if (init?.headers) {
+      new Headers(init.headers).forEach((value, key) => headers.set(key, value));
+    }
+
+    if (isNewSupabaseApiKey(supabaseKey) && headers.get("Authorization") === `Bearer ${supabaseKey}`) {
+      headers.delete("Authorization");
+    }
+
+    headers.set("apikey", supabaseKey);
+    return fetch(input, { ...init, headers });
+  };
+}
+
+async function createServerPublicClient(): Promise<SupabaseClient<Database>> {
+  const { createClient } = await import("@supabase/supabase-js");
+  const supabaseUrl = process.env.SUPABASE_URL;
+  const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY;
+  if (!supabaseUrl || !publishableKey) throw new Error("Backend is not configured");
+  return createClient<Database>(supabaseUrl, publishableKey, {
+    global: { fetch: createSupabaseFetch(publishableKey) },
+    auth: {
+      storage: undefined,
+      persistSession: false,
+      autoRefreshToken: false,
+    },
+  });
+}
+
+async function resolveProfileImageUrl(
+  supabase: SupabaseClient<Database>,
+  bucket: "avatars" | "profile-covers",
+  path: string | null,
+): Promise<string | null> {
+  if (!path) return null;
+
+  const { data: signed, error } = await supabase.storage
+    .from(bucket)
+    .createSignedUrl(path, 60 * 60 * 24 * 7);
+  if (signed?.signedUrl) return signed.signedUrl;
+
+  if (error) console.error(`[profiles] ${bucket} signed URL failed`, error);
+  const { data } = supabase.storage.from(bucket).getPublicUrl(path);
+  return data.publicUrl || null;
+}
+
 export interface RealProfileView {
   userId: string;
   slug: string;
@@ -106,12 +163,7 @@ const ViewInput = z.object({ idOrSlug: z.string().trim().min(1).max(120) });
 export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => ViewInput.parse(input))
   .handler(async ({ data }): Promise<{ profile: RealProfileView | null }> => {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+    const supabase = await createServerPublicClient();
 
     const looksLikeUuid = UUID_RE.test(data.idOrSlug);
     const query = supabase
@@ -131,21 +183,10 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     }
     if (!row) return { profile: null };
 
-    // Sign the avatar path (bucket is private).
-    let avatarUrl: string | null = null;
-    if (row.avatar_path) {
-      const { data: signed } = await supabase.storage
-        .from("avatars")
-        .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
-      avatarUrl = signed?.signedUrl ?? null;
-    }
-    let coverUrl: string | null = null;
-    if (row.cover_path) {
-      const { data: signed } = await supabase.storage
-        .from("profile-covers")
-        .createSignedUrl(row.cover_path, 60 * 60 * 24 * 7);
-      coverUrl = signed?.signedUrl ?? null;
-    }
+    const [avatarUrl, coverUrl] = await Promise.all([
+      resolveProfileImageUrl(supabase, "avatars", row.avatar_path),
+      resolveProfileImageUrl(supabase, "profile-covers", row.cover_path),
+    ]);
 
     return {
       profile: {
@@ -182,12 +223,7 @@ export interface ProfileSocialCounts {
 export const getProfileSocialCounts = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => ViewInput.parse(input))
   .handler(async ({ data }): Promise<ProfileSocialCounts> => {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+    const supabase = await createServerPublicClient();
 
     // Resolve to a slug + user_id. Accept slug/username directly; look up by user_id UUID.
     let slug = data.idOrSlug;
