@@ -879,7 +879,7 @@ function ProfilePage() {
               className="profile-card-safe bg-[#1E1E24] border border-white/10 rounded-xl p-4 sm:p-6"
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
-                <div className="relative shrink-0">
+                <div className="relative shrink-0 self-start">
                   <div
                     className="profile-avatar-safe w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-black text-2xl font-black"
                   >
