@@ -137,7 +137,11 @@ async function signCovers(
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
-const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, seller_phone, whatsapp_number, social_link, image_paths";
+// Sensitive contact columns (seller_phone, whatsapp_number, social_link) are excluded here;
+// anon has no column-level grant on them. Owner/admin flows fetch them via dedicated RPCs
+// or the authenticated context.supabase client (see PRODUCT_COLS_OWNER).
+const PRODUCT_COLS = "id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, created_at, kind, status, reject_reason, condition, brand, location, negotiable, delivery, image_paths";
+const PRODUCT_COLS_OWNER = PRODUCT_COLS + ", seller_phone, whatsapp_number, social_link";
 
 async function signImagePaths(
   sb: ReturnType<typeof serverPublicClient>,
