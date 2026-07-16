@@ -716,22 +716,22 @@ function ProfilePage() {
                   )}
                   {copied ? "Copied!" : "Copy Link"}
                 </button>
-                <button
-                  onClick={() => setRequestsOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                  aria-label="Open circle requests drawer"
-                >
-                  <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
-                  Circle Requests
-                </button>
                 {isOwnProfile && (
                   <button
                     onClick={() => setFollowRequestsOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                    aria-label="Open follow requests drawer"
+                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                    aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
                     <UserPlus className="w-3.5 h-3.5 text-sky-300" />
                     Follow Requests
+                    {pendingFollowReqCount > 0 && (
+                      <span
+                        className="rgb-pulse-glow absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
+                        aria-hidden
+                      >
+                        {pendingFollowReqCount > 9 ? "9+" : pendingFollowReqCount}
+                      </span>
+                    )}
                   </button>
                 )}
               </div>
