@@ -79,6 +79,10 @@ test.describe("Profile banner renders without visual corruption", () => {
         waitUntil: "networkidle",
       });
       await dismissProfileSetupDialog(page);
+      await page
+        .getByRole("status", { name: /successfully signed in/i })
+        .waitFor({ state: "hidden", timeout: 2500 })
+        .catch(() => undefined);
 
       const banner = page.getByTestId("profile-banner");
       await expect(banner).toBeVisible();

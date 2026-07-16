@@ -70,6 +70,10 @@ async function stabilize(page: Page) {
     `,
   });
   await page.evaluate(() => document.fonts?.ready);
+  await page
+    .getByRole("status", { name: /successfully signed in/i })
+    .waitFor({ state: "hidden", timeout: 2500 })
+    .catch(() => undefined);
   await page.waitForLoadState("networkidle");
 }
 
