@@ -315,7 +315,7 @@ export function Wallet() {
               </div>
             </div>
             <div className={`text-xl sm:text-2xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)] ${hide ? "blur-sm select-none" : ""}`}>
-              {hide ? mask : `$${cashback.toFixed(2)}`}
+              {hide ? mask : fmt(cashback * (FX_FROM_USD[baseCurrency] || 1), baseCurrency)}
             </div>
           </div>
         </div>
@@ -469,41 +469,61 @@ export function Wallet() {
           </h2>
         </div>
 
-        <div className="space-y-3">
-          <div className="flex items-center justify-between text-xs text-slate-400">
-            <span>Projected Monthly Spend / Gig Volume</span>
-            <span className="tabular-nums text-slate-200 font-semibold">
-              ${spend.toLocaleString("en-US")}{spend >= 10000 ? "+" : ""}
-            </span>
-          </div>
-          <input
-            type="range"
-            min={0}
-            max={10000}
-            step={100}
-            value={spend}
-            onChange={(e) => setSpend(Number(e.target.value))}
-            className="w-full accent-emerald-500"
-          />
-          <div className="grid grid-cols-3 gap-2 text-[11px]">
-            <TierPill active={tier.label === "Baseline"} label="Baseline" desc="< $1K · 2%" />
-            <TierPill active={tier.label === "Elite Tier"} label="Elite Tier" desc="$1K–$5K · 3.5%" />
-            <TierPill active={tier.label === "Apex Architect"} label="Apex" desc="> $5K · 5%" />
-          </div>
-        </div>
+        <p className="text-xs text-slate-400 leading-relaxed">
+          A planning tool. Drag the slider to the amount you expect to spend
+          or earn through Oventric each month — marketplace purchases, gig
+          bounties funded, ad injections, course sales. The estimator shows
+          which cashback tier that volume unlocks (2%, 3.5%, or 5%) and how
+          much you'd earn back over a year at that rate. Use it to decide
+          how much activity to route through your wallet.
+        </p>
 
-        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 text-center">
-          <div className="text-[11px] uppercase tracking-wider text-emerald-300/80 font-semibold">
-            Estimated Annual Processing Savings
-          </div>
-          <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_16px_rgba(52,211,153,0.7)]">
-            ${annualSavings.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-          </div>
-          <div className="mt-1 text-xs text-slate-400">
-            at <span className="text-emerald-300 font-semibold">{tier.pct}%</span> {tier.label} multiplier
-          </div>
-        </div>
+        {(() => {
+          const fx = FX_FROM_USD[baseCurrency] || 1;
+          const spendLocal = spend * fx;
+          const maxLocal = 10000 * fx;
+          const t1Local = 1000 * fx;
+          const t2Local = 5000 * fx;
+          const annualLocal = annualSavings * fx;
+          return (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between text-xs text-slate-400">
+                <span>Projected Monthly Spend / Gig Volume</span>
+                <span className="tabular-nums text-slate-200 font-semibold">
+                  {fmt(spendLocal, baseCurrency)}{spend >= 10000 ? "+" : ""}
+                </span>
+              </div>
+              <input
+                type="range"
+                min={0}
+                max={10000}
+                step={100}
+                value={spend}
+                onChange={(e) => setSpend(Number(e.target.value))}
+                className="w-full accent-emerald-500"
+              />
+              <div className="grid grid-cols-3 gap-2 text-[11px]">
+                <TierPill active={tier.label === "Baseline"} label="Baseline" desc={`< ${fmt(t1Local, baseCurrency)} · 2%`} />
+                <TierPill active={tier.label === "Elite Tier"} label="Elite Tier" desc={`${fmt(t1Local, baseCurrency)}–${fmt(t2Local, baseCurrency)} · 3.5%`} />
+                <TierPill active={tier.label === "Apex Architect"} label="Apex" desc={`> ${fmt(t2Local, baseCurrency)} · 5%`} />
+              </div>
+
+              <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 text-center">
+                <div className="text-[11px] uppercase tracking-wider text-emerald-300/80 font-semibold">
+                  Estimated Annual Cashback Earnings
+                </div>
+                <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_16px_rgba(52,211,153,0.7)]">
+                  {fmt(annualLocal, baseCurrency)}
+                </div>
+                <div className="mt-1 text-xs text-slate-400">
+                  at <span className="text-emerald-300 font-semibold">{tier.pct}%</span> {tier.label} multiplier
+                </div>
+              </div>
+            </div>
+          );
+        })()}
       </section>
+
 
       {/* Modals */}
       {addOpen && (
