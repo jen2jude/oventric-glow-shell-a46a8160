@@ -19,21 +19,24 @@ const schema = z
       .min(2, "Enter your full name")
       .max(80)
       .regex(/\s/, "Enter first and last name"),
-    country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
+    country: z.enum(["NG", "GH", "OTHER"]),
+    countryOther: z.string().trim().max(60).optional(),
     password: z.string().min(8, "Minimum 8 characters").max(72),
     confirm: z.string(),
   })
   .refine((v) => v.password === v.confirm, {
     message: "Passwords don't match",
     path: ["confirm"],
+  })
+  .refine((v) => v.country !== "OTHER" || (v.countryOther && v.countryOther.length >= 2), {
+    message: "Type your country name",
+    path: ["countryOther"],
   });
 
 const COUNTRIES: { code: Country; label: string }[] = [
   { code: "NG", label: "🇳🇬 Nigeria" },
   { code: "GH", label: "🇬🇭 Ghana" },
-  { code: "US", label: "🇺🇸 United States" },
-  { code: "UK", label: "🇬🇧 United Kingdom" },
-  { code: "OTHER", label: "🌍 Other" },
+  { code: "OTHER", label: "🌍 Other (type your country)" },
 ];
 
 /**
