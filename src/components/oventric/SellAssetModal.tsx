@@ -3,7 +3,7 @@ import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus, Trash2, ShieldAlert
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createProduct, listMarketplaceCategories, type ProductCategory, type CategoryNode } from "@/lib/marketplace.functions";
+import { createProduct, listMarketplaceCategories, estimateSellerNetUSD, FX_FROM_USD, type ProductCategory, type CategoryNode, type OrderCurrency } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
