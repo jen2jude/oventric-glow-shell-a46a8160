@@ -191,7 +191,7 @@ export const getProduct = createServerFn({ method: "POST" })
     return mapProduct(row as Record<string, unknown>, url, imgUrls);
   });
 
-/** Authenticated seller creates a product (used by Admin Forge). */
+/** Authenticated seller creates a digital-asset product (goes to pending for admin review). */
 export const createProduct = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: {
@@ -204,6 +204,8 @@ export const createProduct = createServerFn({ method: "POST" })
     externalUrl?: string | null;
     filePath?: string | null;
     coverPath?: string | null;
+    imagePaths?: string[];
+    requiresManualDelivery?: boolean;
     originalCurrency?: OrderCurrency;
     originalAmount?: number;
     fxSnapshot?: { base: string; rates: Record<string, number>; source?: string; fetched_at?: string } | null;
@@ -211,20 +213,23 @@ export const createProduct = createServerFn({ method: "POST" })
     name: String(input.name ?? "").trim(),
     category: input.category,
     description: String(input.description ?? "").trim(),
-    priceUSD: Number(input.priceUSD),
+    priceUSD: Math.max(0, Number(input.priceUSD ?? 0)),
     vendor: String(input.vendor ?? "").trim(),
     hue: input.hue ?? "from-emerald-500 to-teal-700",
     externalUrl: input.externalUrl ?? null,
     filePath: input.filePath ?? null,
     coverPath: input.coverPath ?? null,
+    imagePaths: (input.imagePaths ?? []).filter(Boolean),
+    requiresManualDelivery: Boolean(input.requiresManualDelivery),
     originalCurrency: (input.originalCurrency ?? "USD") as OrderCurrency,
-    originalAmount: Number(input.originalAmount ?? input.priceUSD),
+    originalAmount: Math.max(0, Number(input.originalAmount ?? input.priceUSD ?? 0)),
     fxSnapshot: input.fxSnapshot ?? null,
   }))
   .handler(async ({ data, context }) => {
     if (!data.name) throw new Error("Name required");
-    if (!(data.priceUSD > 0)) throw new Error("Price must be > 0");
+    if (data.priceUSD < 0) throw new Error("Price cannot be negative");
 
+    const cover = data.coverPath ?? data.imagePaths[0] ?? null;
     const { data: row, error } = await context.supabase
       .from("products")
       .insert({
@@ -240,7 +245,9 @@ export const createProduct = createServerFn({ method: "POST" })
         hue: data.hue,
         external_url: data.externalUrl,
         file_path: data.filePath,
-        cover_path: data.coverPath,
+        cover_path: cover,
+        image_paths: data.imagePaths,
+        requires_manual_delivery: data.requiresManualDelivery,
         promoted: false,
         kind: "digital",
         status: "pending",
@@ -249,14 +256,15 @@ export const createProduct = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
     let coverUrl: string | null = null;
-    if (data.coverPath) {
+    if (cover) {
       const { data: signed } = await context.supabase.storage
         .from("product-covers")
-        .createSignedUrl(data.coverPath, 60 * 60 * 24 * 7);
+        .createSignedUrl(cover, 60 * 60 * 24 * 7);
       coverUrl = signed?.signedUrl ?? null;
     }
     return mapProduct(row as Record<string, unknown>, coverUrl);
   });
+
 
 /** Authenticated seller creates a physical product listing. Enters as 'pending' for admin approval. */
 export const createPhysicalProduct = createServerFn({ method: "POST" })
