@@ -176,6 +176,28 @@
     background-image: none !important;
     box-shadow: none !important;
   }
+
+  .profile-render-safe .profile-mid-safe,
+  .profile-render-safe .profile-reputation-safe,
+  .profile-render-safe .profile-reputation-safe * {
+    position: static !important;
+    overflow: visible !important;
+    background-image: none !important;
+    clip-path: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    isolation: auto !important;
+  }
+
+  .profile-render-safe .profile-reputation-safe {
+    display: block !important;
+    background-color: transparent !important;
+  }
 }
 
 /* -------------------------------------------------------------------------

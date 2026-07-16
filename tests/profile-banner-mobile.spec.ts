@@ -49,6 +49,24 @@ async function restoreSession(page: Page, context: BrowserContext): Promise<stri
   return parsed?.user?.id ?? parsed?.currentSession?.user?.id ?? null;
 }
 
+async function dismissProfileSetupDialog(page: Page) {
+  const dialog = page.getByRole("dialog", {
+    name: /finish setting up your account/i,
+  });
+  const isOpen = await dialog
+    .waitFor({ state: "visible", timeout: 1200 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!isOpen) return;
+
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toBeHidden();
+  await page.evaluate(() => {
+    document.body.style.overflow = "";
+  });
+}
+
 test.describe("Profile banner renders without visual corruption", () => {
   for (const vp of VIEWPORTS) {
     test(`renders cleanly @ ${vp.label} (${vp.width}x${vp.height})`, async ({ page, context }) => {
@@ -60,6 +78,11 @@ test.describe("Profile banner renders without visual corruption", () => {
       await page.goto(`http://localhost:8080/profile/${userId}`, {
         waitUntil: "networkidle",
       });
+      await dismissProfileSetupDialog(page);
+      await page
+        .getByRole("status", { name: /successfully signed in/i })
+        .waitFor({ state: "hidden", timeout: 2500 })
+        .catch(() => undefined);
 
       const banner = page.getByTestId("profile-banner");
       await expect(banner).toBeVisible();

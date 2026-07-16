@@ -738,16 +738,16 @@ function ProfilePage() {
 
 
   return (
-    <div className="profile-render-safe relative h-screen overflow-hidden bg-[#121214] text-slate-200">
+    <div className="profile-render-safe relative min-h-screen overflow-x-hidden bg-[#121214] text-slate-200 md:h-screen md:overflow-hidden">
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
 
 
-      <div className="flex h-full flex-col">
+      <div className="flex min-h-screen flex-col md:h-full md:min-h-0">
         <Header safeMobile />
-        <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
+        <main ref={mainRef} className="flex-1 min-w-0 pb-20 md:overflow-y-auto md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
             <div className="flex items-center justify-between gap-3 mb-4">
               <button
@@ -918,10 +918,10 @@ function ProfilePage() {
                       <span className="text-slate-500">in circle</span>
                     </span>
                   </div>
-                  <p className="text-sm text-slate-300 mt-3 leading-relaxed">
+                  <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed">
                     {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
                   </p>
-                  <div className="mt-3 flex items-center gap-2.5" aria-label={`${socialCounts?.circleMembers ?? 0} members in ${displayName}'s circle`}>
+                  <div className="profile-mid-safe mt-3 hidden items-center gap-2.5 sm:flex" aria-label={`${socialCounts?.circleMembers ?? 0} members in ${displayName}'s circle`}>
                     <div className="flex -space-x-2">
                       {circleMembers.preview.slice(0, Math.min(circleMembers.preview.length, socialCounts?.circleMembers ?? 0)).map((m) => (
                         <div
@@ -984,57 +984,76 @@ function ProfilePage() {
               </div>
 
               {/* Reputation block */}
-              <div data-testid="profile-reputation" className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
-                <RepStat
-                  icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
-                  label="Star Rating"
-                  value={
-                    <div className="flex items-center gap-1">
-                      <span className="text-white font-black">{displayStars.toFixed(1)}</span>
-                      <StarRow value={displayStars} />
-                    </div>
-                  }
-                />
-                <RepStat
-                  icon={<Target className="w-4 h-4 text-emerald-400" />}
-                  label="Bounties Solved"
-                  value={
-                    <span className="text-white font-black">
-                      {liveRep ? liveRep.metrics.bountiesSolved : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<Award className="w-4 h-4 text-purple-400" />}
-                  label="Product Rating"
-                  value={
-                    <span className="text-white font-black">
-                      {liveRep
+              <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
+                <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
+                  <MobileRepLine label="Star Rating" value={`${displayStars.toFixed(1)} / 5`} />
+                  <MobileRepLine label="Bounties Solved" value={liveRep ? liveRep.metrics.bountiesSolved : "…"} />
+                  <MobileRepLine
+                    label="Product Rating"
+                    value={
+                      liveRep
                         ? liveRep.metrics.productReviewCount > 0
                           ? liveRep.metrics.avgProductRating.toFixed(1)
                           : "—"
-                        : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
-                  label="Listings"
-                  value={
-                    <span className="text-white font-black">
-                      {liveRep ? liveRep.metrics.productsListed : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
-                  label="Posts (30d)"
-                  value={
-                    <span className="text-white font-black">
-                      {liveRep ? liveRep.metrics.postsLast30d : "…"}
-                    </span>
-                  }
-                />
+                        : "…"
+                    }
+                  />
+                  <MobileRepLine label="Listings" value={liveRep ? liveRep.metrics.productsListed : "…"} />
+                  <MobileRepLine label="Posts (30d)" value={liveRep ? liveRep.metrics.postsLast30d : "…"} last />
+                </div>
+
+                <div className="hidden sm:grid sm:grid-cols-5 gap-3">
+                  <RepStat
+                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    label="Star Rating"
+                    value={
+                      <div className="flex items-center gap-1">
+                        <span className="text-white font-black">{displayStars.toFixed(1)}</span>
+                        <StarRow value={displayStars} />
+                      </div>
+                    }
+                  />
+                  <RepStat
+                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    label="Bounties Solved"
+                    value={
+                      <span className="text-white font-black">
+                        {liveRep ? liveRep.metrics.bountiesSolved : "…"}
+                      </span>
+                    }
+                  />
+                  <RepStat
+                    icon={<Award className="w-4 h-4 text-purple-400" />}
+                    label="Product Rating"
+                    value={
+                      <span className="text-white font-black">
+                        {liveRep
+                          ? liveRep.metrics.productReviewCount > 0
+                            ? liveRep.metrics.avgProductRating.toFixed(1)
+                            : "—"
+                          : "…"}
+                      </span>
+                    }
+                  />
+                  <RepStat
+                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    label="Listings"
+                    value={
+                      <span className="text-white font-black">
+                        {liveRep ? liveRep.metrics.productsListed : "…"}
+                      </span>
+                    }
+                  />
+                  <RepStat
+                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    label="Posts (30d)"
+                    value={
+                      <span className="text-white font-black">
+                        {liveRep ? liveRep.metrics.postsLast30d : "…"}
+                      </span>
+                    }
+                  />
+                </div>
               </div>
 
               {/* Star rating derivation */}
@@ -1425,6 +1444,23 @@ function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string;
         {label}
       </div>
       <div className="mt-1 text-sm">{value}</div>
+    </div>
+  );
+}
+
+function MobileRepLine({
+  label,
+  value,
+  last = false,
+}: {
+  label: string;
+  value: React.ReactNode;
+  last?: boolean;
+}) {
+  return (
+    <div className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30]"}`}>
+      <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+      <div className="shrink-0 text-sm font-black text-white">{value}</div>
     </div>
   );
 }

@@ -70,7 +70,29 @@ async function stabilize(page: Page) {
     `,
   });
   await page.evaluate(() => document.fonts?.ready);
+  await page
+    .getByRole("status", { name: /successfully signed in/i })
+    .waitFor({ state: "hidden", timeout: 2500 })
+    .catch(() => undefined);
   await page.waitForLoadState("networkidle");
+}
+
+async function dismissProfileSetupDialog(page: Page) {
+  const dialog = page.getByRole("dialog", {
+    name: /finish setting up your account/i,
+  });
+  const isOpen = await dialog
+    .waitFor({ state: "visible", timeout: 1200 })
+    .then(() => true)
+    .catch(() => false);
+
+  if (!isOpen) return;
+
+  await dialog.getByRole("button", { name: "Close" }).click();
+  await expect(dialog).toBeHidden();
+  await page.evaluate(() => {
+    document.body.style.overflow = "";
+  });
 }
 
 test.describe("Profile visual regression @ mobile breakpoints", () => {
@@ -92,6 +114,7 @@ test.describe("Profile visual regression @ mobile breakpoints", () => {
       await page.goto(`http://localhost:8080/profile/${userId}`, {
         waitUntil: "networkidle",
       });
+      await dismissProfileSetupDialog(page);
       await stabilize(page);
 
       // 1) Sticky app header (top bar) — first ~72px of viewport.
