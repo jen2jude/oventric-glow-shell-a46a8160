@@ -259,7 +259,35 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                       className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
                   </label>
                 )}
+                {!isFree && Number(priceInput) > 0 && (() => {
+                  const cur = baseCurrency as OrderCurrency;
+                  const fx = FX_FROM_USD[cur] || 1;
+                  const priceLocal = Number(priceInput);
+                  const priceUSD = priceLocal / fx;
+                  // Show worst-case (card/gateway) net so sellers plan for it.
+                  const netUSD = estimateSellerNetUSD(priceUSD, cur, "card", fx);
+                  const netLocal = netUSD * fx;
+                  const walletNetUSD = estimateSellerNetUSD(priceUSD, cur, "wallet", fx);
+                  const walletNetLocal = walletNetUSD * fx;
+                  const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: 2 }).format(n);
+                  return (
+                    <div className="mt-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs">
+                      <div className="flex items-center justify-between text-slate-300">
+                        <span>You'll receive (card/bank/mobile money)</span>
+                        <span className="font-semibold text-emerald-300">{fmt(netLocal)}</span>
+                      </div>
+                      <div className="mt-1 flex items-center justify-between text-slate-400">
+                        <span>You'll receive (wallet buyer)</span>
+                        <span className="font-medium text-emerald-200/80">{fmt(walletNetLocal)}</span>
+                      </div>
+                      <div className="mt-1.5 text-[10px] leading-relaxed text-slate-500">
+                        Buyer pays exactly {fmt(priceLocal)}. Oventric absorbs the gateway fee into the split — 80% goes to you, 20% to Oventric, and the Paystack processing fee is skimmed off the top before the split. Price your product accordingly.
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
+
 
               <label className="block">
                 <span className="text-xs font-medium text-slate-300">Description</span>
