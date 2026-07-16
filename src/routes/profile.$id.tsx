@@ -984,7 +984,7 @@ function ProfilePage() {
               </div>
 
               {/* Reputation block */}
-              <div className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div data-testid="profile-reputation" className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <RepStat
                   icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
                   label="Star Rating"
