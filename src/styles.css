@@ -126,16 +126,54 @@
 }
 
 .rgb-neon-bg {
-  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
-  background-size: 300% 300%;
-  animation: rgb-spectrum-shift 4s linear infinite;
+  background: #1E1E24;
+  background-size: auto;
+  animation: none;
   /* No compositor promotion — `will-change`, `translateZ(0)`, `backface-visibility`,
      and `contain` on the fixed edge strips triggered horizontal scanline tearing /
      GPU rasterization corruption on some mobile Chromium builds. Let the browser
      composite normally; the strips are only 2px so full-viewport repaints are cheap. */
 }
+@media (min-width: 768px) {
+  .rgb-neon-bg {
+    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+    background-size: 300% 300%;
+    animation: rgb-spectrum-shift 4s linear infinite;
+  }
+}
 @media (prefers-reduced-motion: reduce) {
   .rgb-neon-bg { animation: none; }
+}
+
+@media (max-width: 767px) {
+  .profile-render-safe,
+  .profile-render-safe * {
+    filter: none !important;
+    backdrop-filter: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    perspective: none !important;
+    mix-blend-mode: normal !important;
+  }
+
+  .profile-render-safe [style*="transform"],
+  .profile-render-safe .transform,
+  .profile-render-safe .translate-x-0,
+  .profile-render-safe .translate-y-0,
+  .profile-render-safe .translate-z-0 {
+    transform: none !important;
+  }
+
+  .profile-render-safe [style*="mask-image"],
+  .profile-render-safe [style*="MaskImage"] {
+    mask-image: none !important;
+  }
+
+  .profile-render-safe .profile-card-safe,
+  .profile-render-safe [data-testid="profile-banner"] {
+    background-image: none !important;
+    box-shadow: none !important;
+  }
 }
 
 
