@@ -126,20 +126,13 @@
 }
 
 .rgb-neon-bg {
-  background: #1E1E24;
-  background-size: auto;
-  animation: none;
-  /* No compositor promotion — `will-change`, `translateZ(0)`, `backface-visibility`,
-     and `contain` on the fixed edge strips triggered horizontal scanline tearing /
-     GPU rasterization corruption on some mobile Chromium builds. Let the browser
-     composite normally; the strips are only 2px so full-viewport repaints are cheap. */
-}
-@media (min-width: 768px) {
-  .rgb-neon-bg {
-    background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
-    background-size: 300% 300%;
-    animation: rgb-spectrum-shift 4s linear infinite;
-  }
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 4s linear infinite;
+  /* Safe on mobile for small rounded elements (buttons, avatar rings).
+     The full-viewport fixed edge strips that previously caused mobile
+     Chromium scanline tearing are gated with `hidden md:block` at the
+     usage sites, so this animation never runs on those strips. */
 }
 @media (prefers-reduced-motion: reduce) {
   .rgb-neon-bg { animation: none; }
