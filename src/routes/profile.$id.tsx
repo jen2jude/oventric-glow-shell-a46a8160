@@ -238,7 +238,9 @@ function ProfilePage() {
 
   // Realtime: keep followers / circle members counters in sync with reality.
   useEffect(() => {
-    const uid = realProfile?.userId ?? (isUuidId ? id : null);
+    const uid =
+      realProfile?.userId ??
+      (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? id : socialCounts?.userId ?? null);
     if (!uid) return;
     const ch = supabase
       .channel(`profile-social-${uid}`)
