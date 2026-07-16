@@ -251,15 +251,29 @@ function ProfilePage() {
           data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
         });
         await reloadRealProfile();
+        try {
+          window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId: meId } }));
+        } catch {
+          /* noop */
+        }
       } catch (e) {
         console.error("[profile] upload failed", e);
-        alert("Upload failed. Please try again.");
+        alert(`Upload failed: ${e instanceof Error ? e.message : "Please try again."}`);
       } finally {
         setUploading(null);
       }
     },
     [meId, updateProfileFn, reloadRealProfile],
   );
+
+  // Cross-component sync: whenever profile is updated elsewhere (Settings modal,
+  // KYC edit, avatar change in Header, etc.), refetch so this page reflects it.
+  useEffect(() => {
+    const onUpdated = () => { void reloadRealProfile(); };
+    window.addEventListener("oventric:profile-updated", onUpdated);
+    return () => window.removeEventListener("oventric:profile-updated", onUpdated);
+  }, [reloadRealProfile]);
+
 
 
   useEffect(() => {
@@ -802,7 +816,9 @@ function ProfilePage() {
                   ref={avatarInputRef}
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }}
+                  aria-hidden="true"
+                  tabIndex={-1}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     handleImagePicked("avatar", f);
@@ -813,13 +829,16 @@ function ProfilePage() {
                   ref={coverInputRef}
                   type="file"
                   accept="image/*"
-                  className="hidden"
+                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }}
+                  aria-hidden="true"
+                  tabIndex={-1}
                   onChange={(e) => {
                     const f = e.target.files?.[0];
                     handleImagePicked("cover", f);
                     if (e.target) e.target.value = "";
                   }}
                 />
+
               </>
             )}
 

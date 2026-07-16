@@ -341,8 +341,12 @@ function KycLivenessModal({
         .upload(idPath, idBlob, { contentType: "image/jpeg", upsert: true });
       if (upId.error) throw upId.error;
       await saveKyc({ data: { phone: phone.trim(), selfiePath, idPath } });
+      try {
+        window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
+      } catch { /* noop */ }
       setStep("success");
       setTimeout(() => onComplete({ selfie: selfiePath, id: idPath }), 1100);
+
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save KYC");
     } finally {
