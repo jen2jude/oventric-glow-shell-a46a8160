@@ -585,10 +585,10 @@ export const createLivePayout = createServerFn({ method: "POST" })
 
     const { data: prof } = await supabase
       .from("profiles")
-      .select("kyc_status")
+      .select("kyc_completed_at")
       .eq("user_id", userId)
       .maybeSingle();
-    if (!prof || prof.kyc_status !== "verified") {
+    if (!prof || !prof.kyc_completed_at) {
       throw new Error("Complete identity verification before requesting a payout");
     }
 
