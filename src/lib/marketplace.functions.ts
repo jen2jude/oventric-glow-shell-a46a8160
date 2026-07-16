@@ -638,6 +638,53 @@ export const SELLER_SHARE = 0.8;
 export const PLATFORM_SHARE = 0.2;
 export const WALLET_CASHBACK_PCT = 0.02;
 
+/**
+ * Estimate the Paystack processing fee in USD for a given order.
+ * Buyer pays the sticker price; this fee is skimmed off the top before the
+ * platform/seller split (buyer never sees a surcharge line at checkout).
+ * Rates are Paystack's standard published rates as of 2025.
+ *   NGN: 1.5%, +₦100 if txn ≥ ₦2,500, capped at ₦2,000
+ *   GHS: 1.95%
+ *   USD/international: 3.9% + $0.30
+ * Wallet payments settle internally with no gateway fee.
+ */
+export function estimatePaystackFeeUSD(
+  totalUSD: number,
+  displayCurrency: OrderCurrency,
+  paymentMethod: PaymentMethod,
+  fxFromUSD: number,
+): number {
+  if (paymentMethod === "wallet") return 0;
+  if (totalUSD <= 0) return 0;
+  if (displayCurrency === "NGN") {
+    const ngn = totalUSD * fxFromUSD;
+    let feeNgn = ngn * 0.015 + (ngn >= 2500 ? 100 : 0);
+    if (feeNgn > 2000) feeNgn = 2000;
+    return Number((feeNgn / fxFromUSD).toFixed(2));
+  }
+  if (displayCurrency === "GHS") {
+    return Number((totalUSD * 0.0195).toFixed(2));
+  }
+  return Number((totalUSD * 0.039 + 0.30).toFixed(2));
+}
+
+/**
+ * What the seller actually receives, in USD, for a sale at `totalUSD`.
+ * The gateway fee is absorbed before the split so the seller shares in it
+ * (industry-standard on Selar / Paystack Storefront / Gumroad).
+ */
+export function estimateSellerNetUSD(
+  totalUSD: number,
+  displayCurrency: OrderCurrency,
+  paymentMethod: PaymentMethod,
+  fxFromUSD: number,
+): number {
+  const fee = estimatePaystackFeeUSD(totalUSD, displayCurrency, paymentMethod, fxFromUSD);
+  const net = Math.max(0, totalUSD - fee);
+  return Number((net * SELLER_SHARE).toFixed(2));
+}
+
+
 /** Public: validate a coupon code. Returns the discount percent or null. */
 export const validateCoupon = createServerFn({ method: "POST" })
   .inputValidator((i: { code: string }) => ({ code: String(i?.code ?? "").trim().toUpperCase() }))
