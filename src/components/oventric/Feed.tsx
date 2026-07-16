@@ -917,18 +917,11 @@ export function Feed() {
                     params={{ id: profileSlug }}
                     className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
                   >
-                    {post.author_avatar_url ? (
-                      <img
-                        src={post.author_avatar_url}
-                        alt={post.author_name}
-                        className="w-full h-full object-cover"
-                        loading="lazy"
-                        decoding="async"
-                        onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = "none"; }}
-                      />
-                    ) : (
-                      post.initials
-                    )}
+                    <AvatarImage
+                      src={post.author_avatar_url}
+                      alt={post.author_name}
+                      initials={post.initials}
+                    />
                   </Link>
                   <div className="min-w-0">
                     <Link
