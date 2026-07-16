@@ -630,8 +630,12 @@ function ProfileSettingsModal({
         },
       });
       onSave({ displayName: displayName.trim(), bio: bio.trim(), avatarDataUrl: avatar });
+      try {
+        window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId } }));
+      } catch { /* noop */ }
       toast.success("Profile updated", { description: "Your workspace identity is synced." });
       setAvatarFile(null);
+
       onClose();
     } catch (err) {
       console.error("[ProfileSettingsModal] save failed", err);
