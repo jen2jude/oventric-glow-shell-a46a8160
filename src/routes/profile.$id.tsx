@@ -928,10 +928,13 @@ function ProfilePage() {
                     Fetching real metrics from bounties, marketplace, and posts…
                   </div>
                 ) : (
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {liveRep.items.map((item) => (
-                      <li key={item.key} className="flex items-start gap-3">
-                        <div className="w-28 shrink-0">
+                      <li
+                        key={item.key}
+                        className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3"
+                      >
+                        <div className="sm:w-28 shrink-0 flex items-baseline justify-between sm:block gap-2">
                           <div className="text-xs text-white font-semibold">{item.label}</div>
                           <div className="text-[10px] uppercase tracking-wider text-slate-500">
                             {Math.round(item.weight * 100)}% weight
@@ -946,7 +949,7 @@ function ProfilePage() {
                             />
                           </div>
                         </div>
-                        <div className="w-24 shrink-0 text-right">
+                        <div className="sm:w-24 shrink-0 flex items-baseline justify-between sm:block sm:text-right">
                           <div className="text-xs font-bold text-white">{item.raw}</div>
                           <div className="text-[10px] text-slate-500">
                             {(item.score * 5).toFixed(1)} / 5
