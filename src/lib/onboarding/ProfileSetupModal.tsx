@@ -119,8 +119,12 @@ function ProfileSetupSlide({
       await completeProfile({
         data: { fullName: parsed.data.fullName, country: parsed.data.country },
       });
+      try {
+        window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
+      } catch { /* noop */ }
       setDone(true);
       setTimeout(() => onSaved(parsed.data.fullName, parsed.data.country), 900);
+
     } catch (err) {
       setGlobalError(err instanceof Error ? err.message : "Could not save profile");
     } finally {
