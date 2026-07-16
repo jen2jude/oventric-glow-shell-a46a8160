@@ -8,14 +8,15 @@ import { test, expect, type Page, type BrowserContext } from "@playwright/test";
  *
  * We assert, at every checked viewport, that the banner:
  *   1. Is visible and has a non-zero box that spans the visible width.
- *   2. Uses the hardware-accel safety transforms (translate3d + hidden
- *      backface) that prevent scanline tearing.
+ *   2. Avoids hardware-accel/compositor hints on mobile. Real Android Chrome
+ *      devices showed static-noise corruption when profile surfaces used
+ *      transform/backface/contain/will-change promotion during pull refresh.
  *   3. Contains no SVG <feTurbulence> filter / `filter: url(...)` /
  *      `backdrop-filter: blur(...)` — the effects that produced the
  *      corrupted static-noise banner.
  *   4. Has a computed background that is either a solid color or a
  *      linear-gradient (never an image / SVG data URI).
- *   5. Contains the avatar wrapper with the same GPU-safety transform.
+ *   5. Contains a plain avatar wrapper with no compositor promotion.
  */
 
 const VIEWPORTS = [
@@ -72,8 +73,8 @@ test.describe("Profile banner renders without visual corruption", () => {
       const feTurbulenceCount = await banner.locator("feTurbulence, feDisplacementMap").count();
       expect(feTurbulenceCount).toBe(0);
 
-      // No CSS filter / backdrop-filter that could trigger the mobile GPU
-      // corruption path. Also verify hardware-accel transform is present.
+      // No CSS filter / backdrop-filter / compositor promotion that could
+      // trigger the Android Chromium corruption path.
       const styles = await banner.evaluate((el) => {
         const cs = getComputedStyle(el);
         return {
@@ -83,6 +84,8 @@ test.describe("Profile banner renders without visual corruption", () => {
           backgroundColor: cs.backgroundColor,
           transform: cs.transform,
           backfaceVisibility: cs.backfaceVisibility,
+          contain: cs.contain,
+          willChange: cs.willChange,
         };
       });
 
@@ -99,10 +102,10 @@ test.describe("Profile banner renders without visual corruption", () => {
         /linear-gradient|radial-gradient/i.test(styles.backgroundImage);
       expect(isGradientOrNone).toBe(true);
 
-      // translate3d(0,0,0) or the matrix3d equivalent both promote the
-      // element to its own compositor layer — either is acceptable.
-      expect(styles.transform).not.toBe("none");
-      expect(styles.backfaceVisibility).toBe("hidden");
+      expect(styles.transform).toBe("none");
+      expect(styles.backfaceVisibility === "visible" || styles.backfaceVisibility === "auto").toBeTruthy();
+      expect(styles.contain === "none" || styles.contain === "").toBeTruthy();
+      expect(styles.willChange === "auto" || styles.willChange === "").toBeTruthy();
 
       // Avatar wrapper is the first child region that must also be
       // GPU-safe. Locate by role heading (name) and walk to its avatar
@@ -111,11 +114,22 @@ test.describe("Profile banner renders without visual corruption", () => {
         const avatar = el.querySelector<HTMLElement>(".rounded-full");
         if (!avatar) return null;
         const cs = getComputedStyle(avatar);
-        return { transform: cs.transform, backface: cs.backfaceVisibility };
+        return {
+          filter: cs.filter,
+          backdrop: cs.backdropFilter || (cs as unknown as { webkitBackdropFilter?: string }).webkitBackdropFilter || "",
+          transform: cs.transform,
+          backface: cs.backfaceVisibility,
+          contain: cs.contain,
+          willChange: cs.willChange,
+        };
       });
       expect(avatarSafety).not.toBeNull();
-      expect(avatarSafety!.transform).not.toBe("none");
-      expect(avatarSafety!.backface).toBe("hidden");
+      expect(avatarSafety!.filter === "none" || avatarSafety!.filter === "").toBeTruthy();
+      expect(avatarSafety!.backdrop === "none" || avatarSafety!.backdrop === "").toBeTruthy();
+      expect(avatarSafety!.transform).toBe("none");
+      expect(avatarSafety!.backface === "visible" || avatarSafety!.backface === "auto").toBeTruthy();
+      expect(avatarSafety!.contain === "none" || avatarSafety!.contain === "").toBeTruthy();
+      expect(avatarSafety!.willChange === "auto" || avatarSafety!.willChange === "").toBeTruthy();
 
       // Visual sanity check — save a screenshot per viewport for manual
       // inspection when a regression is suspected.

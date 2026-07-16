@@ -738,7 +738,7 @@ function ProfilePage() {
 
 
   return (
-    <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
+    <div className="profile-render-safe relative h-screen overflow-hidden bg-[#121214] text-slate-200">
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
@@ -746,7 +746,7 @@ function ProfilePage() {
 
 
       <div className="flex h-full flex-col">
-        <Header />
+        <Header safeMobile />
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
             <div className="flex items-center justify-between gap-3 mb-4">
@@ -790,13 +790,11 @@ function ProfilePage() {
               </div>
             </div>
 
-            {/* Hero — solid background on mobile, no aggressive compositing
-                 hints. Earlier versions used `contain: layout paint`,
-                 `will-change: transform`, and `isolation: isolate` which
-                 corrupted GPU rasterization on some Android Chromium builds,
-                 producing scanline / static noise between the reputation
-                 stat grid and the rating breakdown. Keep the background
-                 flat; let the browser composite normally. */}
+            {/* Hero — the whole mobile profile surface is intentionally plain:
+                 no animated gradients, filters, backdrop blur, blend modes,
+                 compositor promotion, or clipped gradient layers. Those effects
+                 were the source of Android/Chrome static-noise corruption on
+                 Infinix and Redmi devices during pull-to-refresh / reload. */}
             {/* Hidden file inputs for avatar / cover uploads (own profile). */}
             {isOwnProfile && (
               <>
@@ -825,15 +823,16 @@ function ProfilePage() {
               </>
             )}
 
-            {/* Cover banner — solid fallback gradient when no image set. Kept
-                simple: no filters, no backdrop-blur, no compositor promotion. */}
-            <div className="relative mb-4 h-32 sm:h-48 rounded-xl overflow-hidden border border-white/10 bg-gradient-to-br from-[#1E1E24] via-[#22222b] to-[#121214]">
+            {/* Cover banner — keep uploaded covers, but render them as a plain
+                image layer with rounded corners instead of clipping a complex
+                composited gradient container on mobile. */}
+            <div className="profile-cover-safe relative mb-4 h-32 sm:h-48 rounded-xl border border-white/10 bg-[#1E1E24] sm:bg-[#18181d]">
               {realProfile?.coverUrl ? (
                 <ResponsiveImage
                   src={realProfile.coverUrl}
                   alt={`${displayName} cover`}
                   sizes="(min-width: 768px) 768px, 100vw"
-                  className="w-full h-full object-cover"
+                  className="block h-full w-full rounded-[11px] object-cover"
                 />
               ) : null}
               {isOwnProfile && (
@@ -842,7 +841,7 @@ function ProfilePage() {
                   onClick={() => coverInputRef.current?.click()}
                   disabled={uploading === "cover"}
                   aria-label="Change cover image"
-                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/80 border border-white/20 text-white text-xs font-semibold backdrop-blur-none"
+                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#121214] hover:bg-[#18181d] border border-white/20 text-white text-xs font-semibold"
                 >
                   {uploading === "cover" ? (
                     <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -858,20 +857,19 @@ function ProfilePage() {
 
             <section
               data-testid="profile-banner"
-              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-4 sm:p-6"
-              style={{ overscrollBehavior: "contain" }}
+              className="profile-card-safe bg-[#1E1E24] border border-white/10 rounded-xl p-4 sm:p-6"
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div className="relative shrink-0">
                   <div
-                    className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shadow-lg overflow-hidden`}
+                    className="profile-avatar-safe w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-black text-2xl font-black"
                   >
                     {displayAvatar ? (
                       <ResponsiveImage
                         src={displayAvatar}
                         alt={`${displayName} avatar`}
                         sizes="80px"
-                        className="w-full h-full object-cover"
+                        className="block w-full h-full rounded-full object-cover"
                       />
                     ) : (
                       displayInitials
@@ -929,7 +927,7 @@ function ProfilePage() {
                         <div
                           key={m.id}
                           title={m.name}
-                          className={`w-7 h-7 rounded-full bg-gradient-to-br ${m.avatarGradient} ring-2 ring-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-white`}
+                          className="w-7 h-7 rounded-full bg-[#25252B] border-2 border-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-slate-200"
                         >
                           {m.initials}
                         </div>
@@ -1040,7 +1038,7 @@ function ProfilePage() {
               </div>
 
               {/* Star rating derivation */}
-              <div className="mt-4 rounded-lg border border-white/5 bg-[#17171C] p-4">
+              <div className="profile-card-safe mt-4 rounded-lg border border-white/5 bg-[#17171C] p-4">
                 <div className="flex items-center justify-between gap-2 mb-3">
                   <div className="flex items-center gap-2">
                     <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
@@ -1071,9 +1069,9 @@ function ProfilePage() {
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="text-[11px] text-slate-400 leading-snug">{item.detail}</div>
-                          <div className="mt-1.5 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <div className="mt-1.5 h-1.5 rounded-full bg-[#24242A]">
                             <div
-                              className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-yellow-400"
+                              className="h-full rounded-full bg-emerald-400"
                               style={{ width: `${Math.round(item.score * 100)}%` }}
                             />
                           </div>
@@ -1421,7 +1419,7 @@ function ProfilePage() {
 
 function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
-    <div className="bg-black/30 border border-white/5 rounded-lg px-3 py-2.5">
+    <div className="profile-card-safe bg-[#17171C] border border-white/5 rounded-lg px-3 py-2.5">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500">
         {icon}
         {label}
