@@ -136,6 +136,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       metadata.display_currency = displayCurrency;
       metadata.coupon_code = data.couponCode ?? null;
       metadata.total_usd = totalUSD;
+      metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
+      metadata.delivery_whatsapp = data.deliveryWhatsapp ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null;
     }
 
     if (!SUPPORTED_CURRENCIES.includes(currency)) {
