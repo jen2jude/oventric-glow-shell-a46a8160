@@ -18,7 +18,7 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useActiveAds } from "@/lib/admin/store";
 import { AdCard } from "@/components/oventric/AdCard";
-import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
+import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -56,10 +56,13 @@ export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
   const navigate = useNavigate();
   const load = useServerFn(listProducts);
+  const loadCats = useServerFn(listMarketplaceCategories);
   const [mode, setMode] = useState<Mode>("digital");
   const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
+  const [activePhysicalTab, setActivePhysicalTab] = useState<string>("all");
   const [fullCategory, setFullCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductDTO[] | null>(null);
+  const [physicalCats, setPhysicalCats] = useState<CategoryNode[]>([]);
   const [error, setError] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
 
@@ -70,6 +73,13 @@ export function Marketplace() {
       .catch((e: Error) => setError(e.message || "Failed to load"));
   };
   useEffect(refresh, [load]);
+
+  useEffect(() => {
+    loadCats()
+      .then((rows) => setPhysicalCats((rows ?? []).filter((r) => r.kind === "physical")))
+      .catch(() => {});
+  }, [loadCats]);
+
 
   const onOpenProduct = (p: ProductDTO) => {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
@@ -87,7 +97,7 @@ export function Marketplace() {
     return [...promoted, ...rest].slice(0, 8);
   }, [digital, physical, mode]);
 
-  // Group physical products by category
+  // Group physical products by category, ordered by admin sort_order when available.
   const physicalGroups = useMemo(() => {
     const groups = new Map<string, ProductDTO[]>();
     physical.forEach((p) => {
@@ -96,8 +106,25 @@ export function Marketplace() {
       arr.push(p);
       groups.set(key, arr);
     });
-    return Array.from(groups.entries());
-  }, [physical]);
+    if (physicalCats.length === 0) return Array.from(groups.entries());
+    const ordered: Array<[string, ProductDTO[]]> = [];
+    physicalCats.forEach((c) => {
+      const items = groups.get(c.slug);
+      if (items && items.length > 0) ordered.push([c.slug, items]);
+      groups.delete(c.slug);
+    });
+    // Any leftover categories the admin hasn't defined
+    groups.forEach((items, slug) => ordered.push([slug, items]));
+    return ordered;
+  }, [physical, physicalCats]);
+
+  const physicalLabel = (slug: string) =>
+    physicalCats.find((c) => c.slug === slug)?.name ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+
+  const visiblePhysicalGroups = useMemo(() => {
+    if (activePhysicalTab === "all") return physicalGroups;
+    return physicalGroups.filter(([slug]) => slug === activePhysicalTab);
+  }, [physicalGroups, activePhysicalTab]);
 
   const onPillClick = (key: "all" | CategoryKey) => {
     setActiveTab(key);
@@ -105,6 +132,14 @@ export function Marketplace() {
     const el = sectionRefs.current[key];
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   };
+
+  const onPhysicalPillClick = (slug: string) => {
+    setActivePhysicalTab(slug);
+    if (slug === "all") return;
+    const el = sectionRefs.current[`p_${slug}`];
+    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  };
+
 
   if (error) {
     return (
@@ -190,7 +225,7 @@ export function Marketplace() {
     <div className="max-w-7xl mx-auto w-full">
       <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 flex items-center justify-between gap-3">
         <ModeToggle />
-        {mode === "digital" && (
+        {mode === "digital" ? (
           <div className="flex gap-2 overflow-x-auto scrollbar-none">
             {digitalTabs.map((t) => {
               const active = activeTab === t.key;
@@ -209,7 +244,27 @@ export function Marketplace() {
               );
             })}
           </div>
+        ) : (
+          <div className="flex gap-2 overflow-x-auto scrollbar-none">
+            {[{ slug: "all", name: "✨ All" }, ...physicalCats.map((c) => ({ slug: c.slug, name: c.name }))].map((t) => {
+              const active = activePhysicalTab === t.slug;
+              return (
+                <button
+                  key={t.slug}
+                  onClick={() => onPhysicalPillClick(t.slug)}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                    active
+                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
+                  }`}
+                >
+                  {t.name}
+                </button>
+              );
+            })}
+          </div>
         )}
+
       </div>
 
       {mode === "digital" ? (
@@ -267,10 +322,14 @@ export function Marketplace() {
               <div className="text-sm text-slate-400">Check back soon or be the first to post one.</div>
             </div>
           ) : (
-            physicalGroups.map(([cat, items]) => (
-              <section key={cat}>
+            visiblePhysicalGroups.map(([cat, items]) => (
+              <section
+                key={cat}
+                ref={(el) => { sectionRefs.current[`p_${cat}`] = el; }}
+                className="scroll-mt-20"
+              >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg md:text-xl font-black text-white capitalize">📦 {cat}</h2>
+                  <h2 className="text-lg md:text-xl font-black text-white capitalize">📦 {physicalLabel(cat)}</h2>
                   <button
                     onClick={() => setFullCategory(cat)}
                     className="text-sm text-emerald-400 hover:text-emerald-300 font-medium"
@@ -282,10 +341,11 @@ export function Marketplace() {
                   {items.slice(0, 12).map((p) => (
                     <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
                   ))}
-                  <ViewMoreButton label={cat} onClick={() => setFullCategory(cat)} />
+                  <ViewMoreButton label={physicalLabel(cat)} onClick={() => setFullCategory(cat)} />
                 </div>
               </section>
             ))
+
           )}
         </div>
       )}

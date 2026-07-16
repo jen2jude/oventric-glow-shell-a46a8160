@@ -391,33 +391,52 @@ export const listCategories = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    // Use service-role so disabled rows are also listed for admin management.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
-    const { data, error } = await sb.from("marketplace_categories").select("*").order("sort_order");
+    const sb = supabaseAdmin as any;
+    const { data, error } = await sb
+      .from("marketplace_categories")
+      .select("id, slug, name, description, sort_order, enabled, kind, parent_id, created_at, updated_at")
+      .order("kind", { ascending: true })
+      .order("parent_id", { ascending: true, nullsFirst: true })
+      .order("sort_order", { ascending: true });
     if (error) throw new Error(error.message);
     return data ?? [];
   });
 
 export const upsertCategory = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { id?: string; slug: string; name: string; description?: string; sort_order?: number; enabled?: boolean }) => i)
+  .inputValidator((i: {
+    id?: string;
+    slug: string;
+    name: string;
+    description?: string;
+    sort_order?: number;
+    enabled?: boolean;
+    kind?: "digital" | "physical";
+    parent_id?: string | null;
+  }) => i)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
+    const payload = {
+      slug: data.slug,
+      name: data.name,
+      description: data.description ?? "",
+      sort_order: data.sort_order ?? 0,
+      enabled: data.enabled ?? true,
+      kind: data.kind ?? "digital",
+      parent_id: data.parent_id ?? null,
+    };
     if (data.id) {
-      const { error } = await sb.from("marketplace_categories").update({
-        slug: data.slug, name: data.name, description: data.description ?? "",
-        sort_order: data.sort_order ?? 0, enabled: data.enabled ?? true,
-      }).eq("id", data.id);
+      const { error } = await sb.from("marketplace_categories").update(payload).eq("id", data.id);
       if (error) throw new Error(error.message);
       await writeAudit(sb, context.userId, "category.update", "category", data.id);
       return { id: data.id };
     }
-    const { data: row, error } = await sb.from("marketplace_categories").insert({
-      slug: data.slug, name: data.name, description: data.description ?? "",
-      sort_order: data.sort_order ?? 0, enabled: data.enabled ?? true,
-    }).select("id").single();
+    const { data: row, error } = await sb.from("marketplace_categories").insert(payload).select("id").single();
     if (error) throw new Error(error.message);
     await writeAudit(sb, context.userId, "category.create", "category", row.id as string);
     return { id: row.id as string };

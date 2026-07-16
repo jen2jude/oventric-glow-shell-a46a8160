@@ -1,17 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus, Trash2, ShieldAlert } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createProduct, type ProductCategory } from "@/lib/marketplace.functions";
+import { createProduct, listMarketplaceCategories, type ProductCategory, type CategoryNode } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
-const CATEGORIES: { value: ProductCategory; label: string }[] = [
-  { value: "themes", label: "Themes" },
-  { value: "plugins", label: "Plugins" },
-  { value: "blocks", label: "Blocks" },
-  { value: "scripts", label: "Scripts" },
+const FALLBACK_CATEGORIES: CategoryNode[] = [
+  { id: "themes", slug: "themes", name: "Themes", description: "", kind: "digital", parentId: null, sortOrder: 10, children: [] },
+  { id: "plugins", slug: "plugins", name: "Plugins", description: "", kind: "digital", parentId: null, sortOrder: 20, children: [] },
+  { id: "blocks", slug: "blocks", name: "Blocks", description: "", kind: "digital", parentId: null, sortOrder: 30, children: [] },
+  { id: "scripts", slug: "scripts", name: "Scripts", description: "", kind: "digital", parentId: null, sortOrder: 40, children: [] },
 ];
 
 const MAX_FILE_MB = 50;
@@ -21,10 +21,25 @@ const MAX_IMAGES = 5;
 export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const persist = useServerFn(createProduct);
   const snapshotFx = useServerFn(snapshotFxRates);
+  const loadCats = useServerFn(listMarketplaceCategories);
+  const [categories, setCategories] = useState<CategoryNode[]>(FALLBACK_CATEGORIES);
   const { baseCurrency } = useOnboarding();
 
   const [name, setName] = useState("");
   const [category, setCategory] = useState<ProductCategory>("themes");
+  const [subcategory, setSubcategory] = useState<string>("");
+  useEffect(() => {
+    loadCats()
+      .then((rows) => {
+        const digital = (rows ?? []).filter((r) => r.kind === "digital");
+        if (digital.length > 0) {
+          setCategories(digital);
+          setCategory((prev) => (digital.some((d) => d.slug === prev) ? prev : digital[0].slug));
+        }
+      })
+      .catch(() => {});
+  }, [loadCats]);
+
   const [description, setDescription] = useState("");
   const [isFree, setIsFree] = useState(false);
   const [priceInput, setPriceInput] = useState("");
@@ -137,6 +152,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
         data: {
           name: name.trim(),
           category,
+          subcategory: subcategory || null,
+
           description: description.trim(),
           priceUSD,
           originalCurrency: baseCurrency,
@@ -207,12 +224,28 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 </label>
                 <label className="block">
                   <span className="text-xs font-medium text-slate-300">Category</span>
-                  <select value={category} onChange={(e) => setCategory(e.target.value as ProductCategory)}
+                  <select value={category} onChange={(e) => { setCategory(e.target.value as ProductCategory); setSubcategory(""); }}
                     className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60">
-                    {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.label}</option>)}
+                    {categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
                   </select>
                 </label>
               </div>
+              {(() => {
+                const chosen = categories.find((c) => c.slug === category);
+                if (!chosen || chosen.children.length === 0) return null;
+                return (
+                  <label className="block">
+                    <span className="text-xs font-medium text-slate-300">Subcategory (optional)</span>
+                    <select value={subcategory} onChange={(e) => setSubcategory(e.target.value)}
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60">
+                      <option value="">— None —</option>
+                      {chosen.children.map((s) => <option key={s.id} value={s.slug}>{s.name}</option>)}
+                    </select>
+                  </label>
+                );
+              })()}
+              
+
 
               <div>
                 <label className="flex items-center gap-2 text-sm text-slate-200">

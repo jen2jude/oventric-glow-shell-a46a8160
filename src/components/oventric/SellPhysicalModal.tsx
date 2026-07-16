@@ -1,20 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, ImagePlus, Loader2, CheckCircle2, Trash2 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createPhysicalProduct } from "@/lib/marketplace.functions";
+import { createPhysicalProduct, listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
-const CATEGORIES = [
-  { value: "electronics", label: "Electronics", emoji: "🔌", subs: ["Phones", "Laptops", "Accessories", "Audio", "Cameras"] },
-  { value: "fashion", label: "Fashion", emoji: "👗", subs: ["Men", "Women", "Kids", "Shoes", "Watches"] },
-  { value: "home", label: "Home & Living", emoji: "🏠", subs: ["Furniture", "Appliances", "Decor", "Kitchen"] },
-  { value: "beauty", label: "Beauty & Health", emoji: "💄", subs: ["Skincare", "Makeup", "Wellness", "Fragrance"] },
-  { value: "vehicles", label: "Vehicles", emoji: "🚗", subs: ["Cars", "Bikes", "Parts", "Accessories"] },
-  { value: "sports", label: "Sports & Outdoors", emoji: "🏀", subs: ["Fitness", "Outdoor", "Team Sports"] },
-  { value: "other", label: "Other", emoji: "📦", subs: [] },
+const FALLBACK_CATEGORIES: CategoryNode[] = [
+  { id: "other", slug: "other", name: "Other", description: "", kind: "physical", parentId: null, sortOrder: 99, children: [] },
 ];
 
 const CONDITIONS = ["Brand New", "Used", "Refurbished"];
@@ -24,7 +18,18 @@ const MAX_IMAGE_MB = 50;
 export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolean; onClose: () => void; onPublished?: () => void }) {
   const persist = useServerFn(createPhysicalProduct);
   const snapshotFx = useServerFn(snapshotFxRates);
+  const loadCats = useServerFn(listMarketplaceCategories);
+  const [categories, setCategories] = useState<CategoryNode[]>(FALLBACK_CATEGORIES);
+  useEffect(() => {
+    loadCats()
+      .then((rows) => {
+        const physical = (rows ?? []).filter((r) => r.kind === "physical");
+        if (physical.length > 0) setCategories(physical);
+      })
+      .catch(() => {});
+  }, [loadCats]);
   const { baseCurrency } = useOnboarding();
+
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<string>("");
@@ -50,7 +55,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
   if (!open) return null;
 
-  const chosenCat = CATEGORIES.find((c) => c.value === category);
+  const chosenCat = categories.find((c) => c.slug === category);
   const clearField = (k: string) => setFieldErrors((prev) => { if (!prev[k]) return prev; const n = { ...prev }; delete n[k]; return n; });
   const fieldCls = (k: string, base: string) => `${base} ${fieldErrors[k] ? "border-red-400/60 focus:border-red-400/80" : ""}`;
   const FieldError = ({ k }: { k: string }) => fieldErrors[k] ? <span className="mt-1 block text-[11px] text-red-300">{fieldErrors[k]}</span> : null;
@@ -259,20 +264,21 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                   <select data-field="category" value={category} onChange={(e) => { setCategory(e.target.value); setSubcategory(""); clearField("category"); }}
                     className={fieldCls("category", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white")}>
                     <option value="">Select category…</option>
-                    {CATEGORIES.map((c) => <option key={c.value} value={c.value}>{c.emoji} {c.label}</option>)}
+                    {categories.map((c) => <option key={c.id} value={c.slug}>{c.name}</option>)}
                   </select>
                   <FieldError k="category" />
                 </label>
-                {chosenCat && chosenCat.subs.length > 0 && (
+                {chosenCat && chosenCat.children.length > 0 && (
                   <label className="block">
                     <span className="text-xs font-medium text-slate-300">Subcategory</span>
                     <select value={subcategory} onChange={(e) => setSubcategory(e.target.value)}
                       className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white">
                       <option value="">Optional</option>
-                      {chosenCat.subs.map((s) => <option key={s} value={s}>{s}</option>)}
+                      {chosenCat.children.map((s) => <option key={s.id} value={s.slug}>{s.name}</option>)}
                     </select>
                   </label>
                 )}
+
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
