@@ -251,15 +251,29 @@ function ProfilePage() {
           data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
         });
         await reloadRealProfile();
+        try {
+          window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId: meId } }));
+        } catch {
+          /* noop */
+        }
       } catch (e) {
         console.error("[profile] upload failed", e);
-        alert("Upload failed. Please try again.");
+        alert(`Upload failed: ${e instanceof Error ? e.message : "Please try again."}`);
       } finally {
         setUploading(null);
       }
     },
     [meId, updateProfileFn, reloadRealProfile],
   );
+
+  // Cross-component sync: whenever profile is updated elsewhere (Settings modal,
+  // KYC edit, avatar change in Header, etc.), refetch so this page reflects it.
+  useEffect(() => {
+    const onUpdated = () => { void reloadRealProfile(); };
+    window.addEventListener("oventric:profile-updated", onUpdated);
+    return () => window.removeEventListener("oventric:profile-updated", onUpdated);
+  }, [reloadRealProfile]);
+
 
 
   useEffect(() => {
