@@ -140,10 +140,25 @@ function Stage2({ onClose }: { onClose: () => void }) {
           </option>
         ))}
       </select>
-      {currency && (
+      {currency && country !== "OTHER" && (
         <p className="text-[11px] text-emerald-300/80 mt-1.5">
           Base currency will lock to <span className="font-semibold">{currency}</span> for wallet, marketplace and bounties.
         </p>
+      )}
+      {country === "OTHER" && (
+        <>
+          <label className={labelCls + " mt-4"}>Type your country</label>
+          <input
+            className={inputCls}
+            autoComplete="country-name"
+            placeholder="e.g. Kenya"
+            value={countryOther}
+            onChange={(e) => setCountryOther(e.target.value)}
+          />
+          <p className="text-[11px] text-emerald-300/80 mt-1.5">
+            Base currency will be <span className="font-semibold">USD</span>. We'll add local rails for your country next.
+          </p>
+        </>
       )}
 
       <label className={labelCls + " mt-4"}>Residential Address</label>
