@@ -408,7 +408,7 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 mt-0.5">Escrow extraction · clearing gate</div>
+              <div className="text-xs text-slate-400 mt-0.5">Direct to your bank · fee auto-deducted</div>
             </div>
           </div>
         </button>
