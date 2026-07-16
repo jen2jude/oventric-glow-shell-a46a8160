@@ -315,7 +315,7 @@ export function Wallet() {
         {/* Earnings breakdown — three live tiles that top up the main balance */}
         {(() => {
           const fx = FX_FROM_USD[baseCurrency] || 1;
-          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: React.ReactNode; accent: string; text: string; ring: string; soon?: boolean }> = [
+          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: ReactNode; accent: string; text: string; ring: string; soon?: boolean }> = [
             {
               key: "cashback",
               label: "Cashback",
