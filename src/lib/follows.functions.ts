@@ -31,7 +31,7 @@ async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, Per
   if (ids.length === 0) return new Map();
   const { data } = await supabase
     .from("profiles")
-    .select("user_id, display_name, username, slug, avatar_url, bio")
+    .select("user_id, display_name, username, slug, avatar_path, bio")
     .in("user_id", ids);
   return new Map(
     (data ?? []).map((p: any) => [
@@ -41,7 +41,7 @@ async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, Per
         displayName: p.display_name || p.username || "Unnamed member",
         username: p.username ?? null,
         slug: p.slug ?? null,
-        avatarUrl: p.avatar_url ?? null,
+        avatarUrl: p.avatar_path ?? null,
         bio: p.bio ?? null,
       } satisfies PersonSummary,
     ]),
