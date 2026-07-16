@@ -86,30 +86,49 @@ function OrderPage() {
               </div>
             </div>
 
-            <div className="bg-[#1E1E24] border border-emerald-500/40 rounded-2xl p-6 shadow-[0_0_40px_-12px_rgba(16,185,129,0.5)]">
-              <h2 className="text-white font-black text-lg mb-1">Your download</h2>
-              <p className="text-xs text-slate-400 mb-4">
-                {downloadUrl
-                  ? "Signed download link valid for 60 minutes."
-                  : order.externalUrl
-                  ? "Delivered from the seller's hosted link."
-                  : "The seller hasn't attached a downloadable file for this listing."}
-              </p>
-              {href ? (
-                <a
-                  href={href}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
-                >
-                  {downloadUrl ? <><Download className="w-4 h-4" /> Download now</> : <><ExternalLink className="w-4 h-4" /> Open delivery link</>}
-                </a>
-              ) : (
-                <div className="text-xs text-slate-500 inline-flex items-center gap-2">
-                  <Mail className="w-3.5 h-3.5" /> Delivery instructions sent to your email.
+            {order.requiresManualDelivery ? (
+              <div className="bg-[#1E1E24] border border-amber-500/40 rounded-2xl p-6 shadow-[0_0_40px_-12px_rgba(245,158,11,0.5)]">
+                <h2 className="text-white font-black text-lg mb-1">Manual delivery</h2>
+                <p className="text-xs text-slate-400 mb-4">
+                  Payment received. The seller will verify your order and deliver this asset manually. Expect contact within 24 hours.
+                </p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">Delivery email</div>
+                    <div className="text-white font-mono truncate">{order.deliveryEmail ?? "—"}</div>
+                  </div>
+                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2">
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">WhatsApp</div>
+                    <div className="text-white font-mono truncate">{order.deliveryWhatsapp ?? "—"}</div>
+                  </div>
                 </div>
-              )}
-            </div>
+              </div>
+            ) : (
+              <div className="bg-[#1E1E24] border border-emerald-500/40 rounded-2xl p-6 shadow-[0_0_40px_-12px_rgba(16,185,129,0.5)]">
+                <h2 className="text-white font-black text-lg mb-1">Your download</h2>
+                <p className="text-xs text-slate-400 mb-4">
+                  {downloadUrl
+                    ? "Signed download link valid for 60 minutes."
+                    : order.externalUrl
+                    ? "Delivered from the seller's hosted link."
+                    : "The seller hasn't attached a downloadable file for this listing."}
+                </p>
+                {href ? (
+                  <a
+                    href={href}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
+                  >
+                    {downloadUrl ? <><Download className="w-4 h-4" /> Download now</> : <><ExternalLink className="w-4 h-4" /> Open delivery link</>}
+                  </a>
+                ) : (
+                  <div className="text-xs text-slate-500 inline-flex items-center gap-2">
+                    <Mail className="w-3.5 h-3.5" /> Delivery instructions sent to your email.
+                  </div>
+                )}
+              </div>
+            )}
           </>
         )}
       </main>

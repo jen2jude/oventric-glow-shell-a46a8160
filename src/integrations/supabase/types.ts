@@ -1164,6 +1164,8 @@ export type Database = {
         Row: {
           buyer_id: string
           created_at: string
+          delivery_email: string | null
+          delivery_whatsapp: string | null
           display_currency: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
           download_token: string
@@ -1182,6 +1184,8 @@ export type Database = {
         Insert: {
           buyer_id: string
           created_at?: string
+          delivery_email?: string | null
+          delivery_whatsapp?: string | null
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
           download_token?: string
@@ -1200,6 +1204,8 @@ export type Database = {
         Update: {
           buyer_id?: string
           created_at?: string
+          delivery_email?: string | null
+          delivery_whatsapp?: string | null
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total?: number
           download_token?: string
@@ -1523,6 +1529,7 @@ export type Database = {
           promoted: boolean
           rating: number
           reject_reason: string | null
+          requires_manual_delivery: boolean
           reviews: number
           seller_id: string
           seller_phone: string | null
@@ -1557,6 +1564,7 @@ export type Database = {
           promoted?: boolean
           rating?: number
           reject_reason?: string | null
+          requires_manual_delivery?: boolean
           reviews?: number
           seller_id: string
           seller_phone?: string | null
@@ -1591,6 +1599,7 @@ export type Database = {
           promoted?: boolean
           rating?: number
           reject_reason?: string | null
+          requires_manual_delivery?: boolean
           reviews?: number
           seller_id?: string
           seller_phone?: string | null

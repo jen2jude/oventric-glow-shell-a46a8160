@@ -92,6 +92,8 @@ function CheckoutPage() {
   const [couponBusy, setCouponBusy] = useState(false);
   const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
   const [couponErr, setCouponErr] = useState<string | null>(null);
+  const [deliveryEmail, setDeliveryEmail] = useState("");
+  const [deliveryWhatsapp, setDeliveryWhatsapp] = useState("");
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
@@ -124,13 +126,33 @@ function CheckoutPage() {
     return () => { cancelled = true; };
   }, [shortfallUSD, topUpBusy]);
 
+  // Prefill delivery email from the current auth user.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled && data.user?.email) setDeliveryEmail((prev) => prev || data.user!.email!);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const isDigital = product?.kind === "digital";
+  const needsDelivery = Boolean(isDigital);
+  const deliveryValid = !needsDelivery || (
+    /^\S+@\S+\.\S+$/.test(deliveryEmail.trim()) && deliveryWhatsapp.replace(/\D/g, "").length >= 6
+  );
+
   const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalUSD;
 
   const pay = async () => {
     if (!product || submitting) return;
+    if (needsDelivery && !deliveryValid) {
+      toast.error("Add your delivery details", { description: "We need a valid email and WhatsApp number to deliver your purchase." });
+      return;
+    }
     setSubmitting(true);
     setShortfallUSD(null);
     try {
+      const digits = deliveryWhatsapp.replace(/\D/g, "");
       // Non-wallet methods: initialize Paystack and redirect to secure checkout.
       if (method !== "wallet") {
         const channel: "card" | "bank_transfer" | "mobile_money" | undefined =
@@ -145,6 +167,8 @@ function CheckoutPage() {
             quantity: qty,
             displayCurrency: baseCurrency,
             couponCode: canUseCoupon && coupon ? coupon.code : null,
+            deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
+            deliveryWhatsapp: needsDelivery ? digits : null,
             channel,
           },
         });
@@ -159,6 +183,8 @@ function CheckoutPage() {
           displayCurrency: baseCurrency,
           paymentMethod: method,
           couponCode: canUseCoupon && coupon ? coupon.code : null,
+          deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
+          deliveryWhatsapp: needsDelivery ? digits : null,
         },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
@@ -288,6 +314,40 @@ function CheckoutPage() {
                   </div>
                 </div>
               )}
+
+              {needsDelivery && (
+                <div className="mt-2 rounded-xl border border-white/10 bg-[#1E1E24] p-4">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Delivery details</div>
+                  <p className="text-[11px] text-slate-500 mb-3">
+                    {product.requiresManualDelivery
+                      ? "This product requires manual deployment. After payment is verified, the seller will use these details to deliver your purchase."
+                      : "We’ll send the receipt and download link here after payment is verified."}
+                  </p>
+                  <label className="block mb-2">
+                    <span className="text-xs text-slate-300">Email</span>
+                    <input
+                      type="email"
+                      value={deliveryEmail}
+                      onChange={(e) => setDeliveryEmail(e.target.value)}
+                      placeholder="you@example.com"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    />
+                  </label>
+                  <label className="block">
+                    <span className="text-xs text-slate-300">WhatsApp number</span>
+                    <input
+                      inputMode="tel"
+                      value={deliveryWhatsapp}
+                      onChange={(e) => setDeliveryWhatsapp(e.target.value)}
+                      placeholder="+234 800 000 0000"
+                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                    />
+                  </label>
+                  {!deliveryValid && (deliveryEmail || deliveryWhatsapp) && (
+                    <div className="text-[11px] text-red-300 mt-2">Enter a valid email and phone number with at least 6 digits.</div>
+                  )}
+                </div>
+              )}
             </div>
 
             {/* Summary */}
@@ -381,7 +441,7 @@ function CheckoutPage() {
               </div>
               <button
                 onClick={pay}
-                disabled={submitting}
+                disabled={submitting || (needsDelivery && !deliveryValid)}
                 className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmt(totalUSD, baseCurrency)}`}

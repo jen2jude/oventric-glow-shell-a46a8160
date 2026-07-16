@@ -54,6 +54,8 @@ type OrderIntent = {
   quantity: number;
   displayCurrency: OrderCurrency;
   couponCode?: string | null;
+  deliveryEmail?: string | null;
+  deliveryWhatsapp?: string | null;
 };
 
 export type PaystackInitInput = (WalletTopupIntent | OrderIntent) & {
@@ -134,6 +136,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       metadata.display_currency = displayCurrency;
       metadata.coupon_code = data.couponCode ?? null;
       metadata.total_usd = totalUSD;
+      metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
+      metadata.delivery_whatsapp = data.deliveryWhatsapp ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null;
     }
 
     if (!SUPPORTED_CURRENCIES.includes(currency)) {
@@ -231,6 +235,8 @@ async function settleOrder(
     quantity: number;
     displayCurrency: OrderCurrency;
     couponCode: string | null;
+    deliveryEmail?: string | null;
+    deliveryWhatsapp?: string | null;
   },
 ) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -285,6 +291,8 @@ async function settleOrder(
       status: "paid",
       paid_at: new Date().toISOString(),
       paystack_ref: reference,
+      delivery_email: meta.deliveryEmail ?? null,
+      delivery_whatsapp: meta.deliveryWhatsapp ?? null,
     })
     .select()
     .single();
@@ -340,6 +348,8 @@ export async function verifyAndSettleByReference(reference: string) {
       quantity: Number(meta.quantity ?? 1),
       displayCurrency: (meta.display_currency as OrderCurrency) ?? currency,
       couponCode: (meta.coupon_code as string | null) ?? null,
+      deliveryEmail: (meta.delivery_email as string | null) ?? null,
+      deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
     });
     return { ok: true as const, status: "success", redirectTo: `/order/${res.orderId}` };
   }
