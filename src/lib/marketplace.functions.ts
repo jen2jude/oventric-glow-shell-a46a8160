@@ -348,7 +348,7 @@ export const listMyProducts = createServerFn({ method: "GET" })
   .handler(async ({ context }) => {
     const { data, error } = await context.supabase
       .from("products")
-      .select(PRODUCT_COLS)
+      .select(PRODUCT_COLS_OWNER)
       .eq("seller_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
