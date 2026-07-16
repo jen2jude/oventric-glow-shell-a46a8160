@@ -190,7 +190,8 @@ export function Wallet() {
         "postgres_changes",
         { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
         (payload) => {
-          queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
           if (payload.eventType === "INSERT") {
             toast("New transaction recorded", {
               description: "Your ledger has been updated with a new entry.",
