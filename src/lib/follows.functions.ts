@@ -271,7 +271,7 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug, avatar_url, bio, reputation_stars")
+      .select("user_id, display_name, username, slug, avatar_path, bio, reputation_stars")
       .not("user_id", "in", `(${[...exclude].map((v) => `"${v}"`).join(",") || '""'})`)
       .order("reputation_stars", { ascending: false, nullsFirst: false })
       .limit(limit * 3);
@@ -285,7 +285,7 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
         displayName: p.display_name || p.username || "Unnamed member",
         username: p.username ?? null,
         slug: p.slug ?? null,
-        avatarUrl: p.avatar_url ?? null,
+        avatarUrl: p.avatar_path ?? null,
         bio: p.bio ?? null,
         reputation: Number(p.reputation_stars ?? 0),
       }));
