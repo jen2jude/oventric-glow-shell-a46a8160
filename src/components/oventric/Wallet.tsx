@@ -377,6 +377,9 @@ export function Wallet() {
             </div>
           );
         })()}
+      </section>
+
+
 
 
       {/* 2. Ingestion & Extraction */}
