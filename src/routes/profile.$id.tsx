@@ -677,10 +677,16 @@ function ProfilePage() {
                  texture/glow effects are reserved for sm: and larger. */}
             <section
               data-testid="profile-banner"
-              className="bg-gradient-to-b from-[#1E1E24] to-[#121214] sm:bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6"
+              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-5 sm:p-6"
               style={{
                 transform: "translate3d(0,0,0)",
+                WebkitTransform: "translate3d(0,0,0)",
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                willChange: "transform",
+                isolation: "isolate",
+                contain: "layout paint",
+                overscrollBehavior: "contain",
               }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
