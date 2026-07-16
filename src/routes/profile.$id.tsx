@@ -986,9 +986,18 @@ function ProfilePage() {
               {/* Reputation block */}
               <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
                 <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
-                  <MobileRepLine label="Star Rating" value={`${displayStars.toFixed(1)} / 5`} />
-                  <MobileRepLine label="Bounties Solved" value={liveRep ? liveRep.metrics.bountiesSolved : "…"} />
                   <MobileRepLine
+                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    label="Star Rating"
+                    value={`${displayStars.toFixed(1)} / 5`}
+                  />
+                  <MobileRepLine
+                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    label="Bounties Solved"
+                    value={liveRep ? liveRep.metrics.bountiesSolved : "…"}
+                  />
+                  <MobileRepLine
+                    icon={<Award className="w-4 h-4 text-purple-400" />}
                     label="Product Rating"
                     value={
                       liveRep
@@ -998,8 +1007,17 @@ function ProfilePage() {
                         : "…"
                     }
                   />
-                  <MobileRepLine label="Listings" value={liveRep ? liveRep.metrics.productsListed : "…"} />
-                  <MobileRepLine label="Posts (30d)" value={liveRep ? liveRep.metrics.postsLast30d : "…"} last />
+                  <MobileRepLine
+                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    label="Listings"
+                    value={liveRep ? liveRep.metrics.productsListed : "…"}
+                  />
+                  <MobileRepLine
+                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    label="Posts (30d)"
+                    value={liveRep ? liveRep.metrics.postsLast30d : "…"}
+                    last
+                  />
                 </div>
 
                 <div className="hidden sm:grid sm:grid-cols-5 gap-3">
@@ -1451,15 +1469,20 @@ function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string;
 function MobileRepLine({
   label,
   value,
+  icon,
   last = false,
 }: {
   label: string;
   value: React.ReactNode;
+  icon?: React.ReactNode;
   last?: boolean;
 }) {
   return (
     <div className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30]"}`}>
-      <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+      <div className="flex min-w-0 items-center gap-2">
+        {icon ? <span className="shrink-0 inline-flex">{icon}</span> : null}
+        <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+      </div>
       <div className="shrink-0 text-sm font-black text-white">{value}</div>
     </div>
   );
