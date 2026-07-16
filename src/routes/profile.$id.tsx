@@ -737,23 +737,17 @@ function ProfilePage() {
               </div>
             </div>
 
-            {/* Hero — mobile uses a solid gradient with hardware-accel safety
-                 rules to prevent GPU rendering artifacts (scanline tearing,
-                 static noise) seen on some mobile Chromium builds. Heavier
-                 texture/glow effects are reserved for sm: and larger. */}
+            {/* Hero — solid background on mobile, no aggressive compositing
+                 hints. Earlier versions used `contain: layout paint`,
+                 `will-change: transform`, and `isolation: isolate` which
+                 corrupted GPU rasterization on some Android Chromium builds,
+                 producing scanline / static noise between the reputation
+                 stat grid and the rating breakdown. Keep the background
+                 flat; let the browser composite normally. */}
             <section
               data-testid="profile-banner"
-              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-5 sm:p-6"
-              style={{
-                transform: "translate3d(0,0,0)",
-                WebkitTransform: "translate3d(0,0,0)",
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-                willChange: "transform",
-                isolation: "isolate",
-                contain: "layout paint",
-                overscrollBehavior: "contain",
-              }}
+              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-4 sm:p-6"
+              style={{ overscrollBehavior: "contain" }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
