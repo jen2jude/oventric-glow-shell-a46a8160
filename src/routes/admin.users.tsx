@@ -59,6 +59,11 @@ function UsersPage() {
         />
       </header>
 
+      {loadErr && (
+        <div className="mb-4 p-3 rounded-lg border border-red-500/40 bg-red-500/10 text-sm text-red-300">
+          Could not load users: {loadErr}
+        </div>
+      )}
       {!rows ? <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" /> : (
         <div className="bg-[#141418] border border-white/10 rounded-xl overflow-hidden">
           <table className="w-full text-sm">
