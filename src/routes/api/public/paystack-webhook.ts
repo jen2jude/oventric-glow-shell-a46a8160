@@ -2,57 +2,6 @@ import { createFileRoute } from "@tanstack/react-router";
 import { createHmac, timingSafeEqual } from "crypto";
 import { verifyAndSettleByReference } from "@/lib/paystack.functions";
 
-interface TransferEventData {
-  reference?: string;
-  transfer_code?: string;
-  status?: string;
-  reason?: string;
-}
-
-async function handleTransferEvent(event: string, data: TransferEventData) {
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-
-  const transferCode = data.transfer_code ?? null;
-  const reference = data.reference ?? null;
-  if (!transferCode && !reference) return;
-
-  // Match by transfer_code first (stored on initiate), then by reference.
-  let query = supabaseAdmin
-    .from("payout_requests")
-    .select("id, user_id, amount, currency, status")
-    .limit(1);
-  if (transferCode) query = query.eq("paystack_transfer_code", transferCode);
-  else if (reference) {
-    // Reference is `PYT_<compact-uuid>`; we don't store it, but transfer_code is set on initiate.
-    // Fall back: attempt to derive the id prefix.
-    const idPrefix = reference.replace(/^PYT_/, "").slice(0, 32);
-    query = query.ilike("id", `${idPrefix}%`);
-  }
-  const { data: rows, error } = await query;
-  if (error) {
-    console.error("[paystack-webhook][transfer] lookup failed", error);
-    return;
-  }
-  const row = rows?.[0];
-  if (!row) {
-    console.warn("[paystack-webhook][transfer] no matching payout for", { transferCode, reference });
-    return;
-  }
-
-  if (event === "transfer.success") {
-    if (row.status === "paid") return;
-    // Move escrow -> gone (already deducted from available on request creation),
-    // then mark paid + succeed the wallet_transactions row.
-    await supabaseAdmin
-      .from("wallets")
-      .update({ escrow_balance: 0, updated_at: new Date().toISOString() })
-      .eq("user_id", row.user_id)
-      .eq("currency", row.currency);
-    // Actually: only decrement by this payout's amount, don't zero. Use RPC-ish inline sql via update.
-    // We already zeroed above (buggy). Fix: revert and do proper decrement.
-    // NOTE: The above is a placeholder; corrected below with a raw decrement via rpc.
-  }
-}
 
 export const Route = createFileRoute("/api/public/paystack-webhook")({
   server: {
