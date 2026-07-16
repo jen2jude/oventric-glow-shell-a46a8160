@@ -441,7 +441,7 @@ function CheckoutPage() {
               </div>
               <button
                 onClick={pay}
-                disabled={submitting}
+                disabled={submitting || (needsDelivery && !deliveryValid)}
                 className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
                 {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmt(totalUSD, baseCurrency)}`}
