@@ -52,7 +52,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
           display_name: fallbackName,
           username: uname,
           verification_tier: "TIER_0",
-          reputation_stars: 5.0,
+          reputation_stars: 0,
         });
 
       let { error: insErr } = await tryInsert(slugBase, desiredUsername);
