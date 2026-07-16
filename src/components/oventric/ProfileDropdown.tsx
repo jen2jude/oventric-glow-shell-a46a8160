@@ -69,7 +69,7 @@ export function ProfileDropdown() {
 
   const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName, baseCurrency } = useOnboarding();
 
-  const [profile, setProfile] = useState<ProfileState>(() => loadProfile(fullName || storeName || "Sovereign Architect"));
+  const [profile, setProfile] = useState<ProfileState>(() => loadProfile(fullName || storeName || ""));
 
   useEffect(() => {
     let alive = true;
