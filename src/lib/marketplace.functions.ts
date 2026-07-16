@@ -622,7 +622,7 @@ export const createOrder = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: pRow, error: pErr } = await supabase
       .from("products")
-      .select("id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at")
+      .select("id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at, requires_manual_delivery")
       .eq("id", data.productId)
       .maybeSingle();
     if (pErr) throw new Error(pErr.message);
