@@ -752,10 +752,6 @@ function ProfilePage() {
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
                   className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
-                  style={{
-                    transform: "translate3d(0,0,0)",
-                    backfaceVisibility: "hidden",
-                  }}
                 >
                   {displayAvatar ? (
                     <ResponsiveImage
@@ -779,7 +775,21 @@ function ProfilePage() {
                   </div>
                   <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {(socialCounts?.followers ?? 0).toLocaleString()} followers
+                    Joined {displayJoined} · ★ {displayStars.toFixed(1)}
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">followers</span>
+                    </span>
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">following</span>
+                    </span>
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">in circle</span>
+                    </span>
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">
                     {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
