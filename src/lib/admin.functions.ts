@@ -97,8 +97,11 @@ export const listAdminUsers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    // Admin verified — use service-role client so we're not blocked by
+    // per-user RLS policies on `profiles` / `user_roles`.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
+    const sb = supabaseAdmin as any;
     const { data: profiles, error } = await sb
       .from("profiles")
       .select("user_id, username, display_name, country, verification_tier, reputation_stars, created_at")
@@ -117,6 +120,7 @@ export const listAdminUsers = createServerFn({ method: "GET" })
       roles: rmap.get(p.user_id as string) ?? [],
     }));
   });
+
 
 export const setUserRole = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

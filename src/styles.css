@@ -129,22 +129,15 @@
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
   background-size: 300% 300%;
   animation: rgb-spectrum-shift 4s linear infinite;
-  /* Promote to its own compositor layer so the constant background-position
-     animation on the fixed edge strips doesn't force full-viewport repaints,
-     which on mobile Chrome produced horizontal scanline tearing over the
-     profile page content. */
-  will-change: background-position;
-  transform: translateZ(0);
-  backface-visibility: hidden;
-  /* Note: do NOT use `contain: strict` — it applies size containment which
-     collapses wrappers that use this class as a gradient border (e.g. the
-     auth-gate modal's `rgb-neon-bg rounded-2xl p-[1.5px]` shell), leaving
-     only a thin RGB line. `layout paint style` still isolates repaints. */
-  contain: layout paint style;
+  /* No compositor promotion — `will-change`, `translateZ(0)`, `backface-visibility`,
+     and `contain` on the fixed edge strips triggered horizontal scanline tearing /
+     GPU rasterization corruption on some mobile Chromium builds. Let the browser
+     composite normally; the strips are only 2px so full-viewport repaints are cheap. */
 }
 @media (prefers-reduced-motion: reduce) {
   .rgb-neon-bg { animation: none; }
 }
+
 
 .rgb-neon-border-wrapper {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
