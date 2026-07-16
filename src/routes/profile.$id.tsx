@@ -147,7 +147,7 @@ function ProfilePage() {
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
   const [joinCircleOpen, setJoinCircleOpen] = useState(false);
-  const [_requestsOpen, _setRequestsOpen] = useState(false);
+  const [requestsOpen, setRequestsOpen] = useState(false);
   const [followRequestsOpen, setFollowRequestsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mpLastRefreshed, setMpLastRefreshed] = useState<number | null>(null);
