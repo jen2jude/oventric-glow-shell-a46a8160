@@ -802,14 +802,17 @@ export const createOrder = createServerFn({ method: "POST" })
       occurred_at: new Date().toISOString(),
     });
 
-    // Seller always gets 80%. Buyer cashback (2%) is deducted from the 20%
-    // platform commission when paying from wallet — seller keeps their full 80%.
-    const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
+    // Buyer pays the exact sticker price (no visible surcharge). The gateway
+    // fee (Paystack) is skimmed off the top; the remainder splits 80/20
+    // between seller and platform. Wallet payments have zero gateway fee.
+    const gatewayFeeUSD = estimatePaystackFeeUSD(totalUSD, data.displayCurrency, data.paymentMethod, fx);
+    const netAfterGatewayUSD = Number(Math.max(0, totalUSD - gatewayFeeUSD).toFixed(2));
+    const sellerCutUSD = Number((netAfterGatewayUSD * SELLER_SHARE).toFixed(2));
     let cashbackUSD = 0;
     if (data.paymentMethod === "wallet") {
-      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+      cashbackUSD = Number((netAfterGatewayUSD * WALLET_CASHBACK_PCT).toFixed(2));
     }
-    const platformCutUSD = Number((totalUSD - sellerCutUSD - cashbackUSD).toFixed(2));
+    const platformCutUSD = Number((netAfterGatewayUSD - sellerCutUSD - cashbackUSD).toFixed(2));
 
     await supabaseAdmin.rpc("wallet_credit", {
       _user_id: product.sellerId,
@@ -822,8 +825,9 @@ export const createOrder = createServerFn({ method: "POST" })
       _amount: platformCutUSD,
       _source: "marketplace_order",
       _ref: oRow.id as string,
-      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD },
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod },
     });
+
 
     // 2% cashback to buyer when paying from wallet (funded from platform cut).
     if (cashbackUSD > 0) {
