@@ -3,14 +3,14 @@ import { useAuthGate, type AuthGateContextKey } from "@/lib/auth-gate/AuthGatePr
 
 export type Tier = 0 | 1 | 2 | 3 | 4 | 5;
 export type Stage = 1 | 2 | 3 | 4 | 5;
-export type Country = "NG" | "GH" | "US" | "UK" | "OTHER";
+export type Country = "NG" | "GH" | "OTHER";
 export type Currency = "USD" | "NGN" | "GHS";
 
 /**
  * Country → base currency map. Nigeria uses NGN, Ghana uses GHS, everywhere
- * else falls back to USD. This is the single source of truth used both when
- * a user picks their country during Stage 2 onboarding and when hydrating an
- * already-completed profile at sign-in.
+ * else (OTHER) falls back to USD. This is the single source of truth used
+ * both when a user picks their country during onboarding and when hydrating
+ * an already-completed profile at sign-in.
  */
 export function countryToCurrency(country: Country | null | undefined): Currency {
   if (country === "NG") return "NGN";
@@ -19,12 +19,24 @@ export function countryToCurrency(country: Country | null | undefined): Currency
 }
 
 /**
- * Countries whose native currency is USD. These users see USD only in the
- * wallet and cannot switch to a foreign currency. Every other country keeps
- * its local currency as the base and can additionally transact in USD.
+ * Parses a raw country value from the database into the coarse Country enum.
+ * Legacy "US"/"UK" rows and any user-typed free-form country name all map to
+ * "OTHER" (USD baseline).
+ */
+export function parseCountry(raw: string | null | undefined): Country | null {
+  if (!raw) return null;
+  const v = raw.trim().toUpperCase();
+  if (v === "NG") return "NG";
+  if (v === "GH") return "GH";
+  return "OTHER";
+}
+
+/**
+ * Countries whose native currency is USD. Only "OTHER" (or unknown) users
+ * default to USD; NG/GH keep their local currency.
  */
 export function isUsdNativeCountry(country: Country | null | undefined): boolean {
-  return country === "US" || country === "UK" || country === "OTHER" || country == null;
+  return country === "OTHER" || country == null;
 }
 
 export function canTransactInUsd(country: Country | null | undefined): boolean {

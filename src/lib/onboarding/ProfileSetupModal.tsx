@@ -19,21 +19,24 @@ const schema = z
       .min(2, "Enter your full name")
       .max(80)
       .regex(/\s/, "Enter first and last name"),
-    country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
+    country: z.enum(["NG", "GH", "OTHER"]),
+    countryOther: z.string().trim().max(60).optional(),
     password: z.string().min(8, "Minimum 8 characters").max(72),
     confirm: z.string(),
   })
   .refine((v) => v.password === v.confirm, {
     message: "Passwords don't match",
     path: ["confirm"],
+  })
+  .refine((v) => v.country !== "OTHER" || (v.countryOther && v.countryOther.length >= 2), {
+    message: "Type your country name",
+    path: ["countryOther"],
   });
 
 const COUNTRIES: { code: Country; label: string }[] = [
   { code: "NG", label: "🇳🇬 Nigeria" },
   { code: "GH", label: "🇬🇭 Ghana" },
-  { code: "US", label: "🇺🇸 United States" },
-  { code: "UK", label: "🇬🇧 United Kingdom" },
-  { code: "OTHER", label: "🌍 Other" },
+  { code: "OTHER", label: "🌍 Other (type your country)" },
 ];
 
 /**
@@ -86,6 +89,7 @@ function ProfileSetupSlide({
 }) {
   const [fullName, setFullName] = useState("");
   const [country, setCountry] = useState<Country | "">("");
+  const [countryOther, setCountryOther] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -104,7 +108,7 @@ function ProfileSetupSlide({
 
   const submit = useCallback(async () => {
     setGlobalError(null);
-    const parsed = schema.safeParse({ fullName, country, password, confirm });
+    const parsed = schema.safeParse({ fullName, country, countryOther, password, confirm });
     if (!parsed.success) {
       const map: Record<string, string> = {};
       for (const issue of parsed.error.issues) map[issue.path[0] as string] = issue.message;
@@ -116,8 +120,14 @@ function ProfileSetupSlide({
     try {
       const { error: pwErr } = await supabase.auth.updateUser({ password: parsed.data.password });
       if (pwErr) throw pwErr;
+      // Persist NG/GH as the code; for OTHER, persist the user-typed country
+      // name so the admin/team can see which country to add support for next.
+      const countryValue =
+        parsed.data.country === "OTHER"
+          ? (parsed.data.countryOther ?? "").trim()
+          : parsed.data.country;
       await completeProfile({
-        data: { fullName: parsed.data.fullName, country: parsed.data.country },
+        data: { fullName: parsed.data.fullName, country: countryValue },
       });
       try {
         window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
@@ -130,7 +140,7 @@ function ProfileSetupSlide({
     } finally {
       setSaving(false);
     }
-  }, [fullName, country, password, confirm, completeProfile, onSaved]);
+  }, [fullName, country, countryOther, password, confirm, completeProfile, onSaved]);
 
   if (typeof document === "undefined") return null;
 
@@ -208,6 +218,26 @@ function ProfileSetupSlide({
               ))}
             </select>
           </Field>
+
+          {country === "OTHER" && (
+            <Field
+              id="ps-country-other"
+              label="Type your country"
+              icon={<Globe2 className="w-4 h-4 text-emerald-300" />}
+              error={errors.countryOther}
+              hint="We'll use this to add local rails for your country next. Your baseline currency will be USD for now."
+            >
+              <input
+                id="ps-country-other"
+                autoComplete="country-name"
+                value={countryOther}
+                onChange={(e) => setCountryOther(e.target.value)}
+                placeholder="e.g. Kenya"
+                disabled={saving || done}
+                className={inputCls(errors.countryOther)}
+              />
+            </Field>
+          )}
 
           <Field
             id="ps-password"
