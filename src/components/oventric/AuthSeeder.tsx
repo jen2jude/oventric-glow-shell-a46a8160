@@ -58,7 +58,7 @@ export function AuthSeeder() {
         try {
           const status = await fetchStatus();
           if (cancelled) return;
-          const country = (status.country ?? null) as Country | null;
+          const country: Country | null = parseCountry(status.country);
           if (status.profileCompleted) {
             const currency = countryToCurrency(country);
             setBaseCurrency(currency);
