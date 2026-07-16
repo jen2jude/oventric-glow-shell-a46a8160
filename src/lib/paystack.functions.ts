@@ -235,6 +235,8 @@ async function settleOrder(
     quantity: number;
     displayCurrency: OrderCurrency;
     couponCode: string | null;
+    deliveryEmail?: string | null;
+    deliveryWhatsapp?: string | null;
   },
 ) {
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
