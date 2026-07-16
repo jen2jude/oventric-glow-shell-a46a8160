@@ -86,7 +86,7 @@ export function ProfileDropdown() {
 
   useEffect(() => {
     // Sync default display name once fullName arrives from onboarding
-    setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "Sovereign Architect" }));
+    setProfile((p) => (p.displayName ? p : { ...p, displayName: fullName || storeName || "" }));
   }, [fullName, storeName]);
 
   // Load the real profile row (name, bio, avatar signed URL) once we know
