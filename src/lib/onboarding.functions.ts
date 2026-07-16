@@ -131,7 +131,12 @@ export const updateFullName = createServerFn({ method: "POST" })
 
 const CompleteProfileInput = z.object({
   fullName: z.string().trim().min(2).max(80),
-  country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
+  // Country is stored as either the ISO-ish code "NG"/"GH", or — for users
+  // who selected "Other" — the free-form country name they typed. This is
+  // deliberately a permissive string so we can grow the country list without
+  // migrations; the client coerces anything outside NG/GH into the "OTHER"
+  // bucket (USD baseline).
+  country: z.string().trim().min(2).max(60),
   address: z.string().trim().min(4).max(240).optional(),
   phone: z.string().trim().min(6).max(24).optional(),
 });
