@@ -291,6 +291,8 @@ async function settleOrder(
       status: "paid",
       paid_at: new Date().toISOString(),
       paystack_ref: reference,
+      delivery_email: meta.deliveryEmail ?? null,
+      delivery_whatsapp: meta.deliveryWhatsapp ?? null,
     })
     .select()
     .single();
