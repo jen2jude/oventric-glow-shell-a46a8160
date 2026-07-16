@@ -117,7 +117,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabase
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, verification_tier, reputation_stars, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, created_at",
       )
       .limit(1);
 
@@ -139,6 +139,13 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
       avatarUrl = signed?.signedUrl ?? null;
     }
+    let coverUrl: string | null = null;
+    if (row.cover_path) {
+      const { data: signed } = await supabase.storage
+        .from("profile-covers")
+        .createSignedUrl(row.cover_path, 60 * 60 * 24 * 7);
+      coverUrl = signed?.signedUrl ?? null;
+    }
 
     return {
       profile: {
@@ -148,6 +155,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         username: row.username,
         bio: row.bio,
         avatarUrl,
+        coverUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: null,
@@ -155,6 +163,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
       },
     };
   });
+
 
 
 // ---------------------------------------------------------------------------
