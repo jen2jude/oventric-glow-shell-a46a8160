@@ -89,6 +89,7 @@ function ProfileSetupSlide({
 }) {
   const [fullName, setFullName] = useState("");
   const [country, setCountry] = useState<Country | "">("");
+  const [countryOther, setCountryOther] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -107,7 +108,7 @@ function ProfileSetupSlide({
 
   const submit = useCallback(async () => {
     setGlobalError(null);
-    const parsed = schema.safeParse({ fullName, country, password, confirm });
+    const parsed = schema.safeParse({ fullName, country, countryOther, password, confirm });
     if (!parsed.success) {
       const map: Record<string, string> = {};
       for (const issue of parsed.error.issues) map[issue.path[0] as string] = issue.message;
@@ -119,8 +120,14 @@ function ProfileSetupSlide({
     try {
       const { error: pwErr } = await supabase.auth.updateUser({ password: parsed.data.password });
       if (pwErr) throw pwErr;
+      // Persist NG/GH as the code; for OTHER, persist the user-typed country
+      // name so the admin/team can see which country to add support for next.
+      const countryValue =
+        parsed.data.country === "OTHER"
+          ? (parsed.data.countryOther ?? "").trim()
+          : parsed.data.country;
       await completeProfile({
-        data: { fullName: parsed.data.fullName, country: parsed.data.country },
+        data: { fullName: parsed.data.fullName, country: countryValue },
       });
       try {
         window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
@@ -133,7 +140,7 @@ function ProfileSetupSlide({
     } finally {
       setSaving(false);
     }
-  }, [fullName, country, password, confirm, completeProfile, onSaved]);
+  }, [fullName, country, countryOther, password, confirm, completeProfile, onSaved]);
 
   if (typeof document === "undefined") return null;
 
