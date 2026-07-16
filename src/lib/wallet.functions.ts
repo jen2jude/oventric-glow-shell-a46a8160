@@ -113,3 +113,42 @@ export const getWalletBalances = createServerFn({ method: "GET" })
     return { balances, escrow, cashback };
   });
 
+
+export interface WalletEarningsDTO {
+  cashbackUSD: number;
+  bountyUSD: number;
+  affiliateUSD: number;
+}
+
+export const getWalletEarnings = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<WalletEarningsDTO> => {
+    const { supabase, userId } = context;
+
+    const [walletsRes, bountyRes, affiliateRes] = await Promise.all([
+      supabase.from("wallets").select("accumulated_cashback").eq("user_id", userId),
+      supabase
+        .from("wallet_transactions")
+        .select("amount")
+        .eq("user_id", userId)
+        .eq("type", "Gig Bounty Escrowed")
+        .eq("inflow", true)
+        .eq("status", "success"),
+      supabase
+        .from("wallet_transactions")
+        .select("amount")
+        .eq("user_id", userId)
+        .eq("type", "Affiliate Cashback Payout")
+        .eq("inflow", true)
+        .eq("status", "success"),
+    ]);
+
+    const cashbackUSD = ((walletsRes.data ?? []) as Array<{ accumulated_cashback: number }>)
+      .reduce((s, r) => s + Number(r.accumulated_cashback ?? 0), 0);
+    const bountyUSD = ((bountyRes.data ?? []) as Array<{ amount: number }>)
+      .reduce((s, r) => s + Number(r.amount ?? 0), 0);
+    const affiliateUSD = ((affiliateRes.data ?? []) as Array<{ amount: number }>)
+      .reduce((s, r) => s + Number(r.amount ?? 0), 0);
+
+    return { cashbackUSD, bountyUSD, affiliateUSD };
+  });

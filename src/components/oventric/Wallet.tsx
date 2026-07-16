@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -25,7 +25,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions, getWalletBalances } from "@/lib/wallet.functions";
+import { listWalletTransactions, getWalletBalances, getWalletEarnings } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
@@ -172,6 +172,15 @@ export function Wallet() {
     if (d) setBalances(d.balances, d.escrow, d.cashback);
   }, [balancesQuery.data, setBalances]);
 
+  const fetchEarnings = useServerFn(getWalletEarnings);
+  const earningsQuery = useQuery({
+    queryKey: ["wallet-earnings", userId],
+    enabled: authReady && !!userId,
+    queryFn: () => fetchEarnings(),
+    staleTime: 15_000,
+  });
+  const earnings = earningsQuery.data ?? { cashbackUSD: 0, bountyUSD: 0, affiliateUSD: 0 };
+
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!userId) return;
@@ -181,7 +190,8 @@ export function Wallet() {
         "postgres_changes",
         { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
         (payload) => {
-          queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
           if (payload.eventType === "INSERT") {
             toast("New transaction recorded", {
               description: "Your ledger has been updated with a new entry.",
@@ -196,7 +206,10 @@ export function Wallet() {
       .on(
         "postgres_changes",
         { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
-        () => queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] }),
+        () => {
+          queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+          queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
+        },
       )
       .subscribe();
     return () => {
@@ -298,6 +311,73 @@ export function Wallet() {
             );
           })()}
         </div>
+
+        {/* Earnings breakdown — three live tiles that top up the main balance */}
+        {(() => {
+          const fx = FX_FROM_USD[baseCurrency] || 1;
+          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: ReactNode; accent: string; text: string; ring: string; soon?: boolean }> = [
+            {
+              key: "cashback",
+              label: "Cashback",
+              sub: "2%–5% engine",
+              valueUSD: earnings.cashbackUSD,
+              icon: <Sparkles className="w-4 h-4" />,
+              accent: "bg-emerald-500/10",
+              text: "text-emerald-300",
+              ring: "border-emerald-500/30",
+            },
+            {
+              key: "bounty",
+              label: "Bounty Solved",
+              sub: "Gig payouts",
+              valueUSD: earnings.bountyUSD,
+              icon: <Zap className="w-4 h-4" />,
+              accent: "bg-amber-500/10",
+              text: "text-amber-300",
+              ring: "border-amber-500/30",
+            },
+            {
+              key: "affiliate",
+              label: "Affiliate",
+              sub: "Referral · soon",
+              valueUSD: earnings.affiliateUSD,
+              icon: <TrendingUp className="w-4 h-4" />,
+              accent: "bg-fuchsia-500/10",
+              text: "text-fuchsia-300",
+              ring: "border-fuchsia-500/30",
+              soon: true,
+            },
+          ];
+          return (
+            <div className="grid grid-cols-3 gap-2 sm:gap-3">
+              {tiles.map((t) => (
+                <div
+                  key={t.key}
+                  className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon ? "opacity-70" : ""}`}
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                      {t.icon}
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+                  </div>
+                  <div className={`text-sm sm:text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                    {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                  </div>
+                  <div className="mt-0.5 text-[9px] sm:text-[10px] text-slate-500 truncate">
+                    {t.soon ? "Coming soon" : t.sub}
+                  </div>
+                  {t.soon && (
+                    <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                      Soon
+                    </span>
+                  )}
+                </div>
+              ))}
+            </div>
+          );
+        })()}
+
 
         {/* Cashback accumulator */}
         <div className="relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5">
