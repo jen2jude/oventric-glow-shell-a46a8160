@@ -204,6 +204,12 @@ function ProfilePage() {
     });
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, []);
+  const reloadSocialCounts = useCallback(() => {
+    fetchSocialCounts({ data: { idOrSlug: id } })
+      .then((c) => setSocialCounts(c))
+      .catch(() => {});
+  }, [fetchSocialCounts, id]);
+
   useEffect(() => {
     let cancelled = false;
     setRealProfileLoaded(false);
@@ -229,6 +235,66 @@ function ProfilePage() {
       cancelled = true;
     };
   }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
+  // Realtime: keep followers / circle members counters in sync with reality.
+  useEffect(() => {
+    const uid =
+      realProfile?.userId ??
+      (/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id) ? id : socialCounts?.userId ?? null);
+    if (!uid) return;
+    const ch = supabase
+      .channel(`profile-social-${uid}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows", filter: `followee_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows", filter: `follower_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "circle_members", filter: `user_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realProfile?.userId, id]);
+
+  // Pending incoming follow-request count (own profile) — powers the RGB glow dot
+  // on the "Follow Requests" trigger.
+  const [pendingFollowReqCount, setPendingFollowReqCount] = useState(0);
+  useEffect(() => {
+    if (!meId) return;
+    let cancelled = false;
+    const load = async () => {
+      const { count } = await supabase
+        .from("follow_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("target_id", meId)
+        .eq("status", "pending");
+      if (!cancelled) setPendingFollowReqCount(count ?? 0);
+    };
+    load();
+    const ch = supabase
+      .channel(`follow-req-count-${meId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follow_requests", filter: `target_id=eq.${meId}` },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [meId]);
+
 
   const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
@@ -650,52 +716,42 @@ function ProfilePage() {
                   )}
                   {copied ? "Copied!" : "Copy Link"}
                 </button>
-                <button
-                  onClick={() => setRequestsOpen(true)}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                  aria-label="Open circle requests drawer"
-                >
-                  <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
-                  Circle Requests
-                </button>
                 {isOwnProfile && (
                   <button
                     onClick={() => setFollowRequestsOpen(true)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
-                    aria-label="Open follow requests drawer"
+                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                    aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
                     <UserPlus className="w-3.5 h-3.5 text-sky-300" />
                     Follow Requests
+                    {pendingFollowReqCount > 0 && (
+                      <span
+                        className="rgb-pulse-glow absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
+                        aria-hidden
+                      >
+                        {pendingFollowReqCount > 9 ? "9+" : pendingFollowReqCount}
+                      </span>
+                    )}
                   </button>
                 )}
               </div>
             </div>
 
-            {/* Hero — mobile uses a solid gradient with hardware-accel safety
-                 rules to prevent GPU rendering artifacts (scanline tearing,
-                 static noise) seen on some mobile Chromium builds. Heavier
-                 texture/glow effects are reserved for sm: and larger. */}
+            {/* Hero — solid background on mobile, no aggressive compositing
+                 hints. Earlier versions used `contain: layout paint`,
+                 `will-change: transform`, and `isolation: isolate` which
+                 corrupted GPU rasterization on some Android Chromium builds,
+                 producing scanline / static noise between the reputation
+                 stat grid and the rating breakdown. Keep the background
+                 flat; let the browser composite normally. */}
             <section
               data-testid="profile-banner"
-              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-5 sm:p-6"
-              style={{
-                transform: "translate3d(0,0,0)",
-                WebkitTransform: "translate3d(0,0,0)",
-                backfaceVisibility: "hidden",
-                WebkitBackfaceVisibility: "hidden",
-                willChange: "transform",
-                isolation: "isolate",
-                contain: "layout paint",
-                overscrollBehavior: "contain",
-              }}
+              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-4 sm:p-6"
+              style={{ overscrollBehavior: "contain" }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
                 <div
                   className={`w-20 h-20 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white text-2xl font-black shrink-0 shadow-lg overflow-hidden`}
-                  style={{
-                    transform: "translate3d(0,0,0)",
-                    backfaceVisibility: "hidden",
-                  }}
                 >
                   {displayAvatar ? (
                     <ResponsiveImage
@@ -719,7 +775,21 @@ function ProfilePage() {
                   </div>
                   <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    Joined {displayJoined} · ★ {displayStars.toFixed(1)} · {(socialCounts?.followers ?? 0).toLocaleString()} followers
+                    Joined {displayJoined} · ★ {displayStars.toFixed(1)}
+                  </div>
+                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">followers</span>
+                    </span>
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">following</span>
+                    </span>
+                    <span className="text-slate-300">
+                      <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
+                      <span className="text-slate-500">in circle</span>
+                    </span>
                   </div>
                   <p className="text-sm text-slate-300 mt-3 leading-relaxed">
                     {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
@@ -858,10 +928,13 @@ function ProfilePage() {
                     Fetching real metrics from bounties, marketplace, and posts…
                   </div>
                 ) : (
-                  <ul className="space-y-2.5">
+                  <ul className="space-y-3">
                     {liveRep.items.map((item) => (
-                      <li key={item.key} className="flex items-start gap-3">
-                        <div className="w-28 shrink-0">
+                      <li
+                        key={item.key}
+                        className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3"
+                      >
+                        <div className="sm:w-28 shrink-0 flex items-baseline justify-between sm:block gap-2">
                           <div className="text-xs text-white font-semibold">{item.label}</div>
                           <div className="text-[10px] uppercase tracking-wider text-slate-500">
                             {Math.round(item.weight * 100)}% weight
@@ -876,7 +949,7 @@ function ProfilePage() {
                             />
                           </div>
                         </div>
-                        <div className="w-24 shrink-0 text-right">
+                        <div className="sm:w-24 shrink-0 flex items-baseline justify-between sm:block sm:text-right">
                           <div className="text-xs font-bold text-white">{item.raw}</div>
                           <div className="text-[10px] text-slate-500">
                             {(item.score * 5).toFixed(1)} / 5

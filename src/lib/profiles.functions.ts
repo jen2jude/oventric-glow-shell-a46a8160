@@ -163,7 +163,9 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
 
 export interface ProfileSocialCounts {
   followers: number;
+  following: number;
   circleMembers: number;
+  userId: string | null;
 }
 
 export const getProfileSocialCounts = createServerFn({ method: "GET" })
@@ -176,27 +178,43 @@ export const getProfileSocialCounts = createServerFn({ method: "GET" })
       { auth: { persistSession: false, autoRefreshToken: false } },
     );
 
-    // Resolve to a slug. Accept slug/username directly; look up by user_id UUID.
+    // Resolve to a slug + user_id. Accept slug/username directly; look up by user_id UUID.
     let slug = data.idOrSlug;
+    let userId: string | null = null;
     if (UUID_RE.test(data.idOrSlug)) {
+      userId = data.idOrSlug;
       const { data: row } = await supabase
         .from("profiles")
         .select("slug")
         .eq("user_id", data.idOrSlug)
         .maybeSingle();
-      if (!row?.slug) return { followers: 0, circleMembers: 0 };
+      if (!row?.slug) return { followers: 0, following: 0, circleMembers: 0, userId };
       slug = row.slug;
+    } else {
+      const { data: row } = await supabase
+        .from("profiles")
+        .select("user_id")
+        .eq("slug", data.idOrSlug)
+        .maybeSingle();
+      userId = row?.user_id ?? null;
     }
 
-    const { data: rows, error } = await supabase.rpc("profile_social_counts", { _slug: slug });
-    if (error) {
-      console.error("[getProfileSocialCounts] rpc failed", error);
-      return { followers: 0, circleMembers: 0 };
-    }
+    const [{ data: rows, error }, followingRes] = await Promise.all([
+      supabase.rpc("profile_social_counts", { _slug: slug }),
+      userId
+        ? supabase
+            .from("follows")
+            .select("*", { count: "exact", head: true })
+            .eq("follower_id", userId)
+        : Promise.resolve({ count: 0 } as { count: number | null }),
+    ]);
+    if (error) console.error("[getProfileSocialCounts] rpc failed", error);
     const first = Array.isArray(rows) ? rows[0] : rows;
     return {
       followers: Number(first?.followers ?? 0),
+      following: Number(followingRes.count ?? 0),
       circleMembers: Number(first?.circle_members ?? 0),
+      userId,
     };
   });
 
