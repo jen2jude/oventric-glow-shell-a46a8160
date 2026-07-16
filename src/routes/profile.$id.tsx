@@ -44,6 +44,7 @@ import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
+import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
@@ -147,6 +148,7 @@ function ProfilePage() {
   const [reportOpen, setReportOpen] = useState(false);
   const [joinCircleOpen, setJoinCircleOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
+  const [followRequestsOpen, setFollowRequestsOpen] = useState(false);
   const [copied, setCopied] = useState(false);
   const [mpLastRefreshed, setMpLastRefreshed] = useState<number | null>(null);
   const [mpRefreshing, setMpRefreshing] = useState(false);
@@ -656,6 +658,16 @@ function ProfilePage() {
                   <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
                   Circle Requests
                 </button>
+                {isOwnProfile && (
+                  <button
+                    onClick={() => setFollowRequestsOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                    aria-label="Open follow requests drawer"
+                  >
+                    <UserPlus className="w-3.5 h-3.5 text-sky-300" />
+                    Follow Requests
+                  </button>
+                )}
               </div>
             </div>
 
@@ -665,10 +677,16 @@ function ProfilePage() {
                  texture/glow effects are reserved for sm: and larger. */}
             <section
               data-testid="profile-banner"
-              className="bg-gradient-to-b from-[#1E1E24] to-[#121214] sm:bg-[#1E1E24] border border-white/10 rounded-xl p-5 sm:p-6"
+              className="bg-[#1E1E24] sm:bg-gradient-to-b sm:from-[#1E1E24] sm:to-[#121214] border border-white/10 rounded-xl p-5 sm:p-6"
               style={{
                 transform: "translate3d(0,0,0)",
+                WebkitTransform: "translate3d(0,0,0)",
                 backfaceVisibility: "hidden",
+                WebkitBackfaceVisibility: "hidden",
+                willChange: "transform",
+                isolation: "isolate",
+                contain: "layout paint",
+                overscrollBehavior: "contain",
               }}
             >
               <div className="flex flex-col sm:flex-row sm:items-center gap-5">
@@ -1179,6 +1197,7 @@ function ProfilePage() {
         initialThreadId={realProfile?.userId}
       />
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
+      <FollowRequestsDrawer open={followRequestsOpen} onClose={() => setFollowRequestsOpen(false)} />
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}

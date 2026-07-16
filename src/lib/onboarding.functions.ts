@@ -24,14 +24,17 @@ export const seedNewUser = createServerFn({ method: "POST" })
     );
 
     const email = (claims as { email?: string } | undefined)?.email ?? "";
-    const emailLocal = email.split("@")[0] || "architect";
-    const fallbackName = data.displayName ?? emailLocal;
+    // For real (email) users the local-part is a reasonable seed; for
+    // anonymous browse-only sessions there is no email, so we use a stable
+    // per-user token and leave display_name blank until they finish onboarding.
+    const emailLocal = email.split("@")[0] || `user-${userId.slice(0, 8)}`;
+    const fallbackName = data.displayName ?? (email ? emailLocal : "");
     const desiredUsername = data.username ?? emailLocal;
     const slugBase =
       desiredUsername
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "")
-        .slice(0, 24) || "architect";
+        .slice(0, 24) || `user${userId.slice(0, 8)}`;
 
     // 1. Profile (insert-if-missing; do NOT overwrite existing user edits)
     const { data: existing, error: readErr } = await supabase
@@ -52,7 +55,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
           display_name: fallbackName,
           username: uname,
           verification_tier: "TIER_0",
-          reputation_stars: 5.0,
+          reputation_stars: 0,
         });
 
       let { error: insErr } = await tryInsert(slugBase, desiredUsername);
@@ -129,30 +132,39 @@ export const updateFullName = createServerFn({ method: "POST" })
 const CompleteProfileInput = z.object({
   fullName: z.string().trim().min(2).max(80),
   country: z.enum(["NG", "GH", "US", "UK", "OTHER"]),
-  address: z.string().trim().min(4, "Enter a valid address").max(240),
-  phone: z.string().trim().min(6, "Enter a valid phone").max(24),
+  address: z.string().trim().min(4).max(240).optional(),
+  phone: z.string().trim().min(6).max(24).optional(),
 });
 
 /**
- * Stage 2 onboarding: persists full name, country, address, and phone, and
- * promotes verification_tier from TIER_1 → TIER_2 so commerce actions
- * (buy, sell, wallet, bounty apply, campaign issue) unlock.
+ * Stage 2 onboarding: persists full name and country (plus optional address
+ * and phone if the caller collected them), and promotes verification_tier
+ * from TIER_1 → TIER_2 so commerce actions unlock. Address and phone are
+ * captured during the KYC step, so they are not required here.
  */
 export const completeProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => CompleteProfileInput.parse(input))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const patch: {
+      display_name: string;
+      country: string;
+      verification_tier: string;
+      profile_completed_at: string;
+      address?: string;
+      phone?: string;
+    } = {
+      display_name: data.fullName,
+      country: data.country,
+      verification_tier: "TIER_2",
+      profile_completed_at: new Date().toISOString(),
+    };
+    if (data.address) patch.address = data.address;
+    if (data.phone) patch.phone = data.phone;
     const { error } = await supabase
       .from("profiles")
-      .update({
-        display_name: data.fullName,
-        country: data.country,
-        address: data.address,
-        phone: data.phone,
-        verification_tier: "TIER_2",
-        profile_completed_at: new Date().toISOString(),
-      })
+      .update(patch)
       .eq("user_id", userId);
     if (error) {
       console.error("[completeProfile] update failed", error);

@@ -31,7 +31,7 @@ async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, Per
   if (ids.length === 0) return new Map();
   const { data } = await supabase
     .from("profiles")
-    .select("user_id, display_name, username, slug, avatar_url, bio")
+    .select("user_id, display_name, username, slug, avatar_path, bio")
     .in("user_id", ids);
   return new Map(
     (data ?? []).map((p: any) => [
@@ -41,7 +41,7 @@ async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, Per
         displayName: p.display_name || p.username || "Unnamed member",
         username: p.username ?? null,
         slug: p.slug ?? null,
-        avatarUrl: p.avatar_url ?? null,
+        avatarUrl: p.avatar_path ?? null,
         bio: p.bio ?? null,
       } satisfies PersonSummary,
     ]),
@@ -100,6 +100,26 @@ export const sendFollowRequest = createServerFn({ method: "POST" })
     if (error) {
       console.error("[sendFollowRequest]", error);
       throw new Error("Failed to send follow request");
+    }
+    // Fire a notification for the target so they see the request in their bell.
+    try {
+      const { data: meProfile } = await context.supabase
+        .from("profiles")
+        .select("display_name, username, slug")
+        .eq("user_id", me)
+        .maybeSingle();
+      const name = meProfile?.display_name || meProfile?.username || "Someone";
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as any).from("notifications").insert({
+        user_id: data.targetId,
+        from_user_id: me,
+        kind: "follow_request",
+        title: `${name} wants to follow you`,
+        body: "Open your profile to accept or decline.",
+        link: meProfile?.slug ? `/profile/${meProfile.slug}` : null,
+      });
+    } catch (nErr) {
+      console.error("[sendFollowRequest] notify", nErr);
     }
     const { data: theyFollow } = await context.supabase
       .from("follows")
@@ -271,7 +291,7 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
 
     const { data: rows, error } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug, avatar_url, bio, reputation_stars")
+      .select("user_id, display_name, username, slug, avatar_path, bio, reputation_stars")
       .not("user_id", "in", `(${[...exclude].map((v) => `"${v}"`).join(",") || '""'})`)
       .order("reputation_stars", { ascending: false, nullsFirst: false })
       .limit(limit * 3);
@@ -285,7 +305,7 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
         displayName: p.display_name || p.username || "Unnamed member",
         username: p.username ?? null,
         slug: p.slug ?? null,
-        avatarUrl: p.avatar_url ?? null,
+        avatarUrl: p.avatar_path ?? null,
         bio: p.bio ?? null,
         reputation: Number(p.reputation_stars ?? 0),
       }));
