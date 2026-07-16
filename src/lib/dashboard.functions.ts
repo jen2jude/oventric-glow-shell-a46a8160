@@ -395,10 +395,10 @@ export const getMySocial = createServerFn({ method: "GET" })
     if (allUserIds.length) {
       const { data: profs } = await sb
         .from("profiles")
-        .select("user_id, slug, display_name, username, avatar_url")
+        .select("user_id, slug, display_name, username, avatar_path")
         .in("user_id", allUserIds);
       userMap = new Map(
-        ((profs ?? []) as Array<{ user_id: string; slug: string; display_name: string | null; username: string | null; avatar_url: string | null }>).map((p) => [
+        ((profs ?? []) as Array<{ user_id: string; slug: string; display_name: string | null; username: string | null; avatar_path: string | null }>).map((p) => [
           p.user_id,
           { slug: p.slug, name: p.display_name || p.username || "Peer", avatar: p.avatar_url },
         ]),
