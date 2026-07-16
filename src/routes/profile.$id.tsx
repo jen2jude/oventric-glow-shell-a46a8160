@@ -204,6 +204,12 @@ function ProfilePage() {
     });
     return () => { alive = false; sub.subscription.unsubscribe(); };
   }, []);
+  const reloadSocialCounts = useCallback(() => {
+    fetchSocialCounts({ data: { idOrSlug: id } })
+      .then((c) => setSocialCounts(c))
+      .catch(() => {});
+  }, [fetchSocialCounts, id]);
+
   useEffect(() => {
     let cancelled = false;
     setRealProfileLoaded(false);
@@ -229,6 +235,64 @@ function ProfilePage() {
       cancelled = true;
     };
   }, [id, fetchRealProfile, fetchReputation, fetchSocialCounts]);
+
+  // Realtime: keep followers / circle members counters in sync with reality.
+  useEffect(() => {
+    const uid = realProfile?.userId ?? (isUuidId ? id : null);
+    if (!uid) return;
+    const ch = supabase
+      .channel(`profile-social-${uid}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows", filter: `followee_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follows", filter: `follower_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "circle_members", filter: `user_id=eq.${uid}` },
+        () => reloadSocialCounts(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [realProfile?.userId, id]);
+
+  // Pending incoming follow-request count (own profile) — powers the RGB glow dot
+  // on the "Follow Requests" trigger.
+  const [pendingFollowReqCount, setPendingFollowReqCount] = useState(0);
+  useEffect(() => {
+    if (!meId) return;
+    let cancelled = false;
+    const load = async () => {
+      const { count } = await supabase
+        .from("follow_requests")
+        .select("id", { count: "exact", head: true })
+        .eq("target_id", meId)
+        .eq("status", "pending");
+      if (!cancelled) setPendingFollowReqCount(count ?? 0);
+    };
+    load();
+    const ch = supabase
+      .channel(`follow-req-count-${meId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "follow_requests", filter: `target_id=eq.${meId}` },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      cancelled = true;
+      supabase.removeChannel(ch);
+    };
+  }, [meId]);
+
 
   const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
