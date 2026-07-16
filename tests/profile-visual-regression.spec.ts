@@ -119,6 +119,37 @@ test.describe("Profile visual regression @ mobile breakpoints", () => {
         maxDiffPixelRatio: 0.02,
         animations: "disabled",
       });
+
+      // 4) Reputation block (stats + "How this rating is calculated") —
+      // the mid-page region that showed the worst scrambling on Infinix/Redmi.
+      const reputation = page.getByTestId("profile-reputation");
+      await expect(reputation).toBeVisible();
+      await reputation.scrollIntoViewIfNeeded();
+      await expect(reputation).toHaveScreenshot(`reputation-${vp.label}.png`, {
+        maxDiffPixelRatio: 0.02,
+        animations: "disabled",
+      });
+
+      // 5) Tabs nav — horizontal scroller that historically triggered
+      // overflow/compositor bugs on narrow Android widths.
+      const tabs = page.getByTestId("profile-tabs");
+      await expect(tabs).toBeVisible();
+      await tabs.scrollIntoViewIfNeeded();
+      await expect(tabs).toHaveScreenshot(`tabs-${vp.label}.png`, {
+        maxDiffPixelRatio: 0.02,
+        animations: "disabled",
+      });
+
+      // 6) Tab content region below the tabs — where scrambling
+      // extended past the reputation card on affected devices.
+      const tabContent = page.getByTestId("profile-tab-content");
+      await expect(tabContent).toBeVisible();
+      await tabContent.scrollIntoViewIfNeeded();
+      await expect(tabContent).toHaveScreenshot(`tab-content-${vp.label}.png`, {
+        maxDiffPixelRatio: 0.03,
+        animations: "disabled",
+      });
     });
   }
 });
+

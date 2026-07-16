@@ -984,7 +984,7 @@ function ProfilePage() {
               </div>
 
               {/* Reputation block */}
-              <div className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
+              <div data-testid="profile-reputation" className="mt-5 pt-5 border-t border-white/5 grid grid-cols-2 sm:grid-cols-5 gap-3">
                 <RepStat
                   icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
                   label="Star Rating"
@@ -1092,7 +1092,7 @@ function ProfilePage() {
 
 
             {/* Tabs */}
-            <nav className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
+            <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
               {(
                 [
                   ["posts", "Posts"],
@@ -1182,7 +1182,7 @@ function ProfilePage() {
 
 
             {/* Tab content */}
-            <section className="mt-5 space-y-3">
+            <section data-testid="profile-tab-content" className="mt-5 space-y-3">
               {(() => {
                 const st = tabData[tab];
                 const initialLoading = st.loading && st.items.length === 0;
