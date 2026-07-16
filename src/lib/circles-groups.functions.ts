@@ -497,7 +497,7 @@ export const listIncomingCircleJoinRequests = createServerFn({ method: "GET" })
       context.supabase.from("circles").select("id, name, slug").in("id", adminCircleIds),
       context.supabase
         .from("profiles")
-        .select("user_id, display_name, username, slug, avatar_url")
+        .select("user_id, display_name, username, slug, avatar_path")
         .in(
           "user_id",
           reqs.map((r: any) => r.requester_id),
@@ -516,7 +516,7 @@ export const listIncomingCircleJoinRequests = createServerFn({ method: "GET" })
         circleSlug: c?.slug ?? "",
         requesterId: r.requester_id,
         requesterName: p?.display_name || p?.username || "Someone",
-        requesterAvatar: p?.avatar_url ?? null,
+        requesterAvatar: p?.avatar_path ?? null,
         requesterSlug: p?.slug ?? null,
         status: r.status,
         createdAt: r.created_at,
@@ -626,7 +626,7 @@ export const listCirclePosts = createServerFn({ method: "GET" })
     const authors = Array.from(new Set(rows.map((r: any) => r.author_id)));
     const { data: profs } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug, avatar_url")
+      .select("user_id, display_name, username, slug, avatar_path")
       .in("user_id", authors);
     const pMap = new Map((profs ?? []).map((p: any) => [p.user_id, p]));
     return rows.map((r: any) => {
@@ -636,7 +636,7 @@ export const listCirclePosts = createServerFn({ method: "GET" })
         circleId: r.circle_id,
         authorId: r.author_id,
         authorName: p?.display_name || p?.username || "Member",
-        authorAvatar: p?.avatar_url ?? null,
+        authorAvatar: p?.avatar_path ?? null,
         authorSlug: p?.slug ?? null,
         text: r.text,
         mediaPath: r.media_path,
@@ -683,7 +683,7 @@ export const listCircleMembers = createServerFn({ method: "GET" })
     if (!rows || rows.length === 0) return [];
     const { data: profs } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug, avatar_url")
+      .select("user_id, display_name, username, slug, avatar_path")
       .in("user_id", rows.map((r: any) => r.user_id));
     const pMap = new Map((profs ?? []).map((p: any) => [p.user_id, p]));
     return rows.map((r: any) => {
@@ -693,7 +693,7 @@ export const listCircleMembers = createServerFn({ method: "GET" })
         role: r.role,
         joinedAt: r.joined_at,
         name: p?.display_name || p?.username || "Member",
-        avatar: p?.avatar_url ?? null,
+        avatar: p?.avatar_path ?? null,
         slug: p?.slug ?? null,
       };
     });
