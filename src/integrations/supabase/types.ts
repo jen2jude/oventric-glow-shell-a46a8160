@@ -1860,6 +1860,22 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_product_contact: {
+        Args: { _product_id: string }
+        Returns: {
+          location: string
+          seller_phone: string
+          whatsapp_number: string
+        }[]
+      }
+      get_product_contact: {
+        Args: { _product_id: string }
+        Returns: {
+          location: string
+          seller_phone: string
+          whatsapp_number: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
