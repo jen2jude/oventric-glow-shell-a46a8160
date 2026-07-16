@@ -279,6 +279,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       display_name?: string;
       bio?: string | null;
       avatar_path?: string | null;
+      cover_path?: string | null;
       username?: string | null;
       phone?: string | null;
       country?: string | null;
@@ -288,6 +289,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.displayName !== undefined) patch.display_name = data.displayName;
     if (data.bio !== undefined) patch.bio = data.bio;
     if (data.avatarPath !== undefined) patch.avatar_path = data.avatarPath;
+    if (data.coverPath !== undefined) patch.cover_path = data.coverPath;
+
     if (data.username !== undefined) patch.username = data.username;
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
