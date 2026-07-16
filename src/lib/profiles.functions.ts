@@ -521,22 +521,10 @@ async function resolveUserId(
 }
 
 
-function serverClient() {
-  const { createClient } = require("@supabase/supabase-js") as typeof import("@supabase/supabase-js");
-  return createClient(process.env.SUPABASE_URL!, process.env.SUPABASE_PUBLISHABLE_KEY!, {
-    auth: { persistSession: false, autoRefreshToken: false },
-  });
-}
-
 export const getLiveProfileTab = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => LiveTabInput.parse(input))
   .handler(async ({ data }): Promise<ProfileTabPage> => {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+    const supabase = await createServerPublicClient();
 
     const userId = await resolveUserId(supabase, data.idOrSlug);
     const empty: ProfileTabPage = {
@@ -733,12 +721,7 @@ const LiveItemInput = z.object({
 export const getLiveProfileItem = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => LiveItemInput.parse(input))
   .handler(async ({ data }): Promise<{ item: ProfileTabItem | null }> => {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+    const supabase = await createServerPublicClient();
 
     if (data.kind === "post") {
       const { data: row } = await supabase
@@ -837,12 +820,7 @@ const RepInput = z.object({ idOrSlug: z.string().trim().min(1).max(120) });
 export const getLiveReputation = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => RepInput.parse(input))
   .handler(async ({ data }): Promise<{ reputation: LiveReputation | null }> => {
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabase = createClient(
-      process.env.SUPABASE_URL!,
-      process.env.SUPABASE_PUBLISHABLE_KEY!,
-      { auth: { persistSession: false, autoRefreshToken: false } },
-    );
+    const supabase = await createServerPublicClient();
 
     const userId = await resolveUserId(supabase, data.idOrSlug);
     if (!userId) return { reputation: null };
