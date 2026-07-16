@@ -186,9 +186,38 @@ async function settleTransferEvent(
   } else {
     // failed or reversed -> refund escrow -> available, mark rejected, fail the wallet tx.
     if (status === "rejected" || status === "paid") return;
-    await supabaseAdmin.rpc("payout_request_reject", {
-      _id: payoutId,
-      _reason: (data.reason || `Paystack ${event}`).slice(0, 200),
-    });
+    const { data: w } = await supabaseAdmin
+      .from("wallets")
+      .select("escrow_balance, available_balance")
+      .eq("user_id", userId)
+      .eq("currency", currency)
+      .maybeSingle();
+    const currEscrow = Number(w?.escrow_balance ?? 0);
+    const currAvail = Number(w?.available_balance ?? 0);
+    const move = Math.min(currEscrow, amount);
+    await supabaseAdmin
+      .from("wallets")
+      .update({
+        escrow_balance: Math.max(0, currEscrow - move),
+        available_balance: currAvail + move,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("user_id", userId)
+      .eq("currency", currency);
+    await supabaseAdmin
+      .from("payout_requests")
+      .update({
+        status: "rejected",
+        reject_reason: (data.reason || `Paystack ${event}`).slice(0, 200),
+        processed_at: new Date().toISOString(),
+      })
+      .eq("id", payoutId);
+    await supabaseAdmin
+      .from("wallet_transactions")
+      .update({ status: "failed" })
+      .eq("user_id", userId)
+      .eq("tx_hash", "PYT-" + payoutId.slice(0, 8))
+      .eq("type", "Payout Withdrawal");
   }
 }
+
