@@ -302,8 +302,9 @@ function Shell({ children }: { children: React.ReactNode }) {
   const navigate = useNavigate();
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
-      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg" />
-      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg" />
+      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
+      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
+
       <div className="flex h-full flex-col">
         <Header />
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
