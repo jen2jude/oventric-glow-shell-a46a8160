@@ -7,7 +7,7 @@ import {
   getOnboardingStatus as getOnboardingStatusFn,
 } from "@/lib/onboarding.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { useOnboarding, countryToCurrency, type Country } from "@/lib/onboarding/OnboardingContext";
+import { useOnboarding, countryToCurrency, parseCountry, type Country } from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
