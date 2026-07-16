@@ -783,7 +783,7 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: o, error } = await supabase
       .from("orders")
-      .select("*, products:product_id (name, category, vendor, hue, external_url, file_path)")
+      .select("*, products:product_id (name, category, vendor, hue, external_url, file_path, requires_manual_delivery)")
       .eq("id", data.orderId)
       .maybeSingle();
     if (error) throw new Error(error.message);
