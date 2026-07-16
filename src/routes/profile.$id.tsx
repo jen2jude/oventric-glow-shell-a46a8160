@@ -37,6 +37,8 @@ import {
   RefreshCw,
   Clock,
   Loader2,
+  Camera,
+
 } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
