@@ -820,6 +820,9 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
         paidAt: (o.paid_at as string) ?? null,
         externalUrl: (product.external_url as string) ?? null,
         filePath,
+        deliveryEmail: (o.delivery_email as string) ?? null,
+        deliveryWhatsapp: (o.delivery_whatsapp as string) ?? null,
+        requiresManualDelivery: Boolean(product.requires_manual_delivery),
       } satisfies OrderDTO,
       downloadUrl,
     };
