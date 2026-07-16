@@ -315,7 +315,7 @@ export function Wallet() {
               </div>
             </div>
             <div className={`text-xl sm:text-2xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_10px_rgba(52,211,153,0.5)] ${hide ? "blur-sm select-none" : ""}`}>
-              {hide ? mask : `$${cashback.toFixed(2)}`}
+              {hide ? mask : fmt(cashback * (FX_FROM_USD[baseCurrency] || 1), baseCurrency)}
             </div>
           </div>
         </div>
