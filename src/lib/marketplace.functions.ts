@@ -175,6 +175,51 @@ export const listProducts = createServerFn({ method: "GET" }).handler(async () =
   return rows.map((r, i) => mapProduct(r as Record<string, unknown>, urls[i]));
 });
 
+export interface CategoryNode {
+  id: string;
+  slug: string;
+  name: string;
+  description: string;
+  kind: "digital" | "physical";
+  parentId: string | null;
+  sortOrder: number;
+  children: CategoryNode[];
+}
+
+/** Public list of enabled marketplace categories (with subcategories). */
+export const listMarketplaceCategories = createServerFn({ method: "GET" }).handler(async () => {
+  const sb = serverPublicClient();
+  const { data, error } = await sb
+    .from("marketplace_categories")
+    .select("id, slug, name, description, kind, parent_id, sort_order, enabled")
+    .eq("enabled", true)
+    .order("sort_order", { ascending: true });
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<Record<string, unknown>>;
+  const map = new Map<string, CategoryNode>();
+  rows.forEach((r) => {
+    map.set(r.id as string, {
+      id: r.id as string,
+      slug: r.slug as string,
+      name: r.name as string,
+      description: (r.description as string) ?? "",
+      kind: ((r.kind as string) ?? "digital") as "digital" | "physical",
+      parentId: (r.parent_id as string) ?? null,
+      sortOrder: Number(r.sort_order ?? 0),
+      children: [],
+    });
+  });
+  const roots: CategoryNode[] = [];
+  map.forEach((node) => {
+    if (node.parentId && map.has(node.parentId)) {
+      map.get(node.parentId)!.children.push(node);
+    } else {
+      roots.push(node);
+    }
+  });
+  return roots;
+});
+
 /** Public product detail. */
 export const getProduct = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => ({ id: String(input?.id ?? "") }))
@@ -200,6 +245,7 @@ export const createProduct = createServerFn({ method: "POST" })
   .inputValidator((input: {
     name: string;
     category: ProductCategory;
+    subcategory?: string | null;
     description: string;
     priceUSD: number;
     vendor: string;
@@ -215,6 +261,7 @@ export const createProduct = createServerFn({ method: "POST" })
   }) => ({
     name: String(input.name ?? "").trim(),
     category: input.category,
+    subcategory: input.subcategory ? String(input.subcategory).trim() : null,
     description: String(input.description ?? "").trim(),
     priceUSD: Math.max(0, Number(input.priceUSD ?? 0)),
     vendor: String(input.vendor ?? "").trim(),
@@ -239,6 +286,7 @@ export const createProduct = createServerFn({ method: "POST" })
         seller_id: context.userId,
         name: data.name,
         category: data.category,
+        subcategory: data.subcategory,
         description: data.description,
         price_usd: data.priceUSD,
         original_currency: data.originalCurrency,

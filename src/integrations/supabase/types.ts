@@ -1097,7 +1097,9 @@ export type Database = {
           description: string
           enabled: boolean
           id: string
+          kind: string
           name: string
+          parent_id: string | null
           slug: string
           sort_order: number
           updated_at: string
@@ -1107,7 +1109,9 @@ export type Database = {
           description?: string
           enabled?: boolean
           id?: string
+          kind?: string
           name: string
+          parent_id?: string | null
           slug: string
           sort_order?: number
           updated_at?: string
@@ -1117,12 +1121,22 @@ export type Database = {
           description?: string
           enabled?: boolean
           id?: string
+          kind?: string
           name?: string
+          parent_id?: string | null
           slug?: string
           sort_order?: number
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "marketplace_categories_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "marketplace_categories"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       notifications: {
         Row: {
