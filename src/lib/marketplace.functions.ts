@@ -615,6 +615,8 @@ export const createOrder = createServerFn({ method: "POST" })
     displayCurrency: (input.displayCurrency ?? "USD") as OrderCurrency,
     paymentMethod: (input.paymentMethod ?? "wallet") as PaymentMethod,
     couponCode: input.couponCode ? String(input.couponCode).trim().toUpperCase() : null,
+    deliveryEmail: input.deliveryEmail ? String(input.deliveryEmail).trim().slice(0, 320) : null,
+    deliveryWhatsapp: input.deliveryWhatsapp ? String(input.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null,
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
