@@ -658,6 +658,16 @@ function ProfilePage() {
                   <UserPlus className="w-3.5 h-3.5 text-emerald-300" />
                   Circle Requests
                 </button>
+                {isOwnProfile && (
+                  <button
+                    onClick={() => setFollowRequestsOpen(true)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                    aria-label="Open follow requests drawer"
+                  >
+                    <UserPlus className="w-3.5 h-3.5 text-sky-300" />
+                    Follow Requests
+                  </button>
+                )}
               </div>
             </div>
 
