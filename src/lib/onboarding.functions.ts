@@ -24,14 +24,17 @@ export const seedNewUser = createServerFn({ method: "POST" })
     );
 
     const email = (claims as { email?: string } | undefined)?.email ?? "";
-    const emailLocal = email.split("@")[0] || "architect";
-    const fallbackName = data.displayName ?? emailLocal;
+    // For real (email) users the local-part is a reasonable seed; for
+    // anonymous browse-only sessions there is no email, so we use a stable
+    // per-user token and leave display_name blank until they finish onboarding.
+    const emailLocal = email.split("@")[0] || `user-${userId.slice(0, 8)}`;
+    const fallbackName = data.displayName ?? (email ? emailLocal : "");
     const desiredUsername = data.username ?? emailLocal;
     const slugBase =
       desiredUsername
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "")
-        .slice(0, 24) || "architect";
+        .slice(0, 24) || `user${userId.slice(0, 8)}`;
 
     // 1. Profile (insert-if-missing; do NOT overwrite existing user edits)
     const { data: existing, error: readErr } = await supabase
