@@ -688,6 +688,8 @@ export const createOrder = createServerFn({ method: "POST" })
         payment_method: data.paymentMethod,
         status: "paid",
         paid_at: new Date().toISOString(),
+        delivery_email: data.deliveryEmail,
+        delivery_whatsapp: data.deliveryWhatsapp,
       })
       .select()
       .single();
