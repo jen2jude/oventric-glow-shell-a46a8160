@@ -46,6 +46,7 @@ export interface ProductDTO {
   socialLink: string | null;
   imagePaths: string[];
   imageUrls: string[];
+  requiresManualDelivery: boolean;
 }
 
 export interface OrderDTO {
