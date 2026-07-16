@@ -27,6 +27,17 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions, getWalletBalances, getWalletEarnings } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
+import {
+  listBanksForCurrency,
+  resolveBankAccount,
+  listMyRecipients,
+  createMyRecipient,
+  deleteMyRecipient,
+  estimatePayoutFee,
+  createLivePayout,
+  createPayoutRequest,
+  type PayoutRecipientDTO,
+} from "@/lib/payouts.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 
 type TxStatus = "success" | "pending" | "failed";
@@ -393,7 +404,7 @@ export function Wallet() {
               <ArrowDownToLine className="w-5 h-5 text-emerald-300" />
             </div>
             <div className="min-w-0">
-              <div className="font-bold text-white">➕ Add Liquid Capital</div>
+              <div className="font-bold text-white">➕ Fund Wallet</div>
               <div className="text-xs text-slate-400 mt-0.5">Card · Bank · Mobile Money</div>
             </div>
           </div>
@@ -408,7 +419,7 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 mt-0.5">Escrow extraction · clearing gate</div>
+              <div className="text-xs text-slate-400 mt-0.5">Direct to your bank · fee auto-deducted</div>
             </div>
           </div>
         </button>
@@ -690,7 +701,7 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
     }
   };
   return (
-    <ModalShell title="Add Liquid Capital" onClose={onClose}>
+    <ModalShell title="Fund Wallet" onClose={onClose}>
       {hasPrefill && (
         <div className="rounded-xl border border-emerald-500/40 bg-emerald-500/5 p-3">
           <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
@@ -816,106 +827,17 @@ const GH_BANKS = [
 
 function PayoutModal({ onClose }: { onClose: () => void }) {
   const { balances } = useOnboarding();
-  const [step, setStep] = useState<"pick" | "form">("pick");
+  const qc = useQueryClient();
+
   const [rail, setRail] = useState<Rail | null>(null);
-  const [amount, setAmount] = useState<string>("");
-  const [submitting, setSubmitting] = useState(false);
-
-  // NGN bank fields
-  const [ngBank, setNgBank] = useState("");
-  const [ngAcct, setNgAcct] = useState("");
-  const [ngName, setNgName] = useState("");
-
-  // GHS momo / bank
-  const [ghMode, setGhMode] = useState<"momo" | "bank">("momo");
-  const [ghNetwork, setGhNetwork] = useState<"MTN" | "Vodafone" | "AirtelTigo">("MTN");
-  const [ghPhone, setGhPhone] = useState("");
-  const [ghHolder, setGhHolder] = useState("");
-  const [ghBank, setGhBank] = useState("");
-  const [ghAcct, setGhAcct] = useState("");
-
-  // USD wire
-  const [wireBene, setWireBene] = useState("");
-  const [wireBank, setWireBank] = useState("");
-  const [wireAcct, setWireAcct] = useState("");
-  const [wireSwift, setWireSwift] = useState("");
-  const [wireRouting, setWireRouting] = useState("");
-  const [wireCountry, setWireCountry] = useState("");
-  const [wireAddress, setWireAddress] = useState("");
+  const [step, setStep] = useState<"pick" | "destination" | "amount" | "wire">("pick");
+  const [chosenRecipientId, setChosenRecipientId] = useState<string | null>(null);
 
   const rails: Rail[] = [
-    { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Nigerian bank · NIP rails" },
-    { c: "GHS", method: "momo", label: "GHS Mobile Money / Bank", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" },
-    { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · Correspondent bank" },
+    { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Direct to your Nigerian bank · Paystack" },
+    { c: "GHS", method: "momo", label: "GHS Bank / Mobile Money", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" },
+    { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" },
   ];
-
-  const submit = async () => {
-    if (!rail) return;
-    const amt = Number(amount);
-    if (!Number.isFinite(amt) || amt <= 0) {
-      toast.error("Enter a valid amount");
-      return;
-    }
-    const bal = balances[rail.c] ?? 0;
-    if (amt > bal) {
-      toast.error(`Amount exceeds available balance (${currencyMeta[rail.c].symbol}${bal.toLocaleString()})`);
-      return;
-    }
-
-    let method: "bank" | "momo" | "wire" = rail.method;
-    const destination: Record<string, string> = {};
-
-    try {
-      if (rail.c === "NGN") {
-        method = "bank";
-        if (!ngBank || !ngAcct || !ngName) throw new Error("Fill bank, account number and account name");
-        if (!/^\d{10}$/.test(ngAcct)) throw new Error("Nigerian account number must be 10 digits");
-        Object.assign(destination, { bank_name: ngBank, account_number: ngAcct, account_name: ngName });
-      } else if (rail.c === "GHS") {
-        if (ghMode === "momo") {
-          method = "momo";
-          if (!ghPhone || !ghHolder) throw new Error("Fill mobile number and account name");
-          Object.assign(destination, { network: ghNetwork, phone: ghPhone, account_name: ghHolder });
-        } else {
-          method = "bank";
-          if (!ghBank || !ghAcct || !ghHolder) throw new Error("Fill bank, account number and account name");
-          Object.assign(destination, { bank_name: ghBank, account_number: ghAcct, account_name: ghHolder });
-        }
-      } else {
-        method = "wire";
-        if (!wireBene || !wireBank || !wireAcct || !wireSwift) throw new Error("Fill beneficiary, bank, account and SWIFT");
-        Object.assign(destination, {
-          beneficiary_name: wireBene,
-          bank_name: wireBank,
-          account_number: wireAcct,
-          swift: wireSwift,
-          routing: wireRouting,
-          bank_country: wireCountry,
-          beneficiary_address: wireAddress,
-        });
-      }
-    } catch (e) {
-      toast.error((e as Error).message);
-      return;
-    }
-
-    try {
-      setSubmitting(true);
-      const { createPayoutRequest } = await import("@/lib/payouts.functions");
-      // useServerFn is component-scope; call directly is fine for one-off submission.
-      await createPayoutRequest({
-        data: { currency: rail.c, method, amount: amt, destination },
-      });
-      toast.success("Payout requested", {
-        description: "Your withdrawal is queued for admin review. Funds are held in escrow.",
-      });
-      onClose();
-    } catch (e) {
-      toast.error("Payout failed", { description: (e as Error).message });
-    } finally {
-      setSubmitting(false);
-    }
-  };
 
   if (step === "pick") {
     return (
@@ -923,7 +845,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
           <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
           <p className="text-xs text-emerald-200/90">
-            Liveness verified. Choose a payout rail — funds move to escrow and clear once an admin approves.
+            Identity verified. Choose the currency to withdraw — Paystack pushes NGN/GHS straight to your bank.
           </p>
         </div>
         <div className="space-y-2">
@@ -973,38 +895,449 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         </div>
         <button
           disabled={!rail}
-          onClick={() => setStep("form")}
+          onClick={() => setStep(rail?.c === "USD" ? "wire" : "destination")}
           className="w-full mt-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Continue to payout details
+          Continue
         </button>
       </ModalShell>
     );
   }
 
   if (!rail) return null;
-  const bal = balances[rail.c] ?? 0;
-  const sym = currencyMeta[rail.c].symbol;
+
+  if (step === "wire") {
+    return (
+      <WireForm
+        onClose={onClose}
+        onBack={() => setStep("pick")}
+        max={balances.USD ?? 0}
+        onSubmitted={() => {
+          void qc.invalidateQueries({ queryKey: ["wallet"] });
+          onClose();
+        }}
+      />
+    );
+  }
+
+  if (step === "destination") {
+    return (
+      <DestinationPicker
+        currency={rail.c as "NGN" | "GHS"}
+        onClose={onClose}
+        onBack={() => setStep("pick")}
+        onPick={(id) => {
+          setChosenRecipientId(id);
+          setStep("amount");
+        }}
+      />
+    );
+  }
+
+  // step === "amount"
+  return (
+    <AmountStep
+      currency={rail.c as "NGN" | "GHS"}
+      recipientId={chosenRecipientId!}
+      max={balances[rail.c] ?? 0}
+      onBack={() => setStep("destination")}
+      onDone={() => {
+        void qc.invalidateQueries({ queryKey: ["wallet"] });
+        onClose();
+      }}
+    />
+  );
+}
+
+function feeFor(currency: "NGN" | "GHS", method: "bank" | "momo", amount: number): number {
+  if (currency === "NGN") {
+    if (amount <= 5000) return 10;
+    if (amount <= 50000) return 25;
+    return 50;
+  }
+  if (method === "momo") return Number((Math.min(amount * 0.01, 8) + 1).toFixed(2));
+  return 1;
+}
+
+function DestinationPicker({
+  currency,
+  onClose,
+  onBack,
+  onPick,
+}: {
+  currency: "NGN" | "GHS";
+  onClose: () => void;
+  onBack: () => void;
+  onPick: (id: string) => void;
+}) {
+  const [mode, setMode] = useState<"list" | "add">("list");
+  const listRecipients = useServerFn(listMyRecipients);
+  const deleteRec = useServerFn(deleteMyRecipient);
+  const [items, setItems] = useState<PayoutRecipientDTO[] | null>(null);
+
+  const reload = async () => {
+    try {
+      const data = await listRecipients();
+      setItems((data as PayoutRecipientDTO[]).filter((r) => r.currency === currency));
+    } catch (e) {
+      toast.error("Couldn't load saved destinations", { description: (e as Error).message });
+    }
+  };
+  useEffect(() => {
+    void reload();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const remove = async (id: string) => {
+    try {
+      await deleteRec({ data: { id } });
+      toast.success("Destination removed");
+      void reload();
+    } catch (e) {
+      toast.error("Couldn't remove", { description: (e as Error).message });
+    }
+  };
+
+  if (mode === "add") {
+    return (
+      <AddRecipientForm
+        currency={currency}
+        onClose={onClose}
+        onBack={() => setMode("list")}
+        onSaved={(id) => onPick(id)}
+      />
+    );
+  }
 
   return (
-    <ModalShell title={`${rail.label} · Payout Details`} onClose={onClose}>
+    <ModalShell title={`${currency} payout destination`} onClose={onClose}>
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+        ← Change currency
+      </button>
+      <div className="space-y-2">
+        {items === null && <div className="text-xs text-slate-500">Loading saved destinations…</div>}
+        {items !== null && items.length === 0 && (
+          <div className="text-xs text-slate-500">
+            No saved {currency} destinations yet — add one to continue.
+          </div>
+        )}
+        {(items ?? []).map((r) => (
+          <div
+            key={r.id}
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-[#222226] bg-[#0A0A0C] p-3"
+          >
+            <button
+              type="button"
+              onClick={() => onPick(r.id)}
+              className="text-left min-w-0"
+            >
+              <div className="text-sm font-semibold text-white truncate">
+                {r.account_name}
+              </div>
+              <div className="text-[11px] text-slate-400 truncate">
+                {r.method === "bank"
+                  ? `${r.bank_name} · ${r.account_number}`
+                  : `${r.momo_network} · ${r.phone}`}
+              </div>
+            </button>
+            <button
+              type="button"
+              onClick={() => remove(r.id)}
+              className="text-[11px] text-rose-300 hover:text-rose-200 uppercase tracking-wider"
+            >
+              Remove
+            </button>
+          </div>
+        ))}
+      </div>
       <button
         type="button"
-        onClick={() => setStep("pick")}
-        className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider"
+        onClick={() => setMode("add")}
+        className="w-full mt-2 rounded-xl border border-emerald-500/40 bg-emerald-500/10 hover:bg-emerald-500/15 text-emerald-200 font-bold py-2.5 text-sm transition-colors"
       >
-        ← Change rail
+        + Add new {currency === "NGN" ? "bank account" : "destination"}
       </button>
+    </ModalShell>
+  );
+}
+
+function AddRecipientForm({
+  currency,
+  onClose,
+  onBack,
+  onSaved,
+}: {
+  currency: "NGN" | "GHS";
+  onClose: () => void;
+  onBack: () => void;
+  onSaved: (recipientId: string) => void;
+}) {
+  const listBanks = useServerFn(listBanksForCurrency);
+  const resolveAcct = useServerFn(resolveBankAccount);
+  const createRec = useServerFn(createMyRecipient);
+
+  const [banks, setBanks] = useState<{ name: string; code: string }[]>([]);
+  const [method, setMethod] = useState<"bank" | "momo">(currency === "NGN" ? "bank" : "momo");
+  const [bankCode, setBankCode] = useState("");
+  const [acctNum, setAcctNum] = useState("");
+  const [acctName, setAcctName] = useState("");
+  const [network, setNetwork] = useState<"MTN" | "Vodafone" | "AirtelTigo">("MTN");
+  const [phone, setPhone] = useState("");
+  const [resolving, setResolving] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    if (method !== "bank") return;
+    let cancelled = false;
+    listBanks({ data: { currency } })
+      .then((data) => {
+        if (!cancelled) setBanks(data as { name: string; code: string }[]);
+      })
+      .catch(() => {
+        if (!cancelled) setBanks([]);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [method, currency, listBanks]);
+
+  // NG account name auto-resolve after 10 digits.
+  useEffect(() => {
+    if (currency !== "NGN" || method !== "bank") return;
+    if (!bankCode || acctNum.length !== 10) return;
+    let cancelled = false;
+    setResolving(true);
+    setAcctName("");
+    resolveAcct({ data: { account_number: acctNum, bank_code: bankCode } })
+      .then((r) => {
+        if (!cancelled) setAcctName((r as { account_name: string }).account_name);
+      })
+      .catch((e) => {
+        if (!cancelled) toast.error("Couldn't verify account", { description: (e as Error).message });
+      })
+      .finally(() => !cancelled && setResolving(false));
+    return () => {
+      cancelled = true;
+    };
+  }, [bankCode, acctNum, currency, method, resolveAcct]);
+
+  const canSave = () => {
+    if (!acctName.trim()) return false;
+    if (method === "bank") return !!bankCode && (currency === "NGN" ? /^\d{10}$/.test(acctNum) : acctNum.length >= 6);
+    return phone.length >= 9;
+  };
+
+  const save = async () => {
+    setSaving(true);
+    try {
+      const bank = banks.find((b) => b.code === bankCode);
+      const res = await createRec({
+        data: {
+          currency,
+          method,
+          bank_code: method === "bank" ? bankCode : undefined,
+          bank_name: method === "bank" ? bank?.name : undefined,
+          account_number: method === "bank" ? acctNum : undefined,
+          account_name: acctName.trim(),
+          momo_network: method === "momo" ? network : undefined,
+          phone: method === "momo" ? phone : undefined,
+        },
+      });
+      toast.success("Destination saved");
+      onSaved((res as { id: string }).id);
+    } catch (e) {
+      toast.error("Couldn't save destination", { description: (e as Error).message });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  return (
+    <ModalShell title={`Add ${currency} destination`} onClose={onClose}>
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+        ← Back
+      </button>
+
+      {currency === "GHS" && (
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            type="button"
+            onClick={() => setMethod("momo")}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"}`}
+          >
+            Mobile Money
+          </button>
+          <button
+            type="button"
+            onClick={() => setMethod("bank")}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"}`}
+          >
+            Bank Transfer
+          </button>
+        </div>
+      )}
+
+      {method === "bank" ? (
+        <>
+          <Field label="Bank">
+            <select
+              value={bankCode}
+              onChange={(e) => setBankCode(e.target.value)}
+              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+            >
+              <option value="">{banks.length ? "Select bank…" : "Loading banks…"}</option>
+              {banks.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
+            </select>
+          </Field>
+          <Field label={currency === "NGN" ? "Account number (10 digits, NUBAN)" : "Account number"}>
+            <TxtInput
+              value={acctNum}
+              onChange={(v) => setAcctNum(v.replace(/\D/g, ""))}
+              placeholder={currency === "NGN" ? "0123456789" : "Account number"}
+              maxLength={currency === "NGN" ? 10 : 20}
+            />
+          </Field>
+          <Field label={resolving ? "Verifying account name…" : currency === "NGN" ? "Account name (auto-verified)" : "Account name"}>
+            <TxtInput
+              value={acctName}
+              onChange={setAcctName}
+              placeholder={currency === "NGN" ? "Will fill after verification" : "Full account holder name"}
+            />
+          </Field>
+        </>
+      ) : (
+        <>
+          <Field label="Network">
+            <select
+              value={network}
+              onChange={(e) => setNetwork(e.target.value as never)}
+              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+            >
+              <option value="MTN">MTN Mobile Money</option>
+              <option value="Vodafone">Vodafone Cash</option>
+              <option value="AirtelTigo">AirtelTigo Money</option>
+            </select>
+          </Field>
+          <Field label="Mobile number">
+            <TxtInput value={phone} onChange={(v) => setPhone(v.replace(/\D/g, ""))} placeholder="233 20 000 0000" />
+          </Field>
+          <Field label="Registered wallet name">
+            <TxtInput value={acctName} onChange={setAcctName} placeholder="Full name on the mobile wallet" />
+          </Field>
+        </>
+      )}
+
+      <button
+        onClick={save}
+        disabled={!canSave() || saving || resolving}
+        className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
+      >
+        {saving && <Loader2 className="w-4 h-4 animate-spin" />}
+        Save destination
+      </button>
+    </ModalShell>
+  );
+}
+
+function AmountStep({
+  currency,
+  recipientId,
+  max,
+  onBack,
+  onDone,
+}: {
+  currency: "NGN" | "GHS";
+  recipientId: string;
+  max: number;
+  onBack: () => void;
+  onDone: () => void;
+}) {
+  const listRec = useServerFn(listMyRecipients);
+  const estimateFee = useServerFn(estimatePayoutFee);
+  const create = useServerFn(createLivePayout);
+
+  const [rec, setRec] = useState<PayoutRecipientDTO | null>(null);
+  const [amount, setAmount] = useState<string>("");
+  const [serverFee, setServerFee] = useState<{ fee: number; net: number } | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => {
+    listRec()
+      .then((rows) => {
+        const found = (rows as PayoutRecipientDTO[]).find((r) => r.id === recipientId) ?? null;
+        setRec(found);
+      })
+      .catch(() => setRec(null));
+  }, [listRec, recipientId]);
+
+  const amt = Number(amount);
+  const method: "bank" | "momo" = rec?.method ?? "bank";
+  const clientFee = amt > 0 ? feeFor(currency, method, amt) : 0;
+  const clientNet = Math.max(0, Number((amt - clientFee).toFixed(2)));
+
+  // Re-check with server on debounce for authoritative preview.
+  useEffect(() => {
+    if (!(amt > 0)) {
+      setServerFee(null);
+      return;
+    }
+    const h = setTimeout(() => {
+      estimateFee({ data: { currency, method, amount: amt } })
+        .then((r) => setServerFee(r as { fee: number; net: number }))
+        .catch(() => setServerFee(null));
+    }, 250);
+    return () => clearTimeout(h);
+  }, [amt, currency, method, estimateFee]);
+
+  const fee = serverFee?.fee ?? clientFee;
+  const net = serverFee?.net ?? clientNet;
+  const sym = currencyMeta[currency].symbol;
+
+  const submit = async () => {
+    if (!(amt > 0)) return;
+    if (amt > max) {
+      toast.error("Amount exceeds available balance");
+      return;
+    }
+    setBusy(true);
+    try {
+      await create({ data: { recipientId, amount: amt } });
+      toast.success("Payout initiated", {
+        description: `Bank will receive ${sym}${net.toLocaleString()} once Paystack confirms.`,
+      });
+      onDone();
+    } catch (e) {
+      toast.error("Payout failed", { description: (e as Error).message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <ModalShell title="Confirm payout" onClose={onDone}>
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+        ← Change destination
+      </button>
+
+      {rec && (
+        <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Sending to</div>
+          <div className="text-sm font-semibold text-white truncate">{rec.account_name}</div>
+          <div className="text-[11px] text-slate-400 truncate">
+            {rec.method === "bank" ? `${rec.bank_name} · ${rec.account_number}` : `${rec.momo_network} · ${rec.phone}`}
+          </div>
+        </div>
+      )}
 
       <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
         <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-slate-500 mb-1">
-          <span>Amount to withdraw ({rail.c})</span>
+          <span>Amount to withdraw ({currency})</span>
           <button
             type="button"
-            onClick={() => setAmount(String(bal))}
+            onClick={() => setAmount(String(max))}
             className="text-emerald-400 hover:text-emerald-300 normal-case tracking-normal"
           >
-            Max {sym}{bal.toLocaleString()}
+            Max {sym}{max.toLocaleString()}
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -1013,7 +1346,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
             type="number"
             inputMode="decimal"
             min={0}
-            step={rail.c === "NGN" ? 1 : 0.01}
+            step={currency === "NGN" ? 1 : 0.01}
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
@@ -1022,121 +1355,144 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         </div>
       </div>
 
-      {rail.c === "NGN" && (
-        <div className="space-y-2">
-          <Field label="Bank">
-            <select
-              value={ngBank}
-              onChange={(e) => setNgBank(e.target.value)}
-              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
-            >
-              <option value="">Select bank…</option>
-              {NG_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
-            </select>
-          </Field>
-          <Field label="Account number (10 digits, NUBAN)">
-            <TxtInput value={ngAcct} onChange={setNgAcct} placeholder="0123456789" maxLength={10} />
-          </Field>
-          <Field label="Account name">
-            <TxtInput value={ngName} onChange={setNgName} placeholder="As it appears on your bank record" />
-          </Field>
-        </div>
-      )}
-
-      {rail.c === "GHS" && (
-        <div className="space-y-2">
-          <div className="grid grid-cols-2 gap-2">
-            <button
-              type="button"
-              onClick={() => setGhMode("momo")}
-              className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-                ghMode === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"
-              }`}
-            >
-              Mobile Money
-            </button>
-            <button
-              type="button"
-              onClick={() => setGhMode("bank")}
-              className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${
-                ghMode === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"
-              }`}
-            >
-              Bank Transfer
-            </button>
+      {amt > 0 && (
+        <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1 text-xs">
+          <div className="flex items-center justify-between text-slate-300">
+            <span>You requested</span>
+            <span className="tabular-nums">{sym}{amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-
-          {ghMode === "momo" ? (
-            <>
-              <Field label="Network">
-                <select
-                  value={ghNetwork}
-                  onChange={(e) => setGhNetwork(e.target.value as never)}
-                  className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
-                >
-                  <option value="MTN">MTN Mobile Money</option>
-                  <option value="Vodafone">Vodafone Cash</option>
-                  <option value="AirtelTigo">AirtelTigo Money</option>
-                </select>
-              </Field>
-              <Field label="Mobile number">
-                <TxtInput value={ghPhone} onChange={setGhPhone} placeholder="+233 20 000 0000" />
-              </Field>
-              <Field label="Registered wallet name">
-                <TxtInput value={ghHolder} onChange={setGhHolder} placeholder="Full name on the mobile wallet" />
-              </Field>
-            </>
-          ) : (
-            <>
-              <Field label="Bank">
-                <select
-                  value={ghBank}
-                  onChange={(e) => setGhBank(e.target.value)}
-                  className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
-                >
-                  <option value="">Select bank…</option>
-                  {GH_BANKS.map((b) => <option key={b} value={b}>{b}</option>)}
-                </select>
-              </Field>
-              <Field label="Account number">
-                <TxtInput value={ghAcct} onChange={setGhAcct} placeholder="Bank account number" />
-              </Field>
-              <Field label="Account name">
-                <TxtInput value={ghHolder} onChange={setGhHolder} placeholder="Full account holder name" />
-              </Field>
-            </>
-          )}
-        </div>
-      )}
-
-      {rail.c === "USD" && (
-        <div className="space-y-2">
-          <Field label="Beneficiary name"><TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" /></Field>
-          <Field label="Beneficiary address"><TxtInput value={wireAddress} onChange={setWireAddress} placeholder="Street, city, country" /></Field>
-          <Field label="Bank name"><TxtInput value={wireBank} onChange={setWireBank} placeholder="e.g. Chase, HSBC" /></Field>
-          <Field label="Account number / IBAN"><TxtInput value={wireAcct} onChange={setWireAcct} placeholder="Account or IBAN" /></Field>
-          <div className="grid grid-cols-2 gap-2">
-            <Field label="SWIFT / BIC"><TxtInput value={wireSwift} onChange={setWireSwift} placeholder="ABCDUSXX" /></Field>
-            <Field label="Routing / Sort (optional)"><TxtInput value={wireRouting} onChange={setWireRouting} placeholder="If applicable" /></Field>
+          <div className="flex items-center justify-between text-slate-400">
+            <span>Paystack transfer fee</span>
+            <span className="tabular-nums">− {sym}{fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <Field label="Bank country"><TxtInput value={wireCountry} onChange={setWireCountry} placeholder="e.g. United States" /></Field>
+          <div className="mt-1 pt-1 border-t border-emerald-500/20 flex items-center justify-between font-bold text-emerald-200">
+            <span>Bank receives</span>
+            <span className="tabular-nums">{sym}{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
         </div>
       )}
 
       <button
         onClick={submit}
-        disabled={submitting}
-        className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-60"
+        disabled={!(amt > 0) || amt > max || busy || net <= 0}
+        className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
       >
-        {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
-        {submitting ? "Submitting…" : `Request ${sym}${amount || "0"} payout`}
+        {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+        {busy ? "Sending…" : `Send ${sym}${net > 0 ? net.toLocaleString() : "0"} to bank`}
       </button>
       <p className="text-[11px] text-slate-500 text-center">
-        Funds are held in escrow until an admin reviews and marks the request paid.
+        {sym}{amt > 0 ? amt.toLocaleString() : "0"} is debited from your wallet. Paystack's fee is deducted before the bank receives.
       </p>
     </ModalShell>
   );
 }
+
+function WireForm({
+  onClose,
+  onBack,
+  max,
+  onSubmitted,
+}: {
+  onClose: () => void;
+  onBack: () => void;
+  max: number;
+  onSubmitted: () => void;
+}) {
+  const create = useServerFn(createPayoutRequest);
+  const [amount, setAmount] = useState("");
+  const [wireBene, setWireBene] = useState("");
+  const [wireBank, setWireBank] = useState("");
+  const [wireAcct, setWireAcct] = useState("");
+  const [wireSwift, setWireSwift] = useState("");
+  const [wireRouting, setWireRouting] = useState("");
+  const [wireCountry, setWireCountry] = useState("");
+  const [wireAddress, setWireAddress] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  const submit = async () => {
+    const amt = Number(amount);
+    if (!(amt > 0)) return;
+    if (amt > max) {
+      toast.error("Amount exceeds available balance");
+      return;
+    }
+    if (!wireBene || !wireBank || !wireAcct || !wireSwift) {
+      toast.error("Fill beneficiary, bank, account and SWIFT");
+      return;
+    }
+    setBusy(true);
+    try {
+      await create({
+        data: {
+          currency: "USD",
+          method: "wire",
+          amount: amt,
+          destination: {
+            beneficiary_name: wireBene,
+            bank_name: wireBank,
+            account_number: wireAcct,
+            swift: wireSwift,
+            routing: wireRouting,
+            bank_country: wireCountry,
+            beneficiary_address: wireAddress,
+          },
+        },
+      });
+      toast.success("Payout requested", { description: "USD wires are processed manually by admin within 24–48 hours." });
+      onSubmitted();
+    } catch (e) {
+      toast.error("Payout failed", { description: (e as Error).message });
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <ModalShell title="USD International Wire · Payout" onClose={onClose}>
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+        ← Change currency
+      </button>
+      <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-1">Amount (USD)</div>
+        <div className="flex items-center gap-2">
+          <span className="text-lg font-bold text-slate-400">$</span>
+          <input
+            type="number"
+            inputMode="decimal"
+            min={0}
+            step="0.01"
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
+            placeholder="0.00"
+            className="w-full bg-transparent text-2xl font-black text-white tabular-nums focus:outline-none"
+          />
+        </div>
+        <div className="text-[11px] text-slate-500 mt-1">Available: ${max.toLocaleString()}</div>
+      </div>
+      <Field label="Beneficiary name"><TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" /></Field>
+      <Field label="Beneficiary address"><TxtInput value={wireAddress} onChange={setWireAddress} placeholder="Street, city, country" /></Field>
+      <Field label="Bank name"><TxtInput value={wireBank} onChange={setWireBank} placeholder="e.g. Chase, HSBC" /></Field>
+      <Field label="Account number / IBAN"><TxtInput value={wireAcct} onChange={setWireAcct} placeholder="Account or IBAN" /></Field>
+      <div className="grid grid-cols-2 gap-2">
+        <Field label="SWIFT / BIC"><TxtInput value={wireSwift} onChange={setWireSwift} placeholder="ABCDUSXX" /></Field>
+        <Field label="Routing / Sort (optional)"><TxtInput value={wireRouting} onChange={setWireRouting} placeholder="If applicable" /></Field>
+      </div>
+      <Field label="Bank country"><TxtInput value={wireCountry} onChange={setWireCountry} placeholder="e.g. United States" /></Field>
+      <button
+        onClick={submit}
+        disabled={busy}
+        className="w-full mt-2 inline-flex items-center justify-center gap-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-60"
+      >
+        {busy && <Loader2 className="w-4 h-4 animate-spin" />}
+        {busy ? "Submitting…" : `Request $${amount || "0"} wire`}
+      </button>
+      <p className="text-[11px] text-slate-500 text-center">
+        USD wires are processed manually — admin sends via Wise / correspondent bank within 24–48 hours.
+      </p>
+    </ModalShell>
+  );
+}
+
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

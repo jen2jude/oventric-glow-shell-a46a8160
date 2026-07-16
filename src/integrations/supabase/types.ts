@@ -1245,6 +1245,60 @@ export type Database = {
           },
         ]
       }
+      payout_recipients: {
+        Row: {
+          account_name: string
+          account_number: string | null
+          bank_code: string | null
+          bank_name: string | null
+          created_at: string
+          currency: string
+          id: string
+          is_default: boolean
+          method: string
+          momo_network: string | null
+          paystack_recipient_code: string
+          phone: string | null
+          updated_at: string
+          user_id: string
+          verified_at: string | null
+        }
+        Insert: {
+          account_name: string
+          account_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          currency: string
+          id?: string
+          is_default?: boolean
+          method: string
+          momo_network?: string | null
+          paystack_recipient_code: string
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+          verified_at?: string | null
+        }
+        Update: {
+          account_name?: string
+          account_number?: string | null
+          bank_code?: string | null
+          bank_name?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          is_default?: boolean
+          method?: string
+          momo_network?: string | null
+          paystack_recipient_code?: string
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          verified_at?: string | null
+        }
+        Relationships: []
+      }
       payout_requests: {
         Row: {
           admin_note: string | null
@@ -1252,10 +1306,15 @@ export type Database = {
           created_at: string
           currency: string
           destination: Json
+          fee_amount: number | null
           id: string
           method: string
+          net_amount: number | null
+          paystack_recipient_code: string | null
+          paystack_transfer_code: string | null
           processed_at: string | null
           processed_by: string | null
+          recipient_id: string | null
           reject_reason: string | null
           status: string
           updated_at: string
@@ -1267,10 +1326,15 @@ export type Database = {
           created_at?: string
           currency: string
           destination?: Json
+          fee_amount?: number | null
           id?: string
           method: string
+          net_amount?: number | null
+          paystack_recipient_code?: string | null
+          paystack_transfer_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
+          recipient_id?: string | null
           reject_reason?: string | null
           status?: string
           updated_at?: string
@@ -1282,16 +1346,29 @@ export type Database = {
           created_at?: string
           currency?: string
           destination?: Json
+          fee_amount?: number | null
           id?: string
           method?: string
+          net_amount?: number | null
+          paystack_recipient_code?: string | null
+          paystack_transfer_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
+          recipient_id?: string | null
           reject_reason?: string | null
           status?: string
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "payout_requests_recipient_id_fkey"
+            columns: ["recipient_id"]
+            isOneToOne: false
+            referencedRelation: "payout_recipients"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       platform_settings: {
         Row: {
@@ -1929,6 +2006,19 @@ export type Database = {
           _currency: string
           _destination: Json
           _method: string
+        }
+        Returns: string
+      }
+      payout_request_create_live: {
+        Args: {
+          _amount: number
+          _currency: string
+          _destination: Json
+          _fee: number
+          _method: string
+          _net: number
+          _recipient_code: string
+          _recipient_id: string
         }
         Returns: string
       }

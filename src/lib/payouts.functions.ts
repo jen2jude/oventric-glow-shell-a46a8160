@@ -1,5 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import {
+  estimateTransferFee,
+  listBanks as psListBanks,
+  resolveAccount as psResolveAccount,
+  createTransferRecipient as psCreateRecipient,
+  initiateTransfer as psInitiateTransfer,
+  toSubunit,
+  type TransferCurrency,
+  type TransferMethod,
+} from "./paystack-transfers.server";
 
 async function writePayoutAudit(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -367,4 +377,277 @@ export const adminListPayoutAudit = createServerFn({ method: "POST" })
       meta: (r.meta as Record<string, string | number | boolean | null>) ?? {},
     }));
   });
+
+// ─────────────────────────────────────────────────────────────────────────────
+// Live Paystack payout flow (NGN / GHS)
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface PayoutRecipientDTO {
+  id: string;
+  currency: TransferCurrency;
+  method: TransferMethod;
+  bank_name: string | null;
+  bank_code: string | null;
+  account_number: string | null;
+  account_name: string;
+  momo_network: string | null;
+  phone: string | null;
+  paystack_recipient_code: string;
+  is_default: boolean;
+  created_at: string;
+}
+
+export const listBanksForCurrency = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { currency: TransferCurrency }) => ({
+    currency: (input?.currency === "GHS" ? "GHS" : "NGN") as TransferCurrency,
+  }))
+  .handler(async ({ data }) => {
+    const banks = await psListBanks(data.currency);
+    return banks.map((b) => ({ name: b.name, code: b.code, type: b.type }));
+  });
+
+export const resolveBankAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { account_number: string; bank_code: string }) => ({
+    account_number: String(input?.account_number ?? "").replace(/\D/g, "").slice(0, 20),
+    bank_code: String(input?.bank_code ?? "").trim(),
+  }))
+  .handler(async ({ data }) => {
+    if (!data.account_number || !data.bank_code) throw new Error("Bank and account number required");
+    const res = await psResolveAccount(data);
+    return { account_number: res.account_number, account_name: res.account_name };
+  });
+
+export const listMyRecipients = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PayoutRecipientDTO[]> => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("payout_recipients")
+      .select("*")
+      .eq("user_id", userId)
+      .order("created_at", { ascending: false });
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      currency: r.currency as TransferCurrency,
+      method: r.method as TransferMethod,
+      bank_name: (r.bank_name as string) ?? null,
+      bank_code: (r.bank_code as string) ?? null,
+      account_number: (r.account_number as string) ?? null,
+      account_name: r.account_name as string,
+      momo_network: (r.momo_network as string) ?? null,
+      phone: (r.phone as string) ?? null,
+      paystack_recipient_code: r.paystack_recipient_code as string,
+      is_default: !!r.is_default,
+      created_at: r.created_at as string,
+    }));
+  });
+
+export interface CreateRecipientInput {
+  currency: TransferCurrency;
+  method: TransferMethod;
+  bank_code?: string;
+  bank_name?: string;
+  account_number?: string;
+  account_name: string;
+  momo_network?: "MTN" | "Vodafone" | "AirtelTigo";
+  phone?: string;
+}
+
+export const createMyRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: CreateRecipientInput) => {
+    const currency: TransferCurrency = input?.currency === "GHS" ? "GHS" : "NGN";
+    const method: TransferMethod = input?.method === "momo" ? "momo" : "bank";
+    const account_name = String(input?.account_name ?? "").trim().slice(0, 200);
+    if (!account_name) throw new Error("Account name required");
+    if (method === "bank") {
+      const bank_code = String(input?.bank_code ?? "").trim();
+      const bank_name = String(input?.bank_name ?? "").trim().slice(0, 120);
+      const account_number = String(input?.account_number ?? "").replace(/\D/g, "").slice(0, 20);
+      if (!bank_code || !bank_name || !account_number) throw new Error("Bank name, code and account number required");
+      return { currency, method, bank_code, bank_name, account_number, account_name } as const;
+    }
+    if (currency !== "GHS") throw new Error("Mobile money is only supported for GHS");
+    const momo_network = input?.momo_network;
+    const phone = String(input?.phone ?? "").replace(/\D/g, "").slice(0, 20);
+    if (!momo_network || !phone) throw new Error("Network and phone number required");
+    return { currency, method, momo_network, phone, account_name } as const;
+  })
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+
+    let recipientCode: string;
+    if (data.method === "bank") {
+      const type = data.currency === "NGN" ? "nuban" : "ghipss";
+      const res = await psCreateRecipient({
+        type,
+        name: data.account_name,
+        account_number: data.account_number,
+        bank_code: data.bank_code,
+        currency: data.currency,
+      });
+      recipientCode = res.recipient_code;
+    } else {
+      const netMap: Record<string, string> = { MTN: "MTN", Vodafone: "VOD", AirtelTigo: "ATL" };
+      const res = await psCreateRecipient({
+        type: "mobile_money",
+        name: data.account_name,
+        account_number: data.phone,
+        bank_code: netMap[data.momo_network] ?? "MTN",
+        currency: "GHS",
+      });
+      recipientCode = res.recipient_code;
+    }
+
+    const row = {
+      user_id: userId,
+      currency: data.currency,
+      method: data.method,
+      bank_name: data.method === "bank" ? data.bank_name : null,
+      bank_code: data.method === "bank" ? data.bank_code : null,
+      account_number: data.method === "bank" ? data.account_number : null,
+      account_name: data.account_name,
+      momo_network: data.method === "momo" ? data.momo_network : null,
+      phone: data.method === "momo" ? data.phone : null,
+      paystack_recipient_code: recipientCode,
+      verified_at: new Date().toISOString(),
+    };
+
+    const { data: inserted, error } = await supabase
+      .from("payout_recipients")
+      .insert(row)
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+    return { id: inserted.id as string, paystack_recipient_code: recipientCode };
+  });
+
+export const deleteMyRecipient = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { id: string }) => ({ id: String(input?.id ?? "") }))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("payout_recipients")
+      .delete()
+      .eq("id", data.id)
+      .eq("user_id", userId);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const estimatePayoutFee = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { currency: TransferCurrency; method: TransferMethod; amount: number }) => ({
+    currency: (input?.currency === "GHS" ? "GHS" : "NGN") as TransferCurrency,
+    method: (input?.method === "momo" ? "momo" : "bank") as TransferMethod,
+    amount: Math.max(0, Number(input?.amount ?? 0)),
+  }))
+  .handler(async ({ data }) => {
+    const fee = estimateTransferFee(data.currency, data.method, data.amount);
+    const net = Math.max(0, Number((data.amount - fee).toFixed(2)));
+    return { fee, net };
+  });
+
+export interface CreateLivePayoutInput {
+  recipientId: string;
+  amount: number;
+}
+
+export const createLivePayout = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: CreateLivePayoutInput) => ({
+    recipientId: String(input?.recipientId ?? ""),
+    amount: Math.round(Number(input?.amount ?? 0) * 100) / 100,
+  }))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    if (!data.recipientId) throw new Error("Recipient required");
+    if (!(data.amount > 0)) throw new Error("Amount must be greater than zero");
+
+    const { data: rec, error: recErr } = await supabase
+      .from("payout_recipients")
+      .select("*")
+      .eq("id", data.recipientId)
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (recErr) throw new Error(recErr.message);
+    if (!rec) throw new Error("Recipient not found");
+
+    const currency = rec.currency as TransferCurrency;
+    const method = rec.method as TransferMethod;
+    const fee = estimateTransferFee(currency, method, data.amount);
+    const net = Number((data.amount - fee).toFixed(2));
+    if (net <= 0) throw new Error("Amount is too small to cover the transfer fee");
+
+    const { data: prof } = await supabase
+      .from("profiles")
+      .select("kyc_completed_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (!prof || !prof.kyc_completed_at) {
+      throw new Error("Complete identity verification before requesting a payout");
+    }
+
+    const destination: PayoutDestination =
+      method === "bank"
+        ? {
+            bank_name: rec.bank_name as string,
+            bank_code: rec.bank_code as string,
+            account_number: rec.account_number as string,
+            account_name: rec.account_name as string,
+          }
+        : {
+            network: rec.momo_network as PayoutDestination["network"],
+            phone: rec.phone as string,
+            account_name: rec.account_name as string,
+          };
+
+    const { data: newId, error } = await supabase.rpc("payout_request_create_live", {
+      _currency: currency,
+      _amount: data.amount,
+      _fee: fee,
+      _net: net,
+      _method: method,
+      _destination: destination as never,
+      _recipient_id: rec.id as string,
+      _recipient_code: rec.paystack_recipient_code as string,
+    });
+    if (error) throw new Error(error.message);
+    const payoutId = newId as unknown as string;
+
+    try {
+      const ref = `PYT_${payoutId.replace(/-/g, "").slice(0, 24)}`;
+      const result = await psInitiateTransfer({
+        amountSubunit: toSubunit(net),
+        recipient_code: rec.paystack_recipient_code as string,
+        reason: `Oventric payout ${payoutId.slice(0, 8)}`,
+        reference: ref,
+      });
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("payout_requests")
+        .update({ paystack_transfer_code: result.transfer_code })
+        .eq("id", payoutId);
+      return { id: payoutId, status: result.status, fee, net, currency };
+    } catch (transferErr) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.rpc("payout_request_reject", {
+          _id: payoutId,
+          _reason:
+            transferErr instanceof Error
+              ? transferErr.message.slice(0, 200)
+              : "Paystack transfer initialisation failed",
+        });
+      } catch (rollbackErr) {
+        console.error("[createLivePayout] refund rollback failed", rollbackErr);
+      }
+      throw transferErr;
+    }
+  });
+
 
