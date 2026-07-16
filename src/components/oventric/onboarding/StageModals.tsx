@@ -48,9 +48,7 @@ function StageIndicator({ current }: { current: number }) {
 const COUNTRY_META: Record<Country, { label: string; currency: Currency; dial: string }> = {
   NG: { label: "Nigeria", currency: "NGN", dial: "+234" },
   GH: { label: "Ghana", currency: "GHS", dial: "+233" },
-  US: { label: "United States", currency: "USD", dial: "+1" },
-  UK: { label: "United Kingdom", currency: "USD", dial: "+44" },
-  OTHER: { label: "Other", currency: "USD", dial: "+" },
+  OTHER: { label: "Other (type your country)", currency: "USD", dial: "+" },
 };
 
 function Stage2({ onClose }: { onClose: () => void }) {
