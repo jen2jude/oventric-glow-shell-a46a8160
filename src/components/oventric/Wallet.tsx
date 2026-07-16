@@ -393,7 +393,7 @@ export function Wallet() {
               <ArrowDownToLine className="w-5 h-5 text-emerald-300" />
             </div>
             <div className="min-w-0">
-              <div className="font-bold text-white">➕ Add Liquid Capital</div>
+              <div className="font-bold text-white">➕ Fund Wallet</div>
               <div className="text-xs text-slate-400 mt-0.5">Card · Bank · Mobile Money</div>
             </div>
           </div>
