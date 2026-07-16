@@ -219,6 +219,26 @@ function ProfileSetupSlide({
             </select>
           </Field>
 
+          {country === "OTHER" && (
+            <Field
+              id="ps-country-other"
+              label="Type your country"
+              icon={<Globe2 className="w-4 h-4 text-emerald-300" />}
+              error={errors.countryOther}
+              hint="We'll use this to add local rails for your country next. Your baseline currency will be USD for now."
+            >
+              <input
+                id="ps-country-other"
+                autoComplete="country-name"
+                value={countryOther}
+                onChange={(e) => setCountryOther(e.target.value)}
+                placeholder="e.g. Kenya"
+                disabled={saving || done}
+                className={inputCls(errors.countryOther)}
+              />
+            </Field>
+          )}
+
           <Field
             id="ps-password"
             label="Create password"
