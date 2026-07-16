@@ -93,6 +93,8 @@ export interface RealProfileView {
   username: string | null;
   bio: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
+
   verificationTier: string;
   reputationStars: number;
   country: string | null;
