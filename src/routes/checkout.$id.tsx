@@ -126,13 +126,33 @@ function CheckoutPage() {
     return () => { cancelled = true; };
   }, [shortfallUSD, topUpBusy]);
 
+  // Prefill delivery email from the current auth user.
+  useEffect(() => {
+    let cancelled = false;
+    supabase.auth.getUser().then(({ data }) => {
+      if (!cancelled && data.user?.email) setDeliveryEmail((prev) => prev || data.user!.email!);
+    });
+    return () => { cancelled = true; };
+  }, []);
+
+  const isDigital = product?.kind === "digital";
+  const needsDelivery = Boolean(isDigital);
+  const deliveryValid = !needsDelivery || (
+    /^\S+@\S+\.\S+$/.test(deliveryEmail.trim()) && deliveryWhatsapp.replace(/\D/g, "").length >= 6
+  );
+
   const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalUSD;
 
   const pay = async () => {
     if (!product || submitting) return;
+    if (needsDelivery && !deliveryValid) {
+      toast.error("Add your delivery details", { description: "We need a valid email and WhatsApp number to deliver your purchase." });
+      return;
+    }
     setSubmitting(true);
     setShortfallUSD(null);
     try {
+      const digits = deliveryWhatsapp.replace(/\D/g, "");
       // Non-wallet methods: initialize Paystack and redirect to secure checkout.
       if (method !== "wallet") {
         const channel: "card" | "bank_transfer" | "mobile_money" | undefined =
@@ -147,6 +167,8 @@ function CheckoutPage() {
             quantity: qty,
             displayCurrency: baseCurrency,
             couponCode: canUseCoupon && coupon ? coupon.code : null,
+            deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
+            deliveryWhatsapp: needsDelivery ? digits : null,
             channel,
           },
         });
@@ -161,6 +183,8 @@ function CheckoutPage() {
           displayCurrency: baseCurrency,
           paymentMethod: method,
           couponCode: canUseCoupon && coupon ? coupon.code : null,
+          deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
+          deliveryWhatsapp: needsDelivery ? digits : null,
         },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
