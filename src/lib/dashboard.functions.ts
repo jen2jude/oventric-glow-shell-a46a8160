@@ -400,7 +400,7 @@ export const getMySocial = createServerFn({ method: "GET" })
       userMap = new Map(
         ((profs ?? []) as Array<{ user_id: string; slug: string; display_name: string | null; username: string | null; avatar_path: string | null }>).map((p) => [
           p.user_id,
-          { slug: p.slug, name: p.display_name || p.username || "Peer", avatar: p.avatar_url },
+          { slug: p.slug, name: p.display_name || p.username || "Peer", avatar: p.avatar_path },
         ]),
       );
     }
