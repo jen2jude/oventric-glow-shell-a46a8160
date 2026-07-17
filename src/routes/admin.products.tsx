@@ -209,19 +209,32 @@ function ProductsPage() {
     setSaving(true);
     try {
       if (modal.id) {
+        const isPhys = modal.kind === "physical";
         await updateFn({ data: {
           id: modal.id,
           name: modal.name,
           category: modal.category,
+          subcategory: isPhys ? (modal.subcategory || null) : undefined,
           description: modal.description,
           price_usd: price,
           vendor: modal.vendor,
-          external_url: modal.external_url || null,
+          external_url: isPhys ? undefined : (modal.external_url || null),
           cover_path: modal.cover_path,
-          file_path: modal.file_path,
+          file_path: isPhys ? undefined : modal.file_path,
           promoted: modal.promoted,
+          ...(isPhys ? {
+            condition: modal.condition || null,
+            brand: modal.brand || null,
+            location: modal.location || null,
+            negotiable: modal.negotiable || null,
+            delivery: modal.delivery || null,
+            seller_phone: modal.seller_phone || null,
+            whatsapp_number: modal.whatsapp_number || null,
+            social_link: modal.social_link || null,
+          } : {}),
         } });
         toast.success("Product updated");
+
       } else {
         await createFn({ data: {
           name: modal.name,
