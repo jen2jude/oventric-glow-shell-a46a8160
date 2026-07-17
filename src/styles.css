@@ -317,6 +317,38 @@
   }
 }
 
+/* Wallet earnings mobile list — dead-flat, Chrome Android tile-cache safe */
+.wallet-earnings-mobile {
+  display: block;
+  background-color: #141418;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.wallet-earnings-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 14px;
+  background-color: #141418;
+  color: #ffffff;
+}
+.wallet-earnings-row + .wallet-earnings-row {
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+.wallet-earnings-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #cbd5e1;
+  letter-spacing: 0.02em;
+}
+.wallet-earnings-value {
+  font-size: 14px;
+  font-weight: 800;
+  color: #ffffff;
+  font-variant-numeric: tabular-nums;
+}
+
+
 
 
 .rgb-neon-border-wrapper {
