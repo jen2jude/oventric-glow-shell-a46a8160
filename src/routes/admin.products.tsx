@@ -472,7 +472,9 @@ function ProductsPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-black text-lg">
                 {modal.id ? "Edit product" : "New product"}
+                <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border align-middle ${modal.kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>{modal.kind}</span>
               </h2>
+
               <button
                 onClick={() => setModal(null)}
                 className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
