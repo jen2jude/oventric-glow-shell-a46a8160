@@ -523,3 +523,143 @@ export const updatePlatformSettings = createServerFn({ method: "POST" })
     await writeAudit(sb, context.userId, "settings.update", "platform_settings", "1", patch);
     return { ok: true };
   });
+
+/** ------- User detail / moderation ------- */
+export const getUserDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+
+    const { data: profile, error } = await sb
+      .from("profiles").select("*").eq("user_id", data.userId).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!profile) throw new Error("User not found");
+
+    const { data: authUser } = await sb.auth.admin.getUserById(data.userId);
+    const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", data.userId);
+    const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", data.userId);
+
+    const [posts, products, orders, followers] = await Promise.all([
+      sb.from("posts").select("id", { count: "exact", head: true }).eq("author_id", data.userId),
+      sb.from("products").select("id", { count: "exact", head: true }).eq("seller_id", data.userId),
+      sb.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", data.userId),
+      sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("followee_id", data.userId),
+    ]);
+
+    return {
+      profile,
+      email: authUser?.user?.email ?? null,
+      email_confirmed_at: authUser?.user?.email_confirmed_at ?? null,
+      last_sign_in_at: authUser?.user?.last_sign_in_at ?? null,
+      auth_created_at: authUser?.user?.created_at ?? null,
+      roles: (roles ?? []).map((r: { role: string }) => r.role),
+      wallets: wallets ?? [],
+      counts: {
+        posts: posts.count ?? 0,
+        products: products.count ?? 0,
+        orders: orders.count ?? 0,
+        followers: followers.count ?? 0,
+      },
+    };
+  });
+
+export const updateUserProfileAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: {
+    userId: string;
+    display_name?: string;
+    username?: string;
+    country?: string;
+    bio?: string;
+    phone?: string;
+    verification_tier?: string;
+  }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const patch: Record<string, unknown> = {};
+    (["display_name", "username", "country", "bio", "phone", "verification_tier"] as const).forEach((k) => {
+      if (data[k] !== undefined) patch[k] = data[k];
+    });
+    if (Object.keys(patch).length === 0) return { ok: true };
+    const { error } = await sb.from("profiles").update(patch).eq("user_id", data.userId);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "user.update", "user", data.userId, patch);
+    return { ok: true };
+  });
+
+export const sendUserPasswordReset = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { data: u } = await sb.auth.admin.getUserById(data.userId);
+    const email = u?.user?.email;
+    if (!email) throw new Error("User has no email");
+    const { error } = await sb.auth.resetPasswordForEmail(email);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "user.password_reset", "user", data.userId);
+    return { ok: true, email };
+  });
+
+export const setUserFlag = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string; flagged: boolean; reason?: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.from("profiles")
+      .update({ flagged: data.flagged, flag_reason: data.flagged ? (data.reason ?? null) : null })
+      .eq("user_id", data.userId);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, `user.${data.flagged ? "flag" : "unflag"}`, "user", data.userId, { reason: data.reason });
+    return { ok: true };
+  });
+
+export const setUserBan = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string; banned: boolean }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.userId === context.userId) throw new Error("Cannot ban yourself");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    // Ban via Supabase Auth (rejects tokens); mirror on profile for UI.
+    const { error: authErr } = await sb.auth.admin.updateUserById(data.userId, {
+      ban_duration: data.banned ? "876000h" : "none", // ~100 years
+    });
+    if (authErr) throw new Error(authErr.message);
+    await sb.from("profiles")
+      .update({ banned_at: data.banned ? new Date().toISOString() : null })
+      .eq("user_id", data.userId);
+    await writeAudit(sb, context.userId, `user.${data.banned ? "ban" : "unban"}`, "user", data.userId);
+    return { ok: true };
+  });
+
+export const deleteUserAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    if (data.userId === context.userId) throw new Error("Cannot delete yourself");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.auth.admin.deleteUser(data.userId);
+    if (error) throw new Error(error.message);
+    // profiles.user_id has ON DELETE CASCADE to auth.users, so profile row is removed.
+    await writeAudit(sb, context.userId, "user.delete", "user", data.userId);
+    return { ok: true };
+  });
