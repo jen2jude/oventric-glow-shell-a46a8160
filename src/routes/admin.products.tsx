@@ -542,14 +542,23 @@ function ProductsPage() {
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
+              <div className="grid grid-cols-2 gap-3">
                 <Field label="Category">
-                  <select
-                    value={modal.category}
-                    onChange={(e) => setModal({ ...modal, category: e.target.value })}
-                    className={inputCls}
-                  >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  {modal.kind === "digital" ? (
+                    <select
+                      value={modal.category}
+                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                      className={inputCls}
+                    >
+                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    </select>
+                  ) : (
+                    <input
+                      value={modal.category}
+                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                      className={inputCls}
+                    />
+                  )}
                 </Field>
                 <Field label="Price (USD)">
                   <input
@@ -562,6 +571,16 @@ function ProductsPage() {
                   />
                 </Field>
               </div>
+              {modal.kind === "physical" && (
+                <Field label="Subcategory">
+                  <input
+                    value={modal.subcategory}
+                    onChange={(e) => setModal({ ...modal, subcategory: e.target.value })}
+                    className={inputCls}
+                  />
+                </Field>
+              )}
+
               <Field label="Vendor">
                 <input
                   value={modal.vendor}
