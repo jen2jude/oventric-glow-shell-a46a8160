@@ -626,3 +626,118 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () => void }) {
+  const [urls, setUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [active, setActive] = useState(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    const cover = (product.cover_path as string) ?? null;
+    const imgs = Array.isArray(product.image_paths) ? (product.image_paths as string[]) : [];
+    const paths = Array.from(new Set([cover, ...imgs].filter(Boolean))) as string[];
+    if (paths.length === 0) { setLoading(false); return; }
+    (async () => {
+      const signed: string[] = [];
+      for (const path of paths) {
+        const { data } = await supabase.storage.from("product-covers").createSignedUrl(path, 60 * 60);
+        if (data?.signedUrl) signed.push(data.signedUrl);
+      }
+      if (!cancelled) { setUrls(signed); setLoading(false); }
+    })();
+    return () => { cancelled = true; };
+  }, [product]);
+
+  const kind = String(product.kind ?? "digital");
+  const status = String(product.status ?? "active");
+  const cur = urls[active];
+
+  return (
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true">
+      <div className="w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-start justify-between mb-3 gap-3">
+          <div className="min-w-0">
+            <div className="flex items-center gap-2 flex-wrap mb-1">
+              <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>{kind}</span>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
+                status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
+                status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
+                "bg-red-500/15 border-red-500/40 text-red-300"
+              }`}>{status}</span>
+              {Boolean(product.promoted) && <span className="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold bg-amber-500/15 border border-amber-500/40 text-amber-200">Promoted</span>}
+            </div>
+            <h3 className="text-white font-bold text-lg truncate">{product.name as string}</h3>
+            <div className="text-xs text-slate-400 mt-0.5">
+              {String(product.category ?? "")}{product.subcategory ? ` · ${product.subcategory as string}` : ""} · by {(product.vendor as string) ?? "—"}
+            </div>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0" aria-label="Close">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="mb-4">
+          <div className="relative aspect-[4/3] rounded-xl bg-[#0F0F12] border border-white/10 overflow-hidden flex items-center justify-center">
+            {loading ? (
+              <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
+            ) : cur ? (
+              <ResponsiveImage src={cur} alt={product.name as string} sizes="(min-width:768px) 640px, 100vw" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            ) : (
+              <div className="text-xs text-slate-500">No images</div>
+            )}
+          </div>
+          {urls.length > 1 && (
+            <div className="mt-2 flex gap-2 overflow-x-auto">
+              {urls.map((u, i) => (
+                <button key={u} onClick={() => setActive(i)} className={`shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${i === active ? "border-emerald-500" : "border-white/10"}`}>
+                  <img src={u} alt="" className="w-full h-full object-cover" />
+                </button>
+              ))}
+            </div>
+          )}
+          {!loading && urls.length > 0 && <div className="mt-1 text-[10px] text-slate-500">{urls.length} image{urls.length === 1 ? "" : "s"}</div>}
+        </div>
+
+        <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
+          <div className="bg-black/30 border border-white/10 rounded-lg p-3">
+            <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">Price</div>
+            <div className="text-white font-bold text-lg">${Number(product.price_usd).toFixed(2)}</div>
+            {product.original_amount && product.original_currency ? (
+              <div className="text-slate-500 text-[11px] mt-0.5">Locked at {String(product.original_currency)} {String(product.original_amount)}</div>
+            ) : null}
+          </div>
+          {product.location ? (
+            <div className="bg-black/30 border border-white/10 rounded-lg p-3">
+              <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">Location</div>
+              <div className="text-slate-200 inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {product.location as string}</div>
+            </div>
+          ) : null}
+        </div>
+
+        {Boolean(product.description) && (
+          <div className="mb-4">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Description</div>
+            <p className="text-sm text-slate-300 whitespace-pre-wrap">{product.description as string}</p>
+          </div>
+        )}
+
+        <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
+          {product.brand ? <><dt className="text-slate-500">Brand</dt><dd className="text-slate-200">{product.brand as string}</dd></> : null}
+          {product.condition ? <><dt className="text-slate-500">Condition</dt><dd className="text-slate-200">{product.condition as string}</dd></> : null}
+          {product.negotiable ? <><dt className="text-slate-500">Negotiable</dt><dd className="text-slate-200">{product.negotiable as string}</dd></> : null}
+          {product.delivery ? <><dt className="text-slate-500">Delivery</dt><dd className="text-slate-200">{product.delivery as string}</dd></> : null}
+          {product.seller_phone ? <><dt className="text-slate-500">Phone</dt><dd className="text-slate-200">+{product.seller_phone as string}</dd></> : null}
+          {product.whatsapp_number ? <><dt className="text-slate-500">WhatsApp</dt><dd className="text-slate-200">+{product.whatsapp_number as string}</dd></> : null}
+        </dl>
+
+        {status === "rejected" && Boolean(product.reject_reason) && (
+          <div className="mt-4 rounded-lg border border-red-500/40 bg-red-500/10 p-3 text-xs text-red-200 whitespace-pre-wrap">
+            <div className="font-bold text-red-300 mb-1">Rejection reason</div>
+            {product.reject_reason as string}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
