@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive, Check, XCircle, Eye, MapPin } from "lucide-react";
+import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive, Check, XCircle, Eye, MapPin, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -76,11 +76,28 @@ function ProductsPage() {
   const [rejectHint, setRejectHint] = useState("");
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [showSellSwitcher, setShowSellSwitcher] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const refresh = useCallback(() => {
-    listFn().then((r) => setRows(r as Row[]));
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const r = await listFn();
+      setRows(r as Row[]);
+      setLastRefreshAt(Date.now());
+    } finally {
+      setRefreshing(false);
+    }
   }, [listFn]);
   useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 15000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refresh]);
 
   const filtered = (rows ?? []).filter((p) => {
     if (statusFilter !== "all" && (p.status as string) !== statusFilter) return false;
@@ -220,18 +237,44 @@ function ProductsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <header className="mb-4 flex items-center justify-between gap-4">
+      <header className="mb-4 flex items-center justify-between gap-4 flex-wrap">
         <div>
           <h1 className="text-white text-2xl font-black">Products</h1>
-          <p className="text-sm text-slate-400">{filtered.length} of {rows?.length ?? 0} listings</p>
+          <p className="text-sm text-slate-400">
+            {filtered.length} of {rows?.length ?? 0} listings
+            {lastRefreshAt && (
+              <span className="text-slate-600"> · updated {new Date(lastRefreshAt).toLocaleTimeString()}</span>
+            )}
+          </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> New product
-        </button>
+        <div className="flex items-center gap-2">
+          <label className="text-xs text-slate-400 inline-flex items-center gap-1.5 select-none">
+            <input
+              type="checkbox"
+              checked={autoRefresh}
+              onChange={(e) => setAutoRefresh(e.target.checked)}
+              className="accent-emerald-500"
+            />
+            Auto
+          </label>
+          <button
+            onClick={refresh}
+            disabled={refreshing}
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2 disabled:opacity-50"
+            aria-label="Refresh"
+          >
+            <RefreshCw className={`w-4 h-4 ${refreshing ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+          <button
+            onClick={openCreate}
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> New product
+          </button>
+        </div>
       </header>
+
 
       {/* Primary: product type */}
       <div className="mb-3 inline-flex rounded-xl bg-[#141418] border border-white/10 p-1">
