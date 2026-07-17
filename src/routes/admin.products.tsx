@@ -75,6 +75,7 @@ function ProductsPage() {
   const [rejectReason, setRejectReason] = useState("");
   const [rejectHint, setRejectHint] = useState("");
   const [previewId, setPreviewId] = useState<string | null>(null);
+  const [showSellSwitcher, setShowSellSwitcher] = useState(false);
 
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
@@ -87,7 +88,7 @@ function ProductsPage() {
     return true;
   });
 
-  const openCreate = () => setModal({ ...emptyForm });
+  const openCreate = () => setShowSellSwitcher(true);
   const openEdit = async (p: Row) => {
     const coverPath = (p.cover_path as string) ?? null;
     let coverPreview: string | null = null;
