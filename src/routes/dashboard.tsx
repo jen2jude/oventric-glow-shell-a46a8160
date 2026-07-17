@@ -313,7 +313,7 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; 
           {label}
         </span>
       </div>
-      <div className={`shrink-0 text-lg font-black text-white md:mt-1 md:text-2xl md:${accent}`}>{value}</div>
+      <div className="shrink-0 text-lg font-black text-white md:mt-1 md:text-2xl">{value}</div>
     </div>
   );
 }
