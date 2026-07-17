@@ -27,10 +27,8 @@ const CATEGORIES = ["themes", "plugins", "blocks", "scripts"] as const;
 
 interface FormState {
   id?: string;
-  kind: "digital" | "physical";
   name: string;
   category: string;
-  subcategory: string;
   description: string;
   price_usd: string;
   vendor: string;
@@ -40,22 +38,11 @@ interface FormState {
   cover_preview: string | null;
   file_path: string | null;
   file_name: string | null;
-  // physical-only
-  condition: string;
-  brand: string;
-  location: string;
-  negotiable: string;
-  delivery: string;
-  seller_phone: string;
-  whatsapp_number: string;
-  social_link: string;
 }
 
 const emptyForm: FormState = {
-  kind: "digital",
   name: "",
   category: "themes",
-  subcategory: "",
   description: "",
   price_usd: "",
   vendor: "",
@@ -65,16 +52,7 @@ const emptyForm: FormState = {
   cover_preview: null,
   file_path: null,
   file_name: null,
-  condition: "",
-  brand: "",
-  location: "",
-  negotiable: "",
-  delivery: "",
-  seller_phone: "",
-  whatsapp_number: "",
-  social_link: "",
 };
-
 
 const MAX_ASSET_MB = 50;
 
@@ -123,10 +101,8 @@ function ProductsPage() {
     const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
-      kind: ((p.kind as string) === "physical" ? "physical" : "digital"),
       name: (p.name as string) ?? "",
       category: (p.category as string) ?? "themes",
-      subcategory: (p.subcategory as string) ?? "",
       description: (p.description as string) ?? "",
       price_usd: String(p.price_usd ?? ""),
       vendor: (p.vendor as string) ?? "",
@@ -136,16 +112,7 @@ function ProductsPage() {
       cover_preview: coverPreview,
       file_path: filePath,
       file_name: filePath ? filePath.split("/").pop() ?? null : null,
-      condition: (p.condition as string) ?? "",
-      brand: (p.brand as string) ?? "",
-      location: (p.location as string) ?? "",
-      negotiable: (p.negotiable as string) ?? "",
-      delivery: (p.delivery as string) ?? "",
-      seller_phone: (p.seller_phone as string) ?? "",
-      whatsapp_number: (p.whatsapp_number as string) ?? "",
-      social_link: (p.social_link as string) ?? "",
     });
-
   };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -209,32 +176,19 @@ function ProductsPage() {
     setSaving(true);
     try {
       if (modal.id) {
-        const isPhys = modal.kind === "physical";
         await updateFn({ data: {
           id: modal.id,
           name: modal.name,
           category: modal.category,
-          subcategory: isPhys ? (modal.subcategory || null) : undefined,
           description: modal.description,
           price_usd: price,
           vendor: modal.vendor,
-          external_url: isPhys ? undefined : (modal.external_url || null),
+          external_url: modal.external_url || null,
           cover_path: modal.cover_path,
-          file_path: isPhys ? undefined : modal.file_path,
+          file_path: modal.file_path,
           promoted: modal.promoted,
-          ...(isPhys ? {
-            condition: modal.condition || null,
-            brand: modal.brand || null,
-            location: modal.location || null,
-            negotiable: modal.negotiable || null,
-            delivery: modal.delivery || null,
-            seller_phone: modal.seller_phone || null,
-            whatsapp_number: modal.whatsapp_number || null,
-            social_link: modal.social_link || null,
-          } : {}),
         } });
         toast.success("Product updated");
-
       } else {
         await createFn({ data: {
           name: modal.name,
@@ -472,9 +426,7 @@ function ProductsPage() {
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-black text-lg">
                 {modal.id ? "Edit product" : "New product"}
-                <span className={`ml-2 text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border align-middle ${modal.kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>{modal.kind}</span>
               </h2>
-
               <button
                 onClick={() => setModal(null)}
                 className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
@@ -542,23 +494,14 @@ function ProductsPage() {
                 />
               </Field>
               <div className="grid grid-cols-2 gap-3">
-
                 <Field label="Category">
-                  {modal.kind === "digital" ? (
-                    <select
-                      value={modal.category}
-                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
-                      className={inputCls}
-                    >
-                      {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                    </select>
-                  ) : (
-                    <input
-                      value={modal.category}
-                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
-                      className={inputCls}
-                    />
-                  )}
+                  <select
+                    value={modal.category}
+                    onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                    className={inputCls}
+                  >
+                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                  </select>
                 </Field>
                 <Field label="Price (USD)">
                   <input
@@ -571,16 +514,6 @@ function ProductsPage() {
                   />
                 </Field>
               </div>
-              {modal.kind === "physical" && (
-                <Field label="Subcategory">
-                  <input
-                    value={modal.subcategory}
-                    onChange={(e) => setModal({ ...modal, subcategory: e.target.value })}
-                    className={inputCls}
-                  />
-                </Field>
-              )}
-
               <Field label="Vendor">
                 <input
                   value={modal.vendor}
@@ -596,98 +529,59 @@ function ProductsPage() {
                   className={inputCls}
                 />
               </Field>
-              {modal.kind === "digital" && (
-                <>
-                  <Field label="External download URL (optional)">
-                    <input
-                      value={modal.external_url}
-                      onChange={(e) => setModal({ ...modal, external_url: e.target.value })}
-                      placeholder="https://…"
-                      className={inputCls}
-                    />
-                  </Field>
-                  <div>
-                    <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
-                    <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
-                    <input
-                      ref={assetInputRef}
-                      type="file"
-                      accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
-                      className="hidden"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => assetInputRef.current?.click()}
-                      disabled={uploadingAsset}
-                      className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+              <Field label="External download URL (optional)">
+                <input
+                  value={modal.external_url}
+                  onChange={(e) => setModal({ ...modal, external_url: e.target.value })}
+                  placeholder="https://…"
+                  className={inputCls}
+                />
+              </Field>
+              <div>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
+                <input
+                  ref={assetInputRef}
+                  type="file"
+                  accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
+                  className="hidden"
+                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
+                />
+                <button
+                  type="button"
+                  onClick={() => assetInputRef.current?.click()}
+                  disabled={uploadingAsset}
+                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
+                >
+                  <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
+                    <FileArchive className="w-6 h-6" />
+                  </div>
+                  <div className="flex-1 min-w-0 text-xs">
+                    {uploadingAsset ? (
+                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                    ) : modal.file_name ? (
+                      <>
+                        <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
+                        <div className="text-slate-500 mt-0.5">Click to replace</div>
+                      </>
+                    ) : (
+                      <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
+                    )}
+                  </div>
+                  {modal.file_name && !uploadingAsset && (
+                    <span
+                      role="button"
+                      tabIndex={0}
+                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
+                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
+                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                      aria-label="Remove file"
                     >
-                      <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
-                        <FileArchive className="w-6 h-6" />
-                      </div>
-                      <div className="flex-1 min-w-0 text-xs">
-                        {uploadingAsset ? (
-                          <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
-                        ) : modal.file_name ? (
-                          <>
-                            <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
-                            <div className="text-slate-500 mt-0.5">Click to replace</div>
-                          </>
-                        ) : (
-                          <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
-                        )}
-                      </div>
-                      {modal.file_name && !uploadingAsset && (
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
-                          onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
-                          className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
-                          aria-label="Remove file"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </span>
-                      )}
-                    </button>
-                  </div>
-                </>
-              )}
-              {modal.kind === "physical" && (
-                <>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Condition">
-                      <input value={modal.condition} onChange={(e) => setModal({ ...modal, condition: e.target.value })} placeholder="new / used" className={inputCls} />
-                    </Field>
-                    <Field label="Brand">
-                      <input value={modal.brand} onChange={(e) => setModal({ ...modal, brand: e.target.value })} className={inputCls} />
-                    </Field>
-                  </div>
-                  <Field label="Location">
-                    <input value={modal.location} onChange={(e) => setModal({ ...modal, location: e.target.value })} className={inputCls} />
-                  </Field>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Negotiable">
-                      <input value={modal.negotiable} onChange={(e) => setModal({ ...modal, negotiable: e.target.value })} placeholder="yes / no" className={inputCls} />
-                    </Field>
-                    <Field label="Delivery">
-                      <input value={modal.delivery} onChange={(e) => setModal({ ...modal, delivery: e.target.value })} placeholder="pickup / shipping / both" className={inputCls} />
-                    </Field>
-                  </div>
-                  <div className="grid grid-cols-2 gap-3">
-                    <Field label="Seller phone">
-                      <input value={modal.seller_phone} onChange={(e) => setModal({ ...modal, seller_phone: e.target.value })} className={inputCls} />
-                    </Field>
-                    <Field label="WhatsApp number">
-                      <input value={modal.whatsapp_number} onChange={(e) => setModal({ ...modal, whatsapp_number: e.target.value })} className={inputCls} />
-                    </Field>
-                  </div>
-                  <Field label="Social link (optional)">
-                    <input value={modal.social_link} onChange={(e) => setModal({ ...modal, social_link: e.target.value })} placeholder="https://…" className={inputCls} />
-                  </Field>
-                </>
-              )}
-
+                      <X className="w-3.5 h-3.5" />
+                    </span>
+                  )}
+                </button>
+              </div>
               <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input
                   type="checkbox"
