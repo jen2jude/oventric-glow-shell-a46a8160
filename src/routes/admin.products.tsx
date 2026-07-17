@@ -27,8 +27,10 @@ const CATEGORIES = ["themes", "plugins", "blocks", "scripts"] as const;
 
 interface FormState {
   id?: string;
+  kind: "digital" | "physical";
   name: string;
   category: string;
+  subcategory: string;
   description: string;
   price_usd: string;
   vendor: string;
@@ -38,11 +40,22 @@ interface FormState {
   cover_preview: string | null;
   file_path: string | null;
   file_name: string | null;
+  // physical-only
+  condition: string;
+  brand: string;
+  location: string;
+  negotiable: string;
+  delivery: string;
+  seller_phone: string;
+  whatsapp_number: string;
+  social_link: string;
 }
 
 const emptyForm: FormState = {
+  kind: "digital",
   name: "",
   category: "themes",
+  subcategory: "",
   description: "",
   price_usd: "",
   vendor: "",
@@ -52,7 +65,16 @@ const emptyForm: FormState = {
   cover_preview: null,
   file_path: null,
   file_name: null,
+  condition: "",
+  brand: "",
+  location: "",
+  negotiable: "",
+  delivery: "",
+  seller_phone: "",
+  whatsapp_number: "",
+  social_link: "",
 };
+
 
 const MAX_ASSET_MB = 50;
 
