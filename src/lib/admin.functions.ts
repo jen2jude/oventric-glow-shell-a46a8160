@@ -291,6 +291,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     id: string;
     name?: string;
     category?: string;
+    subcategory?: string | null;
     description?: string;
     price_usd?: number;
     vendor?: string;
@@ -299,6 +300,15 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     cover_path?: string | null;
     file_path?: string | null;
     promoted?: boolean;
+    condition?: string | null;
+    brand?: string | null;
+    location?: string | null;
+    negotiable?: string | null;
+    delivery?: string | null;
+    seller_phone?: string | null;
+    whatsapp_number?: string | null;
+    social_link?: string | null;
+    image_paths?: string[] | null;
   }) => i)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
@@ -307,6 +317,7 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = {};
     if (data.name !== undefined) patch.name = data.name.trim();
     if (data.category !== undefined) patch.category = data.category;
+    if (data.subcategory !== undefined) patch.subcategory = data.subcategory;
     if (data.description !== undefined) patch.description = data.description;
     if (data.price_usd !== undefined) patch.price_usd = Number(data.price_usd);
     if (data.vendor !== undefined) patch.vendor = data.vendor.trim();
@@ -315,11 +326,21 @@ export const adminUpdateProduct = createServerFn({ method: "POST" })
     if (data.cover_path !== undefined) patch.cover_path = data.cover_path;
     if (data.file_path !== undefined) patch.file_path = data.file_path;
     if (data.promoted !== undefined) patch.promoted = data.promoted;
+    if (data.condition !== undefined) patch.condition = data.condition;
+    if (data.brand !== undefined) patch.brand = data.brand;
+    if (data.location !== undefined) patch.location = data.location;
+    if (data.negotiable !== undefined) patch.negotiable = data.negotiable;
+    if (data.delivery !== undefined) patch.delivery = data.delivery;
+    if (data.seller_phone !== undefined) patch.seller_phone = data.seller_phone;
+    if (data.whatsapp_number !== undefined) patch.whatsapp_number = data.whatsapp_number;
+    if (data.social_link !== undefined) patch.social_link = data.social_link;
+    if (data.image_paths !== undefined) patch.image_paths = data.image_paths;
     const { error } = await sb.from("products").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     await writeAudit(sb, context.userId, "product.update", "product", data.id, patch);
     return { ok: true };
   });
+
 
 /** ------- Campaigns ------- */
 export interface AdCampaignRow {
