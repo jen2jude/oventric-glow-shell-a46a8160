@@ -257,6 +257,41 @@
   .dashboard-render-safe .animate-spin {
     animation: spin 1s linear infinite !important;
   }
+
+  .dashboard-overview-mobile-safe,
+  .dashboard-overview-mobile-safe * {
+    animation: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    perspective: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    isolation: auto !important;
+  }
+
+  .dashboard-overview-mobile-safe {
+    display: block;
+    overflow: visible;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    background-color: #141418;
+  }
+
+  .dashboard-overview-row + .dashboard-overview-row {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
 }
 
 
