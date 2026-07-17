@@ -688,7 +688,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
           <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-3">
         <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
         <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-amber-300" />
         <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-sky-300" />
