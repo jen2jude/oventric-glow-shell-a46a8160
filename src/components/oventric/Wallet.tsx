@@ -360,33 +360,59 @@ export function Wallet() {
             },
           ];
           return (
-            <div className="grid grid-cols-3 gap-2 sm:gap-3">
-              {tiles.map((t) => (
-                <div
-                  key={t.key}
-                  className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon ? "opacity-70" : ""}`}
-                >
-                  <div className="flex items-center gap-1.5 mb-2">
-                    <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
-                      {t.icon}
+            <div className="wallet-earnings-safe">
+              {/* Mobile: simple single-line rows (Chrome Android safe) */}
+              <div className="md:hidden flex flex-col gap-2">
+                {tiles.map((t) => (
+                  <div
+                    key={t.key}
+                    className={`flex items-center justify-between rounded-lg border border-white/10 bg-[#141418] px-3 py-2.5 ${t.soon ? "opacity-70" : ""}`}
+                  >
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                        {t.icon}
+                      </div>
+                      <div className="min-w-0">
+                        <div className="text-[11px] uppercase tracking-wider text-slate-300 font-semibold truncate">{t.label}</div>
+                        <div className="text-[10px] text-slate-500 truncate">{t.soon ? "Coming soon" : t.sub}</div>
+                      </div>
                     </div>
-                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+                    <div className={`text-sm font-black tabular-nums text-white ${hide ? "blur-sm select-none" : ""}`}>
+                      {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                    </div>
                   </div>
-                  <div className={`text-sm sm:text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
-                    {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                ))}
+              </div>
+              {/* Desktop: original 3-up tiles */}
+              <div className="hidden md:grid grid-cols-3 gap-3">
+                {tiles.map((t) => (
+                  <div
+                    key={t.key}
+                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon ? "opacity-70" : ""}`}
+                  >
+                    <div className="flex items-center gap-1.5 mb-2">
+                      <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                        {t.icon}
+                      </div>
+                      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+                    </div>
+                    <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                      {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                    </div>
+                    <div className="mt-0.5 text-[10px] text-slate-500 truncate">
+                      {t.soon ? "Coming soon" : t.sub}
+                    </div>
+                    {t.soon && (
+                      <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                        Soon
+                      </span>
+                    )}
                   </div>
-                  <div className="mt-0.5 text-[9px] sm:text-[10px] text-slate-500 truncate">
-                    {t.soon ? "Coming soon" : t.sub}
-                  </div>
-                  {t.soon && (
-                    <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                      Soon
-                    </span>
-                  )}
-                </div>
-              ))}
+                ))}
+              </div>
             </div>
           );
+
         })()}
       </section>
 
