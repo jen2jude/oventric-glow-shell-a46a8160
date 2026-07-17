@@ -666,7 +666,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 to-emerald-500/0 p-5 hover:border-emerald-400/60 transition">
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-[#141418] p-5 hover:border-emerald-400/60 transition">
           <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
           <div className="mt-2 text-3xl font-black text-white">
             {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
