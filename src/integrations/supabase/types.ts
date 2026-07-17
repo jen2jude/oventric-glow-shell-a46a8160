@@ -1707,11 +1707,14 @@ export type Database = {
         Row: {
           address: string | null
           avatar_path: string | null
+          banned_at: string | null
           bio: string | null
           country: string | null
           cover_path: string | null
           created_at: string
           display_name: string | null
+          flag_reason: string | null
+          flagged: boolean
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
@@ -1728,11 +1731,14 @@ export type Database = {
         Insert: {
           address?: string | null
           avatar_path?: string | null
+          banned_at?: string | null
           bio?: string | null
           country?: string | null
           cover_path?: string | null
           created_at?: string
           display_name?: string | null
+          flag_reason?: string | null
+          flagged?: boolean
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
@@ -1749,11 +1755,14 @@ export type Database = {
         Update: {
           address?: string | null
           avatar_path?: string | null
+          banned_at?: string | null
           bio?: string | null
           country?: string | null
           cover_path?: string | null
           created_at?: string
           display_name?: string | null
+          flag_reason?: string | null
+          flagged?: boolean
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
