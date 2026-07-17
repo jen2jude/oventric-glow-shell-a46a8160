@@ -409,29 +409,15 @@ function ProductsPage() {
       {previewId && (() => {
         const p = (rows ?? []).find((r) => r.id === previewId);
         if (!p) return null;
-        return (
-          <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
-            <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[85vh] overflow-y-auto">
-              <div className="flex items-start justify-between mb-3">
-                <h3 className="text-white font-bold text-lg">{p.name as string}</h3>
-                <button onClick={() => setPreviewId(null)} className="p-1 hover:bg-white/5 rounded"><X className="w-4 h-4 text-slate-400" /></button>
-              </div>
-              <div className="text-xs text-slate-400 mb-3">
-                {String(p.kind ?? "digital")} · {String(p.category ?? "")} · ${Number(p.price_usd).toFixed(2)}
-                {p.location ? ` · ${p.location as string}` : ""}
-              </div>
-              {Boolean(p.description) && <p className="text-sm text-slate-300 whitespace-pre-wrap mb-3">{p.description as string}</p>}
-              <dl className="grid grid-cols-2 gap-2 text-xs text-slate-300">
-                {p.brand ? <><dt className="text-slate-500">Brand</dt><dd>{p.brand as string}</dd></> : null}
-                {p.condition ? <><dt className="text-slate-500">Condition</dt><dd>{p.condition as string}</dd></> : null}
-                {p.negotiable ? <><dt className="text-slate-500">Negotiable</dt><dd>{p.negotiable as string}</dd></> : null}
-                {p.delivery ? <><dt className="text-slate-500">Delivery</dt><dd>{p.delivery as string}</dd></> : null}
-                {p.seller_phone ? <><dt className="text-slate-500">Phone</dt><dd>+{p.seller_phone as string}</dd></> : null}
-              </dl>
-            </div>
-          </div>
-        );
+        return <ProductPreviewModal product={p} onClose={() => setPreviewId(null)} />;
       })()}
+
+      {showSellSwitcher && (
+        <SellSwitcherModal
+          open
+          onClose={() => { setShowSellSwitcher(false); refresh(); }}
+        />
+      )}
 
 
       {modal && (
