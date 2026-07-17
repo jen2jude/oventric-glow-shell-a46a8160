@@ -305,11 +305,15 @@ function DashboardPage() {
 
 function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; label: string; value: number; accent: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#141418] p-3">
-      <div className="flex items-center gap-2 text-[10px] uppercase tracking-widest text-slate-500 font-bold">
-        <Icon className={`w-3.5 h-3.5 ${accent}`} /> {label}
+    <div className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3 md:block">
+      {/* Mobile: single row — icon + label left, number in white right */}
+      <div className="flex items-center gap-2 min-w-0 md:text-[10px] md:uppercase md:tracking-widest md:text-slate-500 md:font-bold">
+        <Icon className={`w-4 h-4 shrink-0 ${accent} md:w-3.5 md:h-3.5`} />
+        <span className="truncate text-sm text-slate-300 font-medium md:text-[10px] md:uppercase md:tracking-widest md:text-slate-500 md:font-bold">
+          {label}
+        </span>
       </div>
-      <div className={`mt-1 text-2xl font-black ${accent}`}>{value}</div>
+      <div className={`shrink-0 text-lg font-black text-white md:mt-1 md:text-2xl md:${accent}`}>{value}</div>
     </div>
   );
 }
