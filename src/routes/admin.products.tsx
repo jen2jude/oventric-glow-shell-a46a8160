@@ -123,8 +123,10 @@ function ProductsPage() {
     const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
+      kind: ((p.kind as string) === "physical" ? "physical" : "digital"),
       name: (p.name as string) ?? "",
       category: (p.category as string) ?? "themes",
+      subcategory: (p.subcategory as string) ?? "",
       description: (p.description as string) ?? "",
       price_usd: String(p.price_usd ?? ""),
       vendor: (p.vendor as string) ?? "",
@@ -134,7 +136,16 @@ function ProductsPage() {
       cover_preview: coverPreview,
       file_path: filePath,
       file_name: filePath ? filePath.split("/").pop() ?? null : null,
+      condition: (p.condition as string) ?? "",
+      brand: (p.brand as string) ?? "",
+      location: (p.location as string) ?? "",
+      negotiable: (p.negotiable as string) ?? "",
+      delivery: (p.delivery as string) ?? "",
+      seller_phone: (p.seller_phone as string) ?? "",
+      whatsapp_number: (p.whatsapp_number as string) ?? "",
+      social_link: (p.social_link as string) ?? "",
     });
+
   };
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
