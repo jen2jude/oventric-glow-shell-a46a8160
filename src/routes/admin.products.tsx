@@ -27,8 +27,10 @@ const CATEGORIES = ["themes", "plugins", "blocks", "scripts"] as const;
 
 interface FormState {
   id?: string;
+  kind: "digital" | "physical";
   name: string;
   category: string;
+  subcategory: string;
   description: string;
   price_usd: string;
   vendor: string;
@@ -38,11 +40,21 @@ interface FormState {
   cover_preview: string | null;
   file_path: string | null;
   file_name: string | null;
+  brand: string;
+  condition: string;
+  location: string;
+  negotiable: string;
+  delivery: string;
+  seller_phone: string;
+  whatsapp_number: string;
+  social_link: string;
 }
 
 const emptyForm: FormState = {
+  kind: "digital",
   name: "",
   category: "themes",
+  subcategory: "",
   description: "",
   price_usd: "",
   vendor: "",
@@ -52,6 +64,14 @@ const emptyForm: FormState = {
   cover_preview: null,
   file_path: null,
   file_name: null,
+  brand: "",
+  condition: "Brand New",
+  location: "",
+  negotiable: "Yes",
+  delivery: "No",
+  seller_phone: "",
+  whatsapp_number: "",
+  social_link: "",
 };
 
 const MAX_ASSET_MB = 50;
@@ -118,7 +138,8 @@ function ProductsPage() {
 
   const openCreate = () => setShowSellSwitcher(true);
   const openEdit = async (p: Row) => {
-    const coverPath = (p.cover_path as string) ?? null;
+    const imagePaths = Array.isArray(p.image_paths) ? (p.image_paths as string[]) : [];
+    const coverPath = ((p.cover_path as string) || imagePaths[0]) ?? null;
     let coverPreview: string | null = null;
     if (coverPath) {
       const { data: signed } = await supabase.storage
@@ -129,8 +150,10 @@ function ProductsPage() {
     const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
+      kind: ((p.kind as string) === "physical" ? "physical" : "digital"),
       name: (p.name as string) ?? "",
       category: (p.category as string) ?? "themes",
+      subcategory: (p.subcategory as string) ?? "",
       description: (p.description as string) ?? "",
       price_usd: String(p.price_usd ?? ""),
       vendor: (p.vendor as string) ?? "",
@@ -140,6 +163,14 @@ function ProductsPage() {
       cover_preview: coverPreview,
       file_path: filePath,
       file_name: filePath ? filePath.split("/").pop() ?? null : null,
+      brand: (p.brand as string) ?? "",
+      condition: (p.condition as string) ?? "Brand New",
+      location: (p.location as string) ?? "",
+      negotiable: (p.negotiable as string) ?? "Yes",
+      delivery: (p.delivery as string) ?? "No",
+      seller_phone: (p.seller_phone as string) ?? "",
+      whatsapp_number: (p.whatsapp_number as string) ?? "",
+      social_link: (p.social_link as string) ?? "",
     });
   };
 
@@ -211,10 +242,19 @@ function ProductsPage() {
           description: modal.description,
           price_usd: price,
           vendor: modal.vendor,
+          subcategory: modal.subcategory || null,
           external_url: modal.external_url || null,
           cover_path: modal.cover_path,
           file_path: modal.file_path,
           promoted: modal.promoted,
+          brand: modal.kind === "physical" ? modal.brand || null : undefined,
+          condition: modal.kind === "physical" ? modal.condition || null : undefined,
+          location: modal.kind === "physical" ? modal.location || null : undefined,
+          negotiable: modal.kind === "physical" ? modal.negotiable || null : undefined,
+          delivery: modal.kind === "physical" ? modal.delivery || null : undefined,
+          seller_phone: modal.kind === "physical" ? modal.seller_phone || null : undefined,
+          whatsapp_number: modal.kind === "physical" ? modal.whatsapp_number || null : undefined,
+          social_link: modal.kind === "physical" ? modal.social_link || null : undefined,
         } });
         toast.success("Product updated");
       } else {
@@ -337,8 +377,8 @@ function ProductsPage() {
             const status = (p.status as string) ?? "active";
             const kind = (p.kind as string) ?? "digital";
             return (
-              <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3">
-                <div className="flex-1 min-w-0">
+              <div key={id} data-admin-product-row className="bg-[#141418] border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3">
+                <div className="flex-1 min-w-[220px]">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-white font-bold truncate">{p.name as string}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
@@ -361,63 +401,65 @@ function ProductsPage() {
                     <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
                   )}
                 </div>
-                <button
-                  onClick={() => setPreviewId(id)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                  aria-label="Preview"
-                ><Eye className="w-4 h-4" /></button>
-                {status !== "active" && (
+                <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2">
+                  <button
+                    onClick={() => setPreviewId(id)}
+                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+                    aria-label={`View ${kind} product`}
+                  ><Eye className="w-3.5 h-3.5" /> View</button>
+                  {status !== "active" && (
+                    <button
+                      onClick={async () => {
+                        setBusy(id);
+                        try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
+                        catch (e) { toast.error((e as Error).message); }
+                        setBusy(null);
+                      }}
+                      disabled={busy === id}
+                      className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    ><Check className="w-3.5 h-3.5" /> Approve</button>
+                  )}
+                  {status !== "rejected" && (
+                    <button
+                      onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
+                      disabled={busy === id}
+                      className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    ><XCircle className="w-3.5 h-3.5" /> Reject</button>
+                  )}
                   <button
                     onClick={async () => {
                       setBusy(id);
-                      try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
+                      try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); toast.success((p.promoted as boolean) ? "Promotion removed" : "Promoted"); }
                       catch (e) { toast.error((e as Error).message); }
                       setBusy(null);
                     }}
                     disabled={busy === id}
-                    className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                  ><Check className="w-3.5 h-3.5" /> Approve</button>
-                )}
-                {status !== "rejected" && (
+                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    aria-label={`Toggle ${kind} product promotion`}
+                  >
+                    <Star className={`w-3.5 h-3.5 ${p.promoted ? "fill-amber-300" : ""}`} /> Promote
+                  </button>
                   <button
-                    onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
-                    disabled={busy === id}
-                    className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1 disabled:opacity-50"
-                  ><XCircle className="w-3.5 h-3.5" /> Reject</button>
-                )}
-                <button
-                  onClick={async () => {
-                    setBusy(id);
-                    try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); }
-                    catch (e) { toast.error((e as Error).message); }
-                    setBusy(null);
-                  }}
-                  disabled={busy === id}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-amber-300"
-                  aria-label="Toggle promoted"
-                >
-                  <Star className={`w-4 h-4 ${p.promoted ? "fill-amber-300" : ""}`} />
-                </button>
-                <button
-                  onClick={() => openEdit(p)}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
-                  aria-label="Edit product"
-                ><Pencil className="w-4 h-4" /></button>
+                    onClick={() => openEdit(p)}
+                    className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
+                    aria-label={`Edit ${kind} product`}
+                  ><Pencil className="w-3.5 h-3.5" /> Edit</button>
 
-                <button
-                  onClick={async () => {
-                    if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
-                    setBusy(id);
-                    try { await delFn({ data: { id } }); refresh(); toast.success("Deleted"); }
-                    catch (e) { toast.error((e as Error).message); }
-                    setBusy(null);
-                  }}
-                  disabled={busy === id}
-                  className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
-                  aria-label="Delete product"
-                >
-                  <Trash2 className="w-4 h-4" />
-                </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
+                      setBusy(id);
+                      try { await delFn({ data: { id } }); refresh(); toast.success("Deleted"); }
+                      catch (e) { toast.error((e as Error).message); }
+                      setBusy(null);
+                    }}
+                    disabled={busy === id}
+                    className="px-3 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
+                    aria-label={`Delete ${kind} product`}
+                  >
+                    <Trash2 className="w-3.5 h-3.5" /> Delete
+                  </button>
+                </div>
               </div>
             );
           })}
@@ -479,7 +521,7 @@ function ProductsPage() {
           <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-black text-lg">
-                {modal.id ? "Edit product" : "New product"}
+                {modal.id ? `Edit ${modal.kind} product` : "New product"}
               </h2>
               <button
                 onClick={() => setModal(null)}
@@ -549,13 +591,17 @@ function ProductsPage() {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Category">
-                  <select
+                  {modal.kind === "digital" ? <select
                     value={modal.category}
                     onChange={(e) => setModal({ ...modal, category: e.target.value })}
                     className={inputCls}
                   >
                     {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select>
+                  </select> : <input
+                    value={modal.category}
+                    onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                    className={inputCls}
+                  />}
                 </Field>
                 <Field label="Price (USD)">
                   <input
@@ -568,6 +614,15 @@ function ProductsPage() {
                   />
                 </Field>
               </div>
+              {modal.kind === "physical" && (
+                <Field label="Subcategory">
+                  <input
+                    value={modal.subcategory}
+                    onChange={(e) => setModal({ ...modal, subcategory: e.target.value })}
+                    className={inputCls}
+                  />
+                </Field>
+              )}
               <Field label="Vendor">
                 <input
                   value={modal.vendor}
@@ -583,59 +638,96 @@ function ProductsPage() {
                   className={inputCls}
                 />
               </Field>
-              <Field label="External download URL (optional)">
-                <input
-                  value={modal.external_url}
-                  onChange={(e) => setModal({ ...modal, external_url: e.target.value })}
-                  placeholder="https://…"
-                  className={inputCls}
-                />
-              </Field>
-              <div>
-                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
-                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
-                <input
-                  ref={assetInputRef}
-                  type="file"
-                  accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
-                  className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
-                />
-                <button
-                  type="button"
-                  onClick={() => assetInputRef.current?.click()}
-                  disabled={uploadingAsset}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
-                >
-                  <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
-                    <FileArchive className="w-6 h-6" />
-                  </div>
-                  <div className="flex-1 min-w-0 text-xs">
-                    {uploadingAsset ? (
-                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
-                    ) : modal.file_name ? (
-                      <>
-                        <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
-                        <div className="text-slate-500 mt-0.5">Click to replace</div>
-                      </>
-                    ) : (
-                      <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
-                    )}
-                  </div>
-                  {modal.file_name && !uploadingAsset && (
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
-                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
-                      aria-label="Remove file"
+              {modal.kind === "physical" ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <Field label="Location">
+                    <input value={modal.location} onChange={(e) => setModal({ ...modal, location: e.target.value })} className={inputCls} />
+                  </Field>
+                  <Field label="Brand">
+                    <input value={modal.brand} onChange={(e) => setModal({ ...modal, brand: e.target.value })} className={inputCls} />
+                  </Field>
+                  <Field label="Condition">
+                    <select value={modal.condition} onChange={(e) => setModal({ ...modal, condition: e.target.value })} className={inputCls}>
+                      {(["Brand New", "Used", "Refurbished"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Negotiable">
+                    <select value={modal.negotiable} onChange={(e) => setModal({ ...modal, negotiable: e.target.value })} className={inputCls}>
+                      {(["Yes", "No", "Maybe"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Delivery">
+                    <select value={modal.delivery} onChange={(e) => setModal({ ...modal, delivery: e.target.value })} className={inputCls}>
+                      {(["Yes", "No", "Maybe"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    </select>
+                  </Field>
+                  <Field label="Seller phone">
+                    <input value={modal.seller_phone} onChange={(e) => setModal({ ...modal, seller_phone: e.target.value.replace(/\D/g, "") })} className={inputCls} />
+                  </Field>
+                  <Field label="WhatsApp">
+                    <input value={modal.whatsapp_number} onChange={(e) => setModal({ ...modal, whatsapp_number: e.target.value.replace(/\D/g, "") })} className={inputCls} />
+                  </Field>
+                  <Field label="Social link">
+                    <input value={modal.social_link} onChange={(e) => setModal({ ...modal, social_link: e.target.value })} placeholder="https://…" className={inputCls} />
+                  </Field>
+                </div>
+              ) : (
+                <>
+                  <Field label="External download URL (optional)">
+                    <input
+                      value={modal.external_url}
+                      onChange={(e) => setModal({ ...modal, external_url: e.target.value })}
+                      placeholder="https://…"
+                      className={inputCls}
+                    />
+                  </Field>
+                  <div>
+                    <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
+                    <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
+                    <input
+                      ref={assetInputRef}
+                      type="file"
+                      accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
+                      className="hidden"
+                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
+                    />
+                    <button
+                      type="button"
+                      onClick={() => assetInputRef.current?.click()}
+                      disabled={uploadingAsset}
+                      className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </span>
-                  )}
-                </button>
-              </div>
+                      <div className="w-12 h-12 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-emerald-400">
+                        <FileArchive className="w-6 h-6" />
+                      </div>
+                      <div className="flex-1 min-w-0 text-xs">
+                        {uploadingAsset ? (
+                          <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                        ) : modal.file_name ? (
+                          <>
+                            <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
+                            <div className="text-slate-500 mt-0.5">Click to replace</div>
+                          </>
+                        ) : (
+                          <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
+                        )}
+                      </div>
+                      {modal.file_name && !uploadingAsset && (
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
+                          onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
+                          className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
+                          aria-label="Remove file"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </span>
+                      )}
+                    </button>
+                  </div>
+                </>
+              )}
               <label className="flex items-center gap-2 text-sm text-slate-300">
                 <input
                   type="checkbox"
