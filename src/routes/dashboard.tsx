@@ -226,7 +226,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <div className="dashboard-render-safe min-h-screen bg-[#0b0b0d] text-slate-200" style={{ isolation: "isolate", overscrollBehavior: "contain" }}>
       <div className="max-w-5xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate({ to: "/" })}
@@ -666,7 +666,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 to-emerald-500/0 p-5 hover:border-emerald-400/60 transition">
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-[#141418] p-5 hover:border-emerald-400/60 transition">
           <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
           <div className="mt-2 text-3xl font-black text-white">
             {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
@@ -818,7 +818,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
         {data.balances.length === 0 ? (
           <div className="md:col-span-2"><EmptyState icon={WalletIcon} title="No wallet yet" hint="Your wallet appears once you receive your first credit or fund it." /></div>
         ) : data.balances.map((b) => (
-          <div key={b.currency} className="rounded-2xl border border-emerald-400/30 bg-gradient-to-br from-emerald-500/10 to-emerald-500/0 p-5">
+          <div key={b.currency} className="rounded-2xl border border-emerald-400/30 bg-[#141418] p-5">
             <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">{b.currency} balance</div>
             <div className="mt-2 text-3xl font-black text-white">{b.currency} {b.available.toFixed(2)}</div>
             <div className="text-xs text-slate-400 mt-1">Escrow {b.currency} {b.escrow.toFixed(2)}</div>

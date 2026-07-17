@@ -227,6 +227,35 @@
   }
 }
 
+/* Dashboard mobile GPU-safety: same flattening as profile page.
+   Neutralizes semi-transparent gradients, shadows, filters, and
+   compositor-promotion hints that trigger Chromium-Android raster
+   corruption on the overview grid. */
+@media (max-width: 767px) {
+  .dashboard-render-safe,
+  .dashboard-render-safe * {
+    animation: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    perspective: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    isolation: auto !important;
+  }
+}
+
 
 .rgb-neon-border-wrapper {
   background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
