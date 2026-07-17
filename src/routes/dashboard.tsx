@@ -226,7 +226,7 @@ function DashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <div className="dashboard-render-safe min-h-screen bg-[#0b0b0d] text-slate-200" style={{ isolation: "isolate", overscrollBehavior: "contain" }}>
       <div className="max-w-5xl mx-auto px-4 py-8">
         <button
           onClick={() => navigate({ to: "/" })}
