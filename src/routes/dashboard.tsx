@@ -318,6 +318,22 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; 
   );
 }
 
+function MobileOverviewRow({ icon: Icon, label, value, onClick }: { icon: typeof Package; label: string; value: string | number; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="dashboard-overview-row grid w-full grid-cols-[minmax(0,1fr)_auto] items-center gap-3 px-3 py-3 text-left"
+    >
+      <span className="flex min-w-0 items-center gap-3">
+        <Icon className="h-4 w-4 shrink-0 text-slate-300" aria-hidden="true" />
+        <span className="truncate text-sm font-semibold text-slate-200">{label}</span>
+      </span>
+      <span className="shrink-0 text-base font-black text-white">{value}</span>
+    </button>
+  );
+}
+
 function TabButton({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
     <button
@@ -669,7 +685,21 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const w = overview.wallet;
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+      <div className="dashboard-overview-mobile-safe md:hidden" aria-label="Dashboard overview">
+        <MobileOverviewRow icon={WalletIcon} label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} onClick={() => onGoto("wallet")} />
+        <MobileOverviewRow icon={Trophy} label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} onClick={() => onGoto("bounties")} />
+        <MobileOverviewRow icon={Users} label="Network" value={overview.social.followers} onClick={() => onGoto("social")} />
+        <MobileOverviewRow icon={Download} label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
+        <MobileOverviewRow icon={Clock} label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
+        <MobileOverviewRow icon={MessageCircle} label="Sellers contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
+        <MobileOverviewRow icon={Store} label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
+        <MobileOverviewRow icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
+        <MobileOverviewRow icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} onClick={() => onGoto("courses")} />
+        <MobileOverviewRow icon={Target} label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
+        <MobileOverviewRow icon={Bell} label="Unread notifications" value={overview.unread.notifications} onClick={() => onGoto("social")} />
+      </div>
+
+      <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
         <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-[#141418] p-5 hover:border-emerald-400/60 transition">
           <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
           <div className="mt-2 text-3xl font-black text-white">
@@ -688,7 +718,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
           <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-2 md:gap-3">
+      <div className="hidden grid-cols-1 gap-2 md:grid md:grid-cols-4 md:gap-3">
         <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
         <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-amber-300" />
         <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-sky-300" />
