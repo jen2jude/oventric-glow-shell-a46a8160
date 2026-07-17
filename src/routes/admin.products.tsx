@@ -76,11 +76,28 @@ function ProductsPage() {
   const [rejectHint, setRejectHint] = useState("");
   const [previewId, setPreviewId] = useState<string | null>(null);
   const [showSellSwitcher, setShowSellSwitcher] = useState(false);
+  const [refreshing, setRefreshing] = useState(false);
+  const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
+  const [autoRefresh, setAutoRefresh] = useState(true);
 
-  const refresh = useCallback(() => {
-    listFn().then((r) => setRows(r as Row[]));
+  const refresh = useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const r = await listFn();
+      setRows(r as Row[]);
+      setLastRefreshAt(Date.now());
+    } finally {
+      setRefreshing(false);
+    }
   }, [listFn]);
   useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    if (!autoRefresh) return;
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") refresh();
+    }, 15000);
+    return () => clearInterval(id);
+  }, [autoRefresh, refresh]);
 
   const filtered = (rows ?? []).filter((p) => {
     if (statusFilter !== "all" && (p.status as string) !== statusFilter) return false;
