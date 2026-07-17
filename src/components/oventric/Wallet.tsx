@@ -361,25 +361,16 @@ export function Wallet() {
           ];
           return (
             <div className="wallet-earnings-safe">
-              {/* Mobile: simple single-line rows (Chrome Android safe) */}
-              <div className="md:hidden flex flex-col gap-2">
+              {/* Mobile: dead-flat single-line rows (Chrome Android safe: solid bg, no borders, no tints) */}
+              <div className="wallet-earnings-mobile md:hidden">
                 {tiles.map((t) => (
-                  <div
-                    key={t.key}
-                    className={`flex items-center justify-between rounded-lg border border-white/10 bg-[#141418] px-3 py-2.5 ${t.soon ? "opacity-70" : ""}`}
-                  >
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
-                        {t.icon}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-[11px] uppercase tracking-wider text-slate-300 font-semibold truncate">{t.label}</div>
-                        <div className="text-[10px] text-slate-500 truncate">{t.soon ? "Coming soon" : t.sub}</div>
-                      </div>
-                    </div>
-                    <div className={`text-sm font-black tabular-nums text-white ${hide ? "blur-sm select-none" : ""}`}>
+                  <div key={t.key} className="wallet-earnings-row">
+                    <span className="wallet-earnings-label">
+                      {t.label}{t.soon ? " (soon)" : ""}
+                    </span>
+                    <span className="wallet-earnings-value">
                       {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
-                    </div>
+                    </span>
                   </div>
                 ))}
               </div>
