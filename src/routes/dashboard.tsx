@@ -77,6 +77,7 @@ function DashboardPage() {
   const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
+  const confirmFn = useServerFn(confirmOrderReceived);
   const overviewFn = useServerFn(getDashboardOverview);
   const bountiesFn = useServerFn(listMyBounties);
   const coursesFn = useServerFn(listMyCourses);
