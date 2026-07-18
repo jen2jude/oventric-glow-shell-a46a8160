@@ -20,6 +20,7 @@ type Mention = {
 type CircleOpt = { id: string; name: string };
 
 const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
+const MAX_IMAGES = 10;
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
@@ -45,7 +46,8 @@ export function PostComposerModal({
   const [circleId, setCircleId] = useState<string | null>(null);
   const [circles, setCircles] = useState<CircleOpt[]>([]);
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; kind: "image" | "video" } | null>(null);
+  // Multiple images OR a single video. Can never mix kinds.
+  const [attachments, setAttachments] = useState<{ file: File; previewUrl: string; kind: "image" | "video" }[]>([]);
   const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionResults, setMentionResults] = useState<Mention[]>([]);
@@ -113,33 +115,48 @@ export function PostComposerModal({
     };
   }, [mentionQuery, mentionPickerOpen, searchMentions]);
 
-  const clearAttachment = useCallback(() => {
-    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
-    setAttachment(null);
+  const clearAttachments = useCallback(() => {
+    attachments.forEach((a) => URL.revokeObjectURL(a.previewUrl));
+    setAttachments([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [attachment]);
+  }, [attachments]);
+
+  const removeAttachmentAt = (idx: number) => {
+    setAttachments((prev) => {
+      const target = prev[idx];
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
 
   const onPickFile = () => fileInputRef.current?.click();
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-    if (!isImage && !isVideo) {
-      setError("Only images or videos are allowed.");
-      return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    const hasVideoAlready = attachments.some((a) => a.kind === "video");
+    const nextAttachments = [...attachments];
+    let err: string | null = null;
+    for (const file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) { err = "Only images or videos are allowed."; continue; }
+      if (file.size > MAX_MEDIA_BYTES) { err = "One or more files exceed 50 MB."; continue; }
+      if (isVideo) {
+        if (nextAttachments.length > 0) { err = "Post a video by itself."; continue; }
+        nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "video" });
+        break;
+      }
+      // image
+      if (hasVideoAlready || nextAttachments.some((a) => a.kind === "video")) {
+        err = "Post a video by itself.";
+        continue;
+      }
+      if (nextAttachments.length >= MAX_IMAGES) { err = `Up to ${MAX_IMAGES} images per post.`; break; }
+      nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "image" });
     }
-    if (file.size > MAX_MEDIA_BYTES) {
-      setError("File is too large. Max 50 MB.");
-      return;
-    }
-    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
-    setAttachment({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      kind: isImage ? "image" : "video",
-    });
-    setError(null);
+    setAttachments(nextAttachments);
+    setError(err);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const addMention = (m: Mention) => {
@@ -173,28 +190,40 @@ export function PostComposerModal({
     try {
       let mediaPath: string | undefined;
       let mediaType: "image" | "video" | undefined;
-      if (attachment) {
+      let mediaPaths: string[] | undefined;
+      if (attachments.length > 0) {
         const { data: userRes } = await supabase.auth.getUser();
         const uid = userRes.user?.id;
         if (!uid) throw new Error("Not signed in");
-        const ext = (attachment.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
-        const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("post-media")
-          .upload(path, attachment.file, {
-            contentType: attachment.file.type,
-            cacheControl: "3600",
-            upsert: false,
-          });
-        if (upErr) throw upErr;
-        mediaPath = path;
-        mediaType = attachment.kind;
+        const uploaded: string[] = [];
+        for (const a of attachments) {
+          const ext = (a.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+          const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("post-media")
+            .upload(path, a.file, {
+              contentType: a.file.type,
+              cacheControl: "3600",
+              upsert: false,
+            });
+          if (upErr) throw upErr;
+          uploaded.push(path);
+        }
+        const isVideo = attachments[0].kind === "video";
+        if (isVideo) {
+          mediaPath = uploaded[0];
+          mediaType = "video";
+        } else {
+          mediaPaths = uploaded;
+          mediaType = "image";
+        }
       }
       await createPost({
         data: {
           text: text.trim(),
           mediaPath,
           mediaType,
+          mediaPaths,
           audience,
           circleId: audience === "circle" ? circleId : null,
           mentionedUserIds: mentions.map((m) => m.userId),
@@ -205,7 +234,7 @@ export function PostComposerModal({
       setMentions([]);
       setAudience("public");
       setCircleId(null);
-      clearAttachment();
+      clearAttachments();
       onPosted?.();
       onClose();
     } catch (e: any) {
@@ -243,7 +272,7 @@ export function PostComposerModal({
             disabled={!canPost}
             className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm"
           >
-            {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
+            {posting ? (attachments.length > 0 ? "Uploading…" : "Posting…") : "Post"}
           </button>
         </div>
 
@@ -333,6 +362,7 @@ export function PostComposerModal({
               ref={fileInputRef}
               type="file"
               accept="image/*,video/*"
+              multiple
               className="hidden"
               onChange={onFile}
             />
@@ -387,30 +417,34 @@ export function PostComposerModal({
             </div>
           )}
 
-          {/* Attachment preview */}
-          {attachment && (
-            <div className="mt-3 relative inline-block max-w-full">
-              {attachment.kind === "image" ? (
-                <img
-                  src={attachment.previewUrl}
-                  alt="Attachment preview"
-                  className="max-h-80 rounded-lg border border-white/10 object-cover"
-                />
-              ) : (
-                <video
-                  src={attachment.previewUrl}
-                  controls
-                  className="max-h-80 rounded-lg border border-white/10"
-                />
-              )}
-              <button
-                type="button"
-                onClick={clearAttachment}
-                aria-label="Remove attachment"
-                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-black text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+          {/* Attachment previews */}
+          {attachments.length > 0 && (
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {attachments.map((a, i) => (
+                <div key={a.previewUrl} className="relative aspect-square">
+                  {a.kind === "image" ? (
+                    <img
+                      src={a.previewUrl}
+                      alt={`Attachment ${i + 1}`}
+                      className="w-full h-full rounded-lg border border-white/10 object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={a.previewUrl}
+                      controls
+                      className="w-full h-full rounded-lg border border-white/10 object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAttachmentAt(i)}
+                    aria-label="Remove attachment"
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/70 hover:bg-black text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 

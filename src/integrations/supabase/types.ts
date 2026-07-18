@@ -1539,6 +1539,7 @@ export type Database = {
           created_at: string
           id: string
           media_path: string | null
+          media_paths: string[]
           media_type: string | null
           mentioned_user_ids: string[]
           text: string
@@ -1551,6 +1552,7 @@ export type Database = {
           created_at?: string
           id?: string
           media_path?: string | null
+          media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
           text: string
@@ -1563,6 +1565,7 @@ export type Database = {
           created_at?: string
           id?: string
           media_path?: string | null
+          media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
           text?: string

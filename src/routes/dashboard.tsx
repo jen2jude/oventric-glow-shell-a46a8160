@@ -55,6 +55,9 @@ import {
 } from "@/lib/dashboard.functions";
 import { toast } from "sonner";
 import { EditListingModal } from "@/components/oventric/EditListingModal";
+import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
+import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { Images } from "lucide-react";
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -916,7 +919,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
 }
 
 function SocialPane({ data }: { data: DashboardSocial | null }) {
-  const [sub, setSub] = useState<"followers" | "following" | "circles">("followers");
+  const [sub, setSub] = useState<"followers" | "following" | "circles" | "memories">("followers");
   if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
   const rows = sub === "followers" ? data.followers : sub === "following" ? data.following : [];
   return (
@@ -925,7 +928,9 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
         <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
         <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>My Circles ({data.circles.length})</TabButton>
+        <TabButton active={sub === "memories"} onClick={() => setSub("memories")}>My Memories</TabButton>
       </div>
+      {sub === "memories" && <MyMemoriesGallery />}
       {(sub === "followers" || sub === "following") && (
         rows.length === 0 ? (
           <EmptyState icon={Users} title={sub === "followers" ? "No followers yet" : "Not following anyone yet"} hint="Discover peers from the community and connect." />
@@ -968,5 +973,54 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
     </div>
   );
 }
+
+function MyMemoriesGallery() {
+  const fetchPhotos = useServerFn(listUserPhotos);
+  const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
+  const [lb, setLb] = useState<{ images: string[]; index: number } | null>(null);
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      try {
+        const r = await fetchPhotos({ data: {} });
+        if (!cancel) setPhotos(r.photos);
+      } catch {
+        if (!cancel) setPhotos([]);
+      }
+    })();
+    return () => { cancel = true; };
+  }, [fetchPhotos]);
+
+  if (photos === null) {
+    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  }
+  if (photos.length === 0) {
+    return <EmptyState icon={Images} title="No memories yet" hint="Your uploaded photos will appear here as you share." />;
+  }
+  const urls = photos.map((p) => p.url);
+  return (
+    <>
+      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+        {photos.map((p, i) => (
+          <button
+            key={p.url + i}
+            type="button"
+            onClick={() => setLb({ images: urls, index: i })}
+            className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/40 group"
+          >
+            <img src={p.url} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
+            {p.source !== "post" && (
+              <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide bg-black/70 border border-white/20 text-white">
+                {p.source}
+              </span>
+            )}
+          </button>
+        ))}
+      </div>
+      {lb && <ImageLightbox images={lb.images} startIndex={lb.index} onClose={() => setLb(null)} />}
+    </>
+  );
+}
+
 
 
