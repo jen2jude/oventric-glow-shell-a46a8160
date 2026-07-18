@@ -1458,7 +1458,7 @@ function ProfilePage() {
                   </>
                 );
               })()}
-              </>
+              </React.Fragment>
             )}
             </section>
           </div>
