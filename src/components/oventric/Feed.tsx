@@ -146,6 +146,8 @@ export function Feed() {
   const feedAds = useActiveAds("feed");
 
   const [meId, setMeId] = useState<string | null>(null);
+  const [meLastName, setMeLastName] = useState<string>("");
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
@@ -244,12 +246,34 @@ export function Feed() {
     }
   }, [listPosts]);
 
-  // Current user id
+  // Current user id + last name
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
-      if (data.user?.id) setMeId(data.user.id);
+      const uid = data.user?.id;
+      if (!uid) return;
+      setMeId(uid);
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("display_name, username")
+          .eq("user_id", uid)
+          .maybeSingle();
+        const name = (prof?.display_name || prof?.username || "").trim();
+        if (name) {
+          const parts = name.split(/\s+/);
+          setMeLastName(parts.length > 1 ? parts[parts.length - 1] : parts[0]);
+        }
+      } catch {
+        /* ignore */
+      }
     })();
+  }, []);
+
+  // Rotate composer placeholder every 3s
+  useEffect(() => {
+    const t = setInterval(() => setPlaceholderIdx((i) => (i + 1) % 2), 3000);
+    return () => clearInterval(t);
   }, []);
 
   // Open the composer modal when the create panel dispatches a "post" action.
@@ -730,20 +754,26 @@ export function Feed() {
     <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
-        <button
-          id="oventric-composer"
-          type="button"
-          onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className="w-full text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl p-4 flex items-center gap-3 transition-colors"
-        >
-          <span className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xs font-semibold">
-            +
-          </span>
-          <span className="flex-1 text-sm text-slate-400 truncate">
-            What are you creating today? Seeking technical help?
-          </span>
-          <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
-        </button>
+        <div className="rgb-neon-bg rounded-xl p-[2px]">
+          <button
+            id="oventric-composer"
+            type="button"
+            onClick={() => require(1, () => setComposerOpen(true), "seller")}
+            className="w-full text-left bg-[#1E1E24] rounded-[10px] p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
+          >
+            <span className="rgb-neon-bg w-9 h-9 rounded-full p-[2px] flex items-center justify-center shrink-0">
+              <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center text-white text-sm font-semibold">
+                +
+              </span>
+            </span>
+            <span className="flex-1 text-sm text-slate-400 truncate">
+              {placeholderIdx === 0
+                ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
+                : "What's on your mind today, update us!"}
+            </span>
+            <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
+          </button>
+        </div>
 
 
         {feedAds.map((a) => (
