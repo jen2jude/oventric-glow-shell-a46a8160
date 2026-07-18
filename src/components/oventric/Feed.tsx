@@ -899,13 +899,41 @@ export function Feed() {
                     />
                   </Link>
                   <div className="min-w-0">
-                    <Link
-                      to="/profile/$id"
-                      params={{ id: profileSlug }}
-                      className="font-semibold text-white text-sm hover:text-emerald-400 transition-colors"
-                    >
-                      {post.author_name}
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                      <Link
+                        to="/profile/$id"
+                        params={{ id: profileSlug }}
+                        className="font-semibold text-white text-sm hover:text-emerald-400 transition-colors"
+                      >
+                        {post.author_name}
+                      </Link>
+                      {post.mentions.length > 0 && (
+                        <span className="text-xs text-slate-400">
+                          <span className="text-slate-500">is with </span>
+                          <Link
+                            to="/profile/$id"
+                            params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
+                            className="text-emerald-400 hover:underline font-medium"
+                          >
+                            {post.mentions[0].name}
+                          </Link>
+                          {post.mentions.length > 1 && (
+                            <>
+                              <span className="text-slate-500"> and </span>
+                              <button
+                                type="button"
+                                onClick={() => setMentionsSheet(post.mentions)}
+                                className="text-emerald-400 hover:underline font-medium"
+                              >
+                                {Math.min(post.mentions.length - 1, 99)}
+                                {post.mentions.length - 1 >= 99 ? "+" : ""} other
+                                {post.mentions.length - 1 === 1 ? "" : "s"}
+                              </button>
+                            </>
+                          )}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-slate-500">{timeAgo(post.created_at)}</div>
                   </div>
                   {isReported ? (
