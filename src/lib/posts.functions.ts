@@ -84,7 +84,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
 
   const { data: posts, error } = await sb
     .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type, mentioned_user_ids")
+    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids" as any)
     .order("created_at", { ascending: false })
     .limit(100);
   if (error) {
@@ -119,14 +119,18 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     (signed ?? []).forEach((s) => { if (s.path && s.signedUrl) avatarByPath.set(s.path, s.signedUrl); });
   }
 
-  const mediaPaths = userId
-    ? rows.map((r) => r.media_path).filter((p): p is string => !!p)
-    : [];
+  // Collect every media path across legacy + new arrays and sign them all in one round-trip.
+  const allMediaPaths = new Set<string>();
+  rows.forEach((r) => {
+    if (r.media_path) allMediaPaths.add(r.media_path as string);
+    const arr = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
+    arr.forEach((p) => { if (p) allMediaPaths.add(p); });
+  });
   const signedByPath = new Map<string, string>();
-  if (mediaPaths.length) {
+  if (allMediaPaths.size > 0) {
     const { data: signed } = await sb.storage
       .from("post-media")
-      .createSignedUrls(mediaPaths, 60 * 60 * 6);
+      .createSignedUrls(Array.from(allMediaPaths), 60 * 60 * 6);
     (signed ?? []).forEach((s) => {
       if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl);
     });
@@ -151,6 +155,21 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     const reactions = reactionsByPost.get(r.id) ?? zeroReactions();
     const total = reactions.love + reactions.like + reactions.laugh + reactions.crown;
     const viewer_reaction = viewerReactionByPost.get(r.id) ?? null;
+    const legacyType = (r.media_type as "image" | "video" | null) ?? null;
+    const arrPaths = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
+    const media: PostMediaItem[] = [];
+    if (arrPaths.length > 0) {
+      // New multi-image posts: media_paths is images, `media_type` optionally 'video' for a single video row.
+      const kind: "image" | "video" = legacyType === "video" && arrPaths.length === 1 ? "video" : "image";
+      arrPaths.forEach((p) => {
+        const url = signedByPath.get(p);
+        if (url) media.push({ url, type: kind });
+      });
+    } else if (r.media_path) {
+      const url = signedByPath.get(r.media_path);
+      if (url) media.push({ url, type: legacyType ?? "image" });
+    }
+    const primary = media[0] ?? null;
     return {
       id: r.id,
       author_id: r.author_id,
@@ -165,8 +184,9 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       viewer_reaction,
       reactions,
       comments_count: commentCounts.get(r.id) ?? 0,
-      media_url: r.media_path ? (signedByPath.get(r.media_path) ?? null) : null,
-      media_type: (r.media_type as "image" | "video" | null) ?? null,
+      media_url: primary?.url ?? null,
+      media_type: primary?.type ?? null,
+      media,
       mentions: (mentionedByPost.get(r.id) ?? [])
         .map((uid): MentionRef | null => {
           const p = profileById.get(uid);
