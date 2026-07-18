@@ -1005,9 +1005,112 @@ export const listMyPurchases = createServerFn({ method: "GET" })
         createdAt: r.created_at as string,
         hasFile: !!(p.file_path as string),
         externalUrl: (p.external_url as string) ?? null,
+        requiresManualDelivery: Boolean(p.requires_manual_delivery),
+        escrowStatus: ((r.escrow_status as string) ?? "released") as "held" | "released" | "refunded",
+        buyerConfirmedAt: (r.buyer_confirmed_at as string) ?? null,
       });
     }
     return out;
+  });
+
+/**
+ * Buyer confirms they've received a manual-delivery digital product. Releases
+ * the escrowed seller share (80% cut) into the seller's available balance.
+ * Idempotent: no-op if already released.
+ */
+export const confirmOrderReceived = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) => ({ orderId: String(input.orderId ?? "") }))
+  .handler(async ({ data, context }) => {
+    const { userId } = context;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: o, error } = await supabaseAdmin
+      .from("orders")
+      .select("id, buyer_id, seller_id, escrow_status, seller_share_usd")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!o) throw new Error("Order not found");
+    if ((o.buyer_id as string) !== userId) throw new Error("Not your order");
+    if ((o.escrow_status as string) !== "held") {
+      return { alreadyReleased: true };
+    }
+    const share = Number(o.seller_share_usd ?? 0);
+    if (share > 0) {
+      await supabaseAdmin.rpc("wallet_credit", { _user_id: o.seller_id as string, _amount: share });
+    }
+    const now = new Date().toISOString();
+    await supabaseAdmin
+      .from("orders")
+      .update({ escrow_status: "released", buyer_confirmed_at: now, released_at: now, released_by: userId })
+      .eq("id", data.orderId);
+    return { alreadyReleased: false };
+  });
+
+/** Admin manually releases escrow for a stuck order. */
+export const adminReleaseOrderEscrow = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { orderId: string }) => ({ orderId: String(input.orderId ?? "") }))
+  .handler(async ({ data, context }) => {
+    const { userId, supabase } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: o, error } = await supabaseAdmin
+      .from("orders")
+      .select("id, seller_id, escrow_status, seller_share_usd")
+      .eq("id", data.orderId)
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!o) throw new Error("Order not found");
+    if ((o.escrow_status as string) !== "held") return { alreadyReleased: true };
+    const share = Number(o.seller_share_usd ?? 0);
+    if (share > 0) {
+      await supabaseAdmin.rpc("wallet_credit", { _user_id: o.seller_id as string, _amount: share });
+    }
+    const now = new Date().toISOString();
+    await supabaseAdmin
+      .from("orders")
+      .update({ escrow_status: "released", released_at: now, released_by: userId })
+      .eq("id", data.orderId);
+    return { alreadyReleased: false };
+  });
+
+/** Admin list of orders currently holding seller funds in escrow. */
+export interface HeldEscrowOrderDTO {
+  orderId: string;
+  productName: string;
+  buyerId: string;
+  sellerId: string;
+  sellerShareUSD: number;
+  totalUSD: number;
+  paidAt: string | null;
+  createdAt: string;
+}
+export const listHeldEscrowOrders = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<HeldEscrowOrderDTO[]> => {
+    const { userId, supabase } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) throw new Error("Forbidden");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("orders")
+      .select("id, buyer_id, seller_id, seller_share_usd, total_usd, paid_at, created_at, products:product_id (name)")
+      .eq("escrow_status", "held")
+      .order("created_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as Record<string, unknown>[]).map((r) => ({
+      orderId: r.id as string,
+      productName: (((r.products as Record<string, unknown>) ?? {}).name as string) ?? "Product",
+      buyerId: r.buyer_id as string,
+      sellerId: r.seller_id as string,
+      sellerShareUSD: Number(r.seller_share_usd ?? 0),
+      totalUSD: Number(r.total_usd ?? 0),
+      paidAt: (r.paid_at as string) ?? null,
+      createdAt: r.created_at as string,
+    }));
   });
 
 export interface ContactedSellerDTO {
