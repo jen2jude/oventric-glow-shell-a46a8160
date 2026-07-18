@@ -1258,7 +1258,9 @@ function ProfilePage() {
 
             {/* Tab content */}
             <section data-testid="profile-tab-content" className="mt-5 space-y-3">
-              {(() => {
+              {photosMode ? (
+                <ProfilePhotosGallery slug={id} />
+              ) : (() => {
                 const st = tabData[tab];
                 const initialLoading = st.loading && st.items.length === 0;
                 const isEmpty = !st.loading && st.items.length === 0 && !st.error;
