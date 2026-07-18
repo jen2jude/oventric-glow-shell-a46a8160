@@ -8,6 +8,12 @@ import type { Database } from "@/integrations/supabase/types";
 export type ReactionType = "love" | "like" | "laugh" | "crown";
 export const REACTION_TYPES: ReactionType[] = ["love", "like", "laugh", "crown"];
 
+export interface MentionRef {
+  user_id: string;
+  name: string;
+  slug: string | null;
+}
+
 export interface FeedPost {
   id: string;
   author_id: string;
@@ -24,6 +30,7 @@ export interface FeedPost {
   comments_count: number;
   media_url: string | null;
   media_type: "image" | "video" | null;
+  mentions: MentionRef[];
 }
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
