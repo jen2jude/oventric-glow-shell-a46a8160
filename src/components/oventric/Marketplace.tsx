@@ -347,7 +347,19 @@ export function Marketplace() {
             ))
 
           )}
-        </div>
+
+          {mode === "physical" && recommended.length > 0 && (
+            <div className="border-t border-white/5 pt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg md:text-xl font-black text-white">🤖 Recommended For You</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recommended.slice(0, 7).map((p) => (
+                  <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} full />
+                ))}
+              </div>
+            </div>
+          )}
       )}
     </div>
   );
