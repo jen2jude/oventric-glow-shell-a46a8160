@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getProduct, logProductContact, type ProductDTO } from "@/lib/marketplace.functions";
+import { getProduct, logProductContact, getProductContact, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
