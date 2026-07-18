@@ -272,7 +272,7 @@ export function PostComposerModal({
             disabled={!canPost}
             className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm"
           >
-            {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
+            {posting ? (attachments.length > 0 ? "Uploading…" : "Posting…") : "Post"}
           </button>
         </div>
 
