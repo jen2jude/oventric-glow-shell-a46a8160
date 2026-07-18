@@ -252,14 +252,12 @@ export function Feed() {
     })();
   }, []);
 
-  // Focus composer when the create panel dispatches a "post" action.
+  // Open the composer modal when the create panel dispatches a "post" action.
   useEffect(() => {
     const onCreate = (e: Event) => {
       const kind = (e as CustomEvent<{ kind?: string }>).detail?.kind;
       if (kind !== "post") return;
-      const el = document.getElementById("oventric-composer");
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-      setTimeout(() => composerRef.current?.focus(), 350);
+      setComposerOpen(true);
     };
     window.addEventListener("oventric:create", onCreate);
     return () => window.removeEventListener("oventric:create", onCreate);
