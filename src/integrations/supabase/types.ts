@@ -1533,32 +1533,38 @@ export type Database = {
       }
       posts: {
         Row: {
+          audience: string
           author_id: string
           circle_id: string | null
           created_at: string
           id: string
           media_path: string | null
           media_type: string | null
+          mentioned_user_ids: string[]
           text: string
           updated_at: string
         }
         Insert: {
+          audience?: string
           author_id: string
           circle_id?: string | null
           created_at?: string
           id?: string
           media_path?: string | null
           media_type?: string | null
+          mentioned_user_ids?: string[]
           text: string
           updated_at?: string
         }
         Update: {
+          audience?: string
           author_id?: string
           circle_id?: string | null
           created_at?: string
           id?: string
           media_path?: string | null
           media_type?: string | null
+          mentioned_user_ids?: string[]
           text?: string
           updated_at?: string
         }
