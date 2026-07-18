@@ -34,6 +34,7 @@ import {
   listMyProducts,
   getOrderWithDownload,
   logProductContact,
+  confirmOrderReceived,
   type PurchaseDTO,
   type ContactedSellerDTO,
   type ProductDTO,
