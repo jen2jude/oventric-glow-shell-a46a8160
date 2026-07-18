@@ -38,7 +38,11 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [brand, setBrand] = useState("");
   const [condition, setCondition] = useState("Brand New");
   const [description, setDescription] = useState("");
+  const [priceMode, setPriceMode] = useState<"single" | "bracket">("single");
   const [priceInput, setPriceInput] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [negotiable, setNegotiable] = useState("Yes");
   const [delivery, setDelivery] = useState("No");
   const [phone, setPhone] = useState("");
@@ -52,6 +56,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!open) return null;
 
