@@ -151,6 +151,7 @@ export function Feed() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
+  const [mentionsSheet, setMentionsSheet] = useState<FeedPost["mentions"] | null>(null);
 
   const [composerDraft, setComposerDraft] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
