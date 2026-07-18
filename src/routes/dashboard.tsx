@@ -438,6 +438,15 @@ function DigitalList({
                     {r.hasFile ? "Download" : "Open"}
                   </button>
                 )}
+                {r.status === "paid" && r.escrowStatus === "held" && (
+                  <button
+                    onClick={() => onConfirm(r.orderId)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold"
+                    title="Confirm you've received this product to release the seller's funds"
+                  >
+                    Confirm received
+                  </button>
+                )}
                 <Link
                   to="/order/$id"
                   params={{ id: r.orderId }}
