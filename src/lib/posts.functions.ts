@@ -14,6 +14,11 @@ export interface MentionRef {
   slug: string | null;
 }
 
+export interface PostMediaItem {
+  url: string;
+  type: "image" | "video";
+}
+
 export interface FeedPost {
   id: string;
   author_id: string;
@@ -28,8 +33,11 @@ export interface FeedPost {
   viewer_reaction: ReactionType | null;
   reactions: Record<ReactionType, number>;
   comments_count: number;
+  // Legacy fields (kept so existing render paths keep working for single-media rows).
   media_url: string | null;
   media_type: "image" | "video" | null;
+  // Ordered list of all media items for this post (up to 10 images, or 1 video).
+  media: PostMediaItem[];
   mentions: MentionRef[];
 }
 
