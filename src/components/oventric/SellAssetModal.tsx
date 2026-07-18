@@ -108,9 +108,13 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (!isFree && discountLocal > 0 && discountLocal >= mainLocal)
       return toast.error("Discount price must be lower than the main price");
     const priceLocal = discountLocal > 0 ? discountLocal : mainLocal;
-    if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
-    if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
-      return toast.error("Provide a valid https:// delivery URL");
+    // Instant download requires either a file or an external delivery URL.
+    // Manual delivery orders skip this check — seller delivers after purchase.
+    if (!requiresManualDelivery) {
+      if (mode === "file" && !file) return toast.error("Attach a digital file or switch to External link");
+      if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
+        return toast.error("Provide a valid https:// delivery URL for instant download");
+    }
 
     setSubmitting(true);
     try {
