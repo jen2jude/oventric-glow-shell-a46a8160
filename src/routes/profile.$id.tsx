@@ -1191,6 +1191,11 @@ function ProfilePage() {
             </nav>
 
 
+            {photosMode && (
+              <ProfilePhotosGallery slug={id} />
+            )}
+            {!photosMode && (<>
+
             {/* Search + sort */}
             <TabFilters
               tab={tab}
