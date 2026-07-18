@@ -1,9 +1,9 @@
-import { useEffect, useState } from "react";
-import { X, ImagePlus, Loader2, CheckCircle2, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, ImagePlus, Loader2, CheckCircle2, Trash2, Info } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createPhysicalProduct, listMarketplaceCategories, estimateSellerNetUSD, FX_FROM_USD, type CategoryNode, type OrderCurrency } from "@/lib/marketplace.functions";
+import { createPhysicalProduct, listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
@@ -38,7 +38,11 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [brand, setBrand] = useState("");
   const [condition, setCondition] = useState("Brand New");
   const [description, setDescription] = useState("");
+  const [priceMode, setPriceMode] = useState<"single" | "bracket">("single");
   const [priceInput, setPriceInput] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
+  const [priceMin, setPriceMin] = useState("");
+  const [priceMax, setPriceMax] = useState("");
   const [negotiable, setNegotiable] = useState("Yes");
   const [delivery, setDelivery] = useState("No");
   const [phone, setPhone] = useState("");
@@ -52,6 +56,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
   const [formError, setFormError] = useState("");
   const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
   const [success, setSuccess] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!open) return null;
 
@@ -62,7 +67,8 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
   const reset = () => {
     setTitle(""); setCategory(""); setSubcategory(""); setLocation("");
-    setBrand(""); setCondition("Brand New"); setDescription(""); setPriceInput("");
+    setBrand(""); setCondition("Brand New"); setDescription("");
+    setPriceMode("single"); setPriceInput(""); setDiscountInput(""); setPriceMin(""); setPriceMax("");
     setNegotiable("Yes"); setDelivery("No"); setPhone(""); setSocialLink("");
     previews.forEach((p) => URL.revokeObjectURL(p));
     setImages([]); setPreviews([]); setSuccess(false); setFormError(""); setFieldErrors({}); setProgress(""); setProgressPct(0); setUploadStatus(null);
@@ -119,10 +125,31 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     if (!category) errors.category = "Pick the category that best fits your product.";
     if (!description.trim()) errors.description = "Describe the product for buyers.";
     if (images.length < 3) errors.images = `Upload at least 3 product images (you have ${images.length}). The first image will be the cover.`;
-    const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) errors.price = `Enter a price greater than 0 in ${baseCurrency}.`;
+
+    let priceLocal = 0;
+    let displayPrice = "";
+    let minVal = 0;
+    let maxVal = 0;
+    if (priceMode === "single") {
+      const main = Number(priceInput);
+      const disc = discountInput.trim() ? Number(discountInput) : 0;
+      if (!(main > 0)) errors.price = `Enter a main price greater than 0 in ${baseCurrency}.`;
+      if (disc > 0 && disc >= main) errors.price = "Discount price must be lower than the main price.";
+      priceLocal = disc > 0 ? disc : main;
+      const fmtLocal = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      if (disc > 0) displayPrice = `🏷️ On sale — was ${fmtLocal(main)}, now ${fmtLocal(disc)}`;
+    } else {
+      minVal = Number(priceMin);
+      maxVal = Number(priceMax);
+      if (!(minVal > 0)) errors.price = `Enter a minimum price greater than 0 in ${baseCurrency}.`;
+      if (!(maxVal > 0) || maxVal <= minVal) errors.price = "Maximum price must be higher than the minimum.";
+      priceLocal = minVal;
+      const fmtLocal = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      displayPrice = `💬 Price range: ${fmtLocal(minVal)} – ${fmtLocal(maxVal)} (negotiable with seller)`;
+    }
+
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only).";
+    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only, e.g. 234…).";
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -178,6 +205,10 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
 
+      const fullDescription = displayPrice
+        ? `${displayPrice}\n\n${description.trim()}`
+        : description.trim();
+
       setProgress("Submitting listing for review…");
       setProgressPct(95);
       await persist({
@@ -185,7 +216,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
           name: title.trim(),
           category,
           subcategory: subcategory || null,
-          description: description.trim(),
+          description: fullDescription,
           priceUSD,
           originalCurrency: baseCurrency,
           originalAmount: priceLocal,
@@ -308,13 +339,14 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
               <div data-field="images" tabIndex={-1}>
                 <span className="text-xs font-medium text-slate-300">Product images (min 3, first is cover)</span>
-                <label className={`mt-2 flex items-center gap-3 border border-dashed rounded-lg p-3 cursor-pointer hover:border-emerald-500/60 ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}>
-                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addImages(e.target.files)} />
+                <input ref={imageInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { addImages(e.target.files); if (e.target) e.target.value = ""; }} />
+                <button type="button" onClick={() => imageInputRef.current?.click()}
+                  className={`mt-2 w-full flex items-center gap-3 border border-dashed rounded-lg p-3 hover:border-emerald-500/60 text-left ${fieldErrors.images ? "border-red-400/60" : "border-white/15"}`}>
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
-                  <div className="text-xs text-slate-400">Click to add images (up to 8). PNG/JPG/phone photos up to {MAX_IMAGE_MB}MB each.</div>
-                </label>
+                  <div className="text-xs text-slate-400">Tap to add images from your phone or camera roll (up to 8). PNG/JPG up to {MAX_IMAGE_MB}MB each.</div>
+                </button>
                 <FieldError k="images" />
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-4 gap-2">
@@ -341,45 +373,73 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                 <span className="text-xs font-medium text-slate-300">Description</span>
                 <textarea data-field="description" value={description} onChange={(e) => { setDescription(e.target.value); clearField("description"); }} rows={4}
                   placeholder="Describe the product, specifications, what's included…"
-                  className={fieldCls("description", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-none")} />
+                  style={{ fieldSizing: "content" } as React.CSSProperties}
+                  className={fieldCls("description", "mt-1 w-full min-h-[110px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60 resize-y")} />
                 <FieldError k="description" />
               </label>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <label className="block">
-                  <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
-                  <input data-field="price" value={priceInput} onChange={(e) => { setPriceInput(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="0.00"
-                    className={fieldCls("price", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
-                  <FieldError k="price" />
-                </label>
-                <label className="block">
-                  <span className="text-xs font-medium text-slate-300">Phone number (digits only, incl. country code)</span>
-                  <input data-field="phone" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "")); clearField("phone"); }} inputMode="numeric" placeholder="2348012345678"
-                    className={fieldCls("phone", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
-                  <FieldError k="phone" />
-                </label>
+              <div data-field="price">
+                <span className="text-xs font-medium text-slate-300">Pricing</span>
+                <div className="mt-1 grid grid-cols-2 gap-2">
+                  <button type="button" onClick={() => { setPriceMode("single"); clearField("price"); }}
+                    className={`px-3 py-2 rounded-lg border text-sm text-left ${priceMode === "single" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}>
+                    <div className="font-semibold text-xs">Single price</div>
+                    <div className="text-[10px] text-slate-400">Main price (+ optional discount)</div>
+                  </button>
+                  <button type="button" onClick={() => { setPriceMode("bracket"); clearField("price"); }}
+                    className={`px-3 py-2 rounded-lg border text-sm text-left ${priceMode === "bracket" ? "border-emerald-500/50 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-300"}`}>
+                    <div className="font-semibold text-xs">Bracket price</div>
+                    <div className="text-[10px] text-slate-400">e.g. 3,000 – 5,000</div>
+                  </button>
+                </div>
+
+                {priceMode === "single" ? (
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Main price ({baseCurrency})</span>
+                      <input value={priceInput} onChange={(e) => { setPriceInput(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="0.00"
+                        className={fieldCls("price", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Discount price ({baseCurrency}) <span className="text-slate-500">— optional</span></span>
+                      <input value={discountInput} onChange={(e) => { setDiscountInput(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="Lower than main"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                    </label>
+                  </div>
+                ) : (
+                  <div className="mt-2 grid grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">From ({baseCurrency})</span>
+                      <input value={priceMin} onChange={(e) => { setPriceMin(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="3000"
+                        className={fieldCls("price", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">To ({baseCurrency})</span>
+                      <input value={priceMax} onChange={(e) => { setPriceMax(e.target.value); clearField("price"); }} inputMode="decimal" placeholder="5000"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60" />
+                    </label>
+                  </div>
+                )}
+                <FieldError k="price" />
+
+                <div className="mt-2 rounded-lg border border-sky-500/20 bg-sky-500/5 p-3 text-xs text-sky-100/90 flex gap-2">
+                  <Info className="w-4 h-4 text-sky-300 shrink-0 mt-0.5" />
+                  <span>Sellers will contact you directly, so there is no payment split on Oventric. Buyers may bargain the price again with you — set a price you are comfortable defending.</span>
+                </div>
               </div>
 
-              {Number(priceInput) > 0 && (() => {
-                const cur = baseCurrency as OrderCurrency;
-                const fx = FX_FROM_USD[cur] || 1;
-                const priceLocal = Number(priceInput);
-                const priceUSD = priceLocal / fx;
-                const netUSD = estimateSellerNetUSD(priceUSD, cur, "card", fx);
-                const netLocal = netUSD * fx;
-                const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: 2 }).format(n);
-                return (
-                  <div className="rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs">
-                    <div className="flex items-center justify-between text-slate-300">
-                      <span>You'll receive after fees</span>
-                      <span className="font-semibold text-emerald-300">{fmt(netLocal)}</span>
-                    </div>
-                    <div className="mt-1.5 text-[10px] leading-relaxed text-slate-500">
-                      Buyer pays exactly {fmt(priceLocal)}. Oventric absorbs the Paystack processing fee into the split — you get 80% of what's left, Oventric keeps 20%.
-                    </div>
+              <label className="block">
+                <span className="text-xs font-medium text-slate-300">WhatsApp phone number</span>
+                <input data-field="phone" value={phone} onChange={(e) => { setPhone(e.target.value.replace(/\D/g, "")); clearField("phone"); }} inputMode="numeric" placeholder="2348012345678"
+                  className={fieldCls("phone", "mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60")} />
+                {phone.length > 0 && (
+                  <div className="mt-1 rounded-md border border-amber-400/30 bg-amber-500/5 px-2.5 py-1.5 text-[11px] text-amber-200/90">
+                    Add your country code first (e.g. <b>234</b> for Nigeria, <b>233</b> for Ghana), then the rest of the number. Use a valid number connected to WhatsApp so buyers can chat you directly.
                   </div>
-                );
-              })()}
+                )}
+                <FieldError k="phone" />
+              </label>
+
 
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">

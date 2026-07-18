@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus, Trash2, ShieldAlert } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, Upload, Link2, Loader2, CheckCircle2, ImagePlus, Trash2, ShieldAlert, Zap } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -43,6 +43,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [description, setDescription] = useState("");
   const [isFree, setIsFree] = useState(false);
   const [priceInput, setPriceInput] = useState("");
+  const [discountInput, setDiscountInput] = useState("");
   const [mode, setMode] = useState<"file" | "url">("file");
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
@@ -52,11 +53,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [submitting, setSubmitting] = useState(false);
   const [progress, setProgress] = useState("");
   const [success, setSuccess] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setDescription(""); setPriceInput(""); setIsFree(false);
+    setName(""); setDescription(""); setPriceInput(""); setDiscountInput(""); setIsFree(false);
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setRequiresManualDelivery(false);
     previews.forEach((p) => URL.revokeObjectURL(p));
@@ -99,8 +101,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
     if (images.length < 1) return toast.error("Add at least 1 product image (first is cover)");
-    const priceLocal = isFree ? 0 : Number(priceInput);
-    if (!isFree && !(priceLocal > 0)) return toast.error("Price must be greater than 0 or mark as free");
+    const mainLocal = isFree ? 0 : Number(priceInput);
+    const discountLocal = isFree ? 0 : (discountInput.trim() ? Number(discountInput) : 0);
+    if (!isFree && !(mainLocal > 0)) return toast.error("Enter a main price greater than 0 or mark as free");
+    if (!isFree && discountLocal > 0 && discountLocal >= mainLocal)
+      return toast.error("Discount price must be lower than the main price");
+    const priceLocal = discountLocal > 0 ? discountLocal : mainLocal;
     if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
     if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
       return toast.error("Provide a valid https:// delivery URL");
@@ -147,6 +153,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = isFree ? 0 : (baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2)));
 
+      const fmtLocal = (n: number) =>
+        new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      const noteLines: string[] = [];
+      if (discountLocal > 0) noteLines.push(`🏷️ On sale — was ${fmtLocal(mainLocal)}, now ${fmtLocal(discountLocal)}`);
+      const fullDescription = noteLines.length > 0
+        ? `${noteLines.join("\n")}\n\n${description.trim()}`
+        : description.trim();
+
       setProgress("Submitting for review…");
       await persist({
         data: {
@@ -154,7 +168,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           category,
           subcategory: subcategory || null,
 
-          description: description.trim(),
+          description: fullDescription,
           priceUSD,
           originalCurrency: baseCurrency,
           originalAmount: priceLocal,
@@ -253,11 +267,18 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   This is a free product
                 </label>
                 {!isFree && (
-                  <label className="mt-2 block">
-                    <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
-                    <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
-                  </label>
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Main price ({baseCurrency})</span>
+                      <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Discount price ({baseCurrency}) <span className="text-slate-500">— optional</span></span>
+                      <input value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} inputMode="decimal" placeholder="Lower than main"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
+                    </label>
+                  </div>
                 )}
                 {!isFree && Number(priceInput) > 0 && (() => {
                   const cur = baseCurrency as OrderCurrency;
@@ -293,18 +314,20 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 <span className="text-xs font-medium text-slate-300">Description</span>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
                   placeholder="What buyers get, tech stack, key features…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none resize-none" />
+                  style={{ fieldSizing: "content" } as React.CSSProperties}
+                  className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none resize-y" />
               </label>
 
               <div>
                 <span className="text-xs font-medium text-slate-300">Product images (up to {MAX_IMAGES}, first is cover)</span>
-                <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60">
-                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addImages(e.target.files)} />
+                <input ref={imageInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { addImages(e.target.files); if (e.target) e.target.value = ""; }} />
+                <button type="button" onClick={() => imageInputRef.current?.click()}
+                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 hover:border-emerald-500/60 text-left">
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
-                  <div className="text-xs text-slate-400">Click to add images. PNG/JPG up to {MAX_IMAGE_MB}MB each. {images.length}/{MAX_IMAGES} added.</div>
-                </label>
+                  <div className="text-xs text-slate-400">Tap to add images from your phone or camera roll. PNG/JPG up to {MAX_IMAGE_MB}MB each. {images.length}/{MAX_IMAGES} added.</div>
+                </button>
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-5 gap-2">
                     {previews.map((src, i) => (
@@ -356,13 +379,22 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 )}
               </div>
 
-              <label className="flex items-start gap-2 text-sm text-slate-200 p-3 rounded-lg bg-[#121214] border border-white/10">
-                <input type="checkbox" checked={requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(e.target.checked)} className="mt-0.5 accent-emerald-500" />
-                <span>
-                  <span className="block font-medium">Requires manual delivery / setup</span>
-                  <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email and WhatsApp at checkout so you can deliver.</span>
-                </span>
-              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${!requiresManualDelivery ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100" : "bg-[#121214] border-white/10 text-slate-200"}`}>
+                  <input type="checkbox" checked={!requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(!e.target.checked)} className="mt-0.5 accent-emerald-500" />
+                  <span>
+                    <span className="flex items-center gap-1 font-medium"><Zap className="w-3.5 h-3.5 text-emerald-400" /> Instant download</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">Buyer gets the file (or link) automatically as soon as payment is confirmed — no action needed from you. Best for themes, plugins, scripts, and any packaged download.</span>
+                  </span>
+                </label>
+                <label className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${requiresManualDelivery ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100" : "bg-[#121214] border-white/10 text-slate-200"}`}>
+                  <input type="checkbox" checked={requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(e.target.checked)} className="mt-0.5 accent-emerald-500" />
+                  <span>
+                    <span className="block font-medium">Requires manual delivery / setup</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email and WhatsApp at checkout so you can deliver.</span>
+                  </span>
+                </label>
+              </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-white/5">
                 <div className="text-xs text-slate-400 min-h-[1rem]">{progress}</div>

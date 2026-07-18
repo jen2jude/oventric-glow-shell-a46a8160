@@ -347,6 +347,19 @@ export function Marketplace() {
             ))
 
           )}
+
+          {mode === "physical" && recommended.length > 0 && (
+            <div className="border-t border-white/5 pt-8">
+              <div className="flex items-center justify-between mb-4">
+                <h2 className="text-lg md:text-xl font-black text-white">🤖 Recommended For You</h2>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                {recommended.slice(0, 7).map((p) => (
+                  <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} full />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
@@ -365,14 +378,8 @@ function ProductCard({
   full?: boolean;
 }) {
   const Icon = categoryIcon(p.category);
-  return (
-    <div
-      className={`${
-        full ? "w-full" : "w-[220px] sm:w-[260px] snap-start"
-      } bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex flex-col ${
-        p.promoted ? "rgb-pulse-glow" : ""
-      }`}
-    >
+  const cardInner = (
+    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex flex-col h-full">
       <div className={`relative h-28 rounded-lg bg-gradient-to-br ${p.hue} mb-3 overflow-hidden`}>
         {p.coverUrl ? (
           <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
@@ -419,6 +426,16 @@ function ProductCard({
       </div>
     </div>
   );
+
+  const sizeCls = full ? "w-full" : "w-[220px] sm:w-[260px] snap-start";
+  if (p.promoted) {
+    return (
+      <div className={`${sizeCls} rounded-xl rgb-neon-border-wrapper`}>
+        {cardInner}
+      </div>
+    );
+  }
+  return <div className={sizeCls}>{cardInner}</div>;
 }
 
 function ViewMoreButton({ label, onClick }: { label: string; onClick: () => void }) {
