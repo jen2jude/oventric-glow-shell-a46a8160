@@ -379,13 +379,22 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 )}
               </div>
 
-              <label className="flex items-start gap-2 text-sm text-slate-200 p-3 rounded-lg bg-[#121214] border border-white/10">
-                <input type="checkbox" checked={requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(e.target.checked)} className="mt-0.5 accent-emerald-500" />
-                <span>
-                  <span className="block font-medium">Requires manual delivery / setup</span>
-                  <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email and WhatsApp at checkout so you can deliver.</span>
-                </span>
-              </label>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <label className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${!requiresManualDelivery ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100" : "bg-[#121214] border-white/10 text-slate-200"}`}>
+                  <input type="checkbox" checked={!requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(!e.target.checked)} className="mt-0.5 accent-emerald-500" />
+                  <span>
+                    <span className="flex items-center gap-1 font-medium"><Zap className="w-3.5 h-3.5 text-emerald-400" /> Instant download</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">Buyer gets the file (or link) automatically as soon as payment is confirmed — no action needed from you. Best for themes, plugins, scripts, and any packaged download.</span>
+                  </span>
+                </label>
+                <label className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${requiresManualDelivery ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100" : "bg-[#121214] border-white/10 text-slate-200"}`}>
+                  <input type="checkbox" checked={requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(e.target.checked)} className="mt-0.5 accent-emerald-500" />
+                  <span>
+                    <span className="block font-medium">Requires manual delivery / setup</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email and WhatsApp at checkout so you can deliver.</span>
+                  </span>
+                </label>
+              </div>
 
               <div className="flex items-center justify-between pt-2 border-t border-white/5">
                 <div className="text-xs text-slate-400 min-h-[1rem]">{progress}</div>
