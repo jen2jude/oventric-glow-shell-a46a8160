@@ -960,31 +960,56 @@ export function Feed() {
                 <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">
                   {post.text}
                 </p>
-                {post.media_url && post.media_type === "image" && (
-                  <div className="relative mt-3">
-                    <button
-                      type="button"
-                      onClick={() => setLightbox(post.media_url!)}
-                      className="block w-full"
-                      aria-label="Open image"
-                    >
-                      <ResponsiveImage
-                        src={post.media_url}
-                        alt="Post attachment"
-                        loading="lazy"
-                        sizes="(min-width: 768px) 640px, 100vw"
-                        className="max-h-[520px] w-full rounded-lg border border-white/10 object-cover"
-                      />
-
-                    </button>
-                    {splash && splash.postId === post.id && (
-                      <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
-                    )}
-                    {post.viewer_reaction && (
-                      <ReactionImageBadge reaction={post.viewer_reaction} />
-                    )}
-                  </div>
-                )}
+                {post.media_type === "image" && post.media.length > 0 && (() => {
+                  const imgs = post.media.filter((m) => m.type === "image").map((m) => m.url);
+                  const count = imgs.length;
+                  if (count === 0) return null;
+                  const openAt = (idx: number) => setLightbox({ images: imgs, index: idx });
+                  const gridClass =
+                    count === 1
+                      ? "grid grid-cols-1"
+                      : count === 2
+                        ? "grid grid-cols-2 gap-1"
+                        : count === 3
+                          ? "grid grid-cols-2 gap-1 [&>*:first-child]:row-span-2"
+                          : "grid grid-cols-2 gap-1";
+                  const displayed = count > 4 ? imgs.slice(0, 4) : imgs;
+                  return (
+                    <div className={`relative mt-3 ${gridClass} rounded-lg overflow-hidden border border-white/10`}>
+                      {displayed.map((url, i) => {
+                        const isLastTile = count > 4 && i === displayed.length - 1;
+                        return (
+                          <button
+                            key={url + i}
+                            type="button"
+                            onClick={() => openAt(i)}
+                            className={`relative block ${count === 1 ? "max-h-[520px]" : "aspect-square"} w-full overflow-hidden`}
+                            aria-label={`Open image ${i + 1} of ${count}`}
+                          >
+                            <ResponsiveImage
+                              src={url}
+                              alt={`Post attachment ${i + 1}`}
+                              loading="lazy"
+                              sizes="(min-width: 768px) 640px, 100vw"
+                              className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
+                            />
+                            {isLastTile && count > 4 && (
+                              <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-white text-xl font-semibold">
+                                +{count - 4}
+                              </div>
+                            )}
+                          </button>
+                        );
+                      })}
+                      {splash && splash.postId === post.id && (
+                        <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
+                      )}
+                      {post.viewer_reaction && (
+                        <ReactionImageBadge reaction={post.viewer_reaction} />
+                      )}
+                    </div>
+                  );
+                })()}
                 {post.media_url && post.media_type === "video" && (
                   <div className="relative mt-3">
                     <button
