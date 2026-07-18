@@ -961,6 +961,9 @@ export interface PurchaseDTO {
   createdAt: string;
   hasFile: boolean;
   externalUrl: string | null;
+  requiresManualDelivery: boolean;
+  escrowStatus: "held" | "released" | "refunded";
+  buyerConfirmedAt: string | null;
 }
 
 /** All digital purchases for the signed-in buyer. */
