@@ -1191,11 +1191,10 @@ function ProfilePage() {
             </nav>
 
 
-            {photosMode && (
+            {photosMode ? (
               <ProfilePhotosGallery slug={id} />
-            )}
-            {!photosMode && (
-              <React.Fragment>
+            ) : (<>
+
 
 
             {/* Search + sort */}
