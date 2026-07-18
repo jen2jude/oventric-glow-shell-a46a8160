@@ -279,7 +279,7 @@ function DashboardPage() {
         {tab === "courses" && <CoursesPane data={courses} />}
         {tab === "wallet" && <WalletPane data={walletSummary} />}
         {tab === "digital" && (
-          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} />
+          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} onConfirm={async (orderId) => { try { await confirmFn({ data: { orderId } }); toast.success("Thanks! Seller funds released."); await loadPurchases(); } catch (e) { toast.error((e as Error).message); } }} />
         )}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
