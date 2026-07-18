@@ -1119,6 +1119,11 @@ export function Feed() {
           />
         );
       })()}
+      <PostComposerModal
+        open={composerOpen}
+        onClose={() => setComposerOpen(false)}
+        onPosted={() => { refreshPosts(); }}
+      />
     </div>
   );
 }
