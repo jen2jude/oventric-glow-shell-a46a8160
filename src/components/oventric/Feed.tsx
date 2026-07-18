@@ -730,75 +730,20 @@ export function Feed() {
     <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
-        <div id="oventric-composer" className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-          <textarea
-            ref={composerRef}
-            rows={2}
-            value={composerDraft}
-            onChange={(e) => setComposerDraft(e.target.value)}
-            placeholder="What are you creating today? Seeking Technical Help?"
-            className="w-full bg-transparent text-slate-200 placeholder:text-slate-500 resize-none focus:outline-none text-sm"
-          />
-          {attachment && (
-            <div className="mt-3 relative inline-block max-w-full">
-              {attachment.kind === "image" ? (
-                <ResponsiveImage
-                  src={attachment.previewUrl}
-                  alt="Attachment preview"
-                  sizes="(min-width: 768px) 640px, 100vw"
-                  className="max-h-64 rounded-lg border border-white/10 object-cover"
-                />
-
-              ) : (
-                <video
-                  src={attachment.previewUrl}
-                  controls
-                  className="max-h-64 rounded-lg border border-white/10"
-                />
-              )}
-              <button
-                type="button"
-                onClick={clearAttachment}
-                aria-label="Remove attachment"
-                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-black text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
-              <div className="mt-1 flex items-center gap-1.5 text-[11px] text-slate-500">
-                {attachment.kind === "image" ? <ImageIcon className="w-3 h-3" /> : <VideoIcon className="w-3 h-3" />}
-                <span className="truncate max-w-[240px]">{attachment.file.name}</span>
-                <span>· {(attachment.file.size / (1024 * 1024)).toFixed(1)} MB</span>
-              </div>
-            </div>
-          )}
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            className="hidden"
-            onChange={handleFileSelected}
-          />
-          <div className="flex items-center justify-between pt-3 border-t border-white/5">
-            <button
-              type="button"
-              onClick={openFilePicker}
-              disabled={posting}
-              className="flex items-center gap-2 text-slate-400 hover:text-emerald-400 text-sm transition-colors disabled:opacity-40"
-            >
-              <Paperclip className="w-4 h-4" />
-              {attachment ? "Change attachment" : "Attach photo or video"}
-            </button>
-            <button
-              onClick={handleCreatePost}
-              disabled={!composerDraft.trim() || posting}
-              className="px-5 py-1.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm rounded-lg transition-colors"
-            >
-              {posting ? (attachment ? "Uploading…" : "Posting…") : "Post"}
-            </button>
-          </div>
-          <p className="mt-2 text-[10px] text-slate-500">Images or short videos, up to 50 MB.</p>
-          {postError && <div className="mt-2 text-[11px] text-red-400">{postError}</div>}
-        </div>
+        <button
+          id="oventric-composer"
+          type="button"
+          onClick={() => require(1, () => setComposerOpen(true), "seller")}
+          className="w-full text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl p-4 flex items-center gap-3 transition-colors"
+        >
+          <span className="w-9 h-9 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 text-xs font-semibold">
+            +
+          </span>
+          <span className="flex-1 text-sm text-slate-400 truncate">
+            What are you creating today? Seeking technical help?
+          </span>
+          <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
+        </button>
 
 
         {feedAds.map((a) => (
