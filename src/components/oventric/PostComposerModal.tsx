@@ -115,33 +115,48 @@ export function PostComposerModal({
     };
   }, [mentionQuery, mentionPickerOpen, searchMentions]);
 
-  const clearAttachment = useCallback(() => {
-    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
-    setAttachment(null);
+  const clearAttachments = useCallback(() => {
+    attachments.forEach((a) => URL.revokeObjectURL(a.previewUrl));
+    setAttachments([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
-  }, [attachment]);
+  }, [attachments]);
+
+  const removeAttachmentAt = (idx: number) => {
+    setAttachments((prev) => {
+      const target = prev[idx];
+      if (target) URL.revokeObjectURL(target.previewUrl);
+      return prev.filter((_, i) => i !== idx);
+    });
+  };
 
   const onPickFile = () => fileInputRef.current?.click();
   const onFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const isImage = file.type.startsWith("image/");
-    const isVideo = file.type.startsWith("video/");
-    if (!isImage && !isVideo) {
-      setError("Only images or videos are allowed.");
-      return;
+    const files = Array.from(e.target.files ?? []);
+    if (files.length === 0) return;
+    const hasVideoAlready = attachments.some((a) => a.kind === "video");
+    const nextAttachments = [...attachments];
+    let err: string | null = null;
+    for (const file of files) {
+      const isImage = file.type.startsWith("image/");
+      const isVideo = file.type.startsWith("video/");
+      if (!isImage && !isVideo) { err = "Only images or videos are allowed."; continue; }
+      if (file.size > MAX_MEDIA_BYTES) { err = "One or more files exceed 50 MB."; continue; }
+      if (isVideo) {
+        if (nextAttachments.length > 0) { err = "Post a video by itself."; continue; }
+        nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "video" });
+        break;
+      }
+      // image
+      if (hasVideoAlready || nextAttachments.some((a) => a.kind === "video")) {
+        err = "Post a video by itself.";
+        continue;
+      }
+      if (nextAttachments.length >= MAX_IMAGES) { err = `Up to ${MAX_IMAGES} images per post.`; break; }
+      nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "image" });
     }
-    if (file.size > MAX_MEDIA_BYTES) {
-      setError("File is too large. Max 50 MB.");
-      return;
-    }
-    if (attachment) URL.revokeObjectURL(attachment.previewUrl);
-    setAttachment({
-      file,
-      previewUrl: URL.createObjectURL(file),
-      kind: isImage ? "image" : "video",
-    });
-    setError(null);
+    setAttachments(nextAttachments);
+    setError(err);
+    if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const addMention = (m: Mention) => {
