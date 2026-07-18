@@ -1194,7 +1194,9 @@ function ProfilePage() {
             {photosMode && (
               <ProfilePhotosGallery slug={id} />
             )}
-            {!photosMode && (<>
+            {!photosMode && (
+              <React.Fragment>
+
 
             {/* Search + sort */}
             <TabFilters
