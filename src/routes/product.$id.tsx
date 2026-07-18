@@ -68,9 +68,22 @@ function ProductPage() {
     <div className="min-h-screen overflow-x-hidden bg-[#121214] text-slate-200">
       <Header onOpenMessages={() => {}} />
       <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6">
+        <button
+          type="button"
+          onClick={() => {
+            if (typeof window !== "undefined" && window.history.length > 1) {
+              window.history.back();
+              // Fire nav event so index route selects Marketplace if we land there.
+              setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40);
+            } else {
+              navigate({ to: "/" });
+              setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40);
+            }
+          }}
+          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
-        </Link>
+        </button>
 
         {error && (
           <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-8 text-center">
