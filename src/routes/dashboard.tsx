@@ -379,10 +379,12 @@ function DigitalList({
   rows,
   downloadingId,
   onDownload,
+  onConfirm,
 }: {
   rows: PurchaseDTO[] | null;
   downloadingId: string | null;
   onDownload: (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => void;
+  onConfirm: (orderId: string) => void;
 }) {
   if (rows === null) {
     return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
