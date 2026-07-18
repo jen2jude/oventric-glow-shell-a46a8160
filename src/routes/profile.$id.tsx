@@ -1163,9 +1163,9 @@ function ProfilePage() {
                 return (
                   <button
                     key={key}
-                    onClick={() => changeTab(key)}
+                    onClick={() => { setPhotosMode(false); changeTab(key); }}
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                      tab === key
+                      tab === key && !photosMode
                         ? "text-emerald-400 border-emerald-400"
                         : "text-slate-400 border-transparent hover:text-white"
                     }`}
@@ -1177,7 +1177,19 @@ function ProfilePage() {
                   </button>
                 );
               })}
+              <button
+                key="photos"
+                onClick={() => setPhotosMode(true)}
+                className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                  photosMode
+                    ? "text-emerald-400 border-emerald-400"
+                    : "text-slate-400 border-transparent hover:text-white"
+                }`}
+              >
+                Photos
+              </button>
             </nav>
+
 
             {/* Search + sort */}
             <TabFilters
