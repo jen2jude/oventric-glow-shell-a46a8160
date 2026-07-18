@@ -314,18 +314,20 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 <span className="text-xs font-medium text-slate-300">Description</span>
                 <textarea value={description} onChange={(e) => setDescription(e.target.value)} rows={3}
                   placeholder="What buyers get, tech stack, key features…"
-                  className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none resize-none" />
+                  style={{ fieldSizing: "content" } as React.CSSProperties}
+                  className="mt-1 w-full min-h-[80px] bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none resize-y" />
               </label>
 
               <div>
                 <span className="text-xs font-medium text-slate-300">Product images (up to {MAX_IMAGES}, first is cover)</span>
-                <label className="mt-2 flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 cursor-pointer hover:border-emerald-500/60">
-                  <input type="file" accept="image/*" multiple className="hidden" onChange={(e) => addImages(e.target.files)} />
+                <input ref={imageInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { addImages(e.target.files); if (e.target) e.target.value = ""; }} />
+                <button type="button" onClick={() => imageInputRef.current?.click()}
+                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 hover:border-emerald-500/60 text-left">
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
-                  <div className="text-xs text-slate-400">Click to add images. PNG/JPG up to {MAX_IMAGE_MB}MB each. {images.length}/{MAX_IMAGES} added.</div>
-                </label>
+                  <div className="text-xs text-slate-400">Tap to add images from your phone or camera roll. PNG/JPG up to {MAX_IMAGE_MB}MB each. {images.length}/{MAX_IMAGES} added.</div>
+                </button>
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-5 gap-2">
                     {previews.map((src, i) => (
