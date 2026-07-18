@@ -245,9 +245,11 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
   const priceLine = product.originalAmount && product.originalCurrency
     ? `${product.originalCurrency} ${product.originalAmount}`
     : `$${product.priceUSD}`;
+  // Use the public share endpoint so link previews (WhatsApp, iMessage, etc.)
+  // scrape product-specific OG tags including the product cover image.
   const productUrl = typeof window !== "undefined"
-    ? `${window.location.origin}/product/${product.id}`
-    : `https://oventric.com/product/${product.id}`;
+    ? `${window.location.origin}/api/public/p/${product.id}`
+    : `https://oventric.com/api/public/p/${product.id}`;
   const [note, setNote] = useState("");
   const baseMsg = `Hi! I saw your product "${product.name}" (${priceLine}${product.location ? ` — ${product.location}` : ""}) on Oventric. I would like to purchase it.`;
   const message = `${baseMsg}${note.trim() ? `\n\n${note.trim()}` : ""}\n\n${productUrl}`;
