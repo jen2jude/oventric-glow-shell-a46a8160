@@ -417,44 +417,6 @@ export function PostComposerModal({
           {error && <div className="mt-3 text-xs text-red-400">{error}</div>}
         </div>
 
-        {/* Footer actions */}
-        <div className="border-t border-white/10 px-3 py-2 flex items-center gap-1">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept="image/*,video/*"
-            className="hidden"
-            onChange={onFile}
-          />
-          <button
-            type="button"
-            onClick={onPickFile}
-            disabled={posting}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-          >
-            <ImageIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Photo</span>
-          </button>
-          <button
-            type="button"
-            onClick={onPickFile}
-            disabled={posting}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-          >
-            <VideoIcon className="w-4 h-4" />
-            <span className="hidden sm:inline">Video</span>
-          </button>
-          <button
-            type="button"
-            onClick={() => setMentionPickerOpen(true)}
-            disabled={posting}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-          >
-            <AtSign className="w-4 h-4" />
-            <span className="hidden sm:inline">Mention</span>
-          </button>
-          <div className="ml-auto text-[10px] text-slate-500 pr-2">Up to 50 MB media</div>
-        </div>
       </div>
 
       {/* Mention picker overlay */}
