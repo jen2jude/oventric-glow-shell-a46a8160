@@ -13,6 +13,7 @@ export type OrderStatus = "pending" | "paid" | "failed" | "refunded";
 export interface ProductDTO {
   id: string;
   sellerId: string;
+  sellerSlug: string | null;
   name: string;
   category: ProductCategory;
   subcategory: string | null;
@@ -88,6 +89,7 @@ function mapProduct(
   r: Record<string, unknown>,
   coverUrl: string | null = null,
   imageUrls: string[] = [],
+  sellerSlug: string | null = null,
 ): ProductDTO {
   const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
   const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
@@ -95,6 +97,7 @@ function mapProduct(
   return {
     id: r.id as string,
     sellerId: r.seller_id as string,
+    sellerSlug,
     name: r.name as string,
     category: r.category as ProductCategory,
     subcategory: (r.subcategory as string) ?? null,
@@ -236,7 +239,13 @@ export const getProduct = createServerFn({ method: "POST" })
     const [url] = await signCovers(sb, [(row.cover_path as string) ?? null]);
     const imgs = Array.isArray(row.image_paths) ? (row.image_paths as string[]) : [];
     const imgUrls = await signImagePaths(sb, imgs);
-    return mapProduct(row as Record<string, unknown>, url, imgUrls);
+    const { data: prof } = await sb
+      .from("profiles")
+      .select("slug")
+      .eq("user_id", row.seller_id as string)
+      .maybeSingle();
+    const sellerSlug = (prof?.slug as string) ?? null;
+    return mapProduct(row as Record<string, unknown>, url, imgUrls, sellerSlug);
   });
 
 /** Authenticated seller creates a digital-asset product (goes to pending for admin review). */

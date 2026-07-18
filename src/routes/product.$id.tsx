@@ -146,7 +146,16 @@ function ProductPage() {
                 {product.category}{product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
               <h1 className="text-2xl md:text-3xl font-black text-white mb-2">{product.name}</h1>
-              <div className="text-sm text-slate-500 mb-3">by <span className="text-slate-300">{product.vendor}</span></div>
+              <div className="text-sm text-slate-500 mb-3">
+                by{" "}
+                <Link
+                  to="/profile/$id"
+                  params={{ id: product.sellerSlug ?? product.sellerId }}
+                  className="text-emerald-400 hover:underline font-medium"
+                >
+                  {product.vendor}
+                </Link>
+              </div>
               {product.kind === "physical" && (
                 <div className="flex flex-wrap gap-2 text-xs text-slate-300 mb-4">
                   {product.location && <span className="inline-flex items-center gap-1 bg-[#1E1E24] border border-white/10 rounded px-2 py-1"><MapPin className="w-3 h-3" /> {product.location}</span>}

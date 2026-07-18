@@ -151,6 +151,7 @@ export function Feed() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
+  const [mentionsSheet, setMentionsSheet] = useState<FeedPost["mentions"] | null>(null);
 
   const [composerDraft, setComposerDraft] = useState("");
   const [composerOpen, setComposerOpen] = useState(false);
@@ -898,13 +899,41 @@ export function Feed() {
                     />
                   </Link>
                   <div className="min-w-0">
-                    <Link
-                      to="/profile/$id"
-                      params={{ id: profileSlug }}
-                      className="font-semibold text-white text-sm hover:text-emerald-400 transition-colors"
-                    >
-                      {post.author_name}
-                    </Link>
+                    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                      <Link
+                        to="/profile/$id"
+                        params={{ id: profileSlug }}
+                        className="font-semibold text-white text-sm hover:text-emerald-400 transition-colors"
+                      >
+                        {post.author_name}
+                      </Link>
+                      {post.mentions.length > 0 && (
+                        <span className="text-xs text-slate-400">
+                          <span className="text-slate-500">is with </span>
+                          <Link
+                            to="/profile/$id"
+                            params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
+                            className="text-emerald-400 hover:underline font-medium"
+                          >
+                            {post.mentions[0].name}
+                          </Link>
+                          {post.mentions.length > 1 && (
+                            <>
+                              <span className="text-slate-500"> and </span>
+                              <button
+                                type="button"
+                                onClick={() => setMentionsSheet(post.mentions)}
+                                className="text-emerald-400 hover:underline font-medium"
+                              >
+                                {Math.min(post.mentions.length - 1, 99)}
+                                {post.mentions.length - 1 >= 99 ? "+" : ""} other
+                                {post.mentions.length - 1 === 1 ? "" : "s"}
+                              </button>
+                            </>
+                          )}
+                        </span>
+                      )}
+                    </div>
                     <div className="text-xs text-slate-500">{timeAgo(post.created_at)}</div>
                   </div>
                   {isReported ? (
@@ -1152,6 +1181,45 @@ export function Feed() {
         onClose={() => setComposerOpen(false)}
         onPosted={() => { refreshPosts(); }}
       />
+      {mentionsSheet && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setMentionsSheet(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <h3 className="text-white font-semibold text-sm">Mentioned in this post</h3>
+              <button
+                type="button"
+                onClick={() => setMentionsSheet(null)}
+                className="text-slate-400 hover:text-white text-sm"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto divide-y divide-white/5">
+              {mentionsSheet.map((m) => (
+                <Link
+                  key={m.user_id}
+                  to="/profile/$id"
+                  params={{ id: m.slug ?? m.user_id }}
+                  onClick={() => setMentionsSheet(null)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                >
+                  <span className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                    {(m.name || "?").slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="text-white text-sm truncate">{m.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
