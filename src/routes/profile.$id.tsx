@@ -1697,6 +1697,70 @@ function TabFilters({
   );
 }
 
+function ProfilePhotosGallery({ slug }: { slug: string }) {
+  const fetchPhotos = useServerFn(listUserPhotos);
+  const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
+  const [filter, setFilter] = useState<"all" | "avatar" | "cover" | "post">("all");
+  const [lb, setLb] = useState<{ images: string[]; index: number } | null>(null);
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      try {
+        const r = await fetchPhotos({ data: { slugOrId: slug } });
+        if (!cancel) setPhotos(r.photos);
+      } catch {
+        if (!cancel) setPhotos([]);
+      }
+    })();
+    return () => { cancel = true; };
+  }, [fetchPhotos, slug]);
+
+  if (photos === null) {
+    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  }
+  const filtered = filter === "all" ? photos : photos.filter((p) => p.source === filter);
+  const urls = filtered.map((p) => p.url);
+  const chip = (v: typeof filter, label: string) => (
+    <button
+      key={v}
+      onClick={() => setFilter(v)}
+      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300" : "border-white/10 text-slate-400 hover:text-white"}`}
+    >{label}</button>
+  );
+  return (
+    <div className="space-y-3">
+      <div className="flex flex-wrap gap-2">
+        {chip("all", `All (${photos.length})`)}
+        {chip("post", "Posts")}
+        {chip("avatar", "Profile")}
+        {chip("cover", "Cover")}
+      </div>
+      {filtered.length === 0 ? (
+        <div className="py-16 text-center text-sm text-slate-500">No photos yet.</div>
+      ) : (
+        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+          {filtered.map((p, i) => (
+            <button
+              key={p.url + i}
+              type="button"
+              onClick={() => setLb({ images: urls, index: i })}
+              className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/40 group"
+            >
+              <img src={p.url} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
+              {p.source !== "post" && (
+                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide bg-black/70 border border-white/20 text-white">
+                  {p.source}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+      )}
+      {lb && <ImageLightbox images={lb.images} startIndex={lb.index} onClose={() => setLb(null)} />}
+    </div>
+  );
+}
+
 type StateAction = { label: string; onClick: () => void };
 
 function EmptyState({
