@@ -46,7 +46,8 @@ export function PostComposerModal({
   const [circleId, setCircleId] = useState<string | null>(null);
   const [circles, setCircles] = useState<CircleOpt[]>([]);
   const [audienceOpen, setAudienceOpen] = useState(false);
-  const [attachment, setAttachment] = useState<{ file: File; previewUrl: string; kind: "image" | "video" } | null>(null);
+  // Multiple images OR a single video. Can never mix kinds.
+  const [attachments, setAttachments] = useState<{ file: File; previewUrl: string; kind: "image" | "video" }[]>([]);
   const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionResults, setMentionResults] = useState<Mention[]>([]);
