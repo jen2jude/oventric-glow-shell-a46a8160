@@ -754,26 +754,24 @@ export function Feed() {
     <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
-        <div className="rgb-neon-bg rounded-xl p-[2px]">
-          <button
-            id="oventric-composer"
-            type="button"
-            onClick={() => require(1, () => setComposerOpen(true), "seller")}
-            className="w-full text-left bg-[#1E1E24] rounded-[10px] p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
-          >
-            <span className="rgb-neon-bg w-9 h-9 rounded-full p-[2px] flex items-center justify-center shrink-0">
-              <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center text-white text-sm font-semibold">
-                +
-              </span>
+        <button
+          id="oventric-composer"
+          type="button"
+          onClick={() => require(1, () => setComposerOpen(true), "seller")}
+          className="w-full text-left bg-[#1E1E24] border border-white/10 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
+        >
+          <span className="rgb-neon-bg w-9 h-9 rounded-full p-[2px] flex items-center justify-center shrink-0">
+            <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center text-white text-sm font-semibold">
+              +
             </span>
-            <span className="flex-1 text-sm text-slate-400 truncate">
-              {placeholderIdx === 0
-                ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
-                : "What's on your mind today, update us!"}
-            </span>
-            <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
-          </button>
-        </div>
+          </span>
+          <span className="flex-1 text-sm text-slate-400 truncate">
+            {placeholderIdx === 0
+              ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
+              : "What's on your mind today, update us!"}
+          </span>
+          <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
+        </button>
 
 
         {feedAds.map((a) => (
