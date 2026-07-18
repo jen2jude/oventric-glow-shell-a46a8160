@@ -768,6 +768,11 @@ export const createOrder = createServerFn({ method: "POST" })
       }
     }
 
+    // Manual-delivery products hold the seller's share in escrow until the
+    // buyer confirms receipt (or an admin releases). Instant-download products
+    // release immediately.
+    const holdEscrow = Boolean(product.requiresManualDelivery);
+
     const { data: oRow, error: oErr } = await supabase
       .from("orders")
       .insert({
@@ -814,10 +819,22 @@ export const createOrder = createServerFn({ method: "POST" })
     }
     const platformCutUSD = Number((netAfterGatewayUSD - sellerCutUSD - cashbackUSD).toFixed(2));
 
-    await supabaseAdmin.rpc("wallet_credit", {
-      _user_id: product.sellerId,
-      _amount: sellerCutUSD,
-    });
+    // Persist escrow state + seller share on the order.
+    await supabaseAdmin
+      .from("orders")
+      .update({
+        escrow_status: holdEscrow ? "held" : "released",
+        seller_share_usd: sellerCutUSD,
+        released_at: holdEscrow ? null : new Date().toISOString(),
+      })
+      .eq("id", oRow.id as string);
+
+    if (!holdEscrow) {
+      await supabaseAdmin.rpc("wallet_credit", {
+        _user_id: product.sellerId,
+        _amount: sellerCutUSD,
+      });
+    }
 
     // Credit the admin marketplace revenue wallet via SECURITY DEFINER helper.
     await supabaseAdmin.rpc("system_wallet_credit", {
@@ -825,7 +842,7 @@ export const createOrder = createServerFn({ method: "POST" })
       _amount: platformCutUSD,
       _source: "marketplace_order",
       _ref: oRow.id as string,
-      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod },
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod, escrow: holdEscrow },
     });
 
 
