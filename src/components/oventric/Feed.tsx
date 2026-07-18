@@ -501,7 +501,7 @@ export function Feed() {
   // Splash + picker state, keyed by post id.
   const [pickerFor, setPickerFor] = useState<string | null>(null);
   const [splash, setSplash] = useState<{ postId: string; reaction: ReactionType; id: number } | null>(null);
-  const [lightbox, setLightbox] = useState<string | null>(null);
+  const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
   const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
