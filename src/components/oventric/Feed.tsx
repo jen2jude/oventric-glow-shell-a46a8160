@@ -146,6 +146,8 @@ export function Feed() {
   const feedAds = useActiveAds("feed");
 
   const [meId, setMeId] = useState<string | null>(null);
+  const [meLastName, setMeLastName] = useState<string>("");
+  const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
