@@ -1176,6 +1176,7 @@ export type Database = {
       }
       orders: {
         Row: {
+          buyer_confirmed_at: string | null
           buyer_id: string
           created_at: string
           delivery_email: string | null
@@ -1183,6 +1184,7 @@ export type Database = {
           display_currency: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
           download_token: string
+          escrow_status: string
           fx_rate: number
           id: string
           paid_at: string | null
@@ -1190,12 +1192,16 @@ export type Database = {
           paystack_ref: string | null
           product_id: string
           quantity: number
+          released_at: string | null
+          released_by: string | null
           seller_id: string
+          seller_share_usd: number
           status: string
           total_usd: number
           unit_price_usd: number
         }
         Insert: {
+          buyer_confirmed_at?: string | null
           buyer_id: string
           created_at?: string
           delivery_email?: string | null
@@ -1203,6 +1209,7 @@ export type Database = {
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
           download_token?: string
+          escrow_status?: string
           fx_rate?: number
           id?: string
           paid_at?: string | null
@@ -1210,12 +1217,16 @@ export type Database = {
           paystack_ref?: string | null
           product_id: string
           quantity?: number
+          released_at?: string | null
+          released_by?: string | null
           seller_id: string
+          seller_share_usd?: number
           status?: string
           total_usd: number
           unit_price_usd: number
         }
         Update: {
+          buyer_confirmed_at?: string | null
           buyer_id?: string
           created_at?: string
           delivery_email?: string | null
@@ -1223,6 +1234,7 @@ export type Database = {
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total?: number
           download_token?: string
+          escrow_status?: string
           fx_rate?: number
           id?: string
           paid_at?: string | null
@@ -1230,7 +1242,10 @@ export type Database = {
           paystack_ref?: string | null
           product_id?: string
           quantity?: number
+          released_at?: string | null
+          released_by?: string | null
           seller_id?: string
+          seller_share_usd?: number
           status?: string
           total_usd?: number
           unit_price_usd?: number
