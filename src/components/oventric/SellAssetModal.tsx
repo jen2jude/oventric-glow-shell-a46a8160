@@ -267,11 +267,18 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   This is a free product
                 </label>
                 {!isFree && (
-                  <label className="mt-2 block">
-                    <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
-                    <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
-                  </label>
+                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Main price ({baseCurrency})</span>
+                      <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
+                    </label>
+                    <label className="block">
+                      <span className="text-xs font-medium text-slate-300">Discount price ({baseCurrency}) <span className="text-slate-500">— optional</span></span>
+                      <input value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} inputMode="decimal" placeholder="Lower than main"
+                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
+                    </label>
+                  </div>
                 )}
                 {!isFree && Number(priceInput) > 0 && (() => {
                   const cur = baseCurrency as OrderCurrency;
