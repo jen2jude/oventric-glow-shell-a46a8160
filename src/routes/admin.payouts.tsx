@@ -132,6 +132,45 @@ function AdminPayoutsPage() {
           />
         ))}
       </div>
+
+      <HeldEscrowPanel />
+    </div>
+  );
+}
+
+function HeldEscrowPanel() {
+  const listFn = useServerFn(listHeldEscrowOrders);
+  const releaseFn = useServerFn(adminReleaseOrderEscrow);
+  const qc = useQueryClient();
+  const q = useQuery({ queryKey: ["admin-held-escrow"], queryFn: () => listFn(), staleTime: 15_000 });
+  const rows = q.data ?? [];
+  const release = async (orderId: string) => {
+    try {
+      await releaseFn({ data: { orderId } });
+      toast.success("Escrow released to seller");
+      await qc.invalidateQueries({ queryKey: ["admin-held-escrow"] });
+    } catch (e) { toast.error((e as Error).message); }
+  };
+  return (
+    <div className="rounded-2xl border border-[#222226] bg-[#141418] overflow-hidden">
+      <div className="px-4 py-3 border-b border-[#222226] flex items-center gap-2">
+        <Clock3 className="w-4 h-4 text-amber-300" />
+        <div className="text-sm font-bold text-white">Held escrow (manual-delivery orders)</div>
+        <span className="text-[10px] text-slate-500 ml-auto">{rows.length} order{rows.length === 1 ? "" : "s"}</span>
+      </div>
+      {q.isLoading && <div className="p-6 text-center text-slate-400 text-sm inline-flex items-center gap-2 justify-center w-full"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>}
+      {!q.isLoading && rows.length === 0 && <div className="p-6 text-center text-slate-500 text-sm">No orders currently held in escrow.</div>}
+      {rows.map((r) => (
+        <div key={r.orderId} className="px-4 py-3 border-t border-[#222226] flex items-center gap-3 flex-wrap">
+          <div className="min-w-0 flex-1">
+            <div className="text-sm text-white font-semibold truncate">{r.productName}</div>
+            <div className="text-[11px] text-slate-500">Order {r.orderId.slice(0, 8)} · seller share ${r.sellerShareUSD.toFixed(2)} · paid {new Date(r.paidAt ?? r.createdAt).toLocaleDateString()}</div>
+          </div>
+          <button onClick={() => release(r.orderId)} className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold">
+            Release to seller
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
