@@ -1193,7 +1193,9 @@ function ProfilePage() {
 
             {photosMode ? (
               <ProfilePhotosGallery slug={id} />
-            ) : (<>
+            ) : (
+              <React.Fragment>
+
 
 
 
