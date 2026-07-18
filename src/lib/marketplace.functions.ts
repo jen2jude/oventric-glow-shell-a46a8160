@@ -972,7 +972,7 @@ export const listMyPurchases = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<PurchaseDTO[]> => {
     const { data, error } = await context.supabase
       .from("orders")
-      .select("id, product_id, quantity, unit_price_usd, total_usd, display_currency, display_total, status, paid_at, created_at, products:product_id (name, category, vendor, hue, cover_path, file_path, external_url)")
+      .select("id, product_id, quantity, unit_price_usd, total_usd, display_currency, display_total, status, paid_at, created_at, escrow_status, buyer_confirmed_at, products:product_id (name, category, vendor, hue, cover_path, file_path, external_url, requires_manual_delivery)")
       .eq("buyer_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
