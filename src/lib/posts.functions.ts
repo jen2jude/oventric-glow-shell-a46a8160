@@ -157,16 +157,40 @@ export const createPost = createServerFn({ method: "POST" })
       text: z.string().trim().min(1).max(4000),
       mediaPath: z.string().trim().min(1).max(500).optional(),
       mediaType: z.enum(["image", "video"]).optional(),
+      audience: z.enum(["public", "circle", "followers"]).optional(),
+      circleId: z.string().uuid().nullable().optional(),
+      mentionedUserIds: z.array(z.string().uuid()).max(20).optional(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const { data: row, error } = await context.supabase
+    const audience = data.audience ?? "public";
+    const circleId = audience === "circle" ? (data.circleId ?? null) : null;
+    if (audience === "circle" && !circleId) {
+      throw new Error("Choose a circle to share to");
+    }
+    if (circleId) {
+      const { data: mem } = await context.supabase
+        .from("circle_members")
+        .select("circle_id")
+        .eq("circle_id", circleId)
+        .eq("user_id", context.userId)
+        .maybeSingle();
+      if (!mem) throw new Error("You are not a member of that circle");
+    }
+    const mentioned = Array.from(new Set(data.mentionedUserIds ?? [])).filter(
+      (id) => id !== context.userId,
+    );
+
+    const { data: row, error } = await (context.supabase as any)
       .from("posts")
       .insert({
         author_id: context.userId,
         text: data.text,
         media_path: data.mediaPath ?? null,
         media_type: data.mediaPath ? (data.mediaType ?? null) : null,
+        audience,
+        circle_id: circleId,
+        mentioned_user_ids: mentioned,
       })
       .select("id, author_id, text, created_at")
       .single();
@@ -174,7 +198,78 @@ export const createPost = createServerFn({ method: "POST" })
       console.error("[createPost] failed", error);
       throw new Error("Failed to create post");
     }
+
+    if (mentioned.length > 0) {
+      const { data: me } = await context.supabase
+        .from("profiles")
+        .select("display_name, username, slug")
+        .eq("user_id", context.userId)
+        .maybeSingle();
+      const authorName = me?.display_name || me?.username || "Someone";
+      const rows = mentioned.map((uid) => ({
+        user_id: uid,
+        from_user_id: context.userId,
+        kind: "mention",
+        title: `${authorName} mentioned you`,
+        body: data.text.slice(0, 140),
+        link: `/#post-${row.id}`,
+      }));
+      const { error: notifErr } = await context.supabase.from("notifications").insert(rows);
+      if (notifErr) console.error("[createPost] mention notif insert failed", notifErr);
+    }
+
     return { post: row };
+  });
+
+export const searchMentionCandidates = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({ q: z.string().trim().min(1).max(40) }).parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const like = `%${data.q.replace(/[\\%_,]/g, (m) => `\\${m}`)}%`;
+    const { data: rows } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug, avatar_path")
+      .or(`display_name.ilike.${like},username.ilike.${like},slug.ilike.${like}`)
+      .limit(8);
+    const list = (rows ?? []).filter((p) => p.user_id !== context.userId);
+    const paths = list.map((p) => p.avatar_path).filter((p): p is string => !!p);
+    const map = new Map<string, string>();
+    if (paths.length) {
+      const { data: signed } = await context.supabase.storage
+        .from("avatars")
+        .createSignedUrls(paths, 60 * 60);
+      (signed ?? []).forEach((s) => {
+        if (s.path && s.signedUrl) map.set(s.path, s.signedUrl);
+      });
+    }
+    return {
+      users: list.map((p) => ({
+        userId: p.user_id as string,
+        name: (p.display_name || p.username || p.slug || "Member") as string,
+        username: (p.username as string) ?? null,
+        slug: (p.slug as string) ?? null,
+        avatarUrl: p.avatar_path ? (map.get(p.avatar_path) ?? null) : null,
+      })),
+    };
+  });
+
+export const listMyPostableCircles = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { data: mem } = await context.supabase
+      .from("circle_members")
+      .select("circle_id")
+      .eq("user_id", context.userId);
+    const ids = (mem ?? []).map((r: any) => r.circle_id as string);
+    if (ids.length === 0) return { circles: [] as { id: string; name: string }[] };
+    const { data: rows } = await context.supabase
+      .from("circles")
+      .select("id, name")
+      .in("id", ids)
+      .order("name", { ascending: true });
+    return { circles: (rows ?? []).map((r: any) => ({ id: r.id, name: r.name })) };
   });
 
 export const deletePost = createServerFn({ method: "POST" })
