@@ -13,6 +13,7 @@ export type OrderStatus = "pending" | "paid" | "failed" | "refunded";
 export interface ProductDTO {
   id: string;
   sellerId: string;
+  sellerSlug: string | null;
   name: string;
   category: ProductCategory;
   subcategory: string | null;
