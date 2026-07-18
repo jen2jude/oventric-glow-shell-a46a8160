@@ -151,6 +151,7 @@ export function Feed() {
   const [postsError, setPostsError] = useState<string | null>(null);
 
   const [composerDraft, setComposerDraft] = useState("");
+  const [composerOpen, setComposerOpen] = useState(false);
   const [posting, setPosting] = useState(false);
   const [postError, setPostError] = useState<string | null>(null);
   const MAX_MEDIA_BYTES = 50 * 1024 * 1024; // 50 MB
