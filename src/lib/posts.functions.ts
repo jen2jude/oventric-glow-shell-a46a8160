@@ -159,6 +159,17 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       comments_count: commentCounts.get(r.id) ?? 0,
       media_url: r.media_path ? (signedByPath.get(r.media_path) ?? null) : null,
       media_type: (r.media_type as "image" | "video" | null) ?? null,
+      mentions: (mentionedByPost.get(r.id) ?? [])
+        .map((uid): MentionRef | null => {
+          const p = profileById.get(uid);
+          if (!p) return null;
+          return {
+            user_id: uid,
+            name: (p.display_name || p.username || "Member") as string,
+            slug: (p.slug as string) ?? null,
+          };
+        })
+        .filter((m): m is MentionRef => m !== null),
     };
   });
   return { posts: out };
