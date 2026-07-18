@@ -928,7 +928,9 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
         <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
         <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>My Circles ({data.circles.length})</TabButton>
+        <TabButton active={sub === "memories"} onClick={() => setSub("memories")}>My Memories</TabButton>
       </div>
+      {sub === "memories" && <MyMemoriesGallery />}
       {(sub === "followers" || sub === "following") && (
         rows.length === 0 ? (
           <EmptyState icon={Users} title={sub === "followers" ? "No followers yet" : "Not following anyone yet"} hint="Discover peers from the community and connect." />
