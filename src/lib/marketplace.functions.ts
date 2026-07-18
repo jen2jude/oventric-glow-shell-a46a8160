@@ -97,6 +97,7 @@ function mapProduct(
   return {
     id: r.id as string,
     sellerId: r.seller_id as string,
+    sellerSlug,
     name: r.name as string,
     category: r.category as ProductCategory,
     subcategory: (r.subcategory as string) ?? null,
