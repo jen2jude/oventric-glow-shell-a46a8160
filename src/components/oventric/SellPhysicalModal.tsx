@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { X, ImagePlus, Loader2, CheckCircle2, Trash2 } from "lucide-react";
+import { useEffect, useRef, useState } from "react";
+import { X, ImagePlus, Loader2, CheckCircle2, Trash2, Info } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
