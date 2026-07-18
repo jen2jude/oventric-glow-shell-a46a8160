@@ -1169,7 +1169,7 @@ export function Feed() {
       <DiscoveryPanel />
 
       {lightbox && (
-        <ImageLightbox src={lightbox} onClose={() => setLightbox(null)} />
+        <ImageLightbox images={lightbox.images} startIndex={lightbox.index} onClose={() => setLightbox(null)} />
       )}
       {videoStartId && (() => {
         const videos = posts.filter((p) => p.media_type === "video" && p.media_url);
