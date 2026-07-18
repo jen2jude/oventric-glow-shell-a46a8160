@@ -38,8 +38,11 @@ import {
   Clock,
   Loader2,
   Camera,
+  Images,
 
 } from "lucide-react";
+import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
+import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
