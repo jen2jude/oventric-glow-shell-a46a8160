@@ -125,10 +125,31 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
     if (!category) errors.category = "Pick the category that best fits your product.";
     if (!description.trim()) errors.description = "Describe the product for buyers.";
     if (images.length < 3) errors.images = `Upload at least 3 product images (you have ${images.length}). The first image will be the cover.`;
-    const priceLocal = Number(priceInput);
-    if (!(priceLocal > 0)) errors.price = `Enter a price greater than 0 in ${baseCurrency}.`;
+
+    let priceLocal = 0;
+    let displayPrice = "";
+    let minVal = 0;
+    let maxVal = 0;
+    if (priceMode === "single") {
+      const main = Number(priceInput);
+      const disc = discountInput.trim() ? Number(discountInput) : 0;
+      if (!(main > 0)) errors.price = `Enter a main price greater than 0 in ${baseCurrency}.`;
+      if (disc > 0 && disc >= main) errors.price = "Discount price must be lower than the main price.";
+      priceLocal = disc > 0 ? disc : main;
+      const fmtLocal = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      if (disc > 0) displayPrice = `🏷️ On sale — was ${fmtLocal(main)}, now ${fmtLocal(disc)}`;
+    } else {
+      minVal = Number(priceMin);
+      maxVal = Number(priceMax);
+      if (!(minVal > 0)) errors.price = `Enter a minimum price greater than 0 in ${baseCurrency}.`;
+      if (!(maxVal > 0) || maxVal <= minVal) errors.price = "Maximum price must be higher than the minimum.";
+      priceLocal = minVal;
+      const fmtLocal = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      displayPrice = `💬 Price range: ${fmtLocal(minVal)} – ${fmtLocal(maxVal)} (negotiable with seller)`;
+    }
+
     const digits = phone.replace(/\D/g, "");
-    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only).";
+    if (digits.length < 6) errors.phone = "Enter a valid phone number with country code (digits only, e.g. 234…).";
 
     if (Object.keys(errors).length > 0) {
       setFieldErrors(errors);
@@ -184,6 +205,10 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2));
 
+      const fullDescription = displayPrice
+        ? `${displayPrice}\n\n${description.trim()}`
+        : description.trim();
+
       setProgress("Submitting listing for review…");
       setProgressPct(95);
       await persist({
@@ -191,7 +216,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
           name: title.trim(),
           category,
           subcategory: subcategory || null,
-          description: description.trim(),
+          description: fullDescription,
           priceUSD,
           originalCurrency: baseCurrency,
           originalAmount: priceLocal,
