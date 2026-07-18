@@ -239,7 +239,13 @@ export const getProduct = createServerFn({ method: "POST" })
     const [url] = await signCovers(sb, [(row.cover_path as string) ?? null]);
     const imgs = Array.isArray(row.image_paths) ? (row.image_paths as string[]) : [];
     const imgUrls = await signImagePaths(sb, imgs);
-    return mapProduct(row as Record<string, unknown>, url, imgUrls);
+    const { data: prof } = await sb
+      .from("profiles")
+      .select("slug")
+      .eq("user_id", row.seller_id as string)
+      .maybeSingle();
+    const sellerSlug = (prof?.slug as string) ?? null;
+    return mapProduct(row as Record<string, unknown>, url, imgUrls, sellerSlug);
   });
 
 /** Authenticated seller creates a digital-asset product (goes to pending for admin review). */
