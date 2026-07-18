@@ -3,7 +3,7 @@ import { X, ImagePlus, Loader2, CheckCircle2, Trash2, Info } from "lucide-react"
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
-import { createPhysicalProduct, listMarketplaceCategories, estimateSellerNetUSD, FX_FROM_USD, type CategoryNode, type OrderCurrency } from "@/lib/marketplace.functions";
+import { createPhysicalProduct, listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
