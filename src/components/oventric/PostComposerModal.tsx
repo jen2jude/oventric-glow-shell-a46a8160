@@ -20,6 +20,7 @@ type Mention = {
 type CircleOpt = { id: string; name: string };
 
 const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
+const MAX_IMAGES = 10;
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
