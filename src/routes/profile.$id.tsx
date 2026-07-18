@@ -132,6 +132,7 @@ function ProfilePage() {
   const sort = SORT_OPTIONS_BY_TAB[tab].some((o) => o.value === search.sort)
     ? (search.sort as ProfileSortKey)
     : "newest";
+  const [photosMode, setPhotosMode] = useState(false);
 
   // Search state to hand off to item detail pages so their back link returns
   // to the exact tab, pagination depth, and scroll position we're in.
