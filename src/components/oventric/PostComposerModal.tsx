@@ -362,6 +362,7 @@ export function PostComposerModal({
               ref={fileInputRef}
               type="file"
               accept="image/*,video/*"
+              multiple
               className="hidden"
               onChange={onFile}
             />
