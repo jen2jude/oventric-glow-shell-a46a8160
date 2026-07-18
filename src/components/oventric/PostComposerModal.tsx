@@ -190,28 +190,40 @@ export function PostComposerModal({
     try {
       let mediaPath: string | undefined;
       let mediaType: "image" | "video" | undefined;
-      if (attachment) {
+      let mediaPaths: string[] | undefined;
+      if (attachments.length > 0) {
         const { data: userRes } = await supabase.auth.getUser();
         const uid = userRes.user?.id;
         if (!uid) throw new Error("Not signed in");
-        const ext = (attachment.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
-        const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-        const { error: upErr } = await supabase.storage
-          .from("post-media")
-          .upload(path, attachment.file, {
-            contentType: attachment.file.type,
-            cacheControl: "3600",
-            upsert: false,
-          });
-        if (upErr) throw upErr;
-        mediaPath = path;
-        mediaType = attachment.kind;
+        const uploaded: string[] = [];
+        for (const a of attachments) {
+          const ext = (a.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+          const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+          const { error: upErr } = await supabase.storage
+            .from("post-media")
+            .upload(path, a.file, {
+              contentType: a.file.type,
+              cacheControl: "3600",
+              upsert: false,
+            });
+          if (upErr) throw upErr;
+          uploaded.push(path);
+        }
+        const isVideo = attachments[0].kind === "video";
+        if (isVideo) {
+          mediaPath = uploaded[0];
+          mediaType = "video";
+        } else {
+          mediaPaths = uploaded;
+          mediaType = "image";
+        }
       }
       await createPost({
         data: {
           text: text.trim(),
           mediaPath,
           mediaType,
+          mediaPaths,
           audience,
           circleId: audience === "circle" ? circleId : null,
           mentionedUserIds: mentions.map((m) => m.userId),
@@ -222,7 +234,7 @@ export function PostComposerModal({
       setMentions([]);
       setAudience("public");
       setCircleId(null);
-      clearAttachment();
+      clearAttachments();
       onPosted?.();
       onClose();
     } catch (e: any) {
