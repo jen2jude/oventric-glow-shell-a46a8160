@@ -1191,10 +1191,8 @@ function ProfilePage() {
             </nav>
 
 
-            {photosMode ? (
-              <ProfilePhotosGallery slug={id} />
-            ) : (
-              <React.Fragment>
+
+
 
 
 
