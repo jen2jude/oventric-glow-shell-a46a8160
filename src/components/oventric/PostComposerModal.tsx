@@ -324,8 +324,47 @@ export function PostComposerModal({
             value={text}
             onChange={(e) => setText(e.target.value)}
             placeholder="Share an update, ask a question, drop a build log…"
-            className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[140px]"
+            className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px]"
           />
+
+          {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
+          <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,video/*"
+              className="hidden"
+              onChange={onFile}
+            />
+            <button
+              type="button"
+              onClick={onPickFile}
+              disabled={posting}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
+            >
+              <ImageIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Photo</span>
+            </button>
+            <button
+              type="button"
+              onClick={onPickFile}
+              disabled={posting}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
+            >
+              <VideoIcon className="w-4 h-4" />
+              <span className="hidden sm:inline">Video</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setMentionPickerOpen(true)}
+              disabled={posting}
+              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
+            >
+              <AtSign className="w-4 h-4" />
+              <span className="hidden sm:inline">Mention</span>
+            </button>
+            <div className="ml-auto text-[10px] text-slate-500 pr-2">Up to 50 MB media</div>
+          </div>
 
           {/* Mention chips */}
           {mentions.length > 0 && (
