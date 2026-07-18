@@ -54,6 +54,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [progress, setProgress] = useState("");
   const [success, setSuccess] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   if (!open) return null;
 
