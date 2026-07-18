@@ -208,8 +208,11 @@ export const createPost = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       text: z.string().trim().min(1).max(4000),
+      // Legacy single-media (kept for old callers).
       mediaPath: z.string().trim().min(1).max(500).optional(),
       mediaType: z.enum(["image", "video"]).optional(),
+      // New multi-image support (up to 10). Videos still use `mediaPath`.
+      mediaPaths: z.array(z.string().trim().min(1).max(500)).max(10).optional(),
       audience: z.enum(["public", "circle", "followers"]).optional(),
       circleId: z.string().uuid().nullable().optional(),
       mentionedUserIds: z.array(z.string().uuid()).max(20).optional(),
@@ -234,13 +237,21 @@ export const createPost = createServerFn({ method: "POST" })
       (id) => id !== context.userId,
     );
 
+    const paths = Array.isArray(data.mediaPaths) ? data.mediaPaths.slice(0, 10) : [];
+    // If a caller sends multiple images we store them in media_paths.
+    // For a single video we still use the legacy media_path/media_type route.
+    const isVideo = data.mediaType === "video" && !!data.mediaPath;
+    const legacyPath = isVideo ? data.mediaPath! : (paths.length === 0 ? (data.mediaPath ?? null) : null);
+    const legacyType = isVideo ? "video" : (paths.length === 0 ? (data.mediaPath ? (data.mediaType ?? null) : null) : "image");
+
     const { data: row, error } = await (context.supabase as any)
       .from("posts")
       .insert({
         author_id: context.userId,
         text: data.text,
-        media_path: data.mediaPath ?? null,
-        media_type: data.mediaPath ? (data.mediaType ?? null) : null,
+        media_path: legacyPath,
+        media_type: legacyType,
+        media_paths: paths,
         audience,
         circle_id: circleId,
         mentioned_user_ids: mentioned,
