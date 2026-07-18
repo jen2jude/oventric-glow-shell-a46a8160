@@ -418,3 +418,124 @@ export const toggleLike = createServerFn({ method: "POST" })
     }
     return { postId: data.postId, liked: data.like };
   });
+
+export interface UserPhoto {
+  url: string;
+  source: "avatar" | "cover" | "post";
+  postId: string | null;
+  createdAt: string; // ISO
+}
+
+/**
+ * List every image the user has shared (avatar, cover, and post images).
+ * Signed in only — signs URLs against the viewer's session.
+ * `slugOrId` may be a profile slug OR a user_id (UUID). When omitted,
+ * returns photos for the current viewer ("My Memories").
+ */
+export const listUserPhotos = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z.object({
+      slugOrId: z.string().trim().min(1).max(120).optional(),
+    }).parse(input ?? {}),
+  )
+  .handler(async ({ data, context }) => {
+    const { supabase: sb, userId: viewerId } = context;
+    // Resolve target user.
+    let targetId: string | null = null;
+    let profileRow: { avatar_path: string | null; cover_path: string | null; updated_at: string | null; created_at: string | null } | null = null;
+    if (!data.slugOrId) {
+      targetId = viewerId;
+    } else if (/^[0-9a-f-]{36}$/i.test(data.slugOrId)) {
+      targetId = data.slugOrId;
+    }
+    if (targetId) {
+      const { data: p } = await sb
+        .from("profiles")
+        .select("user_id, avatar_path, cover_path, updated_at, created_at" as any)
+        .eq("user_id", targetId)
+        .maybeSingle();
+      profileRow = (p as any) ?? null;
+    } else {
+      const { data: p } = await sb
+        .from("profiles")
+        .select("user_id, avatar_path, cover_path, updated_at, created_at" as any)
+        .eq("slug", data.slugOrId!)
+        .maybeSingle();
+      if (p) {
+        targetId = (p as any).user_id;
+        profileRow = p as any;
+      }
+    }
+    if (!targetId) return { photos: [] as UserPhoto[] };
+
+    const { data: postRows } = await sb
+      .from("posts")
+      .select("id, created_at, media_path, media_type, media_paths" as any)
+      .eq("author_id", targetId)
+      .order("created_at", { ascending: false })
+      .limit(200);
+
+    // Gather every path to sign.
+    const items: Array<{ path: string; source: UserPhoto["source"]; postId: string | null; createdAt: string; bucket: "avatars" | "profile-covers" | "post-media" }> = [];
+    if (profileRow?.avatar_path) {
+      items.push({
+        path: profileRow.avatar_path,
+        source: "avatar",
+        postId: null,
+        createdAt: profileRow.updated_at ?? profileRow.created_at ?? new Date().toISOString(),
+        bucket: "avatars",
+      });
+    }
+    if (profileRow?.cover_path) {
+      items.push({
+        path: profileRow.cover_path,
+        source: "cover",
+        postId: null,
+        createdAt: profileRow.updated_at ?? profileRow.created_at ?? new Date().toISOString(),
+        bucket: "profile-covers",
+      });
+    }
+    (postRows ?? []).forEach((r: any) => {
+      const arr: string[] = Array.isArray(r.media_paths) ? r.media_paths : [];
+      if (arr.length > 0) {
+        const isImage = r.media_type !== "video" || arr.length > 1;
+        if (isImage) {
+          arr.forEach((p) => items.push({ path: p, source: "post", postId: r.id, createdAt: r.created_at, bucket: "post-media" }));
+        }
+      } else if (r.media_path && r.media_type !== "video") {
+        items.push({ path: r.media_path, source: "post", postId: r.id, createdAt: r.created_at, bucket: "post-media" });
+      }
+    });
+
+    // Sign per-bucket in parallel.
+    const buckets: Array<UserPhoto["source"] extends string ? "avatars" | "profile-covers" | "post-media" : never> = ["avatars", "profile-covers", "post-media"];
+    const byBucket = new Map<string, string[]>();
+    items.forEach((it) => {
+      const arr = byBucket.get(it.bucket) ?? [];
+      arr.push(it.path);
+      byBucket.set(it.bucket, arr);
+    });
+    const signedByPath = new Map<string, string>();
+    await Promise.all(
+      buckets.map(async (b) => {
+        const paths = Array.from(new Set(byBucket.get(b) ?? []));
+        if (paths.length === 0) return;
+        const { data: signed } = await sb.storage.from(b).createSignedUrls(paths, 60 * 60 * 6);
+        (signed ?? []).forEach((s) => {
+          if (s.path && s.signedUrl) signedByPath.set(`${b}:${s.path}`, s.signedUrl);
+        });
+      }),
+    );
+
+    const photos: UserPhoto[] = items
+      .map((it) => {
+        const url = signedByPath.get(`${it.bucket}:${it.path}`);
+        if (!url) return null;
+        return { url, source: it.source, postId: it.postId, createdAt: it.createdAt };
+      })
+      .filter((v): v is UserPhoto => v !== null);
+
+    return { photos };
+  });
+
