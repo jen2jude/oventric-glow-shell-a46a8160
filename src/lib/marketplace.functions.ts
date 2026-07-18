@@ -1133,6 +1133,23 @@ export interface ContactedSellerDTO {
   productStatus: ProductStatus;
 }
 
+/** Fetch a physical seller's contact details (auth-gated via secured RPC). */
+export const getProductContact = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { productId: string }) => ({ productId: String(input?.productId ?? "") }))
+  .handler(async ({ data, context }) => {
+    if (!data.productId) throw new Error("Missing product id");
+    const { data: row, error } = await context.supabase
+      .rpc("get_product_contact", { _product_id: data.productId })
+      .maybeSingle();
+    if (error) throw new Error(error.message);
+    return {
+      sellerPhone: ((row as { seller_phone?: string } | null)?.seller_phone ?? null) as string | null,
+      whatsappNumber: ((row as { whatsapp_number?: string } | null)?.whatsapp_number ?? null) as string | null,
+      location: ((row as { location?: string } | null)?.location ?? null) as string | null,
+    };
+  });
+
 /** Log a physical-product seller contact (Call / WhatsApp click). */
 export const logProductContact = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])

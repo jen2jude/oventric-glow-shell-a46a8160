@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { getProduct, logProductContact, type ProductDTO } from "@/lib/marketplace.functions";
+import { getProduct, logProductContact, getProductContact, type ProductDTO } from "@/lib/marketplace.functions";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -227,11 +227,20 @@ function ProductPage() {
 function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
   const { baseCurrency } = useOnboarding();
   const logContact = useServerFn(logProductContact);
+  const fetchContact = useServerFn(getProductContact);
+  const [contact, setContact] = useState<{ sellerPhone: string | null; whatsappNumber: string | null } | null>(null);
+  useEffect(() => {
+    let cancelled = false;
+    fetchContact({ data: { productId: product.id } })
+      .then((c) => { if (!cancelled) setContact({ sellerPhone: c.sellerPhone, whatsappNumber: c.whatsappNumber }); })
+      .catch(() => { if (!cancelled) setContact({ sellerPhone: product.sellerPhone, whatsappNumber: product.whatsappNumber }); });
+    return () => { cancelled = true; };
+  }, [product.id, fetchContact, product.sellerPhone, product.whatsappNumber]);
   const handleContact = (method: "call" | "whatsapp") => {
     void logContact({ data: { productId: product.id, method, note: note?.trim() || null } }).catch(() => {});
   };
-  const phone = (product.sellerPhone ?? "").replace(/\D/g, "");
-  const wa = (product.whatsappNumber ?? phone).replace(/\D/g, "");
+  const phone = ((contact?.sellerPhone ?? product.sellerPhone) ?? "").replace(/\D/g, "");
+  const wa = ((contact?.whatsappNumber ?? contact?.sellerPhone ?? product.whatsappNumber ?? product.sellerPhone) ?? "").replace(/\D/g, "");
   const dp = productDisplay(product, baseCurrency);
   const priceLine = product.originalAmount && product.originalCurrency
     ? `${product.originalCurrency} ${product.originalAmount}`
