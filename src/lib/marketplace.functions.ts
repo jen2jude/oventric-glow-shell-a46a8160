@@ -89,6 +89,7 @@ function mapProduct(
   r: Record<string, unknown>,
   coverUrl: string | null = null,
   imageUrls: string[] = [],
+  sellerSlug: string | null = null,
 ): ProductDTO {
   const originalCurrency = ((r.original_currency as string) ?? "USD") as OrderCurrency;
   const originalAmount = Number(r.original_amount ?? r.price_usd ?? 0);
