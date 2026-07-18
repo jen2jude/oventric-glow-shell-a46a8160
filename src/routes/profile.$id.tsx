@@ -1455,6 +1455,7 @@ function ProfilePage() {
                   </>
                 );
               })()}
+            </>)}
             </section>
           </div>
         </main>
