@@ -101,8 +101,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
     if (images.length < 1) return toast.error("Add at least 1 product image (first is cover)");
-    const priceLocal = isFree ? 0 : Number(priceInput);
-    if (!isFree && !(priceLocal > 0)) return toast.error("Price must be greater than 0 or mark as free");
+    const mainLocal = isFree ? 0 : Number(priceInput);
+    const discountLocal = isFree ? 0 : (discountInput.trim() ? Number(discountInput) : 0);
+    if (!isFree && !(mainLocal > 0)) return toast.error("Enter a main price greater than 0 or mark as free");
+    if (!isFree && discountLocal > 0 && discountLocal >= mainLocal)
+      return toast.error("Discount price must be lower than the main price");
+    const priceLocal = discountLocal > 0 ? discountLocal : mainLocal;
     if (mode === "file" && !file) return toast.error("Attach a digital file to sell");
     if (mode === "url" && !/^https?:\/\//i.test(externalUrl.trim()))
       return toast.error("Provide a valid https:// delivery URL");
@@ -149,6 +153,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
       const rate = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUSD = isFree ? 0 : (baseCurrency === "USD" ? priceLocal : Number((priceLocal / rate).toFixed(2)));
 
+      const fmtLocal = (n: number) =>
+        new Intl.NumberFormat(undefined, { style: "currency", currency: baseCurrency, maximumFractionDigits: 2 }).format(n);
+      const noteLines: string[] = [];
+      if (discountLocal > 0) noteLines.push(`🏷️ On sale — was ${fmtLocal(mainLocal)}, now ${fmtLocal(discountLocal)}`);
+      const fullDescription = noteLines.length > 0
+        ? `${noteLines.join("\n")}\n\n${description.trim()}`
+        : description.trim();
+
       setProgress("Submitting for review…");
       await persist({
         data: {
@@ -156,7 +168,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
           category,
           subcategory: subcategory || null,
 
-          description: description.trim(),
+          description: fullDescription,
           priceUSD,
           originalCurrency: baseCurrency,
           originalAmount: priceLocal,
