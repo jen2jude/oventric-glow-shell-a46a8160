@@ -76,21 +76,28 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
 
   const { data: posts, error } = await sb
     .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type")
+    .select("id, author_id, text, created_at, media_path, media_type, mentioned_user_ids")
     .order("created_at", { ascending: false })
     .limit(100);
   if (error) {
     console.error("[listPosts] failed", error);
     throw new Error("Failed to load posts");
   }
-  const rows = posts ?? [];
+  const rows = (posts ?? []) as Array<any>;
   if (rows.length === 0) return { posts: [] as FeedPost[] };
 
-  const authorIds = Array.from(new Set(rows.map((r) => r.author_id)));
+  const authorIds = new Set<string>(rows.map((r) => r.author_id));
+  const mentionedByPost = new Map<string, string[]>();
+  rows.forEach((r) => {
+    const ids = Array.isArray(r.mentioned_user_ids) ? (r.mentioned_user_ids as string[]) : [];
+    mentionedByPost.set(r.id, ids);
+    ids.forEach((id) => authorIds.add(id));
+  });
+  const allProfileIds = Array.from(authorIds);
   const postIds = rows.map((r) => r.id);
 
   const [{ data: profiles }, likesRes, { data: commentRows }] = await Promise.all([
-    sb.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", authorIds),
+    sb.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", allProfileIds),
     sb.from("post_likes").select("post_id, user_id, reaction" as any).in("post_id", postIds),
     sb.from("post_comments").select("post_id").in("post_id", postIds),
   ]);
