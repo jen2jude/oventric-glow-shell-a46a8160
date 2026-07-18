@@ -34,6 +34,7 @@ import {
   listMyProducts,
   getOrderWithDownload,
   logProductContact,
+  confirmOrderReceived,
   type PurchaseDTO,
   type ContactedSellerDTO,
   type ProductDTO,
@@ -76,6 +77,7 @@ function DashboardPage() {
   const listingsFn = useServerFn(listMyProducts);
   const orderFn = useServerFn(getOrderWithDownload);
   const logFn = useServerFn(logProductContact);
+  const confirmFn = useServerFn(confirmOrderReceived);
   const overviewFn = useServerFn(getDashboardOverview);
   const bountiesFn = useServerFn(listMyBounties);
   const coursesFn = useServerFn(listMyCourses);
@@ -277,7 +279,7 @@ function DashboardPage() {
         {tab === "courses" && <CoursesPane data={courses} />}
         {tab === "wallet" && <WalletPane data={walletSummary} />}
         {tab === "digital" && (
-          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} />
+          <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} onConfirm={async (orderId) => { try { await confirmFn({ data: { orderId } }); toast.success("Thanks! Seller funds released."); await loadPurchases(); } catch (e) { toast.error((e as Error).message); } }} />
         )}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
@@ -377,10 +379,12 @@ function DigitalList({
   rows,
   downloadingId,
   onDownload,
+  onConfirm,
 }: {
   rows: PurchaseDTO[] | null;
   downloadingId: string | null;
   onDownload: (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => void;
+  onConfirm: (orderId: string) => void;
 }) {
   if (rows === null) {
     return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
@@ -432,6 +436,15 @@ function DigitalList({
                       <ExternalLink className="w-3.5 h-3.5" />
                     )}
                     {r.hasFile ? "Download" : "Open"}
+                  </button>
+                )}
+                {r.status === "paid" && r.escrowStatus === "held" && (
+                  <button
+                    onClick={() => onConfirm(r.orderId)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold"
+                    title="Confirm you've received this product to release the seller's funds"
+                  >
+                    Confirm received
                   </button>
                 )}
                 <Link
