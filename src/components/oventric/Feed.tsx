@@ -246,12 +246,34 @@ export function Feed() {
     }
   }, [listPosts]);
 
-  // Current user id
+  // Current user id + last name
   useEffect(() => {
     (async () => {
       const { data } = await supabase.auth.getUser();
-      if (data.user?.id) setMeId(data.user.id);
+      const uid = data.user?.id;
+      if (!uid) return;
+      setMeId(uid);
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("display_name, username")
+          .eq("user_id", uid)
+          .maybeSingle();
+        const name = (prof?.display_name || prof?.username || "").trim();
+        if (name) {
+          const parts = name.split(/\s+/);
+          setMeLastName(parts.length > 1 ? parts[parts.length - 1] : parts[0]);
+        }
+      } catch {
+        /* ignore */
+      }
     })();
+  }, []);
+
+  // Rotate composer placeholder every 3s
+  useEffect(() => {
+    const t = setInterval(() => setPlaceholderIdx((i) => (i + 1) % 2), 3000);
+    return () => clearInterval(t);
   }, []);
 
   // Open the composer modal when the create panel dispatches a "post" action.
