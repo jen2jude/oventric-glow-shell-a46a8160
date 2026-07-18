@@ -416,30 +416,34 @@ export function PostComposerModal({
             </div>
           )}
 
-          {/* Attachment preview */}
-          {attachment && (
-            <div className="mt-3 relative inline-block max-w-full">
-              {attachment.kind === "image" ? (
-                <img
-                  src={attachment.previewUrl}
-                  alt="Attachment preview"
-                  className="max-h-80 rounded-lg border border-white/10 object-cover"
-                />
-              ) : (
-                <video
-                  src={attachment.previewUrl}
-                  controls
-                  className="max-h-80 rounded-lg border border-white/10"
-                />
-              )}
-              <button
-                type="button"
-                onClick={clearAttachment}
-                aria-label="Remove attachment"
-                className="absolute top-1.5 right-1.5 p-1 rounded-full bg-black/70 hover:bg-black text-white"
-              >
-                <X className="w-3.5 h-3.5" />
-              </button>
+          {/* Attachment previews */}
+          {attachments.length > 0 && (
+            <div className="mt-3 grid grid-cols-3 gap-2">
+              {attachments.map((a, i) => (
+                <div key={a.previewUrl} className="relative aspect-square">
+                  {a.kind === "image" ? (
+                    <img
+                      src={a.previewUrl}
+                      alt={`Attachment ${i + 1}`}
+                      className="w-full h-full rounded-lg border border-white/10 object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={a.previewUrl}
+                      controls
+                      className="w-full h-full rounded-lg border border-white/10 object-cover"
+                    />
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeAttachmentAt(i)}
+                    aria-label="Remove attachment"
+                    className="absolute top-1 right-1 p-1 rounded-full bg-black/70 hover:bg-black text-white"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
             </div>
           )}
 
