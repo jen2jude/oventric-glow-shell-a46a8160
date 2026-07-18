@@ -360,6 +360,7 @@ export function Marketplace() {
               </div>
             </div>
           )}
+        </div>
       )}
     </div>
   );
