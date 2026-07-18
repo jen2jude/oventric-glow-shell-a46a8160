@@ -58,7 +58,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   if (!open) return null;
 
   const reset = () => {
-    setName(""); setDescription(""); setPriceInput(""); setIsFree(false);
+    setName(""); setDescription(""); setPriceInput(""); setDiscountInput(""); setIsFree(false);
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setRequiresManualDelivery(false);
     previews.forEach((p) => URL.revokeObjectURL(p));
