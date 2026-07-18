@@ -1181,6 +1181,45 @@ export function Feed() {
         onClose={() => setComposerOpen(false)}
         onPosted={() => { refreshPosts(); }}
       />
+      {mentionsSheet && (
+        <div
+          className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          onClick={() => setMentionsSheet(null)}
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full max-w-sm bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+          >
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+              <h3 className="text-white font-semibold text-sm">Mentioned in this post</h3>
+              <button
+                type="button"
+                onClick={() => setMentionsSheet(null)}
+                className="text-slate-400 hover:text-white text-sm"
+                aria-label="Close"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-[60vh] overflow-y-auto divide-y divide-white/5">
+              {mentionsSheet.map((m) => (
+                <Link
+                  key={m.user_id}
+                  to="/profile/$id"
+                  params={{ id: m.slug ?? m.user_id }}
+                  onClick={() => setMentionsSheet(null)}
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                >
+                  <span className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
+                    {(m.name || "?").slice(0, 2).toUpperCase()}
+                  </span>
+                  <span className="text-white text-sm truncate">{m.name}</span>
+                </Link>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
