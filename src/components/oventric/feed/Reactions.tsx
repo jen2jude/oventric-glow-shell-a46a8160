@@ -88,19 +88,17 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
   );
 }
 
-/** Persistent RGB-neon badge on bottom-right of an image or video. */
+/** Clean static badge on bottom-right of an image or video. */
 export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const m = REACTION_META[reaction];
   const Icon = m.Icon;
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
-      <div className="relative rgb-neon-bg rounded-full p-[2px]">
-        <div
-          className="rounded-full bg-[#1E1E24] w-10 h-10 flex items-center justify-center"
-          style={{ color: m.color, animation: "reaction-breathe 2.4s ease-in-out infinite" }}
-        >
-          <Icon className="w-5 h-5 fill-current" />
-        </div>
+      <div
+        className="rounded-full bg-[#1E1E24] w-10 h-10 flex items-center justify-center border border-white/10"
+        style={{ color: m.color }}
+      >
+        <Icon className="w-5 h-5 fill-current" />
       </div>
     </div>
   );
