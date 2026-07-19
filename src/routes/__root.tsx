@@ -138,7 +138,9 @@ function RootComponent() {
               <Outlet />
               <StageModals />
               <ProfileSetupModalHost />
+              <ReactivationGate />
             </KycGateProvider>
+
           </OnboardingProvider>
         </AuthGateProvider>
       </ThemeProvider>
