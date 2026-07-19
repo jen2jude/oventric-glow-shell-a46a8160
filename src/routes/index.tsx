@@ -39,6 +39,41 @@ function Index() {
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
   const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
 
+  // Live counters for each mobile-footer section. Each increments as new rows
+  // are inserted on the corresponding table and clears when that section is
+  // active.
+  const feedCount = useSectionLiveCounter({
+    section: "feed",
+    table: "posts",
+    active: active === "Feed",
+    excludeSelf: true,
+  });
+  const marketCount = useSectionLiveCounter({
+    section: "market",
+    table: "products",
+    active: active === "Marketplace",
+    excludeSelf: true,
+  });
+  const academyCount = useSectionLiveCounter({
+    section: "academy",
+    table: "courses",
+    active: active === "Academy",
+    excludeSelf: true,
+  });
+  const bountiesCount = useSectionLiveCounter({
+    section: "bounties",
+    table: "bounties",
+    active: active === "Bounties",
+    excludeSelf: true,
+  });
+  const walletCount = useSectionLiveCounter({
+    section: "wallet",
+    table: "wallet_transactions",
+    active: active === "Wallet",
+    requireAuth: true,
+  });
+
+
   useEffect(() => {
     const onNav = (e: Event) => {
       const detail = (e as CustomEvent<{ section?: string }>).detail;
