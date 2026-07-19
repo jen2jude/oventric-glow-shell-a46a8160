@@ -14,6 +14,8 @@ import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
+
 
 
 export const Route = createFileRoute("/")({
@@ -36,6 +38,41 @@ function Index() {
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
   const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
+
+  // Live counters for each mobile-footer section. Each increments as new rows
+  // are inserted on the corresponding table and clears when that section is
+  // active.
+  const feedCount = useSectionLiveCounter({
+    section: "feed",
+    table: "posts",
+    active: active === "Feed",
+    excludeSelf: true,
+  });
+  const marketCount = useSectionLiveCounter({
+    section: "market",
+    table: "products",
+    active: active === "Marketplace",
+    excludeSelf: true,
+  });
+  const academyCount = useSectionLiveCounter({
+    section: "academy",
+    table: "courses",
+    active: active === "Academy",
+    excludeSelf: true,
+  });
+  const bountiesCount = useSectionLiveCounter({
+    section: "bounties",
+    table: "bounties",
+    active: active === "Bounties",
+    excludeSelf: true,
+  });
+  const walletCount = useSectionLiveCounter({
+    section: "wallet",
+    table: "wallet_transactions",
+    active: active === "Wallet",
+    requireAuth: true,
+  });
+
 
   useEffect(() => {
     const onNav = (e: Event) => {
@@ -73,7 +110,19 @@ function Index() {
             {view}
           </main>
         </div>
-        <MobileNav onCreate={handleCreate} active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active} onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)} />
+        <MobileNav
+          onCreate={handleCreate}
+          active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active}
+          onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)}
+          counts={{
+            Feed: feedCount.count,
+            Market: marketCount.count,
+            Academy: academyCount.count,
+            Bounties: bountiesCount.count,
+            Wallet: walletCount.count,
+          }}
+        />
+
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />

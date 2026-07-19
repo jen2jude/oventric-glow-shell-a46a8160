@@ -16,6 +16,9 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
+import { listIncomingCircleRequests } from "@/lib/circles.functions";
+import { CountBadge } from "@/components/oventric/CountBadge";
+
 
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
@@ -23,9 +26,10 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   const [megaOpen, setMegaOpen] = useState(false);
   const [followReqOpen, setFollowReqOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
-  const unread = unreadCount > 0;
   const unreadMessages = useUnreadMessagesCount();
   const pendingFollow = usePendingFollowRequestsCount();
+  const pendingCircles = usePendingCircleRequestsCount();
+
   const { isAuthenticated, openGate } = useAuthGate();
 
   useEffect(() => {
@@ -128,9 +132,10 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
           >
             <Shield className="w-5 h-5" />
+            <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
           {/* Desktop candy-box menu */}
@@ -149,14 +154,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
           >
             <Bell className="w-5 h-5" />
-            {unread && (
-              <span
-                className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
-                aria-label={`${unreadCount} unread notifications`}
-              >
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
+            <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
           {/* Follow requests */}
@@ -166,14 +164,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
           >
             <UserPlus className="w-5 h-5" />
-            {pendingFollow > 0 && (
-              <span
-                className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
-                aria-label={`${pendingFollow} pending follow requests`}
-              >
-                {pendingFollow > 9 ? "9+" : pendingFollow}
-              </span>
-            )}
+            <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
           {/* Circle join inbox: keep on desktop only so it stays reachable */}
@@ -188,17 +179,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
-            {unreadMessages > 0 ? (
-              <span
-                className="absolute -top-0.5 -right-0.5 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center rgb-pulse-glow"
-                aria-label={`${unreadMessages} unread messages`}
-              >
-                {unreadMessages > 9 ? "9+" : unreadMessages}
-              </span>
-            ) : (
-              <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-emerald-400/40" />
-            )}
+            <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
           </button>
+
 
           {/* Profile */}
           {isAuthenticated ? (
@@ -338,3 +321,49 @@ function usePendingFollowRequestsCount() {
 
   return count;
 }
+
+function usePendingCircleRequestsCount() {
+  const { isAuthenticated } = useAuthGate();
+  const listFn = useServerFn(listIncomingCircleRequests);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated) { setCount(0); return; }
+    let cancelled = false;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
+
+    const load = () => {
+      listFn()
+        .then((rows) => { if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0); })
+        .catch(() => { if (!cancelled) setCount(0); });
+    };
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id;
+      if (!uid || cancelled) return;
+      load();
+      channelSub = supabase
+        .channel(`circle-req-count-${uid}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "circle_requests", filter: `target_id=eq.${uid}` },
+          () => load(),
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "circle_join_requests" },
+          () => load(),
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated, listFn]);
+
+  return count;
+}
+

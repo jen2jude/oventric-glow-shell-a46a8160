@@ -286,21 +286,36 @@ export function NotificationsDrawer({
         <div className="px-4 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5">
           {CHANNELS.map((c) => {
             const active = channel === c.key;
+            const chanCount =
+              c.key === "all"
+                ? items.filter((n) => !n.read_at).length
+                : items.filter((n) => !n.read_at && channelForKind(n.kind) === c.key).length;
             return (
               <button
                 key={c.key}
                 onClick={() => setChannel(c.key)}
-                className={`shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors border ${
+                className={`relative shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors border inline-flex items-center gap-1 ${
                   active
                     ? "bg-white text-black border-white"
                     : "bg-[#121214] text-slate-400 border-white/10 hover:text-white hover:border-white/20"
                 }`}
               >
-                {c.label}
+                <span>{c.label}</span>
+                {chanCount > 0 && (
+                  <span
+                    className={`min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black inline-flex items-center justify-center rgb-pulse-glow border border-emerald-400/60 ${
+                      active ? "bg-black text-white" : "bg-[#0b0b0d] text-white"
+                    }`}
+                    aria-label={`${chanCount} unread`}
+                  >
+                    {chanCount > 99 ? "99+" : chanCount}
+                  </span>
+                )}
               </button>
             );
           })}
         </div>
+
 
         <div className="overflow-y-auto px-4 py-3" style={{ maxHeight: "calc(100vh - 8.5rem - 3.25rem)" }}>
           {!isAuthenticated ? (
