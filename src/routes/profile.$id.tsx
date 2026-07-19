@@ -918,8 +918,8 @@ function ProfilePage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-white text-2xl font-black">{displayName}</h1>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" aria-label={displayTierLabel} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                    <ShieldCheck className="w-4 h-4 text-white" aria-label={displayTierLabel} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
                       {displayTierLabel}
                     </span>
                   </div>
@@ -1010,17 +1010,17 @@ function ProfilePage() {
               <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
                 <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
                   <MobileRepLine
-                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
                     value={`${displayStars.toFixed(1)} / 5`}
                   />
                   <MobileRepLine
-                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    icon={<Target className="w-4 h-4 text-white" />}
                     label="Bounties Solved"
                     value={liveRep ? liveRep.metrics.bountiesSolved : "…"}
                   />
                   <MobileRepLine
-                    icon={<Award className="w-4 h-4 text-purple-400" />}
+                    icon={<Award className="w-4 h-4 text-white" />}
                     label="Product Rating"
                     value={
                       liveRep
@@ -1031,21 +1031,22 @@ function ProfilePage() {
                     }
                   />
                   <MobileRepLine
-                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    icon={<ShoppingBag className="w-4 h-4 text-white" />}
                     label="Listings"
                     value={liveRep ? liveRep.metrics.productsListed : "…"}
                   />
                   <MobileRepLine
-                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    icon={<ShieldCheck className="w-4 h-4 text-white" />}
                     label="Posts (30d)"
                     value={liveRep ? liveRep.metrics.postsLast30d : "…"}
                     last
                   />
+
                 </div>
 
                 <div className="hidden sm:grid sm:grid-cols-5 gap-3">
                   <RepStat
-                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
                     value={
                       <div className="flex items-center gap-1">
@@ -1055,7 +1056,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    icon={<Target className="w-4 h-4 text-white" />}
                     label="Bounties Solved"
                     value={
                       <span className="text-white font-black">
@@ -1064,7 +1065,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<Award className="w-4 h-4 text-purple-400" />}
+                    icon={<Award className="w-4 h-4 text-white" />}
                     label="Product Rating"
                     value={
                       <span className="text-white font-black">
@@ -1077,7 +1078,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    icon={<ShoppingBag className="w-4 h-4 text-white" />}
                     label="Listings"
                     value={
                       <span className="text-white font-black">
@@ -1086,7 +1087,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    icon={<ShieldCheck className="w-4 h-4 text-white" />}
                     label="Posts (30d)"
                     value={
                       <span className="text-white font-black">
