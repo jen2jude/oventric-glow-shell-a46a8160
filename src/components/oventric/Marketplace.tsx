@@ -222,7 +222,7 @@ export function Marketplace() {
   ];
 
   return (
-    <div className="max-w-7xl mx-auto w-full">
+    <div className="max-w-7xl mx-auto w-full marketplace-render-safe">
       <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 flex items-center justify-between gap-3">
         <ModeToggle />
         {mode === "digital" ? (
