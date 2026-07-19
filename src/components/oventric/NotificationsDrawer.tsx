@@ -314,7 +314,7 @@ export function NotificationsDrawer({
             return (
               <button
                 key={c.key}
-                onClick={() => setChannel(c.key)}
+                onClick={() => void handleSelectChannel(c.key)}
                 className={`relative shrink-0 px-3 py-1 rounded-full text-[11px] font-semibold transition-colors border inline-flex items-center gap-1 ${
                   active
                     ? "bg-white text-black border-white"
