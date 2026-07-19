@@ -225,6 +225,42 @@
     animation: none !important;
     box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.6) !important;
   }
+
+  /* Static fallback for the animated RGB gradient surface. Keeps the
+     spectrum look but stops the per-frame 300%-size background-position
+     animation that tears tiles on Mali/Adreno. */
+  .rgb-neon-bg {
+    animation: none !important;
+    background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308) !important;
+    background-size: 100% 100% !important;
+  }
+
+  /* Chase-border animates border-color + box-shadow (inc. inset) every
+     frame — classic low-end Android rasterization hazard. Neutralize. */
+  .neon-chase-border {
+    animation: none !important;
+    box-shadow: none !important;
+    border-color: rgba(16, 185, 129, 0.55) !important;
+  }
+  .neon-chase-bg {
+    animation: none !important;
+    box-shadow: none !important;
+    background: linear-gradient(135deg, #10b981, #22d3ee) !important;
+  }
+  .neon-pulse {
+    animation: none !important;
+    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.55) !important;
+  }
+
+  /* Big-radius filter:blur() animations (e.g. auth-flash) scramble tiles
+     on some Android GPUs. Force the filter off site-wide on mobile;
+     visual flourish only, no functional loss. */
+  .animate-\[auth-flash_1\.2s_ease-out\],
+  [class*="auth-flash"] {
+    filter: none !important;
+    -webkit-filter: none !important;
+    animation: none !important;
+  }
 }
 
 /* Dashboard GPU-safety on mobile only. Chromium-Android raster corruption
