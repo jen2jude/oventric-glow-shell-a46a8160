@@ -814,6 +814,13 @@ html.low-gpu {
   border-radius: inherit;
 }
 
+/* Thinner, more curved static RGB border for promoted marketplace cards. */
+.rgb-promo-border {
+  background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308);
+  padding: 1px;
+  border-radius: 16px;
+}
+
 .rgb-pulse-glow {
   animation: rgb-glow-pulse 3s infinite;
 }
