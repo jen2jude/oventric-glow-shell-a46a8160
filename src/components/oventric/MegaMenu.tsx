@@ -19,17 +19,21 @@ const INVITE_AMOUNTS: Record<string, { amount: number; symbol: string; label: st
   USD: { amount: 2, symbol: "$", label: "$2" },
 };
 
+import { DeleteAccountModal } from "@/components/oventric/DeleteAccountModal";
+
 interface Props { open: boolean; onClose: () => void; }
 
 export function MegaMenu({ open, onClose }: Props) {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [dangerExpanded, setDangerExpanded] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userSlug, setUserSlug] = useState<string>("me");
+
 
   useEffect(() => {
     if (!open) return;
