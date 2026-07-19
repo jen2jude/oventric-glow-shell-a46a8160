@@ -833,7 +833,51 @@ html.low-gpu {
   .megamenu-mobile-danger {
     color: #fecaca !important;
   }
+
+  /* --- Extra profile-top tile-cache hardening for Mali-G52 class GPUs ---
+     Root cause of remaining scramble: Chrome Android caches raster tiles
+     for the top strip; pull-to-refresh + button state changes (e.g. Copy
+     Link → Copied!) invalidate tiles that never fully repaint. Fix by
+     killing overscroll bounce, overflow anchoring, and forcing the top
+     action row + cover banner to repaint their entire background on any
+     state change. */
+  html, body {
+    overscroll-behavior: none !important;
+    overflow-anchor: none !important;
+    -webkit-overflow-scrolling: auto !important;
+  }
+
+  .profile-render-safe {
+    overflow-anchor: none !important;
+  }
+
+  /* Freeze hover/focus/active states on the top action row so no repaint
+     is triggered when the user taps Copy Link / Follow Requests. */
+  .profile-render-safe button,
+  .profile-render-safe button:hover,
+  .profile-render-safe button:focus,
+  .profile-render-safe button:active,
+  .profile-render-safe a,
+  .profile-render-safe a:hover,
+  .profile-render-safe a:focus,
+  .profile-render-safe a:active {
+    background-color: #1a1a1e !important;
+    border-color: rgba(255, 255, 255, 0.12) !important;
+    color: #e5e7eb !important;
+    outline: none !important;
+  }
+
+  /* Force each direct child of the profile main region into its own
+     plain paint context with a solid opaque background so a partial
+     tile invalidation cannot bleed neighbouring pixels. */
+  .profile-render-safe main > *,
+  .profile-render-safe .profile-cover-safe,
+  .profile-render-safe [data-testid="profile-banner"] {
+    background-color: #121214 !important;
+    opacity: 1 !important;
+  }
 }
+
 
 /* Wallet earnings mobile list — dead-flat, Chrome Android tile-cache safe */
 .wallet-earnings-mobile {
