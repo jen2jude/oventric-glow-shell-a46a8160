@@ -83,6 +83,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
 
       <div className="flex items-center gap-2 ml-auto shrink-0">
         <button
+          onClick={() => setMegaOpen(true)}
+          aria-label="Open menu"
+          className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <button
           onClick={() => setMobileSearchOpen(true)}
           aria-label="Open search"
           className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
@@ -95,6 +102,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
           className="md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
         >
           <Shield className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setMegaOpen(true)}
+          aria-label="Open menu"
+          className="hidden sm:inline-flex p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+        >
+          <Grip className="w-5 h-5" />
         </button>
         <button
           onClick={() => setNotifOpen(true)}
