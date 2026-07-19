@@ -134,7 +134,7 @@ export function MegaMenu({ open, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Menu"
-      className="fixed inset-0 z-[2147483000] bg-[#0b0b0d] text-slate-200 overflow-y-auto overscroll-contain"
+      className="megamenu-render-safe fixed inset-0 z-[2147483000] bg-[#0b0b0d] text-slate-200 overflow-y-auto overscroll-contain"
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/10">
