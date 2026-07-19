@@ -430,7 +430,7 @@ function ProductCard({
   const sizeCls = full ? "w-full" : "w-[220px] sm:w-[260px] snap-start";
   if (p.promoted) {
     return (
-      <div className={`${sizeCls} rounded-xl rgb-static-border-wrapper`}>
+      <div className={`${sizeCls} rounded-2xl rgb-promo-border`}>
         {cardInner}
       </div>
     );
