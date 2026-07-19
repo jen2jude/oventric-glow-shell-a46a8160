@@ -374,67 +374,110 @@
     border-color: var(--color-border);
   }
   html, body {
-    background-color: #121214;
-    color: oklch(0.9 0.01 260);
+    background-color: var(--app-bg);
+    color: var(--app-fg);
   }
 }
 
-html, body {
-  overflow-x: hidden;
-  /* Prevent horizontal overscroll/rubber-band that can reveal off-screen drawers on mobile/tablet. */
-  overscroll-behavior-x: none;
-  /* Constrain touch panning to the vertical axis (browser handles pinch-zoom). */
-  touch-action: pan-y;
-  max-width: 100vw;
+/* ============ Semantic surface tokens ============
+   Historically the app hardcoded #121214 / #141418 / #1E1E24 across
+   components. These variables let both themes drive those surfaces from
+   one place so the light mode is a real re-theme, not an invert hack. */
+:root {
+  --app-bg: #121214;
+  --app-fg: oklch(0.9 0.01 260);
+  --surface-1: #141418;   /* was hardcoded on cards, rows, wallet lists */
+  --surface-2: #1E1E24;   /* was hardcoded on secondary panels */
+  --surface-3: #0f0f12;   /* deepest inset (charts, modals) */
+  --hairline: rgba(255, 255, 255, 0.08);
+  --hairline-strong: rgba(255, 255, 255, 0.14);
+  --muted-ink: #cbd5e1;
+  --strong-ink: #ffffff;
 }
 
-#root {
-  overflow-x: hidden;
-  overscroll-behavior-x: none;
-  max-width: 100vw;
+html.light {
+  color-scheme: light;
+  /* Retint the shadcn token layer for light. */
+  --background: oklch(0.985 0.003 260);
+  --foreground: oklch(0.18 0.01 260);
+  --card: oklch(1 0 0);
+  --card-foreground: oklch(0.18 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 260);
+  --primary: oklch(0.55 0.16 160);
+  --primary-foreground: oklch(0.99 0.005 260);
+  --secondary: oklch(0.94 0.005 260);
+  --secondary-foreground: oklch(0.2 0.01 260);
+  --muted: oklch(0.95 0.005 260);
+  --muted-foreground: oklch(0.45 0.01 260);
+  --accent: oklch(0.94 0.005 260);
+  --accent-foreground: oklch(0.2 0.01 260);
+  --destructive: oklch(0.58 0.22 25);
+  --destructive-foreground: oklch(0.99 0.005 260);
+  --border: oklch(0.18 0.01 260 / 12%);
+  --input: oklch(0.18 0.01 260 / 14%);
+  --ring: oklch(0.55 0.16 160);
+
+  /* Retint the app surfaces. */
+  --app-bg: #f6f6f7;
+  --app-fg: #0f172a;
+  --surface-1: #ffffff;
+  --surface-2: #f2f3f5;
+  --surface-3: #ebecef;
+  --hairline: rgba(15, 23, 42, 0.10);
+  --hairline-strong: rgba(15, 23, 42, 0.16);
+  --muted-ink: #475569;
+  --strong-ink: #0f172a;
 }
 
-/* Blog editor + article typography */
-.prose-editor h1 { font-size: 1.875rem; font-weight: 800; color: #fff; margin: 1rem 0 0.5rem; }
-.prose-editor h2 { font-size: 1.5rem; font-weight: 800; color: #fff; margin: 1rem 0 0.5rem; }
-.prose-editor h3 { font-size: 1.25rem; font-weight: 700; color: #fff; margin: 0.75rem 0 0.5rem; }
-.prose-editor p { margin: 0.5rem 0; }
-.prose-editor ul { list-style: disc; padding-left: 1.5rem; margin: 0.5rem 0; }
-.prose-editor ol { list-style: decimal; padding-left: 1.5rem; margin: 0.5rem 0; }
-.prose-editor blockquote { border-left: 3px solid rgba(16,185,129,0.6); padding-left: 1rem; color: #94a3b8; font-style: italic; margin: 1rem 0; }
-.prose-editor pre { background: rgba(0,0,0,0.4); border-radius: 8px; padding: 0.75rem 1rem; font-family: ui-monospace, monospace; font-size: 0.85rem; margin: 0.75rem 0; overflow-x: auto; }
-.prose-editor a { color: #34d399; text-decoration: underline; }
-.prose-editor img { max-width: 100%; border-radius: 8px; margin: 0.75rem 0; }
-.prose-editor:empty::before { content: "Start writing your story…"; color: rgba(148, 163, 184, 0.5); pointer-events: none; }
-.prose-editor:focus:empty::before { color: rgba(148, 163, 184, 0.35); }
-
-.blog-article h1 { font-size: 2rem; font-weight: 900; color: #fff; margin: 1.5rem 0 0.75rem; }
-.blog-article h2 { font-size: 1.625rem; font-weight: 800; color: #fff; margin: 1.5rem 0 0.75rem; }
-.blog-article h3 { font-size: 1.25rem; font-weight: 700; color: #fff; margin: 1.25rem 0 0.5rem; }
-.blog-article p { margin: 0.75rem 0; line-height: 1.75; }
-.blog-article ul { list-style: disc; padding-left: 1.5rem; margin: 0.75rem 0; }
-.blog-article ol { list-style: decimal; padding-left: 1.5rem; margin: 0.75rem 0; }
-.blog-article blockquote { border-left: 3px solid rgba(16,185,129,0.6); padding-left: 1rem; color: #cbd5e1; font-style: italic; margin: 1.25rem 0; }
-.blog-article pre { background: rgba(0,0,0,0.5); border-radius: 8px; padding: 1rem; font-family: ui-monospace, monospace; font-size: 0.9rem; margin: 1rem 0; overflow-x: auto; color: #e2e8f0; }
-.blog-article a { color: #34d399; text-decoration: underline; }
-.blog-article img { max-width: 100%; border-radius: 12px; margin: 1rem 0; }
-.blog-article strong { color: #fff; }
-
-/* ============ Light mode (progressive) ============
-   The Oventric UI uses many hardcoded dark surfaces
-   (#121214, #1E1E24, slate-*, white/10). A full re-theme is a
-   progressive effort — for now we use a scoped, image-safe invert
-   trick so the toggle is functional. Icons and text flip; media stays
-   correct via the un-invert rule below. */
-html.light body {
-  filter: invert(0.92) hue-rotate(180deg);
-  background: #f6f6f7;
+/* Remap the specific hardcoded hex surfaces used across older components,
+   so we don't have to touch every file to complete the re-theme. */
+html.light [style*="#121214"],
+html.light [style*="#141418"],
+html.light [style*="#1E1E24"],
+html.light [style*="#1e1e24"] {
+  background-color: var(--surface-1) !important;
+  color: var(--strong-ink);
 }
-html.light img,
-html.light video,
-html.light canvas,
-html.light [data-no-invert],
-html.light .rgb-neon-bg,
-html.light .rgb-pulse-glow {
-  filter: invert(1) hue-rotate(180deg);
+
+html.light .wallet-earnings-mobile,
+html.light .wallet-earnings-row,
+html.light .dashboard-overview-mobile-safe {
+  background-color: var(--surface-1) !important;
+  color: var(--strong-ink) !important;
+  border-color: var(--hairline) !important;
 }
+html.light .wallet-earnings-row + .wallet-earnings-row,
+html.light .dashboard-overview-row + .dashboard-overview-row {
+  border-top-color: var(--hairline) !important;
+}
+html.light .wallet-earnings-label { color: var(--muted-ink); }
+html.light .wallet-earnings-value { color: var(--strong-ink); }
+
+/* Blog + editor prose: flip whites and dark surfaces to light-mode ink. */
+html.light .prose-editor h1,
+html.light .prose-editor h2,
+html.light .prose-editor h3,
+html.light .blog-article h1,
+html.light .blog-article h2,
+html.light .blog-article h3,
+html.light .blog-article strong { color: var(--strong-ink); }
+html.light .prose-editor pre,
+html.light .blog-article pre {
+  background: var(--surface-2);
+  color: var(--strong-ink);
+}
+html.light .prose-editor a,
+html.light .blog-article a { color: oklch(0.5 0.16 160); }
+html.light .blog-article blockquote { color: var(--muted-ink); }
+
+/* Neutralize semi-transparent white overlays that assume a dark canvas. */
+html.light [class*="bg-white/"],
+html.light [class*="bg-white\\/"] {
+  background-color: rgba(15, 23, 42, 0.04) !important;
+}
+html.light [class*="border-white/"],
+html.light [class*="border-white\\/"] {
+  border-color: var(--hairline) !important;
+}
+
