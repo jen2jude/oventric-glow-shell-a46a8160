@@ -32,6 +32,12 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
     return () => { document.body.style.overflow = prev; };
   }, [mobileSearchOpen]);
 
+  useEffect(() => {
+    const handler = () => onOpenMessages?.();
+    window.addEventListener("oventric:open-messages", handler);
+    return () => window.removeEventListener("oventric:open-messages", handler);
+  }, [onOpenMessages]);
+
   return (
     <header className={`sticky top-0 z-40 h-16 w-full bg-[#121214] ${safeMobile ? "md:bg-[#121214]/90 md:backdrop-blur-md" : "bg-[#121214]/90 backdrop-blur-md"} border-b border-white/10 flex items-center gap-3 px-4 md:px-6`}>
       {onMenuClick && (
