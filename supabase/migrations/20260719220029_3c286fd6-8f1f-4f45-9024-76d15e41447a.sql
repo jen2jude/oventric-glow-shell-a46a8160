@@ -1,0 +1,1 @@
+GRANT EXECUTE ON FUNCTION public.is_circle_member(uuid, uuid) TO anon;
