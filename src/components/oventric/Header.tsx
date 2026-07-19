@@ -163,6 +163,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
       />
+      <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
 
       {mobileSearchOpen && (
         <div
