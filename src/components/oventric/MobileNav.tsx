@@ -45,7 +45,7 @@ export function MobileNav({
   };
 
   return (
-    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 h-16 bg-[#1E1E24] border-t border-white/10 flex items-center px-2">
+    <nav className="md:hidden fixed bottom-0 inset-x-0 z-30 h-16 max-w-full overflow-hidden bg-[#1E1E24] border-t border-white/10 flex items-center px-2">
       {left.map(Item)}
       <button
         onClick={onCreate}

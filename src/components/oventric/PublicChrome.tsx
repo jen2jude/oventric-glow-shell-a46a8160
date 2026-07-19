@@ -30,9 +30,9 @@ export function PublicChrome({ children, active = "" }: { children: ReactNode; a
   const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
 
   return (
-    <div className="relative min-h-screen bg-[#121214] text-slate-200 flex flex-col">
+    <div className="relative min-h-screen w-full max-w-full overflow-x-hidden bg-[#121214] text-slate-200 flex flex-col">
       <Header onOpenMessages={() => setMessagesOpen(true)} />
-      <main className="flex-1 min-w-0 pb-20 md:pb-0">{children}</main>
+      <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">{children}</main>
       <MobileNav onCreate={handleCreate} active={active} onSelect={goSection} />
       <MessagesDrawer open={messagesOpen} onClose={() => setMessagesOpen(false)} />
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
