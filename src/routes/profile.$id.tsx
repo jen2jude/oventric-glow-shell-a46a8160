@@ -216,11 +216,10 @@ function ProfilePage() {
       .catch(() => {});
   }, [fetchSocialCounts, id]);
 
-  // ------- Avatar & cover image upload (own profile only) -------
+  // ------- Avatar upload (own profile only) -------
   const updateProfileFn = useServerFn(updateMyProfile);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const coverInputRef = useRef<HTMLInputElement | null>(null);
-  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+  const [uploading, setUploading] = useState<"avatar" | null>(null);
   const reloadRealProfile = useCallback(async () => {
     try {
       const p = await fetchRealProfile({ data: { idOrSlug: id } });
@@ -230,7 +229,7 @@ function ProfilePage() {
     }
   }, [fetchRealProfile, id]);
   const handleImagePicked = useCallback(
-    async (kind: "avatar" | "cover", file: File | null | undefined) => {
+    async (kind: "avatar", file: File | null | undefined) => {
       if (!file || !meId) return;
       if (!file.type.startsWith("image/")) {
         alert("Please choose an image file.");
@@ -240,7 +239,7 @@ function ProfilePage() {
         alert("Image is too large (max 8MB).");
         return;
       }
-      const bucket = kind === "avatar" ? "avatars" : "profile-covers";
+      const bucket = "avatars";
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 6) || "jpg";
       const path = `${meId}/${crypto.randomUUID()}.${ext}`;
       setUploading(kind);
@@ -251,9 +250,7 @@ function ProfilePage() {
           contentType: file.type,
         });
         if (upErr) throw upErr;
-        await updateProfileFn({
-          data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
-        });
+        await updateProfileFn({ data: { avatarPath: path } });
         await reloadRealProfile();
         try {
           window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId: meId } }));
@@ -269,6 +266,7 @@ function ProfilePage() {
     },
     [meId, updateProfileFn, reloadRealProfile],
   );
+
 
   // Cross-component sync: whenever profile is updated elsewhere (Settings modal,
   // KYC edit, avatar change in Header, etc.), refetch so this page reflects it.
@@ -829,19 +827,8 @@ function ProfilePage() {
                     if (e.target) e.target.value = "";
                   }}
                 />
-                <input
-                  ref={coverInputRef}
-                  type="file"
-                  accept="image/*"
-                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none", overflow: "hidden" }}
-                  aria-hidden="true"
-                  tabIndex={-1}
-                  onChange={(e) => {
-                    const f = e.target.files?.[0];
-                    handleImagePicked("cover", f);
-                    if (e.target) e.target.value = "";
-                  }}
-                />
+
+
 
               </>
             )}
@@ -880,28 +867,8 @@ function ProfilePage() {
                 </div>
               </div>
 
-              <div className="profile-lowgpu-cover mb-3 h-28 border-y border-white/10 bg-[#1E1E24]">
-                {realProfile?.coverUrl ? (
-                  <img
-                    src={realProfile.coverUrl}
-                    alt={`${displayName} cover`}
-                    loading="eager"
-                    decoding="sync"
-                    className="block h-full w-full object-cover"
-                  />
-                ) : null}
-                {isOwnProfile && (
-                  <button
-                    type="button"
-                    onClick={() => coverInputRef.current?.click()}
-                    disabled={uploading === "cover"}
-                    aria-label="Change cover image"
-                    className="absolute top-2 right-2 inline-flex items-center justify-center w-9 h-9 rounded-md bg-[#121214] border border-white/20 text-white"
-                  >
-                    {uploading === "cover" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
-                  </button>
-                )}
-              </div>
+              {/* Cover image removed */}
+
 
               <section className="profile-lowgpu-card border border-white/10 bg-[#1E1E24] p-4">
                 <div className="flex items-start gap-3">
@@ -959,37 +926,8 @@ function ProfilePage() {
               </section>
             </div>
 
-            {/* Cover banner — keep uploaded covers, but render them as a plain
-                image layer with rounded corners instead of clipping a complex
-                composited gradient container on mobile. */}
-            <div className="profile-standard-cover profile-cover-safe relative mb-4 h-32 sm:h-48 rounded-xl border border-white/10 bg-[#1E1E24] sm:bg-[#18181d]">
-              {realProfile?.coverUrl ? (
-                <ResponsiveImage
-                  src={realProfile.coverUrl}
-                  alt={`${displayName} cover`}
-                  sizes="(min-width: 768px) 768px, 100vw"
-                  className="block h-full w-full rounded-[11px] object-cover"
-                />
-              ) : null}
-              {isOwnProfile && (
-                <button
-                  type="button"
-                  onClick={() => coverInputRef.current?.click()}
-                  disabled={uploading === "cover"}
-                  aria-label="Change cover image"
-                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#121214] hover:bg-[#18181d] border border-white/20 text-white text-xs font-semibold"
-                >
-                  {uploading === "cover" ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Camera className="w-3.5 h-3.5" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {uploading === "cover" ? "Uploading…" : realProfile?.coverUrl ? "Change cover" : "Add cover"}
-                  </span>
-                </button>
-              )}
-            </div>
+            {/* Cover image removed */}
+
 
             <section
               data-testid="profile-banner"
