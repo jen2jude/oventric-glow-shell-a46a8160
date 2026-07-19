@@ -359,6 +359,7 @@ html.low-gpu {
   .megamenu-render-safe,
   .megamenu-render-safe * {
     animation: none !important;
+    transition: none !important;
     filter: none !important;
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
@@ -389,6 +390,167 @@ html.low-gpu {
     background-color: #0b0b0d !important;
     color: #e5e7eb !important;
     opacity: 1 !important;
+  }
+
+  .megamenu-lowgpu,
+  .megamenu-lowgpu * {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-image: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    contain: none !important;
+    isolation: auto !important;
+    will-change: auto !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+  }
+
+  .megamenu-lowgpu {
+    display: block !important;
+    min-height: 100dvh;
+    background-color: #0b0b0d !important;
+  }
+
+  .megamenu-lowgpu-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background-color: #0b0b0d !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .megamenu-lowgpu-close,
+  .megamenu-lowgpu-icon-button {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    background-color: #1e1e24 !important;
+    color: #ffffff;
+  }
+
+  .megamenu-lowgpu-body {
+    width: 100%;
+    max-width: 672px;
+    margin: 0 auto;
+    padding: 16px 14px 64px;
+  }
+
+  .megamenu-lowgpu-card,
+  .megamenu-lowgpu-tile,
+  .megamenu-lowgpu-invite,
+  .megamenu-lowgpu-signout {
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 16px;
+    color: #ffffff;
+  }
+
+  .megamenu-lowgpu-profile,
+  .megamenu-lowgpu-invite,
+  .megamenu-lowgpu-row,
+  .megamenu-lowgpu-signout {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: 100%;
+    min-height: 56px;
+    padding: 12px;
+  }
+
+  .megamenu-lowgpu-invite {
+    margin-top: 12px;
+    background-color: #123126 !important;
+    border-color: rgba(16, 185, 129, 0.35);
+  }
+
+  .megamenu-lowgpu-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 8px;
+    margin-top: 12px;
+  }
+
+  .megamenu-lowgpu-tile {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 64px;
+    padding: 12px;
+    text-align: left;
+  }
+
+  .megamenu-lowgpu-icon,
+  .megamenu-lowgpu-avatar {
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    flex: 0 0 40px;
+    border: 1px solid rgba(16, 185, 129, 0.28);
+    border-radius: 999px;
+    background-color: #1e1e24 !important;
+    color: #6ee7b7;
+    font-size: 14px;
+    font-weight: 900;
+    overflow: hidden;
+  }
+
+  .megamenu-lowgpu-card + .megamenu-lowgpu-card,
+  .megamenu-lowgpu-grid + .megamenu-lowgpu-card,
+  .megamenu-lowgpu-danger,
+  .megamenu-lowgpu-signout {
+    margin-top: 12px;
+  }
+
+  .megamenu-lowgpu-row {
+    border: 0;
+    background-color: #141418 !important;
+    text-align: left;
+  }
+
+  .megamenu-lowgpu-sublist {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+    background-color: #101014 !important;
+  }
+
+  .megamenu-lowgpu-sublist button {
+    background-color: #101014 !important;
+    border-radius: 0 !important;
+    color: #dbe3ee !important;
+  }
+
+  .megamenu-lowgpu-danger {
+    background-color: #1f1111 !important;
+    border-color: rgba(239, 68, 68, 0.34) !important;
+  }
+
+  .megamenu-lowgpu-signout {
+    justify-content: center;
+    min-height: 44px;
+    color: #cbd5e1;
+    font-size: 14px;
+    font-weight: 700;
   }
 
   .megamenu-mobile-plain,
