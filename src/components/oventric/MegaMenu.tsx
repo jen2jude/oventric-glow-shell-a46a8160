@@ -32,6 +32,7 @@ export function MegaMenu({ open, onClose }: Props) {
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
+  const { mode: gpuMode, active: gpuActive, setMode: setGpuMode } = useGpuSafeMode();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userSlug, setUserSlug] = useState<string>("me");
