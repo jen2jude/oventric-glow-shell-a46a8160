@@ -147,6 +147,8 @@ export function Feed() {
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
+  const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
+  const [meInitials, setMeInitials] = useState<string>("Me");
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
