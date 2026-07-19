@@ -779,10 +779,8 @@ export function Feed() {
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
           className="w-full text-left bg-[#1E1E24] border border-white/10 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
         >
-          <span className="rgb-neon-bg w-9 h-9 rounded-full p-[2px] flex items-center justify-center shrink-0">
-            <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center text-white text-sm font-semibold">
-              +
-            </span>
+          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-emerald-400 to-emerald-600 text-black font-bold text-sm flex items-center justify-center">
+            <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} className="w-full h-full flex items-center justify-center" />
           </span>
           <span className="flex-1 text-sm text-slate-400 truncate">
             {placeholderIdx === 0
