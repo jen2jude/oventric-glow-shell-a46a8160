@@ -255,9 +255,15 @@ export function MegaMenu({ open, onClose }: Props) {
           </button>
         )}
       </div>
+      <DeleteAccountModal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={() => { setDeleteOpen(false); onClose(); navigate({ to: "/" }); }}
+      />
     </div>
   );
 }
+
 
 function SubItem({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; onClick: () => void }) {
   return (
