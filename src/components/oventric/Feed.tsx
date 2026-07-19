@@ -259,13 +259,29 @@ export function Feed() {
       try {
         const { data: prof } = await supabase
           .from("profiles")
-          .select("display_name, username")
+          .select("display_name, username, avatar_path")
           .eq("user_id", uid)
           .maybeSingle();
         const name = (prof?.display_name || prof?.username || "").trim();
         if (name) {
           const parts = name.split(/\s+/);
           setMeLastName(parts.length > 1 ? parts[parts.length - 1] : parts[0]);
+          setMeInitials(
+            parts
+              .slice(0, 2)
+              .map((p) => p[0]?.toUpperCase() ?? "")
+              .join("") || "Me",
+          );
+        }
+        if (prof?.avatar_path) {
+          try {
+            const { data: signed } = await supabase.storage
+              .from("avatars")
+              .createSignedUrl(prof.avatar_path, 60 * 60 * 24 * 7);
+            if (signed?.signedUrl) setMeAvatarUrl(signed.signedUrl);
+          } catch {
+            /* ignore */
+          }
         }
       } catch {
         /* ignore */
