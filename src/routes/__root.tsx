@@ -139,7 +139,7 @@ function RootShell({ children }: { children: ReactNode }) {
     if(gl){
       var ext=gl.getExtension('WEBGL_debug_renderer_info');
       var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):'';
-      if(/Mali-(4|T|G[35]1|G52)|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
+      if(/Mali-(4|T|G(31|51|52|57)(\\s+MC\\d+)?)|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
     } else { weakGpu=true; }
   }catch(e){}
   if(reduce){d.classList.add('low-gpu');return;}
