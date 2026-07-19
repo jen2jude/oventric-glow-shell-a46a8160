@@ -380,6 +380,177 @@
   .megamenu-render-safe .animate-spin {
     animation: spin 1s linear infinite !important;
   }
+
+  /* Infinix Note 11i / low-end Android fallback for the hamburger menu.
+     Render a separate mobile-only menu with plain text rows only: no icons,
+     avatar images, gradients, shadows, opacity layers, sticky blur, or motion. */
+  .megamenu-render-safe {
+    background-color: #0b0b0d !important;
+    color: #e5e7eb !important;
+    opacity: 1 !important;
+  }
+
+  .megamenu-mobile-plain,
+  .megamenu-mobile-plain * {
+    animation: none !important;
+    transition: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    background-image: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+    contain: none !important;
+    isolation: auto !important;
+    will-change: auto !important;
+  }
+
+  .megamenu-mobile-plain {
+    display: block !important;
+    min-height: 100dvh;
+    padding: 0 0 max(env(safe-area-inset-bottom), 16px);
+    background-color: #0b0b0d !important;
+  }
+
+  .megamenu-mobile-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    padding: 0 16px;
+    background-color: #0b0b0d !important;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    color: #ffffff;
+    font-size: 15px;
+    font-weight: 800;
+  }
+
+  .megamenu-mobile-close {
+    width: 42px;
+    height: 42px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    background-color: #141418 !important;
+    color: #ffffff;
+    font-size: 28px;
+    line-height: 1;
+    border-radius: 8px;
+  }
+
+  .megamenu-mobile-section {
+    margin: 12px 12px 0;
+    background-color: #141418 !important;
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 0;
+    overflow: visible;
+  }
+
+  .megamenu-mobile-profile,
+  .megamenu-mobile-row,
+  .megamenu-mobile-sublist button {
+    display: flex;
+    align-items: center;
+    width: 100%;
+    min-height: 48px;
+    padding: 12px 14px;
+    background-color: #141418 !important;
+    border: 0;
+    color: #ffffff;
+    text-align: left;
+  }
+
+  .megamenu-mobile-row + .megamenu-mobile-row,
+  .megamenu-mobile-sublist,
+  .megamenu-mobile-sublist button + button {
+    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .megamenu-mobile-profile {
+    gap: 12px;
+  }
+
+  .megamenu-mobile-avatar {
+    display: grid;
+    place-items: center;
+    width: 42px;
+    height: 42px;
+    flex: 0 0 42px;
+    border-radius: 999px;
+    background-color: #1e1e24 !important;
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: #6ee7b7;
+    font-size: 15px;
+    font-weight: 900;
+  }
+
+  .megamenu-mobile-profile-text {
+    display: block;
+    min-width: 0;
+  }
+
+  .megamenu-mobile-profile-text span,
+  .megamenu-mobile-row span {
+    display: block;
+    color: #ffffff;
+    font-size: 14px;
+    font-weight: 700;
+    line-height: 1.25;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .megamenu-mobile-profile-text small {
+    display: block;
+    margin-top: 3px;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 600;
+  }
+
+  .megamenu-mobile-row {
+    justify-content: space-between;
+    gap: 12px;
+  }
+
+  .megamenu-mobile-row strong {
+    flex: 0 0 auto;
+    color: #94a3b8;
+    font-size: 12px;
+    font-weight: 700;
+  }
+
+  .megamenu-mobile-sublist {
+    background-color: #101014 !important;
+  }
+
+  .megamenu-mobile-sublist button {
+    background-color: #101014 !important;
+    color: #cbd5e1;
+    font-size: 13px;
+    font-weight: 650;
+  }
+
+  .megamenu-mobile-sublist p {
+    margin: 0;
+    padding: 12px 14px;
+    color: #fecaca;
+    font-size: 12px;
+    line-height: 1.45;
+    background-color: #101014 !important;
+  }
+
+  .megamenu-mobile-danger span,
+  .megamenu-mobile-danger strong,
+  .megamenu-mobile-danger {
+    color: #fecaca !important;
+  }
 }
 
 /* Wallet earnings mobile list — dead-flat, Chrome Android tile-cache safe */

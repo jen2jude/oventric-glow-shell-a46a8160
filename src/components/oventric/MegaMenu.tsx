@@ -129,6 +129,8 @@ export function MegaMenu({ open, onClose }: Props) {
     navigate({ to: "/" });
   };
 
+  const userInitial = (displayName[0] ?? "?").toUpperCase();
+
   const content = (
     <div
       role="dialog"
@@ -137,14 +139,106 @@ export function MegaMenu({ open, onClose }: Props) {
       className="megamenu-render-safe fixed inset-0 z-[2147483000] bg-[#0b0b0d] text-slate-200 overflow-y-auto overscroll-contain"
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
-      <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/10">
-        <span className="text-sm font-bold text-white">Menu</span>
-        <button onClick={onClose} aria-label="Close menu" className="p-2 rounded-lg hover:bg-white/5">
-          <X className="w-5 h-5" />
-        </button>
+      <div className="megamenu-mobile-plain md:hidden">
+        <div className="megamenu-mobile-bar">
+          <span>Menu</span>
+          <button onClick={onClose} aria-label="Close menu" className="megamenu-mobile-close">×</button>
+        </div>
+
+        <div className="megamenu-mobile-section">
+          <button
+            onClick={() => {
+              if (userSlug && userSlug !== "me") {
+                onClose();
+                navigate({ to: "/profile/$id", params: { id: userSlug } });
+              } else {
+                go("/dashboard");
+              }
+            }}
+            className="megamenu-mobile-profile"
+          >
+            <span className="megamenu-mobile-avatar">{userInitial}</span>
+            <span className="megamenu-mobile-profile-text">
+              <span>{isAuthenticated ? displayName : "Guest"}</span>
+              <small>{isAuthenticated ? "View your profile" : "Sign in to unlock"}</small>
+            </span>
+          </button>
+
+          <button onClick={toggle} className="megamenu-mobile-row">
+            <span>Theme</span>
+            <strong>{theme === "dark" ? "Dark" : "Light"}</strong>
+          </button>
+
+          <button onClick={doInvite} className="megamenu-mobile-row">
+            <span>Invite friends</span>
+            <strong>{invite.label}</strong>
+          </button>
+        </div>
+
+        <div className="megamenu-mobile-section">
+          {grid.map((g) => (
+            <button key={g.label} onClick={g.onClick} className="megamenu-mobile-row">
+              <span>{g.label}</span>
+              <strong>Open</strong>
+            </button>
+          ))}
+        </div>
+
+        <div className="megamenu-mobile-section">
+          <button
+            onClick={() => setSettingsExpanded((v) => !v)}
+            className="megamenu-mobile-row"
+            aria-expanded={settingsExpanded}
+          >
+            <span>Settings &amp; Privacy</span>
+            <strong>{settingsExpanded ? "Hide" : "Show"}</strong>
+          </button>
+          {settingsExpanded && (
+            <div className="megamenu-mobile-sublist">
+              <button onClick={() => go("/dashboard")}>Settings (Profile &amp; KYC)</button>
+              <button onClick={() => go("/help")}>Help</button>
+              <button onClick={() => go("/about")}>About Oventric</button>
+              <button onClick={() => go("/terms")}>Terms of Use</button>
+              <button onClick={() => go("/privacy")}>Privacy Policy</button>
+              <button onClick={() => go("/report-problem")}>Report a problem</button>
+              <button onClick={() => go("/faq")}>FAQ</button>
+            </div>
+          )}
+        </div>
+
+        {isAuthenticated && (
+          <div className="megamenu-mobile-section">
+            <button
+              onClick={() => setDangerExpanded((v) => !v)}
+              className="megamenu-mobile-row megamenu-mobile-danger"
+              aria-expanded={dangerExpanded}
+            >
+              <span>Danger zone</span>
+              <strong>{dangerExpanded ? "Hide" : "Show"}</strong>
+            </button>
+            {dangerExpanded && (
+              <div className="megamenu-mobile-sublist">
+                <p>Deleting your account starts a 30-day soft-deletion window.</p>
+                <button onClick={() => setDeleteOpen(true)}>Delete my account</button>
+              </div>
+            )}
+            <button onClick={signOut} className="megamenu-mobile-row megamenu-mobile-danger">
+              <span>Sign out</span>
+              <strong>Exit</strong>
+            </button>
+          </div>
+        )}
       </div>
 
-      <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 pb-16">
+      <div className="hidden md:block">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/10">
+          <span className="text-sm font-bold text-white">Menu</span>
+          <button onClick={onClose} aria-label="Close menu" className="p-2 rounded-lg hover:bg-white/5">
+            <X className="w-5 h-5" />
+          </button>
+        </div>
+
+        <div className="max-w-2xl mx-auto px-4 py-4 space-y-4 pb-16">
         {/* User header + theme toggle */}
         <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#141418] border border-white/10">
           <button
@@ -262,6 +356,7 @@ export function MegaMenu({ open, onClose }: Props) {
             <LogOut className="w-4 h-4" /> Sign out
           </button>
         )}
+        </div>
       </div>
       <DeleteAccountModal
         open={deleteOpen}
