@@ -419,3 +419,22 @@ html, body {
 .blog-article a { color: #34d399; text-decoration: underline; }
 .blog-article img { max-width: 100%; border-radius: 12px; margin: 1rem 0; }
 .blog-article strong { color: #fff; }
+
+/* ============ Light mode (progressive) ============
+   The Oventric UI uses many hardcoded dark surfaces
+   (#121214, #1E1E24, slate-*, white/10). A full re-theme is a
+   progressive effort — for now we use a scoped, image-safe invert
+   trick so the toggle is functional. Icons and text flip; media stays
+   correct via the un-invert rule below. */
+html.light body {
+  filter: invert(0.92) hue-rotate(180deg);
+  background: #f6f6f7;
+}
+html.light img,
+html.light video,
+html.light canvas,
+html.light [data-no-invert],
+html.light .rgb-neon-bg,
+html.light .rgb-pulse-glow {
+  filter: invert(1) hue-rotate(180deg);
+}

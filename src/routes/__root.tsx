@@ -18,6 +18,7 @@ import { AuthGateProvider } from "@/lib/auth-gate/AuthGateProvider";
 
 import { ProfileSetupModalHost } from "@/lib/onboarding/ProfileSetupModal";
 import { KycGateProvider } from "@/lib/kyc-gate/KycGate";
+import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 
 function NotFoundComponent() {
   return (
@@ -128,17 +129,19 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthGateProvider>
-        <OnboardingProvider>
-          <KycGateProvider>
-            <AuthSeeder />
-            {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-            <Outlet />
-            <StageModals />
-            <ProfileSetupModalHost />
-          </KycGateProvider>
-        </OnboardingProvider>
-      </AuthGateProvider>
+      <ThemeProvider>
+        <AuthGateProvider>
+          <OnboardingProvider>
+            <KycGateProvider>
+              <AuthSeeder />
+              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+              <Outlet />
+              <StageModals />
+              <ProfileSetupModalHost />
+            </KycGateProvider>
+          </OnboardingProvider>
+        </AuthGateProvider>
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

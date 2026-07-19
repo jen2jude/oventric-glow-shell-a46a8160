@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, MessageCircle, Menu, KeyRound, X, Shield } from "lucide-react";
+import { Search, Bell, MessageCircle, Menu, KeyRound, X, Shield, Grip } from "lucide-react";
+import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { toast } from "sonner";
 import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
@@ -18,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
   const unreadMessages = useUnreadMessagesCount();
@@ -29,6 +31,12 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
     document.body.style.overflow = "hidden";
     return () => { document.body.style.overflow = prev; };
   }, [mobileSearchOpen]);
+
+  useEffect(() => {
+    const handler = () => onOpenMessages?.();
+    window.addEventListener("oventric:open-messages", handler);
+    return () => window.removeEventListener("oventric:open-messages", handler);
+  }, [onOpenMessages]);
 
   return (
     <header className={`sticky top-0 z-40 h-16 w-full bg-[#121214] ${safeMobile ? "md:bg-[#121214]/90 md:backdrop-blur-md" : "bg-[#121214]/90 backdrop-blur-md"} border-b border-white/10 flex items-center gap-3 px-4 md:px-6`}>
@@ -81,6 +89,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
 
       <div className="flex items-center gap-2 ml-auto shrink-0">
         <button
+          onClick={() => setMegaOpen(true)}
+          aria-label="Open menu"
+          className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
+        >
+          <Menu className="w-5 h-5" />
+        </button>
+        <button
           onClick={() => setMobileSearchOpen(true)}
           aria-label="Open search"
           className="sm:hidden p-2 rounded-lg hover:bg-white/5 text-slate-300"
@@ -93,6 +108,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
           className="md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
         >
           <Shield className="w-5 h-5" />
+        </button>
+        <button
+          onClick={() => setMegaOpen(true)}
+          aria-label="Open menu"
+          className="hidden sm:inline-flex p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+        >
+          <Grip className="w-5 h-5" />
         </button>
         <button
           onClick={() => setNotifOpen(true)}
@@ -147,6 +169,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
         open={notifOpen}
         onClose={() => setNotifOpen(false)}
       />
+      <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
 
       {mobileSearchOpen && (
         <div
