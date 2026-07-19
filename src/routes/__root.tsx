@@ -117,6 +117,36 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        <script
+          // Detect low-end GPU/CPU BEFORE first paint and toggle `html.low-gpu`.
+          // Heuristics: manual override → prefers-reduced-motion → mobile UA with
+          // low deviceMemory / hardwareConcurrency / weak WebGL renderer.
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{
+  var d=document.documentElement;
+  var override=null;try{override=localStorage.getItem('oventric:gpu-mode');}catch(e){}
+  if(override==='low'){d.classList.add('low-gpu');return;}
+  if(override==='high'){return;}
+  var ua=navigator.userAgent||'';
+  var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  var mem=navigator.deviceMemory||0;
+  var cpu=navigator.hardwareConcurrency||0;
+  var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  var weakGpu=false;
+  try{
+    var c=document.createElement('canvas');
+    var gl=c.getContext('webgl')||c.getContext('experimental-webgl');
+    if(gl){
+      var ext=gl.getExtension('WEBGL_debug_renderer_info');
+      var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):'';
+      if(/Mali-(4|T|G[35]1|G52)|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
+    } else { weakGpu=true; }
+  }catch(e){}
+  if(reduce){d.classList.add('low-gpu');return;}
+  if(isMobile && (weakGpu || (mem&&mem<=4) || (cpu&&cpu<=4))){d.classList.add('low-gpu');}
+}catch(e){}})();`,
+          }}
+        />
       </head>
       <body>
         {children}
@@ -125,6 +155,7 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
+
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
