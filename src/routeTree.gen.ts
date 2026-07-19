@@ -45,6 +45,7 @@ import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/publi
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
 import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/email/queue/process'
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
+import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const TermsRoute = TermsRouteImport.update({
@@ -229,6 +230,12 @@ const ApiPublicPIdRoute = ApiPublicPIdRouteImport.update({
   path: '/api/public/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksPurgeDeletedAccountsRoute =
+  ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
+    id: '/api/public/hooks/purge-deleted-accounts',
+    path: '/api/public/hooks/purge-deleted-accounts',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -270,6 +277,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
@@ -307,6 +315,7 @@ export interface FileRoutesByTo {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog': typeof AdminBlogIndexRoute
+  '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
@@ -347,6 +356,7 @@ export interface FileRoutesById {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/queue/process': typeof LovableEmailQueueProcessRoute
   '/profile/$id/item/$kind/$itemId': typeof ProfileIdItemKindItemIdRoute
@@ -388,6 +398,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/p/$id'
     | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
@@ -425,6 +436,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog'
+    | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/p/$id'
     | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
@@ -464,6 +476,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/p/$id'
     | '/lovable/email/queue/process'
     | '/profile/$id/item/$kind/$itemId'
@@ -487,6 +500,7 @@ export interface RootRouteChildren {
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   ApiPublicPIdRoute: typeof ApiPublicPIdRoute
   LovableEmailQueueProcessRoute: typeof LovableEmailQueueProcessRoute
 }
@@ -745,6 +759,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/purge-deleted-accounts': {
+      id: '/api/public/hooks/purge-deleted-accounts'
+      path: '/api/public/hooks/purge-deleted-accounts'
+      fullPath: '/api/public/hooks/purge-deleted-accounts'
+      preLoaderRoute: typeof ApiPublicHooksPurgeDeletedAccountsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
       path: '/item/$kind/$itemId'
@@ -837,6 +858,8 @@ const rootRouteChildren: RootRouteChildren = {
   ProfileIdRoute: ProfileIdRouteWithChildren,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  ApiPublicHooksPurgeDeletedAccountsRoute:
+    ApiPublicHooksPurgeDeletedAccountsRoute,
   ApiPublicPIdRoute: ApiPublicPIdRoute,
   LovableEmailQueueProcessRoute: LovableEmailQueueProcessRoute,
 }

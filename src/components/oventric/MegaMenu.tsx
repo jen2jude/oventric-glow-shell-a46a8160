@@ -19,17 +19,21 @@ const INVITE_AMOUNTS: Record<string, { amount: number; symbol: string; label: st
   USD: { amount: 2, symbol: "$", label: "$2" },
 };
 
+import { DeleteAccountModal } from "@/components/oventric/DeleteAccountModal";
+
 interface Props { open: boolean; onClose: () => void; }
 
 export function MegaMenu({ open, onClose }: Props) {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [dangerExpanded, setDangerExpanded] = useState(false);
+  const [deleteOpen, setDeleteOpen] = useState(false);
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
   const navigate = useNavigate();
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userSlug, setUserSlug] = useState<string>("me");
+
 
   useEffect(() => {
     if (!open) return;
@@ -231,11 +235,12 @@ export function MegaMenu({ open, onClose }: Props) {
                   permanently removed.
                 </p>
                 <button
-                  onClick={() => { onClose(); navigate({ to: "/dashboard" }); toast("Open Settings → Account to confirm deletion."); }}
+                  onClick={() => { setDeleteOpen(true); }}
                   className="w-full h-10 rounded-full bg-red-500/20 border border-red-500/50 text-red-200 text-xs font-bold hover:bg-red-500/30"
                 >
                   Delete my account
                 </button>
+
               </div>
             )}
           </div>
@@ -250,9 +255,15 @@ export function MegaMenu({ open, onClose }: Props) {
           </button>
         )}
       </div>
+      <DeleteAccountModal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={() => { setDeleteOpen(false); onClose(); navigate({ to: "/" }); }}
+      />
     </div>
   );
 }
+
 
 function SubItem({ icon: Icon, label, onClick }: { icon: React.ComponentType<{ className?: string }>; label: string; onClick: () => void }) {
   return (

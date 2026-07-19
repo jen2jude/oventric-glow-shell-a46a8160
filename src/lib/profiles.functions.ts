@@ -442,8 +442,16 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
 
 const DeleteAccountInput = z.object({
   confirmEmail: z.string().trim().email().max(255),
+  reason: z.string().trim().min(4).max(1000),
+  livenessPath: z.string().trim().min(1).max(500),
 });
 
+/**
+ * Soft-delete the current user's account.
+ * Sets `deleted_at = now()` on their profile. A daily cron job hard-deletes
+ * accounts whose `deleted_at` is older than 30 days. Users can log in during
+ * the grace window and reactivate.
+ */
 export const deleteMyAccount = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => DeleteAccountInput.parse(input ?? {}))
@@ -456,21 +464,67 @@ export const deleteMyAccount = createServerFn({ method: "POST" })
       throw new Error("Email confirmation does not match your account.");
     }
 
-    // Best-effort profile flagging so app queries can filter deleted users
-    // even before the auth row is purged.
-    await supabase
+    const { error: upErr } = await supabase
       .from("profiles")
-      .update({ display_name: "[deleted user]", bio: null })
+      .update({
+        deleted_at: new Date().toISOString(),
+        deletion_reason: data.reason,
+        deletion_liveness_path: data.livenessPath,
+      })
       .eq("user_id", userId);
-
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    const { error: delErr } = await supabaseAdmin.auth.admin.deleteUser(userId, true);
-    if (delErr) {
-      console.error("[deleteMyAccount] soft-delete failed", delErr);
-      throw new Error("Could not delete account. Please try again.");
+    if (upErr) {
+      console.error("[deleteMyAccount] soft-delete failed", upErr);
+      throw new Error("Could not schedule deletion. Please try again.");
     }
+    return { ok: true, scheduledFor: new Date(Date.now() + 30 * 86400_000).toISOString() };
+  });
+
+/**
+ * Check whether the currently-signed-in user has scheduled their account
+ * for deletion. Used to show the reactivation prompt on sign-in.
+ */
+export const getMyDeletionStatus = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data, error } = await supabase
+      .from("profiles")
+      .select("deleted_at")
+      .eq("user_id", userId)
+      .maybeSingle();
+    if (error) return { deletedAt: null as string | null, daysRemaining: null as number | null };
+    const deletedAt = (data?.deleted_at as string | null) ?? null;
+    if (!deletedAt) return { deletedAt: null, daysRemaining: null };
+    const ms = new Date(deletedAt).getTime() + 30 * 86400_000 - Date.now();
+    const daysRemaining = Math.max(0, Math.ceil(ms / 86400_000));
+    return { deletedAt, daysRemaining };
+  });
+
+const ReactivateInput = z.object({
+  livenessPath: z.string().trim().min(1).max(500),
+});
+
+/**
+ * Cancel a pending soft-delete. Requires a fresh liveness selfie upload
+ * to prove the same user is present.
+ */
+export const reactivateMyAccount = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => ReactivateInput.parse(input ?? {}))
+  .handler(async ({ data, context }) => {
+    const { supabase, userId } = context;
+    const { error } = await supabase
+      .from("profiles")
+      .update({
+        deleted_at: null,
+        deletion_reason: null,
+        deletion_liveness_path: data.livenessPath,
+      })
+      .eq("user_id", userId);
+    if (error) throw new Error("Could not reactivate. Please try again.");
     return { ok: true };
   });
+
 
 
 

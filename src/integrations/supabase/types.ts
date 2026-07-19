@@ -1736,6 +1736,9 @@ export type Database = {
           country: string | null
           cover_path: string | null
           created_at: string
+          deleted_at: string | null
+          deletion_liveness_path: string | null
+          deletion_reason: string | null
           display_name: string | null
           flag_reason: string | null
           flagged: boolean
@@ -1760,6 +1763,9 @@ export type Database = {
           country?: string | null
           cover_path?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_liveness_path?: string | null
+          deletion_reason?: string | null
           display_name?: string | null
           flag_reason?: string | null
           flagged?: boolean
@@ -1784,6 +1790,9 @@ export type Database = {
           country?: string | null
           cover_path?: string | null
           created_at?: string
+          deleted_at?: string | null
+          deletion_liveness_path?: string | null
+          deletion_reason?: string | null
           display_name?: string | null
           flag_reason?: string | null
           flagged?: boolean
