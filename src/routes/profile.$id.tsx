@@ -918,8 +918,8 @@ function ProfilePage() {
                 <div className="min-w-0 flex-1">
                   <div className="flex items-center gap-2 flex-wrap">
                     <h1 className="text-white text-2xl font-black">{displayName}</h1>
-                    <ShieldCheck className="w-4 h-4 text-emerald-400" aria-label={displayTierLabel} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                    <ShieldCheck className="w-4 h-4 text-white" aria-label={displayTierLabel} />
+                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
                       {displayTierLabel}
                     </span>
                   </div>
