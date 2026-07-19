@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -47,6 +48,11 @@ import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$i
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -223,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
@@ -258,6 +265,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/privacy': typeof PrivacyRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
@@ -332,6 +341,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/help'
+    | '/privacy'
     | '/terms'
     | '/admin/audit'
     | '/admin/blog'
@@ -367,6 +377,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/dashboard'
     | '/help'
+    | '/privacy'
     | '/terms'
     | '/admin/audit'
     | '/admin/bounties'
@@ -402,6 +413,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/help'
+    | '/privacy'
     | '/terms'
     | '/admin/audit'
     | '/admin/blog'
@@ -439,6 +451,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   HelpRoute: typeof HelpRoute
+  PrivacyRoute: typeof PrivacyRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
@@ -459,6 +472,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -765,6 +785,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRoute,
   HelpRoute: HelpRoute,
+  PrivacyRoute: PrivacyRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
