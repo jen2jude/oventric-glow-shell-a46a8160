@@ -24,10 +24,32 @@ import { DeleteAccountModal } from "@/components/oventric/DeleteAccountModal";
 
 interface Props { open: boolean; onClose: () => void; }
 
+function shouldUseLowGpuMenu() {
+  if (typeof document === "undefined" || typeof navigator === "undefined") return false;
+  try {
+    const override = window.localStorage.getItem("oventric:gpu-mode");
+    if (override === "low") return true;
+    if (override === "high") return false;
+  } catch { /* ignore */ }
+  const root = document.documentElement;
+  if (root.classList.contains("low-gpu")) return true;
+  const ua = navigator.userAgent || "";
+  if (/Infinix|X6813|Note\s*11i|TECNO|itel/i.test(ua)) return true;
+  const isAndroid = /Android/i.test(ua);
+  if (!isAndroid) return false;
+  const memory = "deviceMemory" in navigator ? Number(navigator.deviceMemory) : 0;
+  const cores = Number(navigator.hardwareConcurrency || 0);
+  // Android Chrome sometimes hides the renderer/model on exactly the devices
+  // that tear pixels. If it is not clearly a high-end Android, render the
+  // hamburger menu through the safer premium variant.
+  return !(memory >= 8 && cores >= 8);
+}
+
 export function MegaMenu({ open, onClose }: Props) {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [dangerExpanded, setDangerExpanded] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
+  const [lowGpu, setLowGpu] = useState(shouldUseLowGpuMenu);
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
@@ -35,6 +57,16 @@ export function MegaMenu({ open, onClose }: Props) {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [userSlug, setUserSlug] = useState<string>("me");
 
+
+  useEffect(() => {
+    if (!open) return;
+    const root = document.documentElement;
+    const sync = () => setLowGpu(shouldUseLowGpuMenu());
+    sync();
+    const observer = new MutationObserver(sync);
+    observer.observe(root, { attributes: true, attributeFilter: ["class", "data-gpu-tier"] });
+    return () => observer.disconnect();
+  }, [open]);
 
   useEffect(() => {
     if (!open) return;
@@ -130,6 +162,110 @@ export function MegaMenu({ open, onClose }: Props) {
   };
 
   const userInitial = (displayName[0] ?? "?").toUpperCase();
+
+  const safeContent = (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Menu"
+      className="megamenu-render-safe megamenu-lowgpu fixed inset-0 z-[2147483000] overflow-y-auto overscroll-contain bg-[#0b0b0d] text-slate-100"
+      style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}
+    >
+      <div className="megamenu-lowgpu-header">
+        <span>Menu</span>
+        <button onClick={onClose} aria-label="Close menu" className="megamenu-lowgpu-close">
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+
+      <div className="megamenu-lowgpu-body">
+        <div className="megamenu-lowgpu-card megamenu-lowgpu-profile">
+          <button
+            onClick={() => { if (userSlug && userSlug !== "me") { onClose(); navigate({ to: "/profile/$id", params: { id: userSlug } }); } }}
+            className="megamenu-lowgpu-avatar"
+            aria-label="Open my profile"
+          >
+            {avatarUrl ? <AvatarImage src={avatarUrl} alt={displayName} initials={userInitial} /> : userInitial}
+          </button>
+          <div className="min-w-0 flex-1">
+            <p className="truncate text-sm font-bold text-white">{isAuthenticated ? displayName : "Guest"}</p>
+            <p className="truncate text-xs font-semibold text-slate-400">{isAuthenticated ? "View your profile" : "Sign in to unlock"}</p>
+          </div>
+          <button onClick={toggle} aria-label="Toggle color theme" className="megamenu-lowgpu-icon-button">
+            {theme === "dark" ? <Sun className="w-5 h-5 text-amber-300" /> : <Moon className="w-5 h-5 text-slate-300" />}
+          </button>
+        </div>
+
+        <button onClick={doInvite} className="megamenu-lowgpu-invite">
+          <span className="megamenu-lowgpu-icon"><Gift className="w-5 h-5" /></span>
+          <span className="min-w-0 flex-1 text-left">
+            <span className="block text-sm font-bold text-white">Invite friends</span>
+            <span className="block truncate text-xs font-semibold text-emerald-200">Earn {invite.label} for every user you invite</span>
+          </span>
+        </button>
+
+        <div className="megamenu-lowgpu-grid">
+          {grid.map((g) => (
+            <button key={g.label} onClick={g.onClick} className="megamenu-lowgpu-tile">
+              <span className="megamenu-lowgpu-icon"><g.icon className="w-4 h-4" /></span>
+              <span className="truncate text-sm font-bold text-white">{g.label}</span>
+            </button>
+          ))}
+        </div>
+
+        <div className="megamenu-lowgpu-card overflow-hidden">
+          <button onClick={() => setSettingsExpanded((v) => !v)} className="megamenu-lowgpu-row" aria-expanded={settingsExpanded}>
+            <Settings className="w-5 h-5 text-slate-400" />
+            <span className="flex-1 text-sm font-bold text-white">Settings &amp; Privacy</span>
+            <ChevronDown className="w-4 h-4 text-slate-400" />
+          </button>
+          {settingsExpanded && (
+            <div className="megamenu-lowgpu-sublist">
+              <SubItem icon={Settings} label="Settings (Profile & KYC)" onClick={() => go("/dashboard")} />
+              <SubItem icon={HelpCircle} label="Help" onClick={() => go("/help")} />
+              <SubItem icon={Info} label="About Oventric" onClick={() => go("/about")} />
+              <SubItem icon={FileText} label="Terms of Use" onClick={() => go("/terms")} />
+              <SubItem icon={Lock} label="Privacy Policy" onClick={() => go("/privacy")} />
+              <SubItem icon={Bug} label="Report a problem" onClick={() => go("/report-problem")} />
+              <SubItem icon={ListChecks} label="FAQ" onClick={() => go("/faq")} />
+            </div>
+          )}
+        </div>
+
+        {isAuthenticated && (
+          <div className="megamenu-lowgpu-card megamenu-lowgpu-danger overflow-hidden">
+            <button onClick={() => setDangerExpanded((v) => !v)} className="megamenu-lowgpu-row" aria-expanded={dangerExpanded}>
+              <Trash2 className="w-5 h-5 text-red-300" />
+              <span className="flex-1 text-sm font-bold text-red-100">Danger zone</span>
+              <ChevronDown className="w-4 h-4 text-red-200" />
+            </button>
+            {dangerExpanded && (
+              <div className="space-y-3 border-t border-red-500/20 p-4 text-xs leading-relaxed text-red-100">
+                <p>
+                  Deleting your account starts a 30-day soft-deletion window. Sign in during that
+                  period to reactivate. After 30 days, all data is permanently removed.
+                </p>
+                <button onClick={() => { setDeleteOpen(true); }} className="h-10 w-full rounded-lg border border-red-500/60 bg-[#2a1111] text-xs font-bold text-red-100">
+                  Delete my account
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {isAuthenticated && (
+          <button onClick={signOut} className="megamenu-lowgpu-signout">
+            <LogOut className="w-4 h-4" /> Sign out
+          </button>
+        )}
+      </div>
+      <DeleteAccountModal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        onDeleted={() => { setDeleteOpen(false); onClose(); navigate({ to: "/" }); }}
+      />
+    </div>
+  );
 
   const content = (
     <div
@@ -277,7 +413,7 @@ export function MegaMenu({ open, onClose }: Props) {
   );
 
   if (typeof document === "undefined") return null;
-  return createPortal(content, document.body);
+  return createPortal(lowGpu ? safeContent : content, document.body);
 }
 
 
