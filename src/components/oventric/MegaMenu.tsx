@@ -137,10 +137,10 @@ export function MegaMenu({ open, onClose }: Props) {
         <div className="flex items-center gap-3 p-3 rounded-2xl bg-[#141418] border border-white/10">
           <button
             onClick={() => { if (userSlug && userSlug !== "me") { onClose(); navigate({ to: "/profile/$id", params: { id: userSlug } }); } }}
-            className="shrink-0"
+            className="shrink-0 w-12 h-12 rounded-full overflow-hidden bg-[#1E1E24] border border-white/10 grid place-items-center text-sm font-bold text-emerald-300"
             aria-label="Open my profile"
           >
-            <AvatarImage src={avatarUrl} alt={displayName} size={48} />
+            <AvatarImage src={avatarUrl} alt={displayName} initials={(displayName[0] ?? "?").toUpperCase()} />
           </button>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-bold text-white truncate">{isAuthenticated ? displayName : "Guest"}</p>
