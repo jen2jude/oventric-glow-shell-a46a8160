@@ -250,6 +250,27 @@ export function NotificationsDrawer({
     }
   };
 
+  const handleSelectChannel = async (next: Channel) => {
+    setChannel(next);
+    const unread = items.filter(
+      (n) => !n.read_at && (next === "all" || channelForKind(n.kind) === next),
+    );
+    if (unread.length === 0) return;
+    const now = new Date().toISOString();
+    const ids = new Set(unread.map((n) => n.id));
+    setItems((prev) => prev.map((p) => (ids.has(p.id) ? { ...p, read_at: p.read_at ?? now } : p)));
+    try {
+      if (next === "all") {
+        await markAll({});
+      } else {
+        await Promise.all(unread.map((n) => markOne({ data: { id: n.id } }).catch(() => {})));
+      }
+    } catch {
+      /* ignore */
+    }
+  };
+
+
   return (
     <>
       {open && (
