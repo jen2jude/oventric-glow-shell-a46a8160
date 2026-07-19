@@ -39,13 +39,13 @@ export function MegaMenu({ open, onClose }: Props) {
       if (!uid) return;
       const { data: prof } = await supabase
         .from("profiles")
-        .select("slug, avatar_url")
+        .select("slug, avatar_path")
         .eq("user_id", uid)
         .maybeSingle();
       if (prof?.slug) setUserSlug(prof.slug);
-      if (prof?.avatar_url) {
+      if (prof?.avatar_path) {
         const { data: signed } = await supabase.storage
-          .from("avatars").createSignedUrl(prof.avatar_url, 3600);
+          .from("avatars").createSignedUrl(prof.avatar_path, 3600);
         if (signed?.signedUrl) setAvatarUrl(signed.signedUrl);
       }
     })();
