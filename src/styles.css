@@ -597,6 +597,58 @@ html.low-gpu {
     background-color: #121214 !important;
   }
 
+  /* Profile pages — low-GPU safe rendering. Same recipe as marketplace:
+     neutralize composited effects across the entire profile surface so the
+     cover banner + header row (back-to-feed / copy link / follow requests)
+     stop scrambling on Mali-G52 class GPUs on pull-to-refresh. */
+  .profile-render-safe,
+  .profile-render-safe * {
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    filter: none !important;
+    -webkit-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    will-change: auto !important;
+    contain: none !important;
+    isolation: auto !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    animation: none !important;
+    transition: none !important;
+    perspective: none !important;
+    clip-path: none !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+  }
+
+  .profile-render-safe .rgb-neon-bg,
+  .profile-render-safe .rgb-pulse-glow {
+    background: #1a1a1e !important;
+    border: 1px solid rgba(255, 255, 255, 0.12) !important;
+    padding: 0 !important;
+  }
+
+  .profile-render-safe [class*="bg-gradient"],
+  .profile-render-safe [style*="gradient"] {
+    background-image: none !important;
+    background-color: #1a1a1e !important;
+  }
+
+  .profile-render-safe .sticky,
+  .profile-render-safe .fixed {
+    background-color: #121214 !important;
+  }
+
+  .profile-render-safe .profile-cover-safe {
+    background-color: #1a1a1e !important;
+    background-image: none !important;
+  }
+
 
   .megamenu-mobile-plain,
   .megamenu-mobile-plain * {
