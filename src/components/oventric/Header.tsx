@@ -17,7 +17,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
 
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean }) {
+export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
