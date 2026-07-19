@@ -249,7 +249,7 @@ export function ProfileDropdown() {
       aria-expanded={open}
       aria-controls={open ? menuId : undefined}
       aria-label="Open profile menu"
-      className="rgb-neon-bg relative w-9 h-9 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
+      className="rgb-static-border relative w-9 h-9 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
       <span className="absolute inset-[2px] rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden">
         {profile.avatarDataUrl ? (

@@ -147,6 +147,8 @@ export function Feed() {
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
+  const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
+  const [meInitials, setMeInitials] = useState<string>("Me");
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [postsLoading, setPostsLoading] = useState(true);
@@ -257,13 +259,29 @@ export function Feed() {
       try {
         const { data: prof } = await supabase
           .from("profiles")
-          .select("display_name, username")
+          .select("display_name, username, avatar_path")
           .eq("user_id", uid)
           .maybeSingle();
         const name = (prof?.display_name || prof?.username || "").trim();
         if (name) {
           const parts = name.split(/\s+/);
           setMeLastName(parts.length > 1 ? parts[parts.length - 1] : parts[0]);
+          setMeInitials(
+            parts
+              .slice(0, 2)
+              .map((p) => p[0]?.toUpperCase() ?? "")
+              .join("") || "Me",
+          );
+        }
+        if (prof?.avatar_path) {
+          try {
+            const { data: signed } = await supabase.storage
+              .from("avatars")
+              .createSignedUrl(prof.avatar_path, 60 * 60 * 24 * 7);
+            if (signed?.signedUrl) setMeAvatarUrl(signed.signedUrl);
+          } catch {
+            /* ignore */
+          }
         }
       } catch {
         /* ignore */
@@ -761,10 +779,8 @@ export function Feed() {
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
           className="w-full text-left bg-[#1E1E24] border border-white/10 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
         >
-          <span className="rgb-neon-bg w-9 h-9 rounded-full p-[2px] flex items-center justify-center shrink-0">
-            <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center text-white text-sm font-semibold">
-              +
-            </span>
+          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-emerald-400 to-emerald-600 text-black font-bold text-sm flex items-center justify-center">
+            <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} className="w-full h-full flex items-center justify-center" />
           </span>
           <span className="flex-1 text-sm text-slate-400 truncate">
             {placeholderIdx === 0

@@ -359,6 +359,17 @@
   border-radius: inherit;
 }
 
+/* Static (non-animated) RGB gradient border. Used as a p-[2px] wrapper
+   with a solid dark inner element. High performance / Android-safe. */
+.rgb-static-border {
+  background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308);
+}
+.rgb-static-border-wrapper {
+  background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308);
+  padding: 2px;
+  border-radius: inherit;
+}
+
 .rgb-pulse-glow {
   animation: rgb-glow-pulse 3s infinite;
 }

@@ -561,7 +561,7 @@ function AcademyLanding({ onExplore }: { onExplore: () => void }) {
           Video-first courses from working practitioners. Track your progress across sessions, resume any time, and earn a certificate when you complete a course.
         </p>
         <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={onExplore} className="rgb-neon-bg rounded-2xl p-[2px] group">
+          <button onClick={onExplore} className="rgb-static-border rounded-2xl p-[2px] group">
             <span className="flex items-center gap-3 bg-[#121214] group-hover:bg-[#1a1a20] transition-colors rounded-[14px] px-8 py-4 text-white font-black text-lg">
               Explore Courses <ArrowRight className="w-5 h-5" />
             </span>
