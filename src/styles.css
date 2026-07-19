@@ -267,7 +267,8 @@
    reproduces on the overview grid; desktop renders cleanly. Same recipe as
    profile page — neutralize semi-transparent gradients, shadows, filters,
    and compositor-promotion hints. */
-@media (max-width: 767px) {
+html.low-gpu {
+
   .dashboard-render-safe,
   .dashboard-render-safe * {
     animation: none !important;
