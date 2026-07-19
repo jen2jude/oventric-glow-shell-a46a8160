@@ -43,7 +43,7 @@ export function FollowButton({ targetId, className, compact, onStatusChange }: P
   // Realtime: watch follows + follow_requests changes involving this pair
   useEffect(() => {
     const channel = supabase
-      .channel(`follow-${targetId}`)
+      .channel(`follow-${targetId}-${Math.random().toString(36).slice(2)}`)
       .on("postgres_changes", { event: "*", schema: "public", table: "follows" }, load)
       .on("postgres_changes", { event: "*", schema: "public", table: "follow_requests" }, load)
       .subscribe();
