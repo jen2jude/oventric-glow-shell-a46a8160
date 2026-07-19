@@ -1010,17 +1010,17 @@ function ProfilePage() {
               <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
                 <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
                   <MobileRepLine
-                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
                     value={`${displayStars.toFixed(1)} / 5`}
                   />
                   <MobileRepLine
-                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    icon={<Target className="w-4 h-4 text-white" />}
                     label="Bounties Solved"
                     value={liveRep ? liveRep.metrics.bountiesSolved : "…"}
                   />
                   <MobileRepLine
-                    icon={<Award className="w-4 h-4 text-purple-400" />}
+                    icon={<Award className="w-4 h-4 text-white" />}
                     label="Product Rating"
                     value={
                       liveRep
@@ -1031,16 +1031,17 @@ function ProfilePage() {
                     }
                   />
                   <MobileRepLine
-                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    icon={<ShoppingBag className="w-4 h-4 text-white" />}
                     label="Listings"
                     value={liveRep ? liveRep.metrics.productsListed : "…"}
                   />
                   <MobileRepLine
-                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    icon={<ShieldCheck className="w-4 h-4 text-white" />}
                     label="Posts (30d)"
                     value={liveRep ? liveRep.metrics.postsLast30d : "…"}
                     last
                   />
+
                 </div>
 
                 <div className="hidden sm:grid sm:grid-cols-5 gap-3">
