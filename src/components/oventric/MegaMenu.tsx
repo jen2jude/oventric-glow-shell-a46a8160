@@ -201,6 +201,43 @@ export function MegaMenu({ open, onClose }: Props) {
           ))}
         </div>
 
+        {/* GPU Safe Mode */}
+        <div className="rounded-2xl bg-[#141418] border border-white/10 p-4">
+          <div className="flex items-center gap-3">
+            <span className={`w-9 h-9 grid place-items-center rounded-full shrink-0 ${gpuActive ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] text-slate-400"}`}>
+              <Zap className="w-4 h-4" />
+            </span>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-bold text-white">GPU Safe Mode</p>
+              <p className="text-xs text-slate-500 leading-snug">
+                Disables animations & heavy effects for smoother rendering on low-end devices.
+              </p>
+            </div>
+          </div>
+          <div className="mt-3 grid grid-cols-3 gap-1 rounded-full bg-[#0f0f12] border border-white/10 p-1">
+            {(["auto", "on", "off"] as const).map((m) => {
+              const isActive = gpuMode === m;
+              return (
+                <button
+                  key={m}
+                  onClick={() => setGpuMode(m)}
+                  className={`h-8 rounded-full text-xs font-semibold capitalize transition-colors ${
+                    isActive ? "bg-emerald-500/25 text-emerald-200 border border-emerald-400/50" : "text-slate-400 hover:text-slate-200"
+                  }`}
+                  aria-pressed={isActive}
+                >
+                  {m}
+                </button>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[11px] text-slate-500">
+            Currently {gpuActive ? "active" : "off"}{gpuMode === "auto" ? " (auto-detected)" : ""}.
+          </p>
+        </div>
+
+
+
         {/* Settings & Privacy */}
         <div className="rounded-2xl bg-[#141418] border border-white/10 overflow-hidden">
           <button
