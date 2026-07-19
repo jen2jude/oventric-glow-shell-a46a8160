@@ -163,7 +163,7 @@ export function Marketplace() {
           <button
             key={m}
             onClick={() => { setMode(m); setFullCategory(null); setActiveTab("all"); }}
-            className={`rounded-full transition-all ${active ? "rgb-neon-bg p-[2px]" : "p-0"}`}
+            className={`rounded-full transition-colors ${active ? "rgb-static-border p-[2px]" : "p-0"}`}
           >
             <span
               className={`block px-5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
