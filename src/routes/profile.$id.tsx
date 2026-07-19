@@ -959,37 +959,8 @@ function ProfilePage() {
               </section>
             </div>
 
-            {/* Cover banner — keep uploaded covers, but render them as a plain
-                image layer with rounded corners instead of clipping a complex
-                composited gradient container on mobile. */}
-            <div className="profile-standard-cover profile-cover-safe relative mb-4 h-32 sm:h-48 rounded-xl border border-white/10 bg-[#1E1E24] sm:bg-[#18181d]">
-              {realProfile?.coverUrl ? (
-                <ResponsiveImage
-                  src={realProfile.coverUrl}
-                  alt={`${displayName} cover`}
-                  sizes="(min-width: 768px) 768px, 100vw"
-                  className="block h-full w-full rounded-[11px] object-cover"
-                />
-              ) : null}
-              {isOwnProfile && (
-                <button
-                  type="button"
-                  onClick={() => coverInputRef.current?.click()}
-                  disabled={uploading === "cover"}
-                  aria-label="Change cover image"
-                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#121214] hover:bg-[#18181d] border border-white/20 text-white text-xs font-semibold"
-                >
-                  {uploading === "cover" ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Camera className="w-3.5 h-3.5" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {uploading === "cover" ? "Uploading…" : realProfile?.coverUrl ? "Change cover" : "Add cover"}
-                  </span>
-                </button>
-              )}
-            </div>
+            {/* Cover image removed */}
+
 
             <section
               data-testid="profile-banner"
