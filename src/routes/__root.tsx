@@ -133,19 +133,21 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthGateProvider>
-          <OnboardingProvider>
-            <KycGateProvider>
-              <AuthSeeder />
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-              <StageModals />
-              <ProfileSetupModalHost />
-              <ReactivationGate />
-            </KycGateProvider>
+        <GpuSafeModeProvider>
+          <AuthGateProvider>
+            <OnboardingProvider>
+              <KycGateProvider>
+                <AuthSeeder />
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+                <StageModals />
+                <ProfileSetupModalHost />
+                <ReactivationGate />
+              </KycGateProvider>
 
-          </OnboardingProvider>
-        </AuthGateProvider>
+            </OnboardingProvider>
+          </AuthGateProvider>
+        </GpuSafeModeProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
