@@ -48,8 +48,8 @@ export function MobileNav({
     <nav
       className="md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#1E1E24] border-t border-white/10 flex items-center px-2"
       style={{
-        height: "calc(4rem + env(safe-area-inset-bottom))",
-        paddingBottom: "env(safe-area-inset-bottom)",
+        height: "calc(4rem + max(env(safe-area-inset-bottom), 0.5rem))",
+        paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)",
       }}
     >
       {left.map(Item)}
