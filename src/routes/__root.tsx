@@ -19,6 +19,7 @@ import { AuthGateProvider } from "@/lib/auth-gate/AuthGateProvider";
 import { ProfileSetupModalHost } from "@/lib/onboarding/ProfileSetupModal";
 import { KycGateProvider } from "@/lib/kyc-gate/KycGate";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
+import { GpuSafeModeProvider } from "@/lib/gpu-safe/GpuSafeMode";
 import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 
 
@@ -132,19 +133,21 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
-        <AuthGateProvider>
-          <OnboardingProvider>
-            <KycGateProvider>
-              <AuthSeeder />
-              {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-              <Outlet />
-              <StageModals />
-              <ProfileSetupModalHost />
-              <ReactivationGate />
-            </KycGateProvider>
+        <GpuSafeModeProvider>
+          <AuthGateProvider>
+            <OnboardingProvider>
+              <KycGateProvider>
+                <AuthSeeder />
+                {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
+                <Outlet />
+                <StageModals />
+                <ProfileSetupModalHost />
+                <ReactivationGate />
+              </KycGateProvider>
 
-          </OnboardingProvider>
-        </AuthGateProvider>
+            </OnboardingProvider>
+          </AuthGateProvider>
+        </GpuSafeModeProvider>
       </ThemeProvider>
     </QueryClientProvider>
   );
