@@ -120,15 +120,18 @@ function RootShell({ children }: { children: ReactNode }) {
         <script
           // Detect low-end GPU/CPU BEFORE first paint and toggle `html.low-gpu`.
           // Heuristics: manual override → prefers-reduced-motion → mobile UA with
-          // low deviceMemory / hardwareConcurrency / weak WebGL renderer.
+          // low deviceMemory / hardwareConcurrency / weak WebGL renderer/device.
           dangerouslySetInnerHTML={{
             __html: `(function(){try{
   var d=document.documentElement;
+  function mark(reason){d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason=reason||'detected';}catch(e){}}
   var override=null;try{override=localStorage.getItem('oventric:gpu-mode');}catch(e){}
-  if(override==='low'){d.classList.add('low-gpu');return;}
-  if(override==='high'){return;}
+  if(override==='low'){mark('manual');return;}
+  if(override==='high'){d.dataset.gpuTier='high';return;}
   var ua=navigator.userAgent||'';
   var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  var isAndroid=/Android/i.test(ua);
+  var weakDevice=/Infinix|Infinix\\s+X6813|X6813|Note\\s*11i|TECNO|itel/i.test(ua);
   var mem=navigator.deviceMemory||0;
   var cpu=navigator.hardwareConcurrency||0;
   var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
@@ -139,11 +142,20 @@ function RootShell({ children }: { children: ReactNode }) {
     if(gl){
       var ext=gl.getExtension('WEBGL_debug_renderer_info');
       var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):'';
-      if(/Mali-(4|T|G(31|51|52|57)(\\s+MC\\d+)?)|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
+      if(/Mali[\\s-]?(4|T|G(31|51|52|57)(\\s*MC\\d+)?)|Mali[\\s-]?G52\\s*MC2|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
     } else { weakGpu=true; }
   }catch(e){}
-  if(reduce){d.classList.add('low-gpu');return;}
-  if(isMobile && (weakGpu || (mem&&mem<=4) || (cpu&&cpu<=4))){d.classList.add('low-gpu');}
+  if(reduce){mark('reduced-motion');return;}
+  if(isMobile && (weakDevice || weakGpu || (mem&&mem<=4) || (cpu&&cpu<=4))){mark(weakDevice?'device':weakGpu?'webgl':'hardware');}
+  try{
+    var uad=navigator.userAgentData;
+    if(isAndroid&&uad&&uad.getHighEntropyValues){
+      uad.getHighEntropyValues(['model','platform']).then(function(v){
+        var m=String((v&&v.model)||'');
+        if(/Infinix|X6813|Note\\s*11i|Mali[\\s-]?G52/i.test(m)){mark('model');}
+      }).catch(function(){});
+    }
+  }catch(e){}
 }catch(e){}})();`,
           }}
         />
