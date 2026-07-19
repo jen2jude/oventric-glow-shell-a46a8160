@@ -14,6 +14,8 @@ import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
+
 
 
 export const Route = createFileRoute("/")({
