@@ -28,7 +28,9 @@ export function MegaMenu({ open, onClose }: Props) {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [dangerExpanded, setDangerExpanded] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [lowGpu, setLowGpu] = useState(false);
+  const [lowGpu, setLowGpu] = useState(() =>
+    typeof document !== "undefined" && document.documentElement.classList.contains("low-gpu"),
+  );
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
