@@ -26,9 +26,10 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   const [megaOpen, setMegaOpen] = useState(false);
   const [followReqOpen, setFollowReqOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
-  const unread = unreadCount > 0;
   const unreadMessages = useUnreadMessagesCount();
   const pendingFollow = usePendingFollowRequestsCount();
+  const pendingCircles = usePendingCircleRequestsCount();
+
   const { isAuthenticated, openGate } = useAuthGate();
 
   useEffect(() => {
