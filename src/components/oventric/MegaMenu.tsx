@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
@@ -122,12 +123,13 @@ export function MegaMenu({ open, onClose }: Props) {
     navigate({ to: "/" });
   };
 
-  return (
+  const content = (
     <div
       role="dialog"
       aria-modal="true"
       aria-label="Menu"
-      className="fixed inset-0 z-[70] bg-[#0b0b0d] text-slate-200 overflow-y-auto"
+      className="fixed inset-0 z-[2147483000] bg-[#0b0b0d] text-slate-200 overflow-y-auto overscroll-contain"
+      style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/10">
         <span className="text-sm font-bold text-white">Menu</span>
@@ -262,6 +264,9 @@ export function MegaMenu({ open, onClose }: Props) {
       />
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(content, document.body);
 }
 
 
