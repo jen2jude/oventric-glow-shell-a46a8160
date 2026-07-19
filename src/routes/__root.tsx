@@ -141,8 +141,9 @@ function RootShell({ children }: { children: ReactNode }) {
     var gl=c.getContext('webgl')||c.getContext('experimental-webgl');
     if(gl){
       var ext=gl.getExtension('WEBGL_debug_renderer_info');
-      var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):'';
+      var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):String(gl.getParameter(gl.RENDERER)||'');
       if(/Mali[\\s-]?(4|T|G(31|51|52|57)(\\s*MC\\d+)?)|Mali[\\s-]?G52\\s*MC2|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
+      if(isAndroid&&!r){weakGpu=true;}
     } else { weakGpu=true; }
   }catch(e){}
   if(reduce){mark('reduced-motion');return;}
