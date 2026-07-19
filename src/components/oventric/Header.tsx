@@ -321,3 +321,49 @@ function usePendingFollowRequestsCount() {
 
   return count;
 }
+
+function usePendingCircleRequestsCount() {
+  const { isAuthenticated } = useAuthGate();
+  const listFn = useServerFn(listIncomingCircleRequests);
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    if (!isAuthenticated) { setCount(0); return; }
+    let cancelled = false;
+    let channelSub: ReturnType<typeof supabase.channel> | null = null;
+
+    const load = () => {
+      listFn()
+        .then((rows) => { if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0); })
+        .catch(() => { if (!cancelled) setCount(0); });
+    };
+
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id;
+      if (!uid || cancelled) return;
+      load();
+      channelSub = supabase
+        .channel(`circle-req-count-${uid}`)
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "circle_requests", filter: `target_id=eq.${uid}` },
+          () => load(),
+        )
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "circle_join_requests" },
+          () => load(),
+        )
+        .subscribe();
+    })();
+
+    return () => {
+      cancelled = true;
+      if (channelSub) supabase.removeChannel(channelSub);
+    };
+  }, [isAuthenticated, listFn]);
+
+  return count;
+}
+
