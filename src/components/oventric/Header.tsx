@@ -35,6 +35,25 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     return () => { document.body.style.overflow = prev; };
   }, [mobileSearchOpen]);
 
+  // Reopen MegaMenu when the user navigates back to the page where it was opened.
+  useEffect(() => {
+    const KEY = "oventric:megamenu-return-path";
+    const onPop = () => {
+      const stored = sessionStorage.getItem(KEY);
+      if (stored && stored === window.location.pathname) {
+        sessionStorage.removeItem(KEY);
+        setMegaOpen(true);
+      }
+    };
+    const onOpenReq = () => setMegaOpen(true);
+    window.addEventListener("popstate", onPop);
+    window.addEventListener("oventric:open-megamenu", onOpenReq);
+    return () => {
+      window.removeEventListener("popstate", onPop);
+      window.removeEventListener("oventric:open-megamenu", onOpenReq);
+    };
+  }, []);
+
   useEffect(() => {
     const handler = () => onOpenMessages?.();
     window.addEventListener("oventric:open-messages", handler);

@@ -68,7 +68,12 @@ export function MegaMenu({ open, onClose }: Props) {
   const invite = INVITE_AMOUNTS[baseCurrency] ?? INVITE_AMOUNTS.USD;
   const displayName = fullName || storeName || "Guest";
 
+  const markReturn = () => {
+    try { sessionStorage.setItem("oventric:megamenu-return-path", window.location.pathname); } catch { /* ignore */ }
+  };
+
   const go = (path: string, section?: string) => {
+    markReturn();
     onClose();
     if (section) {
       navigate({ to: "/" });
@@ -79,6 +84,7 @@ export function MegaMenu({ open, onClose }: Props) {
   };
 
   const goFollowers = () => {
+    markReturn();
     onClose();
     if (userSlug && userSlug !== "me") {
       navigate({ to: "/profile/$id", params: { id: userSlug } });
