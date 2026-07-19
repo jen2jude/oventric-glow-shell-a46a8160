@@ -647,6 +647,28 @@ html.low-gpu {
   .profile-render-safe .profile-cover-safe {
     background-color: #1a1a1e !important;
     background-image: none !important;
+    border-radius: 0 !important;
+    border-left: 0 !important;
+    border-right: 0 !important;
+    margin-left: -1rem !important;
+    margin-right: -1rem !important;
+    overflow: visible !important;
+  }
+
+  /* Kill rounded-corner clipping in the top header/cover strip. Compositing
+     an image inside a rounded container on Mali-G52 is the exact trigger for
+     the residual scrambled pixels near the top of the profile page. */
+  .profile-render-safe .profile-cover-safe img,
+  .profile-render-safe .profile-cover-safe > * {
+    border-radius: 0 !important;
+  }
+
+  /* Flatten the top action row (Back to feed / Copy Link / Follow Requests)
+     — solid backgrounds, square-ish corners, no compositing. */
+  .profile-render-safe button,
+  .profile-render-safe a[role="button"] {
+    border-radius: 6px !important;
+    background-image: none !important;
   }
 
 
