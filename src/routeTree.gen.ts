@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as TermsRouteImport } from './routes/terms'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -43,6 +44,11 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const HelpRoute = HelpRouteImport.update({
   id: '/help',
   path: '/help',
@@ -217,6 +223,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -251,6 +258,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -286,6 +294,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/dashboard': typeof DashboardRoute
   '/help': typeof HelpRoute
+  '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -323,6 +332,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/help'
+    | '/terms'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -357,6 +367,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/dashboard'
     | '/help'
+    | '/terms'
     | '/admin/audit'
     | '/admin/bounties'
     | '/admin/campaigns'
@@ -391,6 +402,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/dashboard'
     | '/help'
+    | '/terms'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   DashboardRoute: typeof DashboardRoute
   HelpRoute: typeof HelpRoute
+  TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
   OrderIdRoute: typeof OrderIdRoute
@@ -441,6 +454,13 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/help': {
       id: '/help'
       path: '/help'
@@ -745,6 +765,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   DashboardRoute: DashboardRoute,
   HelpRoute: HelpRoute,
+  TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
   OrderIdRoute: OrderIdRoute,
