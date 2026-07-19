@@ -351,6 +351,35 @@
     -webkit-backface-visibility: visible !important;
     isolation: auto !important;
   }
+
+  /* MegaMenu (hamburger) — kill all animated/composited effects on mobile.
+     Gradients on invite tile, sticky backdrop-blur, slide-in animations,
+     and any nested transforms can tear tiles on low-end Android GPUs. */
+  .megamenu-render-safe,
+  .megamenu-render-safe * {
+    animation: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    perspective: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    backface-visibility: visible !important;
+    -webkit-backface-visibility: visible !important;
+    isolation: auto !important;
+  }
+  .megamenu-render-safe .animate-spin {
+    animation: spin 1s linear infinite !important;
+  }
 }
 
 /* Wallet earnings mobile list — dead-flat, Chrome Android tile-cache safe */
