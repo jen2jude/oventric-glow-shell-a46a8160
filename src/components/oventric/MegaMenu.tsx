@@ -235,11 +235,12 @@ export function MegaMenu({ open, onClose }: Props) {
                   permanently removed.
                 </p>
                 <button
-                  onClick={() => { onClose(); navigate({ to: "/dashboard" }); toast("Open Settings → Account to confirm deletion."); }}
+                  onClick={() => { setDeleteOpen(true); }}
                   className="w-full h-10 rounded-full bg-red-500/20 border border-red-500/50 text-red-200 text-xs font-bold hover:bg-red-500/30"
                 >
                   Delete my account
                 </button>
+
               </div>
             )}
           </div>
