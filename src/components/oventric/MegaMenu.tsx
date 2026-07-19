@@ -264,6 +264,9 @@ export function MegaMenu({ open, onClose }: Props) {
       />
     </div>
   );
+
+  if (typeof document === "undefined") return null;
+  return createPortal(content, document.body);
 }
 
 
