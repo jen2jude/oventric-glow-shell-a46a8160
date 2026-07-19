@@ -577,13 +577,15 @@ html.low-gpu {
     transition: none !important;
   }
 
-  .marketplace-render-safe .rgb-static-border,
-  .marketplace-render-safe .rgb-static-border-wrapper,
+  /* Keep the static RGB gradient borders visible — they are pure static
+     linear-gradients with no animation, filters, or blur, and render fine
+     even on Mali-G52 class GPUs. Only flatten the animated neon variant. */
   .marketplace-render-safe .rgb-neon-bg {
     background: #1a1a1e !important;
     border: 1px solid rgba(255, 255, 255, 0.12) !important;
     padding: 0 !important;
   }
+
 
   .marketplace-render-safe [class*="bg-gradient"],
   .marketplace-render-safe [style*="gradient"] {
