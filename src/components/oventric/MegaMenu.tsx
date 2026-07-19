@@ -24,13 +24,32 @@ import { DeleteAccountModal } from "@/components/oventric/DeleteAccountModal";
 
 interface Props { open: boolean; onClose: () => void; }
 
+function shouldUseLowGpuMenu() {
+  if (typeof document === "undefined" || typeof navigator === "undefined") return false;
+  try {
+    const override = window.localStorage.getItem("oventric:gpu-mode");
+    if (override === "low") return true;
+    if (override === "high") return false;
+  } catch { /* ignore */ }
+  const root = document.documentElement;
+  if (root.classList.contains("low-gpu")) return true;
+  const ua = navigator.userAgent || "";
+  if (/Infinix|X6813|Note\s*11i|TECNO|itel/i.test(ua)) return true;
+  const isAndroid = /Android/i.test(ua);
+  if (!isAndroid) return false;
+  const memory = "deviceMemory" in navigator ? Number(navigator.deviceMemory) : 0;
+  const cores = Number(navigator.hardwareConcurrency || 0);
+  // Android Chrome sometimes hides the renderer/model on exactly the devices
+  // that tear pixels. If it is not clearly a high-end Android, render the
+  // hamburger menu through the safer premium variant.
+  return !(memory >= 8 && cores >= 8);
+}
+
 export function MegaMenu({ open, onClose }: Props) {
   const [settingsExpanded, setSettingsExpanded] = useState(false);
   const [dangerExpanded, setDangerExpanded] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
-  const [lowGpu, setLowGpu] = useState(() =>
-    typeof document !== "undefined" && document.documentElement.classList.contains("low-gpu"),
-  );
+  const [lowGpu, setLowGpu] = useState(shouldUseLowGpuMenu);
   const { isAuthenticated, openGate } = useAuthGate();
   const { fullName, storeName, baseCurrency } = useOnboarding();
   const { theme, toggle } = useTheme();
@@ -42,7 +61,7 @@ export function MegaMenu({ open, onClose }: Props) {
   useEffect(() => {
     if (!open) return;
     const root = document.documentElement;
-    const sync = () => setLowGpu(root.classList.contains("low-gpu"));
+    const sync = () => setLowGpu(shouldUseLowGpuMenu());
     sync();
     const observer = new MutationObserver(sync);
     observer.observe(root, { attributes: true, attributeFilter: ["class", "data-gpu-tier"] });
