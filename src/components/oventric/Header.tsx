@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
+  const [megaOpen, setMegaOpen] = useState(false);
   const unreadCount = useUnreadNotificationsCount();
   const unread = unreadCount > 0;
   const unreadMessages = useUnreadMessagesCount();
