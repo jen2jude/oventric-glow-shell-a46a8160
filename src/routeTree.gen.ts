@@ -10,6 +10,7 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
+import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -49,6 +50,11 @@ import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$i
 const TermsRoute = TermsRouteImport.update({
   id: '/terms',
   path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportProblemRoute = ReportProblemRouteImport.update({
+  id: '/report-problem',
+  path: '/report-problem',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyRoute = PrivacyRouteImport.update({
@@ -237,6 +243,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
+  '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
@@ -274,6 +281,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
+  '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
@@ -312,6 +320,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
+  '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
@@ -352,6 +361,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/privacy'
+    | '/report-problem'
     | '/terms'
     | '/admin/audit'
     | '/admin/blog'
@@ -389,6 +399,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/privacy'
+    | '/report-problem'
     | '/terms'
     | '/admin/audit'
     | '/admin/bounties'
@@ -426,6 +437,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/privacy'
+    | '/report-problem'
     | '/terms'
     | '/admin/audit'
     | '/admin/blog'
@@ -465,6 +477,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
   PrivacyRoute: typeof PrivacyRoute
+  ReportProblemRoute: typeof ReportProblemRoute
   TermsRoute: typeof TermsRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
@@ -485,6 +498,13 @@ declare module '@tanstack/react-router' {
       path: '/terms'
       fullPath: '/terms'
       preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report-problem': {
+      id: '/report-problem'
+      path: '/report-problem'
+      fullPath: '/report-problem'
+      preLoaderRoute: typeof ReportProblemRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy': {
@@ -807,6 +827,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
   PrivacyRoute: PrivacyRoute,
+  ReportProblemRoute: ReportProblemRoute,
   TermsRoute: TermsRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
