@@ -1046,7 +1046,7 @@ function ProfilePage() {
 
                 <div className="hidden sm:grid sm:grid-cols-5 gap-3">
                   <RepStat
-                    icon={<Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />}
+                    icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
                     value={
                       <div className="flex items-center gap-1">
@@ -1056,7 +1056,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<Target className="w-4 h-4 text-emerald-400" />}
+                    icon={<Target className="w-4 h-4 text-white" />}
                     label="Bounties Solved"
                     value={
                       <span className="text-white font-black">
@@ -1065,7 +1065,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<Award className="w-4 h-4 text-purple-400" />}
+                    icon={<Award className="w-4 h-4 text-white" />}
                     label="Product Rating"
                     value={
                       <span className="text-white font-black">
@@ -1078,7 +1078,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<ShoppingBag className="w-4 h-4 text-sky-400" />}
+                    icon={<ShoppingBag className="w-4 h-4 text-white" />}
                     label="Listings"
                     value={
                       <span className="text-white font-black">
@@ -1087,7 +1087,7 @@ function ProfilePage() {
                     }
                   />
                   <RepStat
-                    icon={<ShieldCheck className="w-4 h-4 text-emerald-400" />}
+                    icon={<ShieldCheck className="w-4 h-4 text-white" />}
                     label="Posts (30d)"
                     value={
                       <span className="text-white font-black">
