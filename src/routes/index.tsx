@@ -75,7 +75,19 @@ function Index() {
             {view}
           </main>
         </div>
-        <MobileNav onCreate={handleCreate} active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active} onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)} />
+        <MobileNav
+          onCreate={handleCreate}
+          active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active}
+          onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)}
+          counts={{
+            Feed: feedCount.count,
+            Market: marketCount.count,
+            Academy: academyCount.count,
+            Bounties: bountiesCount.count,
+            Wallet: walletCount.count,
+          }}
+        />
+
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
