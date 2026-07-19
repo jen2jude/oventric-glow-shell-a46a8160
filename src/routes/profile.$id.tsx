@@ -880,28 +880,8 @@ function ProfilePage() {
                 </div>
               </div>
 
-              <div className="profile-lowgpu-cover mb-3 h-28 border-y border-white/10 bg-[#1E1E24]">
-                {realProfile?.coverUrl ? (
-                  <img
-                    src={realProfile.coverUrl}
-                    alt={`${displayName} cover`}
-                    loading="eager"
-                    decoding="sync"
-                    className="block h-full w-full object-cover"
-                  />
-                ) : null}
-                {isOwnProfile && (
-                  <button
-                    type="button"
-                    onClick={() => coverInputRef.current?.click()}
-                    disabled={uploading === "cover"}
-                    aria-label="Change cover image"
-                    className="absolute top-2 right-2 inline-flex items-center justify-center w-9 h-9 rounded-md bg-[#121214] border border-white/20 text-white"
-                  >
-                    {uploading === "cover" ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Camera className="w-3.5 h-3.5" />}
-                  </button>
-                )}
-              </div>
+              {/* Cover image removed */}
+
 
               <section className="profile-lowgpu-card border border-white/10 bg-[#1E1E24] p-4">
                 <div className="flex items-start gap-3">
