@@ -216,11 +216,10 @@ function ProfilePage() {
       .catch(() => {});
   }, [fetchSocialCounts, id]);
 
-  // ------- Avatar & cover image upload (own profile only) -------
+  // ------- Avatar upload (own profile only) -------
   const updateProfileFn = useServerFn(updateMyProfile);
   const avatarInputRef = useRef<HTMLInputElement | null>(null);
-  const coverInputRef = useRef<HTMLInputElement | null>(null);
-  const [uploading, setUploading] = useState<"avatar" | "cover" | null>(null);
+  const [uploading, setUploading] = useState<"avatar" | null>(null);
   const reloadRealProfile = useCallback(async () => {
     try {
       const p = await fetchRealProfile({ data: { idOrSlug: id } });
@@ -230,7 +229,7 @@ function ProfilePage() {
     }
   }, [fetchRealProfile, id]);
   const handleImagePicked = useCallback(
-    async (kind: "avatar" | "cover", file: File | null | undefined) => {
+    async (kind: "avatar", file: File | null | undefined) => {
       if (!file || !meId) return;
       if (!file.type.startsWith("image/")) {
         alert("Please choose an image file.");
@@ -240,7 +239,7 @@ function ProfilePage() {
         alert("Image is too large (max 8MB).");
         return;
       }
-      const bucket = kind === "avatar" ? "avatars" : "profile-covers";
+      const bucket = "avatars";
       const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "").slice(0, 6) || "jpg";
       const path = `${meId}/${crypto.randomUUID()}.${ext}`;
       setUploading(kind);
@@ -251,9 +250,7 @@ function ProfilePage() {
           contentType: file.type,
         });
         if (upErr) throw upErr;
-        await updateProfileFn({
-          data: kind === "avatar" ? { avatarPath: path } : { coverPath: path },
-        });
+        await updateProfileFn({ data: { avatarPath: path } });
         await reloadRealProfile();
         try {
           window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId: meId } }));
@@ -269,6 +266,7 @@ function ProfilePage() {
     },
     [meId, updateProfileFn, reloadRealProfile],
   );
+
 
   // Cross-component sync: whenever profile is updated elsewhere (Settings modal,
   // KYC edit, avatar change in Header, etc.), refetch so this page reflects it.
