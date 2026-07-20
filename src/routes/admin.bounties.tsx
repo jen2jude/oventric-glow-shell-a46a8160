@@ -462,53 +462,51 @@ function BountiesAdminPage() {
 
             <div className="space-y-3">
               <div>
-                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Cover image</span>
-                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Shown on bounty cards. PNG/JPG/WebP up to 5MB.</p>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
+                  Images ({modal.images.length}/{MAX_IMAGES})
+                </span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">First image is used as the cover. PNG/JPG/WebP up to 5MB each.</p>
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
+                  multiple
                   className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverPick(f); e.target.value = ""; }}
+                  onChange={(e) => { if (e.target.files?.length) handleImagePick(e.target.files); e.target.value = ""; }}
                 />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingCover}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
-                >
-                  {modal.cover_preview ? (
-                    <ResponsiveImage sizes="80px" src={modal.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
-                      <ImagePlus className="w-6 h-6" />
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {modal.images.map((img, idx) => (
+                    <div key={img.path} className="relative aspect-square rounded-md overflow-hidden border border-white/10 bg-white/5">
+                      {img.preview ? (
+                        <ResponsiveImage sizes="120px" src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-500"><ImagePlus className="w-5 h-5" /></div>
+                      )}
+                      {idx === 0 && (
+                        <span className="absolute top-1 left-1 text-[9px] px-1 py-0.5 rounded bg-emerald-500 text-black font-bold uppercase">Cover</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 p-1 rounded bg-black/70 hover:bg-red-500/80 text-white"
+                        aria-label="Remove image"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0 text-xs">
-                    {uploadingCover ? (
-                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
-                    ) : modal.cover_preview ? (
-                      <>
-                        <div className="text-slate-200 font-medium">Image attached</div>
-                        <div className="text-slate-500 mt-0.5">Click to replace</div>
-                      </>
-                    ) : (
-                      <div className="text-slate-400">Click to upload a cover image (recommended 4:3).</div>
-                    )}
-                  </div>
-                  {modal.cover_preview && !uploadingCover && (
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); } }}
-                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
-                      aria-label="Remove image"
+                  ))}
+                  {modal.images.length < MAX_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      className="aspect-square rounded-md border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-400"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </span>
+                      {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                      <span className="text-[10px]">Add</span>
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
 
               <Field label="Title">
