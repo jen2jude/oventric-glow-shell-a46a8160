@@ -260,6 +260,9 @@ function useOnlineUsers(myId: string | null) {
   const [ids, setIds] = useState<string[]>([]);
   useEffect(() => {
     if (!myId) { setIds([]); return; }
+    for (const c of supabase.getChannels()) {
+      if (c.topic === "realtime:presence:online") supabase.removeChannel(c);
+    }
     const channel = supabase.channel("presence:online", { config: { presence: { key: myId } } });
     channel
       .on("presence", { event: "sync" }, () => {
