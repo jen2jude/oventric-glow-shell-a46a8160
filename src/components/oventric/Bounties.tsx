@@ -245,62 +245,19 @@ export function Bounties() {
 
   const selected = selectedId ? ALL_BOUNTIES.find((b) => b.id === selectedId) ?? null : null;
 
-  // ------- Live contract workspace -------
-  if (contract) {
-    const contractBounty = ALL_BOUNTIES.find((b) => b.id === contract.bountyId);
-    const contractApplicant = contractBounty?.applicants.find((a) => a.id === contract.applicantId);
-    if (!contractBounty || !contractApplicant) {
-      setContract(null);
-      setSelectedId(null);
-      return null;
-    }
+  // ------- Live bounty detail (real backend) -------
+  if (selectedId) {
     return (
-      <ContractWorkspace
-        contract={contract}
-        setContract={setContract}
-        role={role}
-        setRole={setRole}
-        currency={baseCurrency}
-        bounty={contractBounty}
-        applicant={contractApplicant}
-        onExit={() => {
-          setContract(null);
+      <BountyDetail
+        bountyId={selectedId}
+        onBack={() => {
           setSelectedId(null);
+          setContract(null);
         }}
       />
     );
   }
 
-  // ------- Applicant evaluation -------
-  if (selected) {
-    return (
-      <ApplicantEvaluation
-        bounty={selected}
-        currency={baseCurrency}
-        onBack={() => setSelectedId(null)}
-        onAssign={(applicantId) =>
-          require(2, () => {
-            setContract({
-              bountyId: selected.id,
-              applicantId,
-              status: "escrow",
-              deadline: Date.now() + 72 * H,
-              reviewDeadline: null,
-              disputed: false,
-              messages: [
-                {
-                  id: "m0",
-                  from: "system",
-                  text: `Contract sealed. ${selected.displayFormatted} locked in escrow.`,
-                  ts: Date.now(),
-                },
-              ],
-            });
-          }, "issuer")
-        }
-      />
-    );
-  }
 
   // ------- Public board -------
   return (
