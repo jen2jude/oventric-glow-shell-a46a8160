@@ -63,6 +63,7 @@ const NAV = [
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/products", label: "Products", icon: Package },
   { to: "/admin/campaigns", label: "Campaigns", icon: Megaphone },
+  { to: "/admin/ad-inquiries", label: "Ad Inquiries", icon: Megaphone },
   { to: "/admin/bounties", label: "Bounties", icon: Target },
   { to: "/admin/courses", label: "Academy", icon: GraduationCap },
   { to: "/admin/blog", label: "Blog", icon: BookOpen },
