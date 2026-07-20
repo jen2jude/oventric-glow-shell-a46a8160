@@ -20,6 +20,7 @@ import { ProfileSetupModalHost } from "@/lib/onboarding/ProfileSetupModal";
 import { KycGateProvider } from "@/lib/kyc-gate/KycGate";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { ReactivationGate } from "@/components/oventric/ReactivationGate";
+import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 
 
 function NotFoundComponent() {
