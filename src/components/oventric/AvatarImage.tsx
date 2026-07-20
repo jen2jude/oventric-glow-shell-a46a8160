@@ -42,7 +42,7 @@ export function AvatarImage({
           className="absolute inset-0 bg-white/5 animate-pulse"
         />
       )}
-      {/* Fallback: plain white person icon on a dark-grey circle with a 1px light outline. */}
+      {/* Fallback: plain white person icon on a dark-grey circle, no ring. */}
       {!showImage && (
         <span
           aria-hidden
