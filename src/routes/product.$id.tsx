@@ -113,7 +113,7 @@ function ProductPage() {
                   <>
                     <div className="relative aspect-[4/3] rounded-2xl bg-white/5 overflow-hidden flex items-center justify-center">
                       {cur ? (
-                        <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
+                        <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-contain" loading="eager" fetchPriority="high" decoding="async" />
                       ) : (
                         <ShoppingCart className="w-12 h-12 text-white/20" />
                       )}
@@ -131,7 +131,7 @@ function ProductPage() {
                             onClick={() => setActiveImage(i)}
                             className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10"}`}
                           >
-                            <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                            <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-contain" />
                           </button>
                         ))}
                       </div>
@@ -282,7 +282,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           <div className="flex gap-3 p-3">
             <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
               {cover ? (
-                <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-cover" />
+                <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain" />
               ) : <ShoppingCart className="w-6 h-6 text-white/30" />}
             </div>
             <div className="min-w-0 flex-1">
