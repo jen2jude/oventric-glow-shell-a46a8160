@@ -622,9 +622,11 @@ export function Wallet() {
       {addOpen && (
         <AddCapitalModal
           prefillUsd={addPrefillUsd}
+          returnTo={addReturnTo}
           onClose={() => {
             setAddOpen(false);
             setAddPrefillUsd(null);
+            setAddReturnTo(null);
           }}
         />
       )}
