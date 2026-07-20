@@ -214,6 +214,7 @@ function BountiesAdminPage() {
         end_at: end,
         deadline_at: deadline,
         status: modal.status as "active" | "paused" | "closed" | "draft",
+        promoted: modal.promoted,
       };
       if (modal.id) {
         await updateFn({ data: { id: modal.id, ...payload } });
