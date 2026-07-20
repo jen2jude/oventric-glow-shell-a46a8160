@@ -58,19 +58,6 @@ const emptyForm: FormState = {
   promoted: false,
 };
 
-const emptyForm: FormState = {
-  title: "",
-  description: "",
-  category: "api",
-  price_usd: "",
-  applicant_limit: "10",
-  start_at: "",
-  end_at: "",
-  deadline_at: "",
-  status: "active",
-  cover_path: null,
-  cover_preview: null,
-};
 
 // Format ISO string -> HTML datetime-local (yyyy-MM-ddTHH:mm) in local tz.
 function toLocalInput(iso: string | null | undefined): string {
