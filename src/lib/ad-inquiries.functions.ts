@@ -34,9 +34,10 @@ export const submitAdInquiry = createServerFn({ method: "POST" })
   .inputValidator((raw: unknown) => submitSchema.parse(raw))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const insertRow = { ...data, user_id: userId } as unknown as never;
     const { data: inserted, error } = await supabase
       .from("ad_inquiries")
-      .insert({ ...data, user_id: userId })
+      .insert(insertRow)
       .select("id")
       .single();
     if (error) throw new Error(error.message);
@@ -49,15 +50,14 @@ export const submitAdInquiry = createServerFn({ method: "POST" })
         .select("user_id")
         .eq("role", "admin");
       if (admins?.length) {
-        await supabaseAdmin.from("notifications").insert(
-          admins.map((a) => ({
-            user_id: a.user_id,
-            kind: "ad_inquiry",
-            title: "New advert inquiry",
-            body: `${data.contact_name} — ${data.tier.toUpperCase()} tier`,
-            data: { inquiry_id: inserted.id },
-          })),
-        );
+        const rows = admins.map((a) => ({
+          user_id: a.user_id,
+          kind: "ad_inquiry",
+          title: "New advert inquiry",
+          body: `${data.contact_name} — ${data.tier.toUpperCase()} tier`,
+          link: `/admin/ad-inquiries`,
+        })) as unknown as never;
+        await supabaseAdmin.from("notifications").insert(rows);
       }
     } catch { /* non-fatal */ }
 
