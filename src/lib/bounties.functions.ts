@@ -314,6 +314,22 @@ export const applyToBounty = createServerFn({ method: "POST" })
       body: dmBody,
     });
 
+    // Bounty-channel notifications for both sides.
+    await notifyBounty(
+      b.poster_id,
+      "bounty_application_received",
+      `New applicant on "${b.title}"`,
+      pitchBody,
+      context.userId,
+    );
+    await notifyBounty(
+      context.userId,
+      "bounty_application_submitted",
+      `Application sent — "${b.title}"`,
+      "You've applied to this bounty. The poster has been notified.",
+      b.poster_id,
+    );
+
     return { ok: true };
   });
 
