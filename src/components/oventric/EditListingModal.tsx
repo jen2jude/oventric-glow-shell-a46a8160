@@ -307,7 +307,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                       <div className="mt-2 grid grid-cols-4 gap-2">
                         {existing.map((img, i) => (
                           <div key={`e-${img.path}`} className={`relative aspect-square rounded-md overflow-hidden border ${i === 0 ? "border-emerald-500/60" : "border-white/10"}`}>
-                            {img.url ? <img src={img.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-contain bg-[#121214]" /> : <div className="w-full h-full bg-[#121214]" />}
+                            {img.url ? <img src={img.url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover bg-[#121214]" /> : <div className="w-full h-full bg-[#121214]" />}
                             {i === 0 && <span className="absolute top-1 left-1 text-[9px] font-bold uppercase bg-emerald-500/90 text-black rounded px-1">Cover</span>}
                             <button type="button" onClick={() => removeExisting(i)} className="absolute top-1 right-1 p-1 rounded bg-black/70 text-white hover:bg-red-500/80">
                               <Trash2 className="w-3 h-3" />
@@ -316,7 +316,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
                         ))}
                         {newPreviews.map((src, i) => (
                           <div key={`n-${i}`} className="relative aspect-square rounded-md overflow-hidden border border-emerald-400/40">
-                            <img src={src} alt="" loading="lazy" decoding="async" className="w-full h-full object-contain bg-[#121214]" />
+                            <img src={src} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover bg-[#121214]" />
                             <span className="absolute top-1 left-1 text-[9px] font-bold uppercase bg-emerald-500/90 text-black rounded px-1">New</span>
                             <button type="button" onClick={() => removeNew(i)} className="absolute top-1 right-1 p-1 rounded bg-black/70 text-white hover:bg-red-500/80">
                               <Trash2 className="w-3 h-3" />
