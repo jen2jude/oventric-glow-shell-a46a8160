@@ -183,7 +183,7 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
         className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center`}
       >
         {p.coverUrl ? (
-          <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+          <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={p.coverUrl} alt={p.title} className="w-full h-full object-contain" loading="lazy"  decoding="async" />
         ) : (
           <ShoppingBag className="w-4 h-4 text-white/90" />
         )}

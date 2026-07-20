@@ -382,7 +382,7 @@ function ProductCard({
     <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex flex-col h-full">
       <div className={`relative h-28 rounded-lg bg-white/5 mb-3 overflow-hidden`}>
         {p.coverUrl ? (
-          <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
+          <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-contain" loading="eager" fetchPriority="high" decoding="async" />
         ) : (
           <div className="absolute inset-0 opacity-30" style={{
             backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
