@@ -392,7 +392,7 @@ export const markBountySolved = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error } = await sb
-      .from("bounties").select("accepted_applicant_id, status").eq("id", data.bounty_id).maybeSingle();
+      .from("bounties").select("accepted_applicant_id, status, poster_id, title").eq("id", data.bounty_id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!b) throw new Error("Bounty not found");
     if (b.accepted_applicant_id !== context.userId) throw new Error("Only the accepted solver can mark this solved");
@@ -401,6 +401,13 @@ export const markBountySolved = createServerFn({ method: "POST" })
       .update({ solved_at: new Date().toISOString(), status: "solved" })
       .eq("id", data.bounty_id);
     if (e2) throw new Error(e2.message);
+    await notifyBounty(
+      b.poster_id,
+      "bounty_solved",
+      `Work delivered — "${b.title}"`,
+      "The solver marked the bounty delivered. Review and release, or funds auto-release in 48h.",
+      context.userId,
+    );
     return { ok: true };
   });
 
