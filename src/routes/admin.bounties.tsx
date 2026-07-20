@@ -660,6 +660,14 @@ function BountiesAdminPage() {
           onChanged={refresh}
         />
       )}
+
+      {showCategoryManager && (
+        <CategoryManagerModal
+          categories={categories}
+          onClose={() => setShowCategoryManager(false)}
+          onChanged={refreshCategories}
+        />
+      )}
     </div>
   );
 }
