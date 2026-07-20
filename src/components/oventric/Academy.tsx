@@ -39,6 +39,7 @@ import { CourseCheckoutModal } from "./CourseCheckoutModal";
 
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { AdSlot } from "@/components/oventric/ads/AdSlot";
 
 function courseDisplayPrice(c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown }, viewer: Currency) {
   return computeDisplayPrice(
@@ -161,6 +162,7 @@ export function Academy() {
       </div>
 
       <div className="px-4 py-6 space-y-4">
+        <AdSlot placement="academy" variant="banner" />
         {courses === null && (
           <div className="text-center py-10"><Loader2 className="w-6 h-6 text-emerald-400 animate-spin mx-auto" /></div>
         )}
