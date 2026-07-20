@@ -1451,11 +1451,7 @@ function ProfilePage() {
             </section>
           </div>
         </main>
-        <MobileNav
-          onCreate={() => require(1)}
-          active="Feed"
-          onSelect={(l) => navigate({ to: "/" })}
-        />
+        {/* Mobile footer nav is rendered globally in __root.tsx */}
       </div>
 
       <MessagesDrawer
