@@ -33,7 +33,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [createOpen, setCreateOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
+  const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
   const [active, setActive] = useState("Feed");
+
   const { require } = useOnboarding();
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
