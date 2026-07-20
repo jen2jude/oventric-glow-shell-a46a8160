@@ -338,7 +338,7 @@ function BountiesAdminPage() {
           aria-label="Filter by category"
         >
           <option value="all">All categories</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
         </select>
         <select
           value={statusFilter}
