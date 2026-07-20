@@ -186,6 +186,7 @@ function RootComponent() {
               <StageModals />
               <ProfileSetupModalHost />
               <ReactivationGate />
+              <GlobalMobileNav />
             </KycGateProvider>
 
           </OnboardingProvider>
