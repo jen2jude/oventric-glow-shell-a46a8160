@@ -418,6 +418,18 @@ function BountiesAdminPage() {
                   <Users className="w-4 h-4" /> Manage
                 </button>
                 <button
+                  onClick={() => togglePromoted(id, !b.promoted)}
+                  disabled={busy === id}
+                  className={`px-3 py-2 rounded-lg border text-xs font-bold inline-flex items-center gap-1.5 ${
+                    b.promoted
+                      ? "bg-fuchsia-500/20 border-fuchsia-500/40 text-fuchsia-200 hover:bg-fuchsia-500/30"
+                      : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                  }`}
+                  aria-label="Toggle promoted"
+                >
+                  <Sparkles className="w-4 h-4" /> {b.promoted ? "Promoted" : "Promote"}
+                </button>
+                <button
                   onClick={() => openEdit(b)}
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
                   aria-label="Edit bounty"
