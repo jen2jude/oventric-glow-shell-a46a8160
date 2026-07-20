@@ -245,6 +245,23 @@ function DashboardPage() {
           <p className="text-slate-400 mt-1 text-sm">Your full Oventric hub — wallet, bounties, courses, marketplace and social.</p>
         </header>
 
+        <Link
+          to="/ads-manager"
+          className="group mb-5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-transparent p-4 hover:border-emerald-500/50 transition"
+        >
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
+              <Bell className="w-5 h-5 text-emerald-400" />
+            </div>
+            <div className="min-w-0">
+              <div className="text-white font-semibold">Ads Manager</div>
+              <div className="text-slate-400 text-xs">Manage and track the performance of your ads.</div>
+            </div>
+          </div>
+          <ArrowUpRight className="w-4 h-4 text-emerald-400 shrink-0 group-hover:translate-x-0.5 transition" />
+        </Link>
+
+
         <div className="flex flex-wrap gap-1 rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
           <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
             <LayoutDashboard className="w-4 h-4" /> Overview
