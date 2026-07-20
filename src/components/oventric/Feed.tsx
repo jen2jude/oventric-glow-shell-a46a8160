@@ -939,6 +939,7 @@ export function Feed() {
               <article
                 key={post.id}
                 className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
+                style={{ contentVisibility: "auto", containIntrinsicSize: "1px 600px" }}
               >
                 <header className="flex items-center gap-3 mb-3">
                   <Link
