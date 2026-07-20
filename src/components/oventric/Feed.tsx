@@ -1,4 +1,4 @@
-import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen } from "lucide-react";
+import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen, User } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -82,6 +82,44 @@ function timeAgo(iso: string): string {
   if (h < 24) return `${h}h ago`;
   const d = Math.floor(h / 24);
   return `${d}d ago`;
+}
+
+/**
+ * Lightweight post-image wrapper that shows a neutral skeleton until the
+ * image decodes, then fades in. Keeps feed scrolling smooth on low-end
+ * Android and avoids blank flashes on slow connections.
+ */
+function FeedPostImage({
+  src,
+  alt,
+  className,
+  eager,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  eager?: boolean;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <>
+      {!loaded && (
+        <span
+          aria-hidden
+          className="absolute inset-0 bg-white/5 animate-pulse"
+        />
+      )}
+      <ResponsiveImage
+        src={src}
+        alt={alt}
+        loading={eager ? "eager" : "lazy"}
+        {...(eager ? { fetchpriority: "high" as const } : {})}
+        sizes="(min-width: 768px) 640px, 100vw"
+        onLoad={() => setLoaded(true)}
+        className={`${className ?? ""} transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  );
 }
 
 interface ReportDetails {
@@ -779,8 +817,8 @@ export function Feed() {
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
           className="w-full text-left bg-[#1E1E24] border border-white/10 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
         >
-          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-gradient-to-br from-emerald-400 to-emerald-600 text-black font-bold text-sm flex items-center justify-center">
-            <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} className="w-full h-full flex items-center justify-center" />
+          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 flex items-center justify-center">
+            <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
           </span>
           <span className="flex-1 text-sm text-slate-400 truncate">
             {placeholderIdx === 0
@@ -901,12 +939,13 @@ export function Feed() {
               <article
                 key={post.id}
                 className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
+                style={{ contentVisibility: "auto", containIntrinsicSize: "1px 600px" }}
               >
                 <header className="flex items-center gap-3 mb-3">
                   <Link
                     to="/profile/$id"
                     params={{ id: profileSlug }}
-                    className="w-10 h-10 rounded-full overflow-hidden bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-sm shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
+                    className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
                   >
                     <AvatarImage
                       src={post.author_avatar_url}
@@ -1002,11 +1041,9 @@ export function Feed() {
                             className={`relative block ${count === 1 ? "max-h-[520px]" : "aspect-square"} w-full overflow-hidden`}
                             aria-label={`Open image ${i + 1} of ${count}`}
                           >
-                            <ResponsiveImage
+                            <FeedPostImage
                               src={url}
                               alt={`Post attachment ${i + 1}`}
-                              loading="lazy"
-                              sizes="(min-width: 768px) 640px, 100vw"
                               className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
                             />
                             {isLastTile && count > 4 && (
@@ -1128,8 +1165,8 @@ export function Feed() {
                         const latest = comments[comments.length - 1];
                         return (
                           <div className="flex items-start gap-2">
-                            <div className="w-7 h-7 shrink-0 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">
-                              {latest.initials}
+                            <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center text-white/85">
+                              <User className="w-4 h-4" strokeWidth={1.75} />
                             </div>
                             <div className="flex-1 min-w-0 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
                               <div className="text-xs font-semibold text-white truncate">
@@ -1251,8 +1288,8 @@ export function Feed() {
                   onClick={() => setMentionsSheet(null)}
                   className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
                 >
-                  <span className="w-9 h-9 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center text-white text-xs font-semibold shrink-0">
-                    {(m.name || "?").slice(0, 2).toUpperCase()}
+                  <span className="w-9 h-9 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center text-white/85 shrink-0">
+                    <User className="w-5 h-5" strokeWidth={1.75} />
                   </span>
                   <span className="text-white text-sm truncate">{m.name}</span>
                 </Link>

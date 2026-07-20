@@ -3,7 +3,7 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff, LayoutDashboard } from "lucide-react";
+import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff, LayoutDashboard, User } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
@@ -251,11 +251,11 @@ export function ProfileDropdown() {
       aria-label="Open profile menu"
       className="rgb-static-border relative w-9 h-9 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
     >
-      <span className="absolute inset-[2px] rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-sm overflow-hidden">
+      <span className="absolute inset-[2px] rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
         {profile.avatarDataUrl ? (
           <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
         ) : (
-          <span>{initials}</span>
+          <User className="w-5 h-5 text-white/85" strokeWidth={1.75} aria-hidden />
         )}
       </span>
       <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#121214] bg-emerald-400 z-10" aria-hidden />
@@ -264,8 +264,8 @@ export function ProfileDropdown() {
 
   const identityBanner = (
     <div className="flex items-center gap-3">
-      <div className="w-12 h-12 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 text-black font-black text-base flex items-center justify-center shrink-0 overflow-hidden">
-        {profile.avatarDataUrl ? <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : initials}
+      <div className="w-12 h-12 rounded-full bg-neutral-800 text-white/85 flex items-center justify-center shrink-0 overflow-hidden">
+        {profile.avatarDataUrl ? <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : <User className="w-6 h-6" strokeWidth={1.75} aria-hidden />}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-white font-black text-sm truncate">{profile.displayName}</div>
@@ -803,13 +803,11 @@ function ProfileSettingsModal({
           <>
           {/* Avatar */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
+            <div className="w-16 h-16 rounded-full bg-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
               {avatar ? (
                 <ResponsiveImage sizes="96px" src={avatar} alt="Avatar preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-black font-black">
-                  {displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "OV"}
-                </div>
+                <User className="w-8 h-8 text-white/85" strokeWidth={1.75} aria-hidden />
               )}
             </div>
             <label className="flex-1 cursor-pointer">
