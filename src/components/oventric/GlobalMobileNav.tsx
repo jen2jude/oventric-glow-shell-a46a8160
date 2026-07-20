@@ -16,8 +16,8 @@ export function GlobalMobileNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [createOpen, setCreateOpen] = useState(false);
 
-  // Hide on admin routes to keep dashboards uncluttered.
-  if (pathname.startsWith("/admin")) return null;
+  // Hide on admin routes and on "/" (index renders its own nav with live counters).
+  if (pathname.startsWith("/admin") || pathname === "/") return null;
 
   const goSection = (label: string) => {
     const section = label === "Market" ? "Marketplace" : label;
