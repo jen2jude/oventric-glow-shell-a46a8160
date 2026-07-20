@@ -168,6 +168,8 @@ export function MegaMenu({ open, onClose }: Props) {
       role="dialog"
       aria-modal="true"
       aria-label="Menu"
+      data-testid="mega-menu"
+      data-variant="safe"
       className="megamenu-render-safe megamenu-lowgpu fixed inset-0 z-[2147483000] overflow-y-auto overscroll-contain bg-[#0b0b0d] text-slate-100"
       style={{ paddingTop: "env(safe-area-inset-top)", paddingBottom: "max(env(safe-area-inset-bottom), 16px)" }}
     >
