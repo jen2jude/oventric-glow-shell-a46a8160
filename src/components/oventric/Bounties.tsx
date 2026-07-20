@@ -386,6 +386,7 @@ export function Bounties() {
                 currency={baseCurrency}
                 onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
                 isNew={highlightId === b.id}
+                alreadyApplied={appliedIds.has(b.id)}
               />,
             ];
             if ((idx + 1) % 4 === 0) {
