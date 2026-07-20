@@ -16,8 +16,7 @@ import {
   Package,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useActiveAds } from "@/lib/admin/store";
-import { AdCard } from "@/components/oventric/AdCard";
+import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -85,7 +84,7 @@ export function Marketplace() {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
 
-  const marketplaceAds = useActiveAds("marketplace");
+
 
   const digital = useMemo(() => (products ?? []).filter((p) => p.kind !== "physical"), [products]);
   const physical = useMemo(() => (products ?? []).filter((p) => p.kind === "physical"), [products]);
