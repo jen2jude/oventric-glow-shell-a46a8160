@@ -33,7 +33,9 @@ export const Route = createFileRoute("/")({
 function Index() {
   const [createOpen, setCreateOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
+  const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
   const [active, setActive] = useState("Feed");
+
   const { require } = useOnboarding();
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
@@ -79,9 +81,21 @@ function Index() {
       const detail = (e as CustomEvent<{ section?: string }>).detail;
       if (detail?.section) setActive(detail.section);
     };
+    const onOpenDM = (e: Event) => {
+      const detail = (e as CustomEvent<{ peerId?: string }>).detail;
+      if (detail?.peerId) {
+        setMessagesPeer(detail.peerId);
+        setMessagesOpen(true);
+      }
+    };
     window.addEventListener("oventric:navigate", onNav);
-    return () => window.removeEventListener("oventric:navigate", onNav);
+    window.addEventListener("oventric:open-dm", onOpenDM);
+    return () => {
+      window.removeEventListener("oventric:navigate", onNav);
+      window.removeEventListener("oventric:open-dm", onOpenDM);
+    };
   }, []);
+
 
   // Resume the bounty publish flow after a successful wallet top-up.
   useEffect(() => {
@@ -144,7 +158,15 @@ function Index() {
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
-      <MessagesDrawer open={messagesOpen} onClose={() => setMessagesOpen(false)} />
+      <MessagesDrawer
+        open={messagesOpen}
+        onClose={() => {
+          setMessagesOpen(false);
+          setMessagesPeer(undefined);
+        }}
+        initialThreadId={messagesPeer}
+      />
+
     </div>
   );
 }

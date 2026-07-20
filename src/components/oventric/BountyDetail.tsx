@@ -1,0 +1,671 @@
+import { useCallback, useEffect, useMemo, useState } from "react";
+import {
+  ArrowLeft,
+  Target,
+  Clock,
+  Users,
+  MessageCircle,
+  CheckCircle2,
+  Lock,
+  AlertTriangle,
+  Loader2,
+  Send,
+  Star,
+  ShieldCheck,
+} from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
+import { supabase } from "@/integrations/supabase/client";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
+import {
+  applyToBounty,
+  acceptApplicant,
+  markBountySolved,
+  confirmAndRelease,
+  openBountyDispute,
+} from "@/lib/bounties.functions";
+
+interface Props {
+  bountyId: string;
+  onBack: () => void;
+}
+
+interface BountyRow {
+  id: string;
+  title: string;
+  description: string;
+  category: string;
+  price_usd: number;
+  original_currency: string | null;
+  original_amount: number | null;
+  fx_snapshot: unknown;
+  cover_path: string | null;
+  images: string[];
+  deadline_at: string | null;
+  end_at: string | null;
+  solved_at: string | null;
+  released_at: string | null;
+  status: string;
+  dispute_status: string;
+  admin_hold: boolean;
+  poster_id: string;
+  accepted_applicant_id: string | null;
+  created_at: string;
+}
+
+interface ProfileRow {
+  user_id: string;
+  display_name: string | null;
+  username: string | null;
+  slug: string | null;
+  avatar_path: string | null;
+}
+
+interface AppRow {
+  id: string;
+  bounty_id: string;
+  applicant_id: string;
+  pitch: string;
+  status: string;
+  created_at: string;
+}
+
+function timeLeft(iso: string | null) {
+  if (!iso) return null;
+  const ms = new Date(iso).getTime() - Date.now();
+  if (ms <= 0) return "Expired";
+  const h = Math.floor(ms / 3_600_000);
+  const m = Math.floor((ms % 3_600_000) / 60_000);
+  if (h >= 24) return `${Math.floor(h / 24)}d ${h % 24}h`;
+  return `${h}h ${m}m`;
+}
+
+async function signedUrl(path: string | null): Promise<string | null> {
+  if (!path) return null;
+  if (/^https?:\/\//.test(path)) return path;
+  const { data } = await supabase.storage.from("bounty-covers").createSignedUrl(path, 3600);
+  return data?.signedUrl ?? null;
+}
+
+export function BountyDetail({ bountyId, onBack }: Props) {
+  const { require, baseCurrency } = useOnboarding();
+  const [me, setMe] = useState<string | null>(null);
+  const [bounty, setBounty] = useState<BountyRow | null>(null);
+  const [profiles, setProfiles] = useState<Record<string, ProfileRow>>({});
+  const [apps, setApps] = useState<AppRow[]>([]);
+  const [imgUrls, setImgUrls] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [pitch, setPitch] = useState("");
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const applyFn = useServerFn(applyToBounty);
+  const acceptFn = useServerFn(acceptApplicant);
+  const solvedFn = useServerFn(markBountySolved);
+  const releaseFn = useServerFn(confirmAndRelease);
+  const disputeFn = useServerFn(openBountyDispute);
+
+  useEffect(() => {
+    supabase.auth.getUser().then(({ data }) => setMe(data.user?.id ?? null));
+  }, []);
+
+  const load = useCallback(async () => {
+    setLoading(true);
+    setError(null);
+    const { data: b, error: bErr } = await supabase
+      .from("bounties")
+      .select(
+        "id, title, description, category, price_usd, original_currency, original_amount, fx_snapshot, cover_path, images, deadline_at, end_at, solved_at, released_at, status, dispute_status, admin_hold, poster_id, accepted_applicant_id, created_at",
+      )
+      .eq("id", bountyId)
+      .maybeSingle();
+    if (bErr || !b) {
+      setError(bErr?.message ?? "Bounty not found");
+      setLoading(false);
+      return;
+    }
+    setBounty(b as BountyRow);
+
+    // Applications — RLS lets any signed-in user read, so this only returns
+    // rows for signed-in viewers.
+    const { data: a } = await supabase
+      .from("bounty_applications")
+      .select("id, bounty_id, applicant_id, pitch, status, created_at")
+      .eq("bounty_id", bountyId)
+      .order("created_at", { ascending: false });
+    setApps((a ?? []) as AppRow[]);
+
+    const ids = Array.from(
+      new Set(
+        [b.poster_id, b.accepted_applicant_id, ...(a ?? []).map((x) => x.applicant_id)].filter(
+          Boolean,
+        ) as string[],
+      ),
+    );
+    if (ids.length) {
+      const { data: p } = await supabase
+        .from("profiles")
+        .select("user_id, display_name, username, slug, avatar_path")
+        .in("user_id", ids);
+      const map: Record<string, ProfileRow> = {};
+      for (const row of (p ?? []) as ProfileRow[]) map[row.user_id] = row;
+      setProfiles(map);
+    }
+
+    // Sign image URLs
+    const paths = [b.cover_path, ...(b.images ?? [])].filter(Boolean) as string[];
+    const uniq = Array.from(new Set(paths));
+    const signed = await Promise.all(uniq.map(signedUrl));
+    setImgUrls(signed.filter((u): u is string => !!u));
+
+    setLoading(false);
+  }, [bountyId]);
+
+  useEffect(() => {
+    load();
+  }, [load]);
+
+  // Realtime: refresh on any change to this bounty or its apps
+  useEffect(() => {
+    const ch = supabase
+      .channel(`bounty-detail:${bountyId}`)
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "bounties", filter: `id=eq.${bountyId}` },
+        () => load(),
+      )
+      .on(
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "bounty_applications",
+          filter: `bounty_id=eq.${bountyId}`,
+        },
+        () => load(),
+      )
+      .subscribe();
+    return () => {
+      supabase.removeChannel(ch);
+    };
+  }, [bountyId, load]);
+
+  const myApp = useMemo(
+    () => (me ? apps.find((a) => a.applicant_id === me) ?? null : null),
+    [apps, me],
+  );
+
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-10 text-center text-slate-400">
+        <Loader2 className="w-6 h-6 animate-spin mx-auto" />
+      </div>
+    );
+  }
+  if (error || !bounty) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-10">
+        <button
+          onClick={onBack}
+          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white mb-4"
+        >
+          <ArrowLeft className="w-4 h-4" /> Back
+        </button>
+        <div className="rounded-xl border border-red-500/40 bg-red-500/10 text-red-200 p-4 text-sm">
+          {error ?? "Bounty not found"}
+        </div>
+      </div>
+    );
+  }
+
+  const isPoster = me === bounty.poster_id;
+  const isSolver = me === bounty.accepted_applicant_id;
+  const acceptedProfile = bounty.accepted_applicant_id
+    ? profiles[bounty.accepted_applicant_id]
+    : null;
+  const posterProfile = profiles[bounty.poster_id];
+  const dp = computeDisplayPrice(
+    {
+      price_usd: Number(bounty.price_usd),
+      original_currency: bounty.original_currency,
+      original_amount: bounty.original_amount,
+      fx_snapshot: bounty.fx_snapshot,
+    },
+    baseCurrency,
+  );
+
+  const openDM = (peerId: string | null | undefined) => {
+    if (!peerId) return;
+    window.dispatchEvent(new CustomEvent("oventric:open-dm", { detail: { peerId } }));
+  };
+
+  const doApply = async () => {
+    if (!pitch.trim()) return;
+    require(
+      2,
+      async () => {
+        setBusy("apply");
+        try {
+          await applyFn({ data: { bounty_id: bountyId, pitch: pitch.trim() } });
+          setPitch("");
+          await load();
+        } catch (e) {
+          alert((e as Error).message);
+        } finally {
+          setBusy(null);
+        }
+      },
+      "solver",
+    );
+  };
+
+  const doAccept = async (applicantId: string) => {
+    if (!confirm("Assign this applicant as the solver? All other applicants will be rejected."))
+      return;
+    setBusy(`accept:${applicantId}`);
+    try {
+      await acceptFn({ data: { bounty_id: bountyId, applicant_id: applicantId } });
+      await load();
+      openDM(applicantId);
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const doMarkSolved = async () => {
+    if (!confirm("Mark this bounty delivered? The poster has 48h to review before auto-release."))
+      return;
+    setBusy("solved");
+    try {
+      await solvedFn({ data: { bounty_id: bountyId } });
+      await load();
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const doRelease = async () => {
+    if (!confirm(`Release ${dp.formatted} to the solver now? This cannot be undone.`)) return;
+    setBusy("release");
+    try {
+      await releaseFn({ data: { bounty_id: bountyId } });
+      await load();
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const doDispute = async () => {
+    const reason = prompt("Describe the issue for admin review:");
+    if (!reason || !reason.trim()) return;
+    setBusy("dispute");
+    try {
+      await disputeFn({ data: { bounty_id: bountyId, reason: reason.trim() } });
+      await load();
+    } catch (e) {
+      alert((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
+  };
+
+  const statusPill = (() => {
+    if (bounty.released_at)
+      return { label: "Released", cls: "bg-slate-500/15 border-slate-500/40 text-slate-300" };
+    if (bounty.dispute_status === "open")
+      return { label: "In dispute", cls: "bg-amber-500/15 border-amber-500/40 text-amber-300" };
+    if (bounty.status === "solved")
+      return {
+        label: "Awaiting confirmation",
+        cls: "bg-sky-500/15 border-sky-500/40 text-sky-300",
+      };
+    if (bounty.accepted_applicant_id)
+      return { label: "In progress", cls: "bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300" };
+    return { label: "Open", cls: "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" };
+  })();
+
+  const remaining = timeLeft(bounty.deadline_at ?? bounty.end_at);
+  const solvedAgeH = bounty.solved_at
+    ? Math.max(0, (Date.now() - new Date(bounty.solved_at).getTime()) / 3_600_000)
+    : 0;
+  const autoReleaseIn = bounty.solved_at && bounty.status === "solved" ? Math.max(0, 48 - solvedAgeH) : null;
+
+  return (
+    <div className="max-w-4xl mx-auto w-full px-4 py-6">
+      <button
+        onClick={onBack}
+        className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 mb-4"
+      >
+        <ArrowLeft className="w-4 h-4" /> Back to Bounty Board
+      </button>
+
+      {/* Header card */}
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden mb-5">
+        {imgUrls[0] && (
+          <ResponsiveImage
+            src={imgUrls[0]}
+            alt={bounty.title}
+            className="w-full max-h-72 object-cover"
+            sizes="(min-width: 768px) 800px, 100vw"
+            loading="eager"
+          />
+        )}
+        <div className="p-5">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+              <Target className="w-3 h-3" /> {dp.formatted}
+            </span>
+            <span
+              className={`inline-flex items-center gap-1.5 px-2 py-1 rounded-md border text-[10px] font-bold tracking-wider ${statusPill.cls}`}
+            >
+              {statusPill.label}
+            </span>
+            {bounty.admin_hold && (
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/15 border border-red-500/40 text-red-300 text-[10px] font-bold tracking-wider">
+                <Lock className="w-3 h-3" /> Admin hold
+              </span>
+            )}
+          </div>
+          <h1 className="mt-2 text-white text-xl md:text-2xl font-black leading-tight">
+            {bounty.title}
+          </h1>
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+            {remaining && (
+              <span className="inline-flex items-center gap-1">
+                <Clock className="w-3.5 h-3.5 text-amber-400" /> {remaining} left
+              </span>
+            )}
+            <span className="inline-flex items-center gap-1">
+              <Users className="w-3.5 h-3.5" /> {apps.length}{" "}
+              {apps.length === 1 ? "applicant" : "applicants"}
+            </span>
+            {autoReleaseIn !== null && (
+              <span className="inline-flex items-center gap-1 text-sky-300">
+                <ShieldCheck className="w-3.5 h-3.5" /> Auto-release in ~{Math.ceil(autoReleaseIn)}h
+              </span>
+            )}
+          </div>
+
+          {/* Poster */}
+          <div className="mt-4 flex items-center gap-3 pt-4 border-t border-white/5">
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-white/10 shrink-0">
+              <AvatarImage src={posterProfile?.avatar_path ?? null} alt={posterProfile?.display_name ?? "Poster"} className="w-full h-full" />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-white text-sm font-semibold truncate">
+                {posterProfile?.display_name || posterProfile?.username || "Poster"}
+              </div>
+              <div className="text-xs text-slate-500 truncate">
+                @{posterProfile?.username || posterProfile?.slug || "user"} · posted this bounty
+              </div>
+            </div>
+            {me && !isPoster && (
+              <button
+                onClick={() => openDM(bounty.poster_id)}
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> Message
+              </button>
+            )}
+          </div>
+
+          {bounty.description && (
+            <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+              {bounty.description}
+            </div>
+          )}
+
+          {imgUrls.length > 1 && (
+            <div className="mt-4 grid grid-cols-2 md:grid-cols-3 gap-2">
+              {imgUrls.slice(1).map((u, i) => (
+                <ResponsiveImage
+                  key={i}
+                  src={u}
+                  alt={`${bounty.title} ${i + 2}`}
+                  className="w-full h-32 object-cover rounded-lg border border-white/10"
+                  sizes="240px"
+                  loading="lazy"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Contract workspace: shown once a solver is accepted */}
+      {bounty.accepted_applicant_id && (isPoster || isSolver) && (
+        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider mb-3">
+            <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
+          </div>
+
+          <div className="flex items-center gap-3 mb-4">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+              <AvatarImage
+                src={acceptedProfile?.avatar_path ?? null}
+                alt={acceptedProfile?.display_name ?? "Solver"}
+                className="w-full h-full"
+              />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="text-white text-sm font-semibold truncate">
+                {isPoster ? "Solver: " : "Poster: "}
+                {isPoster
+                  ? acceptedProfile?.display_name || acceptedProfile?.username || "Solver"
+                  : posterProfile?.display_name || posterProfile?.username || "Poster"}
+              </div>
+              <div className="text-xs text-slate-500">
+                {isPoster
+                  ? "Working on your task"
+                  : "You accepted this bounty"}
+              </div>
+            </div>
+            <button
+              onClick={() => openDM(isPoster ? bounty.accepted_applicant_id : bounty.poster_id)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
+            >
+              <MessageCircle className="w-4 h-4" /> Open Chat
+            </button>
+          </div>
+
+          {bounty.dispute_status === "open" && (
+            <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-200 text-xs font-semibold">
+              <AlertTriangle className="w-4 h-4" /> Dispute open — admin will review. Auto-release paused.
+            </div>
+          )}
+          {bounty.admin_hold && (
+            <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-red-500/10 border border-red-500/50 text-red-200 text-xs font-semibold">
+              <Lock className="w-4 h-4" /> Funds on hold by admin.
+            </div>
+          )}
+
+          <div className="flex flex-wrap gap-2">
+            {isSolver && !bounty.released_at && bounty.status !== "solved" && (
+              <button
+                onClick={doMarkSolved}
+                disabled={busy === "solved" || bounty.dispute_status === "open"}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
+              >
+                <Send className="w-4 h-4" /> Mark work delivered
+              </button>
+            )}
+            {isPoster && !bounty.released_at && (
+              <button
+                onClick={doRelease}
+                disabled={busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+              >
+                <CheckCircle2 className="w-4 h-4" /> Confirm &amp; release {dp.formatted}
+              </button>
+            )}
+            {!bounty.released_at && bounty.dispute_status !== "open" && (
+              <button
+                onClick={doDispute}
+                disabled={busy === "dispute"}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold disabled:opacity-50"
+              >
+                <AlertTriangle className="w-4 h-4" /> Open dispute
+              </button>
+            )}
+            {bounty.released_at && (
+              <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/40 text-emerald-300 text-sm font-semibold">
+                <CheckCircle2 className="w-4 h-4" /> Funds released — bounty complete
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* Apply form (non-poster, no accepted solver yet) */}
+      {!isPoster && !bounty.accepted_applicant_id && !bounty.released_at && (
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-5">
+          <div className="text-white font-bold text-sm mb-1 inline-flex items-center gap-2">
+            <Star className="w-4 h-4 text-emerald-400" /> Apply for this bounty
+          </div>
+          <p className="text-xs text-slate-400 mb-3">
+            Tell the poster why you're the right solver. Your pitch will be sent as a direct
+            message so they can chat with you immediately.
+          </p>
+          {myApp ? (
+            <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 p-3 text-sm">
+              {myApp.status === "accepted" ? (
+                <>You've been accepted 🎉 — check the contract workspace above.</>
+              ) : myApp.status === "rejected" ? (
+                <>You weren't selected for this bounty.</>
+              ) : (
+                <>Your application is pending review. The poster has been notified.</>
+              )}
+              <div className="mt-2 text-xs text-slate-300 whitespace-pre-wrap">{myApp.pitch}</div>
+              <button
+                onClick={() => openDM(bounty.poster_id)}
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+              >
+                <MessageCircle className="w-3.5 h-3.5" /> Message poster
+              </button>
+            </div>
+          ) : (
+            <>
+              <textarea
+                value={pitch}
+                onChange={(e) => setPitch(e.target.value.slice(0, 2000))}
+                rows={5}
+                placeholder="Your pitch — experience, timeline, approach…"
+                className="w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+              />
+              <div className="mt-2 flex items-center justify-between gap-3">
+                <div className="text-[11px] text-slate-500">{pitch.length}/2000</div>
+                <button
+                  onClick={doApply}
+                  disabled={!pitch.trim() || busy === "apply"}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
+                >
+                  {busy === "apply" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
+                  Submit application
+                </button>
+              </div>
+            </>
+          )}
+        </div>
+      )}
+
+      {/* Applicants list — poster only */}
+      {isPoster && (
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
+          <div className="text-white font-bold text-sm mb-3 inline-flex items-center gap-2">
+            <Users className="w-4 h-4 text-emerald-400" /> Applicants ({apps.length})
+          </div>
+          {apps.length === 0 ? (
+            <div className="text-sm text-slate-500 text-center py-6">
+              No applications yet. Share the bounty link to attract solvers.
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {apps.map((a) => {
+                const p = profiles[a.applicant_id];
+                const accepted = a.status === "accepted";
+                const rejected = a.status === "rejected";
+                const canAccept = !bounty.accepted_applicant_id && !bounty.released_at;
+                return (
+                  <div
+                    key={a.id}
+                    className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5" : rejected ? "border-white/5 bg-white/5 opacity-60" : "border-white/10 bg-[#121214]"}`}
+                  >
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+                      <AvatarImage
+                        src={p?.avatar_path ?? null}
+                        alt={p?.display_name ?? "Applicant"}
+                        className="w-full h-full"
+                      />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="text-white text-sm font-semibold">
+                          {p?.display_name || p?.username || "Applicant"}
+                        </span>
+                        <span className="text-xs text-slate-500">
+                          @{p?.username || p?.slug || "user"}
+                        </span>
+                        {accepted && (
+                          <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
+                            Accepted
+                          </span>
+                        )}
+                        {rejected && (
+                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
+                            Rejected
+                          </span>
+                        )}
+                      </div>
+                      {a.pitch && (
+                        <div className="mt-1 text-sm text-slate-300 whitespace-pre-wrap">
+                          {a.pitch}
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex gap-2 shrink-0">
+                      <button
+                        onClick={() => openDM(a.applicant_id)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+                      >
+                        <MessageCircle className="w-3.5 h-3.5" /> Chat
+                      </button>
+                      {canAccept && !accepted && !rejected && (
+                        <button
+                          onClick={() => doAccept(a.applicant_id)}
+                          disabled={busy === `accept:${a.applicant_id}`}
+                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
+                        >
+                          {busy === `accept:${a.applicant_id}` ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          )}
+                          Accept
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+    </div>
+  );
+}
+
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const _keepCurrency = (_c: Currency) => _c;

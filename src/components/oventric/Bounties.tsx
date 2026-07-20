@@ -22,8 +22,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
+import { BountyDetail } from "./BountyDetail";
 import { Plus } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
@@ -117,13 +119,12 @@ export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [contract, setContract] = useState<ContractState | null>(null);
-  const [role, setRole] = useState<"poster" | "developer">("poster");
   const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
   const [adsLoading, setAdsLoading] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+
 
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
   useEffect(() => {
@@ -241,64 +242,17 @@ export function Bounties() {
   const totalLocked = ALL_BOUNTIES.reduce((s, b) => s + b.priceUSD, 0);
   const activeCount = ALL_BOUNTIES.length;
 
-  const selected = selectedId ? ALL_BOUNTIES.find((b) => b.id === selectedId) ?? null : null;
-
-  // ------- Live contract workspace -------
-  if (contract) {
-    const contractBounty = ALL_BOUNTIES.find((b) => b.id === contract.bountyId);
-    const contractApplicant = contractBounty?.applicants.find((a) => a.id === contract.applicantId);
-    if (!contractBounty || !contractApplicant) {
-      setContract(null);
-      setSelectedId(null);
-      return null;
-    }
+  // ------- Live bounty detail (real backend) -------
+  if (selectedId) {
     return (
-      <ContractWorkspace
-        contract={contract}
-        setContract={setContract}
-        role={role}
-        setRole={setRole}
-        currency={baseCurrency}
-        bounty={contractBounty}
-        applicant={contractApplicant}
-        onExit={() => {
-          setContract(null);
-          setSelectedId(null);
-        }}
-      />
-    );
-  }
-
-  // ------- Applicant evaluation -------
-  if (selected) {
-    return (
-      <ApplicantEvaluation
-        bounty={selected}
-        currency={baseCurrency}
+      <BountyDetail
+        bountyId={selectedId}
         onBack={() => setSelectedId(null)}
-        onAssign={(applicantId) =>
-          require(2, () => {
-            setContract({
-              bountyId: selected.id,
-              applicantId,
-              status: "escrow",
-              deadline: Date.now() + 72 * H,
-              reviewDeadline: null,
-              disputed: false,
-              messages: [
-                {
-                  id: "m0",
-                  from: "system",
-                  text: `Contract sealed. ${selected.displayFormatted} locked in escrow.`,
-                  ts: Date.now(),
-                },
-              ],
-            });
-          }, "issuer")
-        }
       />
     );
   }
+
+
 
   // ------- Public board -------
   return (
