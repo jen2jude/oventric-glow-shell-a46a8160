@@ -127,6 +127,24 @@ export function Bounties() {
   const [postOpen, setPostOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+  const { isAuthenticated } = useAuthGate();
+  const fetchMyApps = useServerFn(listMyBountyApplicationIds);
+
+  // Load ids of bounties the current user already applied to.
+  useEffect(() => {
+    if (!isAuthenticated) { setAppliedIds(new Set()); return; }
+    let cancelled = false;
+    fetchMyApps()
+      .then((rows) => {
+        if (cancelled) return;
+        setAppliedIds(new Set((rows ?? []).map((r) => r.bounty_id)));
+      })
+      .catch(() => { if (!cancelled) setAppliedIds(new Set()); });
+    return () => { cancelled = true; };
+  }, [isAuthenticated, fetchMyApps, refreshTick]);
+
+
 
 
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
