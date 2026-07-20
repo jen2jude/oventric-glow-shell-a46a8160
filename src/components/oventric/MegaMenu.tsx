@@ -139,6 +139,7 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
     { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
     { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
+    { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
 
   const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/?ref=${userSlug}` : "";
