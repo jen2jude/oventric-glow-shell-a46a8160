@@ -111,11 +111,11 @@ function ProductPage() {
                 const cur = gallery[activeImage] ?? gallery[0];
                 return (
                   <>
-                    <div className={`relative aspect-[4/3] rounded-2xl bg-gradient-to-br ${product.hue} overflow-hidden`}>
+                    <div className="relative aspect-[4/3] rounded-2xl bg-white/5 overflow-hidden flex items-center justify-center">
                       {cur ? (
                         <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-contain" loading="eager" fetchPriority="high" decoding="async" />
                       ) : (
-                        <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 55%)" }} />
+                        <ShoppingCart className="w-12 h-12 text-white/20" />
                       )}
                       {product.promoted && (
                         <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
@@ -280,10 +280,10 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
         {/* Live preview card — mirrors what the seller will see */}
         <div className="mb-4 rounded-xl border border-white/10 bg-[#121214] overflow-hidden">
           <div className="flex gap-3 p-3">
-            <div className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${product.hue}`}>
+            <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
               {cover ? (
                 <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain" />
-              ) : null}
+              ) : <ShoppingCart className="w-6 h-6 text-white/30" />}
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">

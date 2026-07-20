@@ -358,13 +358,13 @@ function CheckoutPage() {
                   src={product.coverUrl}
                   alt={product.name}
                   sizes="(min-width: 1024px) 384px, 100vw"
-                  className={`w-full h-32 object-contain rounded-lg mb-3 border border-white/5 bg-gradient-to-br ${product.hue}`}
+                  className="w-full h-32 object-contain rounded-lg mb-3 border border-white/5 bg-white/5"
                   loading="eager"
                   fetchPriority="high"
                 />
 
               ) : (
-                <div className={`h-20 rounded-lg bg-gradient-to-br ${product.hue} mb-3`} />
+                <div className="h-20 rounded-lg bg-white/5 mb-3" />
               )}
               <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
               <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
