@@ -3,7 +3,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   Loader2, Plus, Trash2, Play, Pause, StopCircle, Image as ImageIcon, Video as VideoIcon,
-  BarChart3, Mail, X, Upload, ArrowUpDown, Type, ExternalLink, MessageCircle,
+  Mail, X, Upload, ArrowUpDown, Type, ExternalLink, MessageCircle,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
