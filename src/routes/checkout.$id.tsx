@@ -232,9 +232,10 @@ function CheckoutPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200">
+    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
       <Header onOpenMessages={() => {}} />
-      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24">
+      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
+
         <Link
           to="/product/$id"
           params={{ id }}
@@ -259,9 +260,10 @@ function CheckoutPage() {
         )}
 
         {product && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
             {/* Payment methods */}
-            <div className="lg:col-span-2 space-y-3">
+            <div className="lg:col-span-2 space-y-3 min-w-0">
+
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Payment Method</h2>
               {methods.map((m) => {
                 const active = method === m.id;
@@ -351,7 +353,7 @@ function CheckoutPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max">
+            <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max min-w-0">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Summary</h2>
               {product.coverUrl ? (
                 <ResponsiveImage
@@ -392,7 +394,7 @@ function CheckoutPage() {
                           value={couponInput}
                           onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(null); }}
                           placeholder="Enter code"
-                          className="flex-1 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
+                          className="flex-1 min-w-0 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
                         />
                         <button
                           onClick={async () => {
