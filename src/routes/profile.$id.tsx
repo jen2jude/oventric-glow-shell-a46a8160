@@ -964,50 +964,51 @@ function ProfilePage() {
               </section>
             </div>
 
-            <div className="profile-standard-cover profile-cover-safe relative mb-4 h-32 sm:h-48 rounded-xl border border-white/10 bg-[#1E1E24] sm:bg-[#18181d]">
-              {realProfile?.coverUrl ? (
-                <ResponsiveImage
-                  src={realProfile.coverUrl}
-                  alt={`${displayName} cover`}
-                  sizes="(min-width: 768px) 768px, 100vw"
-                  className="block h-full w-full rounded-[11px] object-cover"
-                />
-              ) : null}
-              {isOwnProfile && (
-                <button
-                  type="button"
-                  onClick={() => coverInputRef.current?.click()}
-                  disabled={uploading === "cover"}
-                  aria-label="Change cover image"
-                  className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-[#121214] hover:bg-[#18181d] border border-white/20 text-white text-xs font-semibold"
-                >
-                  {uploading === "cover" ? (
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                  ) : (
-                    <Camera className="w-3.5 h-3.5" />
-                  )}
-                  <span className="hidden sm:inline">
-                    {uploading === "cover" ? "Uploading…" : realProfile?.coverUrl ? "Change cover" : "Add cover"}
-                  </span>
-                </button>
-              )}
-            </div>
-
-
             <section
               data-testid="profile-banner"
-              className="profile-card-safe bg-[#1E1E24] border border-white/10 rounded-xl p-4 sm:p-6"
+              className="profile-card-safe profile-standard-header mb-6"
             >
-              <div className="profile-standard-identity flex flex-col sm:flex-row sm:items-center gap-5">
-                <div className="relative shrink-0 self-start">
-                  <div
-                    className="profile-avatar-safe w-20 h-20 rounded-full bg-emerald-500 flex items-center justify-center text-black text-2xl font-black"
+              {/* Cover image (top banner) */}
+              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-xl border border-white/10 bg-[#18181d] overflow-hidden">
+                {realProfile?.coverUrl ? (
+                  <ResponsiveImage
+                    src={realProfile.coverUrl}
+                    alt={`${displayName} cover`}
+                    sizes="(min-width: 768px) 768px, 100vw"
+                    className="block h-full w-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-fuchsia-500/25" />
+                )}
+                {isOwnProfile && (
+                  <button
+                    type="button"
+                    onClick={() => coverInputRef.current?.click()}
+                    disabled={uploading === "cover"}
+                    aria-label="Change cover image"
+                    className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/70 border border-white/20 text-white text-xs font-semibold"
                   >
+                    {uploading === "cover" ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <Camera className="w-3.5 h-3.5" />
+                    )}
+                    <span className="hidden sm:inline">
+                      {uploading === "cover" ? "Uploading…" : realProfile?.coverUrl ? "Change cover" : "Add cover"}
+                    </span>
+                  </button>
+                )}
+              </div>
+
+              {/* Centered identity — avatar overlaps cover from the top */}
+              <div className="-mt-14 sm:-mt-16 flex flex-col items-center px-4">
+                <div className="relative">
+                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
                     {displayAvatar ? (
                       <ResponsiveImage
                         src={displayAvatar}
                         alt={`${displayName} avatar`}
-                        sizes="80px"
+                        sizes="128px"
                         className="block w-full h-full rounded-full object-cover"
                       />
                     ) : (
@@ -1020,10 +1021,10 @@ function ProfilePage() {
                       onClick={() => avatarInputRef.current?.click()}
                       disabled={uploading === "avatar"}
                       aria-label="Change profile picture"
-                      className="absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black border-2 border-[#1E1E24] flex items-center justify-center shadow-lg"
+                      className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black border-2 border-[#121214] flex items-center justify-center shadow-lg"
                     >
                       {uploading === "avatar" ? (
-                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        <Loader2 className="w-4 h-4 animate-spin" />
                       ) : (
                         <Camera className="w-4 h-4" strokeWidth={2.4} />
                       )}
@@ -1031,87 +1032,69 @@ function ProfilePage() {
                   )}
                 </div>
 
-                <div className="min-w-0 flex-1">
-                  <div className="flex items-center gap-2 flex-wrap">
-                    <h1 className="text-white text-2xl font-black">{displayName}</h1>
-                    <ShieldCheck className="w-4 h-4 text-white" aria-label={displayTierLabel} />
-                    <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
-                      {displayTierLabel}
-                    </span>
-                  </div>
-                  <div className="text-sm text-slate-400 mt-0.5">{displayRole}</div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    Joined {displayJoined} · ★ {displayStars.toFixed(1)}
-                  </div>
-                  <div className="mt-2 flex flex-wrap items-center gap-3 text-xs">
-                    <span className="text-slate-300">
-                      <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
-                      <span className="text-slate-500">followers</span>
-                    </span>
-                    <span className="text-slate-300">
-                      <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
-                      <span className="text-slate-500">following</span>
-                    </span>
-                    <span className="text-slate-300">
-                      <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
-                      <span className="text-slate-500">in circle</span>
-                    </span>
-                  </div>
-                  <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed">
-                    {displayBio || <span className="text-slate-500 italic">No bio yet.</span>}
-                  </p>
-                  <div className="profile-mid-safe mt-3 hidden items-center gap-2.5 sm:flex" aria-label={`${socialCounts?.circleMembers ?? 0} members in ${displayName}'s circle`}>
-                    <div className="flex -space-x-2">
-                      {circleMembers.preview.slice(0, Math.min(circleMembers.preview.length, socialCounts?.circleMembers ?? 0)).map((m) => (
-                        <div
-                          key={m.id}
-                          title={m.name}
-                          className="w-7 h-7 rounded-full bg-[#25252B] border-2 border-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-slate-200"
-                        >
-                          {m.initials}
-                        </div>
-                      ))}
-                      {(socialCounts?.circleMembers ?? 0) > circleMembers.preview.length && (
-                        <div className="w-7 h-7 rounded-full bg-white/10 ring-2 ring-[#1E1E24] flex items-center justify-center text-[10px] font-bold text-slate-200">
-                          +{Math.max(0, (socialCounts?.circleMembers ?? 0) - circleMembers.preview.length)}
-                        </div>
-                      )}
-                    </div>
-                    <span className="text-xs text-slate-400">
-                      <span className="font-semibold text-slate-200">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span> in circle
-                    </span>
-                  </div>
+                <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
+                  <h1 className="text-white text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
+                  <ShieldCheck className="w-5 h-5 text-white" aria-label={displayTierLabel} />
+                </div>
+                <span className="mt-1.5 inline-flex text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
+                  {displayTierLabel}
+                </span>
 
+                <div className="text-sm text-slate-400 mt-2 text-center">{displayRole}</div>
+                <div className="text-xs text-slate-500 mt-1 text-center">
+                  Joined {displayJoined} · ★ {displayStars.toFixed(1)}
                 </div>
+
+                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs">
+                  <span className="text-slate-300">
+                    <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500">followers</span>
+                  </span>
+                  <span className="text-slate-300">
+                    <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500">following</span>
+                  </span>
+                  <span className="text-slate-300">
+                    <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500">in circle</span>
+                  </span>
+                </div>
+
+                {displayBio && (
+                  <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed text-center max-w-md">
+                    {displayBio}
+                  </p>
+                )}
+
                 {!isOwnProfile && !identityMissing && realProfile?.userId && (
-                <div className="flex sm:flex-col gap-2 sm:w-44 shrink-0">
-                  <FollowButton targetId={realProfile.userId} className="w-full" />
-                  <button
-                    onClick={() => setJoinCircleOpen(true)}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold"
-                    aria-label="Request to join one of this user's circles"
-                  >
-                    <Users className="w-4 h-4" /> Join Circle
-                  </button>
-                  <button
-                    onClick={handleChat}
-                    className="flex-1 sm:flex-none inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
-                  >
-                    <MessageCircle className="w-4 h-4" /> Chat
-                  </button>
-                  <button
-                    onClick={() => setReportOpen(true)}
-                    className="hidden sm:inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-400 hover:bg-white/5 text-xs"
-                  >
-                    <Flag className="w-3.5 h-3.5" /> Report
-                  </button>
-                </div>
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2 w-full max-w-md">
+                    <FollowButton targetId={realProfile.userId} className="flex-1 min-w-[120px]" />
+                    <button
+                      onClick={() => setJoinCircleOpen(true)}
+                      className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold"
+                      aria-label="Request to join one of this user's circles"
+                    >
+                      <Users className="w-4 h-4" /> Join Circle
+                    </button>
+                    <button
+                      onClick={handleChat}
+                      className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Chat
+                    </button>
+                    <button
+                      onClick={() => setReportOpen(true)}
+                      className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-400 hover:bg-white/5 text-xs"
+                    >
+                      <Flag className="w-3.5 h-3.5" /> Report
+                    </button>
+                  </div>
                 )}
                 {isOwnProfile && (
-                  <div className="hidden sm:flex flex-col gap-2 sm:w-44 shrink-0">
-                    <div className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
+                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
                       This is your profile
-                    </div>
+                    </span>
                     <button
                       onClick={() => navigate({ to: "/" })}
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
@@ -1121,9 +1104,11 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
+            </section>
+
 
               {/* Reputation block */}
-              <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
+              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 bg-[#1E1E24]">
                 <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
                   <MobileRepLine
                     icon={<Star className="w-4 h-4 text-white" />}
@@ -1264,7 +1249,6 @@ function ProfilePage() {
                   </ul>
                 )}
               </div>
-            </section>
 
 
 
