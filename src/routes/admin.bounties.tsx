@@ -94,14 +94,17 @@ function BountiesAdminPage() {
   const createFn = useServerFn(adminCreateBounty);
   const updateFn = useServerFn(adminUpdateBounty);
   const deleteFn = useServerFn(adminDeleteBounty);
+  const listCatsFn = useServerFn(adminListBountyCategories);
 
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [modal, setModal] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<BountyCategory[]>(FALLBACK_CATEGORIES);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
 
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -150,58 +153,99 @@ function BountiesAdminPage() {
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
   }, [listFn]);
-  useEffect(() => { refresh(); }, [refresh]);
+  const refreshCategories = useCallback(() => {
+    listCatsFn()
+      .then((cats) => setCategories(Array.isArray(cats) && cats.length ? cats : FALLBACK_CATEGORIES))
+      .catch(() => setCategories(FALLBACK_CATEGORIES));
+  }, [listCatsFn]);
+  useEffect(() => { refresh(); refreshCategories(); }, [refresh, refreshCategories]);
 
-  const openCreate = () => setModal({ ...emptyForm });
+  const signImagePaths = async (paths: string[]): Promise<ImageEntry[]> => {
+    return Promise.all(
+      paths.map(async (p) => {
+        try {
+          const { data: signed } = await supabase.storage
+            .from("bounty-covers")
+            .createSignedUrl(p, 60 * 60);
+          return { path: p, preview: signed?.signedUrl ?? null };
+        } catch {
+          return { path: p, preview: null };
+        }
+      }),
+    );
+  };
+
+  const openCreate = () => setModal({ ...emptyForm, category: categories[0]?.slug ?? "api" });
   const openEdit = async (b: Row) => {
+    const rawImages = Array.isArray(b.images) ? (b.images as unknown[]).filter((x): x is string => typeof x === "string") : [];
     const coverPath = (b.cover_path as string) ?? null;
-    let coverPreview: string | null = null;
-    if (coverPath) {
-      const { data: signed } = await supabase.storage
-        .from("bounty-covers")
-        .createSignedUrl(coverPath, 60 * 60);
-      coverPreview = signed?.signedUrl ?? null;
-    }
+    const merged = coverPath ? [coverPath, ...rawImages.filter((p) => p !== coverPath)] : rawImages;
+    const images = merged.length ? await signImagePaths(merged.slice(0, MAX_IMAGES)) : [];
     setModal({
       id: b.id as string,
       title: (b.title as string) ?? "",
       description: (b.description as string) ?? "",
-      category: (b.category as string) ?? "api",
+      category: (b.category as string) ?? (categories[0]?.slug ?? "api"),
       price_usd: String(b.price_usd ?? ""),
       applicant_limit: String(b.applicant_limit ?? "10"),
       start_at: toLocalInput(b.start_at as string | null),
       end_at: toLocalInput(b.end_at as string | null),
       deadline_at: toLocalInput(b.deadline_at as string | null),
       status: (b.status as string) ?? "active",
-      cover_path: coverPath,
-      cover_preview: coverPreview,
+      images,
       promoted: Boolean(b.promoted),
     });
   };
 
-  const handleCoverPick = async (file: File) => {
+  const handleImagePick = async (files: FileList) => {
     if (!modal) return;
-    if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
-    setUploadingCover(true);
+    if (modal.images.length >= MAX_IMAGES) return toast.error(`Max ${MAX_IMAGES} images`);
+    const remaining = MAX_IMAGES - modal.images.length;
+    const picks = Array.from(files).slice(0, remaining);
+    setUploadingImage(true);
     try {
       const { data: session } = await supabase.auth.getUser();
       const uid = session.user?.id ?? "admin";
-      const safe = file.name.replace(/[^\w.\-]+/g, "_");
-      const path = `${uid}/${Date.now()}_${safe}`;
-      const { error } = await supabase.storage
-        .from("bounty-covers")
-        .upload(path, file, { contentType: file.type || undefined, upsert: false });
-      if (error) throw error;
-      const { data: signed } = await supabase.storage
-        .from("bounty-covers")
-        .createSignedUrl(path, 60 * 60);
-      setModal((m) => m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m);
-      toast.success("Cover uploaded");
+      const added: ImageEntry[] = [];
+      for (const file of picks) {
+        if (!file.type.startsWith("image/")) { toast.error(`${file.name} isn't an image`); continue; }
+        if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} exceeds 5MB`); continue; }
+        const safe = file.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${uid}/${Date.now()}_${safe}`;
+        const { error } = await supabase.storage
+          .from("bounty-covers")
+          .upload(path, file, { contentType: file.type || undefined, upsert: false });
+        if (error) { toast.error(error.message); continue; }
+        const { data: signed } = await supabase.storage
+          .from("bounty-covers")
+          .createSignedUrl(path, 60 * 60);
+        added.push({ path, preview: signed?.signedUrl ?? null });
+      }
+      if (added.length) {
+        setModal((m) => m ? { ...m, images: [...m.images, ...added].slice(0, MAX_IMAGES) } : m);
+        toast.success(`${added.length} image${added.length > 1 ? "s" : ""} uploaded`);
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploadingCover(false);
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = (idx: number) => {
+    setModal((m) => m ? { ...m, images: m.images.filter((_, i) => i !== idx) } : m);
+  };
+
+  const togglePromoted = async (id: string, next: boolean) => {
+    setBusy(id);
+    try {
+      await updateFn({ data: { id, promoted: next } as never });
+      toast.success(next ? "Promoted" : "Unpromoted");
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -220,13 +264,15 @@ function BountiesAdminPage() {
     }
     setSaving(true);
     try {
+      const imagePaths = modal.images.map((i) => i.path);
       const payload = {
         title: modal.title,
         description: modal.description,
         category: modal.category,
         price_usd: price,
         applicant_limit: limit,
-        cover_path: modal.cover_path,
+        cover_path: imagePaths[0] ?? null,
+        images: imagePaths,
         start_at: start,
         end_at: end,
         deadline_at: deadline,
