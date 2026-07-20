@@ -447,7 +447,7 @@ export const openBountyDispute = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error } = await sb.from("bounties")
-      .select("poster_id, accepted_applicant_id").eq("id", data.bounty_id).maybeSingle();
+      .select("poster_id, accepted_applicant_id, title").eq("id", data.bounty_id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!b) throw new Error("Bounty not found");
     if (![b.poster_id, b.accepted_applicant_id].includes(context.userId))
@@ -456,7 +456,34 @@ export const openBountyDispute = createServerFn({ method: "POST" })
       .update({ dispute_status: "open", status: "disputed", reject_reason: data.reason ?? null })
       .eq("id", data.bounty_id);
     if (e2) throw new Error(e2.message);
+    const other = context.userId === b.poster_id ? b.accepted_applicant_id : b.poster_id;
+    if (other) {
+      await notifyBounty(
+        other as string,
+        "bounty_dispute_opened",
+        `Dispute opened — "${b.title}"`,
+        data.reason ?? "The other party opened a dispute. Admin will review.",
+        context.userId,
+      );
+    }
     return { ok: true };
+  });
+
+/** Return the set of bounty ids the current user has applied to. */
+export const listMyBountyApplicationIds = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data, error } = await sb
+      .from("bounty_applications")
+      .select("bounty_id, status")
+      .eq("applicant_id", context.userId);
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as Array<{ bounty_id: string; status: string }>).map((r) => ({
+      bounty_id: r.bounty_id,
+      status: r.status,
+    }));
   });
 
 // ---------------------------------------------------------------------------
