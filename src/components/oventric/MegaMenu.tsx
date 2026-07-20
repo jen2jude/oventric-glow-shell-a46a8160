@@ -5,7 +5,7 @@ import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
   ShoppingBag, Target, Wallet as WalletIcon, GraduationCap,
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
-  Bug, ListChecks, Trash2, Gift, LogOut,
+  Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
