@@ -119,13 +119,12 @@ export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [contract, setContract] = useState<ContractState | null>(null);
-  const [role, setRole] = useState<"poster" | "developer">("poster");
   const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
   const [adsLoading, setAdsLoading] = useState(true);
   const [postOpen, setPostOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+
 
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
   useEffect(() => {
