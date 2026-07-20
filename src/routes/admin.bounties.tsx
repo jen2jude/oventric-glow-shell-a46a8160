@@ -158,6 +158,7 @@ function BountiesAdminPage() {
       status: (b.status as string) ?? "active",
       cover_path: coverPath,
       cover_preview: coverPreview,
+      promoted: Boolean(b.promoted),
     });
   };
 
