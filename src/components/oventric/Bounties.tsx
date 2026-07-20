@@ -242,20 +242,16 @@ export function Bounties() {
   const totalLocked = ALL_BOUNTIES.reduce((s, b) => s + b.priceUSD, 0);
   const activeCount = ALL_BOUNTIES.length;
 
-  const selected = selectedId ? ALL_BOUNTIES.find((b) => b.id === selectedId) ?? null : null;
-
   // ------- Live bounty detail (real backend) -------
   if (selectedId) {
     return (
       <BountyDetail
         bountyId={selectedId}
-        onBack={() => {
-          setSelectedId(null);
-          setContract(null);
-        }}
+        onBack={() => setSelectedId(null)}
       />
     );
   }
+
 
 
   // ------- Public board -------
