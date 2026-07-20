@@ -572,6 +572,188 @@ function BountiesAdminPage() {
           </div>
         </div>
       )}
+
+      {detailId && (
+        <BountyDetailModal
+          id={detailId}
+          onClose={() => setDetailId(null)}
+          onChanged={refresh}
+        />
+      )}
+    </div>
+  );
+}
+
+interface DetailData {
+  bounty: Record<string, unknown>;
+  applications: Array<{ id: string; applicant_id: string; pitch: string; status: string; created_at: string }>;
+  profiles: Array<{ user_id: string; display_name: string | null; username: string | null; slug: string | null; avatar_path: string | null }>;
+  posterWallet: { available_balance: number; escrow_balance: number };
+}
+
+function BountyDetailModal({ id, onClose, onChanged }: { id: string; onClose: () => void; onChanged: () => void }) {
+  const detailFn = useServerFn(adminBountyDetail);
+  const approveFn = useServerFn(adminApproveBounty);
+  const holdFn = useServerFn(adminSetBountyHold);
+  const releaseFn = useServerFn(adminReleaseBounty);
+  const refundFn = useServerFn(adminRefundBounty);
+  const [data, setData] = useState<DetailData | null>(null);
+  const [busy, setBusy] = useState(false);
+
+  const load = useCallback(() => {
+    detailFn({ data: { id } }).then((d) => setData(d as DetailData));
+  }, [detailFn, id]);
+  useEffect(() => { load(); }, [load]);
+
+  const profileFor = (uid: string | null | undefined) =>
+    data?.profiles.find((p) => p.user_id === uid) ?? null;
+
+  const nameOf = (uid: string | null | undefined) => {
+    const p = profileFor(uid);
+    return p?.display_name || p?.username || (uid ? uid.slice(0, 8) : "—");
+  };
+
+  const runAction = async (label: string, action: () => Promise<unknown>) => {
+    setBusy(true);
+    try { await action(); toast.success(label); load(); onChanged(); }
+    catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  if (!data) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
+        <button className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 text-white" onClick={onClose}><X className="w-4 h-4" /></button>
+      </div>
+    );
+  }
+
+  const b = data.bounty;
+  const status = b.status as string;
+  const price = Number(b.price_usd);
+  const solverCut = Number((price * 0.8).toFixed(2));
+  const platformCut = Number((price - solverCut).toFixed(2));
+  const isPendingReview = status === "pending_review";
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="w-full max-w-3xl bg-[#121216] border border-white/10 rounded-2xl p-5 max-h-[92vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-3">
+          <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
+            <Users className="w-5 h-5 text-emerald-400" /> Manage bounty
+          </h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"><X className="w-4 h-4" /></button>
+        </div>
+
+        <section className="p-3 rounded-xl border border-white/10 bg-black/30 mb-3">
+          <div className="text-white font-bold">{b.title as string}</div>
+          <div className="text-xs text-slate-400 mt-1">
+            Poster: <span className="text-slate-200">{nameOf(b.poster_id as string)}</span> · Escrow ${price.toFixed(2)}
+            {b.solved_at ? ` · Solved ${new Date(b.solved_at as string).toLocaleString()}` : ""}
+            {b.released_at ? ` · Released ${new Date(b.released_at as string).toLocaleString()}` : ""}
+          </div>
+          <div className="flex items-center gap-2 flex-wrap mt-2 text-[10px] uppercase font-bold">
+            <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-200">{status}</span>
+            {b.promoted ? <span className="px-1.5 py-0.5 rounded border border-fuchsia-500/40 bg-fuchsia-500/10 text-fuchsia-200 inline-flex items-center gap-1"><Sparkles className="w-3 h-3" /> Promoted</span> : null}
+            {b.admin_hold ? <span className="px-1.5 py-0.5 rounded border border-amber-500/40 bg-amber-500/10 text-amber-200 inline-flex items-center gap-1"><Lock className="w-3 h-3" /> Hold</span> : null}
+            {b.dispute_status && b.dispute_status !== "none" ? <span className="px-1.5 py-0.5 rounded border border-red-500/40 bg-red-500/10 text-red-200">Dispute · {b.dispute_status as string}</span> : null}
+          </div>
+        </section>
+
+        <section className="grid grid-cols-2 gap-3 mb-3">
+          <div className="p-3 rounded-xl border border-white/10 bg-black/30">
+            <div className="text-[10px] uppercase text-slate-500">Poster wallet (USD)</div>
+            <div className="text-white text-lg font-bold mt-1">${data.posterWallet.available_balance.toFixed(2)}</div>
+            <div className="text-xs text-slate-400">Escrow ${data.posterWallet.escrow_balance.toFixed(2)}</div>
+          </div>
+          <div className="p-3 rounded-xl border border-white/10 bg-black/30">
+            <div className="text-[10px] uppercase text-slate-500">On release split</div>
+            <div className="text-emerald-300 text-sm font-bold mt-1">Solver ${solverCut.toFixed(2)} <span className="text-slate-500 text-xs">(80%)</span></div>
+            <div className="text-fuchsia-300 text-sm font-bold">Platform ${platformCut.toFixed(2)} <span className="text-slate-500 text-xs">(20%)</span></div>
+          </div>
+        </section>
+
+        <section className="p-3 rounded-xl border border-white/10 bg-black/30 mb-3">
+          <div className="text-xs uppercase text-slate-500 mb-2">Admin actions</div>
+          <div className="flex flex-wrap gap-2">
+            {isPendingReview && (
+              <>
+                <button disabled={busy} onClick={() => runAction("Approved", () => approveFn({ data: { id, approve: true } }))}
+                  className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
+                  <ShieldCheck className="w-3.5 h-3.5" /> Approve
+                </button>
+                <button disabled={busy} onClick={() => {
+                  const reason = prompt("Reason for rejection?") ?? "";
+                  return runAction("Rejected & refunded", () => approveFn({ data: { id, approve: false, reason } }));
+                }}
+                  className="px-3 py-1.5 rounded-lg bg-red-500/20 hover:bg-red-500/30 border border-red-500/40 text-red-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
+                  <ShieldX className="w-3.5 h-3.5" /> Reject & refund
+                </button>
+              </>
+            )}
+            <button disabled={busy} onClick={() => runAction(b.admin_hold ? "Hold released" : "Escrow held", () => holdFn({ data: { id, hold: !b.admin_hold } }))}
+              className="px-3 py-1.5 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-amber-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
+              {b.admin_hold ? <Unlock className="w-3.5 h-3.5" /> : <Lock className="w-3.5 h-3.5" />}
+              {b.admin_hold ? "Release hold" : "Hold escrow"}
+            </button>
+            <button disabled={busy || !b.accepted_applicant_id} onClick={() => {
+              if (!confirm(`Release $${solverCut.toFixed(2)} to solver and $${platformCut.toFixed(2)} to platform?`)) return;
+              return runAction("Escrow released", () => releaseFn({ data: { id } }));
+            }}
+              className="px-3 py-1.5 rounded-lg bg-emerald-500/20 hover:bg-emerald-500/30 border border-emerald-500/40 text-emerald-200 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
+              <CheckCircle2 className="w-3.5 h-3.5" /> Release to solver
+            </button>
+            <button disabled={busy} onClick={() => {
+              const reason = prompt("Refund reason?") ?? "Admin refund";
+              if (!confirm(`Refund $${price.toFixed(2)} to poster wallet?`)) return;
+              return runAction("Escrow refunded", () => refundFn({ data: { id, reason } }));
+            }}
+              className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-xs font-bold inline-flex items-center gap-1.5 disabled:opacity-50">
+              <RotateCcw className="w-3.5 h-3.5" /> Refund poster
+            </button>
+          </div>
+          <p className="text-[10px] text-slate-500 mt-2">
+            Auto-release runs 48 hours after a solver marks the work solved unless a dispute is open or admin is holding funds.
+          </p>
+        </section>
+
+        <section className="p-3 rounded-xl border border-white/10 bg-black/30">
+          <div className="text-xs uppercase text-slate-500 mb-2">
+            Applicants ({data.applications.length})
+            {b.accepted_applicant_id ? (
+              <span className="ml-2 text-emerald-300 normal-case">Accepted: {nameOf(b.accepted_applicant_id as string)}</span>
+            ) : null}
+          </div>
+          {data.applications.length === 0 ? (
+            <div className="text-xs text-slate-500">No applicants yet.</div>
+          ) : (
+            <div className="space-y-2">
+              {data.applications.map((a) => {
+                const p = profileFor(a.applicant_id);
+                const isAccepted = a.applicant_id === b.accepted_applicant_id;
+                return (
+                  <div key={a.id} className={`p-2.5 rounded-lg border ${isAccepted ? "border-emerald-500/40 bg-emerald-500/5" : "border-white/10 bg-black/20"}`}>
+                    <div className="flex items-center justify-between gap-2">
+                      <div className="text-sm text-white font-semibold">
+                        {p?.display_name || p?.username || a.applicant_id.slice(0, 8)}
+                        {p?.slug ? <span className="text-slate-500 text-xs ml-1">@{p.slug}</span> : null}
+                      </div>
+                      <span className={`text-[10px] px-1.5 py-0.5 rounded border uppercase font-bold ${
+                        a.status === "accepted" ? "text-emerald-300 border-emerald-500/40 bg-emerald-500/10" :
+                        a.status === "rejected" ? "text-red-300 border-red-500/40 bg-red-500/10" :
+                        "text-slate-300 border-white/10 bg-white/5"
+                      }`}>{a.status}</span>
+                    </div>
+                    {a.pitch ? <div className="text-xs text-slate-400 mt-1 whitespace-pre-wrap">{a.pitch}</div> : null}
+                    <div className="text-[10px] text-slate-600 mt-1">{new Date(a.created_at).toLocaleString()}</div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+        </section>
+      </div>
     </div>
   );
 }
