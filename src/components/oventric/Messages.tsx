@@ -429,8 +429,16 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   // Realtime subscription
   useEffect(() => {
     if (!me) return;
+    // Remove any stale channel with the same topic before resubscribing —
+    // StrictMode / fast re-runs can otherwise return the still-subscribed
+    // instance, and `.on()` after `.subscribe()` throws.
+    const topic = `realtime:dm-${me}`;
+    for (const c of supabase.getChannels()) {
+      if (c.topic === topic) supabase.removeChannel(c);
+    }
     const channel = supabase
       .channel(`dm-${me}`)
+
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
