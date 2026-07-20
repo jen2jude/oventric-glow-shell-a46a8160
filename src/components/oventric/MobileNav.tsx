@@ -55,10 +55,10 @@ export function MobileNav({
       {left.map(Item)}
       <button
         onClick={onCreate}
-        className="relative -mt-8 mx-2 w-14 h-14 rounded-full rgb-neon-bg shrink-0 flex items-center justify-center"
+        className="relative -mt-8 mx-2 w-14 h-14 rounded-full rgb-static-border shrink-0 flex items-center justify-center p-[2px]"
         aria-label="Create"
       >
-        <span className="absolute inset-[2px] rounded-full bg-[#1E1E24] flex items-center justify-center">
+        <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center">
           <Plus className="w-6 h-6 text-white" strokeWidth={2.5} />
         </span>
       </button>
