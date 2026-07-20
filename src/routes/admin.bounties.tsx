@@ -471,6 +471,19 @@ function BountiesAdminPage() {
                 </Field>
               </div>
 
+              <label className="flex items-center gap-2 p-3 rounded-lg border border-fuchsia-500/30 bg-fuchsia-500/5 cursor-pointer">
+                <input
+                  type="checkbox"
+                  checked={modal.promoted}
+                  onChange={(e) => setModal({ ...modal, promoted: e.target.checked })}
+                  className="w-4 h-4 accent-fuchsia-500"
+                />
+                <Sparkles className="w-4 h-4 text-fuchsia-300" />
+                <span className="text-xs text-slate-200">
+                  <span className="font-bold text-fuchsia-200">Promote this bounty</span> — feature it at the top of the public board.
+                </span>
+              </label>
+
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Escrow (USD)">
                   <input
