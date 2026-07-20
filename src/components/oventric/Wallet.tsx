@@ -115,6 +115,7 @@ export function Wallet() {
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
+  const [addReturnTo, setAddReturnTo] = useState<string | null>(null);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -144,9 +145,12 @@ export function Wallet() {
   // with a suggested amount already filled in.
   useEffect(() => {
     const onTopup = (e: Event) => {
-      const detail = (e as CustomEvent<{ amountUsd?: number }>).detail;
+      const detail = (e as CustomEvent<{ amountUsd?: number; reason?: string; returnTo?: string }>).detail;
       const amt = Number(detail?.amountUsd ?? 0);
       if (amt > 0) setAddPrefillUsd(amt);
+      const explicitReturn = typeof detail?.returnTo === "string" && detail.returnTo.startsWith("/") ? detail.returnTo : null;
+      const inferredReturn = detail?.reason === "bounty-escrow" ? "/?resume=bounty" : null;
+      setAddReturnTo(explicitReturn ?? inferredReturn);
       setAddOpen(true);
     };
     window.addEventListener("oventric:wallet:topup", onTopup);
@@ -618,9 +622,11 @@ export function Wallet() {
       {addOpen && (
         <AddCapitalModal
           prefillUsd={addPrefillUsd}
+          returnTo={addReturnTo}
           onClose={() => {
             setAddOpen(false);
             setAddPrefillUsd(null);
+            setAddReturnTo(null);
           }}
         />
       )}
@@ -685,7 +691,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
   );
 }
 
-function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefillUsd?: number | null }) {
+function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
   const [amount, setAmount] = useState<string>(
@@ -709,7 +715,13 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
       const chargeAmount = Number((usd * FX[baseCurrency]).toFixed(2));
       const channel = pick === "card" ? "card" : pick === "bank" ? "bank_transfer" : "mobile_money";
       const init = await initPaystack({
-        data: { purpose: "wallet_topup", amount: chargeAmount, currency: baseCurrency, channel },
+        data: {
+          purpose: "wallet_topup",
+          amount: chargeAmount,
+          currency: baseCurrency,
+          channel,
+          ...(returnTo ? { returnTo } : {}),
+        },
       });
       window.location.href = init.authorizationUrl;
     } catch (e) {
