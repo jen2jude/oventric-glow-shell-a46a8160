@@ -85,6 +85,7 @@ function BountiesAdminPage() {
   const [saving, setSaving] = useState(false);
   const [uploadingCover, setUploadingCover] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [detailId, setDetailId] = useState<string | null>(null);
 
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
