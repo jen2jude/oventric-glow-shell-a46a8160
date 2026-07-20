@@ -27,6 +27,31 @@ async function writeAudit(
   });
 }
 
+/** Insert a bounty-related notification. Kind must contain "bounty" so the
+ * inbox routes it to the Bounties channel. Link opens the Bounties page. */
+async function notifyBounty(
+  userId: string,
+  kind: string,
+  title: string,
+  body: string,
+  fromUserId?: string | null,
+) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdmin as any).from("notifications").insert({
+      user_id: userId,
+      kind,
+      title,
+      body,
+      link: "/?section=Bounties",
+      from_user_id: fromUserId ?? null,
+    });
+  } catch {
+    /* non-fatal */
+  }
+}
+
 export interface BountyInput {
   id?: string;
   title: string;
@@ -289,6 +314,22 @@ export const applyToBounty = createServerFn({ method: "POST" })
       body: dmBody,
     });
 
+    // Bounty-channel notifications for both sides.
+    await notifyBounty(
+      b.poster_id,
+      "bounty_application_received",
+      `New applicant on "${b.title}"`,
+      pitchBody,
+      context.userId,
+    );
+    await notifyBounty(
+      context.userId,
+      "bounty_application_submitted",
+      `Application sent — "${b.title}"`,
+      "You've applied to this bounty. The poster has been notified.",
+      b.poster_id,
+    );
+
     return { ok: true };
   });
 
@@ -301,7 +342,7 @@ export const acceptApplicant = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error: bErr } = await sb
-      .from("bounties").select("poster_id, status").eq("id", data.bounty_id).maybeSingle();
+      .from("bounties").select("poster_id, status, title").eq("id", data.bounty_id).maybeSingle();
     if (bErr) throw new Error(bErr.message);
     if (!b) throw new Error("Bounty not found");
     if (b.poster_id !== context.userId) throw new Error("Only the poster can accept applicants");
@@ -314,9 +355,32 @@ export const acceptApplicant = createServerFn({ method: "POST" })
       .update({ status: "accepted" })
       .eq("bounty_id", data.bounty_id).eq("applicant_id", data.applicant_id);
     if (e2) throw new Error(e2.message);
+
+    // Collect rejected applicants for notifications before updating.
+    const { data: pending } = await sb.from("bounty_applications")
+      .select("applicant_id")
+      .eq("bounty_id", data.bounty_id).neq("applicant_id", data.applicant_id).eq("status", "pending");
     await sb.from("bounty_applications")
       .update({ status: "rejected" })
       .eq("bounty_id", data.bounty_id).neq("applicant_id", data.applicant_id).eq("status", "pending");
+
+    const title = (b.title as string) ?? "your bounty";
+    await notifyBounty(
+      data.applicant_id,
+      "bounty_application_accepted",
+      `You've been accepted — "${title}"`,
+      "The poster accepted your application. Start work and mark it delivered when done.",
+      context.userId,
+    );
+    for (const r of ((pending ?? []) as Array<{ applicant_id: string }>)) {
+      await notifyBounty(
+        r.applicant_id,
+        "bounty_application_rejected",
+        `Application closed — "${title}"`,
+        "Another solver was selected for this bounty.",
+        context.userId,
+      );
+    }
     return { ok: true };
   });
 
@@ -328,7 +392,7 @@ export const markBountySolved = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error } = await sb
-      .from("bounties").select("accepted_applicant_id, status").eq("id", data.bounty_id).maybeSingle();
+      .from("bounties").select("accepted_applicant_id, status, poster_id, title").eq("id", data.bounty_id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!b) throw new Error("Bounty not found");
     if (b.accepted_applicant_id !== context.userId) throw new Error("Only the accepted solver can mark this solved");
@@ -337,6 +401,13 @@ export const markBountySolved = createServerFn({ method: "POST" })
       .update({ solved_at: new Date().toISOString(), status: "solved" })
       .eq("id", data.bounty_id);
     if (e2) throw new Error(e2.message);
+    await notifyBounty(
+      b.poster_id,
+      "bounty_solved",
+      `Work delivered — "${b.title}"`,
+      "The solver marked the bounty delivered. Review and release, or funds auto-release in 48h.",
+      context.userId,
+    );
     return { ok: true };
   });
 
@@ -348,7 +419,7 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error } = await sb
-      .from("bounties").select("poster_id, status").eq("id", data.bounty_id).maybeSingle();
+      .from("bounties").select("poster_id, status, title, accepted_applicant_id").eq("id", data.bounty_id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!b) throw new Error("Bounty not found");
     if (b.poster_id !== context.userId) throw new Error("Only the poster can confirm");
@@ -356,6 +427,15 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
     const { error: e2 } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
       .rpc("bounty_release_escrow", { _bounty_id: data.bounty_id });
     if (e2) throw new Error(e2.message);
+    if (b.accepted_applicant_id) {
+      await notifyBounty(
+        b.accepted_applicant_id as string,
+        "bounty_released",
+        `Funds released — "${b.title}"`,
+        "The poster released escrow. Your share has been credited to your wallet.",
+        context.userId,
+      );
+    }
     return { ok: true };
   });
 
@@ -367,7 +447,7 @@ export const openBountyDispute = createServerFn({ method: "POST" })
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const { data: b, error } = await sb.from("bounties")
-      .select("poster_id, accepted_applicant_id").eq("id", data.bounty_id).maybeSingle();
+      .select("poster_id, accepted_applicant_id, title").eq("id", data.bounty_id).maybeSingle();
     if (error) throw new Error(error.message);
     if (!b) throw new Error("Bounty not found");
     if (![b.poster_id, b.accepted_applicant_id].includes(context.userId))
@@ -376,7 +456,34 @@ export const openBountyDispute = createServerFn({ method: "POST" })
       .update({ dispute_status: "open", status: "disputed", reject_reason: data.reason ?? null })
       .eq("id", data.bounty_id);
     if (e2) throw new Error(e2.message);
+    const other = context.userId === b.poster_id ? b.accepted_applicant_id : b.poster_id;
+    if (other) {
+      await notifyBounty(
+        other as string,
+        "bounty_dispute_opened",
+        `Dispute opened — "${b.title}"`,
+        data.reason ?? "The other party opened a dispute. Admin will review.",
+        context.userId,
+      );
+    }
     return { ok: true };
+  });
+
+/** Return the set of bounty ids the current user has applied to. */
+export const listMyBountyApplicationIds = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data, error } = await sb
+      .from("bounty_applications")
+      .select("bounty_id, status")
+      .eq("applicant_id", context.userId);
+    if (error) throw new Error(error.message);
+    return ((data ?? []) as Array<{ bounty_id: string; status: string }>).map((r) => ({
+      bounty_id: r.bounty_id,
+      status: r.status,
+    }));
   });
 
 // ---------------------------------------------------------------------------

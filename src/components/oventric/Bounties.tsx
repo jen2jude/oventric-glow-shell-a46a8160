@@ -25,6 +25,9 @@ import { BountyEditorModal } from "./BountyEditorModal";
 import { BountyDetail } from "./BountyDetail";
 import { Plus } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useServerFn } from "@tanstack/react-start";
+import { listMyBountyApplicationIds } from "@/lib/bounties.functions";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
@@ -124,6 +127,24 @@ export function Bounties() {
   const [postOpen, setPostOpen] = useState(false);
   const [refreshTick, setRefreshTick] = useState(0);
   const [highlightId, setHighlightId] = useState<string | null>(null);
+  const [appliedIds, setAppliedIds] = useState<Set<string>>(new Set());
+  const { isAuthenticated } = useAuthGate();
+  const fetchMyApps = useServerFn(listMyBountyApplicationIds);
+
+  // Load ids of bounties the current user already applied to.
+  useEffect(() => {
+    if (!isAuthenticated) { setAppliedIds(new Set()); return; }
+    let cancelled = false;
+    fetchMyApps()
+      .then((rows) => {
+        if (cancelled) return;
+        setAppliedIds(new Set((rows ?? []).map((r) => r.bounty_id)));
+      })
+      .catch(() => { if (!cancelled) setAppliedIds(new Set()); });
+    return () => { cancelled = true; };
+  }, [isAuthenticated, fetchMyApps, refreshTick]);
+
+
 
 
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
@@ -365,6 +386,7 @@ export function Bounties() {
                 currency={baseCurrency}
                 onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
                 isNew={highlightId === b.id}
+                alreadyApplied={appliedIds.has(b.id)}
               />,
             ];
             if ((idx + 1) % 4 === 0) {
@@ -408,11 +430,13 @@ function BountyRow({
   currency,
   onOpen,
   isNew,
+  alreadyApplied,
 }: {
   bounty: Bounty;
   currency: Currency;
   onOpen: () => void;
   isNew?: boolean;
+  alreadyApplied?: boolean;
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
@@ -437,9 +461,20 @@ function BountyRow({
       </div>
       <button
         onClick={onOpen}
-        className="shrink-0 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors whitespace-nowrap"
+        className={`shrink-0 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
+          alreadyApplied
+            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40"
+            : "bg-emerald-500 hover:bg-emerald-400 text-black"
+        }`}
       >
-        View Task &amp; Apply
+        {alreadyApplied ? (
+          <>
+            <CheckCircle2 className="w-4 h-4" />
+            Already Applied · Open
+          </>
+        ) : (
+          <>View Task &amp; Apply</>
+        )}
       </button>
     </div>
   );

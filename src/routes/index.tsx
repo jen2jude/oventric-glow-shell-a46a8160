@@ -115,6 +115,20 @@ function Index() {
     return () => clearTimeout(t);
   }, []);
 
+  // Deep link ?section=<name> (used by notification links).
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const section = params.get("section");
+    if (!section) return;
+    const allowed = ["Feed", "Marketplace", "Academy", "Bounties", "Wallet", "Circles", "Messages"];
+    if (allowed.includes(section)) setActive(section);
+    params.delete("section");
+    const qs = params.toString();
+    const next = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+    window.history.replaceState({}, "", next);
+  }, []);
+
   const view =
     active === "Wallet" ? <Wallet />
     : active === "Marketplace" ? <Marketplace />
