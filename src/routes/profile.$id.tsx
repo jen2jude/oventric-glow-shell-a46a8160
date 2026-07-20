@@ -44,7 +44,7 @@ import {
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { Header } from "@/components/oventric/Header";
-import { MobileNav } from "@/components/oventric/MobileNav";
+
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
@@ -1451,11 +1451,7 @@ function ProfilePage() {
             </section>
           </div>
         </main>
-        <MobileNav
-          onCreate={() => require(1)}
-          active="Feed"
-          onSelect={(l) => navigate({ to: "/" })}
-        />
+        {/* Mobile footer nav is rendered globally in __root.tsx */}
       </div>
 
       <MessagesDrawer
