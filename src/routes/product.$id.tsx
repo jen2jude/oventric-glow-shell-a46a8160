@@ -113,7 +113,7 @@ function ProductPage() {
                   <>
                     <div className={`relative aspect-[4/3] rounded-2xl bg-gradient-to-br ${product.hue} overflow-hidden`}>
                       {cur ? (
-                        <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+                        <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-contain" loading="eager" fetchPriority="high" decoding="async" />
                       ) : (
                         <div className="absolute inset-0 opacity-30" style={{ backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 55%)" }} />
                       )}
@@ -131,7 +131,7 @@ function ProductPage() {
                             onClick={() => setActiveImage(i)}
                             className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10"}`}
                           >
-                            <img src={url} alt="" className="w-full h-full object-cover" />
+                            <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-contain" />
                           </button>
                         ))}
                       </div>
@@ -282,7 +282,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           <div className="flex gap-3 p-3">
             <div className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${product.hue}`}>
               {cover ? (
-                <img src={cover} alt={product.name} className="w-full h-full object-cover" />
+                <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain" />
               ) : null}
             </div>
             <div className="min-w-0 flex-1">
