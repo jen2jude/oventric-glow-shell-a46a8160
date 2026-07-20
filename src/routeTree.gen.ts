@@ -15,6 +15,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AdvertiseRouteImport } from './routes/advertise'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -40,6 +41,7 @@ import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminAdInquiriesRouteImport } from './routes/admin.ad-inquiries'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as AdminBlogIdRouteImport } from './routes/admin.blog.$id'
@@ -76,6 +78,11 @@ const FaqRoute = FaqRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AdvertiseRoute = AdvertiseRouteImport.update({
+  id: '/advertise',
+  path: '/advertise',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdminRoute = AdminRouteImport.update({
@@ -203,6 +210,11 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAdInquiriesRoute = AdminAdInquiriesRouteImport.update({
+  id: '/ad-inquiries',
+  path: '/ad-inquiries',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -246,12 +258,14 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -285,12 +299,14 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -325,12 +341,14 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -367,12 +385,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/advertise'
     | '/dashboard'
     | '/faq'
     | '/help'
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/admin/ad-inquiries'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -406,12 +426,14 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/advertise'
     | '/dashboard'
     | '/faq'
     | '/help'
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/admin/ad-inquiries'
     | '/admin/audit'
     | '/admin/bounties'
     | '/admin/campaigns'
@@ -445,12 +467,14 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/advertise'
     | '/dashboard'
     | '/faq'
     | '/help'
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/admin/ad-inquiries'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -486,6 +510,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdvertiseRoute: typeof AdvertiseRoute
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
@@ -547,6 +572,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/advertise': {
+      id: '/advertise'
+      path: '/advertise'
+      fullPath: '/advertise'
+      preLoaderRoute: typeof AdvertiseRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -724,6 +756,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/ad-inquiries': {
+      id: '/admin/ad-inquiries'
+      path: '/ad-inquiries'
+      fullPath: '/admin/ad-inquiries'
+      preLoaderRoute: typeof AdminAdInquiriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/blog/': {
       id: '/admin/blog/'
       path: '/'
@@ -791,6 +830,7 @@ const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(
 )
 
 interface AdminRouteChildren {
+  AdminAdInquiriesRoute: typeof AdminAdInquiriesRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminBlogRoute: typeof AdminBlogRouteWithChildren
   AdminBountiesRoute: typeof AdminBountiesRoute
@@ -809,6 +849,7 @@ interface AdminRouteChildren {
 }
 
 const AdminRouteChildren: AdminRouteChildren = {
+  AdminAdInquiriesRoute: AdminAdInquiriesRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminBlogRoute: AdminBlogRouteWithChildren,
   AdminBountiesRoute: AdminBountiesRoute,
@@ -844,6 +885,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdvertiseRoute: AdvertiseRoute,
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
