@@ -33,7 +33,7 @@ export function AvatarImage({
 
   return (
     <span
-      className={`relative block w-full h-full overflow-hidden bg-neutral-800 ${!showImage ? "ring-1 ring-white/40" : ""} ${className ?? ""}`}
+      className={`relative block w-full h-full overflow-hidden bg-neutral-800 ${!showImage ? "border border-white/10" : ""} ${className ?? ""}`}
     >
       {/* Skeleton shimmer while the image is still decoding. */}
       {showImage && !loaded && (
