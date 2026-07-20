@@ -115,6 +115,7 @@ export function Wallet() {
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
+  const [addReturnTo, setAddReturnTo] = useState<string | null>(null);
   const [payoutOpen, setPayoutOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
