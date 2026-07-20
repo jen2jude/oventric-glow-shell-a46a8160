@@ -180,7 +180,7 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
       className="flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
     >
       <div
-        className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue} flex items-center justify-center`}
+        className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center`}
       >
         {p.coverUrl ? (
           <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={p.coverUrl} alt={p.title} className="w-full h-full object-contain" loading="lazy"  decoding="async" />

@@ -111,7 +111,7 @@ function ProductPage() {
                 const cur = gallery[activeImage] ?? gallery[0];
                 return (
                   <>
-                    <div className={`relative aspect-[4/3] rounded-2xl bg-gradient-to-br ${product.hue} overflow-hidden`}>
+                    <div className={`relative aspect-[4/3] rounded-2xl bg-white/5 overflow-hidden`}>
                       {cur ? (
                         <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-contain" loading="eager" fetchPriority="high" decoding="async" />
                       ) : (
@@ -280,7 +280,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
         {/* Live preview card — mirrors what the seller will see */}
         <div className="mb-4 rounded-xl border border-white/10 bg-[#121214] overflow-hidden">
           <div className="flex gap-3 p-3">
-            <div className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${product.hue}`}>
+            <div className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5`}>
               {cover ? (
                 <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-contain" />
               ) : null}

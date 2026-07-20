@@ -406,7 +406,7 @@ function DigitalList({
     <div className="space-y-3">
       {rows.map((r) => (
         <div key={r.orderId} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-          <Link to="/product/$id" params={{ id: r.productId }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${r.hue}`}>
+          <Link to="/product/$id" params={{ id: r.productId }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5`}>
             {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-contain" /> : null}
           </Link>
           <div className="min-w-0 flex-1">
@@ -496,7 +496,7 @@ function PhysicalList({
         const waUrl = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(message)}` : "";
         return (
           <div key={r.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-            <Link to="/product/$id" params={{ id: r.productId }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${r.hue}`}>
+            <Link to="/product/$id" params={{ id: r.productId }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5`}>
               {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-contain" /> : null}
             </Link>
             <div className="min-w-0 flex-1">
@@ -633,7 +633,7 @@ function ListingsList({
         <div className="space-y-3">
           {filtered.map((p) => (
             <div key={p.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-              <Link to="/product/$id" params={{ id: p.id }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-gradient-to-br ${p.hue}`}>
+              <Link to="/product/$id" params={{ id: p.id }} className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5`}>
                 {p.coverUrl ? <img src={p.coverUrl} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-contain" /> : null}
               </Link>
               <div className="min-w-0 flex-1">
