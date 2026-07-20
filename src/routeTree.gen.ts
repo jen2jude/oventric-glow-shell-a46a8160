@@ -16,6 +16,7 @@ import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdvertiseRouteImport } from './routes/advertise'
+import { Route as AdsManagerRouteImport } from './routes/ads-manager'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as AboutRouteImport } from './routes/about'
 import { Route as IndexRouteImport } from './routes/index'
@@ -27,6 +28,7 @@ import { Route as PaymentReturnRouteImport } from './routes/payment.return'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as AdsManagerIdRouteImport } from './routes/ads-manager.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
@@ -85,6 +87,11 @@ const AdvertiseRoute = AdvertiseRouteImport.update({
   path: '/advertise',
   getParentRoute: () => rootRouteImport,
 } as any)
+const AdsManagerRoute = AdsManagerRouteImport.update({
+  id: '/ads-manager',
+  path: '/ads-manager',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -139,6 +146,11 @@ const BlogSlugRoute = BlogSlugRouteImport.update({
   id: '/blog/$slug',
   path: '/blog/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const AdsManagerIdRoute = AdsManagerIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => AdsManagerRoute,
 } as any)
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
@@ -258,6 +270,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -280,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -299,6 +313,7 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
+  '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -320,6 +335,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -341,6 +357,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/about': typeof AboutRoute
   '/admin': typeof AdminRouteWithChildren
+  '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
@@ -363,6 +380,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
+  '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
@@ -385,6 +403,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/ads-manager'
     | '/advertise'
     | '/dashboard'
     | '/faq'
@@ -407,6 +426,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
@@ -426,6 +446,7 @@ export interface FileRouteTypes {
   to:
     | '/'
     | '/about'
+    | '/ads-manager'
     | '/advertise'
     | '/dashboard'
     | '/faq'
@@ -447,6 +468,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
@@ -467,6 +489,7 @@ export interface FileRouteTypes {
     | '/'
     | '/about'
     | '/admin'
+    | '/ads-manager'
     | '/advertise'
     | '/dashboard'
     | '/faq'
@@ -489,6 +512,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/system-wallets'
     | '/admin/users'
+    | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
     | '/order/$id'
@@ -510,6 +534,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AboutRoute: typeof AboutRoute
   AdminRoute: typeof AdminRouteWithChildren
+  AdsManagerRoute: typeof AdsManagerRouteWithChildren
   AdvertiseRoute: typeof AdvertiseRoute
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
@@ -579,6 +604,13 @@ declare module '@tanstack/react-router' {
       path: '/advertise'
       fullPath: '/advertise'
       preLoaderRoute: typeof AdvertiseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ads-manager': {
+      id: '/ads-manager'
+      path: '/ads-manager'
+      fullPath: '/ads-manager'
+      preLoaderRoute: typeof AdsManagerRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/admin': {
@@ -657,6 +689,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/blog/$slug'
       preLoaderRoute: typeof BlogSlugRouteImport
       parentRoute: typeof rootRouteImport
+    }
+    '/ads-manager/$id': {
+      id: '/ads-manager/$id'
+      path: '/$id'
+      fullPath: '/ads-manager/$id'
+      preLoaderRoute: typeof AdsManagerIdRouteImport
+      parentRoute: typeof AdsManagerRoute
     }
     '/admin/users': {
       id: '/admin/users'
@@ -869,6 +908,18 @@ const AdminRouteChildren: AdminRouteChildren = {
 
 const AdminRouteWithChildren = AdminRoute._addFileChildren(AdminRouteChildren)
 
+interface AdsManagerRouteChildren {
+  AdsManagerIdRoute: typeof AdsManagerIdRoute
+}
+
+const AdsManagerRouteChildren: AdsManagerRouteChildren = {
+  AdsManagerIdRoute: AdsManagerIdRoute,
+}
+
+const AdsManagerRouteWithChildren = AdsManagerRoute._addFileChildren(
+  AdsManagerRouteChildren,
+)
+
 interface ProfileIdRouteChildren {
   ProfileIdItemKindItemIdRoute: typeof ProfileIdItemKindItemIdRoute
 }
@@ -885,6 +936,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AboutRoute: AboutRoute,
   AdminRoute: AdminRouteWithChildren,
+  AdsManagerRoute: AdsManagerRouteWithChildren,
   AdvertiseRoute: AdvertiseRoute,
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
