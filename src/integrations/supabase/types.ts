@@ -17,66 +17,308 @@ export type Database = {
       ad_campaigns: {
         Row: {
           advertiser: string
+          advertiser_email: string | null
+          advertiser_user_id: string | null
+          advertiser_whatsapp: string | null
           body: string
+          cities: string[]
+          countries: string[]
           created_at: string
           created_by: string | null
           cta_label: string
+          cta_lead_email: string | null
           cta_type: string
           cta_url: string
+          cta_whatsapp: string | null
+          daily_budget_usd: number
           description: string
           end_at: string | null
+          escrow_locked: number
           header: string
           id: string
           media_path: string | null
           media_url: string | null
           placements: string[]
+          priority: number
+          spent_usd: number
           start_at: string | null
           status: string
           tier: string
           title: string
+          total_budget_usd: number
           updated_at: string
         }
         Insert: {
           advertiser: string
+          advertiser_email?: string | null
+          advertiser_user_id?: string | null
+          advertiser_whatsapp?: string | null
           body?: string
+          cities?: string[]
+          countries?: string[]
           created_at?: string
           created_by?: string | null
           cta_label?: string
+          cta_lead_email?: string | null
           cta_type?: string
           cta_url?: string
+          cta_whatsapp?: string | null
+          daily_budget_usd?: number
           description?: string
           end_at?: string | null
+          escrow_locked?: number
           header?: string
           id?: string
           media_path?: string | null
           media_url?: string | null
           placements?: string[]
+          priority?: number
+          spent_usd?: number
           start_at?: string | null
           status?: string
           tier: string
           title: string
+          total_budget_usd?: number
           updated_at?: string
         }
         Update: {
           advertiser?: string
+          advertiser_email?: string | null
+          advertiser_user_id?: string | null
+          advertiser_whatsapp?: string | null
           body?: string
+          cities?: string[]
+          countries?: string[]
           created_at?: string
           created_by?: string | null
           cta_label?: string
+          cta_lead_email?: string | null
           cta_type?: string
           cta_url?: string
+          cta_whatsapp?: string | null
+          daily_budget_usd?: number
           description?: string
           end_at?: string | null
+          escrow_locked?: number
           header?: string
           id?: string
           media_path?: string | null
           media_url?: string | null
           placements?: string[]
+          priority?: number
+          spent_usd?: number
           start_at?: string | null
           status?: string
           tier?: string
           title?: string
+          total_budget_usd?: number
           updated_at?: string
+        }
+        Relationships: []
+      }
+      ad_creatives: {
+        Row: {
+          bytes: number | null
+          campaign_id: string
+          created_at: string
+          duration_s: number | null
+          height: number | null
+          id: string
+          kind: string
+          mime: string | null
+          path: string
+          sort_order: number
+          width: number | null
+        }
+        Insert: {
+          bytes?: number | null
+          campaign_id: string
+          created_at?: string
+          duration_s?: number | null
+          height?: number | null
+          id?: string
+          kind: string
+          mime?: string | null
+          path: string
+          sort_order?: number
+          width?: number | null
+        }
+        Update: {
+          bytes?: number | null
+          campaign_id?: string
+          created_at?: string
+          duration_s?: number | null
+          height?: number | null
+          id?: string
+          kind?: string
+          mime?: string | null
+          path?: string
+          sort_order?: number
+          width?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_creatives_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_daily_spend: {
+        Row: {
+          campaign_id: string
+          clicks: number
+          day: string
+          impressions: number
+          leads: number
+          spent_usd: number
+        }
+        Insert: {
+          campaign_id: string
+          clicks?: number
+          day: string
+          impressions?: number
+          leads?: number
+          spent_usd?: number
+        }
+        Update: {
+          campaign_id?: string
+          clicks?: number
+          day?: string
+          impressions?: number
+          leads?: number
+          spent_usd?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_daily_spend_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_events: {
+        Row: {
+          campaign_id: string
+          city: string | null
+          cost_usd: number
+          country: string | null
+          id: string
+          kind: string
+          occurred_at: string
+          placement: string | null
+          session_id: string | null
+          user_id: string | null
+        }
+        Insert: {
+          campaign_id: string
+          city?: string | null
+          cost_usd?: number
+          country?: string | null
+          id?: string
+          kind: string
+          occurred_at?: string
+          placement?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          city?: string | null
+          cost_usd?: number
+          country?: string | null
+          id?: string
+          kind?: string
+          occurred_at?: string
+          placement?: string | null
+          session_id?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_events_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_leads: {
+        Row: {
+          campaign_id: string
+          created_at: string
+          digest_sent_at: string | null
+          email: string | null
+          id: string
+          message: string | null
+          meta: Json
+          name: string | null
+          phone: string | null
+        }
+        Insert: {
+          campaign_id: string
+          created_at?: string
+          digest_sent_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          meta?: Json
+          name?: string | null
+          phone?: string | null
+        }
+        Update: {
+          campaign_id?: string
+          created_at?: string
+          digest_sent_at?: string | null
+          email?: string | null
+          id?: string
+          message?: string | null
+          meta?: Json
+          name?: string | null
+          phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ad_leads_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ad_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      ad_targets_cities: {
+        Row: {
+          active: boolean
+          city: string
+          country_code: string
+          created_at: string
+          id: string
+          region: string | null
+          sort_order: number
+        }
+        Insert: {
+          active?: boolean
+          city: string
+          country_code: string
+          created_at?: string
+          id?: string
+          region?: string | null
+          sort_order?: number
+        }
+        Update: {
+          active?: boolean
+          city?: string
+          country_code?: string
+          created_at?: string
+          id?: string
+          region?: string | null
+          sort_order?: number
         }
         Relationships: []
       }
@@ -2084,6 +2326,11 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      activate_campaign: { Args: { _id: string }; Returns: undefined }
+      ad_price_per_event: {
+        Args: { _kind: string; _tier: string }
+        Returns: number
+      }
       bounty_auto_release_due: { Args: never; Returns: number }
       bounty_publish_lock: {
         Args: { _amount_usd: number; _bounty_id: string }
@@ -2103,6 +2350,7 @@ export type Database = {
         Returns: boolean
       }
       email_queue_dispatch: { Args: never; Returns: undefined }
+      end_campaign: { Args: { _id: string }; Returns: undefined }
       enqueue_email: {
         Args: { payload: Json; queue_name: string }
         Returns: number
@@ -2138,6 +2386,38 @@ export type Database = {
         Args: { _circle_id: string; _user_id: string }
         Returns: boolean
       }
+      list_serving_ads: {
+        Args: {
+          _city?: string
+          _country?: string
+          _limit?: number
+          _placement: string
+        }
+        Returns: {
+          body: string
+          creatives: Json
+          cta_label: string
+          cta_type: string
+          cta_url: string
+          cta_whatsapp: string
+          description: string
+          header: string
+          id: string
+          priority: number
+          tier: string
+        }[]
+      }
+      log_ad_event: {
+        Args: {
+          _campaign_id: string
+          _city: string
+          _country: string
+          _kind: string
+          _placement: string
+          _session: string
+        }
+        Returns: undefined
+      }
       move_to_dlq: {
         Args: {
           dlq_name: string
@@ -2147,6 +2427,7 @@ export type Database = {
         }
         Returns: number
       }
+      pause_campaign: { Args: { _id: string }; Returns: undefined }
       payout_request_create: {
         Args: {
           _amount: number
@@ -2192,6 +2473,17 @@ export type Database = {
           msg_id: number
           read_ct: number
         }[]
+      }
+      submit_ad_lead: {
+        Args: {
+          _campaign_id: string
+          _email: string
+          _message: string
+          _meta: Json
+          _name: string
+          _phone: string
+        }
+        Returns: string
       }
       system_wallet_credit: {
         Args: {
