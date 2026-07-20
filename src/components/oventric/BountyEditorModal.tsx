@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { publishBounty } from "@/lib/bounties.functions";
+import { listBountyCategories, type BountyCategory } from "@/lib/bounty-categories.functions";
 import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -12,8 +13,13 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
 const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
 
-const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
-type Category = (typeof CATEGORIES)[number];
+const FALLBACK_CATEGORIES: BountyCategory[] = [
+  { slug: "frontend", label: "Frontend Gigs", sort_order: 10, active: true },
+  { slug: "database", label: "Database Ops", sort_order: 20, active: true },
+  { slug: "api", label: "API Integrations", sort_order: 30, active: true },
+  { slug: "uiux", label: "UI/UX Polishing", sort_order: 40, active: true },
+];
+type Category = string;
 
 const MAX_IMAGES = 5;
 
