@@ -97,7 +97,7 @@ export const updateAdInquiry = createServerFn({ method: "POST" })
     const patch: Record<string, unknown> = {};
     if (data.status) patch.status = data.status;
     if (data.admin_notes !== undefined) patch.admin_notes = data.admin_notes;
-    const { error } = await supabaseAdmin.from("ad_inquiries").update(patch).eq("id", data.id);
+    const { error } = await supabaseAdmin.from("ad_inquiries").update(patch as never).eq("id", data.id);
     if (error) throw new Error(error.message);
     return { ok: true };
   });
