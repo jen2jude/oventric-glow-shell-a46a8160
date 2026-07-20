@@ -16,8 +16,7 @@ import {
   Package,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useActiveAds } from "@/lib/admin/store";
-import { AdCard } from "@/components/oventric/AdCard";
+import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -85,7 +84,7 @@ export function Marketplace() {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
 
-  const marketplaceAds = useActiveAds("marketplace");
+
 
   const digital = useMemo(() => (products ?? []).filter((p) => p.kind !== "physical"), [products]);
   const physical = useMemo(() => (products ?? []).filter((p) => p.kind === "physical"), [products]);
@@ -273,7 +272,7 @@ export function Marketplace() {
             const items = digital.filter((p) => p.category === cat);
             if (items.length === 0) return null;
             const meta = CATEGORY_META[cat];
-            const ad = marketplaceAds.find((a) => a.id.charCodeAt(3) % 4 === Object.keys(CATEGORY_META).indexOf(cat));
+            const adIndex = Object.keys(CATEGORY_META).indexOf(cat);
             return (
               <section
                 key={cat}
@@ -293,7 +292,7 @@ export function Marketplace() {
                   {items.map((p) => (
                     <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
                   ))}
-                  {ad && <AdCard ad={ad} />}
+                  <AdSlot placement="marketplace" variant="grid" index={adIndex} />
                   <ViewMoreButton label={meta.label} onClick={() => setFullCategory(cat)} />
                 </div>
               </section>

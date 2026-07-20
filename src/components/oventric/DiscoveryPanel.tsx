@@ -13,6 +13,7 @@ import { getBirthdaysToday, getProfilesLite, sendBirthdayWish, type BirthdayPers
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { AdSlot } from "@/components/oventric/ads/AdSlot";
 
 export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
   if (typeof window === "undefined") return;
@@ -373,7 +374,7 @@ export function DiscoveryPanel() {
   return (
     <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable]">
       {/* 1. Primary sponsored slot — blank when there is no active campaign */}
-      {primaryAd ? <SponsoredCard ad={primaryAd} /> : null}
+      <AdSlot placement="feed" variant="rail" index={0} />
 
       {/* 2. Birthdays (only when there are matches among people you follow) */}
       {myId && birthdays.length > 0 && (
@@ -435,7 +436,7 @@ export function DiscoveryPanel() {
       </section>
 
       {/* 4. Secondary sponsored slot — blank when there is no active campaign */}
-      {secondaryAd ? <SponsoredCard ad={secondaryAd} /> : null}
+      <AdSlot placement="feed" variant="rail" index={1} />
 
       {/* 5. Trending Marketplace items */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
