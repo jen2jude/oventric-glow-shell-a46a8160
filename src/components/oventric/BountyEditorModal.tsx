@@ -70,6 +70,8 @@ export function BountyEditorModal({
   const { baseCurrency } = useOnboarding();
   const snapshotFx = useServerFn(snapshotFxRates);
   const publishFn = useServerFn(publishBounty);
+  const listCatsFn = useServerFn(listBountyCategories);
+  const [categories, setCategories] = useState<BountyCategory[]>(FALLBACK_CATEGORIES);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
