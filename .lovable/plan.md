@@ -1,96 +1,65 @@
-# Live Paystack Funding + Payout
+## Goal
 
-## What we're building
+Extend the existing Playwright visual-regression setup to cover the other high-risk mobile screens (Feed, Marketplace, Academy, Bounties, Wallet, Dashboard, MegaMenu) so any future CSS/GPU regression that reintroduces scrambled-tile rendering fails CI before it ships.
 
-Two buttons on **Sovereign Wallet → Other Wallet**:
+## Current state (verified)
 
-1. **Fund Wallet** (renamed from "Add Liquid Capital") — already wired to Paystack Checkout via `initPaystackPayment`. Just rename the label + subtitle. No logic change.
-2. **Request Payout** (renamed from "Request Payout" — same) — becomes a **live** payout that pushes money from Paystack balance directly to the user's bank (NG) / mobile money or bank (GH). USD stays manual-admin (Paystack doesn't payout USD to international wires).
+- `playwright.config.ts` exists, `testDir: ./tests`, `baseURL: http://localhost:8080`.
+- `tests/profile-visual-regression.spec.ts` already implements the pattern we want: 6 mobile viewports, Android UA, session restore from `LOVABLE_BROWSER_SUPABASE_*`, animation neutralization, `toHaveScreenshot` with `maxDiffPixelRatio`.
+- Only the profile route is covered.
 
-## User flow — first-time payout
+## Changes
 
-```text
-Click "Request Payout"
-  → Liveness selfie (existing KYC gate)
-  → Bank Details form (NEW — one-time per user)
-       NG: Bank + 10-digit NUBAN → Paystack account name lookup (auto-fills, prevents typos)
-       GH: MoMo (network + phone) OR Bank + account
-  → Amount + fee preview (see below)
-  → Submit → Paystack Transfer API executes → wallet debited → tx logged
-```
+### 1. Extract shared helpers
 
-## User flow — returning payout user
+New `tests/helpers/visual.ts` exporting `MOBILE_VIEWPORTS`, `ANDROID_UA`, `restoreSession`, `stabilize`, `dismissProfileSetupDialog`, and a `LOW_GPU_VIEWPORTS` variant that also sets `localStorage['oventric:gpu-mode'] = 'low'` before navigation so the safe/low-GPU fallbacks render deterministically.
 
-```text
-Click "Request Payout"
-  → Liveness selfie only (verify same face)
-  → Pick saved bank/momo OR add new
-  → Amount + fee preview
-  → Submit → live transfer
-```
+Refactor `profile-visual-regression.spec.ts` to import from that helper (no snapshot changes — same file names).
 
-## Fee handling (auto-deducted from user's amount)
+### 2. New spec files, one per surface
 
-Paystack Transfer fees (as of 2026):
-- **NG bank:** ₦10 (≤₦5k) / ₦25 (≤₦50k) / ₦50 (>₦50k)
-- **GH bank:** GHS 1 flat
-- **GH MoMo:** 1% + GHS 1 (capped at GHS 8)
+Each file loops the shared mobile viewports, dismisses onboarding, stabilizes, scrolls, and takes element (not full-page) screenshots of the parts that historically scrambled:
 
-Show a live preview on the amount input:
+- `tests/feed-visual-regression.spec.ts` — header, composer row (`+` trigger + avatar), first post card, reactions bar.
+- `tests/marketplace-visual-regression.spec.ts` — mode switcher, promoted card (`.rgb-promo-border`), a standard product tile.
+- `tests/academy-visual-regression.spec.ts` — Explore Course button, first course card.
+- `tests/bounties-visual-regression.spec.ts` — first bounty card, filters bar.
+- `tests/wallet-visual-regression.spec.ts` — earnings grid rows (cashback/bounty/affiliate), balance card.
+- `tests/dashboard-visual-regression.spec.ts` — overview stat rows, mobile stat row.
+- `tests/megamenu-visual-regression.spec.ts` — opens the hamburger, snapshots menu chrome and profile card. Runs twice: once premium, once with `oventric:gpu-mode=low` to lock in the safe fallback layout.
+- `tests/mobile-nav-visual-regression.spec.ts` — footer nav strip, floating `+` button (static RGB border).
 
-```text
-You requested:      ₦20,000
-Paystack fee:       −₦25
-Bank receives:      ₦19,975    ← user sees this before submit
-```
+Selectors: prefer existing `data-testid`s; where a section lacks one, the spec adds a fallback `locator()` by role/text and I'll add missing `data-testid` attributes in the same PR (surgical, presentation only). Missing testids to add: `feed-composer`, `feed-post-card`, `market-mode-switch`, `market-promoted-card`, `academy-explore-cta`, `bounty-card`, `wallet-earnings-grid`, `wallet-balance`, `dashboard-overview`, `mega-menu-root`, `mobile-nav`.
 
-Fee is subtracted from the **requested amount** before transfer, so the user's wallet is debited the full requested amount and the bank receives net.
+### 3. Snapshot policy
 
-## Technical details
+- Element screenshots only, never `fullPage: true` (matches profile spec and the browser-use guidance).
+- `maxDiffPixelRatio: 0.02` for chrome, `0.03` for content-heavy sections (matches profile spec).
+- Baselines committed under Playwright's default `__snapshots__` folders alongside each spec.
+- First CI run for a new spec is expected to fail (no baseline yet). Local `bunx playwright test -u` seeds them; commit and the second run is green.
 
-### 1. DB migration — save bank details + track transfer state
-- New table `payout_recipients` (user_id, currency, method, bank_name, bank_code, account_number, account_name, momo_network, phone, paystack_recipient_code, is_default, verified_at, timestamps). RLS: owner-only.
-- Extend `payout_requests` with columns: `paystack_transfer_code`, `paystack_recipient_code`, `fee_amount`, `net_amount` (nullable, backfilled null).
-- New RPC `payout_request_create_v2(...)` OR extend the existing to accept fee/net; simpler: pass them from the server function directly via `supabaseAdmin` on the `payout_requests` insert instead of the RPC, since RPC is user-context. Keep existing RPC for USD manual path.
+### 4. Config
 
-### 2. Server functions (`src/lib/payouts.functions.ts`)
-- `paystackListBanks(country)` — proxy `GET /bank?country=nigeria|ghana` (cached in memory 24h).
-- `paystackResolveAccount({ bank_code, account_number })` — proxy `GET /bank/resolve` → returns `account_name` for NG.
-- `createOrGetRecipient({ currency, method, ... })` — POST `/transferrecipient`, persist code in `payout_recipients`, return code.
-- `listMyRecipients()` — user's saved destinations.
-- `createLivePayout({ recipientId, amount, currency })`:
-  1. Auth via `requireSupabaseAuth`.
-  2. Compute Paystack fee (server-side helper `estimatePaystackTransferFee`).
-  3. Validate wallet balance ≥ requested.
-  4. Insert `payout_requests` (status=`processing`, fee/net populated).
-  5. Debit wallet (move requested → escrow via existing RPC).
-  6. POST `/transfer` with reason + reference = payout id.
-  7. On sync response (`status=success/otp`), update row with `paystack_transfer_code`. Otherwise leave `processing`; webhook resolves.
+`playwright.config.ts` — add:
+- `expect: { toHaveScreenshot: { maxDiffPixelRatio: 0.02, animations: 'disabled' } }` as the default so specs stay terse.
+- `reporter: [['list'], ['html', { open: 'never' }]]`.
+- Keep single-project, headless, `baseURL` unchanged.
 
-### 3. Webhook (`src/routes/api/public/paystack-webhook.ts`)
-Extend the existing HMAC-verified webhook to handle:
-- `transfer.success` → mark payout `paid`, clear escrow, insert `wallet_transactions` row `Payout Withdrawal` status=success.
-- `transfer.failed` / `transfer.reversed` → refund escrow → available, mark `rejected`.
+### 5. Docs
 
-### 4. UI (`src/components/oventric/Wallet.tsx`)
-- Rename button label + subtitle: "Fund wallet · Card · Bank · Mobile Money".
-- Replace the current `PayoutModal` with a new three-step flow: **Liveness (existing) → Destination → Amount + preview**.
-- Fee preview line computed live in-browser mirroring the server helper.
-- NG account-name auto-lookup after 10 digits typed.
-- USD tab keeps the current manual admin-approval form (unchanged).
+Short `tests/README.md` with: how to run (`bunx playwright test`), how to refresh baselines (`bunx playwright test -u <file>`), and what to do when a diff trips (open the HTML report, check whether it's a real regression or an intentional visual change, then update baselines only after confirming the change is intentional).
 
-### 5. Files touched
-- `supabase/migrations/*` — new table + payout_requests columns.
-- `src/lib/payouts.functions.ts` — new server fns.
-- `src/lib/paystack.functions.ts` — add transfer helpers + fee estimator (server-only).
-- `src/routes/api/public/paystack-webhook.ts` — handle transfer events.
-- `src/components/oventric/Wallet.tsx` — new payout modal, rename fund button.
+## Out of scope
 
-## Notes / constraints
+- No CI workflow file changes — the harness already runs Playwright.
+- No production code changes beyond adding `data-testid` attributes listed above.
+- No new dependencies.
 
-- **KYC flow preserved.** Existing `ensureKyc` (enroll) and `verifyLiveness` (match) are used unchanged. Bank-details form is a NEW step **after** liveness, not part of KYC.
-- **USD wire stays manual** — Paystack Transfers do not settle to non-NG/GH international banks.
-- **Paystack Transfers must be enabled on the merchant dashboard** with sufficient balance. If disabled, the API returns a clear error which we surface to the user with a "Contact support" fallback.
-- Balance debit + transfer initiation happen in the same server function; webhook is the source of truth for final status. If the initial POST fails, we refund escrow immediately.
+## Files touched
 
-Approve to proceed and I'll ship it end-to-end.
+- add: `tests/helpers/visual.ts`
+- add: 8 new `*-visual-regression.spec.ts` files listed above
+- add: `tests/README.md`
+- edit: `playwright.config.ts` (defaults + reporter)
+- edit: `tests/profile-visual-regression.spec.ts` (import helpers)
+- edit: 6-8 components/routes to add missing `data-testid` attributes
