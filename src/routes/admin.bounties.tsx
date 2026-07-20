@@ -307,12 +307,20 @@ function BountiesAdminPage() {
             {rows && filteredRows && filteredRows.length !== rows.length ? ` of ${rows.length}` : ""} bounties · admin can edit any, including user-posted ones
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> New bounty
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowCategoryManager(true)}
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2"
+          >
+            <Tags className="w-4 h-4" /> Categories
+          </button>
+          <button
+            onClick={openCreate}
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> New bounty
+          </button>
+        </div>
       </header>
 
       <div className="mb-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2">
