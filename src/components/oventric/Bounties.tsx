@@ -125,6 +125,14 @@ export function Bounties() {
   const [refreshTick, setRefreshTick] = useState(0);
   const [highlightId, setHighlightId] = useState<string | null>(null);
 
+  // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
+  useEffect(() => {
+    const onOpen = () => setPostOpen(true);
+    window.addEventListener("oventric:bounty:open", onOpen);
+    return () => window.removeEventListener("oventric:bounty:open", onOpen);
+  }, []);
+
+
   useEffect(() => {
     let cancelled = false;
     supabase
