@@ -81,9 +81,21 @@ function Index() {
       const detail = (e as CustomEvent<{ section?: string }>).detail;
       if (detail?.section) setActive(detail.section);
     };
+    const onOpenDM = (e: Event) => {
+      const detail = (e as CustomEvent<{ peerId?: string }>).detail;
+      if (detail?.peerId) {
+        setMessagesPeer(detail.peerId);
+        setMessagesOpen(true);
+      }
+    };
     window.addEventListener("oventric:navigate", onNav);
-    return () => window.removeEventListener("oventric:navigate", onNav);
+    window.addEventListener("oventric:open-dm", onOpenDM);
+    return () => {
+      window.removeEventListener("oventric:navigate", onNav);
+      window.removeEventListener("oventric:open-dm", onOpenDM);
+    };
   }, []);
+
 
   // Resume the bounty publish flow after a successful wallet top-up.
   useEffect(() => {
