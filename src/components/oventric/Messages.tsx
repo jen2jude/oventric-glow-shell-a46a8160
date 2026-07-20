@@ -233,6 +233,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       return;
     }
     let cancelled = false;
+    // Remove any stale channel with the same topic (StrictMode / fast remounts
+    // return the still-subscribed instance, and .on() after .subscribe() throws).
+    for (const c of supabase.getChannels()) {
+      if (c.topic === "realtime:oventric:presence") supabase.removeChannel(c);
+    }
     const channel = supabase.channel("oventric:presence", {
       config: { presence: { key: me } },
     });
