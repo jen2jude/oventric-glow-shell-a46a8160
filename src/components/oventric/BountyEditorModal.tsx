@@ -85,6 +85,14 @@ export function BountyEditorModal({
     if (!open) return;
     let cancelled = false;
     setShowFundPrompt(false);
+    listCatsFn()
+      .then((cats) => {
+        if (cancelled) return;
+        const list = Array.isArray(cats) && cats.length ? cats : FALLBACK_CATEGORIES;
+        setCategories(list);
+        // If current category isn't in the loaded list, keep it (user may have a legacy value).
+      })
+      .catch(() => setCategories(FALLBACK_CATEGORIES));
     (async () => {
       const { data: session } = await supabase.auth.getUser();
       const _uid = session.user?.id ?? null;
