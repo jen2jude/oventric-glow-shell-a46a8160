@@ -353,7 +353,7 @@ function CheckoutPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max">
+            <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max min-w-0">
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Summary</h2>
               {product.coverUrl ? (
                 <ResponsiveImage
