@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar, Sparkles, ShieldCheck, ShieldX, Users, Lock, Unlock, CheckCircle2, RotateCcw } from "lucide-react";
+import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar, Sparkles, ShieldCheck, ShieldX, Users, Lock, Unlock, CheckCircle2, RotateCcw, Tags } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -15,6 +15,12 @@ import {
   adminReleaseBounty,
   adminRefundBounty,
 } from "@/lib/bounties.functions";
+import {
+  adminListBountyCategories,
+  adminUpsertBountyCategory,
+  adminDeleteBountyCategory,
+  type BountyCategory,
+} from "@/lib/bounty-categories.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 export const Route = createFileRoute("/admin/bounties")({
@@ -24,8 +30,20 @@ export const Route = createFileRoute("/admin/bounties")({
 
 type Row = Record<string, unknown>;
 
-const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
+const FALLBACK_CATEGORIES: BountyCategory[] = [
+  { slug: "frontend", label: "Frontend Gigs", sort_order: 10, active: true },
+  { slug: "database", label: "Database Ops", sort_order: 20, active: true },
+  { slug: "api", label: "API Integrations", sort_order: 30, active: true },
+  { slug: "uiux", label: "UI/UX Polishing", sort_order: 40, active: true },
+];
 const STATUSES = ["active", "paused", "closed", "draft", "pending_review", "rejected", "solved", "released", "disputed"] as const;
+
+const MAX_IMAGES = 5;
+
+interface ImageEntry {
+  path: string;
+  preview: string | null;
+}
 
 interface FormState {
   id?: string;
@@ -38,8 +56,7 @@ interface FormState {
   end_at: string;
   deadline_at: string;
   status: string;
-  cover_path: string | null;
-  cover_preview: string | null;
+  images: ImageEntry[];
   promoted: boolean;
 }
 
@@ -53,8 +70,7 @@ const emptyForm: FormState = {
   end_at: "",
   deadline_at: "",
   status: "active",
-  cover_path: null,
-  cover_preview: null,
+  images: [],
   promoted: false,
 };
 
@@ -78,14 +94,17 @@ function BountiesAdminPage() {
   const createFn = useServerFn(adminCreateBounty);
   const updateFn = useServerFn(adminUpdateBounty);
   const deleteFn = useServerFn(adminDeleteBounty);
+  const listCatsFn = useServerFn(adminListBountyCategories);
 
   const [rows, setRows] = useState<Row[] | null>(null);
   const [busy, setBusy] = useState<string | null>(null);
   const [modal, setModal] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  const [categories, setCategories] = useState<BountyCategory[]>(FALLBACK_CATEGORIES);
+  const [showCategoryManager, setShowCategoryManager] = useState(false);
 
   const [query, setQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
@@ -134,58 +153,99 @@ function BountiesAdminPage() {
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
   }, [listFn]);
-  useEffect(() => { refresh(); }, [refresh]);
+  const refreshCategories = useCallback(() => {
+    listCatsFn()
+      .then((cats) => setCategories(Array.isArray(cats) && cats.length ? cats : FALLBACK_CATEGORIES))
+      .catch(() => setCategories(FALLBACK_CATEGORIES));
+  }, [listCatsFn]);
+  useEffect(() => { refresh(); refreshCategories(); }, [refresh, refreshCategories]);
 
-  const openCreate = () => setModal({ ...emptyForm });
+  const signImagePaths = async (paths: string[]): Promise<ImageEntry[]> => {
+    return Promise.all(
+      paths.map(async (p) => {
+        try {
+          const { data: signed } = await supabase.storage
+            .from("bounty-covers")
+            .createSignedUrl(p, 60 * 60);
+          return { path: p, preview: signed?.signedUrl ?? null };
+        } catch {
+          return { path: p, preview: null };
+        }
+      }),
+    );
+  };
+
+  const openCreate = () => setModal({ ...emptyForm, category: categories[0]?.slug ?? "api" });
   const openEdit = async (b: Row) => {
+    const rawImages = Array.isArray(b.images) ? (b.images as unknown[]).filter((x): x is string => typeof x === "string") : [];
     const coverPath = (b.cover_path as string) ?? null;
-    let coverPreview: string | null = null;
-    if (coverPath) {
-      const { data: signed } = await supabase.storage
-        .from("bounty-covers")
-        .createSignedUrl(coverPath, 60 * 60);
-      coverPreview = signed?.signedUrl ?? null;
-    }
+    const merged = coverPath ? [coverPath, ...rawImages.filter((p) => p !== coverPath)] : rawImages;
+    const images = merged.length ? await signImagePaths(merged.slice(0, MAX_IMAGES)) : [];
     setModal({
       id: b.id as string,
       title: (b.title as string) ?? "",
       description: (b.description as string) ?? "",
-      category: (b.category as string) ?? "api",
+      category: (b.category as string) ?? (categories[0]?.slug ?? "api"),
       price_usd: String(b.price_usd ?? ""),
       applicant_limit: String(b.applicant_limit ?? "10"),
       start_at: toLocalInput(b.start_at as string | null),
       end_at: toLocalInput(b.end_at as string | null),
       deadline_at: toLocalInput(b.deadline_at as string | null),
       status: (b.status as string) ?? "active",
-      cover_path: coverPath,
-      cover_preview: coverPreview,
+      images,
       promoted: Boolean(b.promoted),
     });
   };
 
-  const handleCoverPick = async (file: File) => {
+  const handleImagePick = async (files: FileList) => {
     if (!modal) return;
-    if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
-    setUploadingCover(true);
+    if (modal.images.length >= MAX_IMAGES) return toast.error(`Max ${MAX_IMAGES} images`);
+    const remaining = MAX_IMAGES - modal.images.length;
+    const picks = Array.from(files).slice(0, remaining);
+    setUploadingImage(true);
     try {
       const { data: session } = await supabase.auth.getUser();
       const uid = session.user?.id ?? "admin";
-      const safe = file.name.replace(/[^\w.\-]+/g, "_");
-      const path = `${uid}/${Date.now()}_${safe}`;
-      const { error } = await supabase.storage
-        .from("bounty-covers")
-        .upload(path, file, { contentType: file.type || undefined, upsert: false });
-      if (error) throw error;
-      const { data: signed } = await supabase.storage
-        .from("bounty-covers")
-        .createSignedUrl(path, 60 * 60);
-      setModal((m) => m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m);
-      toast.success("Cover uploaded");
+      const added: ImageEntry[] = [];
+      for (const file of picks) {
+        if (!file.type.startsWith("image/")) { toast.error(`${file.name} isn't an image`); continue; }
+        if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} exceeds 5MB`); continue; }
+        const safe = file.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${uid}/${Date.now()}_${safe}`;
+        const { error } = await supabase.storage
+          .from("bounty-covers")
+          .upload(path, file, { contentType: file.type || undefined, upsert: false });
+        if (error) { toast.error(error.message); continue; }
+        const { data: signed } = await supabase.storage
+          .from("bounty-covers")
+          .createSignedUrl(path, 60 * 60);
+        added.push({ path, preview: signed?.signedUrl ?? null });
+      }
+      if (added.length) {
+        setModal((m) => m ? { ...m, images: [...m.images, ...added].slice(0, MAX_IMAGES) } : m);
+        toast.success(`${added.length} image${added.length > 1 ? "s" : ""} uploaded`);
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploadingCover(false);
+      setUploadingImage(false);
+    }
+  };
+
+  const removeImage = (idx: number) => {
+    setModal((m) => m ? { ...m, images: m.images.filter((_, i) => i !== idx) } : m);
+  };
+
+  const togglePromoted = async (id: string, next: boolean) => {
+    setBusy(id);
+    try {
+      await updateFn({ data: { id, promoted: next } as never });
+      toast.success(next ? "Promoted" : "Unpromoted");
+      refresh();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(null);
     }
   };
 
@@ -204,13 +264,15 @@ function BountiesAdminPage() {
     }
     setSaving(true);
     try {
+      const imagePaths = modal.images.map((i) => i.path);
       const payload = {
         title: modal.title,
         description: modal.description,
         category: modal.category,
         price_usd: price,
         applicant_limit: limit,
-        cover_path: modal.cover_path,
+        cover_path: imagePaths[0] ?? null,
+        images: imagePaths,
         start_at: start,
         end_at: end,
         deadline_at: deadline,
@@ -245,12 +307,20 @@ function BountiesAdminPage() {
             {rows && filteredRows && filteredRows.length !== rows.length ? ` of ${rows.length}` : ""} bounties · admin can edit any, including user-posted ones
           </p>
         </div>
-        <button
-          onClick={openCreate}
-          className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
-        >
-          <Plus className="w-4 h-4" /> New bounty
-        </button>
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setShowCategoryManager(true)}
+            className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2"
+          >
+            <Tags className="w-4 h-4" /> Categories
+          </button>
+          <button
+            onClick={openCreate}
+            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+          >
+            <Plus className="w-4 h-4" /> New bounty
+          </button>
+        </div>
       </header>
 
       <div className="mb-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2">
@@ -268,7 +338,7 @@ function BountiesAdminPage() {
           aria-label="Filter by category"
         >
           <option value="all">All categories</option>
-          {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+          {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
         </select>
         <select
           value={statusFilter}
@@ -348,6 +418,18 @@ function BountiesAdminPage() {
                   <Users className="w-4 h-4" /> Manage
                 </button>
                 <button
+                  onClick={() => togglePromoted(id, !b.promoted)}
+                  disabled={busy === id}
+                  className={`px-3 py-2 rounded-lg border text-xs font-bold inline-flex items-center gap-1.5 ${
+                    b.promoted
+                      ? "bg-fuchsia-500/20 border-fuchsia-500/40 text-fuchsia-200 hover:bg-fuchsia-500/30"
+                      : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                  }`}
+                  aria-label="Toggle promoted"
+                >
+                  <Sparkles className="w-4 h-4" /> {b.promoted ? "Promoted" : "Promote"}
+                </button>
+                <button
                   onClick={() => openEdit(b)}
                   className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200"
                   aria-label="Edit bounty"
@@ -392,53 +474,51 @@ function BountiesAdminPage() {
 
             <div className="space-y-3">
               <div>
-                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Cover image</span>
-                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Shown on bounty cards. PNG/JPG/WebP up to 5MB.</p>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
+                  Images ({modal.images.length}/{MAX_IMAGES})
+                </span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">First image is used as the cover. PNG/JPG/WebP up to 5MB each.</p>
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
+                  multiple
                   className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverPick(f); e.target.value = ""; }}
+                  onChange={(e) => { if (e.target.files?.length) handleImagePick(e.target.files); e.target.value = ""; }}
                 />
-                <button
-                  type="button"
-                  onClick={() => fileInputRef.current?.click()}
-                  disabled={uploadingCover}
-                  className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
-                >
-                  {modal.cover_preview ? (
-                    <ResponsiveImage sizes="80px" src={modal.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
-                  ) : (
-                    <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
-                      <ImagePlus className="w-6 h-6" />
+                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2">
+                  {modal.images.map((img, idx) => (
+                    <div key={img.path} className="relative aspect-square rounded-md overflow-hidden border border-white/10 bg-white/5">
+                      {img.preview ? (
+                        <ResponsiveImage sizes="120px" src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center text-slate-500"><ImagePlus className="w-5 h-5" /></div>
+                      )}
+                      {idx === 0 && (
+                        <span className="absolute top-1 left-1 text-[9px] px-1 py-0.5 rounded bg-emerald-500 text-black font-bold uppercase">Cover</span>
+                      )}
+                      <button
+                        type="button"
+                        onClick={() => removeImage(idx)}
+                        className="absolute top-1 right-1 p-1 rounded bg-black/70 hover:bg-red-500/80 text-white"
+                        aria-label="Remove image"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
                     </div>
-                  )}
-                  <div className="flex-1 min-w-0 text-xs">
-                    {uploadingCover ? (
-                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
-                    ) : modal.cover_preview ? (
-                      <>
-                        <div className="text-slate-200 font-medium">Image attached</div>
-                        <div className="text-slate-500 mt-0.5">Click to replace</div>
-                      </>
-                    ) : (
-                      <div className="text-slate-400">Click to upload a cover image (recommended 4:3).</div>
-                    )}
-                  </div>
-                  {modal.cover_preview && !uploadingCover && (
-                    <span
-                      role="button"
-                      tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); } }}
-                      className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
-                      aria-label="Remove image"
+                  ))}
+                  {modal.images.length < MAX_IMAGES && (
+                    <button
+                      type="button"
+                      onClick={() => fileInputRef.current?.click()}
+                      disabled={uploadingImage}
+                      className="aspect-square rounded-md border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-400"
                     >
-                      <X className="w-3.5 h-3.5" />
-                    </span>
+                      {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                      <span className="text-[10px]">Add</span>
+                    </button>
                   )}
-                </button>
+                </div>
               </div>
 
               <Field label="Title">
@@ -457,7 +537,7 @@ function BountiesAdminPage() {
                     onChange={(e) => setModal({ ...modal, category: e.target.value })}
                     className={inputCls}
                   >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Status">
@@ -578,6 +658,14 @@ function BountiesAdminPage() {
           id={detailId}
           onClose={() => setDetailId(null)}
           onChanged={refresh}
+        />
+      )}
+
+      {showCategoryManager && (
+        <CategoryManagerModal
+          categories={categories}
+          onClose={() => setShowCategoryManager(false)}
+          onChanged={refreshCategories}
         />
       )}
     </div>
@@ -767,5 +855,106 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
       <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">{label}</span>
       {children}
     </label>
+  );
+}
+
+function CategoryManagerModal({
+  categories,
+  onClose,
+  onChanged,
+}: {
+  categories: BountyCategory[];
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const upsertFn = useServerFn(adminUpsertBountyCategory);
+  const deleteFn = useServerFn(adminDeleteBountyCategory);
+  const [rows, setRows] = useState<BountyCategory[]>(categories);
+  const [newSlug, setNewSlug] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { setRows(categories); }, [categories]);
+
+  const add = async () => {
+    const slug = newSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
+    const label = newLabel.trim();
+    if (!slug || !label) return toast.error("Slug and label required");
+    setBusy(true);
+    try {
+      await upsertFn({ data: { slug, label, sort_order: (rows.at(-1)?.sort_order ?? 0) + 10, active: true } });
+      toast.success("Category added");
+      setNewSlug(""); setNewLabel("");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  const saveRow = async (row: BountyCategory) => {
+    setBusy(true);
+    try {
+      await upsertFn({ data: { slug: row.slug, label: row.label, sort_order: row.sort_order, active: row.active } });
+      toast.success("Saved");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  const remove = async (slug: string) => {
+    if (!confirm(`Delete category "${slug}"?`)) return;
+    setBusy(true);
+    try {
+      await deleteFn({ data: { slug } });
+      toast.success("Deleted");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-white font-black text-lg flex items-center gap-2"><Tags className="w-5 h-5 text-emerald-400" /> Bounty categories</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400" aria-label="Close">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          {rows.map((row, idx) => (
+            <div key={row.slug} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+              <span className="text-[10px] text-slate-500 font-mono w-20 truncate">{row.slug}</span>
+              <input
+                value={row.label}
+                onChange={(e) => setRows((rs) => rs.map((r, i) => i === idx ? { ...r, label: e.target.value } : r))}
+                className="flex-1 px-2 py-1 rounded bg-black/40 border border-white/10 text-white text-sm"
+              />
+              <label className="flex items-center gap-1 text-[11px] text-slate-400">
+                <input type="checkbox" checked={row.active} onChange={(e) => setRows((rs) => rs.map((r, i) => i === idx ? { ...r, active: e.target.checked } : r))} />
+                Active
+              </label>
+              <button onClick={() => saveRow(row)} disabled={busy} className="p-1.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-200" aria-label="Save">
+                <CheckCircle2 className="w-4 h-4" />
+              </button>
+              <button onClick={() => remove(row.slug)} disabled={busy} className="p-1.5 rounded bg-red-500/10 border border-red-500/30 text-red-300" aria-label="Delete">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-white/10 pt-4">
+          <p className="text-xs uppercase tracking-wider text-slate-500 mb-2">Add category</p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="slug (e.g. mobile)" className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm" />
+            <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Label (e.g. Mobile Apps)" className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm" />
+            <button onClick={add} disabled={busy} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center justify-center gap-1">
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
   );
 }

@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { publishBounty } from "@/lib/bounties.functions";
+import { listBountyCategories, type BountyCategory } from "@/lib/bounty-categories.functions";
 import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -12,8 +13,13 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 const DRAFT_KEY_PREFIX = "oventric:bounty:draft:";
 const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
 
-const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
-type Category = (typeof CATEGORIES)[number];
+const FALLBACK_CATEGORIES: BountyCategory[] = [
+  { slug: "frontend", label: "Frontend Gigs", sort_order: 10, active: true },
+  { slug: "database", label: "Database Ops", sort_order: 20, active: true },
+  { slug: "api", label: "API Integrations", sort_order: 30, active: true },
+  { slug: "uiux", label: "UI/UX Polishing", sort_order: 40, active: true },
+];
+type Category = string;
 
 const MAX_IMAGES = 5;
 
@@ -64,6 +70,8 @@ export function BountyEditorModal({
   const { baseCurrency } = useOnboarding();
   const snapshotFx = useServerFn(snapshotFxRates);
   const publishFn = useServerFn(publishBounty);
+  const listCatsFn = useServerFn(listBountyCategories);
+  const [categories, setCategories] = useState<BountyCategory[]>(FALLBACK_CATEGORIES);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
@@ -77,6 +85,14 @@ export function BountyEditorModal({
     if (!open) return;
     let cancelled = false;
     setShowFundPrompt(false);
+    listCatsFn()
+      .then((cats) => {
+        if (cancelled) return;
+        const list = Array.isArray(cats) && cats.length ? cats : FALLBACK_CATEGORIES;
+        setCategories(list);
+        // If current category isn't in the loaded list, keep it (user may have a legacy value).
+      })
+      .catch(() => setCategories(FALLBACK_CATEGORIES));
     (async () => {
       const { data: session } = await supabase.auth.getUser();
       const _uid = session.user?.id ?? null;
@@ -343,7 +359,7 @@ export function BountyEditorModal({
 
           <Field label="Category">
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Category })} className={inputCls}>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
             </select>
           </Field>
 
