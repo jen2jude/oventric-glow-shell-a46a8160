@@ -607,4 +607,3 @@ function Section({ title, children }: { title: string; children: React.ReactNode
     </section>
   );
 }
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
