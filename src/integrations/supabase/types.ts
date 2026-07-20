@@ -2072,6 +2072,7 @@ export type Database = {
         Args: { _id: string; _reason: string }
         Returns: undefined
       }
+      post_visible_to_me: { Args: { _post_id: string }; Returns: boolean }
       profile_social_counts: {
         Args: { _slug: string }
         Returns: {
