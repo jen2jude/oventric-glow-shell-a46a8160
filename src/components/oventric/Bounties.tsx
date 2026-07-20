@@ -430,11 +430,13 @@ function BountyRow({
   currency,
   onOpen,
   isNew,
+  alreadyApplied,
 }: {
   bounty: Bounty;
   currency: Currency;
   onOpen: () => void;
   isNew?: boolean;
+  alreadyApplied?: boolean;
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
@@ -459,9 +461,20 @@ function BountyRow({
       </div>
       <button
         onClick={onOpen}
-        className="shrink-0 px-4 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors whitespace-nowrap"
+        className={`shrink-0 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
+          alreadyApplied
+            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40"
+            : "bg-emerald-500 hover:bg-emerald-400 text-black"
+        }`}
       >
-        View Task &amp; Apply
+        {alreadyApplied ? (
+          <>
+            <CheckCircle2 className="w-4 h-4" />
+            Already Applied · Open
+          </>
+        ) : (
+          <>View Task &amp; Apply</>
+        )}
       </button>
     </div>
   );
