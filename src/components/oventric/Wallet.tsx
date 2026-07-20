@@ -145,9 +145,12 @@ export function Wallet() {
   // with a suggested amount already filled in.
   useEffect(() => {
     const onTopup = (e: Event) => {
-      const detail = (e as CustomEvent<{ amountUsd?: number }>).detail;
+      const detail = (e as CustomEvent<{ amountUsd?: number; reason?: string; returnTo?: string }>).detail;
       const amt = Number(detail?.amountUsd ?? 0);
       if (amt > 0) setAddPrefillUsd(amt);
+      const explicitReturn = typeof detail?.returnTo === "string" && detail.returnTo.startsWith("/") ? detail.returnTo : null;
+      const inferredReturn = detail?.reason === "bounty-escrow" ? "/?resume=bounty" : null;
+      setAddReturnTo(explicitReturn ?? inferredReturn);
       setAddOpen(true);
     };
     window.addEventListener("oventric:wallet:topup", onTopup);
