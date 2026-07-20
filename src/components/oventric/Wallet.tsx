@@ -691,7 +691,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
   );
 }
 
-function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefillUsd?: number | null }) {
+function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
   const [amount, setAmount] = useState<string>(
@@ -715,7 +715,13 @@ function AddCapitalModal({ onClose, prefillUsd }: { onClose: () => void; prefill
       const chargeAmount = Number((usd * FX[baseCurrency]).toFixed(2));
       const channel = pick === "card" ? "card" : pick === "bank" ? "bank_transfer" : "mobile_money";
       const init = await initPaystack({
-        data: { purpose: "wallet_topup", amount: chargeAmount, currency: baseCurrency, channel },
+        data: {
+          purpose: "wallet_topup",
+          amount: chargeAmount,
+          currency: baseCurrency,
+          channel,
+          ...(returnTo ? { returnTo } : {}),
+        },
       });
       window.location.href = init.authorizationUrl;
     } catch (e) {
