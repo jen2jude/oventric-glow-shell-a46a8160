@@ -10,7 +10,7 @@ import {
   listCampaignsAdmin, upsertCampaignAdmin, deleteCampaignAdmin, setCampaignStatus,
   getCampaignAdmin, listCreatives, createCreativeUploadUrl, attachCreative, deleteCreative,
   getCampaignMetrics, listCampaignLeads, listTargetCities,
-  type CampaignRow, type Creative, type CampaignTier, type CampaignStatus, type CampaignCta,
+  type CampaignRow, type Creative, type CampaignTier, type CampaignStatus,
 } from "@/lib/campaigns.functions";
 
 export const Route = createFileRoute("/admin/campaigns")({
@@ -608,4 +608,3 @@ function Section({ title, children }: { title: string; children: React.ReactNode
   );
 }
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-type __CtaGuard = CampaignCta;
