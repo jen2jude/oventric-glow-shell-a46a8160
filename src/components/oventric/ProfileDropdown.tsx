@@ -803,13 +803,11 @@ function ProfileSettingsModal({
           <>
           {/* Avatar */}
           <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 overflow-hidden shrink-0">
+            <div className="w-16 h-16 rounded-full bg-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
               {avatar ? (
                 <ResponsiveImage sizes="96px" src={avatar} alt="Avatar preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
               ) : (
-                <div className="w-full h-full flex items-center justify-center text-black font-black">
-                  {displayName.split(/\s+/).filter(Boolean).slice(0, 2).map((w) => w[0]?.toUpperCase() ?? "").join("") || "OV"}
-                </div>
+                <User className="w-8 h-8 text-white/85" strokeWidth={1.75} aria-hidden />
               )}
             </div>
             <label className="flex-1 cursor-pointer">
