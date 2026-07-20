@@ -351,7 +351,7 @@ export function BountyEditorModal({
 
           <Field label="Category">
             <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Category })} className={inputCls}>
-              {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
             </select>
           </Field>
 
