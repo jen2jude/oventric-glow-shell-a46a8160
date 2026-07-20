@@ -1108,7 +1108,7 @@ function ProfilePage() {
 
 
               {/* Reputation block */}
-              <div data-testid="profile-reputation" className="profile-reputation-safe mt-5 pt-5 border-t border-[#2A2A30] sm:border-white/5">
+              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 bg-[#1E1E24]">
                 <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
                   <MobileRepLine
                     icon={<Star className="w-4 h-4 text-white" />}
