@@ -65,7 +65,7 @@ export function useServingAds(placement: AdPlacement, limit = 5) {
 
 /* ---------- impression tracker ---------- */
 function useImpression(
-  ref: React.RefObject<HTMLElement>,
+  ref: React.RefObject<HTMLElement | null>,
   campaignId: string | undefined,
   placement: AdPlacement,
 ) {
