@@ -1,12 +1,18 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, Target, Sparkles, ShoppingBag, MessageCircle, Users, Flame, Package, Megaphone, PlayCircle } from "lucide-react";
+import { Star, ShoppingBag, MessageCircle, Users, Package, Megaphone, PlayCircle, Cake, X, Send, Circle } from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import { supabase } from "@/integrations/supabase/client";
 import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryPeer, type DiscoveryProduct } from "@/lib/discovery.functions";
+import { getBirthdaysToday, getProfilesLite, sendBirthdayWish, type BirthdayPerson, type OnlinePerson } from "@/lib/rail.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 
 export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
   if (typeof window === "undefined") return;
@@ -24,57 +30,14 @@ function SkeletonBar({ className = "" }: { className?: string }) {
   return <div className={`animate-pulse rounded bg-white/[0.06] ${className}`} />;
 }
 
-function PeerRowSkeleton() {
-  return (
-    <li className="flex items-center gap-2.5">
-      <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] animate-pulse" />
-      <div className="flex-1 space-y-1.5">
-        <SkeletonBar className="h-3 w-3/5" />
-        <SkeletonBar className="h-2 w-1/4" />
-      </div>
-      <SkeletonBar className="h-6 w-16 rounded-md" />
-    </li>
-  );
-}
-
-function BountyRowSkeleton() {
-  return (
-    <li className="rounded-lg border border-white/5 bg-black/25 p-3 space-y-2">
-      <SkeletonBar className="h-16 w-full rounded-md" />
-      <SkeletonBar className="h-3 w-4/5" />
-      <div className="flex items-center justify-between pt-1">
-        <SkeletonBar className="h-4 w-16" />
-        <SkeletonBar className="h-3 w-10" />
-      </div>
-    </li>
-  );
-}
-
-function ListingRowSkeleton() {
-  return (
-    <li className="flex items-center gap-3">
-      <div className="w-11 h-11 shrink-0 rounded-lg bg-white/[0.06] animate-pulse" />
-      <div className="flex-1 space-y-1.5">
-        <SkeletonBar className="h-3 w-3/4" />
-        <SkeletonBar className="h-2 w-1/3" />
-      </div>
-      <SkeletonBar className="h-4 w-10" />
-    </li>
-  );
-}
-
 function EmptyState({
   icon: Icon,
   title,
   hint,
-  cta,
-  onCta,
 }: {
   icon: React.ComponentType<{ className?: string }>;
   title: string;
   hint: string;
-  cta?: string;
-  onCta?: () => void;
 }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-4 px-2">
@@ -83,14 +46,6 @@ function EmptyState({
       </div>
       <p className="text-xs font-semibold text-slate-200">{title}</p>
       <p className="mt-0.5 text-[11px] text-slate-500 leading-relaxed max-w-[220px]">{hint}</p>
-      {cta && onCta && (
-        <button
-          onClick={onCta}
-          className="mt-2.5 text-[11px] font-bold text-emerald-400 hover:text-emerald-300"
-        >
-          {cta} →
-        </button>
-      )}
     </div>
   );
 }
@@ -102,18 +57,18 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
       href={ad.ctaUrl || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="relative block bg-[#1E1E24] border border-fuchsia-500/30 rounded-2xl overflow-hidden rgb-pulse-glow hover:border-fuchsia-400/60 transition-colors"
+      className="relative block bg-[#1E1E24] border border-fuchsia-500/30 rounded-2xl overflow-hidden hover:border-fuchsia-400/60 transition-colors"
     >
       {hasMedia && (
-        <div className="relative h-28 w-full overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800">
+        <div className="relative h-28 w-full overflow-hidden bg-white/5">
           <ResponsiveImage
             src={ad.coverUrl as string}
             alt={ad.advertiser}
             sizes="(min-width: 1024px) 320px, 50vw"
             className="absolute inset-0 w-full h-full object-cover"
             loading="lazy"
-           decoding="async" />
-
+            decoding="async"
+          />
           {ad.tier === "video" && (
             <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 drop-shadow" />
           )}
@@ -123,14 +78,8 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
         <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
           <Megaphone className="w-3 h-3" /> Sponsored
         </span>
-        <div className="mt-2 text-sm font-bold text-white leading-snug line-clamp-2">
-          {ad.title}
-        </div>
-        {ad.body && (
-          <p className="mt-1 text-[11px] text-slate-400 leading-relaxed line-clamp-2">
-            {ad.body}
-          </p>
-        )}
+        <div className="mt-2 text-sm font-bold text-white leading-snug line-clamp-2">{ad.title}</div>
+        {ad.body && <p className="mt-1 text-[11px] text-slate-400 leading-relaxed line-clamp-2">{ad.body}</p>}
         <div className="mt-3">
           <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg">
             {ad.ctaLabel}
@@ -142,34 +91,137 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
   );
 }
 
-function SponsoredInline({ ad }: { ad: DiscoveryAd }) {
+/* ---------------- Birthday widget ---------------- */
+
+function BirthdayCard({
+  people,
+  onOpen,
+}: {
+  people: BirthdayPerson[];
+  onOpen: () => void;
+}) {
+  const first = people[0];
+  const extra = people.length - 1;
+  const label =
+    people.length === 1
+      ? `${first.name} has a birthday today`
+      : `${first.name} and ${extra} other${extra === 1 ? "" : "s"} have a birthday today`;
   return (
-    <a
-      href={ad.ctaUrl || "#"}
-      target="_blank"
-      rel="noopener noreferrer sponsored"
-      className="flex items-center gap-3 rounded-lg -mx-1 px-1 py-1 border border-fuchsia-500/25 bg-fuchsia-500/[0.04] hover:bg-fuchsia-500/10 transition-colors"
+    <button
+      onClick={onOpen}
+      className="w-full text-left bg-[#1E1E24] border border-white/5 rounded-2xl p-4 hover:border-pink-400/40 transition-colors"
     >
-      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-gradient-to-br from-fuchsia-600 to-purple-800 flex items-center justify-center">
-        {ad.coverUrl && ad.tier !== "text" ? (
-          <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={ad.coverUrl} alt={ad.advertiser} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
-        ) : (
-          <Megaphone className="w-4 h-4 text-white/90" />
-        )}
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+          <Cake className="w-4 h-4 text-pink-400" /> Birthdays
+        </h3>
+        <span className="text-[10px] font-bold uppercase tracking-wider text-pink-300">Today</span>
       </div>
-      <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-semibold text-white">{ad.title}</div>
-        <div className="mt-1 flex items-center gap-1.5">
-          <span className="inline-flex items-center rounded-full border border-fuchsia-400/40 bg-fuchsia-500/10 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-fuchsia-300">
-            <Megaphone className="w-2.5 h-2.5 mr-0.5" /> Sponsored
-          </span>
-          <span className="text-[10px] text-slate-500 truncate">{ad.advertiser}</span>
+      <div className="flex items-center gap-3">
+        <div className="flex -space-x-2">
+          {people.slice(0, 4).map((p) => (
+            <span key={p.userId} className="w-9 h-9 rounded-full ring-2 ring-[#1E1E24] overflow-hidden inline-block">
+              <AvatarImage src={p.avatarUrl} alt={p.name} />
+            </span>
+          ))}
         </div>
+        <div className="min-w-0 flex-1 text-xs text-slate-200 leading-snug">{label}</div>
       </div>
-      <span className="shrink-0 text-[11px] font-bold text-fuchsia-300">{ad.ctaLabel} →</span>
-    </a>
+      <div className="mt-3 text-[11px] font-bold text-pink-300">Send wishes →</div>
+    </button>
   );
 }
+
+function BirthdayModal({
+  people,
+  onClose,
+  onSendWish,
+}: {
+  people: BirthdayPerson[];
+  onClose: () => void;
+  onSendWish: (recipientId: string, name: string, body: string) => Promise<void>;
+}) {
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
+      <div
+        className="w-full max-w-md rounded-2xl bg-[#16161B] border border-white/10 max-h-[80vh] overflow-hidden flex flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        <header className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+          <div className="flex items-center gap-2">
+            <Cake className="w-4 h-4 text-pink-400" />
+            <h4 className="text-sm font-bold text-white">Birthdays today</h4>
+          </div>
+          <button onClick={onClose} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5">
+            <X className="w-4 h-4" />
+          </button>
+        </header>
+        <ul className="flex-1 overflow-y-auto divide-y divide-white/5">
+          {people.map((p) => (
+            <BirthdayRow key={p.userId} person={p} onSend={(body) => onSendWish(p.userId, p.name, body)} />
+          ))}
+        </ul>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body: string) => Promise<void> }) {
+  const [body, setBody] = useState(`Happy birthday, ${person.name.split(" ")[0]}! 🎉`);
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+
+  const submit = async () => {
+    if (!body.trim() || busy) return;
+    setBusy(true);
+    try {
+      await onSend(body);
+      setSent(true);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <li className="p-3">
+      <div className="flex items-center gap-3">
+        <Link
+          to="/profile/$id"
+          params={{ id: person.slug }}
+          className="w-10 h-10 rounded-full overflow-hidden shrink-0 block"
+        >
+          <AvatarImage src={person.avatarUrl} alt={person.name} />
+        </Link>
+        <div className="min-w-0 flex-1">
+          <Link to="/profile/$id" params={{ id: person.slug }} className="block truncate text-sm font-semibold text-white hover:text-pink-300">
+            {person.name}
+          </Link>
+          <div className="text-[10px] text-slate-500">Turning another year today</div>
+        </div>
+      </div>
+      <div className="mt-2 flex items-center gap-2">
+        <input
+          value={body}
+          onChange={(e) => setBody(e.target.value)}
+          disabled={sent}
+          placeholder="Write a wish…"
+          className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-md px-2.5 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-400/50"
+        />
+        <button
+          onClick={submit}
+          disabled={busy || sent}
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-pink-500 hover:bg-pink-400 disabled:bg-white/10 disabled:text-slate-500 text-black text-xs font-bold"
+        >
+          {sent ? "Sent" : busy ? "…" : <><Send className="w-3 h-3" /> Send</>}
+        </button>
+      </div>
+    </li>
+  );
+}
+
+/* ---------------- Product row ---------------- */
 
 function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: number) => string }) {
   return (
@@ -179,13 +231,11 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
       aria-label={`Open ${p.title}`}
       className="flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
     >
-      <div
-        className={`w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center`}
-      >
+      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
         {p.coverUrl ? (
-          <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
+          <ResponsiveImage sizes="88px" src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         ) : (
-          <ShoppingBag className="w-4 h-4 text-white/90" />
+          <ShoppingBag className="w-4 h-4 text-white/70" />
         )}
       </div>
       <div className="min-w-0 flex-1">
@@ -204,13 +254,43 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
   );
 }
 
+/* ---------------- Online users presence ---------------- */
+
+function useOnlineUsers(myId: string | null) {
+  const [ids, setIds] = useState<string[]>([]);
+  useEffect(() => {
+    if (!myId) { setIds([]); return; }
+    const channel = supabase.channel("presence:online", { config: { presence: { key: myId } } });
+    channel
+      .on("presence", { event: "sync" }, () => {
+        const state = channel.presenceState();
+        const list = Object.keys(state).filter((k) => k !== myId);
+        setIds(list);
+      })
+      .subscribe(async (status) => {
+        if (status === "SUBSCRIBED") {
+          await channel.track({ online_at: new Date().toISOString() });
+        }
+      });
+    return () => { supabase.removeChannel(channel); };
+  }, [myId]);
+  return ids;
+}
+
+/* ---------------- Panel ---------------- */
+
 export function DiscoveryPanel() {
   const price = useMoney();
   const { require } = useOnboarding();
+  const { session } = useAuthGate();
+  const myId = session?.user?.id ?? null;
+
   const queryClient = useQueryClient();
   const fetchFeed = useServerFn(getDiscoveryFeed);
+  const fetchBirthdays = useServerFn(getBirthdaysToday);
+  const fetchProfilesLite = useServerFn(getProfilesLite);
+  const sendWish = useServerFn(sendBirthdayWish);
 
-  // Refetch every mount so the panel refreshes when the user leaves and returns.
   const { data, isLoading } = useQuery({
     queryKey: ["discovery-feed"],
     queryFn: () => fetchFeed(),
@@ -219,144 +299,118 @@ export function DiscoveryPanel() {
     refetchOnWindowFocus: true,
   });
 
-  // Also invalidate on window focus so tab-switching refreshes results.
   useEffect(() => {
     const onFocus = () => queryClient.invalidateQueries({ queryKey: ["discovery-feed"] });
     window.addEventListener("focus", onFocus);
     return () => window.removeEventListener("focus", onFocus);
   }, [queryClient]);
 
-  // Peer leaderboard is sticky: never refresh on intervals. Only replace when a
-  // new peer's rating beats an existing lower-rated one. Persist to localStorage.
-  const MAX_PEERS = 10;
-  const DEBUG_PEERS = typeof window !== "undefined" && window.localStorage.getItem("oventric:debug:peers") === "true";
-  const [stickyPeers, setStickyPeers] = useState<DiscoveryPeer[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = window.localStorage.getItem("oventric:top-peers");
-      return raw ? (JSON.parse(raw) as DiscoveryPeer[]) : [];
-    } catch { return []; }
+  const { data: birthdays = [] } = useQuery({
+    queryKey: ["birthdays-today", myId],
+    queryFn: () => fetchBirthdays(),
+    enabled: !!myId,
+    staleTime: 60 * 60 * 1000,
   });
 
-  useEffect(() => {
-    const incoming = data?.peers ?? [];
-    if (incoming.length === 0) return;
-    setStickyPeers((prev) => {
-      const existingIds = new Set(prev.map((p) => p.id));
-      let merged = [...prev];
-      // Existing peers stay untouched — no star refresh, no reordering.
-      // A newly computed rating can only enter by beating the current lowest.
-      for (const inc of incoming) {
-        if (existingIds.has(inc.id)) continue;
-        if (merged.length < MAX_PEERS) {
-          merged.push(inc);
-          existingIds.add(inc.id);
-          if (DEBUG_PEERS) {
-            // eslint-disable-next-line no-console
-            console.log(`[oventric:peers] added ${inc.name} (${inc.stars.toFixed(2)}★) — slot ${merged.length}/${MAX_PEERS}`);
-          }
-          continue;
-        }
-        let lowestIdx = 0;
-        for (let i = 1; i < merged.length; i++) {
-          if (merged[i].stars < merged[lowestIdx].stars) lowestIdx = i;
-        }
-        if (inc.stars > merged[lowestIdx].stars) {
-          const outgoing = merged[lowestIdx];
-          if (DEBUG_PEERS) {
-            // eslint-disable-next-line no-console
-            console.log(`[oventric:peers] replaced ${outgoing.name} (${outgoing.stars.toFixed(2)}★) with ${inc.name} (${inc.stars.toFixed(2)}★)`);
-          }
-          existingIds.delete(outgoing.id);
-          merged[lowestIdx] = inc;
-          existingIds.add(inc.id);
-        }
-      }
-      merged = [...merged].sort((a, b) => b.stars - a.stars).slice(0, MAX_PEERS);
-      try { window.localStorage.setItem("oventric:top-peers", JSON.stringify(merged)); } catch { /* noop */ }
-      return merged;
-    });
-  }, [data?.peers, DEBUG_PEERS]);
-
-  const peers = stickyPeers;
-  const bounties = data?.bounties ?? [];
-  const products = data?.products ?? [];
   const ads = data?.ads ?? [];
-
   const primaryAd = ads[0];
-  const inlineAds = ads.slice(1, 4); // interleave up to 3 inside product list
-  const trailingAd = ads[4];
+  const secondaryAd = ads[1];
 
-  // Interleave ads between products every 3 items.
-  const trendingItems: Array<
-    { kind: "product"; product: DiscoveryProduct } | { kind: "ad"; ad: DiscoveryAd }
-  > = [];
-  let adIdx = 0;
-  products.forEach((p, i) => {
-    trendingItems.push({ kind: "product", product: p });
-    if ((i + 1) % 3 === 0 && adIdx < inlineAds.length) {
-      trendingItems.push({ kind: "ad", ad: inlineAds[adIdx++] });
+  const topPeers5 = (data?.topPeersAny ?? []).slice(0, 5);
+  const productsAll = data?.products ?? [];
+
+  // Shuffle trending marketplace items every 20s.
+  const [shuffleKey, setShuffleKey] = useState(0);
+  useEffect(() => {
+    const id = window.setInterval(() => setShuffleKey((k) => k + 1), 20000);
+    return () => window.clearInterval(id);
+  }, []);
+  const trending = useMemo(() => {
+    const arr = [...productsAll];
+    for (let i = arr.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [arr[i], arr[j]] = [arr[j], arr[i]];
     }
-  });
+    return arr.slice(0, 10);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [productsAll, shuffleKey]);
 
-  const handleChat = (peerName: string) => {
+  // Online users
+  const onlineIds = useOnlineUsers(myId);
+  const { data: onlineUsers = [] } = useQuery({
+    queryKey: ["online-users-lite", onlineIds.join(",")],
+    queryFn: () => fetchProfilesLite({ data: { userIds: onlineIds } }),
+    enabled: onlineIds.length > 0,
+    staleTime: 30_000,
+  }) as { data: OnlinePerson[] };
+
+  const [birthdayModalOpen, setBirthdayModalOpen] = useState(false);
+  const [chatPeerId, setChatPeerId] = useState<string | null>(null);
+
+  const openChat = (peerId: string, name: string) => {
     require(1, () => {
-      toast(`Opening chat with ${peerName}…`);
-      navigateSection("Messages");
+      setChatPeerId(peerId);
+      toast(`Opening chat with ${name}…`);
     }, "buyer");
   };
 
+  const handleWish = useCallback(
+    async (recipientId: string, name: string, body: string) => {
+      try {
+        await sendWish({ data: { recipientId, body } });
+        toast.success(`Birthday wish sent to ${name}`);
+      } catch (e) {
+        toast.error(e instanceof Error ? e.message : "Failed to send");
+        throw e;
+      }
+    },
+    [sendWish],
+  );
+
   return (
     <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable]">
-      {/* Widget A: Top Peers */}
+      {/* 1. Primary sponsored slot — blank when there is no active campaign */}
+      {primaryAd ? <SponsoredCard ad={primaryAd} /> : null}
+
+      {/* 2. Birthdays (only when there are matches among people you follow) */}
+      {myId && birthdays.length > 0 && (
+        <BirthdayCard people={birthdays} onOpen={() => setBirthdayModalOpen(true)} />
+      )}
+
+      {/* 3. Top Peers in Your Circle — top 5 across any star tier */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
             <span>👑</span> Top Peers in Your Circle
           </h3>
-          <button
-            onClick={() => navigateSection("Circles")}
-            className="text-[11px] text-emerald-400 hover:text-emerald-300"
-          >
+          <button onClick={() => navigateSection("Circles")} className="text-[11px] text-emerald-400 hover:text-emerald-300">
             See all
           </button>
         </div>
-        {isLoading && peers.length === 0 ? (
+        {isLoading && topPeers5.length === 0 ? (
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <PeerRowSkeleton key={i} />
+              <li key={i} className="flex items-center gap-2.5">
+                <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] animate-pulse" />
+                <div className="flex-1 space-y-1.5">
+                  <SkeletonBar className="h-3 w-3/5" />
+                  <SkeletonBar className="h-2 w-1/4" />
+                </div>
+                <SkeletonBar className="h-6 w-16 rounded-md" />
+              </li>
             ))}
           </ul>
-        ) : peers.length === 0 ? (
-          <EmptyState
-            icon={Users}
-            title="No top-rated peers yet"
-            hint="Only creators with a 4.0★+ reputation appear here — check back as members earn stars."
-            cta="Explore Circles"
-            onCta={() => navigateSection("Circles")}
-          />
+        ) : topPeers5.length === 0 ? (
+          <EmptyState icon={Users} title="No rated peers yet" hint="Peers appear here as they earn their first star." />
         ) : (
           <ul className="space-y-2">
-            {peers.map((p) => (
+            {topPeers5.map((p: DiscoveryPeer) => (
               <li key={p.id} className="flex items-center gap-2.5 min-w-0">
-                <Link
-                  to="/profile/$id"
-                  params={{ id: p.slug }}
-                  className={`w-9 h-9 shrink-0 rounded-full overflow-hidden bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xs`}
-                  aria-label={`View ${p.name}`}
-                >
-                  {p.avatarUrl ? (
-                    <ResponsiveImage sizes="48px" src={p.avatarUrl} alt={p.name} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
-                  ) : (
-                    p.initials
-                  )}
+                <Link to="/profile/$id" params={{ id: p.slug }} className="w-9 h-9 shrink-0 rounded-full overflow-hidden block" aria-label={`View ${p.name}`}>
+                  <AvatarImage src={p.avatarUrl} alt={p.name} />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <Link
-                    to="/profile/$id"
-                    params={{ id: p.slug }}
-                    className="block truncate text-xs font-semibold text-white hover:text-emerald-400"
-                  >
+                  <Link to="/profile/$id" params={{ id: p.slug }} className="block truncate text-xs font-semibold text-white hover:text-emerald-400">
                     {p.name}
                   </Link>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400">
@@ -365,7 +419,7 @@ export function DiscoveryPanel() {
                   </div>
                 </div>
                 <button
-                  onClick={() => handleChat(p.name)}
+                  onClick={() => openChat(p.id, p.name)}
                   aria-label={`Chat with ${p.name}`}
                   className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
                 >
@@ -377,60 +431,86 @@ export function DiscoveryPanel() {
         )}
       </section>
 
-      {/* Widget B: High-Yield Bounties */}
+      {/* 4. Secondary sponsored slot — blank when there is no active campaign */}
+      {secondaryAd ? <SponsoredCard ad={secondaryAd} /> : null}
+
+      {/* 5. Trending Marketplace items */}
       <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
           <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-            <span>🔥</span> High-Yield Bounties
+            <span>🛍️</span> Trending Marketplace items
           </h3>
-          <span className="inline-flex items-center gap-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 shadow-[0_0_12px_-2px_rgba(16,185,129,0.7)]">
-            Live
-          </span>
+          <button onClick={() => navigateSection("Marketplace")} className="text-[11px] text-emerald-400 hover:text-emerald-300">
+            Browse
+          </button>
         </div>
         {isLoading ? (
           <ul className="space-y-2.5">
-            {Array.from({ length: 3 }).map((_, i) => (
-              <BountyRowSkeleton key={i} />
+            {Array.from({ length: 4 }).map((_, i) => (
+              <li key={i} className="flex items-center gap-3">
+                <div className="w-11 h-11 shrink-0 rounded-lg bg-white/[0.06] animate-pulse" />
+                <div className="flex-1 space-y-1.5">
+                  <SkeletonBar className="h-3 w-3/4" />
+                  <SkeletonBar className="h-2 w-1/3" />
+                </div>
+                <SkeletonBar className="h-4 w-10" />
+              </li>
             ))}
           </ul>
-        ) : bounties.length === 0 ? (
-          <EmptyState
-            icon={Flame}
-            title="No live bounties"
-            hint="Check back soon — new escrows drop throughout the day."
-            cta="View all bounties"
-            onCta={() => navigateSection("Bounties")}
-          />
+        ) : trending.length === 0 ? (
+          <EmptyState icon={Package} title="Marketplace is quiet" hint="No trending items right now. Be the first to publish." />
         ) : (
           <ul className="space-y-2.5">
-            {bounties.map((b) => (
-              <li key={b.id}>
+            {trending.map((p) => (
+              <li key={p.id}>
+                <ProductRow p={p} priceFmt={price} />
+              </li>
+            ))}
+          </ul>
+        )}
+      </section>
+
+      {/* 6. Online users — click to open a quick chat popover */}
+      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4">
+        <div className="flex items-center justify-between mb-3">
+          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+            <Circle className="w-2.5 h-2.5 fill-emerald-400 text-emerald-400" /> Online now
+          </h3>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+            {onlineUsers.length} online
+          </span>
+        </div>
+        {!myId ? (
+          <EmptyState icon={Users} title="Sign in to see who's online" hint="Members you can chat with show up here in real time." />
+        ) : onlineUsers.length === 0 ? (
+          <EmptyState icon={Users} title="Nobody else online" hint="When members come online, they'll appear here for a quick chat." />
+        ) : (
+          <ul className="space-y-2">
+            {onlineUsers.slice(0, 10).map((u) => (
+              <li key={u.userId} className="flex items-center gap-2.5 min-w-0">
                 <button
-                  onClick={() => {
-                    toast(`Opening bounty: ${b.title}`);
-                    navigateSection("Bounties");
-                  }}
-                  aria-label={`Open bounty: ${b.title}`}
-                  className="w-full text-left rounded-lg border border-white/5 bg-black/25 p-3 hover:border-emerald-500/40 hover:bg-black/40 transition-colors"
+                  onClick={() => openChat(u.userId, u.name)}
+                  className="relative w-9 h-9 shrink-0 rounded-full overflow-hidden block"
+                  aria-label={`Chat with ${u.name}`}
                 >
-                  {b.coverUrl && (
-                    <div className="mb-2 h-20 w-full rounded-md overflow-hidden bg-black/40">
-                      <ResponsiveImage sizes="(min-width: 1024px) 320px, 50vw" src={b.coverUrl} alt={b.title} className="w-full h-full object-cover" loading="lazy"  decoding="async" />
-                    </div>
-                  )}
-                  <div className="flex items-start gap-2">
-                    <Target className="w-3.5 h-3.5 text-emerald-400 mt-0.5 shrink-0" />
-                    <h4 className="text-xs font-semibold text-white leading-snug line-clamp-2 flex-1 min-w-0">
-                      {b.title}
-                    </h4>
+                  <AvatarImage src={u.avatarUrl} alt={u.name} />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[#1E1E24]" />
+                </button>
+                <button
+                  onClick={() => openChat(u.userId, u.name)}
+                  className="min-w-0 flex-1 text-left"
+                >
+                  <div className="truncate text-xs font-semibold text-white hover:text-emerald-400">{u.name}</div>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                    <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
+                    <span>{u.stars.toFixed(1)}</span>
                   </div>
-                  <div className="mt-2 flex items-center justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-[9px] uppercase tracking-wider text-slate-500">Escrow locked</div>
-                      <div className="text-sm font-black text-emerald-300 truncate">{price(b.amountUsd)}</div>
-                    </div>
-                    <span className="shrink-0 text-[11px] font-bold text-emerald-400">Solve →</span>
-                  </div>
+                </button>
+                <button
+                  onClick={() => openChat(u.userId, u.name)}
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                >
+                  <MessageCircle className="w-3 h-3" /> Chat
                 </button>
               </li>
             ))}
@@ -438,79 +518,19 @@ export function DiscoveryPanel() {
         )}
       </section>
 
-      {/* Widget C: Primary Sponsored */}
-      {isLoading ? (
-        <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4 space-y-2" aria-busy>
-          <SkeletonBar className="h-24 w-full" />
-          <SkeletonBar className="h-3 w-4/5" />
-          <SkeletonBar className="h-2 w-3/5" />
-          <SkeletonBar className="h-8 w-full mt-1" />
-        </section>
-      ) : primaryAd ? (
-        <SponsoredCard ad={primaryAd} />
-      ) : (
-        <section className="relative bg-[#1E1E24] border border-white/5 rounded-2xl p-4 text-center rgb-pulse-glow overflow-hidden">
-          <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
-            <Megaphone className="w-3 h-3" /> Sponsored
-          </span>
-          <div className="mt-3 mx-auto w-10 h-10 rounded-md bg-gradient-to-br from-sky-400 to-indigo-600 flex items-center justify-center">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <h4 className="mt-3 text-sm font-bold text-white leading-snug">
-            Your brand could live here
-          </h4>
-          <p className="mt-1 text-[11px] text-slate-400 leading-relaxed">
-            Launch an active campaign from the admin console to appear in this slot.
-          </p>
-        </section>
+      {birthdayModalOpen && (
+        <BirthdayModal
+          people={birthdays}
+          onClose={() => setBirthdayModalOpen(false)}
+          onSendWish={handleWish}
+        />
       )}
 
-      {/* Widget D: Trending Digital Assets */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-            <span>🛍️</span> Trending Digital Assets
-          </h3>
-          <button
-            onClick={() => navigateSection("Marketplace")}
-            className="text-[11px] text-emerald-400 hover:text-emerald-300"
-          >
-            Browse
-          </button>
-        </div>
-        {isLoading ? (
-          <ul className="space-y-2.5">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <ListingRowSkeleton key={i} />
-            ))}
-          </ul>
-        ) : products.length === 0 ? (
-          <EmptyState
-            icon={Package}
-            title="Marketplace is quiet"
-            hint="No trending assets right now. Be the first to publish."
-            cta="Open Marketplace"
-            onCta={() => navigateSection("Marketplace")}
-          />
-        ) : (
-          <ul className="space-y-2.5">
-            {trendingItems.map((it, i) =>
-              it.kind === "product" ? (
-                <li key={`p-${it.product.id}-${i}`}>
-                  <ProductRow p={it.product} priceFmt={price} />
-                </li>
-              ) : (
-                <li key={`ad-${it.ad.id}-${i}`}>
-                  <SponsoredInline ad={it.ad} />
-                </li>
-              ),
-            )}
-          </ul>
-        )}
-      </section>
-
-      {/* Trailing sponsored card */}
-      {trailingAd && !isLoading && <SponsoredCard ad={trailingAd} />}
+      <MessagesDrawer
+        open={!!chatPeerId}
+        onClose={() => setChatPeerId(null)}
+        initialThreadId={chatPeerId ?? undefined}
+      />
     </aside>
   );
 }

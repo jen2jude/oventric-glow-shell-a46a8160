@@ -43,6 +43,7 @@ export interface DiscoveryAd {
 
 export interface DiscoveryFeed {
   peers: DiscoveryPeer[];
+  topPeersAny: DiscoveryPeer[];
   bounties: DiscoveryBounty[];
   products: DiscoveryProduct[];
   ads: DiscoveryAd[];
@@ -199,14 +200,27 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
       return { p, stars };
     });
 
-    // Only top-tier peers (>= 4.0 stars), highest first.
+    // Only top-tier peers (>= 4.0 stars), highest first — used by the legacy
+    // sticky-peers widget.
     const topScored = scored
       .filter((x) => x.stars >= 4.0)
       .sort((a, b) => b.stars - a.stars)
       .slice(0, 10);
 
-    const avatarUrls = await signBucket(sb, "avatars", topScored.map((x) => x.p.avatar_path));
-    const peers: DiscoveryPeer[] = topScored.map((x, i) => {
+    // Top peers ANY tier — walk down from 5★ to 1★ until we have 5 candidates.
+    const anyScored = scored
+      .filter((x) => x.stars >= 1.0)
+      .sort((a, b) => b.stars - a.stars)
+      .slice(0, 5);
+
+    const combined = Array.from(
+      new Map([...topScored, ...anyScored].map((s) => [s.p.user_id, s])).values(),
+    );
+    const avatarUrls = await signBucket(sb, "avatars", combined.map((x) => x.p.avatar_path));
+    const urlByUser = new Map<string, string | null>();
+    combined.forEach((x, i) => urlByUser.set(x.p.user_id as string, avatarUrls[i]));
+
+    const toPeer = (x: typeof topScored[number], i: number): DiscoveryPeer => {
       const name = (x.p.display_name || x.p.username || x.p.slug) as string;
       return {
         id: x.p.user_id as string,
@@ -214,10 +228,12 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
         name,
         initials: initialsFor(name),
         stars: x.stars,
-        avatarUrl: avatarUrls[i],
+        avatarUrl: urlByUser.get(x.p.user_id as string) ?? null,
         gradient: GRADIENTS[i % GRADIENTS.length],
       };
-    });
+    };
+    const peers: DiscoveryPeer[] = topScored.map(toPeer);
+    const topPeersAny: DiscoveryPeer[] = anyScored.map(toPeer);
 
     // ---- Bounties (top 5 by escrow) ----
     const bRows = bountiesRes.data ?? [];
@@ -271,6 +287,6 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
     }));
     const ads = shuffle(adsAll).slice(0, 5);
 
-    return { peers, bounties, products, ads };
+    return { peers, topPeersAny, bounties, products, ads };
   },
 );

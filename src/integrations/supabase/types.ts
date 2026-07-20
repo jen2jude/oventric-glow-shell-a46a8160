@@ -1736,6 +1736,7 @@ export type Database = {
           country: string | null
           cover_path: string | null
           created_at: string
+          date_of_birth: string | null
           deleted_at: string | null
           deletion_liveness_path: string | null
           deletion_reason: string | null
@@ -1763,6 +1764,7 @@ export type Database = {
           country?: string | null
           cover_path?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           deletion_liveness_path?: string | null
           deletion_reason?: string | null
@@ -1790,6 +1792,7 @@ export type Database = {
           country?: string | null
           cover_path?: string | null
           created_at?: string
+          date_of_birth?: string | null
           deleted_at?: string | null
           deletion_liveness_path?: string | null
           deletion_reason?: string | null
