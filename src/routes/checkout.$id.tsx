@@ -232,9 +232,10 @@ function CheckoutPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200">
+    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
       <Header onOpenMessages={() => {}} />
-      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24">
+      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
+
         <Link
           to="/product/$id"
           params={{ id }}
