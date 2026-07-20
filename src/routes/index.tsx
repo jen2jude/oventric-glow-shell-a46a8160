@@ -83,6 +83,24 @@ function Index() {
     return () => window.removeEventListener("oventric:navigate", onNav);
   }, []);
 
+  // Resume the bounty publish flow after a successful wallet top-up.
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("resume") !== "bounty") return;
+    setActive("Bounties");
+    // Give Bounties a tick to mount its listener before opening the editor.
+    const t = setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("oventric:bounty:open"));
+    }, 120);
+    // Clean the URL so refreshes don't re-trigger the flow.
+    params.delete("resume");
+    const qs = params.toString();
+    const next = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
+    window.history.replaceState({}, "", next);
+    return () => clearTimeout(t);
+  }, []);
+
   const view =
     active === "Wallet" ? <Wallet />
     : active === "Marketplace" ? <Marketplace />
