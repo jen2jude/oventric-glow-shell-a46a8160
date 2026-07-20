@@ -272,7 +272,7 @@ export function Marketplace() {
             const items = digital.filter((p) => p.category === cat);
             if (items.length === 0) return null;
             const meta = CATEGORY_META[cat];
-            const ad = marketplaceAds.find((a) => a.id.charCodeAt(3) % 4 === Object.keys(CATEGORY_META).indexOf(cat));
+            const adIndex = Object.keys(CATEGORY_META).indexOf(cat);
             return (
               <section
                 key={cat}
@@ -292,7 +292,7 @@ export function Marketplace() {
                   {items.map((p) => (
                     <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
                   ))}
-                  {ad && <AdCard ad={ad} />}
+                  <AdSlot placement="marketplace" variant="grid" index={adIndex} />
                   <ViewMoreButton label={meta.label} onClick={() => setFullCategory(cat)} />
                 </div>
               </section>
