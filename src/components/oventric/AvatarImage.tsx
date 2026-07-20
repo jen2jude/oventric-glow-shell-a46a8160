@@ -33,7 +33,7 @@ export function AvatarImage({
 
   return (
     <span
-      className={`relative block w-full h-full overflow-hidden bg-neutral-800 ${!showImage ? "border border-white/10" : ""} ${className ?? ""}`}
+      className={`relative block w-full h-full overflow-hidden bg-neutral-800 ${className ?? ""}`}
     >
       {/* Skeleton shimmer while the image is still decoding. */}
       {showImage && !loaded && (
@@ -42,7 +42,7 @@ export function AvatarImage({
           className="absolute inset-0 bg-white/5 animate-pulse"
         />
       )}
-      {/* Fallback: plain white person icon on a dark-grey circle with a 1px light outline. */}
+      {/* Fallback: plain white person icon on a dark-grey circle, no ring. */}
       {!showImage && (
         <span
           aria-hidden
