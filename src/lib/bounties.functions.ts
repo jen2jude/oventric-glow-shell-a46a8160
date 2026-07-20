@@ -246,7 +246,7 @@ export const publishBounty = createServerFn({ method: "POST" })
     return { id: row.id as string };
   });
 
-/** Any signed-in user applies to a bounty. */
+/** Any signed-in user applies to a bounty. Also DMs the poster with the pitch. */
 export const applyToBounty = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((i: { bounty_id: string; pitch?: string }) => ({
@@ -257,14 +257,41 @@ export const applyToBounty = createServerFn({ method: "POST" })
     if (!data.bounty_id) throw new Error("bounty_id required");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
+
+    const { data: b, error: bErr } = await sb
+      .from("bounties")
+      .select("id, title, poster_id, status")
+      .eq("id", data.bounty_id)
+      .maybeSingle();
+    if (bErr) throw new Error(bErr.message);
+    if (!b) throw new Error("Bounty not found");
+    if (b.poster_id === context.userId) throw new Error("You can't apply to your own bounty");
+    if (!["active", "pending_review"].includes(b.status as string)) {
+      throw new Error("This bounty is no longer accepting applications");
+    }
+
     const { error } = await sb.from("bounty_applications").insert({
       bounty_id: data.bounty_id,
       applicant_id: context.userId,
       pitch: data.pitch,
     });
     if (error) throw new Error(error.message);
+
+    // Send a DM to the poster containing the pitch. The
+    // notify_on_direct_message trigger creates the inbox notification.
+    const pitchBody = data.pitch?.trim()
+      ? data.pitch.trim()
+      : `Hi — I'd like to take on your bounty "${b.title}".`;
+    const dmBody = `📌 Bounty application — "${b.title}"\n\n${pitchBody}`;
+    await sb.from("direct_messages").insert({
+      sender_id: context.userId,
+      recipient_id: b.poster_id,
+      body: dmBody,
+    });
+
     return { ok: true };
   });
+
 
 /** Poster accepts an applicant. */
 export const acceptApplicant = createServerFn({ method: "POST" })
