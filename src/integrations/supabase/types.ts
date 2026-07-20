@@ -355,63 +355,125 @@ export type Database = {
       }
       bounties: {
         Row: {
+          accepted_applicant_id: string | null
+          admin_hold: boolean
           applicant_limit: number
           category: string
           cover_path: string | null
           created_at: string
           deadline_at: string | null
           description: string
+          dispute_status: string
           end_at: string | null
           fx_snapshot: Json | null
           id: string
+          images: string[]
           original_amount: number | null
           original_currency: string | null
           poster_id: string
           price_usd: number
+          promoted: boolean
+          reject_reason: string | null
+          released_at: string | null
+          solved_at: string | null
           start_at: string | null
           status: string
           title: string
           updated_at: string
         }
         Insert: {
+          accepted_applicant_id?: string | null
+          admin_hold?: boolean
           applicant_limit?: number
           category?: string
           cover_path?: string | null
           created_at?: string
           deadline_at?: string | null
           description?: string
+          dispute_status?: string
           end_at?: string | null
           fx_snapshot?: Json | null
           id?: string
+          images?: string[]
           original_amount?: number | null
           original_currency?: string | null
           poster_id: string
           price_usd: number
+          promoted?: boolean
+          reject_reason?: string | null
+          released_at?: string | null
+          solved_at?: string | null
           start_at?: string | null
           status?: string
           title: string
           updated_at?: string
         }
         Update: {
+          accepted_applicant_id?: string | null
+          admin_hold?: boolean
           applicant_limit?: number
           category?: string
           cover_path?: string | null
           created_at?: string
           deadline_at?: string | null
           description?: string
+          dispute_status?: string
           end_at?: string | null
           fx_snapshot?: Json | null
           id?: string
+          images?: string[]
           original_amount?: number | null
           original_currency?: string | null
           poster_id?: string
           price_usd?: number
+          promoted?: boolean
+          reject_reason?: string | null
+          released_at?: string | null
+          solved_at?: string | null
           start_at?: string | null
           status?: string
           title?: string
           updated_at?: string
         }
         Relationships: []
+      }
+      bounty_applications: {
+        Row: {
+          applicant_id: string
+          bounty_id: string
+          created_at: string
+          id: string
+          pitch: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          applicant_id: string
+          bounty_id: string
+          created_at?: string
+          id?: string
+          pitch?: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          applicant_id?: string
+          bounty_id?: string
+          created_at?: string
+          id?: string
+          pitch?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounty_applications_bounty_id_fkey"
+            columns: ["bounty_id"]
+            isOneToOne: false
+            referencedRelation: "bounties"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       circle_join_requests: {
         Row: {
@@ -1995,6 +2057,19 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      bounty_auto_release_due: { Args: never; Returns: number }
+      bounty_publish_lock: {
+        Args: { _amount_usd: number; _bounty_id: string }
+        Returns: undefined
+      }
+      bounty_refund_escrow: {
+        Args: { _bounty_id: string; _reason: string }
+        Returns: undefined
+      }
+      bounty_release_escrow: {
+        Args: { _bounty_id: string }
+        Returns: undefined
+      }
       current_user_slug: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }

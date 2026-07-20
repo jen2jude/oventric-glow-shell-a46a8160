@@ -34,12 +34,14 @@ export interface BountyInput {
   category: string;
   price_usd: number;
   cover_path?: string | null;
+  images?: string[];
   applicant_limit?: number;
   start_at?: string | null;
   end_at?: string | null;
   deadline_at?: string | null;
-  status?: "active" | "paused" | "closed" | "draft";
+  status?: "active" | "paused" | "closed" | "draft" | "pending_review" | "rejected" | "solved" | "released" | "disputed";
   poster_id?: string | null;
+  promoted?: boolean;
 }
 
 /** Admin — list every bounty. */
@@ -77,11 +79,13 @@ export const adminCreateBounty = createServerFn({ method: "POST" })
         category: data.category || "api",
         price_usd: Number(data.price_usd),
         cover_path: data.cover_path ?? null,
+        images: Array.isArray(data.images) ? data.images : [],
         applicant_limit: data.applicant_limit ?? 10,
         start_at: data.start_at ?? null,
         end_at: data.end_at ?? null,
         deadline_at: data.deadline_at ?? null,
         status: data.status ?? "active",
+        promoted: data.promoted === true,
       })
       .select("id")
       .single();
@@ -104,11 +108,13 @@ export const adminUpdateBounty = createServerFn({ method: "POST" })
     if (data.category !== undefined) patch.category = data.category;
     if (data.price_usd !== undefined) patch.price_usd = Number(data.price_usd);
     if (data.cover_path !== undefined) patch.cover_path = data.cover_path;
+    if (data.images !== undefined) patch.images = Array.isArray(data.images) ? data.images : [];
     if (data.applicant_limit !== undefined) patch.applicant_limit = data.applicant_limit;
     if (data.start_at !== undefined) patch.start_at = data.start_at;
     if (data.end_at !== undefined) patch.end_at = data.end_at;
     if (data.deadline_at !== undefined) patch.deadline_at = data.deadline_at;
     if (data.status !== undefined) patch.status = data.status;
+    if (data.promoted !== undefined) patch.promoted = data.promoted === true;
     const { error } = await sb.from("bounties").update(patch).eq("id", data.id);
     if (error) throw new Error(error.message);
     await writeAudit(sb, context.userId, "bounty.update", data.id, patch);
@@ -185,5 +191,267 @@ export const adminPayoutBounty = createServerFn({ method: "POST" })
     await sb.from("bounties").update({ status: "closed" }).eq("id", b.id);
     await writeAudit(sb, context.userId, "bounty.payout", b.id, { solverCut, platformCut, solverId: data.solverId });
     return { ok: true, solverCut, platformCut };
+  });
+
+// ---------------------------------------------------------------------------
+// Bounty lifecycle: publish, apply, accept, mark solved, dispute, admin
+// ---------------------------------------------------------------------------
+
+/** Poster publishes a bounty (any authenticated user). Locks price_usd into escrow. */
+export const publishBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: BountyInput) => i)
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    if (!data.title?.trim()) throw new Error("Title required");
+    const price = Number(data.price_usd);
+    if (!(price >= 0)) throw new Error("Price must be >= 0");
+
+    const images = Array.isArray(data.images) ? data.images.slice(0, 5) : [];
+    const cover = data.cover_path ?? images[0] ?? null;
+
+    const { data: row, error } = await sb
+      .from("bounties")
+      .insert({
+        poster_id: context.userId,
+        title: data.title.trim(),
+        description: data.description ?? "",
+        category: data.category || "api",
+        price_usd: price,
+        cover_path: cover,
+        images,
+        applicant_limit: data.applicant_limit ?? 10,
+        start_at: data.start_at ?? null,
+        end_at: data.end_at ?? null,
+        deadline_at: data.deadline_at ?? null,
+        status: "active",
+        promoted: false,
+      })
+      .select("id")
+      .single();
+    if (error) throw new Error(error.message);
+
+    if (price > 0) {
+      const { error: lockErr } = await sb.rpc("bounty_publish_lock", {
+        _bounty_id: row.id,
+        _amount_usd: price,
+      });
+      if (lockErr) {
+        // Roll back the bounty row if we couldn't lock funds.
+        await sb.from("bounties").delete().eq("id", row.id);
+        throw new Error(lockErr.message);
+      }
+    }
+    return { id: row.id as string };
+  });
+
+/** Any signed-in user applies to a bounty. */
+export const applyToBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { bounty_id: string; pitch?: string }) => ({
+    bounty_id: String(i?.bounty_id ?? ""),
+    pitch: String(i?.pitch ?? "").slice(0, 2000),
+  }))
+  .handler(async ({ data, context }) => {
+    if (!data.bounty_id) throw new Error("bounty_id required");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { error } = await sb.from("bounty_applications").insert({
+      bounty_id: data.bounty_id,
+      applicant_id: context.userId,
+      pitch: data.pitch,
+    });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+/** Poster accepts an applicant. */
+export const acceptApplicant = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { bounty_id: string; applicant_id: string }) => i)
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: b, error: bErr } = await sb
+      .from("bounties").select("poster_id, status").eq("id", data.bounty_id).maybeSingle();
+    if (bErr) throw new Error(bErr.message);
+    if (!b) throw new Error("Bounty not found");
+    if (b.poster_id !== context.userId) throw new Error("Only the poster can accept applicants");
+
+    const { error: e1 } = await sb.from("bounties")
+      .update({ accepted_applicant_id: data.applicant_id, status: "active" })
+      .eq("id", data.bounty_id);
+    if (e1) throw new Error(e1.message);
+    const { error: e2 } = await sb.from("bounty_applications")
+      .update({ status: "accepted" })
+      .eq("bounty_id", data.bounty_id).eq("applicant_id", data.applicant_id);
+    if (e2) throw new Error(e2.message);
+    await sb.from("bounty_applications")
+      .update({ status: "rejected" })
+      .eq("bounty_id", data.bounty_id).neq("applicant_id", data.applicant_id).eq("status", "pending");
+    return { ok: true };
+  });
+
+/** Accepted solver marks work delivered — starts 48-hour verification window. */
+export const markBountySolved = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { bounty_id: string }) => i)
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: b, error } = await sb
+      .from("bounties").select("accepted_applicant_id, status").eq("id", data.bounty_id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!b) throw new Error("Bounty not found");
+    if (b.accepted_applicant_id !== context.userId) throw new Error("Only the accepted solver can mark this solved");
+    if (b.status === "released" || b.status === "closed") throw new Error("Bounty already settled");
+    const { error: e2 } = await sb.from("bounties")
+      .update({ solved_at: new Date().toISOString(), status: "solved" })
+      .eq("id", data.bounty_id);
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
+  });
+
+/** Poster confirms solved work early — releases funds immediately. */
+export const confirmAndRelease = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { bounty_id: string }) => i)
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: b, error } = await sb
+      .from("bounties").select("poster_id, status").eq("id", data.bounty_id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!b) throw new Error("Bounty not found");
+    if (b.poster_id !== context.userId) throw new Error("Only the poster can confirm");
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error: e2 } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
+      .rpc("bounty_release_escrow", { _bounty_id: data.bounty_id });
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
+  });
+
+/** Either poster or solver opens a dispute — auto-release is paused. */
+export const openBountyDispute = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { bounty_id: string; reason?: string }) => i)
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: b, error } = await sb.from("bounties")
+      .select("poster_id, accepted_applicant_id").eq("id", data.bounty_id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!b) throw new Error("Bounty not found");
+    if (![b.poster_id, b.accepted_applicant_id].includes(context.userId))
+      throw new Error("Only the poster or accepted solver can open a dispute");
+    const { error: e2 } = await sb.from("bounties")
+      .update({ dispute_status: "open", status: "disputed", reject_reason: data.reason ?? null })
+      .eq("id", data.bounty_id);
+    if (e2) throw new Error(e2.message);
+    return { ok: true };
+  });
+
+// ---------------------------------------------------------------------------
+// Admin — full detail view + moderation
+// ---------------------------------------------------------------------------
+
+export const adminBountyDetail = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const admin = supabaseAdmin as any;
+    const { data: bounty, error } = await admin.from("bounties").select("*").eq("id", data.id).maybeSingle();
+    if (error) throw new Error(error.message);
+    if (!bounty) throw new Error("Bounty not found");
+
+    const { data: apps } = await admin.from("bounty_applications")
+      .select("id, applicant_id, pitch, status, created_at").eq("bounty_id", data.id)
+      .order("created_at", { ascending: false });
+
+    const ids = Array.from(new Set([
+      bounty.poster_id as string,
+      bounty.accepted_applicant_id as string | null,
+      ...((apps ?? []).map((a: { applicant_id: string }) => a.applicant_id) as string[]),
+    ].filter(Boolean))) as string[];
+
+    const { data: profiles } = ids.length
+      ? await admin.from("profiles").select("user_id, display_name, username, slug, avatar_path").in("user_id", ids)
+      : { data: [] };
+
+    const { data: posterWallet } = await admin.from("wallets")
+      .select("available_balance, escrow_balance")
+      .eq("user_id", bounty.poster_id).eq("currency", "USD").maybeSingle();
+
+    return {
+      bounty,
+      applications: apps ?? [],
+      profiles: profiles ?? [],
+      posterWallet: posterWallet ?? { available_balance: 0, escrow_balance: 0 },
+    };
+  });
+
+export const adminApproveBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string; approve: boolean; reason?: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const patch: Record<string, unknown> = data.approve
+      ? { status: "active", reject_reason: null }
+      : { status: "rejected", reject_reason: data.reason ?? "Not approved" };
+    const { error } = await sb.from("bounties").update(patch).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    if (!data.approve) {
+      // Refund escrow when rejecting
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
+        .rpc("bounty_refund_escrow", { _bounty_id: data.id, _reason: data.reason ?? "Rejected by admin" });
+    }
+    await writeAudit(sb, context.userId, data.approve ? "bounty.approve" : "bounty.reject", data.id, {});
+    return { ok: true };
+  });
+
+export const adminSetBountyHold = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string; hold: boolean }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { error } = await sb.from("bounties").update({ admin_hold: data.hold }).eq("id", data.id);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "bounty.hold", data.id, { hold: data.hold });
+    return { ok: true };
+  });
+
+export const adminReleaseBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
+      .rpc("bounty_release_escrow", { _bounty_id: data.id });
+    if (error) throw new Error(error.message);
+    await writeAudit(context.supabase as unknown as never, context.userId, "bounty.release", data.id, {});
+    return { ok: true };
+  });
+
+export const adminRefundBounty = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { id: string; reason?: string }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
+      .rpc("bounty_refund_escrow", { _bounty_id: data.id, _reason: data.reason ?? "Refunded by admin" });
+    if (error) throw new Error(error.message);
+    await writeAudit(context.supabase as unknown as never, context.userId, "bounty.refund", data.id, {});
+    return { ok: true };
   });
 

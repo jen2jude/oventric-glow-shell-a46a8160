@@ -1,9 +1,10 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Megaphone, ShieldCheck, Wallet, AlertTriangle, Save } from "lucide-react";
+import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
+import { publishBounty } from "@/lib/bounties.functions";
 import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -13,7 +14,13 @@ const draftKey = (uid: string) => `${DRAFT_KEY_PREFIX}${uid}`;
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
 type Category = (typeof CATEGORIES)[number];
-type PromoteTier = "text" | "banner" | "video";
+
+const MAX_IMAGES = 5;
+
+interface ImageEntry {
+  path: string;
+  preview: string | null;
+}
 
 interface FormState {
   title: string;
@@ -24,10 +31,7 @@ interface FormState {
   start_at: string;
   end_at: string;
   deadline_at: string;
-  cover_path: string | null;
-  cover_preview: string | null;
-  promote: boolean;
-  promote_tier: PromoteTier;
+  images: ImageEntry[];
 }
 
 const emptyForm: FormState = {
@@ -39,10 +43,7 @@ const emptyForm: FormState = {
   start_at: "",
   end_at: "",
   deadline_at: "",
-  cover_path: null,
-  cover_preview: null,
-  promote: false,
-  promote_tier: "banner",
+  images: [],
 };
 
 function fromLocalInput(v: string): string | null {
@@ -62,10 +63,10 @@ export function BountyEditorModal({
 }) {
   const { baseCurrency } = useOnboarding();
   const snapshotFx = useServerFn(snapshotFxRates);
+  const publishFn = useServerFn(publishBounty);
   const [form, setForm] = useState<FormState>(emptyForm);
   const [saving, setSaving] = useState(false);
-  const [uploadingCover, setUploadingCover] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
   const [walletUsd, setWalletUsd] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
@@ -81,34 +82,23 @@ export function BountyEditorModal({
       const _uid = session.user?.id ?? null;
       if (cancelled) return;
       setUid(_uid);
-      if (!_uid) {
-        setIsAdmin(false);
-        setWalletUsd(null);
-        return;
-      }
-      // Restore draft
+      if (!_uid) { setWalletUsd(null); return; }
       try {
         const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
         if (raw) {
           const parsed = JSON.parse(raw) as Partial<FormState>;
-          setForm((f) => ({ ...f, ...parsed }));
+          setForm((f) => ({ ...f, ...parsed, images: Array.isArray(parsed.images) ? parsed.images : [] }));
           setDraftLoaded(true);
         } else {
           setDraftLoaded(false);
         }
       } catch { /* ignore */ }
-      // Load admin + USD wallet
-      const [{ data: roleData, error: roleErr }, { data: walletData }] = await Promise.all([
-        supabase.rpc("has_role", { _user_id: _uid, _role: "admin" }),
-        supabase.from("wallets").select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle(),
-      ]);
+      const { data: walletData } = await supabase.from("wallets")
+        .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
       if (cancelled) return;
-      setIsAdmin(!roleErr && roleData === true);
       setWalletUsd(Number(walletData?.available_balance ?? 0));
     })();
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [open]);
 
   if (!open) return null;
@@ -127,10 +117,8 @@ export function BountyEditorModal({
       return false;
     }
     try {
-      const { cover_preview: _cp, ...persist } = form;
-      void _cp;
-      window.localStorage.setItem(draftKey(uid), JSON.stringify(persist));
-      if (!silent) toast.success("Bounty draft saved", { description: "Fund your wallet and return to publish it." });
+      window.localStorage.setItem(draftKey(uid), JSON.stringify(form));
+      if (!silent) toast.success("Bounty draft saved");
       setDraftLoaded(true);
       return true;
     } catch (e) {
@@ -139,14 +127,9 @@ export function BountyEditorModal({
     }
   };
 
-  // Convert the user's base-currency input to USD using LEGACY fallback rates.
-  // This is only for the immediate top-up hint before publish; the *actual*
-  // snapshot is fetched once on Publish and locked onto the bounty row.
-  const inputBase = Number(form.price_usd || 0); // amount in baseCurrency (field kept for backwards compat)
+  const inputBase = Number(form.price_usd || 0);
   const inputUsdApprox =
-    baseCurrency === "USD"
-      ? inputBase
-      : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
+    baseCurrency === "USD" ? inputBase : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
   const shortfallUsd = Math.max(0, inputUsdApprox - (walletUsd ?? 0));
 
   const goToWallet = () => {
@@ -154,45 +137,52 @@ export function BountyEditorModal({
     const topupUsd = Math.ceil(shortfallUsd * 100) / 100;
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
-    // Fire after the Wallet view mounts so its listener is attached.
     setTimeout(() => {
-      window.dispatchEvent(
-        new CustomEvent("oventric:wallet:topup", {
-          detail: { amountUsd: topupUsd, reason: "bounty-escrow" },
-        }),
-      );
+      window.dispatchEvent(new CustomEvent("oventric:wallet:topup", {
+        detail: { amountUsd: topupUsd, reason: "bounty-escrow" },
+      }));
     }, 60);
   };
 
-  const handleCoverPick = async (file: File) => {
-    if (!file.type.startsWith("image/")) return toast.error("Cover must be an image");
-    if (file.size > 5 * 1024 * 1024) return toast.error("Max 5MB");
-    setUploadingCover(true);
+  const handleImagePick = async (files: FileList) => {
+    if (form.images.length >= MAX_IMAGES) return toast.error(`Max ${MAX_IMAGES} images`);
+    const remaining = MAX_IMAGES - form.images.length;
+    const picks = Array.from(files).slice(0, remaining);
+    setUploadingImage(true);
     try {
       const { data: session } = await supabase.auth.getUser();
-      const uid = session.user?.id;
-      if (!uid) throw new Error("You must be signed in");
-      const safe = file.name.replace(/[^\w.\-]+/g, "_");
-      const path = `${uid}/${Date.now()}_${safe}`;
-      const { error } = await supabase.storage
-        .from("bounty-covers")
-        .upload(path, file, { contentType: file.type || undefined, upsert: false });
-      if (error) throw error;
-      const { data: signed } = await supabase.storage
-        .from("bounty-covers")
-        .createSignedUrl(path, 60 * 60);
-      setForm((f) => ({ ...f, cover_path: path, cover_preview: signed?.signedUrl ?? null }));
-      toast.success("Cover uploaded");
+      const _uid = session.user?.id;
+      if (!_uid) throw new Error("You must be signed in");
+      const newEntries: ImageEntry[] = [];
+      for (const file of picks) {
+        if (!file.type.startsWith("image/")) { toast.error(`${file.name} isn't an image`); continue; }
+        if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} exceeds 5MB`); continue; }
+        const safe = file.name.replace(/[^\w.\-]+/g, "_");
+        const path = `${_uid}/${Date.now()}_${safe}`;
+        const { error } = await supabase.storage.from("bounty-covers")
+          .upload(path, file, { contentType: file.type || undefined, upsert: false });
+        if (error) { toast.error(error.message); continue; }
+        const { data: signed } = await supabase.storage.from("bounty-covers").createSignedUrl(path, 60 * 60);
+        newEntries.push({ path, preview: signed?.signedUrl ?? null });
+      }
+      if (newEntries.length) {
+        setForm((f) => ({ ...f, images: [...f.images, ...newEntries].slice(0, MAX_IMAGES) }));
+        toast.success(`${newEntries.length} image${newEntries.length > 1 ? "s" : ""} uploaded`);
+      }
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
-      setUploadingCover(false);
+      setUploadingImage(false);
     }
+  };
+
+  const removeImage = (idx: number) => {
+    setForm((f) => ({ ...f, images: f.images.filter((_, i) => i !== idx) }));
   };
 
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
-    const rewardBase = Number(form.price_usd); // amount in user's base currency
+    const rewardBase = Number(form.price_usd);
     if (!(rewardBase >= 0)) return toast.error("Reward must be >= 0");
     const limit = Number(form.applicant_limit);
     if (!(limit > 0)) return toast.error("Applicant limit must be > 0");
@@ -206,77 +196,44 @@ export function BountyEditorModal({
     try {
       const { data: session } = await supabase.auth.getUser();
       const _uid = session.user?.id;
-      if (!_uid) throw new Error("You must be signed in to post a bounty");
+      if (!_uid) throw new Error("You must be signed in");
       setUid(_uid);
 
-      // Snapshot the live FX rate once — this locks the bounty's value forever.
       const snapshot = rewardBase > 0
         ? await snapshotFx()
         : { base: "USD" as const, rates: { USD: 1, NGN: 1500, GHS: 14 }, source: "fallback" as const, fetched_at: new Date().toISOString() };
       const rateForBase = Number(snapshot.rates[baseCurrency] ?? 1);
       const priceUsd = baseCurrency === "USD" ? rewardBase : Number((rewardBase / rateForBase).toFixed(2));
 
-      // Wallet balance check — must cover the escrow amount (USD) before publishing.
       if (priceUsd > 0) {
-        const { data: walletRow, error: walletErr } = await supabase
-          .from("wallets")
-          .select("available_balance")
-          .eq("user_id", _uid)
-          .eq("currency", "USD")
-          .maybeSingle();
-        if (walletErr) throw new Error(walletErr.message);
+        const { data: walletRow } = await supabase.from("wallets")
+          .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
         const balance = Number(walletRow?.available_balance ?? 0);
         setWalletUsd(balance);
-        if (balance < priceUsd) {
-          setShowFundPrompt(true);
-          setSaving(false);
-          return;
-        }
+        if (balance < priceUsd) { setShowFundPrompt(true); setSaving(false); return; }
       }
-      const uid = _uid;
-      const { data: inserted, error } = await supabase.from("bounties").insert({
-        poster_id: uid,
-        title: form.title.trim(),
-        description: form.description,
-        category: form.category,
-        price_usd: priceUsd,
-        original_currency: baseCurrency,
-        original_amount: rewardBase,
-        fx_snapshot: JSON.parse(JSON.stringify(snapshot)),
-        applicant_limit: limit,
-        cover_path: form.cover_path,
-        start_at: start,
-        end_at: end,
-        deadline_at: deadline,
-        status: "active",
-      }).select("id").single();
-      if (error) throw error;
 
-      // Promotion is admin-only. RLS on ad_campaigns also enforces this server-side.
-      if (form.promote && isAdmin && inserted?.id) {
-        const { error: adErr } = await supabase.from("ad_campaigns").insert({
-          title: form.title.trim().slice(0, 80),
-          advertiser: form.title.trim().slice(0, 80),
-          placements: ["bounties"],
-          tier: form.promote_tier,
-          cta_url: `#bounty-${inserted.id}`,
-          cta_label: "View bounty",
-          media_url: form.cover_preview ?? null,
+      const imagePaths = form.images.map((i) => i.path);
+      const result = await publishFn({
+        data: {
+          title: form.title.trim(),
+          description: form.description,
+          category: form.category,
+          price_usd: priceUsd,
+          cover_path: imagePaths[0] ?? null,
+          images: imagePaths,
+          applicant_limit: limit,
           start_at: start,
           end_at: end,
-          status: "active",
-          created_by: uid,
-        });
-        if (adErr) {
-          toast.warning("Bounty published, but promotion failed", { description: adErr.message });
-        } else {
-          toast.success("Bounty published and promoted");
-        }
-      } else {
-        toast.success("Bounty published", { description: form.title.trim() });
-      }
+          deadline_at: deadline,
+        },
+      });
+
+      toast.success("Bounty published", {
+        description: `${form.title.trim()} — funds escrowed until solver delivers.`,
+      });
       reset();
-      if (inserted?.id) onPublished?.(inserted.id);
+      if (result?.id) onPublished?.(result.id);
       onClose();
     } catch (e) {
       toast.error((e as Error).message);
@@ -292,11 +249,7 @@ export function BountyEditorModal({
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-400" /> Post a bounty
           </h2>
-          <button
-            onClick={onClose}
-            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
-            aria-label="Close"
-          >
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400" aria-label="Close">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -304,12 +257,9 @@ export function BountyEditorModal({
         {draftLoaded && (
           <div className="mb-3 flex items-center justify-between gap-2 p-2.5 rounded-lg border border-emerald-500/30 bg-emerald-500/10 text-xs text-emerald-200">
             <span className="inline-flex items-center gap-2">
-              <Save className="w-3.5 h-3.5" /> Draft restored — continue editing and publish when your wallet is funded.
+              <Save className="w-3.5 h-3.5" /> Draft restored — continue editing.
             </span>
-            <button
-              onClick={() => reset()}
-              className="text-emerald-300 hover:text-white underline underline-offset-2"
-            >
+            <button onClick={() => reset()} className="text-emerald-300 hover:text-white underline underline-offset-2">
               Discard draft
             </button>
           </div>
@@ -317,114 +267,85 @@ export function BountyEditorModal({
 
         <div className="space-y-3">
           <div>
-            <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Cover image</span>
-            <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Shown on bounty cards. PNG/JPG/WebP up to 5MB.</p>
+            <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
+              Images ({form.images.length}/{MAX_IMAGES})
+            </span>
+            <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">First image is the cover. PNG/JPG/WebP up to 5MB each.</p>
             <input
               ref={fileInputRef}
               type="file"
+              multiple
               accept="image/png,image/jpeg,image/webp,image/gif"
               className="hidden"
               onChange={(e) => {
-                const f = e.target.files?.[0];
-                if (f) handleCoverPick(f);
+                if (e.target.files?.length) handleImagePick(e.target.files);
                 e.target.value = "";
               }}
             />
-            <button
-              type="button"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={uploadingCover}
-              className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
-            >
-              {form.cover_preview ? (
-                <ResponsiveImage sizes="80px" src={form.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
-              ) : (
-                <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
-                  <ImagePlus className="w-6 h-6" />
+            <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-2">
+              {form.images.map((img, idx) => (
+                <div key={img.path} className="relative aspect-square rounded-md border border-white/10 overflow-hidden bg-black/30">
+                  {img.preview ? (
+                    <ResponsiveImage sizes="80px" src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">…</div>
+                  )}
+                  {idx === 0 && (
+                    <span className="absolute top-1 left-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/80 text-black">
+                      Cover
+                    </span>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => removeImage(idx)}
+                    className="absolute top-1 right-1 p-1 rounded-md bg-black/70 hover:bg-red-500/70 text-red-200 hover:text-white"
+                    aria-label="Remove image"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
                 </div>
-              )}
-              <div className="flex-1 min-w-0 text-xs">
-                {uploadingCover ? (
-                  <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
-                ) : form.cover_preview ? (
-                  <>
-                    <div className="text-slate-200 font-medium">Image attached</div>
-                    <div className="text-slate-500 mt-0.5">Click to replace</div>
-                  </>
-                ) : (
-                  <div className="text-slate-400">Click to upload a cover image (recommended 4:3).</div>
-                )}
-              </div>
-              {form.cover_preview && !uploadingCover && (
-                <span
-                  role="button"
-                  tabIndex={0}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setForm((f) => ({ ...f, cover_path: null, cover_preview: null }));
-                  }}
-                  className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
-                  aria-label="Remove image"
+              ))}
+              {form.images.length < MAX_IMAGES && (
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadingImage}
+                  className="aspect-square rounded-md border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-300 text-xs"
                 >
-                  <X className="w-3.5 h-3.5" />
-                </span>
+                  {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                  <span>{uploadingImage ? "Uploading…" : "Add image"}</span>
+                </button>
               )}
-            </button>
+            </div>
           </div>
 
           <Field label="Title">
-            <input
-              value={form.title}
-              onChange={(e) => setForm({ ...form, title: e.target.value })}
-              className={inputCls}
-              placeholder="e.g. Fix Paystack webhook loop"
-            />
+            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputCls} placeholder="e.g. Fix Paystack webhook loop" />
           </Field>
 
           <Field label="Category">
-            <select
-              value={form.category}
-              onChange={(e) => setForm({ ...form, category: e.target.value as Category })}
-              className={inputCls}
-            >
+            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Category })} className={inputCls}>
               {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
             </select>
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label={`Reward (${baseCurrency})`}>
-              <input
-                type="number"
-                step={baseCurrency === "USD" ? "0.01" : "1"}
-                min="0"
-                value={form.price_usd}
-                onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
-                className={inputCls}
-              />
+              <input type="number" step={baseCurrency === "USD" ? "0.01" : "1"} min="0" value={form.price_usd}
+                onChange={(e) => setForm({ ...form, price_usd: e.target.value })} className={inputCls} />
               <p className="text-[10px] text-slate-500 mt-1">
-                Locked at market rate on publish. Viewers on other currencies see the equivalent.
+                Funds are locked into escrow on publish and released to the solver when work is confirmed.
               </p>
             </Field>
             <Field label="Applicant limit">
-              <input
-                type="number"
-                min="1"
-                step="1"
-                value={form.applicant_limit}
-                onChange={(e) => setForm({ ...form, applicant_limit: e.target.value })}
-                className={inputCls}
-              />
+              <input type="number" min="1" step="1" value={form.applicant_limit}
+                onChange={(e) => setForm({ ...form, applicant_limit: e.target.value })} className={inputCls} />
             </Field>
           </div>
 
           <Field label="Description">
-            <textarea
-              value={form.description}
-              onChange={(e) => setForm({ ...form, description: e.target.value })}
-              rows={4}
-              className={inputCls}
-              placeholder="Scope, deliverables, acceptance criteria…"
-            />
+            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4}
+              className={inputCls} placeholder="Scope, deliverables, acceptance criteria…" />
           </Field>
 
           <div className="pt-2">
@@ -433,96 +354,29 @@ export function BountyEditorModal({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Field label="Starts">
-                <input
-                  type="datetime-local"
-                  value={form.start_at}
-                  onChange={(e) => setForm({ ...form, start_at: e.target.value })}
-                  className={inputCls}
-                />
+                <input type="datetime-local" value={form.start_at} onChange={(e) => setForm({ ...form, start_at: e.target.value })} className={inputCls} />
               </Field>
               <Field label="Ends (listing)">
-                <input
-                  type="datetime-local"
-                  value={form.end_at}
-                  onChange={(e) => setForm({ ...form, end_at: e.target.value })}
-                  className={inputCls}
-                />
+                <input type="datetime-local" value={form.end_at} onChange={(e) => setForm({ ...form, end_at: e.target.value })} className={inputCls} />
               </Field>
               <Field label="Deadline (delivery)">
-                <input
-                  type="datetime-local"
-                  value={form.deadline_at}
-                  onChange={(e) => setForm({ ...form, deadline_at: e.target.value })}
-                  className={inputCls}
-                />
+                <input type="datetime-local" value={form.deadline_at} onChange={(e) => setForm({ ...form, deadline_at: e.target.value })} className={inputCls} />
               </Field>
             </div>
-            <p className="text-[11px] text-slate-500 mt-1">
-              Start/End control when the bounty is visible on the public board. Deadline is the delivery due date shown to applicants.
-            </p>
           </div>
 
-          {isAdmin ? (
-            <div className="pt-2 border-t border-white/10 mt-2">
-              <div className="flex items-center gap-2 text-xs uppercase tracking-wider text-fuchsia-300 mb-2">
-                <Megaphone className="w-3.5 h-3.5" /> Promotion
-                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-300 normal-case tracking-normal">
-                  <ShieldCheck className="w-3 h-3" /> Admin-only
-                </span>
-              </div>
-              <label className="flex items-start gap-2 text-xs text-slate-300">
-                <input
-                  type="checkbox"
-                  checked={form.promote}
-                  onChange={(e) => setForm({ ...form, promote: e.target.checked })}
-                  className="mt-0.5 accent-fuchsia-500"
-                />
-                <span>
-                  Promote this bounty in the Sponsored slot on the Bounties board for the schedule above.
-                </span>
-              </label>
-              {form.promote && (
-                <div className="mt-2 max-w-xs">
-                  <Field label="Ad tier">
-                    <select
-                      value={form.promote_tier}
-                      onChange={(e) => setForm({ ...form, promote_tier: e.target.value as PromoteTier })}
-                      className={inputCls}
-                    >
-                      <option value="text">Text</option>
-                      <option value="banner">Banner</option>
-                      <option value="video">Video</option>
-                    </select>
-                  </Field>
-                </div>
-              )}
-            </div>
-          ) : (
-            <p className="text-[11px] text-slate-500">
-              Promoted placements are reserved for admin campaigns. Your bounty goes live on the public board immediately.
-            </p>
-          )}
-
           <div className="flex flex-wrap gap-2 pt-3">
-            <button
-              disabled={saving}
-              onClick={save}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
-            >
+            <button disabled={saving} onClick={save}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2">
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Publish bounty
             </button>
-            <button
-              type="button"
-              onClick={() => saveDraft()}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
-            >
+            <button type="button" onClick={() => saveDraft()}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
               <Save className="w-4 h-4" /> Save draft
             </button>
-            <button
-              onClick={onClose}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
-            >
+            <button onClick={onClose}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg">
               Cancel
             </button>
           </div>
@@ -535,37 +389,21 @@ export function BountyEditorModal({
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows{" "}
-                <span className="text-white font-semibold">
-                  {formatMoney(inputBase, baseCurrency)}
-                </span>{" "}
-                (≈ ${inputUsdApprox.toFixed(2)} USD). Your current wallet balance is{" "}
-                <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span> (≈ ${inputUsdApprox.toFixed(2)} USD).
+                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
               </p>
               <p className="text-xs text-slate-400 mt-2">
-                Top up your wallet with at least{" "}
-                <span className="text-emerald-300 font-semibold">
-                  ${shortfallUsd.toFixed(2)}
-                </span>{" "}
-                to publish. We&apos;ll save your draft so you can return and publish it in one click.
+                Top up at least <span className="text-emerald-300 font-semibold">${shortfallUsd.toFixed(2)}</span> to publish.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
-                <button
-                  onClick={goToWallet}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2"
-                >
+                <button onClick={goToWallet} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2">
                   <Wallet className="w-4 h-4" /> Save draft & top up
                 </button>
-                <button
-                  onClick={() => { saveDraft(); setShowFundPrompt(false); }}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
-                >
+                <button onClick={() => { saveDraft(); setShowFundPrompt(false); }}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
                   <Save className="w-4 h-4" /> Save draft only
                 </button>
-                <button
-                  onClick={() => setShowFundPrompt(false)}
-                  className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg"
-                >
+                <button onClick={() => setShowFundPrompt(false)} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg">
                   Back to editor
                 </button>
               </div>
