@@ -40,7 +40,23 @@ interface FormState {
   status: string;
   cover_path: string | null;
   cover_preview: string | null;
+  promoted: boolean;
 }
+
+const emptyForm: FormState = {
+  title: "",
+  description: "",
+  category: "api",
+  price_usd: "",
+  applicant_limit: "10",
+  start_at: "",
+  end_at: "",
+  deadline_at: "",
+  status: "active",
+  cover_path: null,
+  cover_preview: null,
+  promoted: false,
+};
 
 const emptyForm: FormState = {
   title: "",
