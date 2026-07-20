@@ -394,7 +394,7 @@ function CheckoutPage() {
                           value={couponInput}
                           onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(null); }}
                           placeholder="Enter code"
-                          className="flex-1 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
+                          className="flex-1 min-w-0 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
                         />
                         <button
                           onClick={async () => {
