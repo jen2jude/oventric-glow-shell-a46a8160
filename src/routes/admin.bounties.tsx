@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar, Sparkles, ShieldCheck, ShieldX, Users, Lock, Unlock, CheckCircle2, RotateCcw } from "lucide-react";
+import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar, Sparkles, ShieldCheck, ShieldX, Users, Lock, Unlock, CheckCircle2, RotateCcw, Tags } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -15,6 +15,12 @@ import {
   adminReleaseBounty,
   adminRefundBounty,
 } from "@/lib/bounties.functions";
+import {
+  adminListBountyCategories,
+  adminUpsertBountyCategory,
+  adminDeleteBountyCategory,
+  type BountyCategory,
+} from "@/lib/bounty-categories.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 export const Route = createFileRoute("/admin/bounties")({
@@ -24,8 +30,20 @@ export const Route = createFileRoute("/admin/bounties")({
 
 type Row = Record<string, unknown>;
 
-const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
+const FALLBACK_CATEGORIES: BountyCategory[] = [
+  { slug: "frontend", label: "Frontend Gigs", sort_order: 10, active: true },
+  { slug: "database", label: "Database Ops", sort_order: 20, active: true },
+  { slug: "api", label: "API Integrations", sort_order: 30, active: true },
+  { slug: "uiux", label: "UI/UX Polishing", sort_order: 40, active: true },
+];
 const STATUSES = ["active", "paused", "closed", "draft", "pending_review", "rejected", "solved", "released", "disputed"] as const;
+
+const MAX_IMAGES = 5;
+
+interface ImageEntry {
+  path: string;
+  preview: string | null;
+}
 
 interface FormState {
   id?: string;
@@ -38,8 +56,7 @@ interface FormState {
   end_at: string;
   deadline_at: string;
   status: string;
-  cover_path: string | null;
-  cover_preview: string | null;
+  images: ImageEntry[];
   promoted: boolean;
 }
 
@@ -53,8 +70,7 @@ const emptyForm: FormState = {
   end_at: "",
   deadline_at: "",
   status: "active",
-  cover_path: null,
-  cover_preview: null,
+  images: [],
   promoted: false,
 };
 
