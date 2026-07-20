@@ -36,8 +36,12 @@ export const seedNewUser = createServerFn({ method: "POST" })
         .replace(/[^a-z0-9]+/g, "")
         .slice(0, 24) || `user${userId.slice(0, 8)}`;
 
-    // 1. Profile (insert-if-missing; do NOT overwrite existing user edits)
-    const { data: existing, error: readErr } = await supabase
+    // 1. Profile (insert-if-missing; do NOT overwrite existing user edits).
+    // Use the admin client for the seed row: the caller identity is already
+    // verified by requireSupabaseAuth (userId comes from the bearer token),
+    // and RLS now blocks anonymous JWTs from touching profiles directly.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing, error: readErr } = await supabaseAdmin
       .from("profiles")
       .select("user_id")
       .eq("user_id", userId)
@@ -49,7 +53,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
 
     if (!existing) {
       const tryInsert = async (slug: string, uname: string) =>
-        supabase.from("profiles").insert({
+        supabaseAdmin.from("profiles").insert({
           user_id: userId,
           slug,
           display_name: fallbackName,
@@ -59,11 +63,8 @@ export const seedNewUser = createServerFn({ method: "POST" })
         });
 
       let { error: insErr } = await tryInsert(slugBase, desiredUsername);
-      // Retry a few times on unique-violation (slug/username collisions or
-      // a concurrent seed that just wrote the row).
       for (let i = 0; insErr && (insErr as { code?: string }).code === "23505" && i < 3; i++) {
-        // If the row already exists for this user, we're done.
-        const { data: found } = await supabase
+        const { data: found } = await supabaseAdmin
           .from("profiles")
           .select("user_id")
           .eq("user_id", userId)
@@ -80,6 +81,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
         throw new Error("Failed to create profile");
       }
     }
+
 
 
     // 2. Wallets (only for real, non-anonymous users — RLS blocks anon inserts,
