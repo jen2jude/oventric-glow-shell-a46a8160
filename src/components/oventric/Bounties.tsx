@@ -22,8 +22,10 @@ import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
+import { BountyDetail } from "./BountyDetail";
 import { Plus } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
