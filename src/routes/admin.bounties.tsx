@@ -525,7 +525,7 @@ function BountiesAdminPage() {
                     onChange={(e) => setModal({ ...modal, category: e.target.value })}
                     className={inputCls}
                   >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
+                    {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
                   </select>
                 </Field>
                 <Field label="Status">
