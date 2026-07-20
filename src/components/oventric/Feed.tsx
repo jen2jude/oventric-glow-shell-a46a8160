@@ -4,8 +4,7 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
-import { useActiveAds } from "@/lib/admin/store";
-import { AdCard } from "@/components/oventric/AdCard";
+import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
 import { supabase } from "@/integrations/supabase/client";
@@ -181,7 +180,7 @@ function ReportedBadge({ details }: { details?: ReportDetails }) {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
-  const feedAds = useActiveAds("feed");
+  
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
@@ -829,9 +828,8 @@ export function Feed() {
         </button>
 
 
-        {feedAds.map((a) => (
-          <AdCard key={a.id} ad={a} variant="banner" />
-        ))}
+        <AdSlot placement="feed" variant="banner" />
+
 
         {/* Posts (live) */}
         {postsLoading ? (
