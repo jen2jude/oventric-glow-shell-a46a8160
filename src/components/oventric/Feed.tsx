@@ -1040,11 +1040,9 @@ export function Feed() {
                             className={`relative block ${count === 1 ? "max-h-[520px]" : "aspect-square"} w-full overflow-hidden`}
                             aria-label={`Open image ${i + 1} of ${count}`}
                           >
-                            <ResponsiveImage
+                            <FeedPostImage
                               src={url}
                               alt={`Post attachment ${i + 1}`}
-                              loading="lazy"
-                              sizes="(min-width: 768px) 640px, 100vw"
                               className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
                             />
                             {isLastTile && count > 4 && (
