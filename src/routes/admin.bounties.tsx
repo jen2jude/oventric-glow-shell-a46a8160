@@ -857,3 +857,104 @@ function Field({ label, children }: { label: string; children: React.ReactNode }
     </label>
   );
 }
+
+function CategoryManagerModal({
+  categories,
+  onClose,
+  onChanged,
+}: {
+  categories: BountyCategory[];
+  onClose: () => void;
+  onChanged: () => void;
+}) {
+  const upsertFn = useServerFn(adminUpsertBountyCategory);
+  const deleteFn = useServerFn(adminDeleteBountyCategory);
+  const [rows, setRows] = useState<BountyCategory[]>(categories);
+  const [newSlug, setNewSlug] = useState("");
+  const [newLabel, setNewLabel] = useState("");
+  const [busy, setBusy] = useState(false);
+
+  useEffect(() => { setRows(categories); }, [categories]);
+
+  const add = async () => {
+    const slug = newSlug.trim().toLowerCase().replace(/[^a-z0-9-]/g, "-");
+    const label = newLabel.trim();
+    if (!slug || !label) return toast.error("Slug and label required");
+    setBusy(true);
+    try {
+      await upsertFn({ data: { slug, label, sort_order: (rows.at(-1)?.sort_order ?? 0) + 10, active: true } });
+      toast.success("Category added");
+      setNewSlug(""); setNewLabel("");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  const saveRow = async (row: BountyCategory) => {
+    setBusy(true);
+    try {
+      await upsertFn({ data: { slug: row.slug, label: row.label, sort_order: row.sort_order, active: row.active } });
+      toast.success("Saved");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  const remove = async (slug: string) => {
+    if (!confirm(`Delete category "${slug}"?`)) return;
+    setBusy(true);
+    try {
+      await deleteFn({ data: { slug } });
+      toast.success("Deleted");
+      onChanged();
+    } catch (e) { toast.error((e as Error).message); }
+    setBusy(false);
+  };
+
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-white font-black text-lg flex items-center gap-2"><Tags className="w-5 h-5 text-emerald-400" /> Bounty categories</h2>
+          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400" aria-label="Close">
+            <X className="w-4 h-4" />
+          </button>
+        </div>
+
+        <div className="space-y-2 mb-4">
+          {rows.map((row, idx) => (
+            <div key={row.slug} className="flex items-center gap-2 p-2 rounded-lg bg-white/5 border border-white/10">
+              <span className="text-[10px] text-slate-500 font-mono w-20 truncate">{row.slug}</span>
+              <input
+                value={row.label}
+                onChange={(e) => setRows((rs) => rs.map((r, i) => i === idx ? { ...r, label: e.target.value } : r))}
+                className="flex-1 px-2 py-1 rounded bg-black/40 border border-white/10 text-white text-sm"
+              />
+              <label className="flex items-center gap-1 text-[11px] text-slate-400">
+                <input type="checkbox" checked={row.active} onChange={(e) => setRows((rs) => rs.map((r, i) => i === idx ? { ...r, active: e.target.checked } : r))} />
+                Active
+              </label>
+              <button onClick={() => saveRow(row)} disabled={busy} className="p-1.5 rounded bg-emerald-500/20 border border-emerald-500/40 text-emerald-200" aria-label="Save">
+                <CheckCircle2 className="w-4 h-4" />
+              </button>
+              <button onClick={() => remove(row.slug)} disabled={busy} className="p-1.5 rounded bg-red-500/10 border border-red-500/30 text-red-300" aria-label="Delete">
+                <Trash2 className="w-4 h-4" />
+              </button>
+            </div>
+          ))}
+        </div>
+
+        <div className="border-t border-white/10 pt-4">
+          <p className="text-xs uppercase tracking-wider text-slate-500 mb-2">Add category</p>
+          <div className="flex flex-col gap-2 sm:flex-row">
+            <input value={newSlug} onChange={(e) => setNewSlug(e.target.value)} placeholder="slug (e.g. mobile)" className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm" />
+            <input value={newLabel} onChange={(e) => setNewLabel(e.target.value)} placeholder="Label (e.g. Mobile Apps)" className="flex-1 px-3 py-2 rounded-lg bg-black/40 border border-white/10 text-white text-sm" />
+            <button onClick={add} disabled={busy} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center justify-center gap-1">
+              <Plus className="w-4 h-4" /> Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
