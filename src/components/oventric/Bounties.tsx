@@ -23,8 +23,11 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
 import { BountyDetail } from "./BountyDetail";
-import { Plus } from "lucide-react";
+import { Plus, CheckCircle2 as AppliedCheck } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useServerFn } from "@tanstack/react-start";
+import { listMyBountyApplicationIds } from "@/lib/bounties.functions";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
