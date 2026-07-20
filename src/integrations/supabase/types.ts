@@ -248,6 +248,105 @@ export type Database = {
           },
         ]
       }
+      ad_inquiries: {
+        Row: {
+          acknowledged: boolean
+          admin_notes: string | null
+          body: string | null
+          cities: string[] | null
+          company: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone: string | null
+          countries: string[] | null
+          created_at: string
+          cta_type: string | null
+          cta_url: string | null
+          cta_whatsapp: string | null
+          daily_budget_usd: number | null
+          demographics: Json | null
+          description: string | null
+          duration_days: number | null
+          header: string
+          id: string
+          image_paths: string[] | null
+          notes: string | null
+          objective: string | null
+          status: string
+          tier: string
+          total_budget_usd: number | null
+          updated_at: string
+          user_id: string | null
+          video_path: string | null
+          video_url: string | null
+          website: string | null
+        }
+        Insert: {
+          acknowledged?: boolean
+          admin_notes?: string | null
+          body?: string | null
+          cities?: string[] | null
+          company?: string | null
+          contact_email: string
+          contact_name: string
+          contact_phone?: string | null
+          countries?: string[] | null
+          created_at?: string
+          cta_type?: string | null
+          cta_url?: string | null
+          cta_whatsapp?: string | null
+          daily_budget_usd?: number | null
+          demographics?: Json | null
+          description?: string | null
+          duration_days?: number | null
+          header: string
+          id?: string
+          image_paths?: string[] | null
+          notes?: string | null
+          objective?: string | null
+          status?: string
+          tier: string
+          total_budget_usd?: number | null
+          updated_at?: string
+          user_id?: string | null
+          video_path?: string | null
+          video_url?: string | null
+          website?: string | null
+        }
+        Update: {
+          acknowledged?: boolean
+          admin_notes?: string | null
+          body?: string | null
+          cities?: string[] | null
+          company?: string | null
+          contact_email?: string
+          contact_name?: string
+          contact_phone?: string | null
+          countries?: string[] | null
+          created_at?: string
+          cta_type?: string | null
+          cta_url?: string | null
+          cta_whatsapp?: string | null
+          daily_budget_usd?: number | null
+          demographics?: Json | null
+          description?: string | null
+          duration_days?: number | null
+          header?: string
+          id?: string
+          image_paths?: string[] | null
+          notes?: string | null
+          objective?: string | null
+          status?: string
+          tier?: string
+          total_budget_usd?: number | null
+          updated_at?: string
+          user_id?: string | null
+          video_path?: string | null
+          video_url?: string | null
+          website?: string | null
+        }
+        Relationships: []
+      }
       ad_leads: {
         Row: {
           campaign_id: string

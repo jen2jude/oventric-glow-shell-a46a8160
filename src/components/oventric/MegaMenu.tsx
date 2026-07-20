@@ -5,7 +5,7 @@ import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
   ShoppingBag, Target, Wallet as WalletIcon, GraduationCap,
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
-  Bug, ListChecks, Trash2, Gift, LogOut,
+  Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -139,6 +139,7 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
     { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
     { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
+    { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
 
   const inviteLink = typeof window !== "undefined" ? `${window.location.origin}/?ref=${userSlug}` : "";
