@@ -87,7 +87,25 @@ export function BountyEditorModal({
         const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
         if (raw) {
           const parsed = JSON.parse(raw) as Partial<FormState>;
-          setForm((f) => ({ ...f, ...parsed, images: Array.isArray(parsed.images) ? parsed.images : [] }));
+          const rawImages = Array.isArray(parsed.images) ? parsed.images : [];
+          // Re-sign previews from stored paths so restored images always render
+          // (signed URLs stored in the draft may have expired during the top-up flow).
+          const images: ImageEntry[] = await Promise.all(
+            rawImages
+              .filter((i): i is ImageEntry => !!i && typeof (i as ImageEntry).path === "string" && (i as ImageEntry).path.length > 0)
+              .map(async (i) => {
+                try {
+                  const { data: signed } = await supabase.storage
+                    .from("bounty-covers")
+                    .createSignedUrl(i.path, 60 * 60);
+                  return { path: i.path, preview: signed?.signedUrl ?? i.preview ?? null };
+                } catch {
+                  return { path: i.path, preview: i.preview ?? null };
+                }
+              })
+          );
+          if (cancelled) return;
+          setForm({ ...emptyForm, ...parsed, images });
           setDraftLoaded(true);
         } else {
           setDraftLoaded(false);
