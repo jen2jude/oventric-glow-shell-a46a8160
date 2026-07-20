@@ -84,6 +84,44 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+/**
+ * Lightweight post-image wrapper that shows a neutral skeleton until the
+ * image decodes, then fades in. Keeps feed scrolling smooth on low-end
+ * Android and avoids blank flashes on slow connections.
+ */
+function FeedPostImage({
+  src,
+  alt,
+  className,
+  eager,
+}: {
+  src: string;
+  alt: string;
+  className?: string;
+  eager?: boolean;
+}) {
+  const [loaded, setLoaded] = useState(false);
+  return (
+    <>
+      {!loaded && (
+        <span
+          aria-hidden
+          className="absolute inset-0 bg-white/5 animate-pulse"
+        />
+      )}
+      <ResponsiveImage
+        src={src}
+        alt={alt}
+        loading={eager ? "eager" : "lazy"}
+        {...(eager ? { fetchpriority: "high" as const } : {})}
+        sizes="(min-width: 768px) 640px, 100vw"
+        onLoad={() => setLoaded(true)}
+        className={`${className ?? ""} transition-opacity duration-200 ${loaded ? "opacity-100" : "opacity-0"}`}
+      />
+    </>
+  );
+}
+
 interface ReportDetails {
   reason: string;
   reasonLabel: string;
