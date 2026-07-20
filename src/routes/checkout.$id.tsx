@@ -358,7 +358,7 @@ function CheckoutPage() {
                   src={product.coverUrl}
                   alt={product.name}
                   sizes="(min-width: 1024px) 384px, 100vw"
-                  className="w-full h-32 object-contain rounded-lg mb-3 border border-white/5 bg-white/5"
+                  className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5 bg-white/5"
                   loading="eager"
                   fetchPriority="high"
                 />
