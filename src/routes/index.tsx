@@ -158,7 +158,15 @@ function Index() {
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
-      <MessagesDrawer open={messagesOpen} onClose={() => setMessagesOpen(false)} />
+      <MessagesDrawer
+        open={messagesOpen}
+        onClose={() => {
+          setMessagesOpen(false);
+          setMessagesPeer(undefined);
+        }}
+        initialThreadId={messagesPeer}
+      />
+
     </div>
   );
 }
