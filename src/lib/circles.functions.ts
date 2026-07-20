@@ -31,8 +31,12 @@ export interface IncomingCircleRequest {
 export const ensureMyProfile = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<{ slug: string }> => {
-    const { supabase, userId, claims } = context;
-    const { data: existing } = await supabase
+    const { userId, claims } = context;
+    // Use the admin client for provisioning: caller identity is already
+    // verified via requireSupabaseAuth, and RLS blocks anonymous JWTs from
+    // reading/writing profiles directly.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: existing } = await supabaseAdmin
       .from("profiles")
       .select("slug")
       .eq("user_id", userId)
@@ -48,10 +52,9 @@ export const ensureMyProfile = createServerFn({ method: "POST" })
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/^-+|-+$/g, "") || `user-${userId.slice(0, 8)}`;
 
-    // Try base slug, then append short random suffixes on collision.
     for (let i = 0; i < 6; i++) {
       const candidate = i === 0 ? base : `${base}-${Math.random().toString(36).slice(2, 6)}`;
-      const { data, error } = await supabase
+      const { data, error } = await supabaseAdmin
         .from("profiles")
         .insert({ user_id: userId, slug: candidate, display_name: meta.full_name ?? null })
         .select("slug")
@@ -60,9 +63,7 @@ export const ensureMyProfile = createServerFn({ method: "POST" })
       const code = (error as { code?: string } | null)?.code;
       const msg = error?.message?.toLowerCase() ?? "";
       if (code === "23505" || msg.includes("duplicate")) {
-        // Unique violation — could be slug collision OR the profile row already
-        // exists for this user (seeded concurrently). Re-read before retrying.
-        const { data: found } = await supabase
+        const { data: found } = await supabaseAdmin
           .from("profiles")
           .select("slug")
           .eq("user_id", userId)
@@ -77,6 +78,7 @@ export const ensureMyProfile = createServerFn({ method: "POST" })
     }
     throw new Error("Could not allocate a unique profile slug");
   });
+
 
 export const getMyProfile = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
