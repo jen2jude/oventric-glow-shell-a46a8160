@@ -260,9 +260,10 @@ function CheckoutPage() {
         )}
 
         {product && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
             {/* Payment methods */}
-            <div className="lg:col-span-2 space-y-3">
+            <div className="lg:col-span-2 space-y-3 min-w-0">
+
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Payment Method</h2>
               {methods.map((m) => {
                 const active = method === m.id;
