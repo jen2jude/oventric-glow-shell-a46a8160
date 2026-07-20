@@ -27,6 +27,31 @@ async function writeAudit(
   });
 }
 
+/** Insert a bounty-related notification. Kind must contain "bounty" so the
+ * inbox routes it to the Bounties channel. Link opens the Bounties page. */
+async function notifyBounty(
+  userId: string,
+  kind: string,
+  title: string,
+  body: string,
+  fromUserId?: string | null,
+) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    await (supabaseAdmin as any).from("notifications").insert({
+      user_id: userId,
+      kind,
+      title,
+      body,
+      link: "/?section=Bounties",
+      from_user_id: fromUserId ?? null,
+    });
+  } catch {
+    /* non-fatal */
+  }
+}
+
 export interface BountyInput {
   id?: string;
   title: string;
