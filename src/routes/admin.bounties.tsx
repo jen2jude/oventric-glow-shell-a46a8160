@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar } from "lucide-react";
+import { Loader2, Trash2, Pencil, Plus, X, ImagePlus, Target, Calendar, Sparkles, ShieldCheck, ShieldX, Users, Lock, Unlock, CheckCircle2, RotateCcw } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -9,6 +9,11 @@ import {
   adminCreateBounty,
   adminUpdateBounty,
   adminDeleteBounty,
+  adminBountyDetail,
+  adminApproveBounty,
+  adminSetBountyHold,
+  adminReleaseBounty,
+  adminRefundBounty,
 } from "@/lib/bounties.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -20,7 +25,7 @@ export const Route = createFileRoute("/admin/bounties")({
 type Row = Record<string, unknown>;
 
 const CATEGORIES = ["frontend", "database", "api", "uiux"] as const;
-const STATUSES = ["active", "paused", "closed", "draft"] as const;
+const STATUSES = ["active", "paused", "closed", "draft", "pending_review", "rejected", "solved", "released", "disputed"] as const;
 
 interface FormState {
   id?: string;
