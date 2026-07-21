@@ -25,6 +25,7 @@ export function useScrollRestoration<T>(key: T) {
   const containerRef = useRef<HTMLElement | null>(null);
   const pendingYRef = useRef<number | null>(null);
   const restoredRef = useRef<boolean>(true);
+  const holdTimerRef = useRef<number | null>(null);
 
   const getScroller = useCallback((): HTMLElement | Window | null => {
     const el = containerRef.current;
@@ -49,17 +50,34 @@ export function useScrollRestoration<T>(key: T) {
     [getScroller],
   );
 
+  const clearHoldTimer = useCallback(() => {
+    if (holdTimerRef.current !== null) {
+      window.clearInterval(holdTimerRef.current);
+      holdTimerRef.current = null;
+    }
+  }, []);
+
   // Pin scroll across an imminent view change. Applies immediately, on the
-  // next frame, and on the next macrotask to survive layout thrash.
+  // next frame, and briefly during the next render/data window so mobile
+  // browsers don't clamp the page upward while tab content swaps in.
   const pinAcrossChange = useCallback(
     (y: number) => {
       pendingYRef.current = y;
       restoredRef.current = false;
+      clearHoldTimer();
       setScrollY(y);
       requestAnimationFrame(() => setScrollY(y));
       setTimeout(() => setScrollY(y), 0);
+      const startedAt = Date.now();
+      holdTimerRef.current = window.setInterval(() => {
+        if (restoredRef.current || Date.now() - startedAt > 1200) {
+          clearHoldTimer();
+          return;
+        }
+        setScrollY(y);
+      }, 50);
     },
-    [setScrollY],
+    [clearHoldTimer, setScrollY],
   );
 
   // Restore the pinned scroll position, falling back to `fallbackY` if none.
@@ -69,16 +87,17 @@ export function useScrollRestoration<T>(key: T) {
       if (target > 0) setScrollY(target);
       pendingYRef.current = null;
       restoredRef.current = true;
+      clearHoldTimer();
     },
-    [setScrollY],
+    [clearHoldTimer, setScrollY],
   );
 
   // Reset pending pin when the tracked key changes AFTER restore fires
   useEffect(() => {
     return () => {
-      // no-op; consumers call restore() when new content is ready
+      clearHoldTimer();
     };
-  }, [key]);
+  }, [key, clearHoldTimer]);
 
   return {
     containerRef,
