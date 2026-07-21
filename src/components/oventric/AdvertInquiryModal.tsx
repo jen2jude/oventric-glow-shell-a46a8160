@@ -333,7 +333,7 @@ export function AdvertInquiryModal({
               <>
                 <Label>Countries</Label>
                 <div className="flex flex-wrap gap-2">
-                  {["Nigeria", "Ghana", "Other (USD)"].map((c) => (
+                  {["Nigeria", "Ghana", "Rest of Africa"].map((c) => (
                     <button key={c} onClick={() => toggleFrom(countries, c, setCountries)} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${countries.includes(c) ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 text-slate-300"}`}>
                       {c}
                     </button>
