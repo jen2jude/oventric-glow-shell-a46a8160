@@ -552,15 +552,17 @@ function ProfilePage() {
   // Persist scroll position into the URL (throttled) so reloads restore it.
   useEffect(() => {
     const el = mainRef.current;
-    if (!el) return;
+    const usesMain = !!(el && el.scrollHeight > el.clientHeight + 1);
+    const target: HTMLElement | Window = usesMain ? (el as HTMLElement) : window;
     let raf = 0;
     let lastWritten = restoreY;
+    const readY = () => (usesMain ? (el as HTMLElement).scrollTop : window.scrollY);
     const onScroll = () => {
       if (!scrollRestoredRef.current) return;
       if (raf) return;
       raf = window.setTimeout(() => {
         raf = 0;
-        const y = Math.round(el.scrollTop);
+        const y = Math.round(readY());
         if (Math.abs(y - lastWritten) < 40) return;
         lastWritten = y;
         navigate({
@@ -571,9 +573,9 @@ function ProfilePage() {
         });
       }, 200) as unknown as number;
     };
-    el.addEventListener("scroll", onScroll, { passive: true });
+    target.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
     return () => {
-      el.removeEventListener("scroll", onScroll);
+      target.removeEventListener("scroll", onScroll as EventListener);
       if (raf) window.clearTimeout(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
