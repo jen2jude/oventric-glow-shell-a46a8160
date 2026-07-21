@@ -373,8 +373,15 @@ function ProfilePage() {
 
 
 
-  const mainRef = useRef<HTMLElement | null>(null);
-  const scrollRestoredRef = useRef(false);
+  const {
+    containerRef: mainRef,
+    getScrollY,
+    setScrollY,
+    pinAcrossChange,
+    restore: restoreScroll,
+    isRestored,
+    markRestored,
+  } = useScrollRestoration(tab);
 
   // Fetch a specific page (1-indexed). Returns the fetched response.
   const fetchOne = useCallback(
