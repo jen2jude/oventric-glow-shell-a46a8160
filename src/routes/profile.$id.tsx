@@ -431,21 +431,22 @@ function ProfilePage() {
     }
   }, [tab, tabData, fetchOne, navigate, id, q, sort]);
 
-  // Change tabs — resets pagination and scroll in the URL.
+  // Change tabs — preserve current scroll position, don't jump to top.
   const changeTab = useCallback(
     (next: Tab) => {
       if (next === tab) return;
       scrollRestoredRef.current = true; // no restore for a fresh tab
+      const currentY = mainRef.current?.scrollTop ?? 0;
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab: next, pages: 1, y: 0 },
+        search: { tab: next, pages: 1, y: currentY },
         replace: true,
       });
-      if (mainRef.current) mainRef.current.scrollTop = 0;
     },
     [tab, navigate, id],
   );
+
 
   // Retry a failed tab: clear its cache so the load effect refetches up to
   // the current desiredPages (preserving pagination). Also reset scroll.
