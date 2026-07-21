@@ -1143,7 +1143,7 @@ function ProfilePage() {
               {(
                 [
                   ["posts", "Posts"],
-                  ["groups", "Groups"],
+                  ["groups", "Circles"],
                   ["marketplace", "Marketplace"],
                   ["posted", "Bounties Posted"],
                   ["solved", "Bounties Solved"],
