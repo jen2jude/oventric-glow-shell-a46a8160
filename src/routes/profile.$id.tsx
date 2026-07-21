@@ -1408,8 +1408,12 @@ function ProfilePage() {
                               className="bg-[#1E1E24] border border-emerald-500/40 rounded-2xl p-4 sm:p-5"
                             >
                               <div className="flex items-start gap-3">
-                                <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                                  <Target className="w-5 h-5 text-emerald-300" />
+                                <div className="shrink-0 w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/30 overflow-hidden flex items-center justify-center">
+                                  {b.coverUrl ? (
+                                    <img src={b.coverUrl} alt={b.title} loading="lazy" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Target className="w-5 h-5 text-emerald-300" />
+                                  )}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold mb-1">
