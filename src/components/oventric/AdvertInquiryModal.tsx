@@ -9,8 +9,23 @@ import { submitAdInquiry } from "@/lib/ad-inquiries.functions";
 type Tier = "text" | "image" | "video";
 
 const CITIES: Record<string, string[]> = {
-  Nigeria: ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Benin City", "Enugu", "Uyo"],
-  Ghana: ["Accra", "Kumasi", "Takoradi", "Tamale", "Cape Coast"],
+  Nigeria: [
+    "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+    "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
+    "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
+    "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
+    "Taraba","Yobe","Zamfara",
+  ],
+  Ghana: [
+    "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
+    "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
+    "Western","Western North",
+  ],
+  "Rest of Africa": [
+    "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
+    "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
+    "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+  ],
 };
 
 const CTA_TYPES = [
@@ -19,7 +34,7 @@ const CTA_TYPES = [
   { id: "website", label: "Website / landing page" },
 ];
 
-const TIER_MIN_DAILY: Record<Tier, number> = { text: 3, image: 8, video: 20 };
+const TIER_MIN_DAILY: Record<Tier, number> = { text: 0.5, image: 0.79, video: 0.99 };
 
 export function AdvertInquiryModal({
   open, onClose, initialTier = "image",
@@ -318,7 +333,7 @@ export function AdvertInquiryModal({
               <>
                 <Label>Countries</Label>
                 <div className="flex flex-wrap gap-2">
-                  {["Nigeria", "Ghana", "Other (USD)"].map((c) => (
+                  {["Nigeria", "Ghana", "Rest of Africa"].map((c) => (
                     <button key={c} onClick={() => toggleFrom(countries, c, setCountries)} className={`px-3 py-1.5 rounded-full text-xs font-bold border ${countries.includes(c) ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 text-slate-300"}`}>
                       {c}
                     </button>
@@ -327,7 +342,7 @@ export function AdvertInquiryModal({
 
                 {availableCities.length > 0 && (
                   <>
-                    <Label>Cities (optional)</Label>
+                    <Label>States / regions (optional)</Label>
                     <div className="flex flex-wrap gap-2">
                       {availableCities.map(({ city }) => (
                         <button key={city} onClick={() => toggleFrom(cities, city, setCities)} className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${cities.includes(city) ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 text-slate-400"}`}>
@@ -349,7 +364,7 @@ export function AdvertInquiryModal({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div><Label>Duration (days)</Label><input type="number" min={1} max={90} className="input" value={duration} onChange={(e) => setDuration(Math.max(1, Number(e.target.value) || 1))} /></div>
-                  <div><Label>Daily budget (USD, min ${TIER_MIN_DAILY[tier]})</Label><input type="number" min={TIER_MIN_DAILY[tier]} className="input" value={dailyBudget} onChange={(e) => setDailyBudget(Math.max(TIER_MIN_DAILY[tier], Number(e.target.value) || 0))} /></div>
+                  <div><Label>Daily budget (USD, min ${TIER_MIN_DAILY[tier]})</Label><input type="number" step="0.01" min={TIER_MIN_DAILY[tier]} className="input" value={dailyBudget} onChange={(e) => setDailyBudget(Math.max(TIER_MIN_DAILY[tier], Number(e.target.value) || 0))} /></div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-100 font-bold flex items-center justify-between">

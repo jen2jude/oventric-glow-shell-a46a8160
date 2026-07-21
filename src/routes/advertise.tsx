@@ -1,19 +1,20 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { PublicChrome } from "@/components/oventric/PublicChrome";
 import { AdvertInquiryModal } from "@/components/oventric/AdvertInquiryModal";
 import {
   Megaphone, Image as ImageIcon, Video, Sparkles, MapPin,
   Users, BarChart3, Target as TargetIcon, ShieldCheck, Rocket, ChevronRight, CheckCircle2,
+  Activity, Eye, MousePointerClick, TrendingUp, Radio, Cpu, Layers,
 } from "lucide-react";
 
 export const Route = createFileRoute("/advertise")({
   head: () => ({
     meta: [
       { title: "Advertise on Oventric — Reach builders across Africa" },
-      { name: "description", content: "Text, image, and video ad tiers on Oventric. Target cities in Nigeria, Ghana, and beyond. Transparent pricing, wallet-funded budgets, admin-managed campaigns." },
+      { name: "description", content: "Text, image, and video ad tiers from $0.50/day. Target every state in Nigeria, every region in Ghana, and the rest of Africa." },
       { property: "og:title", content: "Advertise on Oventric" },
-      { property: "og:description", content: "Reach thousands of builders, sellers, and learners across Africa with text, image, or video ads." },
+      { property: "og:description", content: "Text $0.50/day, Image $0.79/day, Video $0.99/day. City & state level targeting across Africa." },
     ],
   }),
   component: AdvertisePage,
@@ -25,7 +26,7 @@ const TIERS = [
     icon: Megaphone,
     name: "Text",
     tagline: "Lightest & cheapest",
-    price: "$3",
+    price: "$0.50",
     per: "/day min",
     color: "from-slate-500/20 to-slate-500/5",
     ring: "border-slate-500/40",
@@ -40,7 +41,7 @@ const TIERS = [
     icon: ImageIcon,
     name: "Image",
     tagline: "Most popular",
-    price: "$8",
+    price: "$0.79",
     per: "/day min",
     color: "from-emerald-500/25 to-emerald-500/5",
     ring: "border-emerald-500/60",
@@ -56,7 +57,7 @@ const TIERS = [
     icon: Video,
     name: "Video",
     tagline: "Highest impact",
-    price: "$20",
+    price: "$0.99",
     per: "/day min",
     color: "from-purple-500/25 to-purple-500/5",
     ring: "border-purple-500/40",
@@ -68,19 +69,213 @@ const TIERS = [
   },
 ];
 
+const NG_STATES = [
+  "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+  "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
+  "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
+  "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
+  "Taraba","Yobe","Zamfara",
+];
+
+const GH_REGIONS = [
+  "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
+  "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
+  "Western","Western North",
+];
+
+const REST_OF_AFRICA = [
+  "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
+  "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
+  "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+];
+
 const COVERAGE = [
-  { country: "🇳🇬 Nigeria", cities: ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Benin City", "Enugu", "Uyo"] },
-  { country: "🇬🇭 Ghana", cities: ["Accra", "Kumasi", "Takoradi", "Tamale", "Cape Coast"] },
-  { country: "🌍 Rest of the world", cities: ["USD-priced campaigns available on request"] },
+  { country: "🇳🇬 Nigeria — all 36 states + FCT", cities: NG_STATES },
+  { country: "🇬🇭 Ghana — all 16 regions", cities: GH_REGIONS },
+  { country: "🌍 Rest of Africa (USD)", cities: REST_OF_AFRICA },
 ];
 
 const STEPS = [
   { icon: Rocket, title: "Pick a tier", body: "Text, image, or video — you choose the level of impact." },
   { icon: ImageIcon, title: "Send your creative", body: "Upload copy, images, and video specs through our secure form." },
-  { icon: TargetIcon, title: "Target audience", body: "Choose countries, cities, duration and daily budget." },
+  { icon: TargetIcon, title: "Target audience", body: "Choose countries, states/regions, duration and daily budget." },
   { icon: ShieldCheck, title: "Admin reviews", body: "Our team contacts you to finalise creative, pricing and go-live date." },
   { icon: BarChart3, title: "Fund & launch", body: "Fund your wallet with the exact campaign total. Ad goes live on approval." },
 ];
+
+/* ---------------- Live-looking Ads Dashboard preview ---------------- */
+
+const ALGO_LINES = [
+  "▸ scoring 12,481 candidates for placement=feed",
+  "▸ geo-match: NG · Lagos → boost ×1.4",
+  "▸ tier=image · CPM $0.79 · pacing OK",
+  "▸ freq-cap: 3/user/day · fresh impression ✓",
+  "▸ ranker: relevance 0.87 · budget-left 92%",
+  "▸ serving creative #2 (carousel · 1080²)",
+  "▸ event: impression · session s_9be2",
+  "▸ ranker: relevance 0.91 · pacing accel",
+  "▸ geo-match: GH · Accra → boost ×1.2",
+  "▸ tier=video · CPM $0.99 · autoplay ready",
+  "▸ event: click · placement=marketplace",
+  "▸ retarget bucket: r_hot · size 3,412",
+  "▸ delivery smoothing: 84 imp/min",
+  "▸ safe-brand filter: pass ✓",
+  "▸ event: lead · form=email+whatsapp",
+];
+
+function useTicker() {
+  const [t, setT] = useState({ imp: 12480, clk: 318, ld: 41, spend: 47.2 });
+  useEffect(() => {
+    const id = setInterval(() => {
+      setT((p) => ({
+        imp: p.imp + Math.floor(20 + Math.random() * 55),
+        clk: p.clk + (Math.random() > 0.55 ? 1 : 0),
+        ld: p.ld + (Math.random() > 0.9 ? 1 : 0),
+        spend: +(p.spend + 0.12 + Math.random() * 0.28).toFixed(2),
+      }));
+    }, 1400);
+    return () => clearInterval(id);
+  }, []);
+  return t;
+}
+
+function useAlgoFeed() {
+  const [rows, setRows] = useState<string[]>(ALGO_LINES.slice(0, 6));
+  useEffect(() => {
+    const id = setInterval(() => {
+      setRows((r) => {
+        const next = ALGO_LINES[Math.floor(Math.random() * ALGO_LINES.length)];
+        return [next, ...r].slice(0, 8);
+      });
+    }, 1100);
+    return () => clearInterval(id);
+  }, []);
+  return rows;
+}
+
+function LiveDashboardPreview() {
+  const t = useTicker();
+  const rows = useAlgoFeed();
+  const ctr = t.imp ? ((t.clk / t.imp) * 100).toFixed(2) : "0";
+  const cpm = t.imp ? ((t.spend / t.imp) * 1000).toFixed(2) : "0";
+
+  const stats = [
+    { icon: Eye, label: "Impressions", value: t.imp.toLocaleString(), tint: "text-sky-300", ring: "border-sky-500/30" },
+    { icon: MousePointerClick, label: "Clicks", value: t.clk.toLocaleString(), tint: "text-emerald-300", ring: "border-emerald-500/30" },
+    { icon: Users, label: "Leads", value: t.ld.toString(), tint: "text-fuchsia-300", ring: "border-fuchsia-500/30" },
+    { icon: TrendingUp, label: "Spend", value: `$${t.spend.toFixed(2)}`, tint: "text-amber-300", ring: "border-amber-500/30" },
+  ];
+
+  return (
+    <section className="mt-14">
+      <div className="text-center mb-6">
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
+          <Activity className="w-3.5 h-3.5" /> Live dashboard preview
+        </span>
+        <h2 className="mt-3 text-2xl md:text-3xl font-black text-white">See the algorithm work in real time</h2>
+        <p className="text-sm text-slate-400 mt-2 max-w-2xl mx-auto">
+          A peek at the ranker that powers your ads — targeting, pacing, frequency capping and event tracking, all running live.
+        </p>
+      </div>
+
+      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(16,185,129,0.06)]">
+        {/* fake window chrome */}
+        <div className="flex items-center gap-2 px-4 h-9 border-b border-white/10 bg-[#141418]">
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
+          <div className="ml-3 text-[11px] text-slate-500 font-mono">ads.oventric.com/live</div>
+          <div className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE
+          </div>
+        </div>
+
+        <div className="grid md:grid-cols-3 gap-4 p-4">
+          {/* KPIs + funnel */}
+          <div className="md:col-span-2 space-y-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+              {stats.map((s) => (
+                <div key={s.label} className={`p-3 rounded-xl bg-[#141418] border ${s.ring}`}>
+                  <div className="flex items-center justify-between">
+                    <s.icon className={`w-4 h-4 ${s.tint}`} />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  </div>
+                  <div className={`mt-2 text-xl font-black ${s.tint} tabular-nums`}>{s.value}</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+                </div>
+              ))}
+            </div>
+
+            {/* funnel bars */}
+            <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                <Layers className="w-4 h-4 text-emerald-400" /> Delivery funnel
+                <span className="ml-auto text-[10px] text-slate-500">CTR {ctr}% · CPM ${cpm}</span>
+              </div>
+              <div className="mt-3 space-y-2">
+                {[
+                  { k: "Auction eligible", v: 100, c: "bg-sky-500/70" },
+                  { k: "Passed targeting", v: 74, c: "bg-emerald-500/70" },
+                  { k: "Frequency-safe", v: 58, c: "bg-fuchsia-500/70" },
+                  { k: "Served (impressions)", v: 46, c: "bg-amber-400/80" },
+                  { k: "Engaged (clicks)", v: 12, c: "bg-white/60" },
+                ].map((r) => (
+                  <div key={r.k}>
+                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                      <span>{r.k}</span><span className="tabular-nums">{r.v}%</span>
+                    </div>
+                    <div className="mt-1 h-2 rounded-full bg-white/5 overflow-hidden">
+                      <div className={`h-full ${r.c} transition-all duration-700`} style={{ width: `${r.v}%` }} />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Sparkline placeholder */}
+            <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+                <Radio className="w-4 h-4 text-emerald-400" /> Impressions / minute
+                <span className="ml-auto text-[10px] text-emerald-300">+{Math.floor(60 + Math.random() * 40)} last min</span>
+              </div>
+              <svg viewBox="0 0 400 80" className="w-full h-20 mt-3">
+                <defs>
+                  <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0%" stopColor="rgb(16,185,129)" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="rgb(16,185,129)" stopOpacity="0" />
+                  </linearGradient>
+                </defs>
+                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8 L400,80 L0,80 Z" fill="url(#g1)" />
+                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(16,185,129)" strokeWidth="2" />
+              </svg>
+            </div>
+          </div>
+
+          {/* Algorithm log */}
+          <div className="p-4 rounded-xl bg-black/50 border border-emerald-500/20 font-mono text-[11px] leading-relaxed text-emerald-200 min-h-[280px]">
+            <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold not-italic mb-2">
+              <Cpu className="w-4 h-4" /> ranker.log
+              <span className="ml-auto inline-flex items-center gap-1 text-[10px]">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> streaming
+              </span>
+            </div>
+            <div className="space-y-1">
+              {rows.map((r, i) => (
+                <div key={`${r}-${i}`} className={i === 0 ? "text-emerald-300" : "text-emerald-200/70"}>
+                  <span className="text-slate-500">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>{" "}
+                  {r}
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+      <p className="text-[11px] text-slate-500 text-center mt-3">
+        Illustrative preview. Your Ads Manager shows your campaign's real numbers once live.
+      </p>
+    </section>
+  );
+}
 
 function AdvertisePage() {
   const [open, setOpen] = useState(false);
@@ -104,8 +299,8 @@ function AdvertisePage() {
             Put your brand in front of<br className="hidden md:block" /> builders across Africa
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-slate-400">
-            Three simple ad tiers, transparent pricing, city-level targeting in Nigeria & Ghana,
-            wallet-funded budgets — no auctions, no surprises.
+            From <span className="text-emerald-300 font-bold">$0.50/day</span>. Three simple ad tiers, transparent pricing,
+            state-level targeting in Nigeria & Ghana plus the rest of Africa — wallet-funded budgets, no auctions.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -127,7 +322,7 @@ function AdvertisePage() {
         <section className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-3">
           {[
             { icon: Users, k: "10k+", v: "Active builders" },
-            { icon: MapPin, k: "20+", v: "Cities targeted" },
+            { icon: MapPin, k: "53+", v: "States & regions targeted" },
             { icon: BarChart3, k: "3", v: "Placements: Feed, Market, Academy" },
             { icon: ShieldCheck, k: "24h", v: "Avg admin review" },
           ].map((s) => (
@@ -181,21 +376,24 @@ function AdvertisePage() {
             ))}
           </div>
           <p className="text-[11px] text-slate-500 text-center mt-4">
-            Prices are indicative daily minimums. Total = daily budget × duration. Admin confirms final quote before you fund.
+            Prices are daily minimums. Total = daily budget × duration. Admin confirms final quote before you fund.
           </p>
         </section>
+
+        {/* Live dashboard */}
+        <LiveDashboardPreview />
 
         {/* Coverage */}
         <section className="mt-14">
           <div className="text-center mb-8">
             <h2 className="text-2xl md:text-3xl font-black text-white">Where your ads run</h2>
-            <p className="text-sm text-slate-400 mt-2">Target entire countries or drill down to specific cities.</p>
+            <p className="text-sm text-slate-400 mt-2">Every state in Nigeria, every region in Ghana, plus the rest of Africa.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {COVERAGE.map((c) => (
               <div key={c.country} className="p-5 rounded-2xl bg-[#141418] border border-white/10">
                 <div className="text-lg font-black text-white">{c.country}</div>
-                <div className="mt-3 flex flex-wrap gap-2">
+                <div className="mt-3 flex flex-wrap gap-2 max-h-64 overflow-y-auto pr-1">
                   {c.cities.map((city) => (
                     <span key={city} className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-[11px] font-semibold">
                       {city}
