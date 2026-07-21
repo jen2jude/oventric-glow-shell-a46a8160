@@ -1023,15 +1023,19 @@ html.light [style*="#1e1e24"] {
 }
 
 html.light .wallet-earnings-mobile,
-html.light .wallet-earnings-row,
-html.light .dashboard-overview-mobile-safe {
+html.light .wallet-earnings-row {
   background-color: var(--surface-1) !important;
   color: var(--strong-ink) !important;
   border-color: var(--hairline) !important;
 }
-html.light .wallet-earnings-row + .wallet-earnings-row,
-html.light .dashboard-overview-row + .dashboard-overview-row {
+html.light .wallet-earnings-row + .wallet-earnings-row {
   border-top-color: var(--hairline) !important;
+}
+html.light .dashboard-overview-mobile-safe > * {
+  background-color: var(--surface-1) !important;
+  background-image: none !important;
+  color: var(--strong-ink) !important;
+  border-color: var(--hairline) !important;
 }
 html.light .wallet-earnings-label { color: var(--muted-ink); }
 html.light .wallet-earnings-value { color: var(--strong-ink); }
