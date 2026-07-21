@@ -502,11 +502,14 @@ function ProfilePage() {
           last = await fetchOne(tab, p, false, { q, sort });
         }
         if (cancelled) return;
-        // Restore scroll after content is on the page.
+        // Restore scroll after content is on the page. Prefer the tab-switch
+        // target (in-page tab change) over the URL-derived restoreY.
         requestAnimationFrame(() => {
-          if (!scrollRestoredRef.current && mainRef.current && restoreY > 0) {
-            mainRef.current.scrollTop = restoreY;
+          if (!scrollRestoredRef.current) {
+            const target = tabSwitchYRef.current ?? restoreY;
+            if (target > 0) setScrollY(target);
           }
+          tabSwitchYRef.current = null;
           scrollRestoredRef.current = true;
         });
       } catch (e) {
