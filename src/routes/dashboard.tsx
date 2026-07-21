@@ -756,12 +756,12 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
         <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
         <PremiumStatCard icon={Download} tone="emerald" label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
         <PremiumStatCard icon={Clock} tone="amber" label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
-        <PremiumStatCard icon={MessageCircle} tone="sky" label="Sellers contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
+        <PremiumStatCard icon={MessageCircle} tone="sky" label="Contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
         <PremiumStatCard icon={Store} tone="fuchsia" label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
-        <PremiumStatCard icon={GraduationCap} tone="cyan" label="Enrolled courses" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
+        <PremiumStatCard icon={GraduationCap} tone="cyan" label="Enrolled" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
         <PremiumStatCard icon={CheckCircle2} tone="emerald" label="Completed" value={overview.courses.completed} onClick={() => onGoto("courses")} />
         <PremiumStatCard icon={Target} tone="violet" label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
-        <PremiumStatCard icon={Bell} tone="rose" label="Notifications" value={overview.unread.notifications} onClick={() => onGoto("social")} />
+        <PremiumStatCard icon={Bell} tone="rose" label="Alerts" value={overview.unread.notifications} onClick={() => onGoto("social")} />
       </div>
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
