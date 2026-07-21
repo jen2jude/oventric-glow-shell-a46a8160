@@ -514,7 +514,7 @@ function ProfilePage() {
 
   // Reset caches when navigating to a different profile.
   useEffect(() => {
-    scrollRestoredRef.current = false;
+    markRestored(false);
     setTabData({
       posts: { ...emptyTabState },
       groups: { ...emptyTabState },
