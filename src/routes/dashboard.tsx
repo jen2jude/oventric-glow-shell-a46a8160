@@ -379,9 +379,9 @@ function PremiumStatCard({
           <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] uppercase tracking-widest text-slate-400 font-bold truncate">{label}</div>
+          <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-tight line-clamp-2 min-h-[1.6em]">{label}</div>
           <div className={`mt-1 font-black ${t.num} ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
-          {sub ? <div className="mt-0.5 text-[11px] text-slate-400 truncate">{sub}</div> : null}
+          {sub ? <div className="mt-0.5 text-[11px] text-slate-400 leading-tight line-clamp-2">{sub}</div> : null}
         </div>
       </div>
     </button>
