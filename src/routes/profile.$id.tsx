@@ -441,24 +441,19 @@ function ProfilePage() {
   }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
   // Change tabs — preserve current scroll position, don't jump to top.
-  const tabSwitchYRef = useRef<number | null>(null);
   const changeTab = useCallback(
     (next: Tab) => {
       if (next === tab) return;
       const currentY = getScrollY();
-      tabSwitchYRef.current = currentY;
-      scrollRestoredRef.current = false;
+      pinAcrossChange(currentY);
       navigate({
         to: "/profile/$id",
         params: { id },
         search: { tab: next, pages: 1, y: currentY },
         replace: true,
       });
-      // Pin scroll across the navigation so nothing jumps to top.
-      requestAnimationFrame(() => setScrollY(currentY));
-      setTimeout(() => setScrollY(currentY), 0);
     },
-    [tab, navigate, id, getScrollY, setScrollY],
+    [tab, navigate, id, getScrollY, pinAcrossChange],
   );
 
 
@@ -466,7 +461,7 @@ function ProfilePage() {
   // the current desiredPages (preserving pagination). Also reset scroll.
   const retryTab = useCallback(
     (which: Tab) => {
-      scrollRestoredRef.current = true; // don't try to restore old scroll
+      markRestored(true); // don't try to restore old scroll
       setTabData((s) => ({ ...s, [which]: { ...emptyTabState } }));
       navigate({
         to: "/profile/$id",
