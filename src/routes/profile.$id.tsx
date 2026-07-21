@@ -1266,19 +1266,27 @@ function ProfilePage() {
                 }
                 if (initialLoading) return <TabSkeleton variant={tab} />;
                 if (isEmpty) {
-                  const empty = emptyContentFor(tab, profile.name, q, () => {
-                    navigate({
-                      to: "/profile/$id",
-                      params: { id },
-                      search: (prev: z.infer<typeof profileSearchSchema>) => ({
-                        ...prev,
-                        q: "",
-                        pages: 1,
-                        y: 0,
-                      }),
-                      replace: true,
-                    });
-                  });
+                  const empty = emptyContentFor(
+                    tab,
+                    profile.name,
+                    q,
+                    () => {
+                      navigate({
+                        to: "/profile/$id",
+                        params: { id },
+                        search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                          ...prev,
+                          q: "",
+                          pages: 1,
+                          y: 0,
+                        }),
+                        replace: true,
+                      });
+                    },
+                    () => {
+                      navigate({ to: "/", search: { section: "Circles" } as never });
+                    },
+                  );
                   return <EmptyState {...empty} />;
                 }
 
