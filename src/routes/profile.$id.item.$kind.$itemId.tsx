@@ -56,16 +56,19 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
   validateSearch: zodValidator(itemSearchSchema),
   loader: async ({ params }) => {
     if (!VALID_KINDS.includes(params.kind as ProfileItemKind)) throw notFound();
-    const { item } = await getLiveProfileItem({
-      data: {
-        idOrSlug: params.id,
-        kind: params.kind as ProfileItemKind,
-        itemId: params.itemId,
-      },
-    });
+    const [{ item }, realRes] = await Promise.all([
+      getLiveProfileItem({
+        data: {
+          idOrSlug: params.id,
+          kind: params.kind as ProfileItemKind,
+          itemId: params.itemId,
+        },
+      }),
+      getProfileByIdOrSlug({ data: { idOrSlug: params.id } }).catch(() => ({ profile: null as RealProfileView | null })),
+    ]);
 
     if (!item) throw notFound();
-    return { item, kind: params.kind as ProfileItemKind };
+    return { item, kind: params.kind as ProfileItemKind, realProfile: realRes.profile };
   },
   head: ({ params, loaderData }) => {
     const label = VALID_KINDS.includes(params.kind as ProfileItemKind)
