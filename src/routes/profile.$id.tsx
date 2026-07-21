@@ -54,6 +54,7 @@ import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
@@ -373,8 +374,15 @@ function ProfilePage() {
 
 
 
-  const mainRef = useRef<HTMLElement | null>(null);
-  const scrollRestoredRef = useRef(false);
+  const {
+    containerRef: mainRef,
+    getScrollY,
+    setScrollY,
+    pinAcrossChange,
+    restore: restoreScroll,
+    isRestored,
+    markRestored,
+  } = useScrollRestoration(tab);
 
   // Fetch a specific page (1-indexed). Returns the fetched response.
   const fetchOne = useCallback(
@@ -406,22 +414,8 @@ function ProfilePage() {
     [profile.id, fetchTab],
   );
 
+  // Scroll read/write is provided by useScrollRestoration above.
 
-  // Read/write scroll from whichever container is actually scrolling.
-  // On mobile <main> is not the scroll container (window scrolls); on md+ it is.
-  const getScrollY = useCallback(() => {
-    const el = mainRef.current;
-    if (el && el.scrollHeight > el.clientHeight + 1) return el.scrollTop;
-    return typeof window !== "undefined" ? window.scrollY : 0;
-  }, []);
-  const setScrollY = useCallback((y: number) => {
-    const el = mainRef.current;
-    if (el && el.scrollHeight > el.clientHeight + 1) {
-      el.scrollTop = y;
-    } else if (typeof window !== "undefined") {
-      window.scrollTo(0, y);
-    }
-  }, []);
 
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
@@ -448,24 +442,19 @@ function ProfilePage() {
   }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
   // Change tabs — preserve current scroll position, don't jump to top.
-  const tabSwitchYRef = useRef<number | null>(null);
   const changeTab = useCallback(
     (next: Tab) => {
       if (next === tab) return;
       const currentY = getScrollY();
-      tabSwitchYRef.current = currentY;
-      scrollRestoredRef.current = false;
+      pinAcrossChange(currentY);
       navigate({
         to: "/profile/$id",
         params: { id },
         search: { tab: next, pages: 1, y: currentY },
         replace: true,
       });
-      // Pin scroll across the navigation so nothing jumps to top.
-      requestAnimationFrame(() => setScrollY(currentY));
-      setTimeout(() => setScrollY(currentY), 0);
     },
-    [tab, navigate, id, getScrollY, setScrollY],
+    [tab, navigate, id, getScrollY, pinAcrossChange],
   );
 
 
@@ -473,7 +462,7 @@ function ProfilePage() {
   // the current desiredPages (preserving pagination). Also reset scroll.
   const retryTab = useCallback(
     (which: Tab) => {
-      scrollRestoredRef.current = true; // don't try to restore old scroll
+      markRestored(true); // don't try to restore old scroll
       setTabData((s) => ({ ...s, [which]: { ...emptyTabState } }));
       navigate({
         to: "/profile/$id",
@@ -505,12 +494,9 @@ function ProfilePage() {
         // Restore scroll after content is on the page. Prefer the tab-switch
         // target (in-page tab change) over the URL-derived restoreY.
         requestAnimationFrame(() => {
-          if (!scrollRestoredRef.current) {
-            const target = tabSwitchYRef.current ?? restoreY;
-            if (target > 0) setScrollY(target);
+          if (!isRestored()) {
+            restoreScroll(restoreY);
           }
-          tabSwitchYRef.current = null;
-          scrollRestoredRef.current = true;
         });
       } catch (e) {
         if (cancelled) return;
@@ -529,7 +515,7 @@ function ProfilePage() {
 
   // Reset caches when navigating to a different profile.
   useEffect(() => {
-    scrollRestoredRef.current = false;
+    markRestored(false);
     setTabData({
       posts: { ...emptyTabState },
       groups: { ...emptyTabState },
@@ -543,7 +529,7 @@ function ProfilePage() {
   // When search query or sort changes, invalidate the current tab so it
   // reloads with the new filters. Pagination in the URL is reset to 1.
   useEffect(() => {
-    scrollRestoredRef.current = true; // don't restore old scroll for a new query
+    markRestored(true); // don't restore old scroll for a new query
     setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, sort, tab]);
@@ -558,7 +544,7 @@ function ProfilePage() {
     let lastWritten = restoreY;
     const readY = () => (usesMain ? (el as HTMLElement).scrollTop : window.scrollY);
     const onScroll = () => {
-      if (!scrollRestoredRef.current) return;
+      if (!isRestored()) return;
       if (raf) return;
       raf = window.setTimeout(() => {
         raf = 0;
