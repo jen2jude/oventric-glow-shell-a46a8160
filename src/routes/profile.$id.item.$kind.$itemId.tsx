@@ -361,7 +361,7 @@ function ItemDetail() {
         }}
         className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 mb-4"
       >
-        <ArrowLeft className="w-3.5 h-3.5" /> Back to @{profile.name}
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to {displayName}
         <span className="text-slate-600">·</span>
         <span className="text-slate-500">{tabLabel}</span>
       </Link>
@@ -373,12 +373,16 @@ function ItemDetail() {
         params={{ id }}
         className="flex items-center gap-3 mb-4 group"
       >
-        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
-          {profile.initials}
-        </div>
+        {realProfile?.avatarUrl ? (
+          <img src={realProfile.avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover shrink-0" />
+        ) : (
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
+            {displayInitials}
+          </div>
+        )}
         <div className="min-w-0">
-          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">{profile.name}</div>
-          <div className="text-[11px] text-slate-500 truncate">{profile.role}</div>
+          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">{displayName}</div>
+          <div className="text-[11px] text-slate-500 truncate">{displayRole}</div>
         </div>
       </Link>
 
@@ -386,7 +390,7 @@ function ItemDetail() {
         {labelFor(kind as ProfileItemKind)}
       </div>
 
-      {kind === "post" && <PostView post={item as ProfilePost} authorName={profile.name} require={require} />}
+      {kind === "post" && <PostView post={item as ProfilePost} authorName={displayName} require={require} />}
       {kind === "group" && <GroupView group={item as ProfileGroup} require={require} />}
       {kind === "listing" && (
         <ListingView
