@@ -54,6 +54,7 @@ import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 const profileSearchSchema = z.object({
   tab: fallback(z.string(), "posts").default("posts"),
