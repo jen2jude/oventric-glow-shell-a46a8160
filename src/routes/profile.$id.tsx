@@ -493,12 +493,9 @@ function ProfilePage() {
         // Restore scroll after content is on the page. Prefer the tab-switch
         // target (in-page tab change) over the URL-derived restoreY.
         requestAnimationFrame(() => {
-          if (!scrollRestoredRef.current) {
-            const target = tabSwitchYRef.current ?? restoreY;
-            if (target > 0) setScrollY(target);
+          if (!isRestored()) {
+            restoreScroll(restoreY);
           }
-          tabSwitchYRef.current = null;
-          scrollRestoredRef.current = true;
         });
       } catch (e) {
         if (cancelled) return;
