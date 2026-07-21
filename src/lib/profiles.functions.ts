@@ -574,6 +574,21 @@ async function resolveUserId(
   return (data as { user_id?: string } | null)?.user_id ?? null;
 }
 
+async function signPaths(
+  supabase: any,
+  bucket: string,
+  paths: (string | null)[],
+): Promise<(string | null)[]> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  if (unique.length === 0) return paths.map(() => null);
+  const { data } = await supabase.storage.from(bucket).createSignedUrls(unique, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  for (const r of (data ?? []) as { path?: string; signedUrl?: string }[]) {
+    if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
+  }
+  return paths.map((p) => (p ? map.get(p) ?? null : null));
+}
+
 
 export const getLiveProfileTab = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => LiveTabInput.parse(input))
