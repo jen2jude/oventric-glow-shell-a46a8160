@@ -200,7 +200,7 @@
    and compositor-promotion hints. Applied app-wide under 768px so no
    individual screen has to remember the rules.
    ------------------------------------------------------------------------- */
-@media (max-width: 767px) {
+@media (max-width: 767px) { html:not(.high-gpu) {
   *,
   *::before,
   *::after {
