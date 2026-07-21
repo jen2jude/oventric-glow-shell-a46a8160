@@ -633,7 +633,7 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
     if (data.tab === "marketplace") {
       let q = supabase
         .from("products")
-        .select("id, name, category, price_usd, created_at", { count: "exact" })
+        .select("id, name, category, price_usd, created_at, cover_path, image_paths", { count: "exact" })
         .eq("seller_id", userId);
       if (data.q) q = q.ilike("name", `%${data.q}%`);
       if (data.sort === "price_low") q = q.order("price_usd", { ascending: true });
@@ -652,12 +652,21 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       const salesMap = new Map<string, number>();
       for (const r of (salesRes.data ?? []) as { product_id: string }[])
         salesMap.set(r.product_id, (salesMap.get(r.product_id) ?? 0) + 1);
-      let items: ProfileListing[] = (rows ?? []).map((r) => ({
+
+      const coverPaths = (rows ?? []).map((r: any) => {
+        const cp = typeof r.cover_path === "string" && r.cover_path ? r.cover_path : null;
+        const imgs = Array.isArray(r.image_paths) ? (r.image_paths as unknown[]).filter((v): v is string => typeof v === "string") : [];
+        return cp ?? imgs[0] ?? null;
+      });
+      const coverUrls = await signPaths(supabase, "product-covers", coverPaths);
+
+      let items: ProfileListing[] = (rows ?? []).map((r, i) => ({
         id: r.id as string,
         title: (r.name as string) ?? "Untitled",
         category: (r.category as string) ?? "General",
         priceUsd: Number(r.price_usd ?? 0),
         sales: salesMap.get(r.id as string) ?? 0,
+        coverUrl: coverUrls[i],
       }));
       if (data.sort === "most_sold") items = [...items].sort((a, b) => b.sales - a.sales);
       const total = count ?? items.length;
@@ -667,7 +676,7 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
     if (data.tab === "posted") {
       let q = supabase
         .from("bounties")
-        .select("id, title, price_usd, applicant_limit, status, created_at", { count: "exact" })
+        .select("id, title, price_usd, applicant_limit, status, created_at, cover_path, image_paths", { count: "exact" })
         .eq("poster_id", userId)
         .neq("status", "solved");
       if (data.q) q = q.ilike("title", `%${data.q}%`);
@@ -675,12 +684,19 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       else if (data.sort === "lowest_bounty") q = q.order("price_usd", { ascending: true });
       else q = q.order("created_at", { ascending: false });
       const { data: rows, count } = await q.range(from, to);
-      const items: ProfileBounty[] = (rows ?? []).map((r: any) => ({
+      const coverPaths = (rows ?? []).map((r: any) => {
+        const cp = typeof r.cover_path === "string" && r.cover_path ? r.cover_path : null;
+        const imgs = Array.isArray(r.image_paths) ? (r.image_paths as unknown[]).filter((v): v is string => typeof v === "string") : [];
+        return cp ?? imgs[0] ?? null;
+      });
+      const coverUrls = await signPaths(supabase, "bounty-covers", coverPaths);
+      const items: ProfileBounty[] = (rows ?? []).map((r: any, i) => ({
         id: r.id as string,
         title: (r.title as string) ?? "Untitled",
         amountUsd: Number(r.price_usd ?? 0),
         applicants: Number(r.applicant_limit ?? 0),
         status: "open",
+        coverUrl: coverUrls[i],
       }));
       const total = count ?? items.length;
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
@@ -689,7 +705,7 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
     if (data.tab === "solved") {
       let q = supabase
         .from("bounties")
-        .select("id, title, price_usd, status, updated_at", { count: "exact" })
+        .select("id, title, price_usd, status, updated_at, cover_path, image_paths", { count: "exact" })
         .eq("poster_id", userId)
         .eq("status", "solved");
       if (data.q) q = q.ilike("title", `%${data.q}%`);
@@ -697,12 +713,19 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       else if (data.sort === "lowest_bounty") q = q.order("price_usd", { ascending: true });
       else q = q.order("updated_at", { ascending: false });
       const { data: rows, count } = await q.range(from, to);
-      const items: ProfileBounty[] = (rows ?? []).map((r: any) => ({
+      const coverPaths = (rows ?? []).map((r: any) => {
+        const cp = typeof r.cover_path === "string" && r.cover_path ? r.cover_path : null;
+        const imgs = Array.isArray(r.image_paths) ? (r.image_paths as unknown[]).filter((v): v is string => typeof v === "string") : [];
+        return cp ?? imgs[0] ?? null;
+      });
+      const coverUrls = await signPaths(supabase, "bounty-covers", coverPaths);
+      const items: ProfileBounty[] = (rows ?? []).map((r: any, i) => ({
         id: r.id as string,
         title: (r.title as string) ?? "Untitled",
         amountUsd: Number(r.price_usd ?? 0),
         proof: "Marked solved on Oventric.",
         status: "solved",
+        coverUrl: coverUrls[i],
       }));
       const total = count ?? items.length;
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
