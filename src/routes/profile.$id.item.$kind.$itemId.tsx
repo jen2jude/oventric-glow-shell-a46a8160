@@ -8,6 +8,9 @@ import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile } from "@/lib/profiles/mockProfiles";
+import { getProfileByIdOrSlug, type RealProfileView } from "@/lib/profiles.functions";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import { getLiveProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
