@@ -9,8 +9,23 @@ import { submitAdInquiry } from "@/lib/ad-inquiries.functions";
 type Tier = "text" | "image" | "video";
 
 const CITIES: Record<string, string[]> = {
-  Nigeria: ["Lagos", "Abuja", "Port Harcourt", "Ibadan", "Kano", "Benin City", "Enugu", "Uyo"],
-  Ghana: ["Accra", "Kumasi", "Takoradi", "Tamale", "Cape Coast"],
+  Nigeria: [
+    "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+    "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
+    "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
+    "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
+    "Taraba","Yobe","Zamfara",
+  ],
+  Ghana: [
+    "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
+    "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
+    "Western","Western North",
+  ],
+  "Rest of Africa": [
+    "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
+    "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
+    "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+  ],
 };
 
 const CTA_TYPES = [
@@ -19,7 +34,7 @@ const CTA_TYPES = [
   { id: "website", label: "Website / landing page" },
 ];
 
-const TIER_MIN_DAILY: Record<Tier, number> = { text: 3, image: 8, video: 20 };
+const TIER_MIN_DAILY: Record<Tier, number> = { text: 0.5, image: 0.79, video: 0.99 };
 
 export function AdvertInquiryModal({
   open, onClose, initialTier = "image",
