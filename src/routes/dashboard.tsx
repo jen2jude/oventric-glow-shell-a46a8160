@@ -750,18 +750,18 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const w = overview.wallet;
   return (
     <div className="space-y-5">
-      <div className="dashboard-overview-mobile-safe md:hidden" aria-label="Dashboard overview">
-        <MobileOverviewRow icon={WalletIcon} label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} onClick={() => onGoto("wallet")} />
-        <MobileOverviewRow icon={Trophy} label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} onClick={() => onGoto("bounties")} />
-        <MobileOverviewRow icon={Users} label="Network" value={overview.social.followers} onClick={() => onGoto("social")} />
-        <MobileOverviewRow icon={Download} label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
-        <MobileOverviewRow icon={Clock} label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
-        <MobileOverviewRow icon={MessageCircle} label="Sellers contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
-        <MobileOverviewRow icon={Store} label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
-        <MobileOverviewRow icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
-        <MobileOverviewRow icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} onClick={() => onGoto("courses")} />
-        <MobileOverviewRow icon={Target} label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
-        <MobileOverviewRow icon={Bell} label="Unread notifications" value={overview.unread.notifications} onClick={() => onGoto("social")} />
+      <div className="dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden" aria-label="Dashboard overview">
+        <PremiumStatCard hero icon={WalletIcon} tone="emerald" label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} sub={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"} onClick={() => onGoto("wallet")} />
+        <PremiumStatCard icon={Trophy} tone="amber" label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} sub={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`} onClick={() => onGoto("bounties")} />
+        <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
+        <PremiumStatCard icon={Download} tone="emerald" label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
+        <PremiumStatCard icon={Clock} tone="amber" label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
+        <PremiumStatCard icon={MessageCircle} tone="sky" label="Sellers contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
+        <PremiumStatCard icon={Store} tone="fuchsia" label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
+        <PremiumStatCard icon={GraduationCap} tone="cyan" label="Enrolled courses" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
+        <PremiumStatCard icon={CheckCircle2} tone="emerald" label="Completed" value={overview.courses.completed} onClick={() => onGoto("courses")} />
+        <PremiumStatCard icon={Target} tone="violet" label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
+        <PremiumStatCard icon={Bell} tone="rose" label="Notifications" value={overview.unread.notifications} onClick={() => onGoto("social")} />
       </div>
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
