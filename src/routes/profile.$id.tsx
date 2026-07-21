@@ -407,6 +407,22 @@ function ProfilePage() {
   );
 
 
+  // Read/write scroll from whichever container is actually scrolling.
+  // On mobile <main> is not the scroll container (window scrolls); on md+ it is.
+  const getScrollY = useCallback(() => {
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) return el.scrollTop;
+    return typeof window !== "undefined" ? window.scrollY : 0;
+  }, []);
+  const setScrollY = useCallback((y: number) => {
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) {
+      el.scrollTop = y;
+    } else if (typeof window !== "undefined") {
+      window.scrollTo(0, y);
+    }
+  }, []);
+
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
     const current = tabData[tab];
@@ -415,7 +431,7 @@ function ProfilePage() {
     const nextPage = (current.page || 0) + 1;
     try {
       await fetchOne(tab, nextPage, false, { q, sort });
-      const y = mainRef.current?.scrollTop ?? 0;
+      const y = getScrollY();
       navigate({
         to: "/profile/$id",
         params: { id },
@@ -429,22 +445,27 @@ function ProfilePage() {
         [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
       }));
     }
-  }, [tab, tabData, fetchOne, navigate, id, q, sort]);
+  }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
   // Change tabs — preserve current scroll position, don't jump to top.
+  const tabSwitchYRef = useRef<number | null>(null);
   const changeTab = useCallback(
     (next: Tab) => {
       if (next === tab) return;
-      scrollRestoredRef.current = true; // no restore for a fresh tab
-      const currentY = mainRef.current?.scrollTop ?? 0;
+      const currentY = getScrollY();
+      tabSwitchYRef.current = currentY;
+      scrollRestoredRef.current = false;
       navigate({
         to: "/profile/$id",
         params: { id },
         search: { tab: next, pages: 1, y: currentY },
         replace: true,
       });
+      // Pin scroll across the navigation so nothing jumps to top.
+      requestAnimationFrame(() => setScrollY(currentY));
+      setTimeout(() => setScrollY(currentY), 0);
     },
-    [tab, navigate, id],
+    [tab, navigate, id, getScrollY, setScrollY],
   );
 
 
@@ -481,11 +502,14 @@ function ProfilePage() {
           last = await fetchOne(tab, p, false, { q, sort });
         }
         if (cancelled) return;
-        // Restore scroll after content is on the page.
+        // Restore scroll after content is on the page. Prefer the tab-switch
+        // target (in-page tab change) over the URL-derived restoreY.
         requestAnimationFrame(() => {
-          if (!scrollRestoredRef.current && mainRef.current && restoreY > 0) {
-            mainRef.current.scrollTop = restoreY;
+          if (!scrollRestoredRef.current) {
+            const target = tabSwitchYRef.current ?? restoreY;
+            if (target > 0) setScrollY(target);
           }
+          tabSwitchYRef.current = null;
           scrollRestoredRef.current = true;
         });
       } catch (e) {
@@ -528,15 +552,17 @@ function ProfilePage() {
   // Persist scroll position into the URL (throttled) so reloads restore it.
   useEffect(() => {
     const el = mainRef.current;
-    if (!el) return;
+    const usesMain = !!(el && el.scrollHeight > el.clientHeight + 1);
+    const target: HTMLElement | Window = usesMain ? (el as HTMLElement) : window;
     let raf = 0;
     let lastWritten = restoreY;
+    const readY = () => (usesMain ? (el as HTMLElement).scrollTop : window.scrollY);
     const onScroll = () => {
       if (!scrollRestoredRef.current) return;
       if (raf) return;
       raf = window.setTimeout(() => {
         raf = 0;
-        const y = Math.round(el.scrollTop);
+        const y = Math.round(readY());
         if (Math.abs(y - lastWritten) < 40) return;
         lastWritten = y;
         navigate({
@@ -547,9 +573,9 @@ function ProfilePage() {
         });
       }, 200) as unknown as number;
     };
-    el.addEventListener("scroll", onScroll, { passive: true });
+    target.addEventListener("scroll", onScroll, { passive: true } as AddEventListenerOptions);
     return () => {
-      el.removeEventListener("scroll", onScroll);
+      target.removeEventListener("scroll", onScroll as EventListener);
       if (raf) window.clearTimeout(raf);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
