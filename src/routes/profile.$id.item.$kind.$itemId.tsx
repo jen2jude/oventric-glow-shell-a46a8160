@@ -325,8 +325,20 @@ function Shell({ children }: { children: React.ReactNode }) {
 function ItemDetail() {
   const { id, kind } = Route.useParams();
   const backSearch = Route.useSearch();
-  const { item } = Route.useLoaderData();
-  const profile = getProfile(id);
+  const { item, realProfile } = Route.useLoaderData();
+  const mock = getProfile(id);
+  const isUuidId = UUID_RE.test(id);
+  const displayName = realProfile?.displayName || (isUuidId ? "Member" : mock.name);
+  const displayRole = realProfile
+    ? (realProfile.username ? `@${realProfile.username}` : "Member")
+    : isUuidId ? "" : mock.role;
+  const displayInitials = (() => {
+    const source = realProfile?.displayName || (isUuidId ? "" : mock.name);
+    const parts = source.trim().split(/\s+/).slice(0, 2);
+    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+    return s || (isUuidId ? "··" : mock.initials);
+  })();
+  const profile = mock;
   const { baseCurrency, require } = useOnboarding();
 
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
