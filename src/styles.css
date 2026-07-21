@@ -138,7 +138,7 @@
   .rgb-neon-bg { animation: none; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) { html:not(.high-gpu) {
   .profile-render-safe,
   .profile-render-safe * {
     animation: none !important;
@@ -191,7 +191,7 @@
     display: block !important;
     background-color: transparent !important;
   }
-}
+} }
 
 /* -------------------------------------------------------------------------
    Global mobile GPU-safety pass (Chrome Android + certain Mali/PowerVR GPUs)
@@ -200,7 +200,7 @@
    and compositor-promotion hints. Applied app-wide under 768px so no
    individual screen has to remember the rules.
    ------------------------------------------------------------------------- */
-@media (max-width: 767px) {
+@media (max-width: 767px) { html:not(.high-gpu) {
   *,
   *::before,
   *::after {
@@ -261,7 +261,7 @@
     -webkit-filter: none !important;
     animation: none !important;
   }
-}
+} }
 
 /* Dashboard GPU-safety on mobile only. Chromium-Android raster corruption
    reproduces on the overview grid; desktop renders cleanly. Same recipe as
@@ -1060,5 +1060,23 @@ html.light [class*="bg-white\\/"] {
 html.light [class*="border-white/"],
 html.light [class*="border-white\\/"] {
   border-color: var(--hairline) !important;
+}
+
+/* =============================================================
+   High-GPU tier — restore premium animated presentation.
+   These rules only apply when the pre-paint detector marked
+   the device as capable (html.high-gpu). Safe/low tiers keep
+   the flat static defaults.
+   ============================================================= */
+html.high-gpu .rgb-static-border,
+html.high-gpu .rgb-static-border-wrapper {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 4s linear infinite;
+}
+html.high-gpu .rgb-promo-border {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 5s linear infinite;
 }
 

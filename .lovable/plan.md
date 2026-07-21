@@ -1,149 +1,86 @@
+# Tier-Based UI Rollback (High-GPU Premium / Low-GPU Safe)
 
-# Campaigns Dashboard — Meta-Ads style (Admin-only, v1)
+Restore the original animated / rich UI on capable devices while keeping the current flat, safe UI as the default and fallback for weak GPUs. Detection extends the existing `html.low-gpu` boot script in `src/routes/__root.tsx`, with a comprehensive allow/deny list built from your paste.
 
-Build a robust admin-only campaign system with 3 creative tiers, wallet-funded daily budgets, NG/GH city targeting, and full delivery tracking. Self-serve advertiser onboarding stays off for now; hooks are left in place for phase 2.
+## Detection Strategy (in `src/routes/__root.tsx` boot script)
 
-## 1. Data model (new / extended tables)
+Enhance the pre-paint detection so it emits three signals on `<html>`:
+- `html.low-gpu` (existing) — safe UI
+- `html.high-gpu` (new) — premium UI opt-in
+- neither → **default safe** (per your choice for uncertain cases)
 
-```text
-ad_campaigns  (extend existing)
-  id, advertiser_name, advertiser_email, advertiser_whatsapp
-  tier: 'text' | 'image' | 'video'
-  status: 'draft' | 'pending_review' | 'active' | 'paused' | 'ended' | 'rejected'
-  header, description, body
-  cta_type: 'whatsapp' | 'lead_form' | 'url'
-  cta_label, cta_url, cta_whatsapp, cta_lead_email
-  placements text[]  -- feed | marketplace | academy | bounties
-  countries text[]   -- ['NG','GH','US',...]
-  cities text[]      -- ['Lagos','Abuja','Accra',...]
-  daily_budget_usd numeric
-  total_budget_usd numeric
-  spent_usd numeric default 0
-  start_at, end_at timestamptz
-  priority int default 0        -- admin promote / boost
-  created_by uuid, created_at, updated_at
+Order of checks (first match wins):
 
-ad_creatives            -- 1:N (carousel + video assets)
-  id, campaign_id, kind: 'image'|'video'
-  path, mime, width, height, duration_s, sort_order
+1. **Manual override** — `localStorage['oventric:gpu-mode']` = `high` | `low` | unset.
+2. **prefers-reduced-motion** → low.
+3. **High-end allow-list** (from your paste) — matched against WebGL `UNMASKED_RENDERER_WEBGL` and `navigator.userAgentData` model, e.g.:
+   - Adreno 830 / 750 / 740 / 730 / 660 / 650 / 640 / 630
+   - Apple A18/A17/A16/A15/A14/A13/A12 GPU
+   - Mali-G925 / G720 / Immortalis-G925 / G715 / G710 / G78 (MP14+)
+   - Xclipse 920 / 940
+   → mark `high-gpu`.
+4. **Low-end deny-list** (your medium/low list) — Adreno 512/510/509/508/506/505/504/430/420/418/410/405/308/306, Mali-G72 MP3, G71 MP1/MP2, G52 MP1/MP2, G51, T-series, PowerVR G6xxx / GE8xxx / GX6450, plus Infinix / TECNO / itel / Note 11i UA hints, and hardware fallbacks (deviceMemory ≤ 4 or hardwareConcurrency ≤ 4 on mobile) → mark `low-gpu`.
+5. **Default** → no class → safe UI (matches your "safe default when uncertain" choice).
 
-ad_targets_cities       -- reference table
-  country_code, city, region, active
-  (seeded with NG + GH majors; admin manages more)
+Also set `data-gpu-tier` and `data-gpu-reason` for debugging.
 
-ad_events               -- append-only impression/click log
-  id, campaign_id, kind: 'impression'|'click'|'lead'
-  user_id nullable, session_id, placement, country, city
-  cost_usd numeric, occurred_at
+## CSS Tiering (in `src/styles.css`)
 
-ad_leads                -- lead-form submissions
-  id, campaign_id, name, email, phone, message, meta jsonb, created_at
-  digest_sent_at nullable
+Introduce tier-gated variants so components stay one file:
 
-ad_daily_spend          -- per campaign per day, for budget guard
-  campaign_id, day date, spent_usd, impressions, clicks
-  primary key (campaign_id, day)
+```
+.rgb-animated-border { /* full animated RGB gradient border */ }
+html:not(.high-gpu) .rgb-animated-border { /* falls back to .rgb-static-border look */ }
 ```
 
-RLS: admin-only writes everywhere. Public `SELECT` on active `ad_campaigns` restricted via SECURITY DEFINER `list_serving_ads(placement, country, city)` that returns only currently-serving campaigns + their creatives. Lead inserts allowed for anon via a SECURITY DEFINER `submit_ad_lead(...)`.
+Same pattern for: animated neon backgrounds, backdrop-filter blur, heavy box-shadow glows, gradient conic animations, `filter: blur()` overlays. Everything defaults to the flat safe styles; `.high-gpu` selectors re-enable the premium look.
 
-Storage: new private bucket `ad-media` (100 MB max, video ≤ 5 min, image ≤ 5 MB, up to 10 images for carousel). Server validates size + duration server-side after upload.
+## Component Restorations (high-GPU only)
 
-## 2. Billing — wallet-funded daily budget
+Gate the original premium presentation behind `html.high-gpu` — components don't branch in JS, just swap class names.
 
-- Advertiser is a real user with a Sovereign Wallet. Admin selects the advertiser (or creates a "house" advertiser profile) when creating the campaign.
-- On **campaign activation**: lock `total_budget_usd` from wallet available → escrow (new `wallet_transactions` type `Campaign Escrow`).
-- **Daily debit cron** (pg_cron, hourly): for each active campaign, credit platform system wallet with that day's `spent_usd` up to `daily_budget_usd`; when total spend hits `total_budget_usd` or `end_at` passes → status `ended`, refund remaining escrow.
-- **Impression pricing** flat per-tier (admin-editable in `platform_settings`):
-  - text: $0.0005/imp
-  - image: $0.002/imp
-  - video: $0.006/imp
-  - click multiplier ×5 on top
-- Daily budget is a hard cap: `list_serving_ads` filters out campaigns whose today-spend ≥ daily budget.
+1. **Mobile `+` button** — `MobileNav.tsx`
+   - High: original animated `rgb-spectrum-shift` rotating gradient ring.
+   - Low: current 2px `rgb-static-border`.
 
-## 3. Server functions (`src/lib/campaigns.functions.ts`)
+2. **Profile avatar rings** — `AvatarImage.tsx`, `ProfileDropdown.tsx`, profile header
+   - High: animated RGB ring around profile pic.
+   - Low: current neutral 1px outline.
 
-Admin-only (via `requireSupabaseAuth` + `has_role admin`):
-- `listCampaigns(filter)` — table with KPIs (spend, impressions, CTR, leads).
-- `getCampaign(id)` — full detail incl. creatives, daily spend series, recent events, leads.
-- `upsertCampaign(input)` — validates tier ↔ required fields with zod.
-- `activateCampaign(id)` — locks wallet, moves to `active`.
-- `pauseCampaign(id)` / `endCampaign(id)` — refunds unspent escrow.
-- `addCreative(campaignId, path, kind, meta)` / `removeCreative(id)`.
-- `listCities(country)` / `upsertCity(...)` / `deleteCity(...)`.
-- `campaignAnalytics(id, range)` — impressions/clicks/leads/spend by day.
-- `exportLeadsCsv(campaignId)`.
+3. **Sovereign Wallet** — `src/components/oventric/Wallet.tsx`
+   - High: restore original layered cards, gradient hero, subtle blur, animated balance chip.
+   - Low: current flat rows preserved verbatim.
 
-Public (via `/api/public/*` server routes, no auth):
-- `POST /api/public/ads/impression` — batches impression events (client sends beacon).
-- `POST /api/public/ads/click` — logs click + redirects.
-- `POST /api/public/ads/lead` — validates + writes `ad_leads`.
-- `GET  /api/public/ads/serve?placement=&country=&city=` — returns weighted campaign + creatives (already used indirectly by SSR; browser can also call for hydration).
+4. **Dashboard overview** — `src/routes/dashboard.tsx`
+   - High: restore original KPI cards with gradients / shadows / hover glow.
+   - Low: current lightweight flat layout preserved.
 
-## 4. Delivery — client side
+5. **Public profile stats block** — `src/routes/profile.$id.tsx`
+   - High: restore original horizontal card row (Star rating, Bounties solved, Product rating, Listings, Posts) with icons + gradient tiles.
+   - Low: current single-column `MobileRepLine` list preserved.
 
-- New `src/lib/ads/useServingAds.ts` — fetches serving ads for a placement + user geo (from profile country/city, fallback IP inferred server-side).
-- New `src/components/oventric/ads/AdSlot.tsx` — renders correct tier variant, sends impression on view via `IntersectionObserver`, click routes through `/api/public/ads/click?c=<id>` with 302 to real destination.
-- Tier renderers:
-  - `AdTextCard.tsx` — header + description + body + CTA button.
-  - `AdImageCard.tsx` — 1:1 media (single or swipe carousel), header + description + CTA. Uses `ResponsiveImage`.
-  - `AdVideoCard.tsx` — header, description, body, `<video>` (poster + click-to-play, muted autoplay when in view, mute toggle), CTA under.
-- Feed / Marketplace / Academy already have ad hooks; swap the placeholder `AdCard` for new `AdSlot`.
+No behavior/data changes — pure presentation gating.
 
-## 5. Admin dashboard UI (`/admin/campaigns`)
+## Manual Override (unchanged, documented)
 
-Replace current minimal editor with a Meta-Ads-style workspace:
-
-```text
-┌──────────────────────────────────────────────────────────────┐
-│ KPI strip: Active | Today's spend | Impressions | CTR | Leads│
-├──────────┬───────────────────────────────────────────────────┤
-│ Filters  │ Campaigns table                                    │
-│ Tier     │  Name · Advertiser · Tier · Placements · Status    │
-│ Status   │  · Budget · Spend · Impr · CTR · Leads · Actions   │
-│ Country  │                                                    │
-│ Date     │  Row click → Detail drawer                         │
-└──────────┴───────────────────────────────────────────────────┘
+Users can force a tier from the browser console:
 ```
+localStorage.setItem('oventric:gpu-mode','high') // or 'low', then reload
+```
+Useful if the auto-detect misfires on a specific device.
 
-Actions per row: Edit, Activate, Pause, End, Duplicate, View leads, Delete.
+## Verification
 
-Detail drawer tabs:
-1. **Overview** — spend/impr/CTR/leads sparkline, daily bars.
-2. **Creative** — tier-specific editor with live preview beside it, media manager (upload/remove, reorder for carousel).
-3. **Targeting** — country multi-select (NG, GH, others), city chips per country (loaded from `ad_targets_cities`), placements checkboxes.
-4. **Budget & schedule** — daily budget, total budget, start/end, priority.
-5. **CTA** — radio for whatsapp/lead_form/url + fields, plus daily-digest email address for leads.
-6. **Leads** — table + CSV export.
-7. **Events** — recent impressions/clicks (debug/audit).
+- Add a small dev-only debug badge (behind `?gpuDebug=1`) that prints `data-gpu-tier` + `data-gpu-reason` so we can confirm detection on your real devices without shipping visible UI.
+- Extend existing Playwright mobile visual specs with a second pass forcing `oventric:gpu-mode=high` to snapshot both tiers for Feed / Marketplace / Profile / Wallet / Dashboard / MobileNav.
 
-Sibling admin page `/admin/campaigns/cities` — CRUD for the city dictionary. Seed with major cities:
-- NG: Lagos, Abuja, Kano, Ibadan, Port Harcourt, Benin City, Kaduna, Enugu, Warri, Uyo, Owerri, Jos, Ilorin, Abeokuta, Calabar.
-- GH: Accra, Kumasi, Takoradi, Tamale, Cape Coast, Sunyani, Ho, Koforidua, Tema.
-- Placeholder "Others (USD)" catch-all.
+## Out of Scope
 
-## 6. Lead digest email
+- No changes to data fetching, RLS, escrow, notifications, or any server functions.
+- No new dependencies.
 
-- New pg_cron (daily 08:00 UTC) → `POST /api/public/hooks/ads-lead-digest` (apikey-guarded).
-- Route groups yesterday's `ad_leads` per campaign, renders a React Email template listing rows, sends via existing Lovable email queue, marks `digest_sent_at`.
+## Technical Notes
 
-## 7. Rollout order
-
-1. Migration: new tables, seeds, RLS, GRANTs, RPCs, cron scaffolding.
-2. Storage bucket `ad-media` + policies (admin write, signed read for player).
-3. Server functions + public API routes.
-4. Admin UI (list + drawer + city manager).
-5. Public `AdSlot` + tier renderers, swap in Feed/Marketplace/Academy.
-6. Impression/click tracking + daily debit cron.
-7. Lead digest email + CSV export.
-
-Out of scope for v1 (documented in code comments as phase 2): self-serve advertiser signup, ad review workflow for external users, CPM auction pricing, custom audiences, interest targeting, A/B split tests.
-
-## Notes for you (non-technical summary)
-
-- Only admins create/manage campaigns. Advertisers can just supply the info; you input it.
-- Every campaign is paid up-front from a wallet you nominate; unused budget refunds automatically when a campaign pauses or ends.
-- You get a Meta-Ads-style table with live spend/impression/CTR/lead counts and a right-side drawer to edit everything.
-- Cities are managed in a separate screen so you can grow the list beyond the NG + GH seed without deploys.
-- Lead-form CTAs collect submissions and email the advertiser once a day automatically.
-- Video ads are capped at 5 min / 100 MB, images at 5 MB and 1:1, carousels up to 10 images.
+- Detection runs before first paint (inline script in `<head>`) so no FOUC between tiers.
+- `.high-gpu` is additive: removing the class instantly returns any device to the safe UI, so we can kill-switch remotely by shipping a CSS change if a device slips through.
+- The allow-list is regex-based on WebGL renderer strings; unknown Adrenos ≥ 620, Apple A12+, Mali-G7x MP10+ are treated as high, everything else defaults safe.
