@@ -758,7 +758,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const w = overview.wallet;
   return (
     <div className="space-y-5">
-      <div className="dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden" aria-label="Dashboard overview">
+      <div className="dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))]" aria-label="Dashboard overview">
         <PremiumStatCard hero icon={WalletIcon} tone="emerald" label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} sub={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"} onClick={() => onGoto("wallet")} />
         <PremiumStatCard icon={Trophy} tone="amber" label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} sub={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`} onClick={() => onGoto("bounties")} />
         <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
