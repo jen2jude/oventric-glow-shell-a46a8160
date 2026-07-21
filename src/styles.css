@@ -138,7 +138,7 @@
   .rgb-neon-bg { animation: none; }
 }
 
-@media (max-width: 767px) {
+@media (max-width: 767px) { html:not(.high-gpu) {
   .profile-render-safe,
   .profile-render-safe * {
     animation: none !important;
