@@ -1898,6 +1898,7 @@ function emptyContentFor(
   name: string,
   q: string,
   onClearSearch: () => void,
+  onJoinCircle: () => void,
 ): {
   title: string;
   hint?: string;
@@ -1921,7 +1922,7 @@ function emptyContentFor(
       return {
         title: `${name} hasn't joined any circle yet`,
         hint: "Click below to explore circles and request to join.",
-        primary: { label: "Click here to join a circle", to: "/", search: { section: "Circles" } as never },
+        primary: { label: "Click here to join a circle", onClick: onJoinCircle },
       };
     case "marketplace":
       return {
