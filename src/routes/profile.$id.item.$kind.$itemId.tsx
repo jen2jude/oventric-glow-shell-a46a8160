@@ -8,6 +8,9 @@ import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile } from "@/lib/profiles/mockProfiles";
+import { getProfileByIdOrSlug, type RealProfileView } from "@/lib/profiles.functions";
+
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 import { getLiveProfileItem, type ProfileItemKind } from "@/lib/profiles.functions";
 import type {
   ProfilePost,
@@ -53,16 +56,19 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
   validateSearch: zodValidator(itemSearchSchema),
   loader: async ({ params }) => {
     if (!VALID_KINDS.includes(params.kind as ProfileItemKind)) throw notFound();
-    const { item } = await getLiveProfileItem({
-      data: {
-        idOrSlug: params.id,
-        kind: params.kind as ProfileItemKind,
-        itemId: params.itemId,
-      },
-    });
+    const [{ item }, realRes] = await Promise.all([
+      getLiveProfileItem({
+        data: {
+          idOrSlug: params.id,
+          kind: params.kind as ProfileItemKind,
+          itemId: params.itemId,
+        },
+      }),
+      getProfileByIdOrSlug({ data: { idOrSlug: params.id } }).catch(() => ({ profile: null as RealProfileView | null })),
+    ]);
 
     if (!item) throw notFound();
-    return { item, kind: params.kind as ProfileItemKind };
+    return { item, kind: params.kind as ProfileItemKind, realProfile: realRes.profile };
   },
   head: ({ params, loaderData }) => {
     const label = VALID_KINDS.includes(params.kind as ProfileItemKind)
@@ -319,8 +325,20 @@ function Shell({ children }: { children: React.ReactNode }) {
 function ItemDetail() {
   const { id, kind } = Route.useParams();
   const backSearch = Route.useSearch();
-  const { item } = Route.useLoaderData();
-  const profile = getProfile(id);
+  const { item, realProfile } = Route.useLoaderData();
+  const mock = getProfile(id);
+  const isUuidId = UUID_RE.test(id);
+  const displayName = realProfile?.displayName || (isUuidId ? "Member" : mock.name);
+  const displayRole = realProfile
+    ? (realProfile.username ? `@${realProfile.username}` : "Member")
+    : isUuidId ? "" : mock.role;
+  const displayInitials = (() => {
+    const source = realProfile?.displayName || (isUuidId ? "" : mock.name);
+    const parts = source.trim().split(/\s+/).slice(0, 2);
+    const s = parts.map((w: string) => w[0]?.toUpperCase() ?? "").join("");
+    return s || (isUuidId ? "··" : mock.initials);
+  })();
+  const profile = mock;
   const { baseCurrency, require } = useOnboarding();
 
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
@@ -343,7 +361,7 @@ function ItemDetail() {
         }}
         className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 mb-4"
       >
-        <ArrowLeft className="w-3.5 h-3.5" /> Back to @{profile.name}
+        <ArrowLeft className="w-3.5 h-3.5" /> Back to {displayName}
         <span className="text-slate-600">·</span>
         <span className="text-slate-500">{tabLabel}</span>
       </Link>
@@ -355,12 +373,16 @@ function ItemDetail() {
         params={{ id }}
         className="flex items-center gap-3 mb-4 group"
       >
-        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
-          {profile.initials}
-        </div>
+        {realProfile?.avatarUrl ? (
+          <img src={realProfile.avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover shrink-0" />
+        ) : (
+          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
+            {displayInitials}
+          </div>
+        )}
         <div className="min-w-0">
-          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">{profile.name}</div>
-          <div className="text-[11px] text-slate-500 truncate">{profile.role}</div>
+          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">{displayName}</div>
+          <div className="text-[11px] text-slate-500 truncate">{displayRole}</div>
         </div>
       </Link>
 
@@ -368,7 +390,7 @@ function ItemDetail() {
         {labelFor(kind as ProfileItemKind)}
       </div>
 
-      {kind === "post" && <PostView post={item as ProfilePost} authorName={profile.name} require={require} />}
+      {kind === "post" && <PostView post={item as ProfilePost} authorName={displayName} require={require} />}
       {kind === "group" && <GroupView group={item as ProfileGroup} require={require} />}
       {kind === "listing" && (
         <ListingView
