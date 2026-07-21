@@ -119,45 +119,69 @@ function RootShell({ children }: { children: ReactNode }) {
       <head>
         <HeadContent />
         <script
-          // Detect low-end GPU/CPU BEFORE first paint and toggle `html.low-gpu`.
-          // Heuristics: manual override → prefers-reduced-motion → mobile UA with
-          // low deviceMemory / hardwareConcurrency / weak WebGL renderer/device.
+          // Pre-paint GPU tier detection. Sets `html.high-gpu` for capable
+          // devices (allow-list) or `html.low-gpu` for weak GPUs / reduced-motion.
+          // Neither = safe UI default. Manual override:
+          // localStorage['oventric:gpu-mode'] = 'high' | 'low'.
           dangerouslySetInnerHTML={{
             __html: `(function(){try{
   var d=document.documentElement;
-  function mark(reason){d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason=reason||'detected';}catch(e){}}
-  var override=null;try{override=localStorage.getItem('oventric:gpu-mode');}catch(e){}
-  if(override==='low'){mark('manual');return;}
-  if(override==='high'){d.dataset.gpuTier='high';return;}
+  function markLow(r){d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason=r||'';}catch(e){}}
+  function markHigh(r){d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason=r||'';}catch(e){}}
+  var ov=null;try{ov=localStorage.getItem('oventric:gpu-mode');}catch(e){}
+  if(ov==='low'){markLow('manual');return;}
+  if(ov==='high'){markHigh('manual');return;}
+  var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
+  if(reduce){markLow('reduced-motion');return;}
   var ua=navigator.userAgent||'';
   var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(ua);
   var isAndroid=/Android/i.test(ua);
-  var weakDevice=/Infinix|Infinix\\s+X6813|X6813|Note\\s*11i|TECNO|itel/i.test(ua);
+  var isApple=/iPhone|iPad|iPod/i.test(ua);
+  var weakDevice=/Infinix|X6813|Note\\s*11i|TECNO|itel|Nokia\\s*C/i.test(ua);
   var mem=navigator.deviceMemory||0;
   var cpu=navigator.hardwareConcurrency||0;
-  var reduce=false;try{reduce=matchMedia('(prefers-reduced-motion: reduce)').matches;}catch(e){}
-  var weakGpu=false;
+  var r='';
   try{
     var c=document.createElement('canvas');
     var gl=c.getContext('webgl')||c.getContext('experimental-webgl');
     if(gl){
       var ext=gl.getExtension('WEBGL_debug_renderer_info');
-      var r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):String(gl.getParameter(gl.RENDERER)||'');
-      if(/Mali[\\s-]?(4|T|G(31|51|52|57)(\\s*MC\\d+)?)|Mali[\\s-]?G52\\s*MC2|Adreno \\(TM\\) [3-5]\\d\\d|PowerVR|Vivante|VideoCore/i.test(r)) weakGpu=true;
-      if(isAndroid&&!r){weakGpu=true;}
-    } else { weakGpu=true; }
+      r=ext?String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)||''):String(gl.getParameter(gl.RENDERER)||'');
+    }
   }catch(e){}
-  if(reduce){mark('reduced-motion');return;}
-  if(isMobile && (weakDevice || weakGpu || (mem&&mem<=4) || (cpu&&cpu<=4))){mark(weakDevice?'device':weakGpu?'webgl':'hardware');}
+  var highRe=/Adreno(?:\\s*\\(TM\\))?\\s*(6[2-9]\\d|7\\d\\d|8\\d\\d)|Apple\\s*(A1[2-9]|A[2-9]\\d|M[1-9])|Mali-?G(7[1-9]|8\\d|9\\d\\d?)|Immortalis-?G\\d+|Xclipse\\s*9[2-9]\\d/i;
+  var lowRe=/Adreno(?:\\s*\\(TM\\))?\\s*(30\\d|40\\d|50\\d|51[0-2])|Mali-?T\\d+|Mali-?4\\d\\d|Mali-?G(3\\d|5[0-2]|57)\\b|PowerVR\\s*(G6|GE8|GX6|7XT)|Vivante|VideoCore/i;
+  if(r && highRe.test(r)){markHigh('webgl-allow');return;}
+  if(r && lowRe.test(r)){markLow('webgl-deny');return;}
+  if(weakDevice){markLow('device');return;}
+  if(!isMobile){markHigh('desktop');return;}
+  if(isApple){markHigh('apple-mobile');return;}
+  if((mem && mem<=3)||(cpu && cpu<=4)){markLow('hardware');return;}
+  if(mem>=6 && cpu>=8){markHigh('hardware');return;}
   try{
     var uad=navigator.userAgentData;
     if(isAndroid&&uad&&uad.getHighEntropyValues){
       uad.getHighEntropyValues(['model','platform']).then(function(v){
         var m=String((v&&v.model)||'');
-        if(/Infinix|X6813|Note\\s*11i|Mali[\\s-]?G52/i.test(m)){mark('model');}
+        if(/Infinix|X6813|Note\\s*11i/i.test(m)){markLow('model');}
       }).catch(function(){});
     }
   }catch(e){}
+}catch(e){}})();`,
+          }}
+        />
+        <script
+          // Optional GPU debug badge — activate with ?gpuDebug=1
+          dangerouslySetInnerHTML={{
+            __html: `(function(){try{
+  if(!/[?&]gpuDebug=1/.test(location.search))return;
+  addEventListener('DOMContentLoaded',function(){
+    var d=document.documentElement;
+    var b=document.createElement('div');
+    b.textContent='GPU: '+(d.dataset.gpuTier||'default')+' ('+(d.dataset.gpuReason||'-')+')';
+    b.style.cssText='position:fixed;bottom:8px;left:8px;z-index:99999;background:#000c;color:#0f0;font:11px/1.2 monospace;padding:4px 6px;border-radius:4px;pointer-events:none';
+    document.body.appendChild(b);
+  });
 }catch(e){}})();`,
           }}
         />
