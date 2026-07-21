@@ -445,9 +445,12 @@ function ProfilePage() {
   // Change tabs — preserve current scroll position, don't jump to top.
   const changeTab = useCallback(
     (next: Tab) => {
-      if (next === tab) return;
       const currentY = getScrollY();
       pinAcrossChange(currentY);
+      if (next === tab) {
+        requestAnimationFrame(() => restoreScroll(currentY));
+        return;
+      }
       navigate({
         to: "/profile/$id",
         params: { id },
@@ -456,7 +459,7 @@ function ProfilePage() {
         resetScroll: false,
       });
     },
-    [tab, navigate, id, getScrollY, pinAcrossChange],
+    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll],
   );
 
 
@@ -531,7 +534,7 @@ function ProfilePage() {
   // When search query or sort changes, invalidate the current tab so it
   // reloads with the new filters. Pagination in the URL is reset to 1.
   useEffect(() => {
-    markRestored(true); // don't restore old scroll for a new query
+    if (isRestored()) markRestored(true); // don't cancel a pending tab-switch restore
     setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [q, sort, tab]);
@@ -1185,7 +1188,12 @@ function ProfilePage() {
               })}
               <button
                 key="photos"
-                onClick={() => setPhotosMode(true)}
+                onClick={() => {
+                  const currentY = getScrollY();
+                  pinAcrossChange(currentY);
+                  setPhotosMode(true);
+                  requestAnimationFrame(() => restoreScroll(currentY));
+                }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
                     ? "text-emerald-400 border-emerald-400"
