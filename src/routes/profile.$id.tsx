@@ -451,15 +451,16 @@ function ProfilePage() {
         requestAnimationFrame(() => restoreScroll(currentY));
         return;
       }
+      const nextSort = SORT_OPTIONS_BY_TAB[next].some((o) => o.value === sort) ? sort : "newest";
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab: next, pages: 1, y: currentY },
+        search: { tab: next, pages: 1, y: currentY, q, sort: nextSort },
         replace: true,
         resetScroll: false,
       });
     },
-    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll],
+    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll, q, sort],
   );
 
 
