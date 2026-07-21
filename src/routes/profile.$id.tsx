@@ -1364,8 +1364,19 @@ function ProfilePage() {
                             params={{ id: l.id }}
                             className="group block bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
                           >
-                            <div className="relative aspect-[4/3] bg-neutral-900 flex items-center justify-center">
-                              <ShoppingBag className="w-10 h-10 text-white/20" />
+                            <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
+                              {l.coverUrl ? (
+                                <img
+                                  src={l.coverUrl}
+                                  alt={l.title}
+                                  loading="lazy"
+                                  className="absolute inset-0 w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <ShoppingBag className="w-10 h-10 text-white/20" />
+                                </div>
+                              )}
                               <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-emerald-300 border border-emerald-500/30">
                                 {l.category}
                               </span>
@@ -1397,8 +1408,12 @@ function ProfilePage() {
                               className="bg-[#1E1E24] border border-emerald-500/40 rounded-2xl p-4 sm:p-5"
                             >
                               <div className="flex items-start gap-3">
-                                <div className="shrink-0 w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                                  <Target className="w-5 h-5 text-emerald-300" />
+                                <div className="shrink-0 w-14 h-14 rounded-xl bg-emerald-500/10 border border-emerald-500/30 overflow-hidden flex items-center justify-center">
+                                  {b.coverUrl ? (
+                                    <img src={b.coverUrl} alt={b.title} loading="lazy" className="w-full h-full object-cover" />
+                                  ) : (
+                                    <Target className="w-5 h-5 text-emerald-300" />
+                                  )}
                                 </div>
                                 <div className="min-w-0 flex-1">
                                   <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold mb-1">
@@ -1442,8 +1457,12 @@ function ProfilePage() {
                             className="bg-[#1E1E24] border border-white/10 rounded-2xl p-4 sm:p-5"
                           >
                             <div className="flex items-start gap-3">
-                              <div className="shrink-0 w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-center">
-                                <Award className="w-5 h-5 text-purple-300" />
+                              <div className="shrink-0 w-14 h-14 rounded-xl bg-purple-500/10 border border-purple-500/30 overflow-hidden flex items-center justify-center">
+                                {b.coverUrl ? (
+                                  <img src={b.coverUrl} alt={b.title} loading="lazy" className="w-full h-full object-cover" />
+                                ) : (
+                                  <Award className="w-5 h-5 text-purple-300" />
+                                )}
                               </div>
                               <div className="min-w-0 flex-1">
                                 <div className="flex flex-wrap items-center gap-2 text-[11px] font-bold mb-1">

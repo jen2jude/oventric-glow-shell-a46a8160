@@ -17,6 +17,7 @@ export interface ProfileListing {
   category: string;
   priceUsd: number;
   sales: number;
+  coverUrl?: string | null;
 }
 export interface ProfileBounty {
   id: string;
@@ -25,6 +26,7 @@ export interface ProfileBounty {
   applicants?: number;
   proof?: string;
   status: "open" | "solved";
+  coverUrl?: string | null;
 }
 export interface Profile {
   id: string;
