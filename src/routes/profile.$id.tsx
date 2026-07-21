@@ -543,7 +543,7 @@ function ProfilePage() {
     let lastWritten = restoreY;
     const readY = () => (usesMain ? (el as HTMLElement).scrollTop : window.scrollY);
     const onScroll = () => {
-      if (!scrollRestoredRef.current) return;
+      if (!isRestored()) return;
       if (raf) return;
       raf = window.setTimeout(() => {
         raf = 0;
