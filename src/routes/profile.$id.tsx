@@ -407,6 +407,22 @@ function ProfilePage() {
   );
 
 
+  // Read/write scroll from whichever container is actually scrolling.
+  // On mobile <main> is not the scroll container (window scrolls); on md+ it is.
+  const getScrollY = useCallback(() => {
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) return el.scrollTop;
+    return typeof window !== "undefined" ? window.scrollY : 0;
+  }, []);
+  const setScrollY = useCallback((y: number) => {
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) {
+      el.scrollTop = y;
+    } else if (typeof window !== "undefined") {
+      window.scrollTo(0, y);
+    }
+  }, []);
+
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
     const current = tabData[tab];
@@ -415,7 +431,7 @@ function ProfilePage() {
     const nextPage = (current.page || 0) + 1;
     try {
       await fetchOne(tab, nextPage, false, { q, sort });
-      const y = mainRef.current?.scrollTop ?? 0;
+      const y = getScrollY();
       navigate({
         to: "/profile/$id",
         params: { id },
@@ -429,22 +445,27 @@ function ProfilePage() {
         [tab]: { ...s[tab], loading: false, error: "Couldn't load. Try again." },
       }));
     }
-  }, [tab, tabData, fetchOne, navigate, id, q, sort]);
+  }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
   // Change tabs — preserve current scroll position, don't jump to top.
+  const tabSwitchYRef = useRef<number | null>(null);
   const changeTab = useCallback(
     (next: Tab) => {
       if (next === tab) return;
-      scrollRestoredRef.current = true; // no restore for a fresh tab
-      const currentY = mainRef.current?.scrollTop ?? 0;
+      const currentY = getScrollY();
+      tabSwitchYRef.current = currentY;
+      scrollRestoredRef.current = false;
       navigate({
         to: "/profile/$id",
         params: { id },
         search: { tab: next, pages: 1, y: currentY },
         replace: true,
       });
+      // Pin scroll across the navigation so nothing jumps to top.
+      requestAnimationFrame(() => setScrollY(currentY));
+      setTimeout(() => setScrollY(currentY), 0);
     },
-    [tab, navigate, id],
+    [tab, navigate, id, getScrollY, setScrollY],
   );
 
 
