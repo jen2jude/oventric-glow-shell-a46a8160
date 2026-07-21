@@ -431,6 +431,7 @@ function ProfilePage() {
         params: { id },
         search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab, pages: nextPage, y }),
         replace: true,
+        resetScroll: false,
       });
     } catch (e) {
       console.error(e);
@@ -444,17 +445,22 @@ function ProfilePage() {
   // Change tabs — preserve current scroll position, don't jump to top.
   const changeTab = useCallback(
     (next: Tab) => {
-      if (next === tab) return;
       const currentY = getScrollY();
       pinAcrossChange(currentY);
+      if (next === tab) {
+        requestAnimationFrame(() => restoreScroll(currentY));
+        return;
+      }
+      const nextSort = SORT_OPTIONS_BY_TAB[next].some((o) => o.value === sort) ? sort : "newest";
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab: next, pages: 1, y: currentY },
+        search: { tab: next, pages: 1, y: currentY, q, sort: nextSort },
         replace: true,
+        resetScroll: false,
       });
     },
-    [tab, navigate, id, getScrollY, pinAcrossChange],
+    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll, q, sort],
   );
 
 
@@ -527,12 +533,14 @@ function ProfilePage() {
   }, [profile.id]);
 
   // When search query or sort changes, invalidate the current tab so it
-  // reloads with the new filters. Pagination in the URL is reset to 1.
+  // reloads with the new filters. Do not run this on tab switches: clearing
+  // the newly active tab briefly shrinks the page and mobile browsers clamp
+  // the scroll position upward before the new content renders.
   useEffect(() => {
-    markRestored(true); // don't restore old scroll for a new query
+    if (isRestored()) markRestored(true); // don't cancel a pending tab-switch restore
     setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sort, tab]);
+  }, [q, sort]);
 
 
   // Persist scroll position into the URL (throttled) so reloads restore it.
@@ -556,6 +564,7 @@ function ProfilePage() {
           params: { id },
           search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, y }),
           replace: true,
+          resetScroll: false,
         });
       }, 200) as unknown as number;
     };
@@ -1182,7 +1191,12 @@ function ProfilePage() {
               })}
               <button
                 key="photos"
-                onClick={() => setPhotosMode(true)}
+                onClick={() => {
+                  const currentY = getScrollY();
+                  pinAcrossChange(currentY);
+                  setPhotosMode(true);
+                  requestAnimationFrame(() => restoreScroll(currentY));
+                }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
                     ? "text-emerald-400 border-emerald-400"
