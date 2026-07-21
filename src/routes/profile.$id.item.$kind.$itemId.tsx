@@ -330,8 +330,9 @@ function ItemDetail() {
   const isUuidId = UUID_RE.test(id);
   const displayName = realProfile?.displayName || (isUuidId ? "Member" : mock.name);
   const displayRole = realProfile
-    ? (realProfile.username ? `@${realProfile.username}` : "Member")
+    ? (realProfile.displayName || "Member")
     : isUuidId ? "" : mock.role;
+
   const displayInitials = (() => {
     const source = realProfile?.displayName || (isUuidId ? "" : mock.name);
     const parts = source.trim().split(/\s+/).slice(0, 2);
