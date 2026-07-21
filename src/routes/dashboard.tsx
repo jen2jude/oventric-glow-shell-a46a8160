@@ -232,7 +232,15 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
-      <div className="max-w-5xl mx-auto px-4 py-8">
+      <div
+        className="max-w-5xl mx-auto px-4 py-8"
+        style={{
+          paddingLeft: "max(1rem, env(safe-area-inset-left))",
+          paddingRight: "max(1rem, env(safe-area-inset-right))",
+          paddingTop: "max(2rem, calc(env(safe-area-inset-top) + 1rem))",
+          paddingBottom: "max(2rem, calc(env(safe-area-inset-bottom) + 1rem))",
+        }}
+      >
         <button
           onClick={() => navigate({ to: "/" })}
           className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-6"
