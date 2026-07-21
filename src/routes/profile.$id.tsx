@@ -1759,30 +1759,51 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
     >{label}</button>
   );
   return (
-    <div className="space-y-3">
-      <div className="flex flex-wrap gap-2">
+    <div className="space-y-4">
+      <div className="flex flex-wrap items-center gap-2">
+        <div className="inline-flex items-center gap-1.5 mr-1 text-xs font-semibold text-slate-300">
+          <Images className="w-4 h-4 text-emerald-300" />
+          <span>{photos.length} photo{photos.length === 1 ? "" : "s"}</span>
+        </div>
         {chip("all", `All (${photos.length})`)}
-        {chip("post", "Posts")}
-        {chip("avatar", "Profile")}
-        {chip("cover", "Cover")}
+        {chip("post", `Posts (${photos.filter((p) => p.source === "post").length})`)}
+        {chip("avatar", `Profile (${photos.filter((p) => p.source === "avatar").length})`)}
+        {chip("cover", `Cover (${photos.filter((p) => p.source === "cover").length})`)}
       </div>
       {filtered.length === 0 ? (
-        <div className="py-16 text-center text-sm text-slate-500">No photos yet.</div>
+        <div className="bg-[#1E1E24] border border-white/10 rounded-2xl py-16 px-6 text-center">
+          <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
+            <Images className="w-4 h-4" />
+          </div>
+          <div className="text-sm text-slate-200 font-semibold">No photos yet</div>
+          <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+            Photos from posts, profile picture and cover image will show up here.
+          </p>
+        </div>
       ) : (
-        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {filtered.map((p, i) => (
             <button
               key={p.url + i}
               type="button"
               onClick={() => setLb({ images: urls, index: i })}
-              className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/40 group"
+              aria-label={`Open photo ${i + 1} of ${filtered.length}`}
+              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
             >
-              <img src={p.url} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
-              {p.source !== "post" && (
-                <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide bg-black/70 border border-white/20 text-white">
-                  {p.source}
-                </span>
-              )}
+              <img
+                src={p.url}
+                alt=""
+                loading="lazy"
+                decoding="async"
+                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
+              />
+              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity" />
+              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 border border-white/20 text-white backdrop-blur-sm">
+                {p.source === "post" ? "Post" : p.source === "avatar" ? "Profile" : "Cover"}
+              </span>
+              <span className="absolute bottom-2 right-2 px-2 py-1 rounded-full text-[10px] font-semibold bg-emerald-500 text-black opacity-0 group-hover:opacity-100 transition-opacity">
+                View
+              </span>
             </button>
           ))}
         </div>
@@ -1791,6 +1812,7 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
     </div>
   );
 }
+
 
 type StateAction = { label: string; onClick: () => void };
 
