@@ -413,22 +413,8 @@ function ProfilePage() {
     [profile.id, fetchTab],
   );
 
+  // Scroll read/write is provided by useScrollRestoration above.
 
-  // Read/write scroll from whichever container is actually scrolling.
-  // On mobile <main> is not the scroll container (window scrolls); on md+ it is.
-  const getScrollY = useCallback(() => {
-    const el = mainRef.current;
-    if (el && el.scrollHeight > el.clientHeight + 1) return el.scrollTop;
-    return typeof window !== "undefined" ? window.scrollY : 0;
-  }, []);
-  const setScrollY = useCallback((y: number) => {
-    const el = mainRef.current;
-    if (el && el.scrollHeight > el.clientHeight + 1) {
-      el.scrollTop = y;
-    } else if (typeof window !== "undefined") {
-      window.scrollTo(0, y);
-    }
-  }, []);
 
   // Load next page for a tab (used by "Load more"). Syncs URL.
   const loadMore = useCallback(async () => {
