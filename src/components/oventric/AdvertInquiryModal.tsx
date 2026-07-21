@@ -342,7 +342,7 @@ export function AdvertInquiryModal({
 
                 {availableCities.length > 0 && (
                   <>
-                    <Label>Cities (optional)</Label>
+                    <Label>States / regions (optional)</Label>
                     <div className="flex flex-wrap gap-2">
                       {availableCities.map(({ city }) => (
                         <button key={city} onClick={() => toggleFrom(cities, city, setCities)} className={`px-2.5 py-1 rounded-full text-[11px] font-semibold border ${cities.includes(city) ? "border-emerald-500 bg-emerald-500/10 text-emerald-200" : "border-white/10 text-slate-400"}`}>
@@ -364,7 +364,7 @@ export function AdvertInquiryModal({
 
                 <div className="grid grid-cols-2 gap-3">
                   <div><Label>Duration (days)</Label><input type="number" min={1} max={90} className="input" value={duration} onChange={(e) => setDuration(Math.max(1, Number(e.target.value) || 1))} /></div>
-                  <div><Label>Daily budget (USD, min ${TIER_MIN_DAILY[tier]})</Label><input type="number" min={TIER_MIN_DAILY[tier]} className="input" value={dailyBudget} onChange={(e) => setDailyBudget(Math.max(TIER_MIN_DAILY[tier], Number(e.target.value) || 0))} /></div>
+                  <div><Label>Daily budget (USD, min ${TIER_MIN_DAILY[tier]})</Label><input type="number" step="0.01" min={TIER_MIN_DAILY[tier]} className="input" value={dailyBudget} onChange={(e) => setDailyBudget(Math.max(TIER_MIN_DAILY[tier], Number(e.target.value) || 0))} /></div>
                 </div>
 
                 <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 text-sm text-emerald-100 font-bold flex items-center justify-between">
