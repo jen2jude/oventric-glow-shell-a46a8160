@@ -532,12 +532,14 @@ function ProfilePage() {
   }, [profile.id]);
 
   // When search query or sort changes, invalidate the current tab so it
-  // reloads with the new filters. Pagination in the URL is reset to 1.
+  // reloads with the new filters. Do not run this on tab switches: clearing
+  // the newly active tab briefly shrinks the page and mobile browsers clamp
+  // the scroll position upward before the new content renders.
   useEffect(() => {
     if (isRestored()) markRestored(true); // don't cancel a pending tab-switch restore
     setTabData((s) => ({ ...s, [tab]: { ...emptyTabState } }));
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [q, sort, tab]);
+  }, [q, sort]);
 
 
   // Persist scroll position into the URL (throttled) so reloads restore it.
