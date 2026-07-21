@@ -1062,3 +1062,21 @@ html.light [class*="border-white\\/"] {
   border-color: var(--hairline) !important;
 }
 
+/* =============================================================
+   High-GPU tier — restore premium animated presentation.
+   These rules only apply when the pre-paint detector marked
+   the device as capable (html.high-gpu). Safe/low tiers keep
+   the flat static defaults.
+   ============================================================= */
+html.high-gpu .rgb-static-border,
+html.high-gpu .rgb-static-border-wrapper {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 4s linear infinite;
+}
+html.high-gpu .rgb-promo-border {
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 300% 300%;
+  animation: rgb-spectrum-shift 5s linear infinite;
+}
+
