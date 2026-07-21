@@ -328,13 +328,12 @@ function ItemDetail() {
   const { item, realProfile } = Route.useLoaderData();
   const mock = getProfile(id);
   const isUuidId = UUID_RE.test(id);
-  const displayName = realProfile?.displayName || (isUuidId ? "Member" : mock.name);
-  const displayRole = realProfile
-    ? (realProfile.displayName || "Member")
-    : isUuidId ? "" : mock.role;
+  const realName = (realProfile?.displayName ?? "").trim() || (realProfile?.username ?? "").trim();
+  const displayName = realName || (isUuidId ? "Member" : mock.name);
+  const displayRole = realProfile ? (realName || "Member") : isUuidId ? "" : mock.role;
 
   const displayInitials = (() => {
-    const source = realProfile?.displayName || (isUuidId ? "" : mock.name);
+    const source = realName || (isUuidId ? "" : mock.name);
     const parts = source.trim().split(/\s+/).slice(0, 2);
     const s = parts.map((w: string) => w[0]?.toUpperCase() ?? "").join("");
     return s || (isUuidId ? "··" : mock.initials);
