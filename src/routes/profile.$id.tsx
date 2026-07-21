@@ -1364,8 +1364,19 @@ function ProfilePage() {
                             params={{ id: l.id }}
                             className="group block bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
                           >
-                            <div className="relative aspect-[4/3] bg-neutral-900 flex items-center justify-center">
-                              <ShoppingBag className="w-10 h-10 text-white/20" />
+                            <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
+                              {l.coverUrl ? (
+                                <img
+                                  src={l.coverUrl}
+                                  alt={l.title}
+                                  loading="lazy"
+                                  className="absolute inset-0 w-full h-full object-cover"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <ShoppingBag className="w-10 h-10 text-white/20" />
+                                </div>
+                              )}
                               <span className="absolute top-2 left-2 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full bg-black/60 text-emerald-300 border border-emerald-500/30">
                                 {l.category}
                               </span>
