@@ -431,6 +431,7 @@ function ProfilePage() {
         params: { id },
         search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab, pages: nextPage, y }),
         replace: true,
+        resetScroll: false,
       });
     } catch (e) {
       console.error(e);
@@ -452,6 +453,7 @@ function ProfilePage() {
         params: { id },
         search: { tab: next, pages: 1, y: currentY },
         replace: true,
+        resetScroll: false,
       });
     },
     [tab, navigate, id, getScrollY, pinAcrossChange],
@@ -556,6 +558,7 @@ function ProfilePage() {
           params: { id },
           search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, y }),
           replace: true,
+          resetScroll: false,
         });
       }, 200) as unknown as number;
     };
