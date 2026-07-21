@@ -335,7 +335,7 @@ function ItemDetail() {
   const displayInitials = (() => {
     const source = realProfile?.displayName || (isUuidId ? "" : mock.name);
     const parts = source.trim().split(/\s+/).slice(0, 2);
-    const s = parts.map((w) => w[0]?.toUpperCase() ?? "").join("");
+    const s = parts.map((w: string) => w[0]?.toUpperCase() ?? "").join("");
     return s || (isUuidId ? "··" : mock.initials);
   })();
   const profile = mock;
