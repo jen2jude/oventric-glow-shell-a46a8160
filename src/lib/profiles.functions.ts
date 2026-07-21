@@ -188,11 +188,13 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
       resolveProfileImageUrl(supabase, "profile-covers", row.cover_path),
     ]);
 
+    const cleanDisplay = (row.display_name ?? "").trim();
+    const cleanUsername = (row.username ?? "").trim();
     return {
       profile: {
         userId: row.user_id,
         slug: row.slug,
-        displayName: row.display_name ?? row.username ?? row.slug,
+        displayName: cleanDisplay || cleanUsername || row.slug,
         username: row.username,
         bio: row.bio,
         avatarUrl,
@@ -409,7 +411,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         userId: row.user_id,
         slug: row.slug,
         email,
-        displayName: row.display_name ?? row.username ?? row.slug,
+        displayName: (row.display_name ?? "").trim() || (row.username ?? "").trim() || row.slug,
         username: row.username,
         bio: row.bio,
         phone: row.phone,
