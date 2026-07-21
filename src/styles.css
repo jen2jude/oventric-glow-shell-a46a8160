@@ -191,7 +191,7 @@
     display: block !important;
     background-color: transparent !important;
   }
-}
+} }
 
 /* -------------------------------------------------------------------------
    Global mobile GPU-safety pass (Chrome Android + certain Mali/PowerVR GPUs)
