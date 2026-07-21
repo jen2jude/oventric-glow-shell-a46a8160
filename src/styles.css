@@ -261,7 +261,7 @@
     -webkit-filter: none !important;
     animation: none !important;
   }
-}
+} }
 
 /* Dashboard GPU-safety on mobile only. Chromium-Android raster corruption
    reproduces on the overview grid; desktop renders cleanly. Same recipe as
