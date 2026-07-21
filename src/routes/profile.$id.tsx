@@ -1911,8 +1911,9 @@ function emptyContentFor(
       };
     case "groups":
       return {
-        title: `${name} hasn't joined any circles`,
-        hint: "Once they join a peer circle it will appear on this tab.",
+        title: `${name} hasn't joined any circle yet`,
+        hint: "Click below to explore circles and request to join.",
+        primary: { label: "Click here to join a circle", to: "/", search: { section: "Circles" } as never },
       };
     case "marketplace":
       return {
