@@ -295,8 +295,9 @@ html.low-gpu {
     animation: spin 1s linear infinite !important;
   }
 
-  .dashboard-overview-mobile-safe,
-  .dashboard-overview-mobile-safe * {
+  /* Low/safe-GPU fallback: strip effects on the mobile overview cards so
+     paint stays clean. High-GPU tier restores gradients + glow below. */
+  .dashboard-overview-mobile-safe > * {
     animation: none !important;
     filter: none !important;
     backdrop-filter: none !important;
@@ -309,6 +310,7 @@ html.low-gpu {
     mix-blend-mode: normal !important;
     background-blend-mode: normal !important;
     background-image: none !important;
+    background-color: #141418 !important;
     box-shadow: none !important;
     mask-image: none !important;
     -webkit-mask-image: none !important;
@@ -317,17 +319,16 @@ html.low-gpu {
     -webkit-backface-visibility: visible !important;
     isolation: auto !important;
   }
-
-  .dashboard-overview-mobile-safe {
-    display: block;
-    overflow: visible;
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    border-radius: 12px;
-    background-color: #141418;
+  .dashboard-overview-mobile-safe > * > div[aria-hidden="true"] {
+    display: none !important;
   }
 
-  .dashboard-overview-row + .dashboard-overview-row {
-    border-top: 1px solid rgba(255, 255, 255, 0.08);
+  html.high-gpu .dashboard-overview-mobile-safe > * {
+    background-image: linear-gradient(to bottom right, #17171c, #101014) !important;
+    background-color: transparent !important;
+  }
+  html.high-gpu .dashboard-overview-mobile-safe > * > div[aria-hidden="true"] {
+    display: block !important;
   }
 
   .wallet-earnings-safe,
