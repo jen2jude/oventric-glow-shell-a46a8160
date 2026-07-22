@@ -961,16 +961,14 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
         ) : (
           <div className="space-y-2">
             {data.posted.map((b) => (
-              <div key={b.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{b.title}</div>
-                  <div className="text-xs text-slate-500 mt-1">{b.category} · Created {new Date(b.createdAt).toLocaleDateString()}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-emerald-300 font-black">${b.priceUSD.toFixed(2)}</div>
-                  <div className={`text-[10px] font-bold uppercase mt-1 ${b.status === "active" ? "text-emerald-300" : b.status === "closed" ? "text-slate-400" : "text-amber-300"}`}>{b.status}</div>
-                </div>
-              </div>
+              <SimpleRowCard
+                key={b.id}
+                icon={Target}
+                title={b.title}
+                subtitle={`${b.category} · Created ${new Date(b.createdAt).toLocaleDateString()}`}
+                value={`$${b.priceUSD.toFixed(2)}`}
+                onClick={() => {}}
+              />
             ))}
           </div>
         )
