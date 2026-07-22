@@ -412,30 +412,19 @@ function PremiumStatCard({
   onClick: () => void;
   hero?: boolean;
 }) {
-  const toneMap: Record<string, { ring: string; glow: string; chip: string; num: string }> = {
-    emerald: { ring: "ring-emerald-400/25", glow: "from-emerald-500/25", chip: "bg-emerald-500/10 text-emerald-300", num: "text-white" },
-    amber:   { ring: "ring-amber-400/25",   glow: "from-amber-500/25",   chip: "bg-amber-500/10 text-amber-300",   num: "text-amber-200" },
-    fuchsia: { ring: "ring-fuchsia-400/25", glow: "from-fuchsia-500/25", chip: "bg-fuchsia-500/10 text-fuchsia-300", num: "text-fuchsia-200" },
-    sky:     { ring: "ring-sky-400/25",     glow: "from-sky-500/25",     chip: "bg-sky-500/10 text-sky-300",       num: "text-white" },
-    cyan:    { ring: "ring-cyan-400/25",    glow: "from-cyan-500/25",    chip: "bg-cyan-500/10 text-cyan-300",     num: "text-white" },
-    rose:    { ring: "ring-rose-400/25",    glow: "from-rose-500/25",    chip: "bg-rose-500/10 text-rose-300",     num: "text-rose-200" },
-    violet:  { ring: "ring-violet-400/25",  glow: "from-violet-500/25",  chip: "bg-violet-500/10 text-violet-300", num: "text-white" },
-  };
-  const t = toneMap[tone];
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`dashboard-premium-card group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#17171c] to-[#101014] p-4 text-left ring-1 ${t.ring} transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
+      className={`group rounded-2xl border border-white/10 bg-[#141418] p-4 text-left transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
     >
-      <div className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${t.glow} to-transparent blur-2xl opacity-70`} aria-hidden />
-      <div className="relative flex items-start gap-3">
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${t.chip}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
           <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-tight line-clamp-2 min-h-[1.6em]">{label}</div>
-          <div className={`mt-1 font-black ${t.num} ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
+          <div className={`mt-1 font-black text-white ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
           {sub ? <div className="mt-0.5 text-[11px] text-slate-400 leading-tight line-clamp-2">{sub}</div> : null}
         </div>
       </div>
