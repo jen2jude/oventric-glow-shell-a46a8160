@@ -860,7 +860,6 @@ function shouldUseSafeDashboardOverview() {
   if (typeof window === "undefined") return false;
   const root = document.documentElement;
   if (root.classList.contains("low-gpu")) return true;
-  if (root.classList.contains("high-gpu")) return false;
 
   const ua = navigator.userAgent || "";
   const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
@@ -869,6 +868,7 @@ function shouldUseSafeDashboardOverview() {
   if (/Infinix|X6813|X68\d{2}|Note\s*11i|TECNO|itel|Nokia\s*C|Redmi\s*(9|A)|Realme\s*C/i.test(ua)) {
     return true;
   }
+  if (root.classList.contains("high-gpu")) return false;
 
   const nav = navigator as Navigator & {
     deviceMemory?: number;
