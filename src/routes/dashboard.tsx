@@ -491,7 +491,7 @@ function DigitalList({
         icon={Package}
         title="No digital purchases yet"
         hint="Your purchased digital products will appear here so you can re-download them anytime."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Browse Marketplace</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Browse Marketplace</Link>}
       />
     );
   }
