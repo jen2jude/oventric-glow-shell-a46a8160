@@ -663,13 +663,13 @@ function PhysicalList({
 
 function ListingStatusBadge({ status }: { status: ProductDTO["status"] }) {
   const meta = {
-    pending: { label: "Pending review", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
-    active: { label: "Live", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
-    rejected: { label: "Rejected", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
-  }[status] ?? { label: status, cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle };
+    pending: { label: "Pending review", icon: Clock },
+    active: { label: "Live", icon: CheckCircle2 },
+    rejected: { label: "Rejected", icon: AlertTriangle },
+  }[status] ?? { label: status, icon: AlertTriangle };
   const Icon = meta.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
