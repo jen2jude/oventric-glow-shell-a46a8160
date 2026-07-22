@@ -348,6 +348,53 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; 
   );
 }
 
+function SimpleRowCard({
+  icon: Icon,
+  title,
+  subtitle,
+  value,
+  onClick,
+  href,
+}: {
+  icon: typeof Package;
+  title: string;
+  subtitle?: string;
+  value?: string | number;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const inner = (
+    <>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-white" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-white text-sm font-semibold truncate">{title}</div>
+          {subtitle ? <div className="text-slate-400 text-xs truncate">{subtitle}</div> : null}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {value !== undefined ? <span className="text-sm font-black text-white">{value}</span> : null}
+        <ArrowUpRight className="w-4 h-4 text-slate-400" />
+      </div>
+    </>
+  );
+  const cls = "group flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141418] p-3 active:bg-white/[0.03] w-full text-left";
+  if (href) {
+    return (
+      <Link to={href} className={cls}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={cls}>
+      {inner}
+    </button>
+  );
+}
+
 function PremiumStatCard({
   icon: Icon,
   label,
