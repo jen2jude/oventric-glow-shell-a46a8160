@@ -754,27 +754,42 @@ function ListingsList({
 /* -------------------------------------------------------------------------- */
 
 function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null; onGoto: (t: Tab) => void }) {
+  const [useSafeOverview, setUseSafeOverview] = useState(false);
+
+  useEffect(() => {
+    const lowGpu = shouldUseSafeDashboardOverview();
+    setUseSafeOverview(lowGpu);
+    if (lowGpu) {
+      document.documentElement.classList.remove("high-gpu");
+      document.documentElement.classList.add("low-gpu");
+      document.documentElement.dataset.gpuTier = "low";
+      document.documentElement.dataset.gpuReason ||= "dashboard-fallback";
+    }
+  }, []);
+
   if (!overview) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
   const w = overview.wallet;
   return (
     <div className="space-y-5">
       {/* High-GPU / default: premium animated grid */}
-      <div className="gpu-premium-only dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))]" aria-label="Dashboard overview">
-        <PremiumStatCard hero icon={WalletIcon} tone="emerald" label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} sub={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"} onClick={() => onGoto("wallet")} />
-        <PremiumStatCard icon={Trophy} tone="amber" label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} sub={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`} onClick={() => onGoto("bounties")} />
-        <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
-        <PremiumStatCard icon={Download} tone="emerald" label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
-        <PremiumStatCard icon={Clock} tone="amber" label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
-        <PremiumStatCard icon={MessageCircle} tone="sky" label="Contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
-        <PremiumStatCard icon={Store} tone="fuchsia" label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
-        <PremiumStatCard icon={GraduationCap} tone="cyan" label="Enrolled" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
-        <PremiumStatCard icon={CheckCircle2} tone="emerald" label="Completed" value={overview.courses.completed} onClick={() => onGoto("courses")} />
-        <PremiumStatCard icon={Target} tone="violet" label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
-        <PremiumStatCard icon={Bell} tone="rose" label="Alerts" value={overview.unread.notifications} onClick={() => onGoto("social")} />
-      </div>
+      {!useSafeOverview && (
+        <div className="gpu-premium-only dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))]" aria-label="Dashboard overview">
+          <PremiumStatCard hero icon={WalletIcon} tone="emerald" label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} sub={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"} onClick={() => onGoto("wallet")} />
+          <PremiumStatCard icon={Trophy} tone="amber" label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} sub={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`} onClick={() => onGoto("bounties")} />
+          <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
+          <PremiumStatCard icon={Download} tone="emerald" label="Downloads" value={overview.purchases.total} onClick={() => onGoto("digital")} />
+          <PremiumStatCard icon={Clock} tone="amber" label="Pending orders" value={overview.purchases.pending} onClick={() => onGoto("digital")} />
+          <PremiumStatCard icon={MessageCircle} tone="sky" label="Contacted" value={overview.contacts} onClick={() => onGoto("physical")} />
+          <PremiumStatCard icon={Store} tone="fuchsia" label="My listings" value={overview.listings.total} onClick={() => onGoto("listings")} />
+          <PremiumStatCard icon={GraduationCap} tone="cyan" label="Enrolled" value={overview.courses.enrolled} onClick={() => onGoto("courses")} />
+          <PremiumStatCard icon={CheckCircle2} tone="emerald" label="Completed" value={overview.courses.completed} onClick={() => onGoto("courses")} />
+          <PremiumStatCard icon={Target} tone="violet" label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
+          <PremiumStatCard icon={Bell} tone="rose" label="Alerts" value={overview.unread.notifications} onClick={() => onGoto("social")} />
+        </div>
+      )}
 
       {/* Low-GPU: simplified flat rows, no gradients / shadows / glow */}
-      <div className="gpu-safe-only md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2" aria-label="Dashboard overview (simplified)">
+      <div className={`${useSafeOverview ? "block" : "gpu-safe-only"} md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2`} aria-label="Dashboard overview (simplified)">
         <button onClick={() => onGoto("wallet")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
           <div className="flex items-center gap-2 min-w-0">
             <WalletIcon className="w-4 h-4 text-emerald-300 shrink-0" />
@@ -839,6 +854,57 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
       </div>
     </div>
   );
+}
+
+function shouldUseSafeDashboardOverview() {
+  if (typeof window === "undefined") return false;
+  const root = document.documentElement;
+  if (root.classList.contains("low-gpu")) return true;
+
+  const ua = navigator.userAgent || "";
+  const isMobile = /Mobi|Android|iPhone|iPad|iPod/i.test(ua);
+  const isAndroid = /Android/i.test(ua);
+  if (!isMobile || !isAndroid) return false;
+  if (/Infinix|X6813|X68\d{2}|Note\s*11i|TECNO|itel|Nokia\s*C|Redmi\s*(9|A)|Realme\s*C/i.test(ua)) {
+    return true;
+  }
+  if (root.classList.contains("high-gpu")) return false;
+
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+  const memory = nav.deviceMemory || 0;
+  const cores = nav.hardwareConcurrency || 0;
+  const androidVersion = Number((ua.match(/Android\s+(\d+)/i) || [])[1] || 0);
+  const dpr = window.devicePixelRatio || 1;
+  const longScreen = Math.max(window.screen?.width || 0, window.screen?.height || 0);
+  const physicalWidth = longScreen * dpr;
+  const connection = nav.connection;
+
+  let score = 0;
+  if (!androidVersion || androidVersion <= 11) score -= 2;
+  else if (androidVersion === 12) score -= 1;
+  else if (androidVersion >= 14) score += 1;
+
+  if (!memory) score -= 1;
+  else if (memory <= 4) score -= 3;
+  else if (memory <= 6) score -= 1;
+  else if (memory >= 12) score += 2;
+  else if (memory >= 8) score += 1;
+
+  if (!cores) score -= 1;
+  else if (cores <= 4) score -= 3;
+  else if (cores <= 6) score -= 1;
+  else if (cores >= 8) score += 1;
+
+  if (physicalWidth >= 2400 && dpr >= 3) score += 1;
+  else if (physicalWidth <= 1600 || dpr < 2) score -= 1;
+
+  if (connection?.saveData) score -= 3;
+  if (["slow-2g", "2g", "3g"].includes(connection?.effectiveType || "")) score -= 1;
+
+  return !(score >= 5 && androidVersion >= 13 && memory >= 8 && cores >= 8);
 }
 
 function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null }) {
