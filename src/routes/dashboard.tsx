@@ -947,7 +947,7 @@ function shouldUseSafeDashboardOverview() {
 
 function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null }) {
   const [sub, setSub] = useState<"posted" | "solved">("posted");
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <ListSkeleton count={6} />;
   return (
     <div>
       <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
