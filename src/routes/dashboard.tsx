@@ -348,6 +348,53 @@ function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; 
   );
 }
 
+function SimpleRowCard({
+  icon: Icon,
+  title,
+  subtitle,
+  value,
+  onClick,
+  href,
+}: {
+  icon: typeof Package;
+  title: string;
+  subtitle?: string;
+  value?: string | number;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const inner = (
+    <>
+      <div className="flex items-center gap-3 min-w-0">
+        <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-white" />
+        </div>
+        <div className="min-w-0">
+          <div className="text-white text-sm font-semibold truncate">{title}</div>
+          {subtitle ? <div className="text-slate-400 text-xs truncate">{subtitle}</div> : null}
+        </div>
+      </div>
+      <div className="flex items-center gap-2 shrink-0">
+        {value !== undefined ? <span className="text-sm font-black text-white">{value}</span> : null}
+        <ArrowUpRight className="w-4 h-4 text-slate-400" />
+      </div>
+    </>
+  );
+  const cls = "group flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141418] p-3 active:bg-white/[0.03] w-full text-left";
+  if (href) {
+    return (
+      <Link to={href} className={cls}>
+        {inner}
+      </Link>
+    );
+  }
+  return (
+    <button type="button" onClick={onClick} className={cls}>
+      {inner}
+    </button>
+  );
+}
+
 function PremiumStatCard({
   icon: Icon,
   label,
@@ -365,30 +412,19 @@ function PremiumStatCard({
   onClick: () => void;
   hero?: boolean;
 }) {
-  const toneMap: Record<string, { ring: string; glow: string; chip: string; num: string }> = {
-    emerald: { ring: "ring-emerald-400/25", glow: "from-emerald-500/25", chip: "bg-emerald-500/10 text-emerald-300", num: "text-white" },
-    amber:   { ring: "ring-amber-400/25",   glow: "from-amber-500/25",   chip: "bg-amber-500/10 text-amber-300",   num: "text-amber-200" },
-    fuchsia: { ring: "ring-fuchsia-400/25", glow: "from-fuchsia-500/25", chip: "bg-fuchsia-500/10 text-fuchsia-300", num: "text-fuchsia-200" },
-    sky:     { ring: "ring-sky-400/25",     glow: "from-sky-500/25",     chip: "bg-sky-500/10 text-sky-300",       num: "text-white" },
-    cyan:    { ring: "ring-cyan-400/25",    glow: "from-cyan-500/25",    chip: "bg-cyan-500/10 text-cyan-300",     num: "text-white" },
-    rose:    { ring: "ring-rose-400/25",    glow: "from-rose-500/25",    chip: "bg-rose-500/10 text-rose-300",     num: "text-rose-200" },
-    violet:  { ring: "ring-violet-400/25",  glow: "from-violet-500/25",  chip: "bg-violet-500/10 text-violet-300", num: "text-white" },
-  };
-  const t = toneMap[tone];
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`dashboard-premium-card group relative overflow-hidden rounded-2xl border border-white/10 bg-gradient-to-br from-[#17171c] to-[#101014] p-4 text-left ring-1 ${t.ring} transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
+      className={`group rounded-2xl border border-white/10 bg-[#141418] p-4 text-left transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
     >
-      <div className={`pointer-events-none absolute -right-8 -top-8 h-24 w-24 rounded-full bg-gradient-to-br ${t.glow} to-transparent blur-2xl opacity-70`} aria-hidden />
-      <div className="relative flex items-start gap-3">
-        <div className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-xl ${t.chip}`}>
+      <div className="flex items-start gap-3">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
           <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
           <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-tight line-clamp-2 min-h-[1.6em]">{label}</div>
-          <div className={`mt-1 font-black ${t.num} ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
+          <div className={`mt-1 font-black text-white ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
           {sub ? <div className="mt-0.5 text-[11px] text-slate-400 leading-tight line-clamp-2">{sub}</div> : null}
         </div>
       </div>
@@ -401,7 +437,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button
       onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${
-        active ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
+        active ? "bg-white text-black" : "text-slate-300 hover:text-white"
       }`}
     >
       {children}
@@ -422,14 +458,14 @@ function EmptyState({ icon: Icon, title, hint, cta }: { icon: typeof Package; ti
 
 function StatusBadge({ status }: { status: PurchaseDTO["status"] }) {
   const meta = {
-    paid: { label: "Paid", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
-    pending: { label: "Pending", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
-    failed: { label: "Failed", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
-    refunded: { label: "Refunded", cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle },
+    paid: { label: "Paid", icon: CheckCircle2 },
+    pending: { label: "Pending", icon: Clock },
+    failed: { label: "Failed", icon: AlertTriangle },
+    refunded: { label: "Refunded", icon: AlertTriangle },
   }[status];
   const Icon = meta.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
@@ -455,7 +491,7 @@ function DigitalList({
         icon={Package}
         title="No digital purchases yet"
         hint="Your purchased digital products will appear here so you can re-download them anytime."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Browse Marketplace</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Browse Marketplace</Link>}
       />
     );
   }
@@ -469,8 +505,8 @@ function DigitalList({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">{r.category}</div>
-                <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
+                <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
                   {r.productName}
                 </Link>
                 <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
@@ -486,7 +522,7 @@ function DigitalList({
                   <button
                     onClick={() => onDownload(r.orderId, r.productId, r.externalUrl, r.hasFile)}
                     disabled={downloadingId === r.orderId}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold disabled:opacity-60"
                   >
                     {downloadingId === r.orderId ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -501,7 +537,7 @@ function DigitalList({
                 {r.status === "paid" && r.escrowStatus === "held" && (
                   <button
                     onClick={() => onConfirm(r.orderId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
                     title="Confirm you've received this product to release the seller's funds"
                   >
                     Confirm received
@@ -539,7 +575,7 @@ function PhysicalList({
         icon={ShoppingBag}
         title="You haven't contacted any sellers yet"
         hint="When you tap Call or Chat on a physical listing, it'll show up here so you can reach the seller again."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Browse physical goods</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Browse physical goods</Link>}
       />
     );
   }
@@ -559,8 +595,8 @@ function PhysicalList({
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">{r.category}</div>
-                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
+                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
                     {r.productName}
                   </Link>
                   <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
@@ -593,7 +629,7 @@ function PhysicalList({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => onRelog(r.productId, "whatsapp")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                   </a>
@@ -616,13 +652,13 @@ function PhysicalList({
 
 function ListingStatusBadge({ status }: { status: ProductDTO["status"] }) {
   const meta = {
-    pending: { label: "Pending review", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
-    active: { label: "Live", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
-    rejected: { label: "Rejected", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
-  }[status] ?? { label: status, cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle };
+    pending: { label: "Pending review", icon: Clock },
+    active: { label: "Live", icon: CheckCircle2 },
+    rejected: { label: "Rejected", icon: AlertTriangle },
+  }[status] ?? { label: status, icon: AlertTriangle };
   const Icon = meta.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
@@ -648,7 +684,7 @@ function ListingsList({
         icon={Store}
         title="You haven't published any listings yet"
         hint="Tap the + button on the home screen to sell a digital asset or physical product."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Go to marketplace</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to marketplace</Link>}
       />
     );
   }
@@ -670,7 +706,7 @@ function ListingsList({
             onClick={() => setFilter(c.key)}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
               filter === c.key
-                ? "bg-emerald-500 border-emerald-400 text-black"
+                ? "bg-white border-white/20 text-black"
                 : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
             }`}
           >
@@ -696,10 +732,10 @@ function ListingsList({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">
                       {p.kind === "physical" ? "Physical" : "Digital"} · {p.category}
                     </div>
-                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-white truncate block">
                       {p.name}
                     </Link>
                     <div className="text-xs text-slate-400">
@@ -711,9 +747,9 @@ function ListingsList({
                 </div>
 
                 {p.status === "rejected" && p.rejectReason && (
-                  <div className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-amber-300 mb-0.5">Moderator note</div>
-                    <div className="text-xs text-amber-100 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
+                  <div className="mt-2 rounded-md border border-white/10 bg-white/5 p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-0.5">Moderator note</div>
+                    <div className="text-xs text-slate-200 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
                   </div>
                 )}
 
@@ -722,7 +758,7 @@ function ListingsList({
                     <button
                       type="button"
                       onClick={() => onEdit(p)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
                     >
                       <Pencil className="w-3.5 h-3.5" /> Edit & Resubmit
                     </button>
@@ -781,27 +817,27 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
     <div className="space-y-5">
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
       <div className="block md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2" aria-label="Dashboard overview">
-        <button onClick={() => onGoto("wallet")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <WalletIcon className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Wallet balance</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">{w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}</span>
-        </button>
-        <button onClick={() => onGoto("bounties")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Trophy className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Bounties earned</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">${overview.bounties.earnedUSD.toFixed(2)}</span>
-        </button>
-        <button onClick={() => onGoto("social")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Users className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Network</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">{overview.social.followers}</span>
-        </button>
+        <SimpleRowCard
+          icon={WalletIcon}
+          title="Wallet balance"
+          subtitle={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}
+          value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
+          onClick={() => onGoto("wallet")}
+        />
+        <SimpleRowCard
+          icon={Trophy}
+          title="Bounties earned"
+          subtitle={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`}
+          value={`$${overview.bounties.earnedUSD.toFixed(2)}`}
+          onClick={() => onGoto("bounties")}
+        />
+        <SimpleRowCard
+          icon={Users}
+          title="Network"
+          subtitle={`${overview.social.following} following · ${overview.social.circles} circles`}
+          value={overview.social.followers}
+          onClick={() => onGoto("social")}
+        />
         <div className="grid grid-cols-2 gap-2">
           <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
           <StatCard icon={Clock} label="Pending" value={overview.purchases.pending} accent="text-white" />
@@ -816,33 +852,33 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
 
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
-        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-[#141418] p-5 hover:border-emerald-400/60 transition">
-          <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance</div>
           <div className="mt-2 text-3xl font-black text-white">
             {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
           </div>
           <div className="text-xs text-slate-400 mt-1">{w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}</div>
         </button>
         <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-300" /> Bounties earned</div>
-          <div className="mt-2 text-3xl font-black text-amber-300">${overview.bounties.earnedUSD.toFixed(2)}</div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-white" /> Bounties earned</div>
+          <div className="mt-2 text-3xl font-black text-white">${overview.bounties.earnedUSD.toFixed(2)}</div>
           <div className="text-xs text-slate-400 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
         </button>
         <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Network</div>
-          <div className="mt-2 text-3xl font-black text-fuchsia-300">{overview.social.followers}</div>
+          <div className="mt-2 text-3xl font-black text-white">{overview.social.followers}</div>
           <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
       <div className="hidden grid-cols-1 gap-2 md:grid md:grid-cols-4 md:gap-3">
-        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
-        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-amber-300" />
-        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-sky-300" />
-        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-fuchsia-300" />
-        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-cyan-300" />
-        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-emerald-300" />
-        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-amber-300" />
-        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-rose-300" />
+        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
+        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-white" />
+        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-white" />
+        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-white" />
+        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-white" />
+        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-white" />
+        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-white" />
+        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-white" />
       </div>
     </div>
   );
@@ -914,16 +950,14 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
         ) : (
           <div className="space-y-2">
             {data.posted.map((b) => (
-              <div key={b.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{b.title}</div>
-                  <div className="text-xs text-slate-500 mt-1">{b.category} · Created {new Date(b.createdAt).toLocaleDateString()}</div>
-                </div>
-                <div className="text-right">
-                  <div className="text-emerald-300 font-black">${b.priceUSD.toFixed(2)}</div>
-                  <div className={`text-[10px] font-bold uppercase mt-1 ${b.status === "active" ? "text-emerald-300" : b.status === "closed" ? "text-slate-400" : "text-amber-300"}`}>{b.status}</div>
-                </div>
-              </div>
+              <SimpleRowCard
+                key={b.id}
+                icon={Target}
+                title={b.title}
+                subtitle={`${b.category} · Created ${new Date(b.createdAt).toLocaleDateString()}`}
+                value={`$${b.priceUSD.toFixed(2)}`}
+                onClick={() => {}}
+              />
             ))}
           </div>
         )
@@ -934,13 +968,14 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
         ) : (
           <div className="space-y-2">
             {data.solved.map((s) => (
-              <div key={s.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{s.title}</div>
-                  <div className="text-xs text-slate-500 mt-1">Solved {new Date(s.solvedAt).toLocaleDateString()}</div>
-                </div>
-                <div className="text-emerald-300 font-black">+${s.payoutUSD.toFixed(2)}</div>
-              </div>
+              <SimpleRowCard
+                key={s.id}
+                icon={Trophy}
+                title={s.title}
+                subtitle={`Solved ${new Date(s.solvedAt).toLocaleDateString()}`}
+                value={`+$${s.payoutUSD.toFixed(2)}`}
+                onClick={() => {}}
+              />
             ))}
           </div>
         )
@@ -966,7 +1001,7 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
             {data.enrolled.map((c) => {
               const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
               return (
-                <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
+              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <div className="min-w-0">
                       <div className="text-white font-semibold truncate">{c.title}</div>
@@ -974,10 +1009,10 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                         {c.completedModules}/{c.totalModules} modules · Enrolled {new Date(c.enrolledAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="text-xs font-bold text-emerald-300">{pct}%</div>
+                    <div className="text-xs font-bold text-white">{pct}%</div>
                   </div>
                   <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
@@ -995,12 +1030,12 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                 <div className="min-w-0">
                   <div className="text-white font-semibold truncate">{c.title}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    {c.isPublished ? <span className="text-emerald-300">Published</span> : <span className="text-amber-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
+                    {c.isPublished ? <span className="text-white">Published</span> : <span className="text-slate-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-white font-black">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
-                  {c.revenueUSD > 0 && <div className="text-[10px] text-emerald-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
+                  {c.revenueUSD > 0 && <div className="text-[10px] text-slate-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
                 </div>
               </div>
             ))}
@@ -1019,8 +1054,8 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
         {data.balances.length === 0 ? (
           <div className="md:col-span-2"><EmptyState icon={WalletIcon} title="No wallet yet" hint="Your wallet appears once you receive your first credit or fund it." /></div>
         ) : data.balances.map((b) => (
-          <div key={b.currency} className="rounded-2xl border border-emerald-400/30 bg-[#141418] p-5">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">{b.currency} balance</div>
+          <div key={b.currency} className="rounded-2xl border border-white/10 bg-[#141418] p-5">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{b.currency} balance</div>
             <div className="mt-2 text-3xl font-black text-white">{b.currency} {b.available.toFixed(2)}</div>
             <div className="text-xs text-slate-400 mt-1">Escrow {b.currency} {b.escrow.toFixed(2)}</div>
           </div>
@@ -1031,12 +1066,12 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Pending payouts</div>
           <div className="space-y-2">
             {data.pendingPayouts.map((p) => (
-              <div key={p.id} className="rounded-xl border border-amber-400/30 bg-amber-500/5 p-3 flex items-center justify-between">
+              <div key={p.id} className="rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
                 <div>
                   <div className="text-white font-semibold">{p.currency} {p.amount.toFixed(2)}</div>
                   <div className="text-xs text-slate-400 mt-0.5">{p.method.toUpperCase()} · Requested {new Date(p.createdAt).toLocaleDateString()}</div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-amber-300">{p.status}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300">{p.status}</span>
               </div>
             ))}
           </div>
@@ -1051,7 +1086,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
             {data.recent.map((r) => (
               <div key={r.id} className="p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${r.inflow ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"}`}>
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
                     {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0">
@@ -1059,7 +1094,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
                     <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
                   </div>
                 </div>
-                <div className={`font-black text-sm shrink-0 ${r.inflow ? "text-emerald-300" : "text-rose-300"}`}>{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
+                <div className="font-black text-sm shrink-0 text-white">{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
               </div>
             ))}
           </div>
@@ -1088,8 +1123,8 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {rows.map((u) => (
-              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-emerald-400/40 transition">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-400/30 overflow-hidden flex items-center justify-center text-emerald-300 font-bold">
+              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-white/20 transition">
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center text-white font-bold">
                   {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="min-w-0">
@@ -1109,13 +1144,13 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
             {data.circles.map((c) => (
               <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-fuchsia-500/10 border border-fuchsia-400/30 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
                   <div className="min-w-0">
                     <div className="text-white font-semibold text-sm truncate">{c.name}</div>
                     <div className="text-[11px] text-slate-500">Joined {new Date(c.joinedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-fuchsia-300">{c.role}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300">{c.role}</span>
               </div>
             ))}
           </div>
