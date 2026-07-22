@@ -979,13 +979,14 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
         ) : (
           <div className="space-y-2">
             {data.solved.map((s) => (
-              <div key={s.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{s.title}</div>
-                  <div className="text-xs text-slate-500 mt-1">Solved {new Date(s.solvedAt).toLocaleDateString()}</div>
-                </div>
-                <div className="text-emerald-300 font-black">+${s.payoutUSD.toFixed(2)}</div>
-              </div>
+              <SimpleRowCard
+                key={s.id}
+                icon={Trophy}
+                title={s.title}
+                subtitle={`Solved ${new Date(s.solvedAt).toLocaleDateString()}`}
+                value={`+$${s.payoutUSD.toFixed(2)}`}
+                onClick={() => {}}
+              />
             ))}
           </div>
         )
