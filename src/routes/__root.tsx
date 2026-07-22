@@ -156,21 +156,29 @@ function RootShell({ children }: { children: ReactNode }) {
   if(weakDevice){markLow('device');return;}
   if(!isMobile){markHigh('desktop');return;}
   if(isApple){markHigh('apple-mobile');return;}
-  // Android heuristic score (WebGL renderer is masked by Chrome for privacy).
-  // Combine deviceMemory, hardwareConcurrency, DPR, screen size, connection,
-  // and save-data hints. Higher = more capable.
+  // Android heuristic score (WebGL renderer is often masked by Chrome).
+  // Conservative rule: RAM/cores/resolution alone do NOT prove a premium GPU
+  // (budget phones like Infinix Note 11i can report 8GB/8 cores). Only clear
+  // flagship model/WebGL signals or a very strong modern-device score promote.
   if(isAndroid){
     var score=0, reasons=[];
-    // Memory: <=3 GB → clearly low; 4 GB → neutral-low; 6 GB → +1; 8+ GB → +2.
+    var am=(ua.match(/Android\\s+(\\d+)/i)||[])[1];
+    var av=am?parseInt(am,10):0;
+    if(av){
+      if(av<=11){score-=2;reasons.push('android'+av);}
+      else if(av===12){score-=1;reasons.push('android'+av);}
+      else if(av>=14){score+=1;reasons.push('android'+av);}
+    } else {score-=1;reasons.push('android?');}
+    // Memory: <=4 GB is low, 6 GB neutral-low, 8 GB modest, 12+ GB strong.
     if(mem){
-      if(mem<=3){score-=2;reasons.push('mem'+mem);}
-      else if(mem<=4){score-=1;reasons.push('mem'+mem);}
-      else if(mem>=8){score+=2;reasons.push('mem'+mem);}
-      else if(mem>=6){score+=1;reasons.push('mem'+mem);}
+      if(mem<=4){score-=3;reasons.push('mem'+mem);}
+      else if(mem<=6){score-=1;reasons.push('mem'+mem);}
+      else if(mem>=12){score+=2;reasons.push('mem'+mem);}
+      else if(mem>=8){score+=1;reasons.push('mem'+mem);}
     } else {score-=1;reasons.push('mem?');}
     // CPU cores.
     if(cpu){
-      if(cpu<=4){score-=2;reasons.push('cpu'+cpu);}
+      if(cpu<=4){score-=3;reasons.push('cpu'+cpu);}
       else if(cpu<=6){score-=1;reasons.push('cpu'+cpu);}
       else if(cpu>=8){score+=1;reasons.push('cpu'+cpu);}
     } else {score-=1;reasons.push('cpu?');}
@@ -184,7 +192,7 @@ function RootShell({ children }: { children: ReactNode }) {
     try{
       var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
       if(conn){
-        if(conn.saveData){score-=2;reasons.push('save-data');}
+        if(conn.saveData){score-=3;reasons.push('save-data');}
         var et=String(conn.effectiveType||'');
         if(et==='slow-2g'||et==='2g'||et==='3g'){score-=1;reasons.push(et);}
       }
@@ -192,8 +200,10 @@ function RootShell({ children }: { children: ReactNode }) {
     // Touch-point ceiling (some entry-level chips report low): informative only.
     var mtp=navigator.maxTouchPoints||0;
     if(mtp && mtp<5){score-=1;reasons.push('tp'+mtp);}
-    // Decision: require score >= 2 for premium; otherwise low.
-    if(score>=2){markHigh('android-score:'+score+'|'+reasons.join(','));}
+    var veryStrongModern=(score>=5 && av>=13 && mem>=8 && cpu>=8);
+    // Decision: require a very strong modern-device score for premium;
+    // anything uncertain stays low/safe so overview cards shed heavy CSS.
+    if(veryStrongModern){markHigh('android-score:'+score+'|'+reasons.join(','));}
     else{markLow('android-score:'+score+'|'+reasons.join(','));}
     // Async model check can still promote known flagships or demote known weak.
     try{
