@@ -1116,7 +1116,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
 
 function SocialPane({ data }: { data: DashboardSocial | null }) {
   const [sub, setSub] = useState<"followers" | "following" | "circles" | "memories">("followers");
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <SocialSkeleton />;
   const rows = sub === "followers" ? data.followers : sub === "following" ? data.following : [];
   return (
     <div>
