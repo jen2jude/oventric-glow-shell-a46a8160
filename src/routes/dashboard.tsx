@@ -1065,8 +1065,8 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
         {data.balances.length === 0 ? (
           <div className="md:col-span-2"><EmptyState icon={WalletIcon} title="No wallet yet" hint="Your wallet appears once you receive your first credit or fund it." /></div>
         ) : data.balances.map((b) => (
-          <div key={b.currency} className="rounded-2xl border border-emerald-400/30 bg-[#141418] p-5">
-            <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">{b.currency} balance</div>
+          <div key={b.currency} className="rounded-2xl border border-white/10 bg-[#141418] p-5">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{b.currency} balance</div>
             <div className="mt-2 text-3xl font-black text-white">{b.currency} {b.available.toFixed(2)}</div>
             <div className="text-xs text-slate-400 mt-1">Escrow {b.currency} {b.escrow.toFixed(2)}</div>
           </div>
@@ -1077,12 +1077,12 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Pending payouts</div>
           <div className="space-y-2">
             {data.pendingPayouts.map((p) => (
-              <div key={p.id} className="rounded-xl border border-amber-400/30 bg-amber-500/5 p-3 flex items-center justify-between">
+              <div key={p.id} className="rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
                 <div>
                   <div className="text-white font-semibold">{p.currency} {p.amount.toFixed(2)}</div>
                   <div className="text-xs text-slate-400 mt-0.5">{p.method.toUpperCase()} · Requested {new Date(p.createdAt).toLocaleDateString()}</div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-amber-300">{p.status}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300">{p.status}</span>
               </div>
             ))}
           </div>
@@ -1097,7 +1097,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
             {data.recent.map((r) => (
               <div key={r.id} className="p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${r.inflow ? "bg-emerald-500/10 text-emerald-300" : "bg-rose-500/10 text-rose-300"}`}>
+                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
                     {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                   </div>
                   <div className="min-w-0">
@@ -1105,7 +1105,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
                     <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
                   </div>
                 </div>
-                <div className={`font-black text-sm shrink-0 ${r.inflow ? "text-emerald-300" : "text-rose-300"}`}>{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
+                <div className="font-black text-sm shrink-0 text-white">{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
               </div>
             ))}
           </div>
