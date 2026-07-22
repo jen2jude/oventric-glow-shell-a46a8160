@@ -267,6 +267,16 @@
    reproduces on the overview grid; desktop renders cleanly. Same recipe as
    profile page — neutralize semi-transparent gradients, shadows, filters,
    and compositor-promotion hints. */
+/* Dashboard overview: two mobile variants gated by GPU tier.
+   - .gpu-premium-only: shown on high-GPU / default (rich cards).
+   - .gpu-safe-only:    shown only on html.low-gpu (flat rows). */
+.gpu-safe-only { display: none; }
+html.low-gpu .gpu-premium-only { display: none !important; }
+html.low-gpu .gpu-safe-only { display: block !important; }
+@media (min-width: 768px) {
+  .gpu-safe-only, html.low-gpu .gpu-safe-only { display: none !important; }
+}
+
 html.low-gpu {
 
   .dashboard-render-safe,

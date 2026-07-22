@@ -758,7 +758,8 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const w = overview.wallet;
   return (
     <div className="space-y-5">
-      <div className="dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))]" aria-label="Dashboard overview">
+      {/* High-GPU / default: premium animated grid */}
+      <div className="gpu-premium-only dashboard-overview-mobile-safe grid grid-cols-2 gap-3 md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))]" aria-label="Dashboard overview">
         <PremiumStatCard hero icon={WalletIcon} tone="emerald" label="Wallet balance" value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"} sub={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"} onClick={() => onGoto("wallet")} />
         <PremiumStatCard icon={Trophy} tone="amber" label="Bounties earned" value={`$${overview.bounties.earnedUSD.toFixed(2)}`} sub={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`} onClick={() => onGoto("bounties")} />
         <PremiumStatCard icon={Users} tone="fuchsia" label="Network" value={overview.social.followers} sub={`${overview.social.following} following · ${overview.social.circles} circles`} onClick={() => onGoto("social")} />
@@ -770,6 +771,41 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
         <PremiumStatCard icon={CheckCircle2} tone="emerald" label="Completed" value={overview.courses.completed} onClick={() => onGoto("courses")} />
         <PremiumStatCard icon={Target} tone="violet" label="Active bounties" value={overview.bounties.active} onClick={() => onGoto("bounties")} />
         <PremiumStatCard icon={Bell} tone="rose" label="Alerts" value={overview.unread.notifications} onClick={() => onGoto("social")} />
+      </div>
+
+      {/* Low-GPU: simplified flat rows, no gradients / shadows / glow */}
+      <div className="gpu-safe-only md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2" aria-label="Dashboard overview (simplified)">
+        <button onClick={() => onGoto("wallet")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <WalletIcon className="w-4 h-4 text-emerald-300 shrink-0" />
+            <span className="text-sm text-slate-300 font-medium truncate">Wallet balance</span>
+          </div>
+          <span className="text-sm font-black text-white shrink-0">{w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}</span>
+        </button>
+        <button onClick={() => onGoto("bounties")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Trophy className="w-4 h-4 text-amber-300 shrink-0" />
+            <span className="text-sm text-slate-300 font-medium truncate">Bounties earned</span>
+          </div>
+          <span className="text-sm font-black text-white shrink-0">${overview.bounties.earnedUSD.toFixed(2)}</span>
+        </button>
+        <button onClick={() => onGoto("social")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 min-w-0">
+            <Users className="w-4 h-4 text-fuchsia-300 shrink-0" />
+            <span className="text-sm text-slate-300 font-medium truncate">Network</span>
+          </div>
+          <span className="text-sm font-black text-white shrink-0">{overview.social.followers}</span>
+        </button>
+        <div className="grid grid-cols-2 gap-2">
+          <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
+          <StatCard icon={Clock} label="Pending" value={overview.purchases.pending} accent="text-amber-300" />
+          <StatCard icon={MessageCircle} label="Contacted" value={overview.contacts} accent="text-sky-300" />
+          <StatCard icon={Store} label="Listings" value={overview.listings.total} accent="text-fuchsia-300" />
+          <StatCard icon={GraduationCap} label="Enrolled" value={overview.courses.enrolled} accent="text-cyan-300" />
+          <StatCard icon={CheckCircle2} label="Completed" value={overview.courses.completed} accent="text-emerald-300" />
+          <StatCard icon={Target} label="Active" value={overview.bounties.active} accent="text-amber-300" />
+          <StatCard icon={Bell} label="Alerts" value={overview.unread.notifications} accent="text-rose-300" />
+        </div>
       </div>
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
