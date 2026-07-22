@@ -255,18 +255,18 @@ function DashboardPage() {
 
         <Link
           to="/ads-manager"
-          className="group mb-5 flex items-center justify-between gap-3 rounded-2xl border border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-transparent p-4 hover:border-emerald-500/50 transition"
+          className="group mb-5 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141418] p-3 active:bg-white/[0.03]"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
-              <Bell className="w-5 h-5 text-emerald-400" />
+            <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
+              <Bell className="w-4 h-4 text-white" />
             </div>
             <div className="min-w-0">
-              <div className="text-white font-semibold">Ads Manager</div>
-              <div className="text-slate-400 text-xs">Manage and track the performance of your ads.</div>
+              <div className="text-white text-sm font-semibold">Ads Manager</div>
+              <div className="text-slate-400 text-xs">Manage and track your ad campaigns.</div>
             </div>
           </div>
-          <ArrowUpRight className="w-4 h-4 text-emerald-400 shrink-0 group-hover:translate-x-0.5 transition" />
+          <ArrowUpRight className="w-4 h-4 text-slate-400 shrink-0" />
         </Link>
 
 
