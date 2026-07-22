@@ -411,8 +411,8 @@ function AdvertisePage() {
           </p>
         </section>
 
-        {/* Live dashboard */}
-        <LiveDashboardPreview />
+        {/* Live dashboard — desktop / high-gpu only (heavy tickers + gradients) */}
+        {!simple && <LiveDashboardPreview />}
 
         {/* Coverage */}
         <section className="mt-14">
