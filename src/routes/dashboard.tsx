@@ -863,33 +863,33 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
 
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
-        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-emerald-400/30 bg-[#141418] p-5 hover:border-emerald-400/60 transition">
-          <div className="text-[10px] uppercase tracking-widest text-emerald-300 font-bold">Wallet balance</div>
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance</div>
           <div className="mt-2 text-3xl font-black text-white">
             {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
           </div>
           <div className="text-xs text-slate-400 mt-1">{w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}</div>
         </button>
         <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-amber-300" /> Bounties earned</div>
-          <div className="mt-2 text-3xl font-black text-amber-300">${overview.bounties.earnedUSD.toFixed(2)}</div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-white" /> Bounties earned</div>
+          <div className="mt-2 text-3xl font-black text-white">${overview.bounties.earnedUSD.toFixed(2)}</div>
           <div className="text-xs text-slate-400 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
         </button>
         <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Network</div>
-          <div className="mt-2 text-3xl font-black text-fuchsia-300">{overview.social.followers}</div>
+          <div className="mt-2 text-3xl font-black text-white">{overview.social.followers}</div>
           <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
       <div className="hidden grid-cols-1 gap-2 md:grid md:grid-cols-4 md:gap-3">
-        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-emerald-300" />
-        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-amber-300" />
-        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-sky-300" />
-        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-fuchsia-300" />
-        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-cyan-300" />
-        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-emerald-300" />
-        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-amber-300" />
-        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-rose-300" />
+        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
+        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-white" />
+        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-white" />
+        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-white" />
+        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-white" />
+        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-white" />
+        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-white" />
+        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-white" />
       </div>
     </div>
   );
