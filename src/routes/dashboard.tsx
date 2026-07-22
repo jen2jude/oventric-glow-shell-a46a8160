@@ -686,7 +686,7 @@ function ListingsList({
   const [filter, setFilter] = useState<"all" | "pending" | "active" | "rejected">("all");
 
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <ListingsSkeleton />;
   }
   if (rows.length === 0) {
     return (
