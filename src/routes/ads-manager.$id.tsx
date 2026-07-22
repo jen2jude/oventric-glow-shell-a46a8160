@@ -2,10 +2,12 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  ArrowLeft, Loader2, Eye, MousePointerClick, MessageCircle, Users, DollarSign,
+  ArrowLeft, Eye, MousePointerClick, MessageCircle, Users, DollarSign,
   Copy, ExternalLink, Target, Calendar, MapPin, PieChart, Link as LinkIcon,
 } from "lucide-react";
+import { CampaignDetailSkeleton } from "@/components/oventric/skeletons";
 import { toast } from "sonner";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   getMyCampaign, getMyCampaignMetrics, listMyCampaignLeads,
