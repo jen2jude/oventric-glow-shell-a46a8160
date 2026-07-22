@@ -277,9 +277,40 @@ function LiveDashboardPreview() {
   );
 }
 
+function useSimplifyAdvertise() {
+  const [simple, setSimple] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      if (document.documentElement.classList.contains("low-gpu")) return true;
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const narrow = window.matchMedia("(max-width: 1023px)").matches;
+      return coarse || narrow;
+    } catch { return false; }
+  });
+  useEffect(() => {
+    const mq1 = window.matchMedia("(pointer: coarse)");
+    const mq2 = window.matchMedia("(max-width: 1023px)");
+    const update = () => {
+      setSimple(
+        document.documentElement.classList.contains("low-gpu") ||
+        mq1.matches || mq2.matches
+      );
+    };
+    update();
+    mq1.addEventListener?.("change", update);
+    mq2.addEventListener?.("change", update);
+    return () => {
+      mq1.removeEventListener?.("change", update);
+      mq2.removeEventListener?.("change", update);
+    };
+  }, []);
+  return simple;
+}
+
 function AdvertisePage() {
   const [open, setOpen] = useState(false);
   const [presetTier, setPresetTier] = useState<"text" | "image" | "video">("image");
+  const simple = useSimplifyAdvertise();
 
   const start = (tier: "text" | "image" | "video" = "image") => {
     setPresetTier(tier);
