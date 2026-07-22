@@ -1012,7 +1012,7 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
             {data.enrolled.map((c) => {
               const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
               return (
-                <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
+              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
                   <div className="flex items-center justify-between gap-3 mb-2">
                     <div className="min-w-0">
                       <div className="text-white font-semibold truncate">{c.title}</div>
@@ -1020,10 +1020,10 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                         {c.completedModules}/{c.totalModules} modules · Enrolled {new Date(c.enrolledAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="text-xs font-bold text-emerald-300">{pct}%</div>
+                    <div className="text-xs font-bold text-white">{pct}%</div>
                   </div>
                   <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <div className="h-full bg-emerald-500 transition-all" style={{ width: `${pct}%` }} />
+                    <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
                   </div>
                 </div>
               );
