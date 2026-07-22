@@ -58,6 +58,16 @@ import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { Images } from "lucide-react";
+import {
+  OverviewSkeleton,
+  ListSkeleton,
+  WalletSkeleton,
+  SocialSkeleton,
+  ListingsSkeleton,
+  DigitalSkeleton,
+  PhysicalSkeleton,
+} from "@/components/oventric/skeletons";
+
 
 
 export const Route = createFileRoute("/dashboard")({
