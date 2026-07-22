@@ -437,7 +437,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button
       onClick={onClick}
       className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${
-        active ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
+        active ? "bg-white text-black" : "text-slate-300 hover:text-white"
       }`}
     >
       {children}
