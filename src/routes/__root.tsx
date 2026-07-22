@@ -137,7 +137,7 @@ function RootShell({ children }: { children: ReactNode }) {
   var isMobile=/Mobi|Android|iPhone|iPad|iPod/i.test(ua);
   var isAndroid=/Android/i.test(ua);
   var isApple=/iPhone|iPad|iPod/i.test(ua);
-  var weakDevice=/Infinix|X6813|Note\\s*11i|TECNO|itel|Nokia\\s*C/i.test(ua);
+  var weakDevice=/Infinix|X6813|X68\\d{2}|Note\\s*11i|TECNO|itel|Nokia\\s*C|Redmi\\s*(9|A)|Realme\\s*C/i.test(ua);
   var mem=navigator.deviceMemory||0;
   var cpu=navigator.hardwareConcurrency||0;
   var r='';
