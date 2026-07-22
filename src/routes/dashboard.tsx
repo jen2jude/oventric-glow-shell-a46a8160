@@ -586,7 +586,7 @@ function PhysicalList({
         icon={ShoppingBag}
         title="You haven't contacted any sellers yet"
         hint="When you tap Call or Chat on a physical listing, it'll show up here so you can reach the seller again."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Browse physical goods</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Browse physical goods</Link>}
       />
     );
   }
