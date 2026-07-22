@@ -821,7 +821,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
     }
   }, []);
 
-  if (!overview) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!overview) return <OverviewSkeleton />;
   const w = overview.wallet;
   return (
     <div className="space-y-5">
