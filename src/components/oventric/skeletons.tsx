@@ -204,9 +204,20 @@ export function PhysicalSkeleton() {
   return <DigitalSkeleton />;
 }
 
+export function PhotoGridSkeleton({ count = 12 }: { count?: number }) {
+  return (
+    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
+      {Array.from({ length: count }).map((_, i) => (
+        <Skeleton key={i} className="aspect-square rounded-lg bg-white/10" />
+      ))}
+    </div>
+  );
+}
+
 /* -------------------------------------------------------------------------- */
 /*  Ads Manager skeletons                                                     */
 /* -------------------------------------------------------------------------- */
+
 
 export function AdsManagerSkeleton() {
   return (
