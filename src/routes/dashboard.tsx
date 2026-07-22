@@ -493,7 +493,7 @@ function DigitalList({
   onConfirm: (orderId: string) => void;
 }) {
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <DigitalSkeleton />;
   }
   if (rows.length === 0) {
     return (
