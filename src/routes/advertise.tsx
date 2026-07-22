@@ -28,8 +28,8 @@ const TIERS = [
     tagline: "Lightest & cheapest",
     price: "$0.50",
     per: "/day min",
-    color: "from-white/10 to-white/5",
-    ring: "border-white/30",
+    color: "from-slate-500/20 to-slate-500/5",
+    ring: "border-slate-500/40",
     features: [
       "Header + short description + body",
       "CTA: WhatsApp, Lead form, or Website link",
@@ -43,8 +43,8 @@ const TIERS = [
     tagline: "Most popular",
     price: "$0.79",
     per: "/day min",
-    color: "from-white/10 to-white/5",
-    ring: "border-white/40",
+    color: "from-emerald-500/25 to-emerald-500/5",
+    ring: "border-emerald-500/60",
     features: [
       "1:1 image (fits Feed, Marketplace & Academy)",
       "Up to 5 images as a carousel",
@@ -59,8 +59,8 @@ const TIERS = [
     tagline: "Highest impact",
     price: "$0.99",
     per: "/day min",
-    color: "from-white/10 to-white/5",
-    ring: "border-white/30",
+    color: "from-purple-500/25 to-purple-500/5",
+    ring: "border-purple-500/40",
     features: [
       "Up to 5 min video, 100 MB max",
       "Header + description + body + CTA",
@@ -160,16 +160,16 @@ function LiveDashboardPreview() {
   const cpm = t.imp ? ((t.spend / t.imp) * 1000).toFixed(2) : "0";
 
   const stats = [
-    { icon: Eye, label: "Impressions", value: t.imp.toLocaleString(), tint: "text-white", ring: "border-white/20" },
-    { icon: MousePointerClick, label: "Clicks", value: t.clk.toLocaleString(), tint: "text-white", ring: "border-white/20" },
-    { icon: Users, label: "Leads", value: t.ld.toString(), tint: "text-white", ring: "border-white/20" },
-    { icon: TrendingUp, label: "Spend", value: `$${t.spend.toFixed(2)}`, tint: "text-white", ring: "border-white/20" },
+    { icon: Eye, label: "Impressions", value: t.imp.toLocaleString(), tint: "text-sky-300", ring: "border-sky-500/30" },
+    { icon: MousePointerClick, label: "Clicks", value: t.clk.toLocaleString(), tint: "text-emerald-300", ring: "border-emerald-500/30" },
+    { icon: Users, label: "Leads", value: t.ld.toString(), tint: "text-fuchsia-300", ring: "border-fuchsia-500/30" },
+    { icon: TrendingUp, label: "Spend", value: `$${t.spend.toFixed(2)}`, tint: "text-amber-300", ring: "border-amber-500/30" },
   ];
 
   return (
     <section className="mt-14">
       <div className="text-center mb-6">
-        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider">
+        <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
           <Activity className="w-3.5 h-3.5" /> Live dashboard preview
         </span>
         <h2 className="mt-3 text-2xl md:text-3xl font-black text-white">See the algorithm work in real time</h2>
@@ -178,15 +178,15 @@ function LiveDashboardPreview() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden">
+      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(16,185,129,0.06)]">
         {/* fake window chrome */}
         <div className="flex items-center gap-2 px-4 h-9 border-b border-white/10 bg-[#141418]">
-          <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
-          <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
-          <span className="w-2.5 h-2.5 rounded-full bg-white/40" />
+          <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
+          <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
           <div className="ml-3 text-[11px] text-slate-500 font-mono">ads.oventric.com/live</div>
-          <div className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-bold text-white">
-            <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> LIVE
+          <div className="ml-auto inline-flex items-center gap-1.5 text-[10px] font-bold text-emerald-300">
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> LIVE
           </div>
         </div>
 
@@ -198,7 +198,7 @@ function LiveDashboardPreview() {
                 <div key={s.label} className={`p-3 rounded-xl bg-[#141418] border ${s.ring}`}>
                   <div className="flex items-center justify-between">
                     <s.icon className={`w-4 h-4 ${s.tint}`} />
-                    <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
                   <div className={`mt-2 text-xl font-black ${s.tint} tabular-nums`}>{s.value}</div>
                   <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
@@ -209,16 +209,16 @@ function LiveDashboardPreview() {
             {/* funnel bars */}
             <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                <Layers className="w-4 h-4 text-white" /> Delivery funnel
+                <Layers className="w-4 h-4 text-emerald-400" /> Delivery funnel
                 <span className="ml-auto text-[10px] text-slate-500">CTR {ctr}% · CPM ${cpm}</span>
               </div>
               <div className="mt-3 space-y-2">
                 {[
-                  { k: "Auction eligible", v: 100, c: "bg-white/50" },
-                  { k: "Passed targeting", v: 74, c: "bg-white/50" },
-                  { k: "Frequency-safe", v: 58, c: "bg-white/50" },
-                  { k: "Served (impressions)", v: 46, c: "bg-white/50" },
-                  { k: "Engaged (clicks)", v: 12, c: "bg-white/50" },
+                  { k: "Auction eligible", v: 100, c: "bg-sky-500/70" },
+                  { k: "Passed targeting", v: 74, c: "bg-emerald-500/70" },
+                  { k: "Frequency-safe", v: 58, c: "bg-fuchsia-500/70" },
+                  { k: "Served (impressions)", v: 46, c: "bg-amber-400/80" },
+                  { k: "Engaged (clicks)", v: 12, c: "bg-white/60" },
                 ].map((r) => (
                   <div key={r.k}>
                     <div className="flex items-center justify-between text-[11px] text-slate-400">
@@ -235,33 +235,33 @@ function LiveDashboardPreview() {
             {/* Sparkline placeholder */}
             <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
-                <Radio className="w-4 h-4 text-white" /> Impressions / minute
-                <span className="ml-auto text-[10px] text-white">+{Math.floor(60 + Math.random() * 40)} last min</span>
+                <Radio className="w-4 h-4 text-emerald-400" /> Impressions / minute
+                <span className="ml-auto text-[10px] text-emerald-300">+{Math.floor(60 + Math.random() * 40)} last min</span>
               </div>
               <svg viewBox="0 0 400 80" className="w-full h-20 mt-3">
                 <defs>
                   <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgb(255,255,255)" stopOpacity="0.3" />
-                    <stop offset="100%" stopColor="rgb(255,255,255)" stopOpacity="0" />
+                    <stop offset="0%" stopColor="rgb(16,185,129)" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="rgb(16,185,129)" stopOpacity="0" />
                   </linearGradient>
                 </defs>
                 <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8 L400,80 L0,80 Z" fill="url(#g1)" />
-                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(255,255,255)" strokeWidth="2" />
+                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(16,185,129)" strokeWidth="2" />
               </svg>
             </div>
           </div>
 
           {/* Algorithm log */}
-          <div className="p-4 rounded-xl bg-black/50 border border-white/10 font-mono text-[11px] leading-relaxed text-white/80 min-h-[280px]">
-            <div className="flex items-center gap-2 text-white text-xs font-bold not-italic mb-2">
+          <div className="p-4 rounded-xl bg-black/50 border border-emerald-500/20 font-mono text-[11px] leading-relaxed text-emerald-200 min-h-[280px]">
+            <div className="flex items-center gap-2 text-emerald-300 text-xs font-bold not-italic mb-2">
               <Cpu className="w-4 h-4" /> ranker.log
               <span className="ml-auto inline-flex items-center gap-1 text-[10px]">
-                <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" /> streaming
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" /> streaming
               </span>
             </div>
             <div className="space-y-1">
               {rows.map((r, i) => (
-                <div key={`${r}-${i}`} className={i === 0 ? "text-white" : "text-white/60"}>
+                <div key={`${r}-${i}`} className={i === 0 ? "text-emerald-300" : "text-emerald-200/70"}>
                   <span className="text-slate-500">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>{" "}
                   {r}
                 </div>
@@ -323,20 +323,20 @@ function AdvertisePage() {
 
         {/* Hero */}
         <section className="text-center">
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/10 border border-white/20 text-white text-xs font-bold uppercase tracking-wider">
+          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Advertise on Oventric
           </span>
           <h1 className="mt-4 text-3xl md:text-5xl font-black text-white leading-tight">
             Put your brand in front of<br className="hidden md:block" /> builders across Africa
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-slate-400">
-            From <span className="text-white font-bold">$0.50/day</span>. Three simple ad tiers, transparent pricing,
+            From <span className="text-emerald-300 font-bold">$0.50/day</span>. Three simple ad tiers, transparent pricing,
             state-level targeting in Nigeria & Ghana plus the rest of Africa — wallet-funded budgets, no auctions.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <button
               onClick={() => start("image")}
-              className="px-6 py-3 bg-white hover:bg-white/90 text-black text-sm font-black rounded-full inline-flex items-center gap-2"
+              className="px-6 py-3 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-full inline-flex items-center gap-2"
             >
               Explore & Get Started <ChevronRight className="w-4 h-4" />
             </button>
@@ -358,7 +358,7 @@ function AdvertisePage() {
             { icon: ShieldCheck, k: "24h", v: "Avg admin review" },
           ].map((s) => (
             <div key={s.v} className="p-4 rounded-2xl bg-[#141418] border border-white/10 text-center">
-              <s.icon className="w-5 h-5 text-white mx-auto mb-2" />
+              <s.icon className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
               <div className="text-lg font-black text-white">{s.k}</div>
               <div className="text-[11px] text-slate-500 uppercase tracking-wider">{s.v}</div>
             </div>
@@ -378,7 +378,7 @@ function AdvertisePage() {
                 className={`relative p-6 rounded-2xl ${simple ? "bg-[#141418]" : `bg-gradient-to-b ${t.color}`} border ${t.ring} flex flex-col`}
               >
                 {t.highlight && (
-                  <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full bg-white text-black text-[10px] font-black uppercase tracking-wider">
+                  <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full bg-emerald-500 text-black text-[10px] font-black uppercase tracking-wider">
                     Popular
                   </span>
                 )}
@@ -392,14 +392,14 @@ function AdvertisePage() {
                 <ul className="mt-4 space-y-2 flex-1">
                   {t.features.map((f) => (
                     <li key={f} className="flex items-start gap-2 text-xs text-slate-300">
-                      <CheckCircle2 className="w-4 h-4 text-white shrink-0 mt-0.5" />
+                      <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>{f}</span>
                     </li>
                   ))}
                 </ul>
                 <button
                   onClick={() => start(t.id as "text" | "image" | "video")}
-                  className="mt-5 w-full h-11 rounded-full bg-white/5 hover:bg-white hover:text-black border border-white/10 text-white text-xs font-black transition-colors"
+                  className="mt-5 w-full h-11 rounded-full bg-white/5 hover:bg-emerald-500 hover:text-black border border-white/10 text-white text-xs font-black transition-colors"
                 >
                   Start with {t.name}
                 </button>
@@ -445,7 +445,7 @@ function AdvertisePage() {
           <div className="grid md:grid-cols-5 gap-3">
             {STEPS.map((s, i) => (
               <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10">
-                <div className="w-8 h-8 rounded-full bg-white/10 border border-white/30 grid place-items-center text-white text-xs font-black">{i + 1}</div>
+                <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-300 text-xs font-black">{i + 1}</div>
                 <s.icon className="w-5 h-5 text-white mt-3" />
                 <div className="mt-2 text-sm font-bold text-white">{s.title}</div>
                 <div className="text-xs text-slate-400 mt-1 leading-relaxed">{s.body}</div>
@@ -459,7 +459,7 @@ function AdvertisePage() {
           <h2 className="text-xl font-black text-white">Creative specs</h2>
           <div className="mt-4 grid md:grid-cols-3 gap-4 text-xs text-slate-300">
             <div>
-              <div className="text-sm font-bold text-white">Image</div>
+              <div className="text-sm font-bold text-emerald-300">Image</div>
               <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
                 <li>Aspect ratio: 1:1 (square)</li>
                 <li>Recommended: 1080 × 1080 px</li>
@@ -469,7 +469,7 @@ function AdvertisePage() {
               </ul>
             </div>
             <div>
-              <div className="text-sm font-bold text-white">Video</div>
+              <div className="text-sm font-bold text-emerald-300">Video</div>
               <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
                 <li>Duration: up to 5 minutes</li>
                 <li>Max size: 100 MB (MP4 / WEBM)</li>
@@ -479,7 +479,7 @@ function AdvertisePage() {
               </ul>
             </div>
             <div>
-              <div className="text-sm font-bold text-white">Copy</div>
+              <div className="text-sm font-bold text-emerald-300">Copy</div>
               <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
                 <li>Header: up to 60 characters</li>
                 <li>Description: up to 140 characters</li>
@@ -491,14 +491,14 @@ function AdvertisePage() {
         </section>
 
         {/* CTA */}
-        <section className="mt-14 text-center p-8 rounded-2xl border bg-[#141418] border-white/10">
+        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] border-white/10" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
           <h2 className="text-2xl md:text-3xl font-black text-white">Ready to launch your first campaign?</h2>
           <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto">
             Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
           </p>
           <button
             onClick={() => start("image")}
-            className="mt-6 px-8 py-3.5 bg-white hover:bg-white/90 text-black text-sm font-black rounded-full inline-flex items-center gap-2"
+            className="mt-6 px-8 py-3.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black rounded-full inline-flex items-center gap-2"
           >
             Explore & Get Started <ChevronRight className="w-4 h-4" />
           </button>
