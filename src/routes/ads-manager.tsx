@@ -1,7 +1,9 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BarChart3, Loader2, Megaphone, ChevronRight } from "lucide-react";
+import { ArrowLeft, BarChart3, Megaphone, ChevronRight } from "lucide-react";
+import { AdsManagerSkeleton } from "@/components/oventric/skeletons";
+
 import { supabase } from "@/integrations/supabase/client";
 import { listMyCampaigns, type MyCampaignSummary } from "@/lib/my-ads.functions";
 
@@ -41,12 +43,9 @@ function AdsManagerPage() {
   }, [ready, listFn]);
 
   if (!ready || rows === null) {
-    return (
-      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
-      </div>
-    );
+    return <AdsManagerSkeleton />;
   }
+
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] text-slate-200">

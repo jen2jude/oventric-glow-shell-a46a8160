@@ -75,12 +75,9 @@ function CampaignDetailPage() {
   }, [ready, id, refresh]);
 
   if (!ready || (!detail && !error)) {
-    return (
-      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center">
-        <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
-      </div>
-    );
+    return <CampaignDetailSkeleton />;
   }
+
 
   if (error || !detail) {
     return (

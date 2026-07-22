@@ -1190,7 +1190,7 @@ function MyMemoriesGallery() {
   }, [fetchPhotos]);
 
   if (photos === null) {
-    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <PhotoGridSkeleton count={12} />;
   }
   if (photos.length === 0) {
     return <EmptyState icon={Images} title="No memories yet" hint="Your uploaded photos will appear here as you share." />;
