@@ -469,14 +469,14 @@ function EmptyState({ icon: Icon, title, hint, cta }: { icon: typeof Package; ti
 
 function StatusBadge({ status }: { status: PurchaseDTO["status"] }) {
   const meta = {
-    paid: { label: "Paid", cls: "bg-emerald-500/10 border-emerald-400/40 text-emerald-300", icon: CheckCircle2 },
-    pending: { label: "Pending", cls: "bg-amber-500/10 border-amber-400/40 text-amber-300", icon: Clock },
-    failed: { label: "Failed", cls: "bg-red-500/10 border-red-400/40 text-red-300", icon: AlertTriangle },
-    refunded: { label: "Refunded", cls: "bg-white/10 border-white/20 text-slate-300", icon: AlertTriangle },
+    paid: { label: "Paid", icon: CheckCircle2 },
+    pending: { label: "Pending", icon: Clock },
+    failed: { label: "Failed", icon: AlertTriangle },
+    refunded: { label: "Refunded", icon: AlertTriangle },
   }[status];
   const Icon = meta.icon;
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold ${meta.cls}`}>
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
