@@ -606,8 +606,8 @@ function PhysicalList({
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">{r.category}</div>
-                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
+                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
                     {r.productName}
                   </Link>
                   <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
@@ -640,7 +640,7 @@ function PhysicalList({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={() => onRelog(r.productId, "whatsapp")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> WhatsApp
                   </a>
