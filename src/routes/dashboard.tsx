@@ -828,27 +828,27 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
     <div className="space-y-5">
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
       <div className="block md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2" aria-label="Dashboard overview">
-        <button onClick={() => onGoto("wallet")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <WalletIcon className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Wallet balance</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">{w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}</span>
-        </button>
-        <button onClick={() => onGoto("bounties")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Trophy className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Bounties earned</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">${overview.bounties.earnedUSD.toFixed(2)}</span>
-        </button>
-        <button onClick={() => onGoto("social")} className="w-full text-left rounded-lg border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 min-w-0">
-            <Users className="w-4 h-4 text-white shrink-0" />
-            <span className="text-sm text-slate-300 font-medium truncate">Network</span>
-          </div>
-          <span className="text-sm font-black text-white shrink-0">{overview.social.followers}</span>
-        </button>
+        <SimpleRowCard
+          icon={WalletIcon}
+          title="Wallet balance"
+          subtitle={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}
+          value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
+          onClick={() => onGoto("wallet")}
+        />
+        <SimpleRowCard
+          icon={Trophy}
+          title="Bounties earned"
+          subtitle={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`}
+          value={`$${overview.bounties.earnedUSD.toFixed(2)}`}
+          onClick={() => onGoto("bounties")}
+        />
+        <SimpleRowCard
+          icon={Users}
+          title="Network"
+          subtitle={`${overview.social.following} following · ${overview.social.circles} circles`}
+          value={overview.social.followers}
+          onClick={() => onGoto("social")}
+        />
         <div className="grid grid-cols-2 gap-2">
           <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
           <StatCard icon={Clock} label="Pending" value={overview.purchases.pending} accent="text-white" />
