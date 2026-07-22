@@ -1106,11 +1106,16 @@ html.high-gpu .rgb-promo-border {
 @media (hover: none) and (pointer: coarse) {
   .rgb-neon-bg,
   .rgb-neon-border-wrapper,
-  .rgb-pulse-glow,
+  .rgb-pulse-glow {
+    animation: none !important;
+    background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308) !important;
+    background-size: 100% 100% !important;
+  }
   html.high-gpu .rgb-static-border,
   html.high-gpu .rgb-static-border-wrapper,
   html.high-gpu .rgb-promo-border {
     animation: none !important;
+    background: linear-gradient(90deg, #22d3ee, #d946ef, #eab308) !important;
     background-size: 100% 100% !important;
   }
 }
