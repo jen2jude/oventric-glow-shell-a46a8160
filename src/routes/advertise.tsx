@@ -426,7 +426,7 @@ function AdvertisePage() {
                 <div className="text-lg font-black text-white">{c.country}</div>
                 <div className="mt-3 flex flex-wrap gap-2 max-h-64 overflow-y-auto pr-1">
                   {c.cities.map((city) => (
-                    <span key={city} className="px-2.5 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-200 text-[11px] font-semibold">
+                    <span key={city} className="px-2.5 py-1 rounded-full bg-white/5 border border-white/15 text-white text-[11px] font-semibold">
                       {city}
                     </span>
                   ))}
