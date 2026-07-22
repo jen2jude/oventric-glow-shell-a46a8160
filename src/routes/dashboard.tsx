@@ -1057,7 +1057,7 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
 }
 
 function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <WalletSkeleton />;
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
