@@ -58,6 +58,18 @@ import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { Images } from "lucide-react";
+import {
+  OverviewSkeleton,
+  ListSkeleton,
+  WalletSkeleton,
+  SocialSkeleton,
+  ListingsSkeleton,
+  DigitalSkeleton,
+  PhysicalSkeleton,
+  PhotoGridSkeleton,
+} from "@/components/oventric/skeletons";
+
+
 
 
 export const Route = createFileRoute("/dashboard")({
@@ -483,7 +495,7 @@ function DigitalList({
   onConfirm: (orderId: string) => void;
 }) {
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <DigitalSkeleton />;
   }
   if (rows.length === 0) {
     return (
@@ -567,7 +579,7 @@ function PhysicalList({
   onRelog: (productId: string, method: "call" | "whatsapp") => void;
 }) {
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <PhysicalSkeleton />;
   }
   if (rows.length === 0) {
     return (
@@ -676,7 +688,7 @@ function ListingsList({
   const [filter, setFilter] = useState<"all" | "pending" | "active" | "rejected">("all");
 
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <ListingsSkeleton />;
   }
   if (rows.length === 0) {
     return (
@@ -811,7 +823,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
     }
   }, []);
 
-  if (!overview) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!overview) return <OverviewSkeleton />;
   const w = overview.wallet;
   return (
     <div className="space-y-5">
@@ -937,7 +949,7 @@ function shouldUseSafeDashboardOverview() {
 
 function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null }) {
   const [sub, setSub] = useState<"posted" | "solved">("posted");
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <ListSkeleton count={6} />;
   return (
     <div>
       <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
@@ -986,7 +998,7 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
 
 function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null }) {
   const [sub, setSub] = useState<"enrolled" | "published">("enrolled");
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <ListSkeleton count={6} />;
   return (
     <div>
       <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
@@ -1047,7 +1059,7 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
 }
 
 function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <WalletSkeleton />;
   return (
     <div className="space-y-5">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
@@ -1106,7 +1118,7 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
 
 function SocialPane({ data }: { data: DashboardSocial | null }) {
   const [sub, setSub] = useState<"followers" | "following" | "circles" | "memories">("followers");
-  if (!data) return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+  if (!data) return <SocialSkeleton />;
   const rows = sub === "followers" ? data.followers : sub === "following" ? data.following : [];
   return (
     <div>
@@ -1178,7 +1190,7 @@ function MyMemoriesGallery() {
   }, [fetchPhotos]);
 
   if (photos === null) {
-    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <PhotoGridSkeleton count={12} />;
   }
   if (photos.length === 0) {
     return <EmptyState icon={Images} title="No memories yet" hint="Your uploaded photos will appear here as you share." />;
