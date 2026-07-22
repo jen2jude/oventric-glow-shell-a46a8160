@@ -754,12 +754,20 @@ function ListingsList({
 /* -------------------------------------------------------------------------- */
 
 function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null; onGoto: (t: Tab) => void }) {
-  const [useSafeOverview, setUseSafeOverview] = useState(false);
+  // Lazy init so the first paint already picks the safe layout on mobile —
+  // avoids a scrambled frame before useEffect runs. Any touch-primary narrow
+  // viewport gets the safe overview; premium grid stays for pointer:fine (PC).
+  const [useSafeOverview, setUseSafeOverview] = useState(() => {
+    if (typeof window === "undefined") return false;
+    const coarse = window.matchMedia?.("(pointer: coarse)").matches ?? false;
+    const narrow = window.matchMedia?.("(max-width: 1023px)").matches ?? false;
+    return coarse && narrow;
+  });
 
   useEffect(() => {
     const lowGpu = shouldUseSafeDashboardOverview();
-    setUseSafeOverview(lowGpu);
     if (lowGpu) {
+      setUseSafeOverview(true);
       document.documentElement.classList.remove("high-gpu");
       document.documentElement.classList.add("low-gpu");
       document.documentElement.dataset.gpuTier = "low";
