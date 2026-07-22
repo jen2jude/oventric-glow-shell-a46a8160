@@ -491,7 +491,7 @@ function AdvertisePage() {
         </section>
 
         {/* CTA */}
-        <section className="mt-14 text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-transparent border border-emerald-500/30">
+        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] border-white/10" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
           <h2 className="text-2xl md:text-3xl font-black text-white">Ready to launch your first campaign?</h2>
           <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto">
             Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
