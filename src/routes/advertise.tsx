@@ -375,7 +375,7 @@ function AdvertisePage() {
             {TIERS.map((t) => (
               <div
                 key={t.id}
-                className={`relative p-6 rounded-2xl bg-gradient-to-b ${t.color} border ${t.ring} flex flex-col`}
+                className={`relative p-6 rounded-2xl ${simple ? "bg-[#141418]" : `bg-gradient-to-b ${t.color}`} border ${t.ring} flex flex-col`}
               >
                 {t.highlight && (
                   <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full bg-emerald-500 text-black text-[10px] font-black uppercase tracking-wider">
