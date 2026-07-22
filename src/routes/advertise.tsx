@@ -277,9 +277,40 @@ function LiveDashboardPreview() {
   );
 }
 
+function useSimplifyAdvertise() {
+  const [simple, setSimple] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try {
+      if (document.documentElement.classList.contains("low-gpu")) return true;
+      const coarse = window.matchMedia("(pointer: coarse)").matches;
+      const narrow = window.matchMedia("(max-width: 1023px)").matches;
+      return coarse || narrow;
+    } catch { return false; }
+  });
+  useEffect(() => {
+    const mq1 = window.matchMedia("(pointer: coarse)");
+    const mq2 = window.matchMedia("(max-width: 1023px)");
+    const update = () => {
+      setSimple(
+        document.documentElement.classList.contains("low-gpu") ||
+        mq1.matches || mq2.matches
+      );
+    };
+    update();
+    mq1.addEventListener?.("change", update);
+    mq2.addEventListener?.("change", update);
+    return () => {
+      mq1.removeEventListener?.("change", update);
+      mq2.removeEventListener?.("change", update);
+    };
+  }, []);
+  return simple;
+}
+
 function AdvertisePage() {
   const [open, setOpen] = useState(false);
   const [presetTier, setPresetTier] = useState<"text" | "image" | "video">("image");
+  const simple = useSimplifyAdvertise();
 
   const start = (tier: "text" | "image" | "video" = "image") => {
     setPresetTier(tier);
@@ -344,7 +375,7 @@ function AdvertisePage() {
             {TIERS.map((t) => (
               <div
                 key={t.id}
-                className={`relative p-6 rounded-2xl bg-gradient-to-b ${t.color} border ${t.ring} flex flex-col`}
+                className={`relative p-6 rounded-2xl ${simple ? "bg-[#141418]" : `bg-gradient-to-b ${t.color}`} border ${t.ring} flex flex-col`}
               >
                 {t.highlight && (
                   <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full bg-emerald-500 text-black text-[10px] font-black uppercase tracking-wider">
@@ -380,8 +411,8 @@ function AdvertisePage() {
           </p>
         </section>
 
-        {/* Live dashboard */}
-        <LiveDashboardPreview />
+        {/* Live dashboard — desktop / high-gpu only (heavy tickers + gradients) */}
+        {!simple && <LiveDashboardPreview />}
 
         {/* Coverage */}
         <section className="mt-14">
@@ -460,7 +491,7 @@ function AdvertisePage() {
         </section>
 
         {/* CTA */}
-        <section className="mt-14 text-center p-8 rounded-2xl bg-gradient-to-br from-emerald-500/15 to-transparent border border-emerald-500/30">
+        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] border-white/10" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
           <h2 className="text-2xl md:text-3xl font-black text-white">Ready to launch your first campaign?</h2>
           <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto">
             Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
