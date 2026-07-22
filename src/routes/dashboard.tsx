@@ -870,13 +870,17 @@ function shouldUseSafeDashboardOverview() {
     return true;
   }
 
-  const memory = navigator.deviceMemory || 0;
-  const cores = navigator.hardwareConcurrency || 0;
+  const nav = navigator as Navigator & {
+    deviceMemory?: number;
+    connection?: { saveData?: boolean; effectiveType?: string };
+  };
+  const memory = nav.deviceMemory || 0;
+  const cores = nav.hardwareConcurrency || 0;
   const androidVersion = Number((ua.match(/Android\s+(\d+)/i) || [])[1] || 0);
   const dpr = window.devicePixelRatio || 1;
   const longScreen = Math.max(window.screen?.width || 0, window.screen?.height || 0);
   const physicalWidth = longScreen * dpr;
-  const connection = (navigator as Navigator & { connection?: { saveData?: boolean; effectiveType?: string } }).connection;
+  const connection = nav.connection;
 
   let score = 0;
   if (!androidVersion || androidVersion <= 11) score -= 2;
