@@ -1134,8 +1134,8 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {rows.map((u) => (
-              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-emerald-400/40 transition">
-                <div className="w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-400/30 overflow-hidden flex items-center justify-center text-emerald-300 font-bold">
+              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-white/20 transition">
+                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center text-white font-bold">
                   {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.slice(0, 1).toUpperCase()}
                 </div>
                 <div className="min-w-0">
@@ -1155,13 +1155,13 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
             {data.circles.map((c) => (
               <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-fuchsia-500/10 border border-fuchsia-400/30 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
+                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
                   <div className="min-w-0">
                     <div className="text-white font-semibold text-sm truncate">{c.name}</div>
                     <div className="text-[11px] text-slate-500">Joined {new Date(c.joinedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-fuchsia-300">{c.role}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300">{c.role}</span>
               </div>
             ))}
           </div>
