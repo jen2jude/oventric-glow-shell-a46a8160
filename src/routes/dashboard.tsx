@@ -743,10 +743,10 @@ function ListingsList({
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">
                       {p.kind === "physical" ? "Physical" : "Digital"} · {p.category}
                     </div>
-                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-white truncate block">
                       {p.name}
                     </Link>
                     <div className="text-xs text-slate-400">
@@ -758,9 +758,9 @@ function ListingsList({
                 </div>
 
                 {p.status === "rejected" && p.rejectReason && (
-                  <div className="mt-2 rounded-md border border-amber-500/40 bg-amber-500/5 p-2">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-amber-300 mb-0.5">Moderator note</div>
-                    <div className="text-xs text-amber-100 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
+                  <div className="mt-2 rounded-md border border-white/10 bg-white/5 p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-0.5">Moderator note</div>
+                    <div className="text-xs text-slate-200 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
                   </div>
                 )}
 
@@ -769,7 +769,7 @@ function ListingsList({
                     <button
                       type="button"
                       onClick={() => onEdit(p)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
                     >
                       <Pencil className="w-3.5 h-3.5" /> Edit & Resubmit
                     </button>
