@@ -516,8 +516,8 @@ function DigitalList({
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">{r.category}</div>
-                <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-emerald-300 truncate block">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
+                <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
                   {r.productName}
                 </Link>
                 <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
@@ -533,7 +533,7 @@ function DigitalList({
                   <button
                     onClick={() => onDownload(r.orderId, r.productId, r.externalUrl, r.hasFile)}
                     disabled={downloadingId === r.orderId}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold disabled:opacity-60"
                   >
                     {downloadingId === r.orderId ? (
                       <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -548,7 +548,7 @@ function DigitalList({
                 {r.status === "paid" && r.escrowStatus === "held" && (
                   <button
                     onClick={() => onConfirm(r.orderId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-black text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
                     title="Confirm you've received this product to release the seller's funds"
                   >
                     Confirm received
