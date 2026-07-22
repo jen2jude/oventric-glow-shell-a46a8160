@@ -66,7 +66,9 @@ import {
   ListingsSkeleton,
   DigitalSkeleton,
   PhysicalSkeleton,
+  PhotoGridSkeleton,
 } from "@/components/oventric/skeletons";
+
 
 
 
