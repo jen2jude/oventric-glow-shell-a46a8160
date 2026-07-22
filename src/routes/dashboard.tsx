@@ -577,7 +577,7 @@ function PhysicalList({
   onRelog: (productId: string, method: "call" | "whatsapp") => void;
 }) {
   if (rows === null) {
-    return <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <PhysicalSkeleton />;
   }
   if (rows.length === 0) {
     return (
