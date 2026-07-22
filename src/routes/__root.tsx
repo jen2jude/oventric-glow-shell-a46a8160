@@ -158,15 +158,24 @@ function RootShell({ children }: { children: ReactNode }) {
   if(isApple){markHigh('apple-mobile');return;}
   if((mem && mem<=3)||(cpu && cpu<=4)){markLow('hardware');return;}
   if(mem>=6 && cpu>=8){markHigh('hardware');return;}
-  try{
-    var uad=navigator.userAgentData;
-    if(isAndroid&&uad&&uad.getHighEntropyValues){
-      uad.getHighEntropyValues(['model','platform']).then(function(v){
-        var m=String((v&&v.model)||'');
-        if(/Infinix|X6813|Note\\s*11i/i.test(m)){markLow('model');}
-      }).catch(function(){});
-    }
-  }catch(e){}
+  // Android fallback: Chrome masks the WebGL renderer for privacy, so we can't
+  // read Mali-G52 etc. Default Android mobile to low-gpu; promote async only
+  // for known flagship models via UA-CH high-entropy hints.
+  if(isAndroid){
+    markLow('android-default');
+    try{
+      var uad=navigator.userAgentData;
+      if(uad&&uad.getHighEntropyValues){
+        uad.getHighEntropyValues(['model','platform']).then(function(v){
+          var m=String((v&&v.model)||'');
+          if(/Pixel\\s*[7-9]|Pixel\\s*[1-9]\\d|SM-S\\d{2}|SM-F\\d{2}|OnePlus\\s*(9|1\\d)|ASUS_AI|ROG/i.test(m)){
+            d.classList.remove('low-gpu');d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason='model-flagship';}catch(e){}
+          }
+        }).catch(function(){});
+      }
+    }catch(e){}
+    return;
+  }
 }catch(e){}})();`,
           }}
         />
