@@ -1041,12 +1041,12 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                 <div className="min-w-0">
                   <div className="text-white font-semibold truncate">{c.title}</div>
                   <div className="text-xs text-slate-500 mt-1">
-                    {c.isPublished ? <span className="text-emerald-300">Published</span> : <span className="text-amber-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
+                    {c.isPublished ? <span className="text-white">Published</span> : <span className="text-slate-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
                   </div>
                 </div>
                 <div className="text-right">
                   <div className="text-white font-black">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
-                  {c.revenueUSD > 0 && <div className="text-[10px] text-emerald-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
+                  {c.revenueUSD > 0 && <div className="text-[10px] text-slate-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
                 </div>
               </div>
             ))}
