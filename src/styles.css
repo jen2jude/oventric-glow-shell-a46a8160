@@ -1095,3 +1095,22 @@ html.high-gpu .rgb-promo-border {
   animation: rgb-spectrum-shift 5s linear infinite;
 }
 
+
+/* =============================================================
+   Non-PC devices: freeze all animated RGB to a static gradient.
+   Any touch device or viewport below the desktop breakpoint
+   keeps the rainbow gradient background but drops the animation
+   for performance and to avoid Android GPU tearing. PC (hover +
+   fine pointer + >=1024px width) keeps the animated version.
+   ============================================================= */
+@media (hover: none), (pointer: coarse), (max-width: 1023px) {
+  .rgb-neon-bg,
+  .rgb-neon-border-wrapper,
+  .rgb-pulse-glow,
+  html.high-gpu .rgb-static-border,
+  html.high-gpu .rgb-static-border-wrapper,
+  html.high-gpu .rgb-promo-border {
+    animation: none !important;
+    background-size: 100% 100% !important;
+  }
+}
