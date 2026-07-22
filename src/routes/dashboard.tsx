@@ -695,7 +695,7 @@ function ListingsList({
         icon={Store}
         title="You haven't published any listings yet"
         hint="Tap the + button on the home screen to sell a digital asset or physical product."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold">Go to marketplace</Link>}
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to marketplace</Link>}
       />
     );
   }
