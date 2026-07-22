@@ -717,7 +717,7 @@ function ListingsList({
             onClick={() => setFilter(c.key)}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
               filter === c.key
-                ? "bg-emerald-500 border-emerald-400 text-black"
+                ? "bg-white border-white/20 text-black"
                 : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
             }`}
           >
