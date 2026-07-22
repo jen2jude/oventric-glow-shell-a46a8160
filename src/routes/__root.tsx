@@ -126,8 +126,8 @@ function RootShell({ children }: { children: ReactNode }) {
           dangerouslySetInnerHTML={{
             __html: `(function(){try{
   var d=document.documentElement;
-  function markLow(r){d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason=r||'';}catch(e){}}
-  function markHigh(r){d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason=r||'';}catch(e){}}
+  function markLow(r){d.classList.remove('high-gpu');d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason=r||'';}catch(e){}}
+  function markHigh(r){d.classList.remove('low-gpu');d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason=r||'';}catch(e){}}
   var ov=null;try{ov=localStorage.getItem('oventric:gpu-mode');}catch(e){}
   if(ov==='low'){markLow('manual');return;}
   if(ov==='high'){markHigh('manual');return;}
