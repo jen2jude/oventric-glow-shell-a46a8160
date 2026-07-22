@@ -156,26 +156,64 @@ function RootShell({ children }: { children: ReactNode }) {
   if(weakDevice){markLow('device');return;}
   if(!isMobile){markHigh('desktop');return;}
   if(isApple){markHigh('apple-mobile');return;}
-  if((mem && mem<=3)||(cpu && cpu<=4)){markLow('hardware');return;}
-  if(mem>=6 && cpu>=8){markHigh('hardware');return;}
-  // Android fallback: Chrome masks the WebGL renderer for privacy, so we can't
-  // read Mali-G52 etc. Default Android mobile to low-gpu; promote async only
-  // for known flagship models via UA-CH high-entropy hints.
+  // Android heuristic score (WebGL renderer is masked by Chrome for privacy).
+  // Combine deviceMemory, hardwareConcurrency, DPR, screen size, connection,
+  // and save-data hints. Higher = more capable.
   if(isAndroid){
-    markLow('android-default');
+    var score=0, reasons=[];
+    // Memory: <=3 GB → clearly low; 4 GB → neutral-low; 6 GB → +1; 8+ GB → +2.
+    if(mem){
+      if(mem<=3){score-=2;reasons.push('mem'+mem);}
+      else if(mem<=4){score-=1;reasons.push('mem'+mem);}
+      else if(mem>=8){score+=2;reasons.push('mem'+mem);}
+      else if(mem>=6){score+=1;reasons.push('mem'+mem);}
+    } else {score-=1;reasons.push('mem?');}
+    // CPU cores.
+    if(cpu){
+      if(cpu<=4){score-=2;reasons.push('cpu'+cpu);}
+      else if(cpu<=6){score-=1;reasons.push('cpu'+cpu);}
+      else if(cpu>=8){score+=1;reasons.push('cpu'+cpu);}
+    } else {score-=1;reasons.push('cpu?');}
+    // Screen size + DPR: flagships are typically >=1080p logical (>=390 CSS w & DPR>=2.75).
+    var dpr=window.devicePixelRatio||1;
+    var sw=Math.max(screen.width||0,screen.height||0);
+    var physW=sw*dpr;
+    if(physW>=2400 && dpr>=3){score+=1;reasons.push('hdpi');}
+    else if(physW<=1600 || dpr<2){score-=1;reasons.push('ldpi');}
+    // Network: save-data or slow effective type → low.
+    try{
+      var conn=navigator.connection||navigator.mozConnection||navigator.webkitConnection;
+      if(conn){
+        if(conn.saveData){score-=2;reasons.push('save-data');}
+        var et=String(conn.effectiveType||'');
+        if(et==='slow-2g'||et==='2g'||et==='3g'){score-=1;reasons.push(et);}
+      }
+    }catch(e){}
+    // Touch-point ceiling (some entry-level chips report low): informative only.
+    var mtp=navigator.maxTouchPoints||0;
+    if(mtp && mtp<5){score-=1;reasons.push('tp'+mtp);}
+    // Decision: require score >= 2 for premium; otherwise low.
+    if(score>=2){markHigh('android-score:'+score+'|'+reasons.join(','));}
+    else{markLow('android-score:'+score+'|'+reasons.join(','));}
+    // Async model check can still promote known flagships or demote known weak.
     try{
       var uad=navigator.userAgentData;
       if(uad&&uad.getHighEntropyValues){
         uad.getHighEntropyValues(['model','platform']).then(function(v){
           var m=String((v&&v.model)||'');
-          if(/Pixel\\s*[7-9]|Pixel\\s*[1-9]\\d|SM-S\\d{2}|SM-F\\d{2}|OnePlus\\s*(9|1\\d)|ASUS_AI|ROG/i.test(m)){
-            d.classList.remove('low-gpu');d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason='model-flagship';}catch(e){}
+          if(/Pixel\\s*[7-9]|Pixel\\s*[1-9]\\d|SM-S\\d{2}|SM-F\\d{2}|SM-N\\d{3}|OnePlus\\s*(9|1\\d)|ASUS_AI|ROG|Xiaomi\\s*1[3-9]|22\\d{2}|23\\d{2}/i.test(m)){
+            d.classList.remove('low-gpu');d.classList.add('high-gpu');try{d.dataset.gpuTier='high';d.dataset.gpuReason='model-flagship:'+m;}catch(e){}
+          } else if(/Infinix|X6813|Note\\s*11i|TECNO|itel|Nokia\\s*C|Redmi\\s*(9|A)|Realme\\s*C/i.test(m)){
+            d.classList.remove('high-gpu');d.classList.add('low-gpu');try{d.dataset.gpuTier='low';d.dataset.gpuReason='model-weak:'+m;}catch(e){}
           }
         }).catch(function(){});
       }
     }catch(e){}
     return;
   }
+  // Non-Android mobile (rare fallthrough): be conservative.
+  markLow('mobile-default');
+
 }catch(e){}})();`,
           }}
         />
