@@ -1103,7 +1103,7 @@ html.high-gpu .rgb-promo-border {
    for performance and to avoid Android GPU tearing. PC (hover +
    fine pointer + >=1024px width) keeps the animated version.
    ============================================================= */
-@media (hover: none), (pointer: coarse), (max-width: 1023px) {
+@media (hover: none) and (pointer: coarse) {
   .rgb-neon-bg,
   .rgb-neon-border-wrapper,
   .rgb-pulse-glow,
