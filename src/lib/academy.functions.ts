@@ -616,6 +616,9 @@ export const getCourseMediaSignedUrl = createServerFn({ method: "POST" })
       .from("course-media")
       .createSignedUrl(data.path, 60 * 60 * 24 * 7);
     return { url: signed?.signedUrl ?? null };
+  });
+
+
 
 export const getCourseCoverViewUrl = createServerFn({ method: "POST" })
   .inputValidator((input: { path: string }) => ({ path: String(input.path) }))
