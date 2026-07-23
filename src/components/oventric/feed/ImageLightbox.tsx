@@ -139,6 +139,19 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       </button>
 
       {total > 1 && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); togglePeek(); }}
+          aria-label={peekDisabled ? "Enable auto peek" : "Disable auto peek"}
+          title={peekDisabled ? "Auto peek: off" : "Auto peek: on"}
+          className="absolute top-4 right-16 z-10 p-2 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 flex items-center gap-1 text-xs"
+        >
+          {peekDisabled ? <Pause className="w-4 h-4" /> : <MousePointerClick className="w-4 h-4" />}
+          <span className="hidden sm:inline">{peekDisabled ? "Peek off" : "Peek on"}</span>
+        </button>
+      )}
+
+      {total > 1 && (
         <>
           <button
             type="button"
