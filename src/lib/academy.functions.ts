@@ -589,6 +589,34 @@ export const getCourseCoverUploadUrl = createServerFn({ method: "POST" })
     return { path, token: signed.token, signedUrl: signed.signedUrl };
   });
 
+/** Signed upload URL for a module video or inline body image in course-media/<uid>/<kind>/<file>. */
+export const getCourseMediaUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { filename: string; kind?: "video" | "image" }) => ({
+    filename: String(input.filename ?? ""),
+    kind: input.kind === "video" ? "video" : "image",
+  }))
+  .handler(async ({ data, context }) => {
+    const safe = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_") || "file";
+    const path = `${context.userId}/${data.kind}/${Date.now()}-${safe}`;
+    const { data: signed, error } = await context.supabase.storage
+      .from("course-media")
+      .createSignedUploadUrl(path);
+    if (error) throw new Error(error.message);
+    return { path, token: signed.token, signedUrl: signed.signedUrl };
+  });
+
+/** Signed download URL for a course-media asset. */
+export const getCourseMediaSignedUrl = createServerFn({ method: "POST" })
+  .inputValidator((input: { path: string }) => ({ path: String(input.path ?? "") }))
+  .handler(async ({ data }) => {
+    if (!data.path) return { url: null };
+    const sb = serverPublicClient();
+    const { data: signed } = await sb.storage
+      .from("course-media")
+      .createSignedUrl(data.path, 60 * 60 * 24 * 7);
+    return { url: signed?.signedUrl ?? null };
+
 export const getCourseCoverViewUrl = createServerFn({ method: "POST" })
   .inputValidator((input: { path: string }) => ({ path: String(input.path) }))
   .handler(async ({ data }) => {
