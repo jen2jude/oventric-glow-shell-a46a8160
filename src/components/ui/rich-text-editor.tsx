@@ -1,0 +1,132 @@
+import { useEffect, useRef, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Bold, Italic, List, Link2, Image as ImageIcon, Heading2, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { getCourseMediaUploadUrl, getCourseMediaSignedUrl } from "@/lib/academy.functions";
+import { supabase } from "@/integrations/supabase/client";
+
+/**
+ * Lightweight contentEditable rich text editor with image upload
+ * (uploads to the private `course-media` bucket and inserts a signed URL).
+ * Value is HTML. Suitable for module bodies where instructors can inline
+ * screenshots alongside written notes.
+ */
+export function RichTextEditor({
+  value,
+  onChange,
+  placeholder = "Write the lesson notes… you can insert images and screenshots.",
+  minHeight = 180,
+}: {
+  value: string;
+  onChange: (html: string) => void;
+  placeholder?: string;
+  minHeight?: number;
+}) {
+  const ref = useRef<HTMLDivElement | null>(null);
+  const [uploading, setUploading] = useState(false);
+  const getUpload = useServerFn(getCourseMediaUploadUrl);
+  const getSigned = useServerFn(getCourseMediaSignedUrl);
+
+  // Sync external value only when it diverges from the current DOM (avoids
+  // caret jumping while typing).
+  useEffect(() => {
+    if (!ref.current) return;
+    if (ref.current.innerHTML !== (value ?? "")) {
+      ref.current.innerHTML = value ?? "";
+    }
+  }, [value]);
+
+  const exec = (cmd: string, arg?: string) => {
+    ref.current?.focus();
+    document.execCommand(cmd, false, arg);
+    onChange(ref.current?.innerHTML ?? "");
+  };
+
+  const insertLink = () => {
+    const url = prompt("Link URL (https://…)");
+    if (!url) return;
+    exec("createLink", url);
+  };
+
+  const insertImageFile = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Pick an image file");
+    if (file.size > 5 * 1024 * 1024) return toast.error("Image must be under 5MB");
+    setUploading(true);
+    try {
+      const { path, token } = await getUpload({ data: { filename: file.name, kind: "image" } });
+      const up = await supabase.storage
+        .from("course-media")
+        .uploadToSignedUrl(path, token, file, { contentType: file.type });
+      if (up.error) throw up.error;
+      const { url } = await getSigned({ data: { path } });
+      if (!url) throw new Error("Could not sign image URL");
+      ref.current?.focus();
+      document.execCommand(
+        "insertHTML",
+        false,
+        `<img src="${url}" data-course-media-path="${path}" alt="" style="max-width:100%;border-radius:0.5rem;margin:0.5rem 0" />`,
+      );
+      onChange(ref.current?.innerHTML ?? "");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const Btn = ({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) => (
+    <button
+      type="button"
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
+      title={title}
+      className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white"
+    >
+      {children}
+    </button>
+  );
+
+  return (
+    <div className="rounded-lg border border-white/10 bg-[#121214] overflow-hidden">
+      <div className="flex items-center gap-1 px-2 py-1.5 border-b border-white/10 bg-black/30">
+        <Btn onClick={() => exec("bold")} title="Bold"><Bold className="w-3.5 h-3.5" /></Btn>
+        <Btn onClick={() => exec("italic")} title="Italic"><Italic className="w-3.5 h-3.5" /></Btn>
+        <Btn onClick={() => exec("formatBlock", "H2")} title="Heading"><Heading2 className="w-3.5 h-3.5" /></Btn>
+        <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list"><List className="w-3.5 h-3.5" /></Btn>
+        <Btn onClick={insertLink} title="Insert link"><Link2 className="w-3.5 h-3.5" /></Btn>
+        <label className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer" title="Insert image">
+          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+          <input
+            type="file"
+            accept="image/*"
+            hidden
+            disabled={uploading}
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              e.target.value = "";
+              if (f) insertImageFile(f);
+            }}
+          />
+        </label>
+        <span className="ml-auto text-[10px] text-slate-500">Rich text · images supported</span>
+      </div>
+      <div
+        ref={ref}
+        contentEditable
+        suppressContentEditableWarning
+        onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        onBlur={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        data-placeholder={placeholder}
+        className="rte-body px-3 py-2 text-sm text-white outline-none focus:bg-black/20 whitespace-pre-wrap break-words"
+        style={{ minHeight }}
+      />
+      <style>{`
+        .rte-body:empty:before{content:attr(data-placeholder);color:#64748b;pointer-events:none}
+        .rte-body img{max-width:100%;border-radius:0.5rem;margin:0.5rem 0}
+        .rte-body h2{font-size:1.05rem;font-weight:700;margin:0.5rem 0}
+        .rte-body a{color:#34d399;text-decoration:underline}
+        .rte-body ul{list-style:disc;padding-left:1.25rem;margin:0.25rem 0}
+      `}</style>
+    </div>
+  );
+}

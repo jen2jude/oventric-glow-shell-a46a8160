@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video } from "lucide-react";
+import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video, Film } from "lucide-react";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { getCourseMediaUploadUrl } from "@/lib/academy.functions";
 import { toast } from "sonner";
 import {
   createCourse,
@@ -88,10 +90,15 @@ export function CourseEditorModal({
     id: "",
     title: "",
     description: "",
+    body: "",
     videoUrl: "",
+    videoPath: null as string | null,
+    videoFileUrl: null as string | null,
     durationMin: 0,
     isPreview: false,
   });
+  const [modVideoUploading, setModVideoUploading] = useState(false);
+  const getModUpload = useServerFn(getCourseMediaUploadUrl);
 
   useEffect(() => {
     if (!open) return;
@@ -223,10 +230,23 @@ export function CourseEditorModal({
     else onClose();
   };
 
+  const emptyModForm = {
+    id: "",
+    title: "",
+    description: "",
+    body: "",
+    videoUrl: "",
+    videoPath: null as string | null,
+    videoFileUrl: null as string | null,
+    durationMin: 0,
+    isPreview: false,
+  };
+
   const addOrUpdateModule = async () => {
     if (!savedId) return toast.error("Save the course details first");
-    if (!modForm.title.trim() || !modForm.videoUrl.trim())
-      return toast.error("Module title and video URL required");
+    if (!modForm.title.trim()) return toast.error("Module title required");
+    const hasAny = modForm.videoUrl.trim() || modForm.videoPath || modForm.body.trim();
+    if (!hasAny) return toast.error("Add a video link, upload a video, or write module notes");
     try {
       const provider = detectProvider(modForm.videoUrl);
       const pos = modForm.id ? modules.find((m) => m.id === modForm.id)?.position ?? 0 : modules.length;
@@ -237,8 +257,10 @@ export function CourseEditorModal({
           position: pos,
           title: modForm.title,
           description: modForm.description,
+          body: modForm.body,
           videoUrl: modForm.videoUrl,
           videoProvider: provider,
+          videoPath: modForm.videoPath,
           durationMin: modForm.durationMin,
           isPreview: modForm.isPreview,
         },
@@ -247,7 +269,7 @@ export function CourseEditorModal({
         const others = prev.filter((m) => m.id !== saved.id);
         return [...others, saved].sort((a, b) => a.position - b.position);
       });
-      setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false });
+      setModForm(emptyModForm);
       toast.success(modForm.id ? "Module updated" : "Module added");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -259,10 +281,30 @@ export function CourseEditorModal({
       id: m.id,
       title: m.title,
       description: m.description,
+      body: m.body ?? "",
       videoUrl: m.videoUrl,
+      videoPath: m.videoPath ?? null,
+      videoFileUrl: m.videoFileUrl ?? null,
       durationMin: m.durationMin,
       isPreview: m.isPreview,
     });
+  };
+
+  const uploadModuleVideo = async (file: File) => {
+    if (!file) return;
+    if (file.size > 500 * 1024 * 1024) return toast.error("Video must be ≤ 500 MB");
+    setModVideoUploading(true);
+    try {
+      const { path, signedUrl } = await getModUpload({ data: { filename: file.name, kind: "video" } });
+      const res = await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "video/mp4" } });
+      if (!res.ok) throw new Error("Upload failed");
+      setModForm((f) => ({ ...f, videoPath: path, videoFileUrl: URL.createObjectURL(file) }));
+      toast.success("Video uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setModVideoUploading(false);
+    }
   };
 
   const removeMod = async (id: string) => {
@@ -443,15 +485,33 @@ export function CourseEditorModal({
                       <span className="text-sm text-white">Free preview (viewable pre-enrollment)</span>
                     </label>
                   </div>
-                  <Field label="Description">
+                  <Field label="Short description">
                     <textarea rows={2} value={modForm.description} onChange={(e) => setModForm({ ...modForm, description: e.target.value })} className="input resize-none" placeholder="What this module covers" />
+                  </Field>
+                  <Field label="Upload module video (optional, ≤ 500 MB)">
+                    <div className="flex items-center gap-2">
+                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+                        <Film className="w-4 h-4" />
+                        {modVideoUploading ? "Uploading…" : modForm.videoPath ? "Replace video" : "Choose video"}
+                        <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadModuleVideo(f); }} />
+                      </label>
+                      {modForm.videoPath && (
+                        <button type="button" onClick={() => setModForm({ ...modForm, videoPath: null, videoFileUrl: null })} className="text-xs text-red-300 hover:text-red-200">Remove</button>
+                      )}
+                    </div>
+                    {modForm.videoFileUrl && (
+                      <video src={modForm.videoFileUrl} controls className="mt-2 w-full max-h-48 rounded-lg border border-white/10 bg-black" />
+                    )}
+                  </Field>
+                  <Field label="Module body (rich text)">
+                    <RichTextEditor value={modForm.body} onChange={(html) => setModForm({ ...modForm, body: html })} placeholder="Write full lesson notes. Insert images or screenshots inline." />
                   </Field>
                   <div className="flex gap-2">
                     <button onClick={addOrUpdateModule} className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2">
                       <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
                     </button>
                     {modForm.id && (
-                      <button onClick={() => setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false })} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
+                      <button onClick={() => setModForm(emptyModForm)} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
                         Cancel
                       </button>
                     )}

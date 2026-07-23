@@ -44,8 +44,11 @@ export interface ModuleDTO {
   position: number;
   title: string;
   description: string;
+  body: string;
   videoUrl: string;
   videoProvider: VideoProvider;
+  videoPath: string | null;
+  videoFileUrl: string | null;
   durationMin: number;
   isPreview: boolean;
 }
@@ -110,18 +113,36 @@ function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): 
   };
 }
 
-function mapModule(r: Record<string, unknown>): ModuleDTO {
+function mapModule(r: Record<string, unknown>, videoFileUrl: string | null = null): ModuleDTO {
+  const content = (r.content_data as Record<string, unknown> | null) ?? {};
+  const body = typeof content.body === "string" ? (content.body as string) : "";
+  const videoPath = typeof content.video_path === "string" ? (content.video_path as string) : null;
   return {
     id: r.id as string,
     courseId: r.course_id as string,
     position: Number(r.position ?? 0),
     title: r.title as string,
     description: (r.description as string) ?? "",
-    videoUrl: r.video_url as string,
+    body,
+    videoUrl: (r.video_url as string) ?? "",
     videoProvider: ((r.video_provider as string) ?? "youtube") as VideoProvider,
+    videoPath,
+    videoFileUrl,
     durationMin: Number(r.duration_min ?? 0),
     isPreview: Boolean(r.is_preview),
   };
+}
+
+async function signCourseMedia(
+  sb: ReturnType<typeof serverPublicClient>,
+  paths: (string | null)[],
+): Promise<(string | null)[]> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  if (unique.length === 0) return paths.map(() => null);
+  const { data } = await sb.storage.from("course-media").createSignedUrls(unique, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+  return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
 async function signCovers(
@@ -173,13 +194,19 @@ export const getCourse = createServerFn({ method: "POST" })
     const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]);
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
-      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview")
+      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview, content_data")
       .eq("course_id", data.id)
       .order("position", { ascending: true });
     if (mErr) throw new Error(mErr.message);
+    const modRows = mods ?? [];
+    const videoPaths = modRows.map((m) => {
+      const cd = (m as { content_data?: Record<string, unknown> }).content_data ?? {};
+      return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
+    });
+    const videoUrls = await signCourseMedia(sb, videoPaths);
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
-      modules: (mods ?? []).map((m) => mapModule(m as Record<string, unknown>)),
+      modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
     };
   });
 
@@ -314,24 +341,36 @@ export const upsertModule = createServerFn({ method: "POST" })
     position: number;
     title: string;
     description?: string;
-    videoUrl: string;
+    body?: string;
+    videoUrl?: string;
     videoProvider?: VideoProvider;
+    videoPath?: string | null;
     durationMin?: number;
     isPreview?: boolean;
   }) => input)
   .handler(async ({ data, context }) => {
     if (!data.courseId) throw new Error("Course id required");
     if (!data.title?.trim()) throw new Error("Module title required");
-    if (!data.videoUrl?.trim()) throw new Error("Video URL required");
+    const hasUrl = !!data.videoUrl?.trim();
+    const hasFile = !!data.videoPath;
+    const hasBody = !!(data.body && data.body.trim());
+    if (!hasUrl && !hasFile && !hasBody) {
+      throw new Error("Add a video link, upload a video, or write module notes");
+    }
+    const contentData: Record<string, unknown> = {};
+    if (data.body !== undefined) contentData.body = data.body;
+    if (data.videoPath !== undefined) contentData.video_path = data.videoPath;
     const row = {
       course_id: data.courseId,
       position: data.position ?? 0,
       title: data.title.trim(),
       description: (data.description ?? "").trim(),
-      video_url: data.videoUrl.trim(),
+      video_url: (data.videoUrl ?? "").trim(),
       video_provider: (data.videoProvider ?? "youtube") as VideoProvider,
       duration_min: data.durationMin ?? 0,
       is_preview: Boolean(data.isPreview),
+      content_data: contentData as unknown as import("@/integrations/supabase/types").Database["public"]["Tables"]["course_modules"]["Insert"]["content_data"],
+      content_type: hasFile ? "video_file" : hasUrl ? "video" : "text",
     };
     if (data.id) {
       const { data: updated, error } = await context.supabase
@@ -341,7 +380,10 @@ export const upsertModule = createServerFn({ method: "POST" })
         .select()
         .single();
       if (error) throw new Error(error.message);
-      return mapModule(updated as Record<string, unknown>);
+      const [videoFileUrl] = data.videoPath
+        ? await signCourseMedia(serverPublicClient(), [data.videoPath])
+        : [null];
+      return mapModule(updated as Record<string, unknown>, videoFileUrl);
     }
     const { data: created, error } = await context.supabase
       .from("course_modules")
@@ -349,7 +391,10 @@ export const upsertModule = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
-    return mapModule(created as Record<string, unknown>);
+    const [videoFileUrl] = data.videoPath
+      ? await signCourseMedia(serverPublicClient(), [data.videoPath])
+      : [null];
+    return mapModule(created as Record<string, unknown>, videoFileUrl);
   });
 
 export const deleteModule = createServerFn({ method: "POST" })
@@ -543,6 +588,37 @@ export const getCourseCoverUploadUrl = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { path, token: signed.token, signedUrl: signed.signedUrl };
   });
+
+/** Signed upload URL for a module video or inline body image in course-media/<uid>/<kind>/<file>. */
+export const getCourseMediaUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { filename: string; kind?: "video" | "image" }) => ({
+    filename: String(input.filename ?? ""),
+    kind: input.kind === "video" ? "video" : "image",
+  }))
+  .handler(async ({ data, context }) => {
+    const safe = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_") || "file";
+    const path = `${context.userId}/${data.kind}/${Date.now()}-${safe}`;
+    const { data: signed, error } = await context.supabase.storage
+      .from("course-media")
+      .createSignedUploadUrl(path);
+    if (error) throw new Error(error.message);
+    return { path, token: signed.token, signedUrl: signed.signedUrl };
+  });
+
+/** Signed download URL for a course-media asset. */
+export const getCourseMediaSignedUrl = createServerFn({ method: "POST" })
+  .inputValidator((input: { path: string }) => ({ path: String(input.path ?? "") }))
+  .handler(async ({ data }) => {
+    if (!data.path) return { url: null };
+    const sb = serverPublicClient();
+    const { data: signed } = await sb.storage
+      .from("course-media")
+      .createSignedUrl(data.path, 60 * 60 * 24 * 7);
+    return { url: signed?.signedUrl ?? null };
+  });
+
+
 
 export const getCourseCoverViewUrl = createServerFn({ method: "POST" })
   .inputValidator((input: { path: string }) => ({ path: String(input.path) }))
