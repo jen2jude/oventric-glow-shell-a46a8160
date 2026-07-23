@@ -167,10 +167,10 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setCourses({ enrolled: [], published: [] }); }
   }, [coursesFn]);
 
-  const loadWallet = useCallback(async () => {
-    try { setWalletSummary(await walletFn()); }
+  const loadWallet = useCallback(async (p?: number) => {
+    try { setWalletSummary(await walletFn({ data: { page: p ?? walletPage } })); }
     catch (e) { toast.error((e as Error).message); }
-  }, [walletFn]);
+  }, [walletFn, walletPage]);
 
   const loadSocial = useCallback(async () => {
     try { setSocial(await socialFn()); }
