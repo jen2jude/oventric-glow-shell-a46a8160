@@ -822,7 +822,7 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
       <button
         onClick={fund}
         disabled={!numericAmount || numericAmount <= 0 || busy}
-        className="w-full mt-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 disabled:from-white/10 disabled:to-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-black font-extrabold py-3.5 text-base shadow-lg shadow-emerald-500/30 ring-1 ring-emerald-300/60 inline-flex items-center justify-center gap-2 transition-all"
+        className="w-full mt-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 disabled:from-white/10 disabled:to-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-black font-extrabold py-3.5 text-base shadow-lg shadow-emerald-500/30 border border-white/40 md:border-0 ring-1 ring-emerald-300/60 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
