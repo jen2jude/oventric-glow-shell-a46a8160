@@ -1,6 +1,8 @@
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video } from "lucide-react";
+import { X, Loader2, Plus, Trash2, Upload, GripVertical, Video, Film } from "lucide-react";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+import { getCourseMediaUploadUrl } from "@/lib/academy.functions";
 import { toast } from "sonner";
 import {
   createCourse,
