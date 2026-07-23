@@ -127,7 +127,7 @@ export function Academy() {
     courses?.filter((c) => category === "all" || c.category === category) ?? [];
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
+    <div className="max-w-5xl mx-auto w-full academy-mobile-safe">
       <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5">
         <div className="flex items-center gap-2 mb-3 flex-wrap">
           <button onClick={() => setView("landing")} className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5">

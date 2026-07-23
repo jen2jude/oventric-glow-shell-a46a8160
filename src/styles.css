@@ -415,6 +415,52 @@ html.low-gpu {
     accent-color: #64748b !important;
   }
 
+  /* Academy catalog — mobile safe pass. Strips gradient covers, backdrop
+     blurs, colored tints, and shadows on the courses list. Desktop keeps
+     the premium look. */
+  .academy-mobile-safe,
+  .academy-mobile-safe * {
+    animation: none !important;
+    transition: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+    contain: none !important;
+    perspective: none !important;
+    mix-blend-mode: normal !important;
+    background-blend-mode: normal !important;
+    background-image: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
+    mask-image: none !important;
+    -webkit-mask-image: none !important;
+    clip-path: none !important;
+    isolation: auto !important;
+  }
+  .academy-mobile-safe [class*="bg-emerald-"],
+  .academy-mobile-safe [class*="bg-sky-"],
+  .academy-mobile-safe [class*="bg-amber-"],
+  .academy-mobile-safe [class*="bg-fuchsia-"],
+  .academy-mobile-safe [class*="bg-indigo-"],
+  .academy-mobile-safe [class*="bg-red-"] {
+    background-color: #141418 !important;
+  }
+  .academy-mobile-safe [class*="border-emerald-"],
+  .academy-mobile-safe [class*="border-sky-"],
+  .academy-mobile-safe [class*="border-amber-"],
+  .academy-mobile-safe [class*="border-fuchsia-"],
+  .academy-mobile-safe [class*="border-indigo-"],
+  .academy-mobile-safe [class*="border-red-"] {
+    border-color: #222226 !important;
+  }
+  .academy-mobile-safe .animate-spin {
+    animation: spin 1s linear infinite !important;
+  }
+
+
   /* MegaMenu (hamburger) — kill all animated/composited effects on mobile.
      Gradients on invite tile, sticky backdrop-blur, slide-in animations,
      and any nested transforms can tear tiles on low-end Android GPUs. */
