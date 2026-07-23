@@ -86,12 +86,27 @@ export function RichTextEditor({
       if (up.error) throw up.error;
       const { url } = await getSigned({ data: { path } });
       if (!url) throw new Error("Could not sign image URL");
-      ref.current?.focus();
-      document.execCommand(
-        "insertHTML",
-        false,
-        `<img src="${url}" data-course-media-path="${path}" alt="" style="max-width:100%;border-radius:0.5rem;margin:0.5rem 0" />`,
-      );
+
+      const range = restoreSelection();
+      range.deleteContents();
+      const img = document.createElement("img");
+      img.src = url;
+      img.setAttribute("data-course-media-path", path);
+      img.alt = "";
+      img.style.maxWidth = "100%";
+      img.style.borderRadius = "0.5rem";
+      img.style.margin = "0.5rem 0";
+      range.insertNode(img);
+
+      // Place caret after the inserted image
+      const after = document.createRange();
+      after.setStartAfter(img);
+      after.collapse(true);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(after);
+      savedRange.current = after.cloneRange();
+
       onChange(ref.current?.innerHTML ?? "");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
