@@ -740,3 +740,41 @@ export const deleteUserAdmin = createServerFn({ method: "POST" })
     await writeAudit(sb, context.userId, "user.delete", "user", data.userId);
     return { ok: true };
   });
+
+/** Bulk-delete users (admin only). Skips self. Returns per-id result. */
+export const deleteUsersBulkAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userIds: string[] }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const results: Array<{ userId: string; ok: boolean; error?: string }> = [];
+    for (const uid of data.userIds) {
+      if (uid === context.userId) { results.push({ userId: uid, ok: false, error: "cannot delete self" }); continue; }
+      try {
+        const { error } = await sb.auth.admin.deleteUser(uid);
+        if (error) throw new Error(error.message);
+        await writeAudit(sb, context.userId, "user.delete", "user", uid, { bulk: true });
+        results.push({ userId: uid, ok: true });
+      } catch (e) {
+        results.push({ userId: uid, ok: false, error: (e as Error).message });
+      }
+    }
+    return { results, deleted: results.filter((r) => r.ok).length };
+  });
+
+/** Reset all platform system wallets to $0. Admin only. */
+export const resetSystemWallets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.from("system_wallets").update({ balance_usd: 0, updated_at: new Date().toISOString() }).gte("balance_usd", 0);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "system_wallets.reset", "system_wallets", null);
+    return { ok: true };
+  });
