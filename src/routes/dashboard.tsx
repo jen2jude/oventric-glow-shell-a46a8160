@@ -61,7 +61,7 @@ import { toast } from "sonner";
 import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
-import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { Images } from "lucide-react";
 import {
@@ -1708,7 +1708,7 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
 function MyMemoriesGallery() {
   const fetchPhotos = useServerFn(listUserPhotos);
   const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
-  const [lb, setLb] = useState<{ images: string[]; index: number } | null>(null);
+  
   useEffect(() => {
     let cancel = false;
     (async () => {
@@ -1728,30 +1728,9 @@ function MyMemoriesGallery() {
   if (photos.length === 0) {
     return <EmptyState icon={Images} title="No memories yet" hint="Your uploaded photos will appear here as you share." />;
   }
-  const urls = photos.map((p) => p.url);
-  return (
-    <>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
-        {photos.map((p, i) => (
-          <button
-            key={p.url + i}
-            type="button"
-            onClick={() => setLb({ images: urls, index: i })}
-            className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/40 group"
-          >
-            <img src={p.url} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
-            {p.source !== "post" && (
-              <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide bg-black/70 border border-white/20 text-white">
-                {p.source}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-      {lb && <ImageLightbox images={lb.images} startIndex={lb.index} onClose={() => setLb(null)} />}
-    </>
-  );
+  return <PhotoBatches photos={photos} dense />;
 }
+
 
 
 
