@@ -53,12 +53,17 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   }, [onClose, total]);
 
   // Snap the track to the active image
+  const isProgrammaticScroll = useRef(false);
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    const target = el.children[index] as HTMLElement | undefined;
-    if (target) target.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
+    const targetLeft = index * el.clientWidth;
+    if (Math.abs(el.scrollLeft - targetLeft) < 2) return;
+    isProgrammaticScroll.current = true;
+    el.scrollTo({ left: targetLeft, behavior: "smooth" });
+    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
   }, [index]);
+
 
   // Idle peek: after 10s viewing an image, slowly reveal the next image halfway, then return.
   // Cancels on user interaction (scroll/touch/wheel/key) or when the index changes.
