@@ -564,12 +564,57 @@ export const getUserDetail = createServerFn({ method: "POST" })
     const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", data.userId);
     const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", data.userId);
 
-    const [posts, products, orders, followers] = await Promise.all([
+    const [
+      postsCount, productsCount, ordersCount, followersCount,
+      bountiesPostedCount, bountiesWonCount, bountyAppsCount,
+      productsListed, ordersAsBuyer, bountiesPosted, bountyApps,
+      contactedSellers, walletTxns,
+    ] = await Promise.all([
       sb.from("posts").select("id", { count: "exact", head: true }).eq("author_id", data.userId),
       sb.from("products").select("id", { count: "exact", head: true }).eq("seller_id", data.userId),
       sb.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", data.userId),
       sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("followee_id", data.userId),
+      sb.from("bounties").select("id", { count: "exact", head: true }).eq("poster_id", data.userId),
+      sb.from("bounties").select("id", { count: "exact", head: true }).eq("accepted_applicant_id", data.userId),
+      sb.from("bounty_applications").select("id", { count: "exact", head: true }).eq("applicant_id", data.userId),
+      sb.from("products")
+        .select("id, name, kind, status, price_usd, created_at, cover_path")
+        .eq("seller_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("orders")
+        .select("id, product_id, total_usd, status, created_at, paid_at, seller_id")
+        .eq("buyer_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("bounties")
+        .select("id, title, price_usd, status, created_at, accepted_applicant_id")
+        .eq("poster_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("bounty_applications")
+        .select("id, bounty_id, status, created_at, bounties(id,title,price_usd,status,accepted_applicant_id)")
+        .eq("applicant_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("direct_messages")
+        .select("recipient_id, created_at")
+        .eq("sender_id", data.userId).order("created_at", { ascending: false }).limit(200),
+      sb.from("wallet_transactions")
+        .select("id, tx_hash, type, amount, currency, inflow, status, occurred_at")
+        .eq("user_id", data.userId).order("occurred_at", { ascending: false }).limit(100),
     ]);
+
+    // Deduplicate contacted sellers (recipients of direct messages) and hydrate profile info.
+    const recipientIds = Array.from(new Set(((contactedSellers.data ?? []) as Array<{ recipient_id: string }>).map((r) => r.recipient_id)));
+    let contacts: Array<{ user_id: string; username: string | null; display_name: string | null; avatar_path: string | null; last_at: string }> = [];
+    if (recipientIds.length) {
+      const { data: contactProfiles } = await sb
+        .from("profiles").select("user_id, username, display_name, avatar_path").in("user_id", recipientIds);
+      const lastAt = new Map<string, string>();
+      ((contactedSellers.data ?? []) as Array<{ recipient_id: string; created_at: string }>).forEach((r) => {
+        if (!lastAt.has(r.recipient_id)) lastAt.set(r.recipient_id, r.created_at);
+      });
+      contacts = ((contactProfiles ?? []) as Array<Record<string, unknown>>).map((p) => ({
+        user_id: p.user_id as string,
+        username: (p.username as string) ?? null,
+        display_name: (p.display_name as string) ?? null,
+        avatar_path: (p.avatar_path as string) ?? null,
+        last_at: lastAt.get(p.user_id as string) ?? "",
+      })).sort((a, b) => (b.last_at ?? "").localeCompare(a.last_at ?? ""));
+    }
 
     return {
       profile,
@@ -580,13 +625,24 @@ export const getUserDetail = createServerFn({ method: "POST" })
       roles: (roles ?? []).map((r: { role: string }) => r.role),
       wallets: wallets ?? [],
       counts: {
-        posts: posts.count ?? 0,
-        products: products.count ?? 0,
-        orders: orders.count ?? 0,
-        followers: followers.count ?? 0,
+        posts: postsCount.count ?? 0,
+        products: productsCount.count ?? 0,
+        orders: ordersCount.count ?? 0,
+        followers: followersCount.count ?? 0,
+        bountiesPosted: bountiesPostedCount.count ?? 0,
+        bountiesWon: bountiesWonCount.count ?? 0,
+        bountyApplications: bountyAppsCount.count ?? 0,
+        contactedSellers: recipientIds.length,
       },
+      productsListed: productsListed.data ?? [],
+      downloads: ordersAsBuyer.data ?? [],
+      bountiesPosted: bountiesPosted.data ?? [],
+      bountyApplications: bountyApps.data ?? [],
+      contactedSellers: contacts,
+      walletTransactions: walletTxns.data ?? [],
     };
   });
+
 
 export const updateUserProfileAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
