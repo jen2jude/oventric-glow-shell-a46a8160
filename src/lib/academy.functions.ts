@@ -341,24 +341,36 @@ export const upsertModule = createServerFn({ method: "POST" })
     position: number;
     title: string;
     description?: string;
-    videoUrl: string;
+    body?: string;
+    videoUrl?: string;
     videoProvider?: VideoProvider;
+    videoPath?: string | null;
     durationMin?: number;
     isPreview?: boolean;
   }) => input)
   .handler(async ({ data, context }) => {
     if (!data.courseId) throw new Error("Course id required");
     if (!data.title?.trim()) throw new Error("Module title required");
-    if (!data.videoUrl?.trim()) throw new Error("Video URL required");
+    const hasUrl = !!data.videoUrl?.trim();
+    const hasFile = !!data.videoPath;
+    const hasBody = !!(data.body && data.body.trim());
+    if (!hasUrl && !hasFile && !hasBody) {
+      throw new Error("Add a video link, upload a video, or write module notes");
+    }
+    const contentData: Record<string, unknown> = {};
+    if (data.body !== undefined) contentData.body = data.body;
+    if (data.videoPath !== undefined) contentData.video_path = data.videoPath;
     const row = {
       course_id: data.courseId,
       position: data.position ?? 0,
       title: data.title.trim(),
       description: (data.description ?? "").trim(),
-      video_url: data.videoUrl.trim(),
+      video_url: (data.videoUrl ?? "").trim(),
       video_provider: (data.videoProvider ?? "youtube") as VideoProvider,
       duration_min: data.durationMin ?? 0,
       is_preview: Boolean(data.isPreview),
+      content_data: contentData,
+      content_type: hasFile ? "video_file" : hasUrl ? "video" : "text",
     };
     if (data.id) {
       const { data: updated, error } = await context.supabase
@@ -368,7 +380,10 @@ export const upsertModule = createServerFn({ method: "POST" })
         .select()
         .single();
       if (error) throw new Error(error.message);
-      return mapModule(updated as Record<string, unknown>);
+      const [videoFileUrl] = data.videoPath
+        ? await signCourseMedia(serverPublicClient(), [data.videoPath])
+        : [null];
+      return mapModule(updated as Record<string, unknown>, videoFileUrl);
     }
     const { data: created, error } = await context.supabase
       .from("course_modules")
@@ -376,7 +391,10 @@ export const upsertModule = createServerFn({ method: "POST" })
       .select()
       .single();
     if (error) throw new Error(error.message);
-    return mapModule(created as Record<string, unknown>);
+    const [videoFileUrl] = data.videoPath
+      ? await signCourseMedia(serverPublicClient(), [data.videoPath])
+      : [null];
+    return mapModule(created as Record<string, unknown>, videoFileUrl);
   });
 
 export const deleteModule = createServerFn({ method: "POST" })
