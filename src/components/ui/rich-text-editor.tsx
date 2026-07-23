@@ -23,9 +23,35 @@ export function RichTextEditor({
   minHeight?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
   const getUpload = useServerFn(getCourseMediaUploadUrl);
   const getSigned = useServerFn(getCourseMediaSignedUrl);
+
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (ref.current && ref.current.contains(range.commonAncestorContainer)) {
+      savedRange.current = range.cloneRange();
+    }
+  };
+
+  const restoreSelection = (): Range => {
+    const el = ref.current!;
+    el.focus();
+    const sel = window.getSelection()!;
+    sel.removeAllRanges();
+    if (savedRange.current && el.contains(savedRange.current.commonAncestorContainer)) {
+      sel.addRange(savedRange.current);
+      return savedRange.current;
+    }
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    sel.addRange(range);
+    return range;
+  };
 
   // Sync external value only when it diverges from the current DOM (avoids
   // caret jumping while typing).
@@ -60,12 +86,27 @@ export function RichTextEditor({
       if (up.error) throw up.error;
       const { url } = await getSigned({ data: { path } });
       if (!url) throw new Error("Could not sign image URL");
-      ref.current?.focus();
-      document.execCommand(
-        "insertHTML",
-        false,
-        `<img src="${url}" data-course-media-path="${path}" alt="" style="max-width:100%;border-radius:0.5rem;margin:0.5rem 0" />`,
-      );
+
+      const range = restoreSelection();
+      range.deleteContents();
+      const img = document.createElement("img");
+      img.src = url;
+      img.setAttribute("data-course-media-path", path);
+      img.alt = "";
+      img.style.maxWidth = "100%";
+      img.style.borderRadius = "0.5rem";
+      img.style.margin = "0.5rem 0";
+      range.insertNode(img);
+
+      // Place caret after the inserted image
+      const after = document.createRange();
+      after.setStartAfter(img);
+      after.collapse(true);
+      const sel = window.getSelection()!;
+      sel.removeAllRanges();
+      sel.addRange(after);
+      savedRange.current = after.cloneRange();
+
       onChange(ref.current?.innerHTML ?? "");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Upload failed");
@@ -94,7 +135,11 @@ export function RichTextEditor({
         <Btn onClick={() => exec("formatBlock", "H2")} title="Heading"><Heading2 className="w-3.5 h-3.5" /></Btn>
         <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list"><List className="w-3.5 h-3.5" /></Btn>
         <Btn onClick={insertLink} title="Insert link"><Link2 className="w-3.5 h-3.5" /></Btn>
-        <label className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer" title="Insert image">
+        <label
+          className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer"
+          title="Insert image"
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+        >
           {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
           <input
             type="file"
@@ -115,7 +160,10 @@ export function RichTextEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
-        onBlur={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        onBlur={(e) => { saveSelection(); onChange((e.target as HTMLDivElement).innerHTML); }}
+        onKeyUp={saveSelection}
+        onMouseUp={saveSelection}
+        onTouchEnd={saveSelection}
         data-placeholder={placeholder}
         className="rte-body px-3 py-2 text-sm text-white outline-none focus:bg-black/20 whitespace-pre-wrap break-words"
         style={{ minHeight }}
