@@ -251,6 +251,31 @@ function UsersPage() {
               )}
             </tbody>
           </table>
+          {filtered.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between gap-3 px-3 py-2 border-t border-white/10 bg-white/[0.02] text-xs text-slate-400">
+              <div>
+                Showing <span className="text-white font-semibold">{pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filtered.length)}</span> of{" "}
+                <span className="text-white font-semibold">{filtered.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                >
+                  ← Prev
+                </button>
+                <span className="text-slate-300 font-semibold">Page {currentPage} / {totalPages}</span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
