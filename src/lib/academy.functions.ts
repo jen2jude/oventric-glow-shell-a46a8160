@@ -369,7 +369,7 @@ export const upsertModule = createServerFn({ method: "POST" })
       video_provider: (data.videoProvider ?? "youtube") as VideoProvider,
       duration_min: data.durationMin ?? 0,
       is_preview: Boolean(data.isPreview),
-      content_data: contentData,
+      content_data: contentData as unknown as import("@/integrations/supabase/types").Database["public"]["Tables"]["course_modules"]["Insert"]["content_data"],
       content_type: hasFile ? "video_file" : hasUrl ? "video" : "text",
     };
     if (data.id) {
