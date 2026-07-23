@@ -543,14 +543,14 @@ function DigitalList({
     <div className="space-y-3">
       {rows.map((r) => (
         <div key={r.orderId} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-          <Link to="/product/$id" params={{ id: r.productId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+          <Link to="/order/$id" params={{ id: r.orderId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
             {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
           </Link>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
-                <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
+                <Link to="/order/$id" params={{ id: r.orderId }} className="text-sm font-bold text-white hover:text-white truncate block">
                   {r.productName}
                 </Link>
                 <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
@@ -592,11 +592,12 @@ function DigitalList({
                   params={{ id: r.orderId }}
                   className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
                 >
-                  Receipt
+                  View details
                 </Link>
               </div>
             </div>
           </div>
+
         </div>
       ))}
     </div>
