@@ -969,54 +969,263 @@ function shouldUseSafeDashboardOverview() {
   return !(score >= 5 && androidVersion >= 13 && memory >= 8 && cores >= 8);
 }
 
+function BountyCoverThumb({ url, title, className = "" }: { url: string | null; title: string; className?: string }) {
+  return (
+    <div className={`relative overflow-hidden rounded-lg bg-white/5 border border-white/10 ${className}`}>
+      {url ? (
+        <img src={url} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+          <Target className="w-8 h-8" />
+        </div>
+      )}
+    </div>
+  );
+}
+
+function bountyStatusBadge(status: string): { label: string; className: string } {
+  const s = status.toLowerCase();
+  if (s === "active") return { label: "Active", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" };
+  if (s === "pending_review") return { label: "Pending review", className: "bg-amber-500/15 text-amber-300 border-amber-500/30" };
+  if (s === "rejected") return { label: "Rejected", className: "bg-rose-500/15 text-rose-300 border-rose-500/30" };
+  if (s === "paused") return { label: "Paused", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+  if (s === "closed") return { label: "Closed", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+  if (s === "solved" || s === "released") return { label: "Solved", className: "bg-sky-500/15 text-sky-300 border-sky-500/30" };
+  if (s === "disputed") return { label: "Disputed", className: "bg-rose-500/15 text-rose-300 border-rose-500/30" };
+  if (s === "draft") return { label: "Draft", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+  return { label: status, className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+}
+
+function isExpiredBounty(b: DashboardBountyPosted): boolean {
+  if (!b.deadlineAt) return false;
+  const s = b.status.toLowerCase();
+  if (["solved", "released", "closed"].includes(s)) return false;
+  return new Date(b.deadlineAt).getTime() < Date.now();
+}
+
 function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null }) {
+  const navigate = useNavigate();
   const [sub, setSub] = useState<"posted" | "solved">("posted");
+  const [detailsFor, setDetailsFor] = useState<DashboardBountyPosted | null>(null);
+  const [postOpen, setPostOpen] = useState(false);
+
+  const openBountiesFeed = () => navigate({ to: "/", search: { section: "Bounties" } as never });
+
   if (!data) return <ListSkeleton count={6} />;
+
+  const active = data.posted.filter((b) => b.status.toLowerCase() === "active" && !isExpiredBounty(b));
+  const pending = data.posted.filter((b) => b.status.toLowerCase() === "pending_review");
+  const solvedPosted = data.posted.filter((b) => ["solved", "released"].includes(b.status.toLowerCase()));
+  const expired = data.posted.filter(isExpiredBounty);
+  const other = data.posted.filter(
+    (b) =>
+      !active.includes(b) && !pending.includes(b) && !solvedPosted.includes(b) && !expired.includes(b),
+  );
+
+  const renderGrid = (rows: DashboardBountyPosted[]) => (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      {rows.map((b) => {
+        const badge = bountyStatusBadge(isExpiredBounty(b) ? "closed" : b.status);
+        const deadline = b.deadlineAt ? new Date(b.deadlineAt) : null;
+        return (
+          <button
+            key={b.id}
+            onClick={() => setDetailsFor(b)}
+            className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition"
+          >
+            <BountyCoverThumb url={b.coverUrl} title={b.title} className="aspect-video w-full" />
+            <div className="p-3">
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0">
+                  <div className="text-white font-semibold truncate">{b.title}</div>
+                  <div className="text-[11px] text-slate-500 mt-1 truncate">{b.category}</div>
+                </div>
+                <div className="text-right shrink-0">
+                  <div className="text-white font-black text-sm">${b.priceUSD.toFixed(2)}</div>
+                  <div className="text-[10px] text-slate-400 mt-0.5">{b.applicantsCount} applicant{b.applicantsCount === 1 ? "" : "s"}</div>
+                </div>
+              </div>
+              <div className="mt-2 flex items-center justify-between gap-2">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-bold ${badge.className}`}>
+                  {isExpiredBounty(b) ? "Expired" : badge.label}
+                </span>
+                {deadline && (
+                  <span className="inline-flex items-center gap-1 text-[10px] text-slate-500">
+                    <Calendar className="w-3 h-3" />
+                    {deadline.toLocaleDateString()}
+                  </span>
+                )}
+              </div>
+            </div>
+          </button>
+        );
+      })}
+    </div>
+  );
+
   return (
     <div>
       <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
         <TabButton active={sub === "posted"} onClick={() => setSub("posted")}>Posted by me ({data.posted.length})</TabButton>
         <TabButton active={sub === "solved"} onClick={() => setSub("solved")}>Solved by me ({data.solved.length})</TabButton>
       </div>
+
       {sub === "posted" && (
-        data.posted.length === 0 ? (
-          <EmptyState icon={Target} title="No bounties posted yet" hint="Post a bounty from the + menu to get expert help." />
-        ) : (
-          <div className="space-y-2">
-            {data.posted.map((b) => (
-              <SimpleRowCard
-                key={b.id}
-                icon={Target}
-                title={b.title}
-                subtitle={`${b.category} · Created ${new Date(b.createdAt).toLocaleDateString()}`}
-                value={`$${b.priceUSD.toFixed(2)}`}
-                onClick={() => {}}
-              />
-            ))}
+        <>
+          <div className="flex items-center justify-between mb-3 gap-3">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+              Your bounties ({data.posted.length})
+            </div>
+            <button
+              onClick={() => setPostOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Post a bounty
+            </button>
           </div>
-        )
+
+          {data.posted.length === 0 ? (
+            <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+              <Target className="w-8 h-8 mx-auto text-slate-500" />
+              <div className="mt-3 text-white font-semibold">No bounties posted yet</div>
+              <div className="text-sm text-slate-400 mt-1">Post a task and let experts apply to solve it.</div>
+              <div className="mt-4 flex flex-wrap gap-2 justify-center">
+                <button onClick={() => setPostOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
+                  <Plus className="w-4 h-4" /> Post your first bounty
+                </button>
+                <button onClick={openBountiesFeed} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-slate-200 font-semibold text-sm hover:bg-white/5">
+                  Browse bounties <ArrowUpRight className="w-4 h-4" />
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-6">
+              {active.length > 0 && (
+                <section>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Active ({active.length})</div>
+                  {renderGrid(active)}
+                </section>
+              )}
+              {pending.length > 0 && (
+                <section>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1"><Clock className="w-3 h-3" /> Pending review ({pending.length})</div>
+                  {renderGrid(pending)}
+                </section>
+              )}
+              {solvedPosted.length > 0 && (
+                <section>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Solved ({solvedPosted.length})</div>
+                  {renderGrid(solvedPosted)}
+                </section>
+              )}
+              {expired.length > 0 && (
+                <section>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1"><AlertTriangle className="w-3 h-3" /> Expired ({expired.length})</div>
+                  {renderGrid(expired)}
+                </section>
+              )}
+              {other.length > 0 && (
+                <section>
+                  <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Other ({other.length})</div>
+                  {renderGrid(other)}
+                </section>
+              )}
+            </div>
+          )}
+        </>
       )}
+
       {sub === "solved" && (
         data.solved.length === 0 ? (
-          <EmptyState icon={Trophy} title="No bounties solved yet" hint="Payouts you receive as a solver will appear here." />
+          <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+            <Trophy className="w-8 h-8 mx-auto text-slate-500" />
+            <div className="mt-3 text-white font-semibold">No bounties solved yet</div>
+            <div className="text-sm text-slate-400 mt-1">Apply to open bounties and start earning payouts.</div>
+            <button onClick={openBountiesFeed} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
+              Browse bounties <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.solved.map((s) => (
-              <SimpleRowCard
-                key={s.id}
-                icon={Trophy}
-                title={s.title}
-                subtitle={`Solved ${new Date(s.solvedAt).toLocaleDateString()}`}
-                value={`+$${s.payoutUSD.toFixed(2)}`}
-                onClick={() => {}}
-              />
+              <div key={s.id} className="rounded-xl border border-emerald-500/30 bg-[#141418] overflow-hidden">
+                <BountyCoverThumb url={s.coverUrl} title={s.title} className="aspect-video w-full" />
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-white font-semibold truncate">{s.title}</div>
+                      <div className="text-[11px] text-emerald-300 mt-1 inline-flex items-center gap-1">
+                        <CheckCircle2 className="w-3 h-3" /> Paid {new Date(s.solvedAt).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div className="text-white font-black text-sm shrink-0">+${s.payoutUSD.toFixed(2)}</div>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
         )
       )}
+
+      {detailsFor && (
+        <BountyDetailsModal bounty={detailsFor} onClose={() => setDetailsFor(null)} />
+      )}
+
+      <BountyEditorModal
+        open={postOpen}
+        onClose={() => setPostOpen(false)}
+        onPublished={() => {
+          setPostOpen(false);
+          toast.success("Bounty submitted for review");
+          window.dispatchEvent(new CustomEvent("oventric:bounties-refresh"));
+        }}
+      />
     </div>
   );
 }
+
+function BountyDetailsModal({ bounty, onClose }: { bounty: DashboardBountyPosted; onClose: () => void }) {
+  const badge = bountyStatusBadge(isExpiredBounty(bounty) ? "closed" : bounty.status);
+  const deadline = bounty.deadlineAt ? new Date(bounty.deadlineAt) : null;
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-2xl bg-[#141418] border border-white/10 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+        <BountyCoverThumb url={bounty.coverUrl} title={bounty.title} className="aspect-video w-full rounded-none border-0" />
+        <div className="p-5 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h3 className="text-white font-black text-lg truncate">{bounty.title}</h3>
+              <div className="text-xs text-slate-400 mt-1 truncate">{bounty.category}</div>
+              <div className="mt-2">
+                <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-bold ${badge.className}`}>
+                  {isExpiredBounty(bounty) ? "Expired" : badge.label}
+                </span>
+              </div>
+            </div>
+            <div className="text-right shrink-0">
+              <div className="text-white font-black">${bounty.priceUSD.toFixed(2)}</div>
+              <div className="text-[10px] text-slate-400 mt-1">{bounty.applicantsCount} / {bounty.applicantLimit ?? "∞"} applicants</div>
+            </div>
+          </div>
+
+          {bounty.description && (
+            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap line-clamp-8">{bounty.description}</p>
+          )}
+
+          <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 pt-1">
+            <div><span className="text-slate-500">Posted</span><div className="text-slate-200">{new Date(bounty.createdAt).toLocaleDateString()}</div></div>
+            {deadline && <div><span className="text-slate-500">Deadline</span><div className="text-slate-200">{deadline.toLocaleDateString()}</div></div>}
+          </div>
+
+          <div className="pt-2">
+            <button onClick={onClose} className="w-full px-3 py-2 rounded-lg border border-white/10 text-slate-200 text-sm hover:bg-white/5">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function CourseCoverThumb({ url, title, className = "" }: { url: string | null; title: string; className?: string }) {
   return (
