@@ -38,6 +38,8 @@ function UsersPage() {
   const [tab, setTab] = useState<FilterTab>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const refresh = useCallback(() => {
     setLoadErr(null);
@@ -86,11 +88,17 @@ function UsersPage() {
       || String(r.user_id ?? "").toLowerCase().includes(s);
   });
 
-  const allChecked = filtered.length > 0 && filtered.every((r) => selected.has(r.user_id as string));
+  useEffect(() => { setPage(1); }, [tab, q]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
+  const allChecked = pageRows.length > 0 && pageRows.every((r) => selected.has(r.user_id as string));
   const toggleAll = () => {
     const next = new Set(selected);
-    if (allChecked) filtered.forEach((r) => next.delete(r.user_id as string));
-    else filtered.forEach((r) => next.add(r.user_id as string));
+    if (allChecked) pageRows.forEach((r) => next.delete(r.user_id as string));
+    else pageRows.forEach((r) => next.add(r.user_id as string));
     setSelected(next);
   };
   const toggleOne = (uid: string) => {
@@ -187,7 +195,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filtered.map((u) => {
+              {pageRows.map((u) => {
                 const isAdmin = (u.roles ?? []).includes("admin");
                 const uid = u.user_id as string;
                 const flagged = Boolean(u.flagged);
@@ -243,6 +251,31 @@ function UsersPage() {
               )}
             </tbody>
           </table>
+          {filtered.length > PAGE_SIZE && (
+            <div className="flex items-center justify-between gap-3 px-3 py-2 border-t border-white/10 bg-white/[0.02] text-xs text-slate-400">
+              <div>
+                Showing <span className="text-white font-semibold">{pageStart + 1}–{Math.min(pageStart + PAGE_SIZE, filtered.length)}</span> of{" "}
+                <span className="text-white font-semibold">{filtered.length}</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={currentPage <= 1}
+                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                >
+                  ← Prev
+                </button>
+                <span className="text-slate-300 font-semibold">Page {currentPage} / {totalPages}</span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={currentPage >= totalPages}
+                  className="px-2.5 py-1 rounded-md bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 disabled:opacity-40 disabled:cursor-not-allowed font-semibold"
+                >
+                  Next →
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 
