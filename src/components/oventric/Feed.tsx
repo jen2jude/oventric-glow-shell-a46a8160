@@ -83,6 +83,95 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+type FeedMosaicLayout = {
+  wrapperClass: string;
+  tileClasses: string[];
+  displayedCount: number;
+  isMosaic: boolean;
+};
+
+function stableHash(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function pickFeedMosaicLayout(postId: string, imageCount: number): FeedMosaicLayout {
+  if (imageCount <= 1) {
+    return {
+      wrapperClass: "grid grid-cols-1",
+      tileClasses: [""],
+      displayedCount: 1,
+      isMosaic: false,
+    };
+  }
+
+  if (imageCount === 2) {
+    return {
+      wrapperClass: "grid grid-cols-2 gap-1",
+      tileClasses: ["", ""],
+      displayedCount: 2,
+      isMosaic: false,
+    };
+  }
+
+  const variantsByCount: Record<number, Omit<FeedMosaicLayout, "isMosaic">[]> = {
+    3: [
+      {
+        wrapperClass: "grid grid-cols-2 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["row-span-2", "", ""],
+        displayedCount: 3,
+      },
+      {
+        wrapperClass: "grid grid-cols-2 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["", "", "col-span-2"],
+        displayedCount: 3,
+      },
+      {
+        wrapperClass: "grid grid-cols-3 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-2 row-span-2", "", ""],
+        displayedCount: 3,
+      },
+    ],
+    4: [
+      {
+        wrapperClass: "grid grid-cols-5 grid-rows-3 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-3 row-span-3", "col-span-2", "col-span-2", "col-span-2"],
+        displayedCount: 4,
+      },
+      {
+        wrapperClass: "grid grid-cols-6 grid-rows-3 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-3 row-span-2", "col-span-3 row-span-2", "col-span-3", "col-span-3"],
+        displayedCount: 4,
+      },
+    ],
+  };
+
+  const fivePlusVariants: Omit<FeedMosaicLayout, "isMosaic">[] = [
+    {
+      wrapperClass: "grid grid-cols-6 grid-rows-3 gap-1 aspect-[4/3]",
+      tileClasses: ["col-span-3 row-span-2", "col-span-3 row-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      displayedCount: 5,
+    },
+    {
+      wrapperClass: "grid grid-cols-5 grid-rows-4 gap-1 aspect-[4/3]",
+      tileClasses: ["col-span-3 row-span-4", "col-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      displayedCount: 5,
+    },
+  ];
+
+  const variants = variantsByCount[imageCount] ?? fivePlusVariants;
+  const picked = variants[stableHash(`${postId}:${imageCount}`) % variants.length];
+  return {
+    ...picked,
+    displayedCount: Math.min(imageCount, picked.displayedCount),
+    isMosaic: true,
+  };
+}
+
 /**
  * Lightweight post-image wrapper that shows a neutral skeleton until the
  * image decodes, then fades in. Keeps feed scrolling smooth on low-end
