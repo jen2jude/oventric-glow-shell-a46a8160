@@ -443,29 +443,77 @@ export const listMyCourses = createServerFn({ method: "GET" })
 /* -------------------------------------------------------------------------- */
 
 export interface DashboardWalletSummary {
-  balances: Array<{ currency: string; available: number; escrow: number }>;
-  recent: Array<{ id: string; type: string; amount: number; currency: string; inflow: boolean; status: string; occurredAt: string }>;
+  homeCurrency: HomeCurrency;
+  mainBalance: number;        // available balance in home currency
+  mainBalanceUSD: number;     // USD equivalent of main balance
+  cashback: number;           // accumulated cashback in home currency
+  escrow: number;             // escrow balance in home currency
+  fxRate: number;             // 1 USD -> home currency
+  recent: Array<{ id: string; type: string; amount: number; currency: string; inflow: boolean; status: string; occurredAt: string; amountHome: number }>;
+  recentTotal: number;
+  page: number;
+  pageSize: number;
   pendingPayouts: Array<{ id: string; amount: number; currency: string; method: string; status: string; createdAt: string }>;
 }
 
-export const getMyWalletSummary = createServerFn({ method: "GET" })
+const WALLET_PAGE_SIZE = 10;
+
+export const getMyWalletSummary = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<DashboardWalletSummary> => {
+  .inputValidator((input: { page?: number } | undefined) => ({
+    page: Math.max(1, Number(input?.page ?? 1)),
+  }))
+  .handler(async ({ data, context }): Promise<DashboardWalletSummary> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
     const me = context.userId;
-    const [w, tx, po] = await Promise.all([
-      sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", me),
-      sb.from("wallet_transactions").select("id, type, amount, currency, inflow, status, occurred_at").eq("user_id", me).order("occurred_at", { ascending: false }).limit(10),
+    const page = data.page;
+    const from = (page - 1) * WALLET_PAGE_SIZE;
+    const to = from + WALLET_PAGE_SIZE - 1;
+
+    const [wRes, txRes, poRes, profileRes, rates] = await Promise.all([
+      sb.from("wallets").select("currency, available_balance, escrow_balance, accumulated_cashback").eq("user_id", me),
+      sb
+        .from("wallet_transactions")
+        .select("id, type, amount, currency, inflow, status, occurred_at", { count: "exact" })
+        .eq("user_id", me)
+        .order("occurred_at", { ascending: false })
+        .range(from, to),
       sb.from("payout_requests").select("id, amount, currency, method, status, created_at").eq("user_id", me).in("status", ["pending", "approved"]).order("created_at", { ascending: false }),
+      (async () => {
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          return await supabaseAdmin.from("profiles").select("country").eq("user_id", me).maybeSingle();
+        } catch {
+          return { data: null } as { data: { country: string | null } | null };
+        }
+      })(),
+      loadUsdRates(sb),
     ]);
-    return {
-      balances: ((w.data ?? []) as Array<{ currency: string; available_balance: number; escrow_balance: number }>).map((r) => ({
-        currency: r.currency,
-        available: Number(r.available_balance || 0),
-        escrow: Number(r.escrow_balance || 0),
-      })),
-      recent: ((tx.data ?? []) as Array<{ id: string; type: string; amount: number; currency: string; inflow: boolean; status: string; occurred_at: string }>).map((r) => ({
+
+    const homeCurrency = countryToHomeCurrency(
+      (profileRes?.data as { country?: string | null } | null)?.country ?? null,
+    );
+    const fxRate = rates[homeCurrency] ?? 1;
+
+    type WalletRow = { currency: string; available_balance: number; escrow_balance: number; accumulated_cashback: number };
+    const rows = (wRes.data ?? []) as WalletRow[];
+    const homeRow = rows.find((r) => r.currency === homeCurrency) ?? null;
+
+    const mainBalance = Number(homeRow?.available_balance ?? 0);
+    const escrow = Number(homeRow?.escrow_balance ?? 0);
+    // Cashback is stored in USD platform-wide; convert to home currency.
+    const cashbackUSD = rows.reduce((s, r) => s + Number(r.accumulated_cashback || 0), 0);
+    const cashback = cashbackUSD * fxRate;
+    const mainBalanceUSD = homeCurrency === "USD" ? mainBalance : mainBalance / (fxRate || 1);
+
+    const round = (n: number) => (homeCurrency === "USD" ? Number(n.toFixed(2)) : Number(n.toFixed(0)));
+
+    const recent = ((txRes.data ?? []) as Array<{ id: string; type: string; amount: number; currency: string; inflow: boolean; status: string; occurred_at: string }>).map((r) => {
+      const cur = r.currency as HomeCurrency;
+      const usd = cur === "USD" ? Number(r.amount) : Number(r.amount) / (rates[cur] ?? 1);
+      const amountHome = homeCurrency === "USD" ? usd : usd * fxRate;
+      return {
         id: r.id,
         type: r.type,
         amount: Number(r.amount),
@@ -473,8 +521,22 @@ export const getMyWalletSummary = createServerFn({ method: "GET" })
         inflow: r.inflow,
         status: r.status,
         occurredAt: r.occurred_at,
-      })),
-      pendingPayouts: ((po.data ?? []) as Array<{ id: string; amount: number; currency: string; method: string; status: string; created_at: string }>).map((r) => ({
+        amountHome: round(amountHome),
+      };
+    });
+
+    return {
+      homeCurrency,
+      mainBalance: round(mainBalance),
+      mainBalanceUSD: Number(mainBalanceUSD.toFixed(2)),
+      cashback: round(cashback),
+      escrow: round(escrow),
+      fxRate,
+      recent,
+      recentTotal: txRes.count ?? recent.length,
+      page,
+      pageSize: WALLET_PAGE_SIZE,
+      pendingPayouts: ((poRes.data ?? []) as Array<{ id: string; amount: number; currency: string; method: string; status: string; created_at: string }>).map((r) => ({
         id: r.id,
         amount: Number(r.amount),
         currency: r.currency,
