@@ -1115,31 +1115,54 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
       )}
 
       {sub === "published" && (
-        data.published.length === 0 ? (
-          <EmptyState icon={GraduationCap} title="No courses published" hint="Publish a course from the + menu to teach and earn." />
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.published.map((c) => (
-              <button key={c.id} onClick={() => setDetailsFor(c)} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
-                <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
-                <div className="p-3">
-                  <div className="flex items-start justify-between gap-2">
-                    <div className="min-w-0">
-                      <div className="text-white font-semibold truncate">{c.title}</div>
-                      <div className="text-[11px] text-slate-500 mt-1">
-                        {c.isPublished ? "Published" : "Draft"} · {c.enrollments} enrolled
+        <>
+          <div className="flex items-center justify-between mb-3 gap-3">
+            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">
+              Your courses ({data.published.length})
+            </div>
+            <button
+              onClick={() => setPublishOpen(true)}
+              className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white text-black font-bold text-xs hover:bg-slate-200 shrink-0"
+            >
+              <Plus className="w-4 h-4" /> Publish a course
+            </button>
+          </div>
+          {data.published.length === 0 ? (
+            <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+              <GraduationCap className="w-8 h-8 mx-auto text-slate-500" />
+              <div className="mt-3 text-white font-semibold">No courses published</div>
+              <div className="text-sm text-slate-400 mt-1">Teach what you know and start earning.</div>
+              <button
+                onClick={() => setPublishOpen(true)}
+                className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
+              >
+                <Plus className="w-4 h-4" /> Publish your first course
+              </button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              {data.published.map((c) => (
+                <button key={c.id} onClick={() => setDetailsFor(c)} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
+                  <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
+                  <div className="p-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="text-white font-semibold truncate">{c.title}</div>
+                        <div className="text-[11px] text-slate-500 mt-1">
+                          {c.isPublished ? "Published" : "Draft"} · {c.enrollments} enrolled
+                        </div>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <div className="text-white font-black text-sm">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
+                        {c.revenueUSD > 0 && <div className="text-[10px] text-slate-400 mt-0.5">${c.revenueUSD.toFixed(2)}</div>}
                       </div>
                     </div>
-                    <div className="text-right shrink-0">
-                      <div className="text-white font-black text-sm">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
-                      {c.revenueUSD > 0 && <div className="text-[10px] text-slate-400 mt-0.5">${c.revenueUSD.toFixed(2)}</div>}
-                    </div>
                   </div>
-                </div>
-              </button>
-            ))}
-          </div>
-        )
+                </button>
+              ))}
+            </div>
+          )}
+        </>
       )}
 
       {detailsFor && (
