@@ -694,9 +694,20 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
 function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
-  const [amount, setAmount] = useState<string>(
-    prefillUsd && prefillUsd > 0 ? prefillUsd.toFixed(2) : "",
-  );
+
+  // Amount is now entered directly in the user's locked home currency —
+  // no more silent USD → local FX conversion at charge time.
+  const FX_FROM_USD_LOCAL: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+  const symbol = baseCurrency === "NGN" ? "₦" : baseCurrency === "GHS" ? "₵" : "$";
+  const step = baseCurrency === "USD" ? "0.01" : "1";
+  const prefillLocal =
+    prefillUsd && prefillUsd > 0
+      ? baseCurrency === "USD"
+        ? prefillUsd.toFixed(2)
+        : String(Math.round(prefillUsd * FX_FROM_USD_LOCAL[baseCurrency]))
+      : "";
+
+  const [amount, setAmount] = useState<string>(prefillLocal);
   const [busy, setBusy] = useState(false);
   const initPaystack = useServerFn(initPaystackPayment);
   const options = [
@@ -705,14 +716,19 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
     { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: "MTN · Vodafone · AirtelTigo (Ghana)" },
   ];
   const hasPrefill = !!(prefillUsd && prefillUsd > 0);
+  const numericAmount = Number(amount);
+  const formattedCharge =
+    baseCurrency === "USD"
+      ? numericAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : Math.round(numericAmount).toLocaleString();
+
   const fund = async () => {
-    const usd = Number(amount);
-    if (!(usd > 0)) return;
+    const local = Number(amount);
+    if (!(local > 0)) return;
     setBusy(true);
     try {
-      // Charge amount in user's locked base currency (Paystack supports NGN/GHS/USD).
-      const FX: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-      const chargeAmount = Number((usd * FX[baseCurrency]).toFixed(2));
+      // Charge in the user's home currency, exactly what they see on screen.
+      const chargeAmount = baseCurrency === "USD" ? Number(local.toFixed(2)) : Math.round(local);
       const channel = pick === "card" ? "card" : pick === "bank" ? "bank_transfer" : "mobile_money";
       const init = await initPaystack({
         data: {
@@ -739,6 +755,7 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
           <div className="mt-1 text-xs text-slate-300 leading-relaxed">
             Your saved bounty draft needs{" "}
             <span className="text-emerald-300 font-bold">${(prefillUsd ?? 0).toFixed(2)} USD</span>{" "}
+            (≈ <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>)
             to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
           </div>
         </div>
@@ -746,29 +763,29 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
 
       <div>
         <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
-          Amount (USD)
+          Amount ({baseCurrency})
         </label>
         <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-xl border border-[#222226] bg-[#0A0A0C] focus-within:border-emerald-500/60 transition-colors">
-          <span className="px-3 text-slate-400 text-sm">$</span>
+          <span className="px-3 text-slate-400 text-sm">{symbol}</span>
           <input
             type="number"
             min={0}
-            step="0.01"
+            step={step}
             inputMode="decimal"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            placeholder="0.00"
+            placeholder={baseCurrency === "USD" ? "0.00" : "0"}
             className="w-full bg-transparent py-2.5 pr-3 text-sm text-white placeholder:text-slate-600 outline-none tabular-nums"
           />
         </div>
-        {baseCurrency !== "USD" && Number(amount) > 0 && (
+        {numericAmount > 0 && (
           <div className="mt-1 text-[11px] text-slate-500">
-            You&apos;ll be charged approximately{" "}
-            <span className="text-slate-300 font-semibold">
-              {baseCurrency === "NGN" ? "₦" : "₵"}
-              {Math.round(Number(amount) * (baseCurrency === "NGN" ? 1500 : 14)).toLocaleString()}
+            You&apos;ll be charged exactly{" "}
+            <span className="text-slate-200 font-semibold">
+              {symbol}
+              {formattedCharge}
             </span>{" "}
-            via Paystack.
+            via Paystack — no hidden fees.
           </div>
         )}
       </div>
@@ -793,17 +810,25 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
                 <div className="font-semibold text-white text-sm truncate">{o.title}</div>
                 <div className="text-xs text-slate-400 truncate">{o.sub}</div>
               </div>
-              <span className={`w-4 h-4 rounded-full border-2 shrink-0 ${active ? "border-emerald-400 bg-emerald-400" : "border-white/30"}`} />
+              {active ? (
+                <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" aria-label="Selected" />
+              ) : (
+                <span className="w-4 h-4 rounded-full border-2 border-white/30 shrink-0" />
+              )}
             </button>
           );
         })}
       </div>
       <button
         onClick={fund}
-        disabled={!Number(amount) || Number(amount) <= 0 || busy}
+        disabled={!numericAmount || numericAmount <= 0 || busy}
         className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-bold py-2.5 text-sm transition-colors inline-flex items-center justify-center gap-2"
       >
-        {busy ? <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…</> : <>Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}{Number(amount) > 0 ? ` · $${Number(amount).toFixed(2)}` : ""}</>}
+        {busy ? (
+          <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…</>
+        ) : (
+          <>Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}{numericAmount > 0 ? ` · ${symbol}${formattedCharge}` : ""}</>
+        )}
       </button>
       <div className="mt-1 text-[10px] text-slate-500 inline-flex items-center gap-1">
         <ShieldCheck className="w-3 h-3 text-emerald-400" /> Payments processed securely by Paystack
@@ -811,6 +836,7 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
     </ModalShell>
   );
 }
+
 
 
 type Rail = {
