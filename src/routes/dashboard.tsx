@@ -214,6 +214,19 @@ function DashboardPage() {
     return () => { supabase.removeChannel(ch); };
   }, [authChecked, loadContacts, loadPurchases, loadListings, loadOverview, loadWallet, walletSummary]);
 
+  // Refresh triggers from child modals (bounty publish, course publish).
+  useEffect(() => {
+    if (!authChecked) return;
+    const onBounties = () => { void loadBounties(); void loadOverview(); };
+    const onCourses = () => { void loadCourses(); void loadOverview(); };
+    window.addEventListener("oventric:bounties-refresh", onBounties);
+    window.addEventListener("oventric:courses-refresh", onCourses);
+    return () => {
+      window.removeEventListener("oventric:bounties-refresh", onBounties);
+      window.removeEventListener("oventric:courses-refresh", onCourses);
+    };
+  }, [authChecked, loadBounties, loadCourses, loadOverview]);
+
 
 
   const handleDownload = async (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => {
