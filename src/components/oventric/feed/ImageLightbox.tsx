@@ -20,6 +20,18 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   const [index, setIndex] = useState(startIndex);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const teasedRef = useRef(false);
+  const PEEK_KEY = "oventric:lightbox:peek-disabled";
+  const [peekDisabled, setPeekDisabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.localStorage.getItem(PEEK_KEY) === "1"; } catch { return false; }
+  });
+  const togglePeek = () => {
+    setPeekDisabled((v) => {
+      const next = !v;
+      try { window.localStorage.setItem(PEEK_KEY, next ? "1" : "0"); } catch {}
+      return next;
+    });
+  };
 
   const total = images.length;
   const clamp = (i: number) => Math.max(0, Math.min(total - 1, i));
