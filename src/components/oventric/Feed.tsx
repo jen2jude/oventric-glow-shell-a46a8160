@@ -1107,17 +1107,10 @@ export function Feed() {
                   const count = imgs.length;
                   if (count === 0) return null;
                   const openAt = (idx: number) => setLightbox({ images: imgs, index: idx });
-                  const gridClass =
-                    count === 1
-                      ? "grid grid-cols-1"
-                      : count === 2
-                        ? "grid grid-cols-2 gap-1"
-                        : count === 3
-                          ? "grid grid-cols-2 gap-1 [&>*:first-child]:row-span-2"
-                          : "grid grid-cols-2 gap-1";
-                  const displayed = count > 4 ? imgs.slice(0, 4) : imgs;
+                  const layout = pickFeedMosaicLayout(post.id, count);
+                  const displayed = imgs.slice(0, layout.displayedCount);
                   return (
-                    <div className={`relative mt-3 ${gridClass} rounded-lg overflow-hidden border border-white/10`}>
+                    <div className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10`}>
                       {displayed.map((url, i) => {
                         const isLastTile = count > 4 && i === displayed.length - 1;
                         return (
@@ -1125,7 +1118,7 @@ export function Feed() {
                             key={url + i}
                             type="button"
                             onClick={() => openAt(i)}
-                            className={`relative block ${count === 1 ? "max-h-[520px]" : "aspect-square"} w-full overflow-hidden`}
+                            className={`relative block ${count === 1 ? "max-h-[520px]" : layout.isMosaic ? "min-h-0" : "aspect-square"} ${layout.tileClasses[i] ?? ""} w-full overflow-hidden`}
                             aria-label={`Open image ${i + 1} of ${count}`}
                           >
                             <FeedPostImage
