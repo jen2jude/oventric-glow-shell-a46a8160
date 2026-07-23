@@ -63,14 +63,32 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     return () => clearTimeout(t);
   }, [total, startIndex]);
 
-  // Update index on scroll (swipe)
+  // Update index on scroll (swipe) — debounced via rAF for smoothness
+  const rafRef = useRef<number | null>(null);
   const onScroll = () => {
     const el = trackRef.current;
     if (!el) return;
-    const w = el.clientWidth;
-    const i = Math.round(el.scrollLeft / w);
-    if (i !== index) setIndex(clamp(i));
+    if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    rafRef.current = requestAnimationFrame(() => {
+      const w = el.clientWidth;
+      const i = Math.round(el.scrollLeft / w);
+      if (i !== index) setIndex(clamp(i));
+    });
   };
+
+  // Translate vertical wheel to horizontal scroll for smooth desktop navigation
+  useEffect(() => {
+    const el = trackRef.current;
+    if (!el) return;
+    const onWheel = (e: WheelEvent) => {
+      if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+        e.preventDefault();
+        el.scrollBy({ left: e.deltaY, behavior: "smooth" });
+      }
+    };
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
 
   return (
     <div
@@ -118,8 +136,8 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
         ref={trackRef}
         onScroll={onScroll}
         onClick={(e) => e.stopPropagation()}
-        className="w-full h-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth"
-        style={{ scrollbarWidth: "none" }}
+        className="w-full h-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth overscroll-x-contain"
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
       >
         {images.map((src, i) => (
           <div key={src + i} className="w-full h-full shrink-0 snap-center flex items-center justify-center p-4">
