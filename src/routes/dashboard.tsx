@@ -29,6 +29,8 @@ import {
   Plus,
 } from "lucide-react";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
+import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import { Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listMyPurchases,
