@@ -68,6 +68,11 @@ import {
   PhysicalSkeleton,
   PhotoGridSkeleton,
 } from "@/components/oventric/skeletons";
+import { formatMoney } from "@/lib/fx-display";
+
+function formatHomeCurrency(n: number, c: "USD" | "NGN" | "GHS"): string {
+  return formatMoney(Number.isFinite(n) ? n : 0, c);
+}
 
 
 
