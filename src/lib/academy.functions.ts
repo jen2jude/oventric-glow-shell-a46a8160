@@ -44,8 +44,11 @@ export interface ModuleDTO {
   position: number;
   title: string;
   description: string;
+  body: string;
   videoUrl: string;
   videoProvider: VideoProvider;
+  videoPath: string | null;
+  videoFileUrl: string | null;
   durationMin: number;
   isPreview: boolean;
 }
