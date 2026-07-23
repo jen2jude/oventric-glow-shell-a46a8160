@@ -230,10 +230,23 @@ export function CourseEditorModal({
     else onClose();
   };
 
+  const emptyModForm = {
+    id: "",
+    title: "",
+    description: "",
+    body: "",
+    videoUrl: "",
+    videoPath: null as string | null,
+    videoFileUrl: null as string | null,
+    durationMin: 0,
+    isPreview: false,
+  };
+
   const addOrUpdateModule = async () => {
     if (!savedId) return toast.error("Save the course details first");
-    if (!modForm.title.trim() || !modForm.videoUrl.trim())
-      return toast.error("Module title and video URL required");
+    if (!modForm.title.trim()) return toast.error("Module title required");
+    const hasAny = modForm.videoUrl.trim() || modForm.videoPath || modForm.body.trim();
+    if (!hasAny) return toast.error("Add a video link, upload a video, or write module notes");
     try {
       const provider = detectProvider(modForm.videoUrl);
       const pos = modForm.id ? modules.find((m) => m.id === modForm.id)?.position ?? 0 : modules.length;
@@ -244,8 +257,10 @@ export function CourseEditorModal({
           position: pos,
           title: modForm.title,
           description: modForm.description,
+          body: modForm.body,
           videoUrl: modForm.videoUrl,
           videoProvider: provider,
+          videoPath: modForm.videoPath,
           durationMin: modForm.durationMin,
           isPreview: modForm.isPreview,
         },
@@ -254,7 +269,7 @@ export function CourseEditorModal({
         const others = prev.filter((m) => m.id !== saved.id);
         return [...others, saved].sort((a, b) => a.position - b.position);
       });
-      setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false });
+      setModForm(emptyModForm);
       toast.success(modForm.id ? "Module updated" : "Module added");
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Failed");
@@ -266,10 +281,30 @@ export function CourseEditorModal({
       id: m.id,
       title: m.title,
       description: m.description,
+      body: m.body ?? "",
       videoUrl: m.videoUrl,
+      videoPath: m.videoPath ?? null,
+      videoFileUrl: m.videoFileUrl ?? null,
       durationMin: m.durationMin,
       isPreview: m.isPreview,
     });
+  };
+
+  const uploadModuleVideo = async (file: File) => {
+    if (!file) return;
+    if (file.size > 500 * 1024 * 1024) return toast.error("Video must be ≤ 500 MB");
+    setModVideoUploading(true);
+    try {
+      const { path, signedUrl } = await getModUpload({ data: { filename: file.name, kind: "video" } });
+      const res = await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "video/mp4" } });
+      if (!res.ok) throw new Error("Upload failed");
+      setModForm((f) => ({ ...f, videoPath: path, videoFileUrl: URL.createObjectURL(file) }));
+      toast.success("Video uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setModVideoUploading(false);
+    }
   };
 
   const removeMod = async (id: string) => {
