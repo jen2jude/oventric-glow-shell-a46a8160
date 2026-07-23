@@ -361,6 +361,17 @@ export async function verifyAndSettleByReference(reference: string) {
     { method: "GET" },
   );
   if (payload.status !== "success") {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("wallet_transactions")
+        .update({ status: "failed" })
+        .eq("paystack_ref", payload.reference)
+        .eq("type", "Wallet Top-Up")
+        .eq("status", "pending");
+    } catch (e) {
+      console.error("[paystack] mark topup failed error", e);
+    }
     return { ok: false as const, status: payload.status, redirectTo: null as string | null };
   }
   const meta = (payload.metadata ?? {}) as Record<string, unknown>;
