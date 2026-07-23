@@ -244,7 +244,7 @@ export function Wallet() {
   const mask = "••••••";
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] min-h-full">
+    <div className="wallet-mobile-safe max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] min-h-full">
       {/* Header */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
