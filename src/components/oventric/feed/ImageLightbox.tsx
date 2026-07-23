@@ -48,20 +48,39 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     if (target) target.scrollIntoView({ behavior: "smooth", inline: "center", block: "nearest" });
   }, [index]);
 
-  // "There's more" teaser: on first open with >1 image, gently peek at image #2 then return.
+  // Idle peek: after 10s viewing an image, slowly reveal the next image halfway, then return.
+  // Cancels on user interaction (scroll/touch/wheel/key) or when the index changes.
   useEffect(() => {
-    if (teasedRef.current) return;
-    if (total <= 1) return;
-    teasedRef.current = true;
     const el = trackRef.current;
     if (!el) return;
-    const t = setTimeout(() => {
+    if (total <= 1) return;
+    if (index >= total - 1) return; // no next image to tease
+
+    let returnTimer: number | undefined;
+    const peekTimer = window.setTimeout(() => {
       const width = el.clientWidth;
-      el.scrollTo({ left: el.scrollLeft + Math.round(width * 0.35), behavior: "smooth" });
-      setTimeout(() => el.scrollTo({ left: startIndex * width, behavior: "smooth" }), 900);
-    }, 3000);
-    return () => clearTimeout(t);
-  }, [total, startIndex]);
+      const base = index * width;
+      el.scrollTo({ left: base + Math.round(width * 0.5), behavior: "smooth" });
+      returnTimer = window.setTimeout(() => {
+        el.scrollTo({ left: base, behavior: "smooth" });
+      }, 1400);
+    }, 10000);
+
+    const cancel = () => {
+      window.clearTimeout(peekTimer);
+      if (returnTimer) window.clearTimeout(returnTimer);
+    };
+    el.addEventListener("touchstart", cancel, { passive: true });
+    el.addEventListener("wheel", cancel, { passive: true });
+    window.addEventListener("keydown", cancel);
+
+    return () => {
+      cancel();
+      el.removeEventListener("touchstart", cancel);
+      el.removeEventListener("wheel", cancel);
+      window.removeEventListener("keydown", cancel);
+    };
+  }, [index, total]);
 
   // Update index on scroll (swipe) — debounced via rAF for smoothness
   const rafRef = useRef<number | null>(null);
