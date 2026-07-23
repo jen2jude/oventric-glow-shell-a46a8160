@@ -195,7 +195,7 @@ function UsersPage() {
               </tr>
             </thead>
             <tbody className="divide-y divide-white/5">
-              {filtered.map((u) => {
+              {pageRows.map((u) => {
                 const isAdmin = (u.roles ?? []).includes("admin");
                 const uid = u.user_id as string;
                 const flagged = Boolean(u.flagged);
