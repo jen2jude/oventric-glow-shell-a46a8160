@@ -1170,3 +1170,11 @@ html.high-gpu .rgb-promo-border {
     background-size: 100% 100% !important;
   }
 }
+
+/* Global mobile footer clearance: the fixed bottom nav (~64px) sits above page
+   content on <768px, so reserve space so page CTAs aren't overlapped. */
+@media (max-width: 767px) {
+  body {
+    padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+  }
+}
