@@ -1176,6 +1176,16 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
       {editBlockedFor && (
         <EditBlockedModal course={editBlockedFor} onClose={() => setEditBlockedFor(null)} />
       )}
+
+      <CoursePublishWizard
+        open={publishOpen}
+        onClose={() => setPublishOpen(false)}
+        onSaved={() => {
+          setPublishOpen(false);
+          toast.success("Course submitted");
+          window.dispatchEvent(new CustomEvent("oventric:courses-refresh"));
+        }}
+      />
     </div>
   );
 }
