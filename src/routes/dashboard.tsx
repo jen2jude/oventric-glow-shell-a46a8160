@@ -834,6 +834,11 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
 
   if (!overview) return <OverviewSkeleton />;
   const w = overview.wallet;
+  const homeCurrency = overview.homeCurrency;
+  const fmtHome = (n: number) => formatHomeCurrency(n, homeCurrency);
+  const walletAvail = w ? fmtHome(w.available) : "—";
+  const walletEscrow = w ? `Escrow ${fmtHome(w.escrow)}` : "Wallet not initialized";
+  const bountyEarned = fmtHome(overview.bounties.earned);
   return (
     <div className="space-y-5">
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
@@ -841,15 +846,15 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
         <SimpleRowCard
           icon={WalletIcon}
           title="Wallet balance"
-          subtitle={w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}
-          value={w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
+          subtitle={walletEscrow}
+          value={walletAvail}
           onClick={() => onGoto("wallet")}
         />
         <SimpleRowCard
           icon={Trophy}
           title="Bounties earned"
           subtitle={`${overview.bounties.solved} solved · ${overview.bounties.posted} posted`}
-          value={`$${overview.bounties.earnedUSD.toFixed(2)}`}
+          value={bountyEarned}
           onClick={() => onGoto("bounties")}
         />
         <SimpleRowCard
@@ -875,14 +880,12 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
         <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance</div>
-          <div className="mt-2 text-3xl font-black text-white">
-            {w ? `${w.currency} ${w.available.toFixed(2)}` : "—"}
-          </div>
-          <div className="text-xs text-slate-400 mt-1">{w ? `Escrow ${w.currency} ${w.escrow.toFixed(2)}` : "Wallet not initialized"}</div>
+          <div className="mt-2 text-3xl font-black text-white">{walletAvail}</div>
+          <div className="text-xs text-slate-400 mt-1">{walletEscrow}</div>
         </button>
         <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-white" /> Bounties earned</div>
-          <div className="mt-2 text-3xl font-black text-white">${overview.bounties.earnedUSD.toFixed(2)}</div>
+          <div className="mt-2 text-3xl font-black text-white">{bountyEarned}</div>
           <div className="text-xs text-slate-400 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
         </button>
         <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
@@ -891,6 +894,7 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
           <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
+
       <div className="hidden grid-cols-1 gap-2 md:grid md:grid-cols-4 md:gap-3">
         <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
         <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-white" />
