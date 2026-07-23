@@ -521,13 +521,15 @@ export const listUserPhotos = createServerFn({ method: "GET" })
       byBucket.set(it.bucket, arr);
     });
     const signedByPath = new Map<string, string>();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     await Promise.all(
       buckets.map(async (b) => {
         const paths = Array.from(new Set(byBucket.get(b) ?? []));
         if (paths.length === 0) return;
-        const { data: signed } = await sb.storage.from(b).createSignedUrls(paths, 60 * 60 * 6);
+        const { data: signed } = await supabaseAdmin.storage.from(b).createSignedUrls(paths, 60 * 60 * 6);
         (signed ?? []).forEach((s) => {
           if (s.path && s.signedUrl) signedByPath.set(`${b}:${s.path}`, s.signedUrl);
+
         });
       }),
     );
