@@ -38,6 +38,8 @@ function UsersPage() {
   const [tab, setTab] = useState<FilterTab>("all");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [bulkBusy, setBulkBusy] = useState(false);
+  const [page, setPage] = useState(1);
+  const PAGE_SIZE = 10;
 
   const refresh = useCallback(() => {
     setLoadErr(null);
