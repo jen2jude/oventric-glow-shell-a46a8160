@@ -485,15 +485,33 @@ export function CourseEditorModal({
                       <span className="text-sm text-white">Free preview (viewable pre-enrollment)</span>
                     </label>
                   </div>
-                  <Field label="Description">
+                  <Field label="Short description">
                     <textarea rows={2} value={modForm.description} onChange={(e) => setModForm({ ...modForm, description: e.target.value })} className="input resize-none" placeholder="What this module covers" />
+                  </Field>
+                  <Field label="Upload module video (optional, ≤ 500 MB)">
+                    <div className="flex items-center gap-2">
+                      <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+                        <Film className="w-4 h-4" />
+                        {modVideoUploading ? "Uploading…" : modForm.videoPath ? "Replace video" : "Choose video"}
+                        <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadModuleVideo(f); }} />
+                      </label>
+                      {modForm.videoPath && (
+                        <button type="button" onClick={() => setModForm({ ...modForm, videoPath: null, videoFileUrl: null })} className="text-xs text-red-300 hover:text-red-200">Remove</button>
+                      )}
+                    </div>
+                    {modForm.videoFileUrl && (
+                      <video src={modForm.videoFileUrl} controls className="mt-2 w-full max-h-48 rounded-lg border border-white/10 bg-black" />
+                    )}
+                  </Field>
+                  <Field label="Module body (rich text)">
+                    <RichTextEditor value={modForm.body} onChange={(html) => setModForm({ ...modForm, body: html })} placeholder="Write full lesson notes. Insert images or screenshots inline." />
                   </Field>
                   <div className="flex gap-2">
                     <button onClick={addOrUpdateModule} className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2">
                       <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
                     </button>
                     {modForm.id && (
-                      <button onClick={() => setModForm({ id: "", title: "", description: "", videoUrl: "", durationMin: 0, isPreview: false })} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
+                      <button onClick={() => setModForm(emptyModForm)} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
                         Cancel
                       </button>
                     )}
