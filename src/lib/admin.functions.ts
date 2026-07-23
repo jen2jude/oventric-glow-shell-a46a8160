@@ -38,16 +38,18 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
     return { isAdmin: Boolean(data) };
   });
 
-/** Aggregate stats for the admin overview page. */
+/** Aggregate stats for the admin overview page. Uses service-role so RLS
+ * on `profiles`/`wallet_transactions` never zeroes out the KPIs. */
 export const getAdminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
+    const sb = supabaseAdmin as any;
 
     const [users, products, orders, activeCampaigns, pendingReports, bounties] = await Promise.all([
-      sb.from("profiles").select("*", { count: "exact", head: true }),
+      sb.from("profiles").select("*", { count: "exact", head: true }).is("deleted_at", null),
       sb.from("products").select("*", { count: "exact", head: true }),
       sb.from("orders").select("total_usd, status", { count: "exact" }),
       sb.from("ad_campaigns").select("*", { count: "exact", head: true }).eq("status", "active"),
@@ -70,6 +72,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
       transactions: bounties.count ?? 0,
     };
   });
+
 
 /** Recent activity across the platform. */
 export const getRecentActivity = createServerFn({ method: "GET" })
