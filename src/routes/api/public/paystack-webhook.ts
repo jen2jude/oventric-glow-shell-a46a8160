@@ -32,13 +32,34 @@ export const Route = createFileRoute("/api/public/paystack-webhook")({
 
         const event = payload.event ?? "";
         const d = (payload.data ?? {}) as Record<string, unknown>;
+        const reference = typeof d.reference === "string" ? d.reference : null;
+
+        // Idempotency: signature is a deterministic HMAC of the raw body, so
+        // duplicate deliveries always collide on the primary key. First writer
+        // wins; every retry short-circuits before any wallet mutation.
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { error: dupErr } = await supabaseAdmin
+            .from("paystack_webhook_events")
+            .insert({ signature: expected, event, reference });
+          if (dupErr) {
+            if ((dupErr as { code?: string }).code === "23505") {
+              return new Response("duplicate", { status: 200 });
+            }
+            console.error("[paystack-webhook] dedupe insert failed", dupErr);
+            return new Response("ok", { status: 200 });
+          }
+        } catch (e) {
+          console.error("[paystack-webhook] dedupe error", e);
+          return new Response("ok", { status: 200 });
+        }
 
         try {
-          if (event === "charge.success" && typeof d.reference === "string") {
-            await verifyAndSettleByReference(d.reference);
+          if (event === "charge.success" && reference) {
+            await verifyAndSettleByReference(reference);
           } else if (event === "transfer.success" || event === "transfer.failed" || event === "transfer.reversed") {
             await settleTransferEvent(event, {
-              reference: typeof d.reference === "string" ? d.reference : undefined,
+              reference: reference ?? undefined,
               transfer_code: typeof d.transfer_code === "string" ? d.transfer_code : undefined,
               reason: typeof d.reason === "string" ? d.reason : undefined,
             });

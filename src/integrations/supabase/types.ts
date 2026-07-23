@@ -1815,6 +1815,27 @@ export type Database = {
           },
         ]
       }
+      paystack_webhook_events: {
+        Row: {
+          event: string | null
+          received_at: string
+          reference: string | null
+          signature: string
+        }
+        Insert: {
+          event?: string | null
+          received_at?: string
+          reference?: string | null
+          signature: string
+        }
+        Update: {
+          event?: string | null
+          received_at?: string
+          reference?: string | null
+          signature?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           base_currency: string
