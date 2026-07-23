@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, MousePointerClick, Pause } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 interface GalleryProps {
@@ -20,6 +20,18 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   const [index, setIndex] = useState(startIndex);
   const trackRef = useRef<HTMLDivElement | null>(null);
   const teasedRef = useRef(false);
+  const PEEK_KEY = "oventric:lightbox:peek-disabled";
+  const [peekDisabled, setPeekDisabled] = useState<boolean>(() => {
+    if (typeof window === "undefined") return false;
+    try { return window.localStorage.getItem(PEEK_KEY) === "1"; } catch { return false; }
+  });
+  const togglePeek = () => {
+    setPeekDisabled((v) => {
+      const next = !v;
+      try { window.localStorage.setItem(PEEK_KEY, next ? "1" : "0"); } catch {}
+      return next;
+    });
+  };
 
   const total = images.length;
   const clamp = (i: number) => Math.max(0, Math.min(total - 1, i));
@@ -53,6 +65,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
+    if (peekDisabled) return;
     if (total <= 1) return;
     if (index >= total - 1) return; // no next image to tease
 
@@ -80,7 +93,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       el.removeEventListener("wheel", cancel);
       window.removeEventListener("keydown", cancel);
     };
-  }, [index, total]);
+  }, [index, total, peekDisabled]);
 
   // Update index on scroll (swipe) — debounced via rAF for smoothness
   const rafRef = useRef<number | null>(null);
@@ -124,6 +137,19 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       >
         <X className="w-5 h-5" />
       </button>
+
+      {total > 1 && (
+        <button
+          type="button"
+          onClick={(e) => { e.stopPropagation(); togglePeek(); }}
+          aria-label={peekDisabled ? "Enable auto peek" : "Disable auto peek"}
+          title={peekDisabled ? "Auto peek: off" : "Auto peek: on"}
+          className="absolute top-4 right-16 z-10 p-2 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 flex items-center gap-1 text-xs"
+        >
+          {peekDisabled ? <Pause className="w-4 h-4" /> : <MousePointerClick className="w-4 h-4" />}
+          <span className="hidden sm:inline">{peekDisabled ? "Peek off" : "Peek on"}</span>
+        </button>
+      )}
 
       {total > 1 && (
         <>
