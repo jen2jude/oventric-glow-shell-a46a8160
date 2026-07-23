@@ -81,7 +81,16 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       sb.from("circle_members").select("circle_id", { count: "exact", head: true }).eq("user_id", me),
       sb.from("direct_messages").select("id", { count: "exact", head: true }).eq("recipient_id", me).is("read_at", null),
       sb.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me).is("read_at", null),
-      sb.from("profiles").select("country").eq("user_id", me).maybeSingle(),
+      (async () => {
+        // Profiles has restricted grants for authenticated; use admin to read
+        // the caller's own country so home-currency resolution is reliable.
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          return await supabaseAdmin.from("profiles").select("country").eq("user_id", me).maybeSingle();
+        } catch {
+          return { data: null } as { data: { country: string | null } | null };
+        }
+      })(),
       loadUsdRates(sb),
     ]);
 
@@ -90,6 +99,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
     const homeCurrency: HomeCurrency = countryToHomeCurrency(
       (profileRes?.data as { country?: string | null } | null)?.country ?? null,
     );
+
 
     const walletRows = (wallets.data ?? []) as Array<{ currency: string; available_balance: number; escrow_balance: number }>;
     const home = walletRows.find((w) => w.currency === homeCurrency) ?? null;
