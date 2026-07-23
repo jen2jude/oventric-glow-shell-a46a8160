@@ -9,12 +9,14 @@ import { toast } from "sonner";
 import {
   saveCourseWizard,
   getCourseCoverUploadUrl,
+  getCourseMediaUploadUrl,
   type CourseCategory,
   type CourseLevel,
   type LessonType,
   type WizardSectionInput,
   type WizardQuizInput,
 } from "@/lib/academy.functions";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
