@@ -1806,14 +1806,10 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-center gap-2">
-        <div className="inline-flex items-center gap-1.5 mr-1 text-xs font-semibold text-slate-300">
-          <Images className="w-4 h-4 text-emerald-300" />
-          <span>{photos.length} photo{photos.length === 1 ? "" : "s"}</span>
-        </div>
-        {chip("all", `All (${photos.length})`)}
-        {chip("post", `Posts (${photos.filter((p) => p.source === "post").length})`)}
-        {chip("avatar", `Profile (${photos.filter((p) => p.source === "avatar").length})`)}
-        {chip("cover", `Cover (${photos.filter((p) => p.source === "cover").length})`)}
+        {chip("all", "All")}
+        {chip("post", "Posts")}
+        {chip("avatar", "Profile")}
+        {chip("cover", "Cover")}
       </div>
       {filtered.length === 0 ? (
         <div className="bg-[#1E1E24] border border-white/10 rounded-2xl py-16 px-6 text-center">
