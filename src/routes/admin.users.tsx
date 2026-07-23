@@ -88,6 +88,12 @@ function UsersPage() {
       || String(r.user_id ?? "").toLowerCase().includes(s);
   });
 
+  useEffect(() => { setPage(1); }, [tab, q]);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const pageStart = (currentPage - 1) * PAGE_SIZE;
+  const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE);
+
   const allChecked = filtered.length > 0 && filtered.every((r) => selected.has(r.user_id as string));
   const toggleAll = () => {
     const next = new Set(selected);
