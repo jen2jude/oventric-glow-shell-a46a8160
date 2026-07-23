@@ -349,7 +349,7 @@ function DashboardPage() {
         {tab === "overview" && <OverviewPane overview={overview} onGoto={setTab} />}
         {tab === "bounties" && <BountiesPane data={bounties} />}
         {tab === "courses" && <CoursesPane data={courses} />}
-        {tab === "wallet" && <WalletPane data={walletSummary} />}
+        {tab === "wallet" && <WalletPane data={walletSummary} page={walletPage} onPage={(p) => { setWalletPage(p); void loadWallet(p); }} />}
         {tab === "digital" && (
           <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} onConfirm={async (orderId) => { try { await confirmFn({ data: { orderId } }); toast.success("Thanks! Seller funds released."); await loadPurchases(); } catch (e) { toast.error((e as Error).message); } }} />
         )}
