@@ -23,6 +23,12 @@ function OrderPage() {
   const [order, setOrder] = useState<OrderDTO | null>(null);
   const [downloadUrl, setDownloadUrl] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
+  const [entered, setEntered] = useState(false);
+
+  useEffect(() => {
+    const r = requestAnimationFrame(() => setEntered(true));
+    return () => cancelAnimationFrame(r);
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -40,15 +46,22 @@ function OrderPage() {
   const href = downloadUrl ?? order?.externalUrl ?? null;
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200">
+    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
       <Header onOpenMessages={() => {}} />
-      <main className="max-w-3xl mx-auto w-full px-4 py-6 pb-24">
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6">
+      <main
+        className="max-w-2xl mx-auto w-full px-4 py-6 pb-24"
+        style={{
+          transform: entered ? "translateX(0)" : "translateX(100%)",
+          transition: "transform 260ms ease-out",
+          willChange: "transform",
+        }}
+      >
+        <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-300 bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-5">
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </Link>
 
         {err && (
-          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-6 text-sm text-red-300">{err}</div>
+          <div className="bg-[#1E1E24] border border-red-500/40 rounded-lg p-4 text-sm text-red-300">{err}</div>
         )}
         {!order && !err && (
           <div className="flex items-center gap-2 text-slate-400 text-sm">
@@ -58,28 +71,28 @@ function OrderPage() {
 
         {order && (
           <>
-            <div className="text-center mb-8">
-              <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mx-auto mb-4">
-                <CheckCircle2 className="w-8 h-8 text-emerald-300" />
+            <div className="text-center mb-6">
+              <div className="w-12 h-12 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mx-auto mb-3">
+                <CheckCircle2 className="w-6 h-6 text-emerald-300" />
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-white mb-1">Thank you for your purchase</h1>
-              <p className="text-sm text-slate-400">A receipt has been sent to your email.</p>
+              <h1 className="text-xl font-bold text-white mb-1">Thank you for your purchase</h1>
+              <p className="text-xs text-slate-400">A receipt has been sent to your email.</p>
             </div>
 
-            <div className="bg-[#1E1E24] border border-white/10 rounded-2xl p-6 mb-6">
-              <div className="flex items-center justify-between mb-4">
-                <div>
-                  <div className="text-[11px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">{order.category}</div>
-                  <div className="text-white font-black text-lg">{order.productName}</div>
-                  <div className="text-xs text-slate-500">by {order.vendor} · Qty {order.quantity}</div>
+            <div className="bg-[#1E1E24] border border-white/10 rounded-lg p-4 mb-4">
+              <div className="flex items-start justify-between gap-3 mb-3">
+                <div className="min-w-0">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">{order.category}</div>
+                  <div className="text-white font-bold text-base truncate">{order.productName}</div>
+                  <div className="text-xs text-slate-500 truncate">by {order.vendor} · Qty {order.quantity}</div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-black text-xl">{fmt(displayAmount, baseCurrency)}</div>
-                  <div className="text-[11px] text-slate-500 font-mono uppercase">{order.paymentMethod.replace("_", " ")}</div>
+                <div className="text-right shrink-0">
+                  <div className="text-white font-bold">{fmt(displayAmount, baseCurrency)}</div>
+                  <div className="text-[10px] text-slate-500 font-mono uppercase">{order.paymentMethod.replace("_", " ")}</div>
                 </div>
               </div>
 
-              <div className="border-t border-white/5 pt-4 space-y-2 text-xs text-slate-400">
+              <div className="border-t border-white/5 pt-3 space-y-1.5 text-xs text-slate-400">
                 <div className="flex justify-between"><span>Order ID</span><span className="font-mono text-slate-300">{order.id.slice(0, 8)}…</span></div>
                 <div className="flex justify-between"><span>Status</span><span className="text-emerald-300 font-semibold uppercase">{order.status}</span></div>
                 <div className="flex justify-between"><span>Placed</span><span>{new Date(order.createdAt).toLocaleString()}</span></div>
@@ -87,26 +100,26 @@ function OrderPage() {
             </div>
 
             {order.requiresManualDelivery ? (
-              <div className="bg-[#1E1E24] border border-amber-500/40 rounded-2xl p-6 shadow-[0_0_40px_-12px_rgba(245,158,11,0.5)]">
-                <h2 className="text-white font-black text-lg mb-1">Manual delivery</h2>
-                <p className="text-xs text-slate-400 mb-4">
+              <div className="bg-[#1E1E24] border border-amber-500/40 rounded-lg p-4">
+                <h2 className="text-white font-bold text-base mb-1">Manual delivery</h2>
+                <p className="text-xs text-slate-400 mb-3">
                   Payment received. The seller will verify your order and deliver this asset manually. Expect contact within 24 hours.
                 </p>
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
-                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
+                  <div className="bg-[#121214] border border-white/10 rounded-md px-3 py-2">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">Delivery email</div>
                     <div className="text-white font-mono truncate">{order.deliveryEmail ?? "—"}</div>
                   </div>
-                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2">
+                  <div className="bg-[#121214] border border-white/10 rounded-md px-3 py-2">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">WhatsApp</div>
                     <div className="text-white font-mono truncate">{order.deliveryWhatsapp ?? "—"}</div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="bg-[#1E1E24] border border-emerald-500/40 rounded-2xl p-6 shadow-[0_0_40px_-12px_rgba(16,185,129,0.5)]">
-                <h2 className="text-white font-black text-lg mb-1">Your download</h2>
-                <p className="text-xs text-slate-400 mb-4">
+              <div className="bg-[#1E1E24] border border-emerald-500/40 rounded-lg p-4">
+                <h2 className="text-white font-bold text-base mb-1">Your download</h2>
+                <p className="text-xs text-slate-400 mb-3">
                   {downloadUrl
                     ? "Signed download link valid for 60 minutes."
                     : order.externalUrl
@@ -118,7 +131,7 @@ function OrderPage() {
                     href={href}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex items-center gap-2 px-5 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-emerald-500 text-black font-bold text-sm"
                   >
                     {downloadUrl ? <><Download className="w-4 h-4" /> Download now</> : <><ExternalLink className="w-4 h-4" /> Open delivery link</>}
                   </a>
