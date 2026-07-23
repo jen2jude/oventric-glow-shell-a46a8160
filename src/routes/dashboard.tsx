@@ -62,6 +62,7 @@ import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { Images } from "lucide-react";
 import {
   OverviewSkeleton,
