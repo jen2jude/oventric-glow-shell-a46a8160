@@ -284,16 +284,16 @@ export const listMyCourses = createServerFn({ method: "GET" })
     const eRows = (enrolls ?? []) as Array<{ id: string; course_id: string; completed_at: string | null; created_at: string }>;
     const courseIds = eRows.map((r) => r.course_id);
 
-    let courseMap = new Map<string, { title: string; slug: string | null; cover_path: string | null }>();
+    let courseMap = new Map<string, { title: string; slug: string | null; cover_path: string | null; is_free: boolean }>();
     let modulesMap = new Map<string, number>();
     let progressMap = new Map<string, number>();
     if (courseIds.length) {
       const [{ data: cs }, { data: ms }, { data: pr }] = await Promise.all([
-        sb.from("courses").select("id, title, slug, cover_path").in("id", courseIds),
+        sb.from("courses").select("id, title, slug, cover_path, is_free").in("id", courseIds),
         sb.from("course_modules").select("id, course_id").in("course_id", courseIds),
         sb.from("course_progress").select("course_id, module_id").eq("user_id", me).in("course_id", courseIds),
       ]);
-      courseMap = new Map(((cs ?? []) as Array<{ id: string; title: string; slug: string | null; cover_path: string | null }>).map((c) => [c.id, c]));
+      courseMap = new Map(((cs ?? []) as Array<{ id: string; title: string; slug: string | null; cover_path: string | null; is_free: boolean }>).map((c) => [c.id, c]));
       for (const m of ((ms ?? []) as Array<{ course_id: string }>)) {
         modulesMap.set(m.course_id, (modulesMap.get(m.course_id) ?? 0) + 1);
       }
@@ -302,27 +302,12 @@ export const listMyCourses = createServerFn({ method: "GET" })
       }
     }
 
-    const enrolled: DashboardEnrolledCourse[] = eRows.map((r) => {
-      const c = courseMap.get(r.course_id);
-      return {
-        id: r.id,
-        courseId: r.course_id,
-        title: c?.title ?? "Course",
-        coverPath: c?.cover_path ?? null,
-        slug: c?.slug ?? null,
-        totalModules: modulesMap.get(r.course_id) ?? 0,
-        completedModules: progressMap.get(r.course_id) ?? 0,
-        completedAt: r.completed_at,
-        enrolledAt: r.created_at,
-      };
-    });
-
     const { data: mine } = await sb
       .from("courses")
-      .select("id, title, slug, cover_path, price_usd, is_published, is_free, created_at")
+      .select("id, title, slug, cover_path, description, category, level, price_usd, is_published, is_free, created_at")
       .eq("owner_id", me)
       .order("created_at", { ascending: false });
-    const mineRows = (mine ?? []) as Array<{ id: string; title: string; slug: string | null; cover_path: string | null; price_usd: number; is_published: boolean; is_free: boolean; created_at: string }>;
+    const mineRows = (mine ?? []) as Array<{ id: string; title: string; slug: string | null; cover_path: string | null; description: string | null; category: string | null; level: string | null; price_usd: number; is_published: boolean; is_free: boolean; created_at: string }>;
     const myIds = mineRows.map((r) => r.id);
     const enrollCount = new Map<string, { count: number; revenue: number }>();
     if (myIds.length) {
@@ -334,6 +319,42 @@ export const listMyCourses = createServerFn({ method: "GET" })
         enrollCount.set(e.course_id, cur);
       }
     }
+
+    // Sign private course-cover paths for both enrolled and published sets in one batch.
+    const allCoverPaths: (string | null)[] = [
+      ...eRows.map((r) => courseMap.get(r.course_id)?.cover_path ?? null),
+      ...mineRows.map((r) => r.cover_path),
+    ];
+    const uniquePaths = Array.from(new Set(allCoverPaths.filter((p): p is string => !!p)));
+    const signedMap = new Map<string, string>();
+    if (uniquePaths.length) {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: signed } = await supabaseAdmin.storage
+          .from("course-covers")
+          .createSignedUrls(uniquePaths, 60 * 60 * 24 * 7);
+        (signed ?? []).forEach((r) => { if (r.path && r.signedUrl) signedMap.set(r.path, r.signedUrl); });
+      } catch { /* fall back to null */ }
+    }
+    const signOne = (p: string | null) => (p ? signedMap.get(p) ?? null : null);
+
+    const enrolled: DashboardEnrolledCourse[] = eRows.map((r) => {
+      const c = courseMap.get(r.course_id);
+      return {
+        id: r.id,
+        courseId: r.course_id,
+        title: c?.title ?? "Course",
+        coverPath: c?.cover_path ?? null,
+        coverUrl: signOne(c?.cover_path ?? null),
+        slug: c?.slug ?? null,
+        totalModules: modulesMap.get(r.course_id) ?? 0,
+        completedModules: progressMap.get(r.course_id) ?? 0,
+        completedAt: r.completed_at,
+        enrolledAt: r.created_at,
+        isFree: !!c?.is_free,
+      };
+    });
+
     const published: DashboardPublishedCourse[] = mineRows.map((r) => {
       const stats = enrollCount.get(r.id) ?? { count: 0, revenue: 0 };
       return {
@@ -341,6 +362,10 @@ export const listMyCourses = createServerFn({ method: "GET" })
         title: r.title,
         slug: r.slug,
         coverPath: r.cover_path,
+        coverUrl: signOne(r.cover_path),
+        description: r.description,
+        category: r.category,
+        level: r.level,
         priceUSD: Number(r.price_usd || 0),
         isPublished: !!r.is_published,
         isFree: !!r.is_free,
