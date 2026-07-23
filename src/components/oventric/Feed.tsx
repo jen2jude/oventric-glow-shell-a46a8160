@@ -83,6 +83,95 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+type FeedMosaicLayout = {
+  wrapperClass: string;
+  tileClasses: string[];
+  displayedCount: number;
+  isMosaic: boolean;
+};
+
+function stableHash(input: string): number {
+  let hash = 2166136261;
+  for (let i = 0; i < input.length; i += 1) {
+    hash ^= input.charCodeAt(i);
+    hash = Math.imul(hash, 16777619);
+  }
+  return hash >>> 0;
+}
+
+function pickFeedMosaicLayout(postId: string, imageCount: number): FeedMosaicLayout {
+  if (imageCount <= 1) {
+    return {
+      wrapperClass: "grid grid-cols-1",
+      tileClasses: [""],
+      displayedCount: 1,
+      isMosaic: false,
+    };
+  }
+
+  if (imageCount === 2) {
+    return {
+      wrapperClass: "grid grid-cols-2 gap-1",
+      tileClasses: ["", ""],
+      displayedCount: 2,
+      isMosaic: false,
+    };
+  }
+
+  const variantsByCount: Record<number, Omit<FeedMosaicLayout, "isMosaic">[]> = {
+    3: [
+      {
+        wrapperClass: "grid grid-cols-2 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["row-span-2", "", ""],
+        displayedCount: 3,
+      },
+      {
+        wrapperClass: "grid grid-cols-2 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["", "", "col-span-2"],
+        displayedCount: 3,
+      },
+      {
+        wrapperClass: "grid grid-cols-3 grid-rows-2 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-2 row-span-2", "", ""],
+        displayedCount: 3,
+      },
+    ],
+    4: [
+      {
+        wrapperClass: "grid grid-cols-5 grid-rows-3 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-3 row-span-3", "col-span-2", "col-span-2", "col-span-2"],
+        displayedCount: 4,
+      },
+      {
+        wrapperClass: "grid grid-cols-6 grid-rows-3 gap-1 aspect-[4/3]",
+        tileClasses: ["col-span-3 row-span-2", "col-span-3 row-span-2", "col-span-3", "col-span-3"],
+        displayedCount: 4,
+      },
+    ],
+  };
+
+  const fivePlusVariants: Omit<FeedMosaicLayout, "isMosaic">[] = [
+    {
+      wrapperClass: "grid grid-cols-6 grid-rows-3 gap-1 aspect-[4/3]",
+      tileClasses: ["col-span-3 row-span-2", "col-span-3 row-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      displayedCount: 5,
+    },
+    {
+      wrapperClass: "grid grid-cols-5 grid-rows-4 gap-1 aspect-[4/3]",
+      tileClasses: ["col-span-3 row-span-4", "col-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      displayedCount: 5,
+    },
+  ];
+
+  const variants = variantsByCount[imageCount] ?? fivePlusVariants;
+  const picked = variants[stableHash(`${postId}:${imageCount}`) % variants.length];
+  return {
+    ...picked,
+    displayedCount: Math.min(imageCount, picked.displayedCount),
+    isMosaic: true,
+  };
+}
+
 /**
  * Lightweight post-image wrapper that shows a neutral skeleton until the
  * image decodes, then fades in. Keeps feed scrolling smooth on low-end
@@ -1018,17 +1107,10 @@ export function Feed() {
                   const count = imgs.length;
                   if (count === 0) return null;
                   const openAt = (idx: number) => setLightbox({ images: imgs, index: idx });
-                  const gridClass =
-                    count === 1
-                      ? "grid grid-cols-1"
-                      : count === 2
-                        ? "grid grid-cols-2 gap-1"
-                        : count === 3
-                          ? "grid grid-cols-2 gap-1 [&>*:first-child]:row-span-2"
-                          : "grid grid-cols-2 gap-1";
-                  const displayed = count > 4 ? imgs.slice(0, 4) : imgs;
+                  const layout = pickFeedMosaicLayout(post.id, count);
+                  const displayed = imgs.slice(0, layout.displayedCount);
                   return (
-                    <div className={`relative mt-3 ${gridClass} rounded-lg overflow-hidden border border-white/10`}>
+                    <div className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10`}>
                       {displayed.map((url, i) => {
                         const isLastTile = count > 4 && i === displayed.length - 1;
                         return (
@@ -1036,7 +1118,7 @@ export function Feed() {
                             key={url + i}
                             type="button"
                             onClick={() => openAt(i)}
-                            className={`relative block ${count === 1 ? "max-h-[520px]" : "aspect-square"} w-full overflow-hidden`}
+                            className={`relative block ${count === 1 ? "max-h-[520px]" : layout.isMosaic ? "min-h-0" : "aspect-square"} ${layout.tileClasses[i] ?? ""} w-full overflow-hidden`}
                             aria-label={`Open image ${i + 1} of ${count}`}
                           >
                             <FeedPostImage
