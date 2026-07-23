@@ -775,6 +775,40 @@ function ListingsList({
 
   return (
     <div>
+      <div className="flex flex-wrap items-center gap-2 mb-3">
+        <div className="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 p-1">
+          {kindChips.map((k) => (
+            <button
+              key={k.key}
+              onClick={() => setKind(k.key)}
+              className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${
+                kind === k.key ? "bg-white text-black" : "text-slate-300 hover:text-white"
+              }`}
+            >
+              {k.label}
+              <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
+                kind === k.key ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"
+              }`}>{k.count}</span>
+            </button>
+          ))}
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          <button
+            type="button"
+            onClick={() => setSellOpen(true)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black text-xs font-bold hover:bg-white/90"
+          >
+            <Plus className="w-3.5 h-3.5" /> Start selling
+          </button>
+          <Link
+            to="/"
+            onClick={() => setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40)}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-semibold"
+          >
+            Marketplace
+          </Link>
+        </div>
+      </div>
       <div className="flex flex-wrap gap-2 mb-4">
         {chips.map((c) => (
           <button
@@ -793,6 +827,7 @@ function ListingsList({
           </button>
         ))}
       </div>
+      <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
 
       {filtered.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/10 bg-[#111114] p-8 text-center text-sm text-slate-500">
