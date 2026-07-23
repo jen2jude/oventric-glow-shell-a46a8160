@@ -94,11 +94,11 @@ function UsersPage() {
   const pageStart = (currentPage - 1) * PAGE_SIZE;
   const pageRows = filtered.slice(pageStart, pageStart + PAGE_SIZE);
 
-  const allChecked = filtered.length > 0 && filtered.every((r) => selected.has(r.user_id as string));
+  const allChecked = pageRows.length > 0 && pageRows.every((r) => selected.has(r.user_id as string));
   const toggleAll = () => {
     const next = new Set(selected);
-    if (allChecked) filtered.forEach((r) => next.delete(r.user_id as string));
-    else filtered.forEach((r) => next.add(r.user_id as string));
+    if (allChecked) pageRows.forEach((r) => next.delete(r.user_id as string));
+    else pageRows.forEach((r) => next.add(r.user_id as string));
     setSelected(next);
   };
   const toggleOne = (uid: string) => {
