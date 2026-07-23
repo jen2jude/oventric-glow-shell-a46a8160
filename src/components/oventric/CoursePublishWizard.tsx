@@ -577,24 +577,15 @@ function LessonRow({
             </label>
           </div>
           {lesson.type === "video" && (
-            <div>
-              <Label>Video URL (YouTube or Vimeo)</Label>
-              <input
-                value={String(lesson.content?.url ?? "")}
-                onChange={(e) => onChange({ content: { ...lesson.content, url: e.target.value } })}
-                placeholder="https://youtu.be/… or https://vimeo.com/…"
-                className={inputCls}
-              />
-            </div>
+            <VideoLessonEditor lesson={lesson} onChange={onChange} />
           )}
           {lesson.type === "text" && (
             <div>
-              <Label>Lesson Content (HTML / Markdown)</Label>
-              <textarea
+              <Label>Lesson Body (rich text)</Label>
+              <RichTextEditor
                 value={String(lesson.content?.html ?? "")}
-                onChange={(e) => onChange({ content: { ...lesson.content, html: e.target.value } })}
-                rows={6}
-                className={`${inputCls} resize-none font-mono text-xs`}
+                onChange={(html) => onChange({ content: { ...lesson.content, html } })}
+                placeholder="Write full lesson notes. Insert images and screenshots inline."
               />
             </div>
           )}
@@ -611,6 +602,72 @@ function LessonRow({
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+function VideoLessonEditor({
+  lesson,
+  onChange,
+}: {
+  lesson: LessonInput;
+  onChange: (patch: Partial<LessonInput>) => void;
+}) {
+  const getUpload = useServerFn(getCourseMediaUploadUrl);
+  const [uploading, setUploading] = useState(false);
+  const videoPath = typeof lesson.content?.video_path === "string" ? (lesson.content.video_path as string) : "";
+  const url = String(lesson.content?.url ?? "");
+  const body = String(lesson.content?.body ?? "");
+
+  const upload = async (file: File) => {
+    if (!file) return;
+    if (file.size > 500 * 1024 * 1024) return toast.error("Video must be ≤ 500 MB");
+    setUploading(true);
+    try {
+      const { path, signedUrl } = await getUpload({ data: { filename: file.name, kind: "video" } });
+      const res = await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "video/mp4" } });
+      if (!res.ok) throw new Error("Upload failed");
+      onChange({ content: { ...lesson.content, video_path: path } });
+      toast.success("Video uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <Label>Video URL (YouTube or Vimeo)</Label>
+        <input
+          value={url}
+          onChange={(e) => onChange({ content: { ...lesson.content, url: e.target.value } })}
+          placeholder="https://youtu.be/… or https://vimeo.com/…"
+          className={inputCls}
+        />
+      </div>
+      <div>
+        <Label>Or upload a video file (≤ 500 MB)</Label>
+        <div className="flex items-center gap-2">
+          <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
+            <Upload className="w-4 h-4" />
+            {uploading ? "Uploading…" : videoPath ? "Replace video" : "Choose video"}
+            <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+          </label>
+          {videoPath && (
+            <button type="button" onClick={() => onChange({ content: { ...lesson.content, video_path: null } })} className="text-xs text-red-300 hover:text-red-200">Remove upload</button>
+          )}
+        </div>
+      </div>
+      <div>
+        <Label>Module Body (rich text)</Label>
+        <RichTextEditor
+          value={body}
+          onChange={(html) => onChange({ content: { ...lesson.content, body: html } })}
+          placeholder="Add full written notes, screenshots, or images to accompany the video."
+        />
+      </div>
     </div>
   );
 }
