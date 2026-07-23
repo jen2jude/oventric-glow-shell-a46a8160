@@ -233,17 +233,24 @@ async function settleWalletTopup(
   });
   if (cErr) throw new Error(cErr.message);
 
-  await supabaseAdmin.from("wallet_transactions").insert({
-    user_id: buyerId,
-    paystack_ref: reference,
-    tx_hash: reference,
-    type: "Wallet Top-Up",
-    amount,
-    currency,
-    inflow: true,
-    status: "success",
-    occurred_at: new Date().toISOString(),
-  });
+  if (existing.data?.id) {
+    await supabaseAdmin
+      .from("wallet_transactions")
+      .update({ status: "success", occurred_at: new Date().toISOString(), amount, currency })
+      .eq("id", existing.data.id);
+  } else {
+    await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: buyerId,
+      paystack_ref: reference,
+      tx_hash: reference,
+      type: "Wallet Top-Up",
+      amount,
+      currency,
+      inflow: true,
+      status: "success",
+      occurred_at: new Date().toISOString(),
+    });
+  }
 
   return { alreadySettled: false as const, creditedUSD: usd };
 }
