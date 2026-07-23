@@ -122,7 +122,8 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     };
   }, [index, total, peekDisabled]);
 
-  // Update index on scroll (swipe) — debounced via rAF, ignore programmatic scrolls
+  // Update index on scroll (swipe) — debounced via rAF, ignore programmatic scrolls.
+  // Clamp to ±1 from current index so a fast flick can never skip past the neighbor.
   const rafRef = useRef<number | null>(null);
   const scrollEndTimer = useRef<number | null>(null);
   const onScroll = () => {
@@ -132,20 +133,27 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       const w = el.clientWidth;
-      const i = Math.round(el.scrollLeft / w);
-      if (i !== index) {
-        // Index changed due to user swipe — don't re-snap from the effect.
+      const raw = Math.round(el.scrollLeft / w);
+      const limited = Math.max(index - 1, Math.min(index + 1, raw));
+      if (limited !== raw) {
+        // User swiped past the neighbor — clamp scroll back to the allowed neighbor.
+        isProgrammaticScroll.current = true;
+        el.scrollTo({ left: limited * w, behavior: "smooth" });
+        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 300);
+      }
+      if (limited !== index) {
         skipNextSnap.current = true;
-        setIndex(clamp(i));
+        setIndex(clamp(limited));
       }
     });
-    // After scroll settles, snap to the nearest image for a clean rest position.
+    // After scroll settles, snap to the nearest allowed image.
     if (scrollEndTimer.current) window.clearTimeout(scrollEndTimer.current);
     scrollEndTimer.current = window.setTimeout(() => {
       if (!el) return;
       const w = el.clientWidth;
-      const i = Math.round(el.scrollLeft / w);
-      const target = i * w;
+      const raw = Math.round(el.scrollLeft / w);
+      const limited = Math.max(index - 1, Math.min(index + 1, raw));
+      const target = limited * w;
       if (Math.abs(el.scrollLeft - target) > 1) {
         isProgrammaticScroll.current = true;
         el.scrollTo({ left: target, behavior: "smooth" });
