@@ -170,6 +170,27 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       { method: "POST", body: JSON.stringify(body) },
     );
 
+    // Record an "initialized" (pending) top-up so the user's history reflects
+    // the intent even if they abandon the Paystack page or the transaction fails.
+    if (data.purpose === "wallet_topup") {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.from("wallet_transactions").insert({
+          user_id: context.userId,
+          paystack_ref: result.reference,
+          tx_hash: result.reference,
+          type: "Wallet Top-Up",
+          amount,
+          currency,
+          inflow: true,
+          status: "pending",
+          occurred_at: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error("[paystack] init pending row failed", e);
+      }
+    }
+
     return {
       authorizationUrl: result.authorization_url,
       reference: result.reference,
