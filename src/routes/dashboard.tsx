@@ -1469,21 +1469,39 @@ function EditBlockedModal({ course, onClose }: { course: DashboardPublishedCours
   );
 }
 
-function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
+function fmtHomeAmt(n: number, currency: "USD" | "NGN" | "GHS"): string {
+  const sym = currency === "USD" ? "$" : currency === "NGN" ? "₦" : "₵";
+  const val = currency === "USD" ? n.toFixed(2) : Math.round(n).toLocaleString();
+  return `${sym}${val}`;
+}
+
+function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | null; page: number; onPage: (p: number) => void }) {
   if (!data) return <WalletSkeleton />;
+  const home = data.homeCurrency;
+  const totalPages = Math.max(1, Math.ceil(data.recentTotal / data.pageSize));
   return (
     <div className="space-y-5">
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        {data.balances.length === 0 ? (
-          <div className="md:col-span-2"><EmptyState icon={WalletIcon} title="No wallet yet" hint="Your wallet appears once you receive your first credit or fund it." /></div>
-        ) : data.balances.map((b) => (
-          <div key={b.currency} className="rounded-2xl border border-white/10 bg-[#141418] p-5">
-            <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">{b.currency} balance</div>
-            <div className="mt-2 text-3xl font-black text-white">{b.currency} {b.available.toFixed(2)}</div>
-            <div className="text-xs text-slate-400 mt-1">Escrow {b.currency} {b.escrow.toFixed(2)}</div>
-          </div>
-        ))}
+      {/* Main balance card */}
+      <div className="rounded-2xl border border-white/10 bg-[#141418] p-5">
+        <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance ({home})</div>
+        <div className="mt-2 text-3xl md:text-4xl font-black text-white">{fmtHomeAmt(data.mainBalance, home)}</div>
+        <div className="text-xs text-slate-400 mt-1">
+          {home === "USD" ? "USD account" : <>≈ {fmtHomeAmt(data.mainBalanceUSD, "USD")} USD equivalent</>}
+        </div>
       </div>
+
+      {/* Cashback & Escrow grid */}
+      <div className="grid grid-cols-2 gap-3">
+        <div className="rounded-2xl border border-white/10 bg-[#141418] p-4">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Cashback earned</div>
+          <div className="mt-1.5 text-xl font-black text-white">{fmtHomeAmt(data.cashback, home)}</div>
+        </div>
+        <div className="rounded-2xl border border-white/10 bg-[#141418] p-4">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Escrow balance</div>
+          <div className="mt-1.5 text-xl font-black text-white">{fmtHomeAmt(data.escrow, home)}</div>
+        </div>
+      </div>
+
       {data.pendingPayouts.length > 0 && (
         <div>
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Pending payouts</div>
@@ -1500,27 +1518,60 @@ function WalletPane({ data }: { data: DashboardWalletSummary | null }) {
           </div>
         </div>
       )}
+
       <div>
-        <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Recent transactions</div>
+        <div className="flex items-center justify-between mb-2">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Recent transactions</div>
+          {data.recentTotal > 0 && (
+            <div className="text-[11px] text-slate-500">Page {page} of {totalPages}</div>
+          )}
+        </div>
         {data.recent.length === 0 ? (
           <EmptyState icon={WalletIcon} title="No transactions yet" hint="Sales, purchases and payouts will show here." />
         ) : (
-          <div className="rounded-xl border border-white/10 bg-[#141418] overflow-hidden divide-y divide-white/5">
-            {data.recent.map((r) => (
-              <div key={r.id} className="p-3 flex items-center justify-between gap-3">
-                <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
-                    {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+          <>
+            <div className="rounded-xl border border-white/10 bg-[#141418] overflow-hidden divide-y divide-white/5">
+              {data.recent.map((r) => (
+                <div key={r.id} className="p-3 flex items-center justify-between gap-3">
+                  <div className="flex items-center gap-3 min-w-0">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
+                      {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
+                    </div>
+                    <div className="min-w-0">
+                      <div className="text-white font-semibold text-sm truncate">{r.type}</div>
+                      <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
+                    </div>
                   </div>
-                  <div className="min-w-0">
-                    <div className="text-white font-semibold text-sm truncate">{r.type}</div>
-                    <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
+                  <div className="text-right shrink-0">
+                    <div className="font-black text-sm text-white">{r.inflow ? "+" : "-"}{fmtHomeAmt(r.amountHome, home)}</div>
+                    {r.currency !== home && (
+                      <div className="text-[10px] text-slate-500 mt-0.5">{r.currency} {r.amount.toFixed(2)}</div>
+                    )}
                   </div>
                 </div>
-                <div className="font-black text-sm shrink-0 text-white">{r.inflow ? "+" : "-"}{r.currency} {r.amount.toFixed(2)}</div>
+              ))}
+            </div>
+            {totalPages > 1 && (
+              <div className="mt-3 flex items-center justify-end gap-2">
+                <button
+                  type="button"
+                  disabled={page <= 1}
+                  onClick={() => onPage(page - 1)}
+                  className="px-3 py-1.5 rounded-lg border border-white/15 text-white text-sm disabled:opacity-40 hover:border-white/30"
+                >
+                  Prev
+                </button>
+                <button
+                  type="button"
+                  disabled={page >= totalPages}
+                  onClick={() => onPage(page + 1)}
+                  className="px-3 py-1.5 rounded-lg border border-white/15 text-white text-sm disabled:opacity-40 hover:border-white/30"
+                >
+                  Next
+                </button>
               </div>
-            ))}
-          </div>
+            )}
+          </>
         )}
       </div>
     </div>
