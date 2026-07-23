@@ -226,17 +226,34 @@ async function settleWalletTopup(
     return { alreadySettled: true as const };
   }
 
-  const usd = amount / FX_FROM_USD[currency];
-  const { error: cErr } = await supabaseAdmin.rpc("wallet_credit", {
-    _user_id: buyerId,
-    _amount: usd,
-  });
-  if (cErr) throw new Error(cErr.message);
+  // Credit the wallet in the currency the user actually paid in, so the
+  // primary balance shown on the Sovereign Wallet page updates immediately.
+  // The USD equivalent card is derived on the client from FX rates.
+  const { data: wRow } = await supabaseAdmin
+    .from("wallets")
+    .select("id, available_balance")
+    .eq("user_id", buyerId)
+    .eq("currency", currency)
+    .maybeSingle();
+  const now = new Date().toISOString();
+  if (wRow?.id) {
+    const nextBal = Number(wRow.available_balance ?? 0) + amount;
+    const { error: uErr } = await supabaseAdmin
+      .from("wallets")
+      .update({ available_balance: nextBal, updated_at: now })
+      .eq("id", wRow.id);
+    if (uErr) throw new Error(uErr.message);
+  } else {
+    const { error: iErr } = await supabaseAdmin
+      .from("wallets")
+      .insert({ user_id: buyerId, currency, available_balance: amount });
+    if (iErr) throw new Error(iErr.message);
+  }
 
   if (existing.data?.id) {
     await supabaseAdmin
       .from("wallet_transactions")
-      .update({ status: "success", occurred_at: new Date().toISOString(), amount, currency })
+      .update({ status: "success", occurred_at: now, amount, currency })
       .eq("id", existing.data.id);
   } else {
     await supabaseAdmin.from("wallet_transactions").insert({
@@ -248,11 +265,11 @@ async function settleWalletTopup(
       currency,
       inflow: true,
       status: "success",
-      occurred_at: new Date().toISOString(),
+      occurred_at: now,
     });
   }
 
-  return { alreadySettled: false as const, creditedUSD: usd };
+  return { alreadySettled: false as const, creditedAmount: amount, creditedCurrency: currency };
 }
 
 async function settleOrder(
