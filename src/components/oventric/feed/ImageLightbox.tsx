@@ -52,16 +52,35 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onClose, total]);
 
-  // Snap the track to the active image
+  // Snap the track to the active image only when index changes programmatically
+  // (keyboard, buttons, peek). Do NOT snap when index changed from a user swipe,
+  // otherwise the effect fights the ongoing scroll and causes jumps.
   const isProgrammaticScroll = useRef(false);
+  const skipNextSnap = useRef(false);
+  const snapToIndex = (i: number, behavior: ScrollBehavior = "smooth") => {
+    const el = trackRef.current;
+    if (!el) return;
+    const targetLeft = i * el.clientWidth;
+    if (Math.abs(el.scrollLeft - targetLeft) < 2) return;
+    isProgrammaticScroll.current = true;
+    el.scrollTo({ left: targetLeft, behavior });
+    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
+  };
+
+  // Initial position (no animation) and on resize
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
-    const targetLeft = index * el.clientWidth;
-    if (Math.abs(el.scrollLeft - targetLeft) < 2) return;
-    isProgrammaticScroll.current = true;
-    el.scrollTo({ left: targetLeft, behavior: "smooth" });
-    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
+    el.scrollLeft = index * el.clientWidth;
+    const onResize = () => { el.scrollLeft = index * el.clientWidth; };
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (skipNextSnap.current) { skipNextSnap.current = false; return; }
+    snapToIndex(index);
   }, [index]);
 
 
@@ -78,9 +97,12 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     const peekTimer = window.setTimeout(() => {
       const width = el.clientWidth;
       const base = index * width;
+      isProgrammaticScroll.current = true;
       el.scrollTo({ left: base + Math.round(width * 0.5), behavior: "smooth" });
       returnTimer = window.setTimeout(() => {
+        isProgrammaticScroll.current = true;
         el.scrollTo({ left: base, behavior: "smooth" });
+        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
       }, 1400);
     }, 10000);
 
@@ -100,18 +122,38 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     };
   }, [index, total, peekDisabled]);
 
-  // Update index on scroll (swipe) — debounced via rAF for smoothness
+  // Update index on scroll (swipe) — debounced via rAF, ignore programmatic scrolls
   const rafRef = useRef<number | null>(null);
+  const scrollEndTimer = useRef<number | null>(null);
   const onScroll = () => {
     const el = trackRef.current;
     if (!el) return;
+    if (isProgrammaticScroll.current) return;
     if (rafRef.current) cancelAnimationFrame(rafRef.current);
     rafRef.current = requestAnimationFrame(() => {
       const w = el.clientWidth;
       const i = Math.round(el.scrollLeft / w);
-      if (i !== index) setIndex(clamp(i));
+      if (i !== index) {
+        // Index changed due to user swipe — don't re-snap from the effect.
+        skipNextSnap.current = true;
+        setIndex(clamp(i));
+      }
     });
+    // After scroll settles, snap to the nearest image for a clean rest position.
+    if (scrollEndTimer.current) window.clearTimeout(scrollEndTimer.current);
+    scrollEndTimer.current = window.setTimeout(() => {
+      if (!el) return;
+      const w = el.clientWidth;
+      const i = Math.round(el.scrollLeft / w);
+      const target = i * w;
+      if (Math.abs(el.scrollLeft - target) > 1) {
+        isProgrammaticScroll.current = true;
+        el.scrollTo({ left: target, behavior: "smooth" });
+        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 400);
+      }
+    }, 120);
   };
+
 
   // Translate vertical wheel to horizontal scroll for smooth desktop navigation
   useEffect(() => {
