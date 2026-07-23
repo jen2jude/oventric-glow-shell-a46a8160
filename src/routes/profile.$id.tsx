@@ -43,6 +43,7 @@ import {
 } from "lucide-react";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { Header } from "@/components/oventric/Header";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
