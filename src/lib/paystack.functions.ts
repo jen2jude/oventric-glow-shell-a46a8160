@@ -170,6 +170,27 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       { method: "POST", body: JSON.stringify(body) },
     );
 
+    // Record an "initialized" (pending) top-up so the user's history reflects
+    // the intent even if they abandon the Paystack page or the transaction fails.
+    if (data.purpose === "wallet_topup") {
+      try {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        await supabaseAdmin.from("wallet_transactions").insert({
+          user_id: context.userId,
+          paystack_ref: result.reference,
+          tx_hash: result.reference,
+          type: "Wallet Top-Up",
+          amount,
+          currency,
+          inflow: true,
+          status: "pending",
+          occurred_at: new Date().toISOString(),
+        });
+      } catch (e) {
+        console.error("[paystack] init pending row failed", e);
+      }
+    }
+
     return {
       authorizationUrl: result.authorization_url,
       reference: result.reference,
@@ -212,17 +233,24 @@ async function settleWalletTopup(
   });
   if (cErr) throw new Error(cErr.message);
 
-  await supabaseAdmin.from("wallet_transactions").insert({
-    user_id: buyerId,
-    paystack_ref: reference,
-    tx_hash: reference,
-    type: "Wallet Top-Up",
-    amount,
-    currency,
-    inflow: true,
-    status: "success",
-    occurred_at: new Date().toISOString(),
-  });
+  if (existing.data?.id) {
+    await supabaseAdmin
+      .from("wallet_transactions")
+      .update({ status: "success", occurred_at: new Date().toISOString(), amount, currency })
+      .eq("id", existing.data.id);
+  } else {
+    await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: buyerId,
+      paystack_ref: reference,
+      tx_hash: reference,
+      type: "Wallet Top-Up",
+      amount,
+      currency,
+      inflow: true,
+      status: "success",
+      occurred_at: new Date().toISOString(),
+    });
+  }
 
   return { alreadySettled: false as const, creditedUSD: usd };
 }
@@ -333,6 +361,17 @@ export async function verifyAndSettleByReference(reference: string) {
     { method: "GET" },
   );
   if (payload.status !== "success") {
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      await supabaseAdmin
+        .from("wallet_transactions")
+        .update({ status: "failed" })
+        .eq("paystack_ref", payload.reference)
+        .eq("type", "Wallet Top-Up")
+        .eq("status", "pending");
+    } catch (e) {
+      console.error("[paystack] mark topup failed error", e);
+    }
     return { ok: false as const, status: payload.status, redirectTo: null as string | null };
   }
   const meta = (payload.metadata ?? {}) as Record<string, unknown>;
@@ -370,4 +409,39 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
     // Best-effort authorization: ensure the caller is the payer for order redirects.
     void context.userId;
     return result;
+  });
+
+// ---- History ----------------------------------------------------------------
+
+export interface PaystackTopupRow {
+  id: string;
+  reference: string;
+  amount: number;
+  currency: OrderCurrency;
+  status: "pending" | "success" | "failed";
+  occurredAt: string;
+  createdAt: string;
+}
+
+export const listMyPaystackTopups = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PaystackTopupRow[]> => {
+    const { data, error } = await context.supabase
+      .from("wallet_transactions")
+      .select("id, paystack_ref, amount, currency, status, occurred_at, created_at")
+      .eq("user_id", context.userId)
+      .eq("type", "Wallet Top-Up")
+      .not("paystack_ref", "is", null)
+      .order("occurred_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      reference: (r.paystack_ref as string) ?? "",
+      amount: Number(r.amount),
+      currency: r.currency as OrderCurrency,
+      status: r.status as "pending" | "success" | "failed",
+      occurredAt: r.occurred_at as string,
+      createdAt: r.created_at as string,
+    }));
   });
