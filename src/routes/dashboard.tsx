@@ -62,6 +62,7 @@ import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { Images } from "lucide-react";
 import {
   OverviewSkeleton,
@@ -1652,11 +1653,13 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
   const rows = sub === "followers" ? data.followers : sub === "following" ? data.following : [];
   return (
     <div>
-      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
-        <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
-        <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
-        <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>My Circles ({data.circles.length})</TabButton>
-        <TabButton active={sub === "memories"} onClick={() => setSub("memories")}>My Memories</TabButton>
+      <div className="-mx-1 mb-4 overflow-x-auto no-scrollbar">
+        <div className="inline-flex min-w-max rounded-lg bg-[#141418] border border-white/10 p-1 gap-1 mx-1">
+          <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
+          <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
+          <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>Circles ({data.circles.length})</TabButton>
+          <TabButton active={sub === "memories"} onClick={() => setSub("memories")}>Memories</TabButton>
+        </div>
       </div>
       {sub === "memories" && <MyMemoriesGallery />}
       {(sub === "followers" || sub === "following") && (
@@ -1665,9 +1668,9 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {rows.map((u) => (
-              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-white/20 transition">
-                <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 overflow-hidden flex items-center justify-center text-white font-bold">
-                  {u.avatarUrl ? <img src={u.avatarUrl} alt="" className="w-full h-full object-cover" /> : u.name.slice(0, 1).toUpperCase()}
+              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-white/20 transition min-w-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/15">
+                  <AvatarImage src={u.avatarUrl} alt={u.name} />
                 </div>
                 <div className="min-w-0">
                   <div className="text-white font-semibold text-sm truncate">{u.name}</div>
