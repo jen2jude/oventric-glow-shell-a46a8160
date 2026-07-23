@@ -411,7 +411,7 @@ export async function verifyAndSettleByReference(reference: string) {
   }
 
   await settleWalletTopup(userId, payload.reference, amount, currency);
-  const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?wallet=funded";
+  const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
   return { ok: true as const, status: "success", redirectTo: returnTo };
 }
 
