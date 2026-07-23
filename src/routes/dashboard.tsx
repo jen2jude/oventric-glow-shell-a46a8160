@@ -720,27 +720,57 @@ function ListingsList({
   onEdit: (p: ProductDTO) => void;
 }) {
   const [filter, setFilter] = useState<"all" | "pending" | "active" | "rejected">("all");
+  const [kind, setKind] = useState<"all" | "digital" | "physical">("all");
+  const [sellOpen, setSellOpen] = useState(false);
 
   if (rows === null) {
     return <ListingsSkeleton />;
   }
   if (rows.length === 0) {
     return (
-      <EmptyState
-        icon={Store}
-        title="You haven't published any listings yet"
-        hint="Tap the + button on the home screen to sell a digital asset or physical product."
-        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to marketplace</Link>}
-      />
+      <>
+        <EmptyState
+          icon={Store}
+          title="You haven't published any listings yet"
+          hint="Start selling digital assets or physical products, or browse the marketplace to see what's live."
+          cta={
+            <div className="flex flex-wrap items-center justify-center gap-2">
+              <button
+                type="button"
+                onClick={() => setSellOpen(true)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold hover:bg-white/90"
+              >
+                <Plus className="w-4 h-4" /> Start selling
+              </button>
+              <Link
+                to="/"
+                onClick={() => setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40)}
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-sm font-semibold"
+              >
+                Go to marketplace
+              </Link>
+            </div>
+          }
+        />
+        <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
+      </>
     );
   }
 
-  const filtered = filter === "all" ? rows : rows.filter((r) => r.status === filter);
+  const kindFiltered = kind === "all" ? rows : rows.filter((r) => r.kind === kind);
+  const filtered = filter === "all" ? kindFiltered : kindFiltered.filter((r) => r.status === filter);
   const chips: { key: typeof filter; label: string; count: number }[] = [
-    { key: "all", label: "All", count: rows.length },
-    { key: "pending", label: "Pending", count: counts.pending },
-    { key: "active", label: "Live", count: counts.active },
-    { key: "rejected", label: "Rejected", count: counts.rejected },
+    { key: "all", label: "All", count: kindFiltered.length },
+    { key: "pending", label: "Pending", count: kindFiltered.filter((r) => r.status === "pending").length },
+    { key: "active", label: "Live", count: kindFiltered.filter((r) => r.status === "active").length },
+    { key: "rejected", label: "Rejected", count: kindFiltered.filter((r) => r.status === "rejected").length },
+  ];
+  const digitalCount = rows.filter((r) => r.kind === "digital").length;
+  const physicalCount = rows.filter((r) => r.kind === "physical").length;
+  const kindChips: { key: typeof kind; label: string; count: number }[] = [
+    { key: "all", label: "All types", count: rows.length },
+    { key: "digital", label: "Digital", count: digitalCount },
+    { key: "physical", label: "Physical", count: physicalCount },
   ];
 
   return (
