@@ -65,6 +65,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   useEffect(() => {
     const el = trackRef.current;
     if (!el) return;
+    if (peekDisabled) return;
     if (total <= 1) return;
     if (index >= total - 1) return; // no next image to tease
 
