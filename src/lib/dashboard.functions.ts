@@ -164,11 +164,19 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
 export interface DashboardBountyPosted {
   id: string;
   title: string;
+  description: string | null;
   category: string;
   priceUSD: number;
   status: string;
   deadlineAt: string | null;
+  startAt: string | null;
+  endAt: string | null;
   createdAt: string;
+  coverPath: string | null;
+  coverUrl: string | null;
+  applicantLimit: number | null;
+  applicantsCount: number;
+  promoted: boolean;
 }
 
 export interface DashboardBountySolved {
@@ -177,6 +185,8 @@ export interface DashboardBountySolved {
   title: string;
   payoutUSD: number;
   solvedAt: string;
+  coverPath: string | null;
+  coverUrl: string | null;
 }
 
 export const listMyBounties = createServerFn({ method: "GET" })
@@ -188,10 +198,26 @@ export const listMyBounties = createServerFn({ method: "GET" })
 
     const { data: posted, error: pErr } = await sb
       .from("bounties")
-      .select("id, title, category, price_usd, status, deadline_at, created_at")
+      .select("id, title, description, category, price_usd, status, deadline_at, start_at, end_at, created_at, cover_path, applicant_limit, promoted")
       .eq("poster_id", me)
       .order("created_at", { ascending: false });
     if (pErr) throw new Error(pErr.message);
+
+    const postedRows = (posted ?? []) as Array<Record<string, unknown>>;
+    const postedIds = postedRows.map((r) => String(r.id));
+
+    // Applicants per posted bounty (RLS on bounty_applications allows the
+    // bounty poster to read all rows for their bounties).
+    const applicantCount = new Map<string, number>();
+    if (postedIds.length) {
+      const { data: apps } = await sb
+        .from("bounty_applications")
+        .select("bounty_id")
+        .in("bounty_id", postedIds);
+      for (const a of ((apps ?? []) as Array<{ bounty_id: string }>)) {
+        applicantCount.set(a.bounty_id, (applicantCount.get(a.bounty_id) ?? 0) + 1);
+      }
+    }
 
     // Solver history — audit_logs is admin-only under RLS, so read via admin
     // client scoped strictly to this authenticated user's solver_id.
@@ -208,31 +234,65 @@ export const listMyBounties = createServerFn({ method: "GET" })
 
     const rows = (solvedLogs ?? []) as Array<{ target_id: string | null; meta: Record<string, unknown>; created_at: string }>;
     const bountyIds = rows.map((r) => r.target_id).filter((x): x is string => !!x);
-    let titles = new Map<string, string>();
+    let solvedMeta = new Map<string, { title: string; cover_path: string | null }>();
     if (bountyIds.length) {
-      const { data: bs } = await admin.from("bounties").select("id, title").in("id", bountyIds);
-      titles = new Map(((bs ?? []) as Array<{ id: string; title: string }>).map((b) => [b.id, b.title]));
+      const { data: bs } = await admin.from("bounties").select("id, title, cover_path").in("id", bountyIds);
+      solvedMeta = new Map(((bs ?? []) as Array<{ id: string; title: string; cover_path: string | null }>).map((b) => [b.id, { title: b.title, cover_path: b.cover_path }]));
     }
-    const solved: DashboardBountySolved[] = rows.map((r) => ({
-      id: `${r.target_id ?? "solved"}-${r.created_at}`,
-      bountyId: r.target_id,
-      title: (r.target_id && titles.get(r.target_id)) || "Bounty",
-      payoutUSD: Number((r.meta as { solverCut?: number })?.solverCut ?? 0),
-      solvedAt: r.created_at,
-    }));
 
-    const postedDTO: DashboardBountyPosted[] = ((posted ?? []) as Array<Record<string, unknown>>).map((b) => ({
+    // Batch-sign every unique cover path across posted + solved.
+    const allPaths: (string | null)[] = [
+      ...postedRows.map((r) => (r.cover_path as string | null) ?? null),
+      ...rows.map((r) => (r.target_id ? solvedMeta.get(r.target_id)?.cover_path ?? null : null)),
+    ];
+    const uniquePaths = Array.from(new Set(allPaths.filter((p): p is string => !!p)));
+    const signedMap = new Map<string, string>();
+    if (uniquePaths.length) {
+      try {
+        const { data: signed } = await admin.storage
+          .from("bounty-covers")
+          .createSignedUrls(uniquePaths, 60 * 60 * 24 * 7);
+        (signed ?? []).forEach((r: { path?: string; signedUrl?: string }) => {
+          if (r.path && r.signedUrl) signedMap.set(r.path, r.signedUrl);
+        });
+      } catch { /* ignore */ }
+    }
+    const signOne = (p: string | null) => (p ? signedMap.get(p) ?? null : null);
+
+    const solved: DashboardBountySolved[] = rows.map((r) => {
+      const meta = r.target_id ? solvedMeta.get(r.target_id) : null;
+      return {
+        id: `${r.target_id ?? "solved"}-${r.created_at}`,
+        bountyId: r.target_id,
+        title: meta?.title ?? "Bounty",
+        payoutUSD: Number((r.meta as { solverCut?: number })?.solverCut ?? 0),
+        solvedAt: r.created_at,
+        coverPath: meta?.cover_path ?? null,
+        coverUrl: signOne(meta?.cover_path ?? null),
+      };
+    });
+
+    const postedDTO: DashboardBountyPosted[] = postedRows.map((b) => ({
       id: String(b.id),
       title: String(b.title ?? ""),
+      description: (b.description as string | null) ?? null,
       category: String(b.category ?? ""),
       priceUSD: Number(b.price_usd ?? 0),
       status: String(b.status ?? "active"),
       deadlineAt: (b.deadline_at as string | null) ?? null,
+      startAt: (b.start_at as string | null) ?? null,
+      endAt: (b.end_at as string | null) ?? null,
       createdAt: String(b.created_at),
+      coverPath: (b.cover_path as string | null) ?? null,
+      coverUrl: signOne((b.cover_path as string | null) ?? null),
+      applicantLimit: b.applicant_limit == null ? null : Number(b.applicant_limit),
+      applicantsCount: applicantCount.get(String(b.id)) ?? 0,
+      promoted: !!b.promoted,
     }));
 
     return { posted: postedDTO, solved };
   });
+
 
 /* -------------------------------------------------------------------------- */
 /*  Courses tab                                                                */
