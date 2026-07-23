@@ -1778,7 +1778,6 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
   const fetchPhotos = useServerFn(listUserPhotos);
   const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
   const [filter, setFilter] = useState<"all" | "avatar" | "cover" | "post">("all");
-  const [lb, setLb] = useState<{ images: string[]; index: number } | null>(null);
   useEffect(() => {
     let cancel = false;
     (async () => {
@@ -1796,7 +1795,6 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
     return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
   }
   const filtered = filter === "all" ? photos : photos.filter((p) => p.source === filter);
-  const urls = filtered.map((p) => p.url);
   const chip = (v: typeof filter, label: string) => (
     <button
       key={v}
@@ -1827,37 +1825,12 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
           </p>
         </div>
       ) : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
-          {filtered.map((p, i) => (
-            <button
-              key={p.url + i}
-              type="button"
-              onClick={() => setLb({ images: urls, index: i })}
-              aria-label={`Open photo ${i + 1} of ${filtered.length}`}
-              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
-            >
-              <img
-                src={p.url}
-                alt=""
-                loading="lazy"
-                decoding="async"
-                className="absolute inset-0 w-full h-full object-cover transition-transform duration-300 group-hover:scale-[1.04]"
-              />
-              <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/60 via-black/0 to-black/0 opacity-0 group-hover:opacity-100 transition-opacity" />
-              <span className="absolute top-2 left-2 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-black/60 border border-white/20 text-white backdrop-blur-sm">
-                {p.source === "post" ? "Post" : p.source === "avatar" ? "Profile" : "Cover"}
-              </span>
-              <span className="absolute bottom-2 right-2 px-2 py-1 rounded-full text-[10px] font-semibold bg-emerald-500 text-black opacity-0 group-hover:opacity-100 transition-opacity">
-                View
-              </span>
-            </button>
-          ))}
-        </div>
+        <PhotoBatches photos={filtered} />
       )}
-      {lb && <ImageLightbox images={lb.images} startIndex={lb.index} onClose={() => setLb(null)} />}
     </div>
   );
 }
+
 
 
 type StateAction = { label: string; onClick: () => void };
