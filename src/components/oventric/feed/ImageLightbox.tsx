@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { ChevronLeft, ChevronRight, X, Sparkles, SparklesIcon } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, MousePointerClick, Pause } from "lucide-react";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 interface GalleryProps {
