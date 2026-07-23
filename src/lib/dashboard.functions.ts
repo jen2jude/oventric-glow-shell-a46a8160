@@ -73,7 +73,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       sb.from("product_contacts").select("id", { count: "exact", head: true }).eq("user_id", me),
       sb.from("products").select("id, status").eq("seller_id", me),
       sb.from("bounties").select("id, status", { count: "exact", head: false }).eq("poster_id", me),
-      sb.from("wallet_transactions").select("amount").eq("user_id", me).eq("type", "Gig Bounty Escrowed").eq("inflow", true).eq("status", "success"),
+      sb.from("wallet_transactions").select("amount, currency").eq("user_id", me).eq("type", "Bounty Payout").eq("inflow", true).eq("status", "success"),
       sb.from("course_enrollments").select("id, completed_at").eq("user_id", me),
       sb.from("courses").select("id", { count: "exact", head: true }).eq("owner_id", me),
       sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("followee_id", me),
