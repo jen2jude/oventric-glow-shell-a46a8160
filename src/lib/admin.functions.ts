@@ -107,7 +107,7 @@ export const listAdminUsers = createServerFn({ method: "GET" })
     const sb = supabaseAdmin as any;
     const { data: profiles, error } = await sb
       .from("profiles")
-      .select("user_id, username, display_name, country, verification_tier, reputation_stars, created_at")
+      .select("user_id, username, display_name, country, verification_tier, reputation_stars, kyc_completed_at, flagged, banned_at, profile_completed_at, created_at")
       .order("created_at", { ascending: false })
       .limit(1000);
     if (error) throw new Error(error.message);
