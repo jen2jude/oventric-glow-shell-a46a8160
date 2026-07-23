@@ -1035,6 +1035,7 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
   const [sub, setSub] = useState<"enrolled" | "published">("enrolled");
   const [detailsFor, setDetailsFor] = useState<DashboardPublishedCourse | null>(null);
   const [editBlockedFor, setEditBlockedFor] = useState<DashboardPublishedCourse | null>(null);
+  const [publishOpen, setPublishOpen] = useState(false);
 
   const openAcademy = () => navigate({ to: "/", search: { section: "Academy" } as never });
 
