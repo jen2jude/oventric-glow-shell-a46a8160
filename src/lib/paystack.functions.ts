@@ -410,3 +410,38 @@ export const verifyPaystackPayment = createServerFn({ method: "POST" })
     void context.userId;
     return result;
   });
+
+// ---- History ----------------------------------------------------------------
+
+export interface PaystackTopupRow {
+  id: string;
+  reference: string;
+  amount: number;
+  currency: OrderCurrency;
+  status: "pending" | "success" | "failed";
+  occurredAt: string;
+  createdAt: string;
+}
+
+export const listMyPaystackTopups = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<PaystackTopupRow[]> => {
+    const { data, error } = await context.supabase
+      .from("wallet_transactions")
+      .select("id, paystack_ref, amount, currency, status, occurred_at, created_at")
+      .eq("user_id", context.userId)
+      .eq("type", "Wallet Top-Up")
+      .not("paystack_ref", "is", null)
+      .order("occurred_at", { ascending: false })
+      .limit(200);
+    if (error) throw new Error(error.message);
+    return (data ?? []).map((r) => ({
+      id: r.id as string,
+      reference: (r.paystack_ref as string) ?? "",
+      amount: Number(r.amount),
+      currency: r.currency as OrderCurrency,
+      status: r.status as "pending" | "success" | "failed",
+      occurredAt: r.occurred_at as string,
+      createdAt: r.created_at as string,
+    }));
+  });
