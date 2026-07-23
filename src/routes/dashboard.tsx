@@ -26,7 +26,9 @@ import {
   ArrowDownRight,
   Trophy,
   Bell,
+  Plus,
 } from "lucide-react";
+import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listMyPurchases,
