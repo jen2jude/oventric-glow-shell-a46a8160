@@ -135,7 +135,11 @@ export function RichTextEditor({
         <Btn onClick={() => exec("formatBlock", "H2")} title="Heading"><Heading2 className="w-3.5 h-3.5" /></Btn>
         <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list"><List className="w-3.5 h-3.5" /></Btn>
         <Btn onClick={insertLink} title="Insert link"><Link2 className="w-3.5 h-3.5" /></Btn>
-        <label className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer" title="Insert image">
+        <label
+          className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer"
+          title="Insert image"
+          onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+        >
           {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
           <input
             type="file"
@@ -156,7 +160,10 @@ export function RichTextEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
-        onBlur={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
+        onBlur={(e) => { saveSelection(); onChange((e.target as HTMLDivElement).innerHTML); }}
+        onKeyUp={saveSelection}
+        onMouseUp={saveSelection}
+        onTouchEnd={saveSelection}
         data-placeholder={placeholder}
         className="rte-body px-3 py-2 text-sm text-white outline-none focus:bg-black/20 whitespace-pre-wrap break-words"
         style={{ minHeight }}
