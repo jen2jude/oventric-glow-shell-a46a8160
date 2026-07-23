@@ -117,6 +117,7 @@ function DashboardPage() {
   const [bounties, setBounties] = useState<{ posted: DashboardBountyPosted[]; solved: DashboardBountySolved[] } | null>(null);
   const [courses, setCourses] = useState<{ enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null>(null);
   const [walletSummary, setWalletSummary] = useState<DashboardWalletSummary | null>(null);
+  const [walletPage, setWalletPage] = useState(1);
   const [social, setSocial] = useState<DashboardSocial | null>(null);
   const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
