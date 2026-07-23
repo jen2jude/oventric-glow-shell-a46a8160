@@ -756,6 +756,14 @@ html.low-gpu {
     will-change: auto !important;
   }
 
+  /* Reserve space under the fixed mobile footer nav (~64px + safe-area)
+     so buttons/CTAs at the bottom of any page aren't overlapped. */
+  @media (max-width: 767px) {
+    body {
+      padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+
   .megamenu-mobile-plain {
     display: block !important;
     min-height: 100dvh;
