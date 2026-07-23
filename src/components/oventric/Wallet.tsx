@@ -822,14 +822,15 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
       <button
         onClick={fund}
         disabled={!numericAmount || numericAmount <= 0 || busy}
-        className="w-full mt-2 rounded-xl bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-bold py-2.5 text-sm transition-colors inline-flex items-center justify-center gap-2"
+        className="w-full mt-3 rounded-xl bg-gradient-to-r from-emerald-400 to-emerald-500 hover:from-emerald-300 hover:to-emerald-400 disabled:from-white/10 disabled:to-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-black font-extrabold py-3.5 text-base shadow-lg shadow-emerald-500/30 ring-1 ring-emerald-300/60 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
-          <><Loader2 className="w-4 h-4 animate-spin" /> Redirecting to Paystack…</>
+          <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
         ) : (
           <>Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}{numericAmount > 0 ? ` · ${symbol}${formattedCharge}` : ""}</>
         )}
       </button>
+
       <div className="mt-1 text-[10px] text-slate-500 inline-flex items-center gap-1">
         <ShieldCheck className="w-3 h-3 text-emerald-400" /> Payments processed securely by Paystack
       </div>
