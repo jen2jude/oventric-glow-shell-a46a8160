@@ -610,8 +610,8 @@ function VideoLessonEditor({
   lesson,
   onChange,
 }: {
-  lesson: LessonInput;
-  onChange: (patch: Partial<LessonInput>) => void;
+  lesson: Section["lessons"][number];
+  onChange: (patch: Partial<Section["lessons"][number]>) => void;
 }) {
   const getUpload = useServerFn(getCourseMediaUploadUrl);
   const [uploading, setUploading] = useState(false);
