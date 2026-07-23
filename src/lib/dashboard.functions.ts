@@ -579,6 +579,7 @@ export const getMySocial = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<DashboardSocial> => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const me = context.userId;
 
     const [followersRes, followingRes, circlesRes] = await Promise.all([
@@ -593,7 +594,7 @@ export const getMySocial = createServerFn({ method: "GET" })
 
     let userMap = new Map<string, { slug: string; name: string; avatar: string | null }>();
     if (allUserIds.length) {
-      const { data: profs } = await sb
+      const { data: profs } = await supabaseAdmin
         .from("profiles")
         .select("user_id, slug, display_name, username, avatar_path")
         .in("user_id", allUserIds);
@@ -605,20 +606,38 @@ export const getMySocial = createServerFn({ method: "GET" })
       );
     }
 
+    // Sign avatar_path values from the `avatars` bucket so <img> can render them.
+    const avatarPaths = Array.from(
+      new Set(Array.from(userMap.values()).map((v) => v.avatar).filter((p): p is string => !!p)),
+    );
+    const signedAvatars = new Map<string, string>();
+    if (avatarPaths.length) {
+      const { data: signed } = await supabaseAdmin.storage
+        .from("avatars")
+        .createSignedUrls(avatarPaths, 60 * 60 * 24 * 7);
+      (signed ?? []).forEach((r) => {
+        if (r.path && r.signedUrl) signedAvatars.set(r.path, r.signedUrl);
+      });
+    }
+    const avatarUrlFor = (uid: string): string | null => {
+      const p = userMap.get(uid)?.avatar ?? null;
+      return p ? (signedAvatars.get(p) ?? null) : null;
+    };
+
     const followers: DashboardSocialUser[] = ((followersRes.data ?? []) as Array<{ follower_id: string; created_at: string }>).map((r) => {
       const p = userMap.get(r.follower_id);
-      return { userId: r.follower_id, slug: p?.slug ?? r.follower_id, name: p?.name ?? "Peer", avatarUrl: p?.avatar ?? null, at: r.created_at };
+      return { userId: r.follower_id, slug: p?.slug ?? r.follower_id, name: p?.name ?? "Peer", avatarUrl: avatarUrlFor(r.follower_id), at: r.created_at };
     });
     const following: DashboardSocialUser[] = ((followingRes.data ?? []) as Array<{ followee_id: string; created_at: string }>).map((r) => {
       const p = userMap.get(r.followee_id);
-      return { userId: r.followee_id, slug: p?.slug ?? r.followee_id, name: p?.name ?? "Peer", avatarUrl: p?.avatar ?? null, at: r.created_at };
+      return { userId: r.followee_id, slug: p?.slug ?? r.followee_id, name: p?.name ?? "Peer", avatarUrl: avatarUrlFor(r.followee_id), at: r.created_at };
     });
 
     const cRows = (circlesRes.data ?? []) as Array<{ circle_id: string; role: string; joined_at: string }>;
     const circleIds = cRows.map((r) => r.circle_id);
     let circleMap = new Map<string, { name: string; slug: string; emoji: string | null }>();
     if (circleIds.length) {
-      const { data: cs } = await sb.from("circles").select("id, name, slug, emoji").in("id", circleIds);
+      const { data: cs } = await supabaseAdmin.from("circles").select("id, name, slug, emoji").in("id", circleIds);
       circleMap = new Map(((cs ?? []) as Array<{ id: string; name: string; slug: string; emoji: string | null }>).map((c) => [c.id, { name: c.name, slug: c.slug, emoji: c.emoji }]));
     }
     const circles: DashboardSocialCircle[] = cRows.map((r) => {
