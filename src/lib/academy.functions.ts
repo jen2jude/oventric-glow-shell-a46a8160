@@ -113,18 +113,36 @@ function mapCourse(r: Record<string, unknown>, coverUrl: string | null = null): 
   };
 }
 
-function mapModule(r: Record<string, unknown>): ModuleDTO {
+function mapModule(r: Record<string, unknown>, videoFileUrl: string | null = null): ModuleDTO {
+  const content = (r.content_data as Record<string, unknown> | null) ?? {};
+  const body = typeof content.body === "string" ? (content.body as string) : "";
+  const videoPath = typeof content.video_path === "string" ? (content.video_path as string) : null;
   return {
     id: r.id as string,
     courseId: r.course_id as string,
     position: Number(r.position ?? 0),
     title: r.title as string,
     description: (r.description as string) ?? "",
-    videoUrl: r.video_url as string,
+    body,
+    videoUrl: (r.video_url as string) ?? "",
     videoProvider: ((r.video_provider as string) ?? "youtube") as VideoProvider,
+    videoPath,
+    videoFileUrl,
     durationMin: Number(r.duration_min ?? 0),
     isPreview: Boolean(r.is_preview),
   };
+}
+
+async function signCourseMedia(
+  sb: ReturnType<typeof serverPublicClient>,
+  paths: (string | null)[],
+): Promise<(string | null)[]> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  if (unique.length === 0) return paths.map(() => null);
+  const { data } = await sb.storage.from("course-media").createSignedUrls(unique, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
+  return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
 
 async function signCovers(
