@@ -243,11 +243,13 @@ export interface DashboardEnrolledCourse {
   courseId: string;
   title: string;
   coverPath: string | null;
+  coverUrl: string | null;
   slug: string | null;
   totalModules: number;
   completedModules: number;
   completedAt: string | null;
   enrolledAt: string;
+  isFree: boolean;
 }
 
 export interface DashboardPublishedCourse {
@@ -255,6 +257,10 @@ export interface DashboardPublishedCourse {
   title: string;
   slug: string | null;
   coverPath: string | null;
+  coverUrl: string | null;
+  description: string | null;
+  category: string | null;
+  level: string | null;
   priceUSD: number;
   isPublished: boolean;
   isFree: boolean;
