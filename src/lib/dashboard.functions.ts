@@ -5,12 +5,40 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /*  Overview snapshot                                                          */
 /* -------------------------------------------------------------------------- */
 
+type HomeCurrency = "USD" | "NGN" | "GHS";
+
+function countryToHomeCurrency(country: string | null | undefined): HomeCurrency {
+  const c = (country ?? "").toUpperCase();
+  if (c === "NG") return "NGN";
+  if (c === "GH") return "GHS";
+  return "USD";
+}
+
+const FX_FALLBACK: Record<HomeCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
+  try {
+    const { data } = await sb.from("platform_settings").select("fx_rates").maybeSingle();
+    const r = (data?.fx_rates ?? null) as Record<string, number> | null;
+    if (!r) return FX_FALLBACK;
+    return {
+      USD: 1,
+      NGN: Number(r.NGN) > 0 ? Number(r.NGN) : FX_FALLBACK.NGN,
+      GHS: Number(r.GHS) > 0 ? Number(r.GHS) : FX_FALLBACK.GHS,
+    };
+  } catch {
+    return FX_FALLBACK;
+  }
+}
+
 export interface DashboardOverview {
-  wallet: { currency: string; available: number; escrow: number } | null;
+  homeCurrency: HomeCurrency;
+  wallet: { currency: HomeCurrency; available: number; escrow: number } | null;
   purchases: { total: number; pending: number };
   contacts: number;
   listings: { total: number; pending: number; active: number; rejected: number };
-  bounties: { posted: number; active: number; solved: number; earnedUSD: number };
+  bounties: { posted: number; active: number; solved: number; earnedUSD: number; earned: number; earnedCurrency: HomeCurrency };
   courses: { enrolled: number; completed: number; published: number };
   social: { followers: number; following: number; circles: number };
   unread: { messages: number; notifications: number };
@@ -37,6 +65,8 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       circlesRes,
       unreadMsgRes,
       unreadNotifRes,
+      profileRes,
+      rates,
     ] = await Promise.all([
       sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", me),
       sb.from("orders").select("id, status", { count: "exact", head: false }).eq("buyer_id", me),
@@ -51,14 +81,18 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       sb.from("circle_members").select("circle_id", { count: "exact", head: true }).eq("user_id", me),
       sb.from("direct_messages").select("id", { count: "exact", head: true }).eq("recipient_id", me).is("read_at", null),
       sb.from("notifications").select("id", { count: "exact", head: true }).eq("user_id", me).is("read_at", null),
+      sb.from("profiles").select("country").eq("user_id", me).maybeSingle(),
+      loadUsdRates(sb),
     ]);
 
-    // Prefer non-USD wallet if user's currency is set that way; otherwise USD.
+    // Home currency comes from the user's country. Overview always reports
+    // the wallet + bounty earnings in this currency only.
+    const homeCurrency: HomeCurrency = countryToHomeCurrency(
+      (profileRes?.data as { country?: string | null } | null)?.country ?? null,
+    );
+
     const walletRows = (wallets.data ?? []) as Array<{ currency: string; available_balance: number; escrow_balance: number }>;
-    const primary =
-      walletRows.find((w) => w.currency !== "USD") ??
-      walletRows.find((w) => w.currency === "USD") ??
-      null;
+    const home = walletRows.find((w) => w.currency === homeCurrency) ?? null;
 
     const orderRows = (ordersRes.data ?? []) as Array<{ status: string }>;
     const productRows = (productsRes.data ?? []) as Array<{ status: string }>;
@@ -67,15 +101,15 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
     const payoutRows = (bountyPayoutsRes.data ?? []) as Array<{ amount: number }>;
 
     const earnedUSD = payoutRows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
+    const earnedHome = earnedUSD * (rates[homeCurrency] ?? 1);
 
     return {
-      wallet: primary
-        ? {
-            currency: primary.currency,
-            available: Number(primary.available_balance || 0),
-            escrow: Number(primary.escrow_balance || 0),
-          }
-        : null,
+      homeCurrency,
+      wallet: {
+        currency: homeCurrency,
+        available: Number(home?.available_balance ?? 0),
+        escrow: Number(home?.escrow_balance ?? 0),
+      },
       purchases: {
         total: orderRows.filter((o) => o.status === "paid").length,
         pending: orderRows.filter((o) => o.status === "pending").length,
@@ -92,6 +126,8 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
         active: bountyRows.filter((b) => b.status === "active").length,
         solved: payoutRows.length,
         earnedUSD: Number(earnedUSD.toFixed(2)),
+        earned: Number(earnedHome.toFixed(homeCurrency === "USD" ? 2 : 0)),
+        earnedCurrency: homeCurrency,
       },
       courses: {
         enrolled: enrollRows.length,
@@ -109,6 +145,7 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       },
     };
   });
+
 
 /* -------------------------------------------------------------------------- */
 /*  Bounties tab                                                               */
