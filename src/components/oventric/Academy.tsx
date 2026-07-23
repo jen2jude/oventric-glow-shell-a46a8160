@@ -14,8 +14,9 @@ import {
   Award,
   Lock,
   Edit3,
-  Zap,
-  TrendingUp,
+  Video,
+  RotateCcw,
+  ScrollText,
   ShoppingBag,
 } from "lucide-react";
 import { toast } from "sonner";
@@ -548,16 +549,14 @@ function AcademyLanding({ onExplore }: { onExplore: () => void }) {
   return (
     <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
       <div className="text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-semibold tracking-wide mb-6">
+        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200 text-xs font-semibold tracking-wide mb-6">
           <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
         </div>
         <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.05] tracking-tight">
           Master High-End Digital Skills.
           <br />
           <span className="text-slate-400">Learn From Real Builders.</span>{" "}
-          <span className="bg-gradient-to-r from-emerald-300 via-cyan-300 to-fuchsia-300 bg-clip-text text-transparent">
-            Earn Certificates.
-          </span>
+          <span className="text-white">Earn Certificates.</span>
         </h1>
         <p className="mt-6 text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
           Video-first courses from working practitioners. Track your progress across sessions, resume any time, and earn a certificate when you complete a course.
@@ -571,18 +570,18 @@ function AcademyLanding({ onExplore }: { onExplore: () => void }) {
         </div>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-14">
-        <ValueCard Icon={Zap} title="Video-First Delivery" body="Every module is a hosted video — YouTube or Vimeo. Press play and learn. No downloads, no plugins." accent="from-cyan-400 to-blue-600" />
-        <ValueCard Icon={TrendingUp} title="Auto-Resume" body="Log out, come back next week — your progress is saved per module. Pick up exactly where you left off." accent="from-emerald-400 to-teal-600" />
-        <ValueCard Icon={Award} title="Certificate on Completion" body="Finish every module and generate a signed digital certificate with your name and completion date." accent="from-fuchsia-400 to-purple-600" />
+        <ValueCard Icon={Video} title="Video-First Delivery" body="Every module is a hosted video — YouTube or Vimeo. Press play and learn. No downloads, no plugins." />
+        <ValueCard Icon={RotateCcw} title="Auto-Resume" body="Log out, come back next week — your progress is saved per module. Pick up exactly where you left off." />
+        <ValueCard Icon={ScrollText} title="Certificate on Completion" body="Finish every module and generate a signed digital certificate with your name and completion date." />
       </div>
     </div>
   );
 }
 
-function ValueCard({ Icon, title, body, accent }: { Icon: React.ComponentType<{ className?: string }>; title: string; body: string; accent: string }) {
+function ValueCard({ Icon, title, body }: { Icon: React.ComponentType<{ className?: string }>; title: string; body: string }) {
   return (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-5 hover:border-white/10 transition-colors">
-      <div className={`w-11 h-11 rounded-lg bg-gradient-to-br ${accent} flex items-center justify-center mb-4`}>
+    <div className="bg-[#141418] border border-white/10 rounded-xl p-5">
+      <div className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center mb-4">
         <Icon className="w-5 h-5 text-white" />
       </div>
       <h3 className="text-white font-bold text-base mb-1.5">{title}</h3>
