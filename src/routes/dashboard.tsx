@@ -1708,7 +1708,7 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
 function MyMemoriesGallery() {
   const fetchPhotos = useServerFn(listUserPhotos);
   const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
-  const [lb, setLb] = useState<{ images: string[]; index: number } | null>(null);
+  
   useEffect(() => {
     let cancel = false;
     (async () => {
