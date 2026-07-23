@@ -194,13 +194,19 @@ export const getCourse = createServerFn({ method: "POST" })
     const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]);
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
-      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview")
+      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview, content_data")
       .eq("course_id", data.id)
       .order("position", { ascending: true });
     if (mErr) throw new Error(mErr.message);
+    const modRows = mods ?? [];
+    const videoPaths = modRows.map((m) => {
+      const cd = (m as { content_data?: Record<string, unknown> }).content_data ?? {};
+      return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
+    });
+    const videoUrls = await signCourseMedia(sb, videoPaths);
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
-      modules: (mods ?? []).map((m) => mapModule(m as Record<string, unknown>)),
+      modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
     };
   });
 
