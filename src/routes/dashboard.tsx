@@ -1014,64 +1014,197 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
   );
 }
 
+function CourseCoverThumb({ url, title, className = "" }: { url: string | null; title: string; className?: string }) {
+  return (
+    <div className={`relative overflow-hidden rounded-lg bg-white/5 border border-white/10 ${className}`}>
+      {url ? (
+        <img src={url} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
+      ) : (
+        <div className="absolute inset-0 flex items-center justify-center text-slate-600">
+          <GraduationCap className="w-8 h-8" />
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; published: DashboardPublishedCourse[] } | null }) {
+  const navigate = useNavigate();
   const [sub, setSub] = useState<"enrolled" | "published">("enrolled");
+  const [detailsFor, setDetailsFor] = useState<DashboardPublishedCourse | null>(null);
+  const [editBlockedFor, setEditBlockedFor] = useState<DashboardPublishedCourse | null>(null);
+
+  const openAcademy = () => navigate({ to: "/", search: { section: "Academy" } as never });
+
   if (!data) return <ListSkeleton count={6} />;
+
+  const inProgress = data.enrolled.filter((c) => !c.completedAt);
+  const completed = data.enrolled.filter((c) => !!c.completedAt);
+
+  const tryEdit = (c: DashboardPublishedCourse) => {
+    if (c.enrollments > 0) { setEditBlockedFor(c); return; }
+    setDetailsFor(null);
+    navigate({ to: "/", search: { section: "Academy", editCourse: c.id } as never });
+  };
+
   return (
     <div>
       <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
         <TabButton active={sub === "enrolled"} onClick={() => setSub("enrolled")}>Enrolled ({data.enrolled.length})</TabButton>
         <TabButton active={sub === "published"} onClick={() => setSub("published")}>Published ({data.published.length})</TabButton>
       </div>
+
       {sub === "enrolled" && (
         data.enrolled.length === 0 ? (
-          <EmptyState icon={GraduationCap} title="No courses yet" hint="Enroll from Academy to see your progress here." />
+          <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+            <GraduationCap className="w-8 h-8 mx-auto text-slate-500" />
+            <div className="mt-3 text-white font-semibold">No courses yet</div>
+            <div className="text-sm text-slate-400 mt-1">Start learning by browsing our top courses.</div>
+            <button onClick={openAcademy} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
+              Browse top courses <ArrowUpRight className="w-4 h-4" />
+            </button>
+          </div>
         ) : (
-          <div className="space-y-2">
-            {data.enrolled.map((c) => {
-              const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
-              return (
-              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4">
-                  <div className="flex items-center justify-between gap-3 mb-2">
-                    <div className="min-w-0">
-                      <div className="text-white font-semibold truncate">{c.title}</div>
-                      <div className="text-xs text-slate-500 mt-1">
-                        {c.completedModules}/{c.totalModules} modules · Enrolled {new Date(c.enrolledAt).toLocaleDateString()}
-                      </div>
-                    </div>
-                    <div className="text-xs font-bold text-white">{pct}%</div>
-                  </div>
-                  <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
-                    <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
-                  </div>
+          <div className="space-y-6">
+            {inProgress.length > 0 && (
+              <section>
+                <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">In progress ({inProgress.length})</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {inProgress.map((c) => {
+                    const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
+                    return (
+                      <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
+                        <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
+                        <div className="p-3">
+                          <div className="text-white font-semibold truncate">{c.title}</div>
+                          <div className="text-[11px] text-slate-500 mt-1">{c.completedModules}/{c.totalModules} modules · {pct}%</div>
+                          <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                            <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
+                          </div>
+                          <div className="mt-3 text-xs text-white font-bold inline-flex items-center gap-1">Continue learning <ArrowUpRight className="w-3 h-3" /></div>
+                        </div>
+                      </button>
+                    );
+                  })}
                 </div>
-              );
-            })}
+              </section>
+            )}
+
+            {completed.length > 0 && (
+              <section>
+                <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed ({completed.length})</div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                  {completed.map((c) => (
+                    <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-emerald-500/30 bg-[#141418] overflow-hidden hover:border-emerald-500/60 transition">
+                      <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
+                      <div className="p-3">
+                        <div className="text-white font-semibold truncate">{c.title}</div>
+                        <div className="text-[11px] text-emerald-300 mt-1 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed {c.completedAt ? new Date(c.completedAt).toLocaleDateString() : ""}</div>
+                        <div className="mt-3 text-xs text-white font-bold inline-flex items-center gap-1">Review course <ArrowUpRight className="w-3 h-3" /></div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+              </section>
+            )}
           </div>
         )
       )}
+
       {sub === "published" && (
         data.published.length === 0 ? (
           <EmptyState icon={GraduationCap} title="No courses published" hint="Publish a course from the + menu to teach and earn." />
         ) : (
-          <div className="space-y-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.published.map((c) => (
-              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-center justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{c.title}</div>
-                  <div className="text-xs text-slate-500 mt-1">
-                    {c.isPublished ? <span className="text-white">Published</span> : <span className="text-slate-300">Draft</span>} · {c.enrollments} enrolled · Created {new Date(c.createdAt).toLocaleDateString()}
+              <button key={c.id} onClick={() => setDetailsFor(c)} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
+                <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
+                <div className="p-3">
+                  <div className="flex items-start justify-between gap-2">
+                    <div className="min-w-0">
+                      <div className="text-white font-semibold truncate">{c.title}</div>
+                      <div className="text-[11px] text-slate-500 mt-1">
+                        {c.isPublished ? "Published" : "Draft"} · {c.enrollments} enrolled
+                      </div>
+                    </div>
+                    <div className="text-right shrink-0">
+                      <div className="text-white font-black text-sm">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
+                      {c.revenueUSD > 0 && <div className="text-[10px] text-slate-400 mt-0.5">${c.revenueUSD.toFixed(2)}</div>}
+                    </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <div className="text-white font-black">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
-                  {c.revenueUSD > 0 && <div className="text-[10px] text-slate-300 mt-1">${c.revenueUSD.toFixed(2)} earned</div>}
-                </div>
-              </div>
+              </button>
             ))}
           </div>
         )
       )}
+
+      {detailsFor && (
+        <CourseDetailsModal
+          course={detailsFor}
+          onClose={() => setDetailsFor(null)}
+          onEdit={() => tryEdit(detailsFor)}
+        />
+      )}
+
+      {editBlockedFor && (
+        <EditBlockedModal course={editBlockedFor} onClose={() => setEditBlockedFor(null)} />
+      )}
+    </div>
+  );
+}
+
+function CourseDetailsModal({ course, onClose, onEdit }: { course: DashboardPublishedCourse; onClose: () => void; onEdit: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-lg rounded-2xl bg-[#141418] border border-white/10 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+        <CourseCoverThumb url={course.coverUrl} title={course.title} className="aspect-video w-full rounded-none border-0" />
+        <div className="p-5 space-y-3">
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <h3 className="text-white font-black text-lg">{course.title}</h3>
+              <div className="text-xs text-slate-400 mt-1">
+                {course.category ?? "—"} · {course.level ?? "—"} · {course.isPublished ? "Published" : "Draft"}
+              </div>
+            </div>
+            <div className="text-right">
+              <div className="text-white font-black">{course.isFree ? "Free" : `$${course.priceUSD.toFixed(2)}`}</div>
+              <div className="text-[10px] text-slate-400 mt-1">{course.enrollments} enrolled</div>
+            </div>
+          </div>
+          {course.description && (
+            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap line-clamp-6">{course.description}</p>
+          )}
+          <div className="grid grid-cols-2 gap-2 pt-2">
+            <button onClick={onClose} className="px-3 py-2 rounded-lg border border-white/10 text-slate-200 text-sm hover:bg-white/5">Close</button>
+            <button onClick={onEdit} className="px-3 py-2 rounded-lg bg-white text-black font-bold text-sm inline-flex items-center justify-center gap-1">
+              <Pencil className="w-4 h-4" /> Edit course
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EditBlockedModal({ course, onClose }: { course: DashboardPublishedCourse; onClose: () => void }) {
+  return (
+    <div className="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl bg-[#141418] border border-amber-500/40 p-5" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-start gap-3">
+          <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />
+          <div>
+            <h3 className="text-white font-black text-lg">Editing locked</h3>
+            <p className="text-sm text-slate-300 mt-2">
+              <span className="text-white font-semibold">{course.enrollments} student{course.enrollments === 1 ? " is" : "s are"}</span> currently studying <span className="text-white font-semibold">{course.title}</span>. To protect their progress, you can't make changes while enrollments are active.
+            </p>
+            <p className="text-xs text-slate-500 mt-3">Tip: publish an updated edition as a new course, or wait until active students complete their modules.</p>
+          </div>
+        </div>
+        <div className="mt-4 flex justify-end">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg bg-white text-black font-bold text-sm">Got it</button>
+        </div>
+      </div>
     </div>
   );
 }
