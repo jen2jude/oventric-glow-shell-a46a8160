@@ -19,22 +19,14 @@ function groupPhotos(photos: UserPhoto[]): Batch[] {
   if (avatars.length) batches.push({ id: "avatar", kind: "avatar", label: "Profile photos", photos: avatars });
   if (covers.length) batches.push({ id: "cover", kind: "cover", label: "Cover photos", photos: covers });
 
-  // Group post images by postId; posts without id fall into a single bucket
-  const byPost = new Map<string, UserPhoto[]>();
-  for (const p of posts) {
-    const key = p.postId ?? "_loose";
-    if (!byPost.has(key)) byPost.set(key, []);
-    byPost.get(key)!.push(p);
-  }
-  let idx = 1;
-  for (const [key, arr] of byPost) {
+  // Combine all post images into a single "Posts" batch regardless of source post
+  if (posts.length) {
     batches.push({
-      id: `post-${key}`,
+      id: "posts",
       kind: "post",
-      label: arr.length > 1 ? `Post album ${idx}` : `Post photo ${idx}`,
-      photos: arr,
+      label: "Post photos",
+      photos: posts,
     });
-    idx++;
   }
   return batches;
 }
