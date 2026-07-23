@@ -5,12 +5,40 @@ import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 /*  Overview snapshot                                                          */
 /* -------------------------------------------------------------------------- */
 
+type HomeCurrency = "USD" | "NGN" | "GHS";
+
+function countryToHomeCurrency(country: string | null | undefined): HomeCurrency {
+  const c = (country ?? "").toUpperCase();
+  if (c === "NG") return "NGN";
+  if (c === "GH") return "GHS";
+  return "USD";
+}
+
+const FX_FALLBACK: Record<HomeCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
+  try {
+    const { data } = await sb.from("platform_settings").select("fx_rates").maybeSingle();
+    const r = (data?.fx_rates ?? null) as Record<string, number> | null;
+    if (!r) return FX_FALLBACK;
+    return {
+      USD: 1,
+      NGN: Number(r.NGN) > 0 ? Number(r.NGN) : FX_FALLBACK.NGN,
+      GHS: Number(r.GHS) > 0 ? Number(r.GHS) : FX_FALLBACK.GHS,
+    };
+  } catch {
+    return FX_FALLBACK;
+  }
+}
+
 export interface DashboardOverview {
-  wallet: { currency: string; available: number; escrow: number } | null;
+  homeCurrency: HomeCurrency;
+  wallet: { currency: HomeCurrency; available: number; escrow: number } | null;
   purchases: { total: number; pending: number };
   contacts: number;
   listings: { total: number; pending: number; active: number; rejected: number };
-  bounties: { posted: number; active: number; solved: number; earnedUSD: number };
+  bounties: { posted: number; active: number; solved: number; earnedUSD: number; earned: number; earnedCurrency: HomeCurrency };
   courses: { enrolled: number; completed: number; published: number };
   social: { followers: number; following: number; circles: number };
   unread: { messages: number; notifications: number };
