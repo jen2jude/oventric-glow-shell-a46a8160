@@ -38,16 +38,18 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
     return { isAdmin: Boolean(data) };
   });
 
-/** Aggregate stats for the admin overview page. */
+/** Aggregate stats for the admin overview page. Uses service-role so RLS
+ * on `profiles`/`wallet_transactions` never zeroes out the KPIs. */
 export const getAdminStats = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
+    const sb = supabaseAdmin as any;
 
     const [users, products, orders, activeCampaigns, pendingReports, bounties] = await Promise.all([
-      sb.from("profiles").select("*", { count: "exact", head: true }),
+      sb.from("profiles").select("*", { count: "exact", head: true }).is("deleted_at", null),
       sb.from("products").select("*", { count: "exact", head: true }),
       sb.from("orders").select("total_usd, status", { count: "exact" }),
       sb.from("ad_campaigns").select("*", { count: "exact", head: true }).eq("status", "active"),
@@ -70,6 +72,7 @@ export const getAdminStats = createServerFn({ method: "GET" })
       transactions: bounties.count ?? 0,
     };
   });
+
 
 /** Recent activity across the platform. */
 export const getRecentActivity = createServerFn({ method: "GET" })
@@ -561,12 +564,57 @@ export const getUserDetail = createServerFn({ method: "POST" })
     const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", data.userId);
     const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", data.userId);
 
-    const [posts, products, orders, followers] = await Promise.all([
+    const [
+      postsCount, productsCount, ordersCount, followersCount,
+      bountiesPostedCount, bountiesWonCount, bountyAppsCount,
+      productsListed, ordersAsBuyer, bountiesPosted, bountyApps,
+      contactedSellers, walletTxns,
+    ] = await Promise.all([
       sb.from("posts").select("id", { count: "exact", head: true }).eq("author_id", data.userId),
       sb.from("products").select("id", { count: "exact", head: true }).eq("seller_id", data.userId),
       sb.from("orders").select("id", { count: "exact", head: true }).eq("buyer_id", data.userId),
       sb.from("follows").select("follower_id", { count: "exact", head: true }).eq("followee_id", data.userId),
+      sb.from("bounties").select("id", { count: "exact", head: true }).eq("poster_id", data.userId),
+      sb.from("bounties").select("id", { count: "exact", head: true }).eq("accepted_applicant_id", data.userId),
+      sb.from("bounty_applications").select("id", { count: "exact", head: true }).eq("applicant_id", data.userId),
+      sb.from("products")
+        .select("id, name, kind, status, price_usd, created_at, cover_path")
+        .eq("seller_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("orders")
+        .select("id, product_id, total_usd, status, created_at, paid_at, seller_id")
+        .eq("buyer_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("bounties")
+        .select("id, title, price_usd, status, created_at, accepted_applicant_id")
+        .eq("poster_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("bounty_applications")
+        .select("id, bounty_id, status, created_at, bounties(id,title,price_usd,status,accepted_applicant_id)")
+        .eq("applicant_id", data.userId).order("created_at", { ascending: false }).limit(50),
+      sb.from("direct_messages")
+        .select("recipient_id, created_at")
+        .eq("sender_id", data.userId).order("created_at", { ascending: false }).limit(200),
+      sb.from("wallet_transactions")
+        .select("id, tx_hash, type, amount, currency, inflow, status, occurred_at")
+        .eq("user_id", data.userId).order("occurred_at", { ascending: false }).limit(100),
     ]);
+
+    // Deduplicate contacted sellers (recipients of direct messages) and hydrate profile info.
+    const recipientIds = Array.from(new Set(((contactedSellers.data ?? []) as Array<{ recipient_id: string }>).map((r) => r.recipient_id)));
+    let contacts: Array<{ user_id: string; username: string | null; display_name: string | null; avatar_path: string | null; last_at: string }> = [];
+    if (recipientIds.length) {
+      const { data: contactProfiles } = await sb
+        .from("profiles").select("user_id, username, display_name, avatar_path").in("user_id", recipientIds);
+      const lastAt = new Map<string, string>();
+      ((contactedSellers.data ?? []) as Array<{ recipient_id: string; created_at: string }>).forEach((r) => {
+        if (!lastAt.has(r.recipient_id)) lastAt.set(r.recipient_id, r.created_at);
+      });
+      contacts = ((contactProfiles ?? []) as Array<Record<string, unknown>>).map((p) => ({
+        user_id: p.user_id as string,
+        username: (p.username as string) ?? null,
+        display_name: (p.display_name as string) ?? null,
+        avatar_path: (p.avatar_path as string) ?? null,
+        last_at: lastAt.get(p.user_id as string) ?? "",
+      })).sort((a, b) => (b.last_at ?? "").localeCompare(a.last_at ?? ""));
+    }
 
     return {
       profile,
@@ -577,13 +625,24 @@ export const getUserDetail = createServerFn({ method: "POST" })
       roles: (roles ?? []).map((r: { role: string }) => r.role),
       wallets: wallets ?? [],
       counts: {
-        posts: posts.count ?? 0,
-        products: products.count ?? 0,
-        orders: orders.count ?? 0,
-        followers: followers.count ?? 0,
+        posts: postsCount.count ?? 0,
+        products: productsCount.count ?? 0,
+        orders: ordersCount.count ?? 0,
+        followers: followersCount.count ?? 0,
+        bountiesPosted: bountiesPostedCount.count ?? 0,
+        bountiesWon: bountiesWonCount.count ?? 0,
+        bountyApplications: bountyAppsCount.count ?? 0,
+        contactedSellers: recipientIds.length,
       },
+      productsListed: productsListed.data ?? [],
+      downloads: ordersAsBuyer.data ?? [],
+      bountiesPosted: bountiesPosted.data ?? [],
+      bountyApplications: bountyApps.data ?? [],
+      contactedSellers: contacts,
+      walletTransactions: walletTxns.data ?? [],
     };
   });
+
 
 export const updateUserProfileAdmin = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -679,5 +738,43 @@ export const deleteUserAdmin = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     // profiles.user_id has ON DELETE CASCADE to auth.users, so profile row is removed.
     await writeAudit(sb, context.userId, "user.delete", "user", data.userId);
+    return { ok: true };
+  });
+
+/** Bulk-delete users (admin only). Skips self. Returns per-id result. */
+export const deleteUsersBulkAdmin = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userIds: string[] }) => i)
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const results: Array<{ userId: string; ok: boolean; error?: string }> = [];
+    for (const uid of data.userIds) {
+      if (uid === context.userId) { results.push({ userId: uid, ok: false, error: "cannot delete self" }); continue; }
+      try {
+        const { error } = await sb.auth.admin.deleteUser(uid);
+        if (error) throw new Error(error.message);
+        await writeAudit(sb, context.userId, "user.delete", "user", uid, { bulk: true });
+        results.push({ userId: uid, ok: true });
+      } catch (e) {
+        results.push({ userId: uid, ok: false, error: (e as Error).message });
+      }
+    }
+    return { results, deleted: results.filter((r) => r.ok).length };
+  });
+
+/** Reset all platform system wallets to $0. Admin only. */
+export const resetSystemWallets = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { error } = await sb.from("system_wallets").update({ balance_usd: 0, updated_at: new Date().toISOString() }).gte("balance_usd", 0);
+    if (error) throw new Error(error.message);
+    await writeAudit(sb, context.userId, "system_wallets.reset", "system_wallets", null);
     return { ok: true };
   });
