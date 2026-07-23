@@ -146,18 +146,24 @@ async function signCourseMedia(
 }
 
 async function signCovers(
-  sb: ReturnType<typeof serverPublicClient>,
+  _sb: ReturnType<typeof serverPublicClient>,
   paths: (string | null)[],
 ): Promise<(string | null)[]> {
   const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
   if (unique.length === 0) return paths.map(() => null);
-  const { data } = await sb.storage.from("course-covers").createSignedUrls(unique, 60 * 60 * 24 * 7);
+  // Use service-role client to bypass RLS on private course-covers bucket
+  // so public catalog listings can render cover previews.
+  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+  const { data } = await supabaseAdmin.storage
+    .from("course-covers")
+    .createSignedUrls(unique, 60 * 60 * 24 * 7);
   const map = new Map<string, string>();
   (data ?? []).forEach((r) => {
     if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
   });
   return paths.map((p) => (p ? map.get(p) ?? null : null));
 }
+
 
 const COURSE_COLS =
   "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at, original_currency, original_amount, fx_snapshot";
