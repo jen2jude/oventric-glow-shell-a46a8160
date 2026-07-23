@@ -90,10 +90,15 @@ export function CourseEditorModal({
     id: "",
     title: "",
     description: "",
+    body: "",
     videoUrl: "",
+    videoPath: null as string | null,
+    videoFileUrl: null as string | null,
     durationMin: 0,
     isPreview: false,
   });
+  const [modVideoUploading, setModVideoUploading] = useState(false);
+  const getModUpload = useServerFn(getCourseMediaUploadUrl);
 
   useEffect(() => {
     if (!open) return;
