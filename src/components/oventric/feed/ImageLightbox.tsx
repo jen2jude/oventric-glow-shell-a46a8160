@@ -93,7 +93,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       el.removeEventListener("wheel", cancel);
       window.removeEventListener("keydown", cancel);
     };
-  }, [index, total]);
+  }, [index, total, peekDisabled]);
 
   // Update index on scroll (swipe) — debounced via rAF for smoothness
   const rafRef = useRef<number | null>(null);
