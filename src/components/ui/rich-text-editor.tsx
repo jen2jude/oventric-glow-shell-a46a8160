@@ -23,9 +23,35 @@ export function RichTextEditor({
   minHeight?: number;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
+  const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
   const getUpload = useServerFn(getCourseMediaUploadUrl);
   const getSigned = useServerFn(getCourseMediaSignedUrl);
+
+  const saveSelection = () => {
+    const sel = window.getSelection();
+    if (!sel || sel.rangeCount === 0) return;
+    const range = sel.getRangeAt(0);
+    if (ref.current && ref.current.contains(range.commonAncestorContainer)) {
+      savedRange.current = range.cloneRange();
+    }
+  };
+
+  const restoreSelection = (): Range => {
+    const el = ref.current!;
+    el.focus();
+    const sel = window.getSelection()!;
+    sel.removeAllRanges();
+    if (savedRange.current && el.contains(savedRange.current.commonAncestorContainer)) {
+      sel.addRange(savedRange.current);
+      return savedRange.current;
+    }
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false);
+    sel.addRange(range);
+    return range;
+  };
 
   // Sync external value only when it diverges from the current DOM (avoids
   // caret jumping while typing).
