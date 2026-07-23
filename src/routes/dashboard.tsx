@@ -193,9 +193,18 @@ function DashboardPage() {
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products" }, () => {
         void loadListings();
       })
+      .on("postgres_changes", { event: "*", schema: "public", table: "wallets" }, () => {
+        void loadOverview();
+        if (walletSummary !== null) void loadWallet();
+      })
+      .on("postgres_changes", { event: "INSERT", schema: "public", table: "wallet_transactions" }, () => {
+        void loadOverview();
+        if (walletSummary !== null) void loadWallet();
+      })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [authChecked, loadContacts, loadPurchases, loadListings]);
+  }, [authChecked, loadContacts, loadPurchases, loadListings, loadOverview, loadWallet, walletSummary]);
+
 
 
   const handleDownload = async (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => {
