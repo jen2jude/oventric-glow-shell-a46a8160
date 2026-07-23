@@ -128,13 +128,17 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   });
   const signedByPath = new Map<string, string>();
   if (allMediaPaths.size > 0) {
-    const { data: signed } = await sb.storage
+    // Sign with admin client so we can lock down post-media SELECT policy to owner-only.
+    // Post visibility/audience filtering is already enforced by the posts RLS above.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed } = await supabaseAdmin.storage
       .from("post-media")
       .createSignedUrls(Array.from(allMediaPaths), 60 * 60 * 6);
     (signed ?? []).forEach((s) => {
       if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl);
     });
   }
+
 
   const profileById = new Map((profiles ?? []).map((p) => [p.user_id, p]));
   const reactionsByPost = new Map<string, Record<ReactionType, number>>();
