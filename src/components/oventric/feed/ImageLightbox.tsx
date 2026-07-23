@@ -136,8 +136,8 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
         ref={trackRef}
         onScroll={onScroll}
         onClick={(e) => e.stopPropagation()}
-        className="w-full h-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth"
-        style={{ scrollbarWidth: "none" }}
+        className="w-full h-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth overscroll-x-contain"
+        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
       >
         {images.map((src, i) => (
           <div key={src + i} className="w-full h-full shrink-0 snap-center flex items-center justify-center p-4">
