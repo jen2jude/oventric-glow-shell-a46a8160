@@ -1728,30 +1728,9 @@ function MyMemoriesGallery() {
   if (photos.length === 0) {
     return <EmptyState icon={Images} title="No memories yet" hint="Your uploaded photos will appear here as you share." />;
   }
-  const urls = photos.map((p) => p.url);
-  return (
-    <>
-      <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
-        {photos.map((p, i) => (
-          <button
-            key={p.url + i}
-            type="button"
-            onClick={() => setLb({ images: urls, index: i })}
-            className="relative aspect-square overflow-hidden rounded-lg border border-white/10 bg-black/40 group"
-          >
-            <img src={p.url} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition" />
-            {p.source !== "post" && (
-              <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[9px] uppercase tracking-wide bg-black/70 border border-white/20 text-white">
-                {p.source}
-              </span>
-            )}
-          </button>
-        ))}
-      </div>
-      {lb && <ImageLightbox images={lb.images} startIndex={lb.index} onClose={() => setLb(null)} />}
-    </>
-  );
+  return <PhotoBatches photos={photos} dense />;
 }
+
 
 
 
