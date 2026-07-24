@@ -658,21 +658,22 @@ function ProfileSettingsModal({
       toast.error("Passwords don't match");
       return;
     }
-    if (!full?.email) {
-      toast.error("No email on file", { description: "Contact support to reset." });
-      return;
-    }
     setPwSaving(true);
     try {
-      // Re-verify current password before allowing change
-      const { error: signErr } = await supabase.auth.signInWithPassword({
-        email: full.email,
-        password: pwCurrent,
-      });
-      if (signErr) throw new Error("Current password is incorrect.");
+      // Verify current password only if the user provided one (magic-link
+      // users may not have a password set yet). Supabase permits updateUser
+      // on any authenticated session regardless.
+      if (pwCurrent.trim()) {
+        if (!full?.email) throw new Error("No email on file. Contact support.");
+        const { error: signErr } = await supabase.auth.signInWithPassword({
+          email: full.email,
+          password: pwCurrent,
+        });
+        if (signErr) throw new Error("Current password is incorrect.");
+      }
       const { error: updErr } = await supabase.auth.updateUser({ password: pwNext });
       if (updErr) throw updErr;
-      toast.success("Password updated", { description: "Use your new password next sign-in." });
+      toast.success("Password saved", { description: "You can now sign in with email + password." });
       setPwCurrent("");
       setPwNext("");
       setPwConfirm("");
