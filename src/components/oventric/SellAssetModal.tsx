@@ -370,11 +370,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
                 {mode === "file" ? (
                   <>
-                    <input ref={fileInputRef} type="file" className="sr-only"
+                    <input ref={fileInputRef} id="sell-asset-file" type="file"
+                      style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
                       onChange={(e) => { handleFile(e.target.files?.[0] ?? null); if (e.target) e.target.value = ""; }}
                       accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed" />
-                    <button type="button" onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 w-full block border border-dashed border-white/15 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 transition-colors">
+                    <label htmlFor="sell-asset-file"
+                      className="mt-2 w-full block border border-dashed border-white/15 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 transition-colors select-none">
                       {file ? (
                         <div className="text-sm text-white">
                           <div className="font-medium truncate">{file.name}</div>
@@ -387,7 +388,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                           <div className="text-xs mt-1">ZIP / RAR / 7Z — max {MAX_FILE_MB}MB</div>
                         </div>
                       )}
-                    </button>
+                    </label>
+
                   </>
                 ) : (
                   <input value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} placeholder="https://your-delivery-link.com/download"
