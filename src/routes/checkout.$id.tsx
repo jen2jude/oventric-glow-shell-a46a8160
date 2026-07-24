@@ -42,29 +42,28 @@ function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
 
-/** Country-driven payment method availability. */
-function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string }> {
-  const base = [
-    { id: "wallet" as PaymentMethod, label: "Oventric Wallet", Icon: WalletIcon, hint: "Instant. No processor fees." },
-  ];
+/** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
+function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
+  const wallet = { id: "wallet" as PaymentMethod, label: "Oventric Wallet", Icon: WalletIcon, hint: "Direct checkout preferred — fund wallet for bounties & ads only", disabled: true };
   if (country === "NG") {
     return [
-      ...base,
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Verve, Mastercard, Visa" },
+      wallet,
     ];
   }
   if (country === "GH") {
     return [
-      ...base,
       { id: "mobile_money", label: "Mobile Money", Icon: Smartphone, hint: "MTN · Vodafone · AirtelTigo" },
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Mastercard, Visa" },
+      wallet,
     ];
   }
   return [
-    ...base,
     { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Global cards" },
+    wallet,
   ];
 }
+
 
 export const Route = createFileRoute("/checkout/$id")({
   ssr: false,
