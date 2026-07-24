@@ -158,15 +158,16 @@ export function CourseCheckoutModal({
   };
 
   const doTopUp = async () => {
-    if (shortfall == null) return;
+    if (shortfallLocal == null) return;
     setToppingUp(true);
     try {
-      const amount = Number((shortfall * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
+      // shortfallLocal is already in the user's home currency.
+      const amount = Number(shortfallLocal.toFixed(2));
       await runTopUp({ data: { amount, currency: baseCurrency, method: "card" } });
       toast.success("Wallet topped up");
       const b = await runBalances();
-      setWalletUSD(b.balances.USD ?? 0);
-      setShortfall(null);
+      setWalletLocal(b.balances[baseCurrency] ?? 0);
+      setShortfallLocal(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Top-up failed");
     } finally {
@@ -179,7 +180,7 @@ export function CourseCheckoutModal({
       toast.error("Checkout blocked: this course is missing a valid locked exchange rate.");
       return;
     }
-    setBusy(true); setShortfall(null);
+    setBusy(true); setShortfallLocal(null);
     try {
       const res = await runEnroll({
         data: {
@@ -190,9 +191,16 @@ export function CourseCheckoutModal({
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
-      if (res.walletShortfallUSD != null) {
-        setShortfall(res.walletShortfallUSD);
-        toast.error(`Wallet short by ${fmt(res.walletShortfallUSD, baseCurrency)}. Top up or switch method.`);
+      // Prefer the display-currency shortfall from the server; fall back to
+      // converting the legacy USD shortfall if it's the only one present.
+      const shortDisplay = (res as { walletShortfallDisplay?: number }).walletShortfallDisplay;
+      const shortUSD = res.walletShortfallUSD;
+      if (shortDisplay != null || shortUSD != null) {
+        const shortLocal = shortDisplay != null
+          ? shortDisplay
+          : Number(((shortUSD ?? 0) * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
+        setShortfallLocal(shortLocal);
+        toast.error(`Wallet short by ${formatMoney(shortLocal, baseCurrency)}. Top up or switch method.`);
         return;
       }
       setDone(true);
@@ -205,9 +213,12 @@ export function CourseCheckoutModal({
     }
   };
 
+  // Wallet balance and the total the wallet will be debited are both in the
+  // user's home currency, so we compare them apples-to-apples.
+  const totalLocal = totalUSD * LEGACY_USD_RATES[baseCurrency];
   const canPay =
     !busy && !done && totalUSD >= 0 && !fxBlocksCheckout &&
-    (method !== "wallet" || (walletUSD != null && walletUSD >= totalUSD));
+    (method !== "wallet" || (walletLocal != null && walletLocal >= totalLocal));
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center">
