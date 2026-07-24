@@ -81,7 +81,9 @@ function CheckoutPage() {
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [balanceUSD, setBalanceUSD] = useState<number | null>(null);
-  const [method, setMethod] = useState<PaymentMethod>("wallet");
+  const [cashbackUSD, setCashbackUSD] = useState<number>(0);
+  const [useCashback, setUseCashback] = useState(false);
+  const [method, setMethod] = useState<PaymentMethod>("card");
   const [submitting, setSubmitting] = useState(false);
   const [shortfallUSD, setShortfallUSD] = useState<number | null>(null);
   const [topUpOpen, setTopUpOpen] = useState(false);
@@ -102,7 +104,12 @@ function CheckoutPage() {
     () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
     [canUseCoupon, coupon, subtotalUSD],
   );
-  const totalUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  const afterCouponUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  const cashbackApplyUSD = useMemo(() => {
+    if (method !== "wallet" || !useCashback) return 0;
+    return Math.min(cashbackUSD, Math.max(0, afterCouponUSD));
+  }, [method, useCashback, cashbackUSD, afterCouponUSD]);
+  const totalUSD = Number((afterCouponUSD - cashbackApplyUSD).toFixed(2));
 
 
   useEffect(() => {
@@ -119,8 +126,16 @@ function CheckoutPage() {
       const { data: userRes } = await supabase.auth.getUser();
       const uid = userRes.user?.id;
       if (!uid) return;
-      const { data } = await supabase.from("wallets").select("available_balance").eq("user_id", uid).eq("currency", "USD").maybeSingle();
-      if (!cancelled) setBalanceUSD(Number(data?.available_balance ?? 0));
+      const { data } = await supabase
+        .from("wallets")
+        .select("available_balance, accumulated_cashback")
+        .eq("user_id", uid)
+        .eq("currency", "USD")
+        .maybeSingle();
+      if (!cancelled) {
+        setBalanceUSD(Number(data?.available_balance ?? 0));
+        setCashbackUSD(Number(data?.accumulated_cashback ?? 0));
+      }
     };
     refresh();
     return () => { cancelled = true; };
@@ -185,6 +200,7 @@ function CheckoutPage() {
           couponCode: canUseCoupon && coupon ? coupon.code : null,
           deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
           deliveryWhatsapp: needsDelivery ? digits : null,
+          applyCashbackUSD: cashbackApplyUSD,
         },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
@@ -428,16 +444,34 @@ function CheckoutPage() {
                 </div>
               )}
 
+              {method === "wallet" && cashbackUSD > 0 && (
+                <label className="flex items-center gap-3 border-t border-white/5 pt-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useCashback}
+                    onChange={(e) => setUseCashback(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-500"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-xs font-semibold text-white">Apply Cashback Wallet</div>
+                    <div className="text-[11px] text-emerald-300">Available: {fmt(cashbackUSD, baseCurrency)} · spend-only</div>
+                  </div>
+                </label>
+              )}
+
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
                 <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(subtotalUSD, baseCurrency)}</span></div>
                 {discountUSD > 0 && (
                   <div className="flex justify-between text-emerald-300"><span>Discount ({coupon?.discountPct}%)</span><span>− {fmt(discountUSD, baseCurrency)}</span></div>
                 )}
+                {cashbackApplyUSD > 0 && (
+                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmt(cashbackApplyUSD, baseCurrency)}</span></div>
+                )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
                 <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
                 {method === "wallet" && (
                   <div className="flex justify-between text-[11px] text-emerald-300/80 pt-1">
-                    <span>Wallet cashback ({(WALLET_CASHBACK_PCT * 100).toFixed(0)}%)</span>
+                    <span>You earn back ({(WALLET_CASHBACK_PCT * 100).toFixed(0)}%)</span>
                     <span>+ {fmt(totalUSD * WALLET_CASHBACK_PCT, baseCurrency)}</span>
                   </div>
                 )}

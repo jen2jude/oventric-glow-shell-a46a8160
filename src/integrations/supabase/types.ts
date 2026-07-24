@@ -2464,6 +2464,14 @@ export type Database = {
         Args: { _bounty_id: string }
         Returns: undefined
       }
+      cashback_credit: {
+        Args: { _amount: number; _user_id: string }
+        Returns: undefined
+      }
+      cashback_debit: {
+        Args: { _amount: number; _user_id: string }
+        Returns: boolean
+      }
       current_user_slug: { Args: never; Returns: string }
       delete_email: {
         Args: { message_id: number; queue_name: string }

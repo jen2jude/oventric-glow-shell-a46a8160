@@ -652,6 +652,8 @@ export interface EnrollPaidInput {
   displayCurrency: EnrollCurrency;
   paymentMethod: EnrollPaymentMethod;
   couponCode?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this enrollment. */
+  applyCashbackUSD?: number | null;
 }
 
 export interface EnrollPaidResult {
@@ -660,6 +662,7 @@ export interface EnrollPaidResult {
   displayTotal: number;
   displayCurrency: EnrollCurrency;
   discountUSD?: number;
+  cashbackAppliedUSD?: number;
   cashbackUSD?: number;
   walletShortfallUSD?: number;
 }
@@ -671,6 +674,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
     displayCurrency: (input.displayCurrency ?? "USD") as EnrollCurrency,
     paymentMethod: (input.paymentMethod ?? "wallet") as EnrollPaymentMethod,
     couponCode: input.couponCode ? String(input.couponCode).trim().toUpperCase() : null,
+    applyCashbackUSD: Math.max(0, Number(input.applyCashbackUSD ?? 0)),
   }))
   .handler(async ({ data, context }): Promise<EnrollPaidResult> => {
     const { supabase, userId } = context;
@@ -712,19 +716,50 @@ export const enrollPaid = createServerFn({ method: "POST" })
         discountUSD = Number(((grossUSD * pct) / 100).toFixed(2));
       }
     }
-    const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+    const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+
+    // Cashback Wallet spend — clamp to (a) requested amount, (b) available
+    // cashback balance, (c) remaining total. Must be debited atomically via
+    // the SECURITY DEFINER `cashback_debit` RPC so a race can't overspend.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let cashbackAppliedUSD = 0;
+    if (data.applyCashbackUSD > 0) {
+      const { data: wRow } = await supabaseAdmin
+        .from("wallets")
+        .select("accumulated_cashback")
+        .eq("user_id", userId)
+        .eq("currency", "USD")
+        .maybeSingle();
+      const availableCB = Number(wRow?.accumulated_cashback ?? 0);
+      const want = Math.min(data.applyCashbackUSD, availableCB, afterCouponUSD);
+      const spend = Number(want.toFixed(2));
+      if (spend > 0) {
+        const { data: cbOk, error: cbErr } = await supabaseAdmin.rpc("cashback_debit", {
+          _user_id: userId,
+          _amount: spend,
+        });
+        if (cbErr) throw new Error(cbErr.message);
+        if (cbOk) cashbackAppliedUSD = spend;
+      }
+    }
+
+    const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
     const fx = FX_FROM_USD_ACADEMY[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
     // Wallet debit path — wallet mutations always run via service-role client.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (data.paymentMethod === "wallet") {
+    if (data.paymentMethod === "wallet" && totalUSD > 0) {
       const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
         _user_id: userId,
         _amount: totalUSD,
       });
       if (dErr) throw new Error(dErr.message);
       if (!ok) {
+        // Refund cashback we just debited so the user isn't out-of-pocket on a
+        // failed enrollment.
+        if (cashbackAppliedUSD > 0) {
+          await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackAppliedUSD });
+        }
         const { data: w } = await supabase
           .from("wallets")
           .select("available_balance")
@@ -794,12 +829,14 @@ export const enrollPaid = createServerFn({ method: "POST" })
       },
     });
 
-    // 2% cashback for wallet payments
+    // 2% cashback for wallet payments — credited to the SPEND-ONLY Cashback
+    // Wallet (accumulated_cashback). Never touches available_balance, so it
+    // cannot be withdrawn — only spent at future checkouts.
     let cashbackUSD = 0;
     if (data.paymentMethod === "wallet") {
       cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
       if (cashbackUSD > 0) {
-        await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+        await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackUSD });
         await supabaseAdmin.from("wallet_transactions").insert({
           user_id: userId,
           tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
@@ -829,6 +866,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
       displayTotal,
       displayCurrency: data.displayCurrency,
       discountUSD: discountUSD || undefined,
+      cashbackAppliedUSD: cashbackAppliedUSD || undefined,
       cashbackUSD: cashbackUSD || undefined,
     };
   });

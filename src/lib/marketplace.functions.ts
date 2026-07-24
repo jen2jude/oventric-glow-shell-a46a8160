@@ -634,12 +634,15 @@ export interface CreateOrderInput {
   couponCode?: string | null;
   deliveryEmail?: string | null;
   deliveryWhatsapp?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this order. */
+  applyCashbackUSD?: number | null;
 }
 
 export interface CreateOrderResult {
   order: OrderDTO;
   walletShortfallUSD?: number;
   cashbackUSD?: number;
+  cashbackAppliedUSD?: number;
   discountUSD?: number;
 }
 
@@ -721,6 +724,7 @@ export const createOrder = createServerFn({ method: "POST" })
     couponCode: input.couponCode ? String(input.couponCode).trim().toUpperCase() : null,
     deliveryEmail: input.deliveryEmail ? String(input.deliveryEmail).trim().slice(0, 320) : null,
     deliveryWhatsapp: input.deliveryWhatsapp ? String(input.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null,
+    applyCashbackUSD: Math.max(0, Number(input.applyCashbackUSD ?? 0)),
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -750,19 +754,48 @@ export const createOrder = createServerFn({ method: "POST" })
         discountUSD = Number(((grossUSD * discountPct) / 100).toFixed(2));
       }
     }
-    const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+    const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+
+    // Cashback Wallet spend — clamp requested amount to available cashback
+    // and remaining total; debit atomically via SECURITY DEFINER helper.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    let cashbackAppliedUSD = 0;
+    if (data.applyCashbackUSD > 0) {
+      const { data: wRow } = await supabaseAdmin
+        .from("wallets")
+        .select("accumulated_cashback")
+        .eq("user_id", userId)
+        .eq("currency", "USD")
+        .maybeSingle();
+      const availableCB = Number(wRow?.accumulated_cashback ?? 0);
+      const want = Math.min(data.applyCashbackUSD, availableCB, afterCouponUSD);
+      const spend = Number(want.toFixed(2));
+      if (spend > 0) {
+        const { data: cbOk, error: cbErr } = await supabaseAdmin.rpc("cashback_debit", {
+          _user_id: userId,
+          _amount: spend,
+        });
+        if (cbErr) throw new Error(cbErr.message);
+        if (cbOk) cashbackAppliedUSD = spend;
+      }
+    }
+
+    const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
     const fx = FX_FROM_USD[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Wallet debit if paying from wallet. Wallet mutations run via service-role.
-    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-    if (data.paymentMethod === "wallet") {
+    // Wallet debit if paying from wallet.
+    if (data.paymentMethod === "wallet" && totalUSD > 0) {
       const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
         _user_id: userId,
         _amount: totalUSD,
       });
       if (dErr) throw new Error(dErr.message);
       if (!ok) {
+        // Refund cashback we just debited so the buyer isn't out-of-pocket.
+        if (cashbackAppliedUSD > 0) {
+          await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackAppliedUSD });
+        }
         const { data: w } = await supabase
           .from("wallets")
           .select("available_balance")
@@ -855,9 +888,12 @@ export const createOrder = createServerFn({ method: "POST" })
     });
 
 
-    // 2% cashback to buyer when paying from wallet (funded from platform cut).
+    // 2% cashback to buyer when paying from wallet — credited to the SPEND-ONLY
+    // Cashback Wallet (accumulated_cashback). Withdraw functions read from
+    // available_balance only, so this pot can be spent at future checkouts but
+    // never cashed out to bank.
     if (cashbackUSD > 0) {
-      await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+      await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackUSD });
       await supabaseAdmin.from("wallet_transactions").insert({
         user_id: userId,
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
@@ -895,6 +931,7 @@ export const createOrder = createServerFn({ method: "POST" })
         requiresManualDelivery: product.requiresManualDelivery,
       },
       cashbackUSD: cashbackUSD || undefined,
+      cashbackAppliedUSD: cashbackAppliedUSD || undefined,
       discountUSD: discountUSD || undefined,
     } as CreateOrderResult;
   });
