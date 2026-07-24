@@ -855,9 +855,12 @@ export const createOrder = createServerFn({ method: "POST" })
     });
 
 
-    // 2% cashback to buyer when paying from wallet (funded from platform cut).
+    // 2% cashback to buyer when paying from wallet — credited to the SPEND-ONLY
+    // Cashback Wallet (accumulated_cashback). Withdraw functions read from
+    // available_balance only, so this pot can be spent at future checkouts but
+    // never cashed out to bank.
     if (cashbackUSD > 0) {
-      await supabaseAdmin.rpc("wallet_credit", { _user_id: userId, _amount: cashbackUSD });
+      await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackUSD });
       await supabaseAdmin.from("wallet_transactions").insert({
         user_id: userId,
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
