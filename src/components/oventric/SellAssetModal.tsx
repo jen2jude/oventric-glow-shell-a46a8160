@@ -278,15 +278,10 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   This is a free product
                 </label>
                 {!isFree && (
-                  <div className="mt-2 grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div className="mt-2">
                     <label className="block">
-                      <span className="text-xs font-medium text-slate-300">Main price ({baseCurrency})</span>
+                      <span className="text-xs font-medium text-slate-300">Price ({baseCurrency})</span>
                       <input value={priceInput} onChange={(e) => setPriceInput(e.target.value)} inputMode="decimal" placeholder="29.00"
-                        className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
-                    </label>
-                    <label className="block">
-                      <span className="text-xs font-medium text-slate-300">Discount price ({baseCurrency}) <span className="text-slate-500">— optional</span></span>
-                      <input value={discountInput} onChange={(e) => setDiscountInput(e.target.value)} inputMode="decimal" placeholder="Lower than main"
                         className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
                     </label>
                   </div>
@@ -295,30 +290,33 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   const cur = baseCurrency as OrderCurrency;
                   const fx = FX_FROM_USD[cur] || 1;
                   const priceLocal = Number(priceInput);
-                  const priceUSD = priceLocal / fx;
-                  // Show worst-case (card/gateway) net so sellers plan for it.
-                  const netUSD = estimateSellerNetUSD(priceUSD, cur, "card", fx);
-                  const netLocal = netUSD * fx;
-                  const walletNetUSD = estimateSellerNetUSD(priceUSD, cur, "wallet", fx);
-                  const walletNetLocal = walletNetUSD * fx;
+                  const sellerLocal = priceLocal * 0.8;
+                  const platformLocal = priceLocal * 0.2;
                   const fmt = (n: number) => new Intl.NumberFormat(undefined, { style: "currency", currency: cur, maximumFractionDigits: 2 }).format(n);
                   return (
-                    <div className="mt-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs">
-                      <div className="flex items-center justify-between text-slate-300">
-                        <span>You'll receive (card/bank/mobile money)</span>
-                        <span className="font-semibold text-emerald-300">{fmt(netLocal)}</span>
+                    <div className="mt-2 rounded-lg border border-emerald-500/20 bg-emerald-500/5 p-3 text-xs space-y-1.5">
+                      <div className="flex items-center justify-between text-slate-200">
+                        <span>You keep <span className="text-emerald-300 font-bold">80%</span> → your main wallet</span>
+                        <span className="font-semibold text-emerald-300">{fmt(sellerLocal)}</span>
                       </div>
-                      <div className="mt-1 flex items-center justify-between text-slate-400">
-                        <span>You'll receive (wallet buyer)</span>
-                        <span className="font-medium text-emerald-200/80">{fmt(walletNetLocal)}</span>
+                      <div className="flex items-center justify-between text-slate-400">
+                        <span>Oventric Digital Solutions keeps <span className="font-bold">20%</span></span>
+                        <span className="font-medium">{fmt(platformLocal)}</span>
                       </div>
-                      <div className="mt-1.5 text-[10px] leading-relaxed text-slate-500">
-                        Buyer pays exactly {fmt(priceLocal)}. Oventric absorbs the gateway fee into the split — 80% goes to you, 20% to Oventric, and the Paystack processing fee is skimmed off the top before the split. Price your product accordingly.
+                      <div className="text-[10px] leading-relaxed text-slate-500 pt-1 border-t border-white/5">
+                        Buyer pays {fmt(priceLocal)}. Your 80% is credited to your Oventric wallet and can be withdrawn to your local bank at any time.
                       </div>
                     </div>
                   );
                 })()}
+                {!isFree && (
+                  <label className={`mt-2 flex items-start gap-2 text-xs p-3 rounded-lg border cursor-pointer ${agreedToSplit ? "border-emerald-500/50 bg-emerald-500/5 text-slate-100" : "border-white/10 bg-[#121214] text-slate-300"}`}>
+                    <input type="checkbox" checked={agreedToSplit} onChange={(e) => setAgreedToSplit(e.target.checked)} className="mt-0.5 accent-emerald-500" />
+                    <span>I agree to the <span className="font-semibold text-white">80/20 revenue split</span> — I keep 80% of every sale, and Oventric Digital Solutions keeps 20% as a platform fee.</span>
+                  </label>
+                )}
               </div>
+
 
 
               <label className="block">
