@@ -309,7 +309,10 @@ export function ProfileDropdown() {
         <div className="text-[11px] text-slate-500 font-mono truncate">{handle}</div>
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-            tier > 0
+            tierNumeric > 0
+              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+              : "bg-slate-500/15 border-slate-500/40 text-slate-300"
+          }`}>
               ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
               : "bg-slate-500/15 border-slate-500/40 text-slate-300"
           }`}>
