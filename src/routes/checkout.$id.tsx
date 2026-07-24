@@ -483,13 +483,14 @@ function CheckoutPage() {
               </div>
 
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
-                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtSnap(subtotalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span></div>
                 {cashbackApplyUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtSnap(cashbackApplyUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}</span></div>
                 )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
-                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span></div>
               </div>
+
 
               <button
                 onClick={pay}
