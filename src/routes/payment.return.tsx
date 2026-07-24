@@ -1,9 +1,10 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, CheckCircle2, XCircle } from "lucide-react";
+import { Loader2, CheckCircle2, XCircle, Sparkles, Wallet as WalletIcon } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { verifyPaystackPayment } from "@/lib/paystack.functions";
+import { LEGACY_USD_RATES } from "@/lib/fx-display";
 
 export const Route = createFileRoute("/payment/return")({
   ssr: false,
@@ -13,12 +14,24 @@ export const Route = createFileRoute("/payment/return")({
   component: PaymentReturnPage,
 });
 
+const SYMBOL: Record<string, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+
+function formatMoney(usd: number, cur: string) {
+  const rate = LEGACY_USD_RATES[cur as keyof typeof LEGACY_USD_RATES] ?? 1;
+  const v = usd * rate;
+  const s = SYMBOL[cur] ?? "";
+  return cur === "USD" ? `${s}${v.toFixed(2)}` : `${s}${Math.round(v).toLocaleString()}`;
+}
+
 function PaymentReturnPage() {
   const { reference } = Route.useSearch();
   const verify = useServerFn(verifyPaystackPayment);
   const navigate = useNavigate();
   const [state, setState] = useState<"verifying" | "ok" | "failed">("verifying");
   const [msg, setMsg] = useState<string>("");
+  const [cashbackUSD, setCashbackUSD] = useState(0);
+  const [displayCurrency, setDisplayCurrency] = useState<string>("USD");
+  const [redirectTo, setRedirectTo] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -27,8 +40,10 @@ function PaymentReturnPage() {
       .then((r) => {
         if (cancelled) return;
         if (r.ok) {
+          setCashbackUSD(Number(r.cashbackEarnedUSD ?? 0));
+          setDisplayCurrency(r.displayCurrency ?? "USD");
+          setRedirectTo(r.redirectTo ?? "/");
           setState("ok");
-          setTimeout(() => { navigate({ to: r.redirectTo ?? "/", replace: true }); }, 900);
         } else {
           setState("failed");
           setMsg(`Payment ${r.status}`);
@@ -40,7 +55,16 @@ function PaymentReturnPage() {
         setMsg(e.message || "Verification failed");
       });
     return () => { cancelled = true; };
-  }, [reference, verify, navigate]);
+  }, [reference, verify]);
+
+  const showSplash = state === "ok" && cashbackUSD > 0;
+
+  // If no cashback earned, just redirect quickly on success.
+  useEffect(() => {
+    if (state !== "ok" || cashbackUSD > 0) return;
+    const t = setTimeout(() => { navigate({ to: redirectTo ?? "/", replace: true }); }, 900);
+    return () => clearTimeout(t);
+  }, [state, cashbackUSD, redirectTo, navigate]);
 
   return (
     <div className="min-h-screen bg-[#121214] text-slate-200">
@@ -50,10 +74,10 @@ function PaymentReturnPage() {
           <>
             <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mx-auto mb-4" />
             <h1 className="text-lg font-black text-white mb-1">Confirming your payment…</h1>
-            <p className="text-xs text-slate-500 font-mono">{reference}</p>
+            <p className="text-xs text-slate-500 font-mono break-all">{reference}</p>
           </>
         )}
-        {state === "ok" && (
+        {state === "ok" && !showSplash && (
           <>
             <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-4" />
             <h1 className="text-lg font-black text-white mb-1">Payment confirmed</h1>
@@ -74,6 +98,153 @@ function PaymentReturnPage() {
           </>
         )}
       </main>
+
+      {showSplash && (
+        <CashbackSplash
+          amountLabel={formatMoney(cashbackUSD, displayCurrency)}
+          onDone={() => navigate({ to: redirectTo ?? "/", replace: true })}
+        />
+      )}
+    </div>
+  );
+}
+
+/**
+ * Lottery-style celebratory splash. Renders a full-screen colourful overlay
+ * with the cashback amount, then flies the amount toward the top-right
+ * (wallet/profile area) and fades out before continuing.
+ */
+function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: () => void }) {
+  const [phase, setPhase] = useState<"reveal" | "fly" | "gone">("reveal");
+  const amountRef = useRef<HTMLDivElement>(null);
+  const [flyStyle, setFlyStyle] = useState<React.CSSProperties>({});
+
+  useEffect(() => {
+    const t1 = setTimeout(() => {
+      const el = amountRef.current;
+      if (el) {
+        const r = el.getBoundingClientRect();
+        const targetX = window.innerWidth - 48; // approx wallet/profile icon x
+        const targetY = 40;                     // header row y
+        const dx = targetX - (r.left + r.width / 2);
+        const dy = targetY - (r.top + r.height / 2);
+        setFlyStyle({ transform: `translate(${dx}px, ${dy}px) scale(0.35)`, opacity: 0 });
+      }
+      setPhase("fly");
+    }, 2100);
+    const t2 = setTimeout(() => { setPhase("gone"); onDone(); }, 3400);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+  }, [onDone]);
+
+  const confetti = useMemo(
+    () => Array.from({ length: 40 }, (_, i) => {
+      const colors = ["#34d399", "#60a5fa", "#f472b6", "#fbbf24", "#a78bfa", "#f87171"];
+      return {
+        i,
+        left: Math.random() * 100,
+        delay: Math.random() * 0.6,
+        duration: 1.6 + Math.random() * 1.2,
+        color: colors[i % colors.length],
+        rotate: Math.random() * 360,
+        size: 6 + Math.random() * 8,
+      };
+    }),
+    [],
+  );
+
+  return (
+    <div
+      className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 40%, rgba(16,185,129,0.35), rgba(15,23,42,0.9) 55%, rgba(0,0,0,0.95))",
+        animation: "cbFadeIn 220ms ease-out both",
+      }}
+      aria-live="polite"
+      aria-label="Cashback earned"
+    >
+      {/* Confetti burst */}
+      <div className="absolute inset-0 pointer-events-none">
+        {confetti.map((c) => (
+          <span
+            key={c.i}
+            style={{
+              position: "absolute",
+              left: `${c.left}%`,
+              top: "-24px",
+              width: `${c.size}px`,
+              height: `${c.size * 0.4}px`,
+              background: c.color,
+              borderRadius: "2px",
+              transform: `rotate(${c.rotate}deg)`,
+              animation: `cbFall ${c.duration}s ${c.delay}s cubic-bezier(.2,.6,.4,1) forwards`,
+              opacity: 0.95,
+            }}
+          />
+        ))}
+      </div>
+
+      {/* Card */}
+      <div
+        className="relative z-10 w-[86%] max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(16,185,129,0.55)]"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(16,185,129,0.25), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
+          backdropFilter: "blur(14px)",
+          animation: "cbPop 480ms cubic-bezier(.2,1.4,.4,1) both",
+        }}
+      >
+        <div
+          className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center"
+          style={{
+            background: "linear-gradient(135deg, #34d399, #10b981)",
+            boxShadow: "0 10px 40px -6px rgba(16,185,129,0.7)",
+          }}
+        >
+          <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={2.5} />
+        </div>
+
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-200 mb-2">
+          <Sparkles className="w-3.5 h-3.5" /> Cashback Earned
+        </div>
+
+        <h2 className="text-xl font-black text-white mb-1">Payment successful 🎉</h2>
+        <p className="text-xs text-slate-200/80 mb-5">
+          You just earned Oventric cashback on this purchase.
+        </p>
+
+        <div
+          ref={amountRef}
+          className="mx-auto inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-white text-3xl font-black tracking-tight"
+          style={{
+            background: "linear-gradient(135deg, rgba(52,211,153,0.35), rgba(96,165,250,0.35))",
+            border: "1px solid rgba(255,255,255,0.25)",
+            transition: "transform 900ms cubic-bezier(.6,.05,.15,1), opacity 900ms ease-in",
+            willChange: "transform, opacity",
+            ...flyStyle,
+          }}
+        >
+          <WalletIcon className="w-6 h-6 text-emerald-200" />
+          <span>+ {amountLabel}</span>
+        </div>
+
+        <p className="mt-5 text-[11px] text-slate-300/70">
+          {phase === "reveal" ? "Adding to your Cashback Wallet…" : "Sent to your wallet ✓"}
+        </p>
+      </div>
+
+      <style>{`
+        @keyframes cbFadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes cbPop {
+          0% { transform: scale(0.6); opacity: 0 }
+          60% { transform: scale(1.04); opacity: 1 }
+          100% { transform: scale(1); opacity: 1 }
+        }
+        @keyframes cbFall {
+          0%   { transform: translateY(0) rotate(0deg); opacity: 1 }
+          100% { transform: translateY(110vh) rotate(720deg); opacity: 0.9 }
+        }
+      `}</style>
     </div>
   );
 }
