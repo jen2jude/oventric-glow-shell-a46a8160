@@ -421,39 +421,6 @@ export type Database = {
         }
         Relationships: []
       }
-      affiliate_reservations: {
-        Row: {
-          country: string | null
-          created_at: string
-          display_name: string | null
-          email: string
-          id: string
-          note: string | null
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          country?: string | null
-          created_at?: string
-          display_name?: string | null
-          email: string
-          id?: string
-          note?: string | null
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          country?: string | null
-          created_at?: string
-          display_name?: string | null
-          email?: string
-          id?: string
-          note?: string | null
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: []
-      }
       announcements: {
         Row: {
           active: boolean
