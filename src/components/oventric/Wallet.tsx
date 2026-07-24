@@ -426,7 +426,7 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white">➕ Fund Wallet</div>
-              <div className="text-xs text-slate-400 mt-0.5">Card · Bank · Mobile Money</div>
+              <div className="text-xs text-slate-400 mt-0.5">For bounties & ad campaigns</div>
             </div>
           </div>
         </button>
