@@ -135,9 +135,7 @@ export function CourseCheckoutModal({
   if (!open || !course) return null;
 
   const grossFormatted = priceDisplay?.formatted ?? fmt(grossUSD, baseCurrency);
-  const totalFormatted = priceDisplay
-    ? formatMoney(Math.max(0, priceDisplay.value - priceDisplay.value * (couponPct / 100)), baseCurrency)
-    : fmt(totalUSD, baseCurrency);
+  const totalFormatted = fmt(totalUSD, baseCurrency);
 
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
