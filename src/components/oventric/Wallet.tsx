@@ -334,7 +334,7 @@ export function Wallet() {
             {
               key: "cashback",
               label: "Cashback",
-              sub: "2%–5% engine",
+              sub: "Spend at checkout only",
               valueUSD: earnings.cashbackUSD,
               icon: <Sparkles className="w-4 h-4" />,
               accent: "bg-emerald-500/10",
