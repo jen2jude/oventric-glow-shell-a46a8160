@@ -41,6 +41,7 @@ import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
+import { Route as AdminCashbackWalletRouteImport } from './routes/admin.cashback-wallet'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
@@ -215,6 +216,11 @@ const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   path: '/categories',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCashbackWalletRoute = AdminCashbackWalletRouteImport.update({
+  id: '/cashback-wallet',
+  path: '/cashback-wallet',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCampaignsRoute = AdminCampaignsRouteImport.update({
   id: '/campaigns',
   path: '/campaigns',
@@ -303,6 +309,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
@@ -348,6 +355,7 @@ export interface FileRoutesByTo {
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
@@ -396,6 +404,7 @@ export interface FileRoutesById {
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
+  '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
@@ -445,6 +454,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
+    | '/admin/cashback-wallet'
     | '/admin/categories'
     | '/admin/communications'
     | '/admin/courses'
@@ -490,6 +500,7 @@ export interface FileRouteTypes {
     | '/admin/audit'
     | '/admin/bounties'
     | '/admin/campaigns'
+    | '/admin/cashback-wallet'
     | '/admin/categories'
     | '/admin/communications'
     | '/admin/courses'
@@ -537,6 +548,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/admin/bounties'
     | '/admin/campaigns'
+    | '/admin/cashback-wallet'
     | '/admin/categories'
     | '/admin/communications'
     | '/admin/courses'
@@ -819,6 +831,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCategoriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/cashback-wallet': {
+      id: '/admin/cashback-wallet'
+      path: '/cashback-wallet'
+      fullPath: '/admin/cashback-wallet'
+      preLoaderRoute: typeof AdminCashbackWalletRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/campaigns': {
       id: '/admin/campaigns'
       path: '/campaigns'
@@ -934,6 +953,7 @@ interface AdminRouteChildren {
   AdminBlogRoute: typeof AdminBlogRouteWithChildren
   AdminBountiesRoute: typeof AdminBountiesRoute
   AdminCampaignsRoute: typeof AdminCampaignsRoute
+  AdminCashbackWalletRoute: typeof AdminCashbackWalletRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
@@ -954,6 +974,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminBlogRoute: AdminBlogRouteWithChildren,
   AdminBountiesRoute: AdminBountiesRoute,
   AdminCampaignsRoute: AdminCampaignsRoute,
+  AdminCashbackWalletRoute: AdminCashbackWalletRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,

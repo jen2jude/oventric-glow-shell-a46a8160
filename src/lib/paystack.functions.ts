@@ -342,11 +342,15 @@ async function settleOrder(
 
   const existing = await supabaseAdmin
     .from("orders")
-    .select("id")
+    .select("id, total_usd, display_total, display_currency")
     .eq("paystack_ref", reference)
     .maybeSingle();
   if (existing.data?.id) {
-    return { alreadySettled: true as const, orderId: existing.data.id as string };
+    // Replay path (webhook already settled). Recompute cashback so the return
+    // page can still play the celebratory splash.
+    const gross = Number(existing.data.total_usd ?? 0);
+    const cashbackEarnUSD = Number((gross * WALLET_CASHBACK_PCT).toFixed(2));
+    return { alreadySettled: true as const, orderId: existing.data.id as string, cashbackEarnUSD };
   }
 
   const { data: pRow, error: pErr } = await supabaseAdmin
@@ -422,13 +426,33 @@ async function settleOrder(
   const splitBaseUSD = afterCouponUSD;
   const sellerCutUSD = Number((splitBaseUSD * SELLER_SHARE).toFixed(2));
   const platformCutUSD = Number((splitBaseUSD - sellerCutUSD).toFixed(2));
-  await supabaseAdmin.rpc("wallet_credit", { _user_id: pRow.seller_id as string, _amount: sellerCutUSD });
+
+  // Credit the seller in the BUYER's display currency (their local money) so
+  // the seller sees the sale amount they expect (₦395 on a ₦495 sale) and can
+  // withdraw via Paystack Transfers directly in that currency.
+  const sellerCutLocal = Number((displayTotal * SELLER_SHARE).toFixed(2));
+  await supabaseAdmin.rpc("wallet_credit_currency", {
+    _user_id: pRow.seller_id as string,
+    _amount: sellerCutLocal,
+    _currency: meta.displayCurrency,
+  });
+  await supabaseAdmin.from("wallet_transactions").insert({
+    user_id: pRow.seller_id as string,
+    tx_hash: `${reference}-S`,
+    type: "Marketplace Sale",
+    amount: sellerCutLocal,
+    currency: meta.displayCurrency,
+    inflow: true,
+    status: "success",
+    occurred_at: new Date().toISOString(),
+  });
+
   await supabaseAdmin.rpc("system_wallet_credit", {
     _kind: "marketplace",
     _amount: platformCutUSD,
     _source: "marketplace_order_paystack",
     _ref: oRow.id as string,
-    _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference },
+    _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference, seller_cut_local: sellerCutLocal, seller_cut_currency: meta.displayCurrency },
   });
 
   // Credit 2% cashback of the FULL gross sale price into the buyer's spend-only
@@ -436,10 +460,21 @@ async function settleOrder(
   const cashbackEarnUSD = Number((splitBaseUSD * WALLET_CASHBACK_PCT).toFixed(2));
   if (cashbackEarnUSD > 0) {
     await supabaseAdmin.rpc("cashback_credit", { _user_id: buyerId, _amount: cashbackEarnUSD });
+    await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: buyerId,
+      tx_hash: `${reference}-CB`,
+      type: "Cashback Earned",
+      amount: cashbackEarnUSD,
+      currency: "USD",
+      inflow: true,
+      status: "success",
+      occurred_at: new Date().toISOString(),
+    });
   }
 
   return { alreadySettled: false as const, orderId: oRow.id as string, cashbackEarnUSD };
 }
+
 
 
 export async function verifyAndSettleByReference(reference: string) {
