@@ -316,27 +316,27 @@ function DashboardPage() {
         </Link>
 
 
-        <div className="flex flex-wrap gap-1 rounded-xl bg-[#141418] border border-white/10 p-1 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1.5 rounded-xl bg-[#141418] border border-white/10 p-1.5 mb-5">
           <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
-            <LayoutDashboard className="w-4 h-4" /> Overview
+            <LayoutDashboard className="w-4 h-4 shrink-0" /> <span className="truncate">Overview</span>
           </TabButton>
           <TabButton active={tab === "bounties"} onClick={() => setTab("bounties")}>
-            <Target className="w-4 h-4" /> Bounties
+            <Target className="w-4 h-4 shrink-0" /> <span className="truncate">Bounties</span>
           </TabButton>
           <TabButton active={tab === "courses"} onClick={() => setTab("courses")}>
-            <GraduationCap className="w-4 h-4" /> Courses
+            <GraduationCap className="w-4 h-4 shrink-0" /> <span className="truncate">Courses</span>
           </TabButton>
           <TabButton active={tab === "wallet"} onClick={() => setTab("wallet")}>
-            <WalletIcon className="w-4 h-4" /> Wallet
+            <WalletIcon className="w-4 h-4 shrink-0" /> <span className="truncate">Wallet</span>
           </TabButton>
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
-            <Package className="w-4 h-4" /> Digital Purchases
+            <Package className="w-4 h-4 shrink-0" /> <span className="truncate">Digital</span>
           </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
-            <ShoppingBag className="w-4 h-4" /> Contacted Sellers
+            <ShoppingBag className="w-4 h-4 shrink-0" /> <span className="truncate">Contacted</span>
           </TabButton>
           <TabButton active={tab === "listings"} onClick={() => setTab("listings")}>
-            <Store className="w-4 h-4" /> My Listings
+            <Store className="w-4 h-4 shrink-0" /> <span className="truncate">Listings</span>
             {stats.listingsRejected > 0 && (
               <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
                 {stats.listingsRejected}
@@ -344,7 +344,7 @@ function DashboardPage() {
             )}
           </TabButton>
           <TabButton active={tab === "social"} onClick={() => setTab("social")}>
-            <Users className="w-4 h-4" /> Social
+            <Users className="w-4 h-4 shrink-0" /> <span className="truncate">Social</span>
           </TabButton>
         </div>
 
@@ -482,8 +482,8 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
   return (
     <button
       onClick={onClick}
-      className={`inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-semibold transition ${
-        active ? "bg-white text-black" : "text-slate-300 hover:text-white"
+      className={`inline-flex items-center justify-center gap-1.5 px-2 py-2 rounded-lg text-xs sm:text-sm font-semibold transition min-w-0 ${
+        active ? "bg-white text-black" : "text-slate-300 hover:text-white hover:bg-white/5"
       }`}
     >
       {children}
