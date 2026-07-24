@@ -23,7 +23,7 @@ import {
 } from "@/lib/marketplace.functions";
 
 import { initPaystackPayment } from "@/lib/paystack.functions";
-import { LEGACY_USD_RATES } from "@/lib/fx-display";
+import { LEGACY_USD_RATES, convertViaSnapshot } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
