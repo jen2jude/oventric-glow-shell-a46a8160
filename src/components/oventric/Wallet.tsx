@@ -198,6 +198,15 @@ export function Wallet() {
   });
   const earnings = earningsQuery.data ?? { cashbackUSD: 0, bountyUSD: 0, affiliateUSD: 0 };
 
+  const fetchAffiliate = useServerFn(getMyAffiliateReservation);
+  const affiliateQuery = useQuery({
+    queryKey: ["affiliate-reservation", userId],
+    enabled: authReady && !!userId,
+    queryFn: () => fetchAffiliate(),
+    staleTime: 60_000,
+  });
+  const affiliateReserved = !!affiliateQuery.data;
+
   const queryClient = useQueryClient();
   useEffect(() => {
     if (!userId) return;
