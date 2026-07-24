@@ -50,6 +50,24 @@ function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
 
+/**
+ * Preferred display: when the viewer's currency matches the product's
+ * ORIGINAL listing currency, show the seller's exact locked amount — no USD
+ * round-trip, no snapshot drift. Otherwise fall back to snapshot conversion.
+ */
+function fmtPrice(
+  usdAmount: number,
+  viewer: Currency,
+  product: ProductDTO | null,
+  originalLocalAmount: number,
+) {
+  if (product && viewer === (product.originalCurrency as Currency)) {
+    return fmtLocal(originalLocalAmount, viewer);
+  }
+  return fmtSnap(usdAmount, viewer, product?.fxSnapshot ?? null);
+}
+
+
 
 /** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
