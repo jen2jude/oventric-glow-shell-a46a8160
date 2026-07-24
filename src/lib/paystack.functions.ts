@@ -350,7 +350,9 @@ async function settleOrder(
       .maybeSingle();
     if (c) discountUSD = Number(((grossUSD * Number(c.discount_pct)) / 100).toFixed(2));
   }
-  const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+  const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+  const cashbackAppliedUSD = Math.max(0, Number(meta.cashbackAppliedUSD ?? 0));
+  const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
   const fx = FX_FROM_USD[meta.displayCurrency];
   const displayTotal = Number((totalUSD * fx).toFixed(2));
 
@@ -400,11 +402,16 @@ async function settleOrder(
     _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference },
   });
 
-  // No cashback on card payments — cashback only applies to wallet-funded orders.
-  void WALLET_CASHBACK_PCT;
+  // Credit 2% cashback of the amount actually paid (excluding any cashback
+  // already spent) into the buyer's spend-only Cashback Wallet.
+  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+  if (cashbackEarnUSD > 0) {
+    await supabaseAdmin.rpc("cashback_credit", { _user_id: buyerId, _amount: cashbackEarnUSD });
+  }
 
-  return { alreadySettled: false as const, orderId: oRow.id as string };
+  return { alreadySettled: false as const, orderId: oRow.id as string, cashbackEarnUSD };
 }
+
 
 export async function verifyAndSettleByReference(reference: string) {
   const payload = await paystackFetch<PaystackVerifyPayload>(
