@@ -748,7 +748,7 @@ function AuthGateModal({
                       type="submit"
                       disabled={sending}
                       tabIndex={mode === "new" ? 0 : -1}
-                      className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full min-h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
                     >
                       {sending && mode === "new" ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
