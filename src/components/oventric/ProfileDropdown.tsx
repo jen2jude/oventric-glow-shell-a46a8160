@@ -235,8 +235,23 @@ export function ProfileDropdown() {
 
   const handle = "@" + slugify(profile.displayName);
 
-  const tierLabel = tier === 0 ? "Unverified" : `Tier ${tier} Verified`;
-  const reputation = (4.2 + Math.min(tier, 5) * 0.12).toFixed(2);
+  // Tier label derived from persisted verification_tier ("TIER_0/1/2/5"),
+  // falling back to the onboarding-derived numeric tier while the profile loads.
+  const tierNumeric = (() => {
+    if (verificationTier) {
+      const m = /TIER_(\d)/.exec(verificationTier);
+      if (m) return Number(m[1]);
+    }
+    return tier;
+  })();
+  const tierLabel = tierNumeric === 0
+    ? "Tier 0 · Guest"
+    : tierNumeric >= 5
+      ? "Tier 5 · Fully verified"
+      : tierNumeric >= 2
+        ? "Tier 2 · Commerce ready"
+        : "Tier 1 · Email verified";
+  const reputation = (liveStars ?? 0).toFixed(1);
 
   const onSignOut = async () => {
     closeMenu(false);
