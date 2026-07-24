@@ -750,11 +750,14 @@ export const enrollPaid = createServerFn({ method: "POST" })
     const fx = FX_FROM_USD_ACADEMY[data.displayCurrency];
     const displayTotal = Number((totalUSD * fx).toFixed(2));
 
-    // Wallet debit path — wallet mutations always run via service-role client.
+    // Wallet debit path — debit the buyer's wallet in their DISPLAY currency
+    // (matches how top-ups credit per-currency), not USD. This is what the user
+    // funded in via Paystack, so the "true balance" they see is used.
     if (data.paymentMethod === "wallet" && totalUSD > 0) {
-      const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit", {
+      const { data: ok, error: dErr } = await supabaseAdmin.rpc("wallet_debit_currency", {
         _user_id: userId,
-        _amount: totalUSD,
+        _amount: displayTotal,
+        _currency: data.displayCurrency,
       });
       if (dErr) throw new Error(dErr.message);
       if (!ok) {
@@ -763,19 +766,21 @@ export const enrollPaid = createServerFn({ method: "POST" })
         if (cashbackAppliedUSD > 0) {
           await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackAppliedUSD });
         }
-        const { data: w } = await supabase
+        const { data: w } = await supabaseAdmin
           .from("wallets")
           .select("available_balance")
           .eq("user_id", userId)
-          .eq("currency", "USD")
+          .eq("currency", data.displayCurrency)
           .maybeSingle();
         const bal = Number(w?.available_balance ?? 0);
+        const shortDisplay = Number((displayTotal - bal).toFixed(2));
         return {
           enrollment: null,
           totalUSD,
           displayTotal,
           displayCurrency: data.displayCurrency,
-          walletShortfallUSD: Number((totalUSD - bal).toFixed(2)),
+          walletShortfallUSD: Number((shortDisplay / fx).toFixed(2)),
+          walletShortfallDisplay: shortDisplay,
         };
       }
     }
