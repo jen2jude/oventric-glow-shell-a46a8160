@@ -436,11 +436,12 @@ export function Wallet() {
                       <>
                         <Link
                           to={t.cta.to}
-                          className={`inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg ${
+                          className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
+                          style={
                             affiliateReserved
-                              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40"
-                              : "bg-fuchsia-500 text-black hover:bg-fuchsia-400"
-                          }`}
+                              ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                              : { backgroundColor: "#d946ef", color: "#000000" }
+                          }
                         >
                           {t.cta.label}
                         </Link>
