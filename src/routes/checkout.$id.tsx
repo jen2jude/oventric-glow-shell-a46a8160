@@ -125,15 +125,23 @@ function CheckoutPage() {
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  // When viewing in the product's ORIGINAL currency, prefer the seller's exact
+  // locked amount so the checkout total matches the listing card 1:1.
+  const subtotalLocal = useMemo(() => (product ? product.originalAmount * qty : 0), [product, qty]);
   // Cashback (spend-only) can now be applied on ANY payment method.
   const cashbackApplyUSD = useMemo(() => {
     if (!useCashback) return 0;
     return Math.min(cashbackUSD, Math.max(0, subtotalUSD));
   }, [useCashback, cashbackUSD, subtotalUSD]);
   const totalUSD = Number((subtotalUSD - cashbackApplyUSD).toFixed(2));
+  const cashbackApplyLocal = subtotalUSD > 0
+    ? Number(((cashbackApplyUSD / subtotalUSD) * subtotalLocal).toFixed(2))
+    : 0;
+  const totalLocalExact = Number((subtotalLocal - cashbackApplyLocal).toFixed(2));
   // Cashback earn is ALWAYS 2% of the full gross sale price — regardless of
   // whether the buyer applied any cashback on this order.
   const cashbackEarnUSD = Number((subtotalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+
 
 
 
