@@ -845,19 +845,31 @@ function AuthGateModal({
                         <label htmlFor="gate-password" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
                           Password
                         </label>
-                        <input
-                          id="gate-password"
-                          type="password"
-                          autoComplete="current-password"
-                          value={password}
-                          onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
-                          placeholder="••••••••"
-                          aria-invalid={!!passwordError}
-                          tabIndex={mode === "returning" ? 0 : -1}
-                          className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                            passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
-                          }`}
-                        />
+                        <div className="relative">
+                          <input
+                            id="gate-password"
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
+                            placeholder="••••••••"
+                            aria-invalid={!!passwordError}
+                            tabIndex={mode === "returning" ? 0 : -1}
+                            className={`w-full min-h-11 bg-[#121214] rounded-lg pl-3 pr-10 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                              passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((v) => !v)}
+                            tabIndex={mode === "returning" ? 0 : -1}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            aria-pressed={showPassword}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-white"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                         {passwordError && (
                           <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
                             {passwordError}
