@@ -37,10 +37,19 @@ function fmt(usd: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
 }
 
+/** Format a USD amount using the product's LOCKED FX snapshot when available. */
+function fmtSnap(usd: number, cur: Currency, snap: ProductDTO["fxSnapshot"] | null | undefined) {
+  const s = snap && snap.rates ? { base: "USD" as const, rates: snap.rates } : null;
+  const converted = convertViaSnapshot(usd, "USD", cur, s);
+  const v = converted > 0 || usd === 0 ? converted : usd * FX_FROM_USD[cur];
+  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
+}
+
 /** Format an amount that's ALREADY in the given currency (no USD conversion). */
 function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
+
 
 /** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
