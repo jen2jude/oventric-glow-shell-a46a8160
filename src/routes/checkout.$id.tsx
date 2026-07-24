@@ -80,7 +80,6 @@ function CheckoutPage() {
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
   const initPaystack = useServerFn(initPaystackPayment);
-  const checkCoupon = useServerFn(validateCoupon);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -94,26 +93,19 @@ function CheckoutPage() {
   const [topUpMethod, setTopUpMethod] = useState<PaymentMethod>("card");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
-  const [couponInput, setCouponInput] = useState("");
-  const [couponBusy, setCouponBusy] = useState(false);
-  const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
-  const [couponErr, setCouponErr] = useState<string | null>(null);
   const [deliveryEmail, setDeliveryEmail] = useState("");
   const [deliveryWhatsapp, setDeliveryWhatsapp] = useState("");
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
-  const canUseCoupon = method !== "wallet";
-  const discountUSD = useMemo(
-    () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
-    [canUseCoupon, coupon, subtotalUSD],
-  );
-  const afterCouponUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  // Cashback (spend-only) can now be applied on ANY payment method.
   const cashbackApplyUSD = useMemo(() => {
-    if (method !== "wallet" || !useCashback) return 0;
-    return Math.min(cashbackUSD, Math.max(0, afterCouponUSD));
-  }, [method, useCashback, cashbackUSD, afterCouponUSD]);
-  const totalUSD = Number((afterCouponUSD - cashbackApplyUSD).toFixed(2));
+    if (!useCashback) return 0;
+    return Math.min(cashbackUSD, Math.max(0, subtotalUSD));
+  }, [useCashback, cashbackUSD, subtotalUSD]);
+  const totalUSD = Number((subtotalUSD - cashbackApplyUSD).toFixed(2));
+  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+
 
 
   useEffect(() => {
