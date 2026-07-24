@@ -313,9 +313,6 @@ export function ProfileDropdown() {
               ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
               : "bg-slate-500/15 border-slate-500/40 text-slate-300"
           }`}>
-              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-              : "bg-slate-500/15 border-slate-500/40 text-slate-300"
-          }`}>
             <ShieldCheck className="w-3 h-3" /> {tierLabel}
           </span>
           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300">
