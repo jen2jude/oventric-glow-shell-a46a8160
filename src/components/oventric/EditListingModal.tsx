@@ -218,9 +218,9 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
           <>
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h2 className="text-xl font-bold text-white">Edit & Resubmit Listing</h2>
+                <h2 className="text-xl font-bold text-white">Edit Listing</h2>
                 <p className="text-xs text-slate-400 mt-1">
-                  {isPhysical ? "Physical goods listing" : "Digital asset listing"} · currently rejected
+                  {isPhysical ? "Physical goods listing" : "Digital asset listing"} · {product.status === "pending" ? "pending review" : "currently rejected"}
                 </p>
               </div>
               <button
