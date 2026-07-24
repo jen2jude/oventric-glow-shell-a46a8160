@@ -170,7 +170,12 @@ function CheckoutPage() {
     /^\S+@\S+\.\S+$/.test(deliveryEmail.trim()) && deliveryWhatsapp.replace(/\D/g, "").length >= 6
   );
 
-  const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalUSD;
+  // `balanceUSD` state actually holds the buyer's balance in their HOME
+  // currency (see the fetcher above). Compare it against the total in that
+  // same currency so what the user sees on the button matches what the wallet
+  // will be debited.
+  const totalLocal = Number((totalUSD * FX_FROM_USD[baseCurrency]).toFixed(2));
+  const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalLocal;
 
   const pay = async () => {
     if (!product || submitting) return;
