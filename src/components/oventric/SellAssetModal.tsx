@@ -106,12 +106,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     if (!name.trim()) return toast.error("Asset name required");
     if (!description.trim()) return toast.error("Description required");
     if (images.length < 1) return toast.error("Add at least 1 product image (first is cover)");
+    if (!isFree && !agreedToSplit) return toast.error("Please agree to the 80/20 revenue split to continue");
     const mainLocal = isFree ? 0 : Number(priceInput);
     const discountLocal = isFree ? 0 : (discountInput.trim() ? Number(discountInput) : 0);
-    if (!isFree && !(mainLocal > 0)) return toast.error("Enter a main price greater than 0 or mark as free");
+    if (!isFree && !(mainLocal > 0)) return toast.error("Enter a price greater than 0 or mark as free");
     if (!isFree && discountLocal > 0 && discountLocal >= mainLocal)
       return toast.error("Discount price must be lower than the main price");
     const priceLocal = discountLocal > 0 ? discountLocal : mainLocal;
+
     // Instant download requires either a file or an external delivery URL.
     // Manual delivery orders skip this check — seller delivers after purchase.
     if (!requiresManualDelivery) {
