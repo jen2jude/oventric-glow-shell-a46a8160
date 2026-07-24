@@ -146,8 +146,9 @@ export const listAllProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
+    const sb = supabaseAdmin as any;
     const { data, error } = await sb
       .from("products")
       .select("id, name, category, subcategory, vendor, price_usd, promoted, seller_id, created_at, kind, status, reject_reason, description, cover_path, image_paths, seller_phone, whatsapp_number, location, brand, condition, negotiable, delivery, social_link")
@@ -156,6 +157,7 @@ export const listAllProducts = createServerFn({ method: "GET" })
     if (error) throw new Error(error.message);
     return data ?? [];
   });
+
 
 /** Approve a pending product (admin only). Sends a system notification to the seller. */
 export const approveProduct = createServerFn({ method: "POST" })
