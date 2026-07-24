@@ -598,7 +598,7 @@ function AuthGateModal({
               <X className="w-4 h-4" />
             </button>
             <header className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 rounded-xl rgb-pulse-glow bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
+              <div className="mx-auto w-12 h-12 rounded-xl bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
                 {stage === "email" ? (
                   <Mail className="w-5 h-5 text-emerald-300" aria-hidden />
                 ) : (
