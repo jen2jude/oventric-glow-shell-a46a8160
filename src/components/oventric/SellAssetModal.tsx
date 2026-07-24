@@ -329,14 +329,17 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
               <div>
                 <span className="text-xs font-medium text-slate-300">Product images (up to {MAX_IMAGES}, first is cover)</span>
-                <input ref={imageInputRef} type="file" accept="image/*" multiple className="sr-only" onChange={(e) => { addImages(e.target.files); if (e.target) e.target.value = ""; }} />
-                <button type="button" onClick={() => imageInputRef.current?.click()}
-                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 hover:border-emerald-500/60 text-left">
+                <input ref={imageInputRef} id="sell-asset-images" type="file" accept="image/*" multiple
+                  onChange={(e) => { addImages(e.target.files); if (e.target) e.target.value = ""; }}
+                  style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }} />
+                <label htmlFor="sell-asset-images"
+                  className="mt-2 w-full flex items-center gap-3 border border-dashed border-white/15 rounded-lg p-3 hover:border-emerald-500/60 text-left cursor-pointer select-none">
                   <div className="w-16 h-16 rounded-md bg-[#121214] border border-white/10 flex items-center justify-center text-emerald-400">
                     <ImagePlus className="w-6 h-6" />
                   </div>
                   <div className="text-xs text-slate-400">Tap to add images from your phone or camera roll. PNG/JPG up to {MAX_IMAGE_MB}MB each. {images.length}/{MAX_IMAGES} added.</div>
-                </button>
+                </label>
+
                 {previews.length > 0 && (
                   <div className="mt-2 grid grid-cols-5 gap-2">
                     {previews.map((src, i) => (
@@ -367,11 +370,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
                 {mode === "file" ? (
                   <>
-                    <input ref={fileInputRef} type="file" className="sr-only"
+                    <input ref={fileInputRef} id="sell-asset-file" type="file"
+                      style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
                       onChange={(e) => { handleFile(e.target.files?.[0] ?? null); if (e.target) e.target.value = ""; }}
                       accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed" />
-                    <button type="button" onClick={() => fileInputRef.current?.click()}
-                      className="mt-2 w-full block border border-dashed border-white/15 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 transition-colors">
+                    <label htmlFor="sell-asset-file"
+                      className="mt-2 w-full block border border-dashed border-white/15 rounded-lg p-4 text-center cursor-pointer hover:border-emerald-500/60 transition-colors select-none">
                       {file ? (
                         <div className="text-sm text-white">
                           <div className="font-medium truncate">{file.name}</div>
@@ -384,7 +388,8 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                           <div className="text-xs mt-1">ZIP / RAR / 7Z — max {MAX_FILE_MB}MB</div>
                         </div>
                       )}
-                    </button>
+                    </label>
+
                   </>
                 ) : (
                   <input value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} placeholder="https://your-delivery-link.com/download"
