@@ -305,18 +305,26 @@ function CheckoutPage() {
                 return (
                   <button
                     key={m.id}
-                    onClick={() => setMethod(m.id)}
+                    onClick={() => { if (!m.disabled) setMethod(m.id); }}
+                    disabled={m.disabled}
+                    aria-disabled={m.disabled}
+                    title={m.disabled ? "Wallet is reserved for bounties & ads. Pay directly instead." : undefined}
                     className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
-                      active
-                        ? "bg-emerald-500/10 border-emerald-500/50"
-                        : "bg-[#1E1E24] border-white/10 hover:border-white/20"
+                      m.disabled
+                        ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                        : active
+                          ? "bg-emerald-500/10 border-emerald-500/50"
+                          : "bg-[#1E1E24] border-white/10 hover:border-white/20"
                     }`}
                   >
-                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? "bg-emerald-500/20" : "bg-white/5"}`}>
-                      <Icon className={`w-5 h-5 ${active ? "text-emerald-300" : "text-slate-300"}`} />
+                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}>
+                      <Icon className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`} />
                     </span>
                     <span className="flex-1 min-w-0">
-                      <span className="block text-sm text-white font-semibold">{m.label}</span>
+                      <span className="block text-sm text-white font-semibold">
+                        {m.label}
+                        {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Unavailable here</span>}
+                      </span>
                       <span className="block text-xs text-slate-500">{m.hint}</span>
                     </span>
                     {walletTag && (
@@ -327,6 +335,7 @@ function CheckoutPage() {
                   </button>
                 );
               })}
+
 
               {insufficient && (
                 <div className="mt-2 flex items-start gap-3 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
