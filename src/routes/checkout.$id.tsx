@@ -37,6 +37,11 @@ function fmt(usd: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
 }
 
+/** Format an amount that's ALREADY in the given currency (no USD conversion). */
+function fmtLocal(amount: number, cur: Currency) {
+  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
+}
+
 /** Country-driven payment method availability. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string }> {
   const base = [
