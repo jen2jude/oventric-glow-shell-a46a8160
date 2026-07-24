@@ -161,11 +161,22 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       }
 
       const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
-      // Convert USD → displayCurrency using the product's LOCKED FX snapshot so the
-      // charge matches the price shown on the listing (no drift from legacy fallback rates).
-      const snapRaw = (p.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
-      const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
-      const converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
+      // Prefer the seller's exact locked amount when the buyer is paying in the
+      // product's ORIGINAL currency — avoids USD round-trip drift (₦500 → 0.33
+      // USD → ₦495). Otherwise convert via the locked FX snapshot.
+      const originalCurrency = ((p.original_currency as string) ?? "USD") as OrderCurrency;
+      const originalAmount = Number(p.original_amount ?? 0);
+      let converted = 0;
+      if (originalAmount > 0 && displayCurrency === originalCurrency && totalAfterCouponUSD > 0) {
+        const ratio = totalUSD / totalAfterCouponUSD; // scale down for cashback
+        converted = Number((originalAmount * qty * ratio).toFixed(2));
+      } else {
+        const snapRaw = (p.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
+        const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
+        converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
+      }
+
+
 
       amount = Number((converted > 0 ? converted : totalUSD * FX_FROM_USD[displayCurrency]).toFixed(2));
       currency = displayCurrency;

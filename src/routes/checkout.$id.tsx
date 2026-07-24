@@ -50,6 +50,24 @@ function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
 
+/**
+ * Preferred display: when the viewer's currency matches the product's
+ * ORIGINAL listing currency, show the seller's exact locked amount — no USD
+ * round-trip, no snapshot drift. Otherwise fall back to snapshot conversion.
+ */
+function fmtPrice(
+  usdAmount: number,
+  viewer: Currency,
+  product: ProductDTO | null,
+  originalLocalAmount: number,
+) {
+  if (product && viewer === (product.originalCurrency as Currency)) {
+    return fmtLocal(originalLocalAmount, viewer);
+  }
+  return fmtSnap(usdAmount, viewer, product?.fxSnapshot ?? null);
+}
+
+
 
 /** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
@@ -107,15 +125,23 @@ function CheckoutPage() {
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  // When viewing in the product's ORIGINAL currency, prefer the seller's exact
+  // locked amount so the checkout total matches the listing card 1:1.
+  const subtotalLocal = useMemo(() => (product ? product.originalAmount * qty : 0), [product, qty]);
   // Cashback (spend-only) can now be applied on ANY payment method.
   const cashbackApplyUSD = useMemo(() => {
     if (!useCashback) return 0;
     return Math.min(cashbackUSD, Math.max(0, subtotalUSD));
   }, [useCashback, cashbackUSD, subtotalUSD]);
   const totalUSD = Number((subtotalUSD - cashbackApplyUSD).toFixed(2));
+  const cashbackApplyLocal = subtotalUSD > 0
+    ? Number(((cashbackApplyUSD / subtotalUSD) * subtotalLocal).toFixed(2))
+    : 0;
+  const totalLocalExact = Number((subtotalLocal - cashbackApplyLocal).toFixed(2));
   // Cashback earn is ALWAYS 2% of the full gross sale price — regardless of
   // whether the buyer applied any cashback on this order.
   const cashbackEarnUSD = Number((subtotalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+
 
 
 
@@ -176,7 +202,10 @@ function CheckoutPage() {
   // currency (see the fetcher above). Compare it against the total in that
   // same currency so what the user sees on the button matches what the wallet
   // will be debited.
-  const totalLocal = Number((totalUSD * FX_FROM_USD[baseCurrency]).toFixed(2));
+  const totalLocal = product && baseCurrency === (product.originalCurrency as Currency)
+    ? totalLocalExact
+    : Number((totalUSD * FX_FROM_USD[baseCurrency]).toFixed(2));
+
   const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalLocal;
 
   const pay = async () => {
@@ -454,20 +483,21 @@ function CheckoutPage() {
               </div>
 
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
-                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtSnap(subtotalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span></div>
                 {cashbackApplyUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtSnap(cashbackApplyUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}</span></div>
                 )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
-                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
+                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span></div>
               </div>
+
 
               <button
                 onClick={pay}
                 disabled={submitting || (needsDelivery && !deliveryValid)}
                 className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}`}
+                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`}
 
               </button>
               <div className="mt-3 text-[11px] text-slate-500 inline-flex items-center gap-1">
