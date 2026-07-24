@@ -37,6 +37,11 @@ function fmt(usd: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
 }
 
+/** Format an amount that's ALREADY in the given currency (no USD conversion). */
+function fmtLocal(amount: number, cur: Currency) {
+  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
+}
+
 /** Country-driven payment method availability. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string }> {
   const base = [
@@ -126,20 +131,29 @@ function CheckoutPage() {
       const { data: userRes } = await supabase.auth.getUser();
       const uid = userRes.user?.id;
       if (!uid) return;
-      const { data } = await supabase
+      // Read balance in the buyer's home currency (that's where Paystack top-ups
+      // credit and that's what the wallet will actually be debited in).
+      const { data: localRow } = await supabase
         .from("wallets")
-        .select("available_balance, accumulated_cashback")
+        .select("available_balance")
+        .eq("user_id", uid)
+        .eq("currency", baseCurrency)
+        .maybeSingle();
+      // Cashback pot is USD-canonical.
+      const { data: cbRow } = await supabase
+        .from("wallets")
+        .select("accumulated_cashback")
         .eq("user_id", uid)
         .eq("currency", "USD")
         .maybeSingle();
       if (!cancelled) {
-        setBalanceUSD(Number(data?.available_balance ?? 0));
-        setCashbackUSD(Number(data?.accumulated_cashback ?? 0));
+        setBalanceUSD(Number(localRow?.available_balance ?? 0));
+        setCashbackUSD(Number(cbRow?.accumulated_cashback ?? 0));
       }
     };
     refresh();
     return () => { cancelled = true; };
-  }, [shortfallUSD, topUpBusy]);
+  }, [shortfallUSD, topUpBusy, baseCurrency]);
 
   // Prefill delivery email from the current auth user.
   useEffect(() => {
@@ -156,7 +170,12 @@ function CheckoutPage() {
     /^\S+@\S+\.\S+$/.test(deliveryEmail.trim()) && deliveryWhatsapp.replace(/\D/g, "").length >= 6
   );
 
-  const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalUSD;
+  // `balanceUSD` state actually holds the buyer's balance in their HOME
+  // currency (see the fetcher above). Compare it against the total in that
+  // same currency so what the user sees on the button matches what the wallet
+  // will be debited.
+  const totalLocal = Number((totalUSD * FX_FROM_USD[baseCurrency]).toFixed(2));
+  const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalLocal;
 
   const pay = async () => {
     if (!product || submitting) return;
@@ -203,11 +222,16 @@ function CheckoutPage() {
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
-      if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
-        setShortfallUSD(res.walletShortfallUSD);
+      const shortDisplay = res.walletShortfallDisplay;
+      const shortUSD = res.walletShortfallUSD;
+      if ((shortDisplay != null && shortDisplay > 0) || (shortUSD != null && shortUSD > 0)) {
+        const shortLocal = shortDisplay != null
+          ? shortDisplay
+          : Number(((shortUSD ?? 0) * FX_FROM_USD[baseCurrency]).toFixed(2));
+        setShortfallUSD(shortUSD ?? Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
         setTopUpOpen(true);
-        setTopUpAmount(String(Math.ceil(res.walletShortfallUSD * FX_FROM_USD[baseCurrency])));
-        toast.error("Wallet balance too low", { description: `Top up ${fmt(res.walletShortfallUSD, baseCurrency)} to continue.` });
+        setTopUpAmount(String(Math.ceil(shortLocal)));
+        toast.error("Wallet balance too low", { description: `Top up ${fmtLocal(shortLocal, baseCurrency)} to continue.` });
         return;
       }
       if (res.cashbackUSD && res.cashbackUSD > 0) {
@@ -304,7 +328,7 @@ function CheckoutPage() {
                     </span>
                     {walletTag && (
                       <span className="text-[11px] font-mono text-slate-400">
-                        {fmt(balanceUSD ?? 0, baseCurrency)}
+                        {fmtLocal(balanceUSD ?? 0, baseCurrency)}
                       </span>
                     )}
                   </button>
@@ -316,13 +340,13 @@ function CheckoutPage() {
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div>
-                      Wallet has {fmt(balanceUSD ?? 0, baseCurrency)} — you need {fmt(totalUSD, baseCurrency)}.
+                      Wallet has {fmtLocal(balanceUSD ?? 0, baseCurrency)} — you need {fmtLocal(totalLocal, baseCurrency)}.
                     </div>
                     <button
                       onClick={() => {
-                        const shortfall = Math.max(0, totalUSD - (balanceUSD ?? 0));
-                        setShortfallUSD(shortfall);
-                        setTopUpAmount(String(Math.ceil(shortfall * FX_FROM_USD[baseCurrency])));
+                        const shortLocal = Math.max(0, totalLocal - (balanceUSD ?? 0));
+                        setShortfallUSD(Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
+                        setTopUpAmount(String(Math.ceil(shortLocal)));
                         setTopUpOpen(true);
                       }}
                       className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-400 hover:bg-amber-300 text-black text-[11px] font-black"

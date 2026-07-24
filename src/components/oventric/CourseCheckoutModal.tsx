@@ -57,24 +57,24 @@ export function CourseCheckoutModal({
   const [couponPct, setCouponPct] = useState(0);
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
-  const [walletUSD, setWalletUSD] = useState<number | null>(null);
+  const [walletLocal, setWalletLocal] = useState<number | null>(null);
   const [cashbackUSD, setCashbackUSD] = useState<number>(0);
   const [useCashback, setUseCashback] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const [shortfall, setShortfall] = useState<number | null>(null);
+  const [shortfallLocal, setShortfallLocal] = useState<number | null>(null);
   const [toppingUp, setToppingUp] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setMethod("card");
     setCouponInput(""); setCouponPct(0); setCouponCode(null);
-    setBusy(false); setDone(false); setShortfall(null); setToppingUp(false);
+    setBusy(false); setDone(false); setShortfallLocal(null); setToppingUp(false);
     setUseCashback(false);
     runBalances()
-      .then((b) => { setWalletUSD(b.balances.USD ?? 0); setCashbackUSD(b.cashback ?? 0); })
-      .catch(() => { setWalletUSD(0); setCashbackUSD(0); });
-  }, [open, runBalances]);
+      .then((b) => { setWalletLocal(b.balances[baseCurrency] ?? 0); setCashbackUSD(b.cashback ?? 0); })
+      .catch(() => { setWalletLocal(0); setCashbackUSD(0); });
+  }, [open, runBalances, baseCurrency]);
 
   const grossUSD = course?.priceUSD ?? 0;
   const discountUSD = useMemo(() => {
@@ -158,15 +158,16 @@ export function CourseCheckoutModal({
   };
 
   const doTopUp = async () => {
-    if (shortfall == null) return;
+    if (shortfallLocal == null) return;
     setToppingUp(true);
     try {
-      const amount = Number((shortfall * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
+      // shortfallLocal is already in the user's home currency.
+      const amount = Number(shortfallLocal.toFixed(2));
       await runTopUp({ data: { amount, currency: baseCurrency, method: "card" } });
       toast.success("Wallet topped up");
       const b = await runBalances();
-      setWalletUSD(b.balances.USD ?? 0);
-      setShortfall(null);
+      setWalletLocal(b.balances[baseCurrency] ?? 0);
+      setShortfallLocal(null);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Top-up failed");
     } finally {
@@ -179,7 +180,7 @@ export function CourseCheckoutModal({
       toast.error("Checkout blocked: this course is missing a valid locked exchange rate.");
       return;
     }
-    setBusy(true); setShortfall(null);
+    setBusy(true); setShortfallLocal(null);
     try {
       const res = await runEnroll({
         data: {
@@ -190,9 +191,16 @@ export function CourseCheckoutModal({
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
-      if (res.walletShortfallUSD != null) {
-        setShortfall(res.walletShortfallUSD);
-        toast.error(`Wallet short by ${fmt(res.walletShortfallUSD, baseCurrency)}. Top up or switch method.`);
+      // Prefer the display-currency shortfall from the server; fall back to
+      // converting the legacy USD shortfall if it's the only one present.
+      const shortDisplay = (res as { walletShortfallDisplay?: number }).walletShortfallDisplay;
+      const shortUSD = res.walletShortfallUSD;
+      if (shortDisplay != null || shortUSD != null) {
+        const shortLocal = shortDisplay != null
+          ? shortDisplay
+          : Number(((shortUSD ?? 0) * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
+        setShortfallLocal(shortLocal);
+        toast.error(`Wallet short by ${formatMoney(shortLocal, baseCurrency)}. Top up or switch method.`);
         return;
       }
       setDone(true);
@@ -205,9 +213,12 @@ export function CourseCheckoutModal({
     }
   };
 
+  // Wallet balance and the total the wallet will be debited are both in the
+  // user's home currency, so we compare them apples-to-apples.
+  const totalLocal = totalUSD * LEGACY_USD_RATES[baseCurrency];
   const canPay =
     !busy && !done && totalUSD >= 0 && !fxBlocksCheckout &&
-    (method !== "wallet" || (walletUSD != null && walletUSD >= totalUSD));
+    (method !== "wallet" || (walletLocal != null && walletLocal >= totalLocal));
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center">
@@ -254,8 +265,8 @@ export function CourseCheckoutModal({
                           <div className="text-sm font-semibold text-white">{m.label}</div>
                         </div>
                         <div className="text-[11px] text-slate-500 mt-1">{m.hint}</div>
-                        {m.key === "wallet" && walletUSD != null && (
-                          <div className="text-[11px] text-emerald-300 mt-1">Balance: {fmt(walletUSD, baseCurrency)}</div>
+                        {m.key === "wallet" && walletLocal != null && (
+                          <div className="text-[11px] text-emerald-300 mt-1">Balance: {formatMoney(walletLocal, baseCurrency)}</div>
                         )}
                       </button>
                     );
@@ -348,17 +359,17 @@ export function CourseCheckoutModal({
               )}
 
 
-              {shortfall != null && (
+              {shortfallLocal != null && (
                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200">
                   <div className="font-bold">Wallet balance too low</div>
-                  <div className="mt-0.5">Short by {fmt(shortfall, baseCurrency)}. Top up via card to continue.</div>
+                  <div className="mt-0.5">Short by {formatMoney(shortfallLocal, baseCurrency)}. Top up via card to continue.</div>
                   <button
                     onClick={doTopUp}
                     disabled={toppingUp}
                     className="mt-2 px-3 py-1.5 rounded bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold inline-flex items-center gap-1.5"
                   >
                     {toppingUp && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Top up {fmt(shortfall, baseCurrency)}
+                    Top up {formatMoney(shortfallLocal, baseCurrency)}
                   </button>
                 </div>
               )}
