@@ -93,6 +93,12 @@ export function ProfileDropdown() {
   // Load the real profile row (name, bio, avatar signed URL) once we know
   // this session's user id.
   const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+  const fetchReputation = useServerFn(getLiveReputation);
+  const fetchFx = useServerFn(snapshotFxRates);
+  const [liveStars, setLiveStars] = useState<number | null>(null);
+  const [verificationTier, setVerificationTier] = useState<string | null>(null);
+  const [fxRates, setFxRates] = useState<{ NGN: number; GHS: number } | null>(null);
+
   useEffect(() => {
     if (!userId || userId === "me") return;
     let cancelled = false;
@@ -105,14 +111,29 @@ export function ProfileDropdown() {
           bio: res.profile!.bio ?? p.bio,
           avatarDataUrl: res.profile!.avatarUrl ?? p.avatarDataUrl,
         }));
+        setVerificationTier(res.profile!.verificationTier ?? null);
       } catch (e) {
         console.error("[ProfileDropdown] real profile load failed", e);
+      }
+      try {
+        const rep = await fetchReputation({ data: { idOrSlug: userId } });
+        if (!cancelled && rep.reputation) setLiveStars(rep.reputation.stars);
+      } catch (e) {
+        console.error("[ProfileDropdown] reputation load failed", e);
+      }
+      try {
+        const fx = await fetchFx();
+        if (!cancelled) setFxRates({ NGN: fx.rates.NGN, GHS: fx.rates.GHS });
+      } catch (e) {
+        console.error("[ProfileDropdown] fx load failed", e);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [userId, fetchRealProfile]);
+  }, [userId, fetchRealProfile, fetchReputation, fetchFx]);
+
+
 
 
   const getMenuItems = (): HTMLElement[] => {
