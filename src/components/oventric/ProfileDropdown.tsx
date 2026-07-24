@@ -486,6 +486,7 @@ function ProfileSettingsModal({
   const [bio, setBio] = useState(profile.bio);
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
+  const [countryOther, setCountryOther] = useState(false);
   const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -658,21 +659,22 @@ function ProfileSettingsModal({
       toast.error("Passwords don't match");
       return;
     }
-    if (!full?.email) {
-      toast.error("No email on file", { description: "Contact support to reset." });
-      return;
-    }
     setPwSaving(true);
     try {
-      // Re-verify current password before allowing change
-      const { error: signErr } = await supabase.auth.signInWithPassword({
-        email: full.email,
-        password: pwCurrent,
-      });
-      if (signErr) throw new Error("Current password is incorrect.");
+      // Verify current password only if the user provided one (magic-link
+      // users may not have a password set yet). Supabase permits updateUser
+      // on any authenticated session regardless.
+      if (pwCurrent.trim()) {
+        if (!full?.email) throw new Error("No email on file. Contact support.");
+        const { error: signErr } = await supabase.auth.signInWithPassword({
+          email: full.email,
+          password: pwCurrent,
+        });
+        if (signErr) throw new Error("Current password is incorrect.");
+      }
       const { error: updErr } = await supabase.auth.updateUser({ password: pwNext });
       if (updErr) throw updErr;
-      toast.success("Password updated", { description: "Use your new password next sign-in." });
+      toast.success("Password saved", { description: "You can now sign in with email + password." });
       setPwCurrent("");
       setPwNext("");
       setPwConfirm("");
@@ -915,18 +917,60 @@ function ProfileSettingsModal({
               {errors.phone && <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.phone}</p>}
             </div>
             <div>
-              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Country</label>
-              <input
-                id={`${titleId}-country`}
-                autoComplete="country-name"
-                className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
-                  errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-                }`}
-                value={country}
-                maxLength={60}
-                placeholder="Nigeria"
-                onChange={(e) => { setCountry(e.target.value); setErrors((p) => ({ ...p, country: "" })); }}
-              />
+              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                Country {country.trim() && <span className="text-slate-500 font-normal normal-case">· locked</span>}
+              </label>
+              {(() => {
+                const locked = !!country.trim();
+                const known = country === "NG" || country === "GH";
+                const selectValue = locked
+                  ? (known ? country : "OTHER")
+                  : (countryOther ? "OTHER" : "");
+                return (
+                  <>
+                    <select
+                      id={`${titleId}-country`}
+                      disabled={locked}
+                      value={selectValue}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        if (v === "OTHER") {
+                          setCountryOther(true);
+                          setCountry("");
+                        } else {
+                          setCountryOther(false);
+                          setCountry(v);
+                        }
+                        setErrors((p) => ({ ...p, country: "" }));
+                      }}
+                      className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                        errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                      } ${locked ? "opacity-60 cursor-not-allowed" : ""}`}
+                    >
+                      <option value="" disabled>Select a country</option>
+                      <option value="NG">🇳🇬 Nigeria</option>
+                      <option value="GH">🇬🇭 Ghana</option>
+                      <option value="OTHER">🌍 Other (type your country)</option>
+                    </select>
+                    {!locked && countryOther && (
+                      <input
+                        className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
+                        placeholder="Type your country"
+                        maxLength={60}
+                        autoFocus
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                      />
+                    )}
+                    {locked && !known && (
+                      <div className="mt-1 text-xs text-slate-300">{country}</div>
+                    )}
+                    {locked && (
+                      <p className="mt-1 text-[11px] text-slate-500">Contact admin to change your country.</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 
@@ -1009,7 +1053,7 @@ function ProfileSettingsModal({
                     <input
                       type={pwShow ? "text" : "password"}
                       autoComplete="current-password"
-                      placeholder="Current password"
+                      placeholder="Current password (leave blank if none)"
                       value={pwCurrent}
                       onChange={(e) => setPwCurrent(e.target.value)}
                       className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
@@ -1042,7 +1086,7 @@ function ProfileSettingsModal({
                   <button
                     type="button"
                     onClick={onChangePassword}
-                    disabled={pwSaving || !pwCurrent || !pwNext || !pwConfirm}
+                    disabled={pwSaving || !pwNext || !pwConfirm}
                     className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
                   >
                     {pwSaving ? "Updating…" : "Update password"}
