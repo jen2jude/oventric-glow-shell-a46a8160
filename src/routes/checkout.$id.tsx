@@ -126,8 +126,16 @@ function CheckoutPage() {
       const { data: userRes } = await supabase.auth.getUser();
       const uid = userRes.user?.id;
       if (!uid) return;
-      const { data } = await supabase.from("wallets").select("available_balance").eq("user_id", uid).eq("currency", "USD").maybeSingle();
-      if (!cancelled) setBalanceUSD(Number(data?.available_balance ?? 0));
+      const { data } = await supabase
+        .from("wallets")
+        .select("available_balance, accumulated_cashback")
+        .eq("user_id", uid)
+        .eq("currency", "USD")
+        .maybeSingle();
+      if (!cancelled) {
+        setBalanceUSD(Number(data?.available_balance ?? 0));
+        setCashbackUSD(Number(data?.accumulated_cashback ?? 0));
+      }
     };
     refresh();
     return () => { cancelled = true; };
