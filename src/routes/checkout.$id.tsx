@@ -23,7 +23,7 @@ import {
 } from "@/lib/marketplace.functions";
 
 import { initPaystackPayment } from "@/lib/paystack.functions";
-import { LEGACY_USD_RATES } from "@/lib/fx-display";
+import { LEGACY_USD_RATES, convertViaSnapshot } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
@@ -37,10 +37,19 @@ function fmt(usd: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
 }
 
+/** Format a USD amount using the product's LOCKED FX snapshot when available. */
+function fmtSnap(usd: number, cur: Currency, snap: ProductDTO["fxSnapshot"] | null | undefined) {
+  const s = snap && snap.rates ? { base: "USD" as const, rates: snap.rates } : null;
+  const converted = convertViaSnapshot(usd, "USD", cur, s);
+  const v = converted > 0 || usd === 0 ? converted : usd * FX_FROM_USD[cur];
+  return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
+}
+
 /** Format an amount that's ALREADY in the given currency (no USD conversion). */
 function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
+
 
 /** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
 function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
@@ -445,12 +454,12 @@ function CheckoutPage() {
               </div>
 
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
-                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(subtotalUSD, baseCurrency)}</span></div>
+                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtSnap(subtotalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
                 {cashbackApplyUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmt(cashbackApplyUSD, baseCurrency)}</span></div>
+                  <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtSnap(cashbackApplyUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
                 )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
-                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
+                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}</span></div>
               </div>
 
               <button
@@ -458,7 +467,8 @@ function CheckoutPage() {
                 disabled={submitting || (needsDelivery && !deliveryValid)}
                 className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmt(totalUSD, baseCurrency)}`}
+                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}`}
+
               </button>
               <div className="mt-3 text-[11px] text-slate-500 inline-flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer protection

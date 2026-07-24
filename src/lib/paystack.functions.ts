@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
+import { convertViaSnapshot } from "@/lib/fx-display";
+
 
 const PAYSTACK_BASE = "https://api.paystack.co";
 const SUPPORTED_CURRENCIES: OrderCurrency[] = ["NGN", "GHS", "USD"];
@@ -112,9 +114,10 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       // Order — resolve authoritative price from DB.
       const { data: p, error } = await context.supabase
         .from("products")
-        .select("id, price_usd")
+        .select("id, price_usd, original_currency, original_amount, fx_snapshot")
         .eq("id", data.productId)
         .maybeSingle();
+
       if (error) throw new Error(error.message);
       if (!p) throw new Error("Product not found");
       const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
@@ -158,9 +161,15 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       }
 
       const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
-      const fx = FX_FROM_USD[displayCurrency];
-      amount = Number((totalUSD * fx).toFixed(2));
+      // Convert USD → displayCurrency using the product's LOCKED FX snapshot so the
+      // charge matches the price shown on the listing (no drift from legacy fallback rates).
+      const snapRaw = (p.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
+      const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
+      const converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
+
+      amount = Number((converted > 0 ? converted : totalUSD * FX_FROM_USD[displayCurrency]).toFixed(2));
       currency = displayCurrency;
+
       metadata.product_id = p.id;
       metadata.quantity = qty;
       metadata.display_currency = displayCurrency;
@@ -331,7 +340,7 @@ async function settleOrder(
 
   const { data: pRow, error: pErr } = await supabaseAdmin
     .from("products")
-    .select("id, seller_id, price_usd")
+    .select("id, seller_id, price_usd, fx_snapshot")
     .eq("id", meta.productId)
     .maybeSingle();
   if (pErr) throw new Error(pErr.message);
@@ -353,8 +362,12 @@ async function settleOrder(
   const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
   const cashbackAppliedUSD = Math.max(0, Number(meta.cashbackAppliedUSD ?? 0));
   const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
-  const fx = FX_FROM_USD[meta.displayCurrency];
-  const displayTotal = Number((totalUSD * fx).toFixed(2));
+  const snapRaw = (pRow.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
+  const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
+  const convertedTotal = convertViaSnapshot(totalUSD, "USD", meta.displayCurrency, snap);
+  const displayTotal = Number((convertedTotal > 0 ? convertedTotal : totalUSD * FX_FROM_USD[meta.displayCurrency]).toFixed(2));
+  const fx = displayTotal && totalUSD > 0 ? displayTotal / totalUSD : FX_FROM_USD[meta.displayCurrency];
+
 
   const { data: oRow, error: oErr } = await supabaseAdmin
     .from("orders")
