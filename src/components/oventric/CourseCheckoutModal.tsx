@@ -306,29 +306,37 @@ export function CourseCheckoutModal({
                 </div>
               )}
 
-              {method === "wallet" && cashbackUSD > 0 && (
-                <label className="flex items-center gap-3 p-3 rounded-lg bg-[#121214] border border-emerald-500/30 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useCashback}
-                    onChange={(e) => setUseCashback(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-sm font-semibold text-white">Apply Cashback Wallet</div>
-                    <div className="text-[11px] text-emerald-300">Available: {fmt(cashbackUSD, baseCurrency)} · spend-only</div>
+              {/* Cashback Wallet — always visible for any method; disabled when empty. */}
+              <label
+                className={`flex items-start gap-3 p-3 rounded-lg border ${
+                  cashbackUSD > 0
+                    ? "bg-[#121214] border-emerald-500/30 cursor-pointer"
+                    : "bg-[#121214] border-white/10 opacity-70 cursor-not-allowed"
+                }`}
+              >
+                <input
+                  type="checkbox"
+                  checked={useCashback}
+                  disabled={cashbackUSD <= 0}
+                  onChange={(e) => setUseCashback(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-emerald-500"
+                />
+                <div className="flex-1 min-w-0">
+                  <div className="text-sm font-semibold text-white">Use Cashback</div>
+                  <div className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}>
+                    Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                   </div>
-                </label>
-              )}
+                  <div className="text-[11px] text-slate-400 mt-0.5">
+                    You earn back: + {fmt(cashbackEarnUSD, baseCurrency)} (Oventric Bonus)
+                  </div>
+                </div>
+              </label>
 
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
                 <Row label="Course price" value={grossFormatted} />
                 {discountUSD > 0 && <Row label="Coupon discount" value={`- ${fmt(discountUSD, baseCurrency)}`} accent="text-emerald-300" />}
                 {cashbackApplyUSD > 0 && (
                   <Row label="Cashback applied" value={`- ${fmt(cashbackApplyUSD, baseCurrency)}`} accent="text-emerald-300" />
-                )}
-                {method === "wallet" && (
-                  <Row label="You earn back (2%)" value={`+ ${fmt(totalUSD * 0.02, baseCurrency)}`} accent="text-emerald-300" />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
