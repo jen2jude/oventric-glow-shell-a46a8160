@@ -56,7 +56,10 @@ type OrderIntent = {
   couponCode?: string | null;
   deliveryEmail?: string | null;
   deliveryWhatsapp?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this order. Debited atomically at init. */
+  applyCashbackUSD?: number | null;
 };
+
 
 export type PaystackInitInput = (WalletTopupIntent | OrderIntent) & {
   channel?: "card" | "bank_transfer" | "mobile_money" | "ussd";
