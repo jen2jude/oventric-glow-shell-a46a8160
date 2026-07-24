@@ -45,6 +45,7 @@ import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
 import { Route as AdminBountiesRouteImport } from './routes/admin.bounties'
 import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
+import { Route as AdminAffiliatesRouteImport } from './routes/admin.affiliates'
 import { Route as AdminAdInquiriesRouteImport } from './routes/admin.ad-inquiries'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
@@ -234,6 +235,11 @@ const AdminAuditRoute = AdminAuditRouteImport.update({
   path: '/audit',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminAffiliatesRoute = AdminAffiliatesRouteImport.update({
+  id: '/affiliates',
+  path: '/affiliates',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminAdInquiriesRoute = AdminAdInquiriesRouteImport.update({
   id: '/ad-inquiries',
   path: '/ad-inquiries',
@@ -292,6 +298,7 @@ export interface FileRoutesByFullPath {
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
+  '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -337,6 +344,7 @@ export interface FileRoutesByTo {
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
+  '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/bounties': typeof AdminBountiesRoute
   '/admin/campaigns': typeof AdminCampaignsRoute
@@ -383,6 +391,7 @@ export interface FileRoutesById {
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
+  '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
   '/admin/blog': typeof AdminBlogRouteWithChildren
   '/admin/bounties': typeof AdminBountiesRoute
@@ -431,6 +440,7 @@ export interface FileRouteTypes {
     | '/report-problem'
     | '/terms'
     | '/admin/ad-inquiries'
+    | '/admin/affiliates'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -476,6 +486,7 @@ export interface FileRouteTypes {
     | '/report-problem'
     | '/terms'
     | '/admin/ad-inquiries'
+    | '/admin/affiliates'
     | '/admin/audit'
     | '/admin/bounties'
     | '/admin/campaigns'
@@ -521,6 +532,7 @@ export interface FileRouteTypes {
     | '/report-problem'
     | '/terms'
     | '/admin/ad-inquiries'
+    | '/admin/affiliates'
     | '/admin/audit'
     | '/admin/blog'
     | '/admin/bounties'
@@ -835,6 +847,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAuditRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/affiliates': {
+      id: '/admin/affiliates'
+      path: '/affiliates'
+      fullPath: '/admin/affiliates'
+      preLoaderRoute: typeof AdminAffiliatesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/ad-inquiries': {
       id: '/admin/ad-inquiries'
       path: '/ad-inquiries'
@@ -910,6 +929,7 @@ const AdminBlogRouteWithChildren = AdminBlogRoute._addFileChildren(
 
 interface AdminRouteChildren {
   AdminAdInquiriesRoute: typeof AdminAdInquiriesRoute
+  AdminAffiliatesRoute: typeof AdminAffiliatesRoute
   AdminAuditRoute: typeof AdminAuditRoute
   AdminBlogRoute: typeof AdminBlogRouteWithChildren
   AdminBountiesRoute: typeof AdminBountiesRoute
@@ -929,6 +949,7 @@ interface AdminRouteChildren {
 
 const AdminRouteChildren: AdminRouteChildren = {
   AdminAdInquiriesRoute: AdminAdInquiriesRoute,
+  AdminAffiliatesRoute: AdminAffiliatesRoute,
   AdminAuditRoute: AdminAuditRoute,
   AdminBlogRoute: AdminBlogRouteWithChildren,
   AdminBountiesRoute: AdminBountiesRoute,
