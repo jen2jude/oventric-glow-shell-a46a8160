@@ -519,7 +519,9 @@ export const updateAndResubmitProduct = createServerFn({ method: "POST" })
     if (loadErr) throw new Error(loadErr.message);
     if (!current) throw new Error("Listing not found");
     if ((current.seller_id as string) !== context.userId) throw new Error("You can only resubmit your own listings");
-    if ((current.status as string) !== "rejected") throw new Error("Only rejected listings can be resubmitted");
+    if (!["rejected", "pending"].includes(current.status as string)) {
+      throw new Error("Only pending or rejected listings can be edited");
+    }
 
     const patch: Record<string, unknown> = {
       status: "pending",

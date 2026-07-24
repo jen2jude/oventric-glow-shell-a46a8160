@@ -866,13 +866,13 @@ function ListingsList({
                 )}
 
                 <div className="mt-2 flex flex-wrap items-center gap-2">
-                  {p.status === "rejected" && (
+                  {(p.status === "rejected" || p.status === "pending") && (
                     <button
                       type="button"
                       onClick={() => onEdit(p)}
                       className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white text-black hover:bg-white/90 text-xs font-bold"
                     >
-                      <Pencil className="w-3.5 h-3.5" /> Edit & Resubmit
+                      <Pencil className="w-3.5 h-3.5" /> {p.status === "rejected" ? "Edit & Resubmit" : "Edit"}
                     </button>
                   )}
                   {p.status === "active" && (
@@ -885,7 +885,7 @@ function ListingsList({
                     </Link>
                   )}
                   {p.status === "pending" && (
-                    <span className="text-[11px] text-slate-500">Awaiting admin approval.</span>
+                    <span className="text-[11px] text-slate-500">Awaiting admin approval — you can still edit.</span>
                   )}
                 </div>
               </div>
