@@ -189,6 +189,7 @@ export function CourseCheckoutModal({
           displayCurrency: baseCurrency,
           paymentMethod: method,
           couponCode: method === "wallet" ? null : couponCode,
+          applyCashbackUSD: cashbackApplyUSD,
         },
       });
       if (res.walletShortfallUSD != null) {
