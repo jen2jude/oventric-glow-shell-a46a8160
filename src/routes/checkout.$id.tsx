@@ -497,7 +497,7 @@ function CheckoutPage() {
                 disabled={submitting || (needsDelivery && !deliveryValid)}
                 className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmtSnap(totalUSD, baseCurrency, product?.fxSnapshot ?? null)}`}
+                {submitting ? <><Loader2 className="w-4 h-4 animate-spin" /> Processing…</> : `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`}
 
               </button>
               <div className="mt-3 text-[11px] text-slate-500 inline-flex items-center gap-1">
