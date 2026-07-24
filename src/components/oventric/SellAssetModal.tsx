@@ -64,9 +64,11 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
     setName(""); setDescription(""); setPriceInput(""); setDiscountInput(""); setIsFree(false);
     setFile(null); setExternalUrl(""); setMode("file"); setProgress("");
     setRequiresManualDelivery(false);
+    setAgreedToSplit(false);
     previews.forEach((p) => URL.revokeObjectURL(p));
     setImages([]); setPreviews([]); setSuccess(false);
   };
+
 
   const addImages = (files: FileList | null) => {
     if (!files) return;
