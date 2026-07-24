@@ -5,11 +5,13 @@ export type WalletCurrency = "USD" | "NGN" | "GHS";
 export type WalletTxStatus = "success" | "pending" | "failed";
 export type WalletTxType =
   | "Marketplace Purchase"
+  | "Marketplace Sale"
   | "Gig Bounty Escrowed"
   | "Ad Injection Charge"
   | "Affiliate Cashback Payout"
   | "Wallet Top-Up"
-  | "Payout Withdrawal";
+  | "Payout Withdrawal"
+  | "Cashback Earned";
 
 export interface WalletTxDTO {
   id: string;
@@ -116,6 +118,8 @@ export const getWalletBalances = createServerFn({ method: "GET" })
 
 export interface WalletEarningsDTO {
   cashbackUSD: number;
+  marketplaceHome: number;
+  marketplaceCurrency: WalletCurrency;
   bountyUSD: number;
   affiliateUSD: number;
 }
@@ -125,8 +129,15 @@ export const getWalletEarnings = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<WalletEarningsDTO> => {
     const { supabase, userId } = context;
 
-    const [walletsRes, bountyRes, affiliateRes] = await Promise.all([
+    const [walletsRes, saleRes, bountyRes, affiliateRes, profileRes] = await Promise.all([
       supabase.from("wallets").select("accumulated_cashback").eq("user_id", userId),
+      supabase
+        .from("wallet_transactions")
+        .select("amount, currency")
+        .eq("user_id", userId)
+        .eq("type", "Marketplace Sale")
+        .eq("inflow", true)
+        .eq("status", "success"),
       supabase
         .from("wallet_transactions")
         .select("amount")
@@ -141,14 +152,24 @@ export const getWalletEarnings = createServerFn({ method: "GET" })
         .eq("type", "Affiliate Cashback Payout")
         .eq("inflow", true)
         .eq("status", "success"),
+      supabase.from("profiles").select("country").eq("user_id", userId).maybeSingle(),
     ]);
 
     const cashbackUSD = ((walletsRes.data ?? []) as Array<{ accumulated_cashback: number }>)
       .reduce((s, r) => s + Number(r.accumulated_cashback ?? 0), 0);
+    const country = String((profileRes.data as { country?: string | null } | null)?.country ?? "").toUpperCase();
+    const marketplaceCurrency: WalletCurrency = country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
+    const marketplaceHome = ((saleRes.data ?? []) as Array<{ amount: number; currency: WalletCurrency }>)
+      .reduce((s, r) => {
+        const amount = Number(r.amount ?? 0);
+        if (r.currency === marketplaceCurrency) return s + amount;
+        const usd = r.currency === "USD" ? amount : amount / (r.currency === "NGN" ? 1500 : 14);
+        return s + (marketplaceCurrency === "USD" ? usd : usd * (marketplaceCurrency === "NGN" ? 1500 : 14));
+      }, 0);
     const bountyUSD = ((bountyRes.data ?? []) as Array<{ amount: number }>)
       .reduce((s, r) => s + Number(r.amount ?? 0), 0);
     const affiliateUSD = ((affiliateRes.data ?? []) as Array<{ amount: number }>)
       .reduce((s, r) => s + Number(r.amount ?? 0), 0);
 
-    return { cashbackUSD, bountyUSD, affiliateUSD };
+    return { cashbackUSD, marketplaceHome, marketplaceCurrency, bountyUSD, affiliateUSD };
   });
