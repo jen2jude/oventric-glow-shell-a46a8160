@@ -391,8 +391,13 @@ async function settleOrder(
     occurred_at: new Date().toISOString(),
   });
 
-  const sellerCutUSD = Number((totalUSD * SELLER_SHARE).toFixed(2));
-  const platformCutUSD = Number((totalUSD - sellerCutUSD).toFixed(2));
+  // Seller 80% + platform 20% always computed on the FULL gross sale price
+  // (post-coupon, pre-cashback). Applying cashback only shifts value from the
+  // buyer's card charge to their Cashback Wallet debit — the sale price the
+  // seller/platform see is unchanged.
+  const splitBaseUSD = afterCouponUSD;
+  const sellerCutUSD = Number((splitBaseUSD * SELLER_SHARE).toFixed(2));
+  const platformCutUSD = Number((splitBaseUSD - sellerCutUSD).toFixed(2));
   await supabaseAdmin.rpc("wallet_credit", { _user_id: pRow.seller_id as string, _amount: sellerCutUSD });
   await supabaseAdmin.rpc("system_wallet_credit", {
     _kind: "marketplace",
@@ -402,9 +407,9 @@ async function settleOrder(
     _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference },
   });
 
-  // Credit 2% cashback of the amount actually paid (excluding any cashback
-  // already spent) into the buyer's spend-only Cashback Wallet.
-  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+  // Credit 2% cashback of the FULL gross sale price into the buyer's spend-only
+  // Cashback Wallet — regardless of whether they applied cashback this time.
+  const cashbackEarnUSD = Number((splitBaseUSD * WALLET_CASHBACK_PCT).toFixed(2));
   if (cashbackEarnUSD > 0) {
     await supabaseAdmin.rpc("cashback_credit", { _user_id: buyerId, _amount: cashbackEarnUSD });
   }
