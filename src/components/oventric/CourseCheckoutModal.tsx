@@ -57,24 +57,24 @@ export function CourseCheckoutModal({
   const [couponPct, setCouponPct] = useState(0);
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
-  const [walletUSD, setWalletUSD] = useState<number | null>(null);
+  const [walletLocal, setWalletLocal] = useState<number | null>(null);
   const [cashbackUSD, setCashbackUSD] = useState<number>(0);
   const [useCashback, setUseCashback] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const [shortfall, setShortfall] = useState<number | null>(null);
+  const [shortfallLocal, setShortfallLocal] = useState<number | null>(null);
   const [toppingUp, setToppingUp] = useState(false);
 
   useEffect(() => {
     if (!open) return;
     setMethod("card");
     setCouponInput(""); setCouponPct(0); setCouponCode(null);
-    setBusy(false); setDone(false); setShortfall(null); setToppingUp(false);
+    setBusy(false); setDone(false); setShortfallLocal(null); setToppingUp(false);
     setUseCashback(false);
     runBalances()
-      .then((b) => { setWalletUSD(b.balances.USD ?? 0); setCashbackUSD(b.cashback ?? 0); })
-      .catch(() => { setWalletUSD(0); setCashbackUSD(0); });
-  }, [open, runBalances]);
+      .then((b) => { setWalletLocal(b.balances[baseCurrency] ?? 0); setCashbackUSD(b.cashback ?? 0); })
+      .catch(() => { setWalletLocal(0); setCashbackUSD(0); });
+  }, [open, runBalances, baseCurrency]);
 
   const grossUSD = course?.priceUSD ?? 0;
   const discountUSD = useMemo(() => {
