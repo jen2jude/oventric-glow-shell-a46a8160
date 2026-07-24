@@ -416,11 +416,12 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                     className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-sm disabled:opacity-40">
                     Cancel
                   </button>
-                  <button type="submit" disabled={submitting}
-                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-60">
+                  <button type="submit" disabled={submitting || (!isFree && !agreedToSplit)}
+                    className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     {submitting ? "Submitting…" : "Submit for review"}
                   </button>
+
                 </div>
               </div>
             </form>
