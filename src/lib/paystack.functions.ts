@@ -273,6 +273,7 @@ async function settleWalletTopup(
     .from("wallet_transactions")
     .select("id, status")
     .eq("paystack_ref", reference)
+    .eq("type", "Wallet Top-Up")
     .maybeSingle();
   if (existing.data && existing.data.status === "success") {
     return { alreadySettled: true as const };
@@ -379,7 +380,12 @@ async function settleOrder(
   const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
   const snapRaw = (pRow.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
   const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
-  const convertedTotal = convertViaSnapshot(totalUSD, "USD", meta.displayCurrency, snap);
+  const originalCurrency = ((pRow.original_currency as string) ?? "USD") as OrderCurrency;
+  const originalAmount = Number(pRow.original_amount ?? 0);
+  const convertedTotal =
+    originalAmount > 0 && meta.displayCurrency === originalCurrency && afterCouponUSD > 0
+      ? originalAmount * qty * (totalUSD / afterCouponUSD)
+      : convertViaSnapshot(totalUSD, "USD", meta.displayCurrency, snap);
   const displayTotal = Number((convertedTotal > 0 ? convertedTotal : totalUSD * FX_FROM_USD[meta.displayCurrency]).toFixed(2));
   const fx = displayTotal && totalUSD > 0 ? displayTotal / totalUSD : FX_FROM_USD[meta.displayCurrency];
 
@@ -434,8 +440,6 @@ async function settleOrder(
     .maybeSingle();
   const sellerCountry = String(sellerProfile?.country ?? "").toUpperCase();
   const sellerCurrency: OrderCurrency = sellerCountry === "NG" ? "NGN" : sellerCountry === "GH" ? "GHS" : "USD";
-  const originalCurrency = ((pRow.original_currency as string) ?? "USD") as OrderCurrency;
-  const originalAmount = Number(pRow.original_amount ?? 0);
   const grossOriginalUSD = Number(pRow.price_usd) * qty;
   const saleRatio = grossOriginalUSD > 0 ? afterCouponUSD / grossOriginalUSD : 1;
   const sellerCutLocalRaw =
