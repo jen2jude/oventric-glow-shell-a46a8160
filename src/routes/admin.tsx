@@ -20,6 +20,7 @@ import {
   GraduationCap,
   Banknote,
   BookOpen,
+  TrendingUp,
 } from "lucide-react";
 
 
@@ -69,6 +70,7 @@ const NAV = [
   { to: "/admin/blog", label: "Blog", icon: BookOpen },
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
   { to: "/admin/payouts", label: "Payouts", icon: Banknote },
+  { to: "/admin/affiliate-reservations", label: "Affiliate Seats", icon: TrendingUp },
 
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },

@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState, type ReactNode } from "react";
+import { Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
@@ -330,7 +331,7 @@ export function Wallet() {
         {/* Earnings breakdown — three live tiles that top up the main balance */}
         {(() => {
           const fx = FX_FROM_USD[baseCurrency] || 1;
-          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: ReactNode; accent: string; text: string; ring: string; soon?: boolean }> = [
+          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: ReactNode; accent: string; text: string; ring: string }> = [
             {
               key: "cashback",
               label: "Cashback",
@@ -351,17 +352,6 @@ export function Wallet() {
               text: "text-amber-300",
               ring: "border-amber-500/30",
             },
-            {
-              key: "affiliate",
-              label: "Affiliate",
-              sub: "Referral · soon",
-              valueUSD: earnings.affiliateUSD,
-              icon: <TrendingUp className="w-4 h-4" />,
-              accent: "bg-fuchsia-500/10",
-              text: "text-fuchsia-300",
-              ring: "border-fuchsia-500/30",
-              soon: true,
-            },
           ];
           return (
             <div className="wallet-earnings-safe">
@@ -369,21 +359,24 @@ export function Wallet() {
               <div className="wallet-earnings-mobile md:hidden">
                 {tiles.map((t) => (
                   <div key={t.key} className="wallet-earnings-row">
-                    <span className="wallet-earnings-label">
-                      {t.label}{t.soon ? " (soon)" : ""}
-                    </span>
+                    <span className="wallet-earnings-label">{t.label}</span>
                     <span className="wallet-earnings-value">
                       {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
                     </span>
                   </div>
                 ))}
+                {/* Affiliate: reserve early seat */}
+                <Link to="/affiliate" className="wallet-earnings-row" style={{ textDecoration: "none" }}>
+                  <span className="wallet-earnings-label">Affiliate · Early Seat</span>
+                  <span className="wallet-earnings-value" style={{ color: "#f0abfc" }}>Reserve →</span>
+                </Link>
               </div>
               {/* Desktop: original 3-up tiles */}
               <div className="hidden md:grid grid-cols-3 gap-3">
                 {tiles.map((t) => (
                   <div
                     key={t.key}
-                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon ? "opacity-70" : ""}`}
+                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3`}
                   >
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
@@ -394,22 +387,30 @@ export function Wallet() {
                     <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
                       {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
                     </div>
-                    <div className="mt-0.5 text-[10px] text-slate-500 truncate">
-                      {t.soon ? "Coming soon" : t.sub}
-                    </div>
-                    {t.soon && (
-                      <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                        Soon
-                      </span>
-                    )}
+                    <div className="mt-0.5 text-[10px] text-slate-500 truncate">{t.sub}</div>
                   </div>
                 ))}
+                {/* Affiliate reserve tile */}
+                <Link
+                  to="/affiliate"
+                  className="relative overflow-hidden rounded-xl border border-fuchsia-500/30 bg-gradient-to-br from-fuchsia-500/10 to-purple-700/5 p-3 hover:border-fuchsia-400/60 transition-colors group"
+                >
+                  <div className="flex items-center gap-1.5 mb-2">
+                    <div className="w-6 h-6 rounded-md bg-fuchsia-500/10 text-fuchsia-300 flex items-center justify-center shrink-0">
+                      <TrendingUp className="w-4 h-4" />
+                    </div>
+                    <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">Affiliate</div>
+                  </div>
+                  <div className="text-base font-black text-fuchsia-300">Reserve Seat →</div>
+                  <div className="mt-0.5 text-[10px] text-slate-500 truncate">Early access · launching soon</div>
+                </Link>
               </div>
             </div>
           );
 
         })()}
       </section>
+
 
 
 
