@@ -265,8 +265,8 @@ export function CourseCheckoutModal({
                           <div className="text-sm font-semibold text-white">{m.label}</div>
                         </div>
                         <div className="text-[11px] text-slate-500 mt-1">{m.hint}</div>
-                        {m.key === "wallet" && walletUSD != null && (
-                          <div className="text-[11px] text-emerald-300 mt-1">Balance: {fmt(walletUSD, baseCurrency)}</div>
+                        {m.key === "wallet" && walletLocal != null && (
+                          <div className="text-[11px] text-emerald-300 mt-1">Balance: {formatMoney(walletLocal, baseCurrency)}</div>
                         )}
                       </button>
                     );
