@@ -2475,6 +2475,48 @@ export type Database = {
         Args: { payload: Json; queue_name: string }
         Returns: number
       }
+      get_my_campaign: {
+        Args: { _id: string }
+        Returns: {
+          advertiser: string
+          advertiser_email: string | null
+          advertiser_user_id: string | null
+          advertiser_whatsapp: string | null
+          body: string
+          cities: string[]
+          countries: string[]
+          created_at: string
+          created_by: string | null
+          cta_label: string
+          cta_lead_email: string | null
+          cta_type: string
+          cta_url: string
+          cta_whatsapp: string | null
+          daily_budget_usd: number
+          description: string
+          end_at: string | null
+          escrow_locked: number
+          header: string
+          id: string
+          media_path: string | null
+          media_url: string | null
+          placements: string[]
+          priority: number
+          spent_usd: number
+          start_at: string | null
+          status: string
+          tier: string
+          title: string
+          total_budget_usd: number
+          updated_at: string
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "ad_campaigns"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_my_product_contact: {
         Args: { _product_id: string }
         Returns: {
