@@ -191,9 +191,10 @@ function CheckoutPage() {
             productId: product.id,
             quantity: qty,
             displayCurrency: baseCurrency,
-            couponCode: canUseCoupon && coupon ? coupon.code : null,
+            couponCode: null,
             deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
             deliveryWhatsapp: needsDelivery ? digits : null,
+            applyCashbackUSD: cashbackApplyUSD,
             channel,
           },
         });
@@ -207,12 +208,13 @@ function CheckoutPage() {
           quantity: qty,
           displayCurrency: baseCurrency,
           paymentMethod: method,
-          couponCode: canUseCoupon && coupon ? coupon.code : null,
+          couponCode: null,
           deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
           deliveryWhatsapp: needsDelivery ? digits : null,
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
+
       const shortDisplay = res.walletShortfallDisplay;
       const shortUSD = res.walletShortfallUSD;
       if ((shortDisplay != null && shortDisplay > 0) || (shortUSD != null && shortUSD > 0)) {
