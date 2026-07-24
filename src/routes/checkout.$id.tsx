@@ -404,95 +404,49 @@ function CheckoutPage() {
               <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
               <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
 
-              {canUseCoupon && (
-                <div className="border-t border-white/5 pt-3 mb-3">
-                  <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Coupon Code</div>
-                  {coupon ? (
-                    <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/40 rounded-lg px-3 py-2">
-                      <div className="text-xs">
-                        <div className="text-emerald-300 font-bold font-mono">{coupon.code}</div>
-                        <div className="text-[11px] text-slate-400">{coupon.discountPct}% off applied</div>
+              {/* Cashback Wallet — spend-only. Replaces the old coupon field. */}
+              <div className="border-t border-white/5 pt-3 mb-3">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Cashback Wallet</div>
+                {cashbackUSD > 0 ? (
+                  <label className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/40 rounded-lg px-3 py-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useCashback}
+                      onChange={(e) => setUseCashback(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-emerald-500"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white">Apply cashback to this order</div>
+                      <div className="text-[11px] text-emerald-300">
+                        Balance: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                       </div>
-                      <button
-                        onClick={() => { setCoupon(null); setCouponInput(""); setCouponErr(null); }}
-                        className="text-[11px] text-slate-400 hover:text-white underline"
-                      >
-                        Remove
-                      </button>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        Or leave it unchecked to keep compiling cashback for later.
+                      </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex gap-2">
-                        <input
-                          value={couponInput}
-                          onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(null); }}
-                          placeholder="Enter code"
-                          className="flex-1 min-w-0 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
-                        />
-                        <button
-                          onClick={async () => {
-                            const code = couponInput.trim();
-                            if (!code) return;
-                            setCouponBusy(true); setCouponErr(null);
-                            try {
-                              const r = await checkCoupon({ data: { code } });
-                              if (r.valid) {
-                                setCoupon({ code: r.code, discountPct: r.discountPct });
-                                toast.success("Coupon applied", { description: `${r.discountPct}% off your order.` });
-                              } else {
-                                setCouponErr("Invalid or expired code");
-                              }
-                            } catch (e) {
-                              setCouponErr(e instanceof Error ? e.message : "Failed");
-                            } finally {
-                              setCouponBusy(false);
-                            }
-                          }}
-                          disabled={couponBusy || !couponInput.trim()}
-                          className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold disabled:opacity-50"
-                        >
-                          {couponBusy ? "…" : "Apply"}
-                        </button>
-                      </div>
-                      {couponErr && <div className="text-[11px] text-red-300 mt-1.5">{couponErr}</div>}
-                      <div className="text-[11px] text-slate-500 mt-1.5">Try <span className="font-mono text-slate-400">SAVE2</span> for 2% off.</div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {method === "wallet" && cashbackUSD > 0 && (
-                <label className="flex items-center gap-3 border-t border-white/5 pt-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useCashback}
-                    onChange={(e) => setUseCashback(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-white">Apply Cashback Wallet</div>
-                    <div className="text-[11px] text-emerald-300">Available: {fmt(cashbackUSD, baseCurrency)} · spend-only</div>
+                  </label>
+                ) : (
+                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-slate-400">
+                    Your Cashback Wallet is empty. You'll earn 2% cashback on this purchase — usable on your next order or course.
                   </div>
-                </label>
-              )}
+                )}
+              </div>
 
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
                 <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(subtotalUSD, baseCurrency)}</span></div>
-                {discountUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300"><span>Discount ({coupon?.discountPct}%)</span><span>− {fmt(discountUSD, baseCurrency)}</span></div>
-                )}
                 {cashbackApplyUSD > 0 && (
                   <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmt(cashbackApplyUSD, baseCurrency)}</span></div>
                 )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
                 <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
-                {method === "wallet" && (
+                {cashbackEarnUSD > 0 && (
                   <div className="flex justify-between text-[11px] text-emerald-300/80 pt-1">
                     <span>You earn back ({(WALLET_CASHBACK_PCT * 100).toFixed(0)}%)</span>
-                    <span>+ {fmt(totalUSD * WALLET_CASHBACK_PCT, baseCurrency)}</span>
+                    <span>+ {fmt(cashbackEarnUSD, baseCurrency)} to Cashback Wallet</span>
                   </div>
                 )}
               </div>
+
               <button
                 onClick={pay}
                 disabled={submitting || (needsDelivery && !deliveryValid)}
