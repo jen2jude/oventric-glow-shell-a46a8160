@@ -866,6 +866,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
       displayTotal,
       displayCurrency: data.displayCurrency,
       discountUSD: discountUSD || undefined,
+      cashbackAppliedUSD: cashbackAppliedUSD || undefined,
       cashbackUSD: cashbackUSD || undefined,
     };
   });
