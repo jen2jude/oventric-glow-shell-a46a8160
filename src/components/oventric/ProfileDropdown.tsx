@@ -1077,7 +1077,7 @@ function ProfileSettingsModal({
                   <button
                     type="button"
                     onClick={onChangePassword}
-                    disabled={pwSaving || !pwCurrent || !pwNext || !pwConfirm}
+                    disabled={pwSaving || !pwNext || !pwConfirm}
                     className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
                   >
                     {pwSaving ? "Updating…" : "Update password"}
