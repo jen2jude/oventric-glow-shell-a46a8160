@@ -104,7 +104,9 @@ function CheckoutPage() {
     return Math.min(cashbackUSD, Math.max(0, subtotalUSD));
   }, [useCashback, cashbackUSD, subtotalUSD]);
   const totalUSD = Number((subtotalUSD - cashbackApplyUSD).toFixed(2));
-  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+  // Cashback earn is ALWAYS 2% of the full gross sale price — regardless of
+  // whether the buyer applied any cashback on this order.
+  const cashbackEarnUSD = Number((subtotalUSD * WALLET_CASHBACK_PCT).toFixed(2));
 
 
 
