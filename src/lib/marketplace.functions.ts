@@ -931,6 +931,7 @@ export const createOrder = createServerFn({ method: "POST" })
         requiresManualDelivery: product.requiresManualDelivery,
       },
       cashbackUSD: cashbackUSD || undefined,
+      cashbackAppliedUSD: cashbackAppliedUSD || undefined,
       discountUSD: discountUSD || undefined,
     } as CreateOrderResult;
   });
