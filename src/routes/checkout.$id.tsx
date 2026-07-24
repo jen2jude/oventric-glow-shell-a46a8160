@@ -104,7 +104,12 @@ function CheckoutPage() {
     () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
     [canUseCoupon, coupon, subtotalUSD],
   );
-  const totalUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  const afterCouponUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  const cashbackApplyUSD = useMemo(() => {
+    if (method !== "wallet" || !useCashback) return 0;
+    return Math.min(cashbackUSD, Math.max(0, afterCouponUSD));
+  }, [method, useCashback, cashbackUSD, afterCouponUSD]);
+  const totalUSD = Number((afterCouponUSD - cashbackApplyUSD).toFixed(2));
 
 
   useEffect(() => {
