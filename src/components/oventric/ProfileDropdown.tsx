@@ -486,6 +486,7 @@ function ProfileSettingsModal({
   const [bio, setBio] = useState(profile.bio);
   const [phone, setPhone] = useState("");
   const [country, setCountry] = useState("");
+  const [countryOther, setCountryOther] = useState(false);
   const [address, setAddress] = useState("");
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
