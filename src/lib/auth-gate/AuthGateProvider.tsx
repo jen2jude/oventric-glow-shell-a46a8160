@@ -11,7 +11,7 @@ import {
 import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import type { Session } from "@supabase/supabase-js";
-import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X, AlertTriangle } from "lucide-react";
+import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X, AlertTriangle, Eye, EyeOff } from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -291,6 +291,7 @@ function AuthGateModal({
   const [stage, setStage] = useState<Stage>("email");
   const [returningMethod, setReturningMethod] = useState<"password" | "otp">("password");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [passwordError, setPasswordError] = useState<string | null>(null);
   const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
@@ -597,7 +598,7 @@ function AuthGateModal({
               <X className="w-4 h-4" />
             </button>
             <header className="text-center mb-6">
-              <div className="mx-auto w-12 h-12 rounded-xl rgb-pulse-glow bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
+              <div className="mx-auto w-12 h-12 rounded-xl bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
                 {stage === "email" ? (
                   <Mail className="w-5 h-5 text-emerald-300" aria-hidden />
                 ) : (
@@ -747,7 +748,7 @@ function AuthGateModal({
                       type="submit"
                       disabled={sending}
                       tabIndex={mode === "new" ? 0 : -1}
-                      className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full min-h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
                     >
                       {sending && mode === "new" ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
@@ -844,19 +845,31 @@ function AuthGateModal({
                         <label htmlFor="gate-password" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
                           Password
                         </label>
-                        <input
-                          id="gate-password"
-                          type="password"
-                          autoComplete="current-password"
-                          value={password}
-                          onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
-                          placeholder="••••••••"
-                          aria-invalid={!!passwordError}
-                          tabIndex={mode === "returning" ? 0 : -1}
-                          className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                            passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
-                          }`}
-                        />
+                        <div className="relative">
+                          <input
+                            id="gate-password"
+                            type={showPassword ? "text" : "password"}
+                            autoComplete="current-password"
+                            value={password}
+                            onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
+                            placeholder="••••••••"
+                            aria-invalid={!!passwordError}
+                            tabIndex={mode === "returning" ? 0 : -1}
+                            className={`w-full min-h-11 bg-[#121214] rounded-lg pl-3 pr-10 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
+                              passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                            }`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowPassword((v) => !v)}
+                            tabIndex={mode === "returning" ? 0 : -1}
+                            aria-label={showPassword ? "Hide password" : "Show password"}
+                            aria-pressed={showPassword}
+                            className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-white"
+                          >
+                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                         {passwordError && (
                           <p className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
                             {passwordError}
@@ -869,7 +882,7 @@ function AuthGateModal({
                       type="submit"
                       disabled={sending}
                       tabIndex={mode === "returning" ? 0 : -1}
-                      className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                      className="w-full min-h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
                     >
                       {sending && mode === "returning" ? (
                         <><Loader2 className="w-4 h-4 animate-spin" /> {returningMethod === "password" ? "Signing in…" : "Sending…"}</>
