@@ -341,7 +341,19 @@ export function Wallet() {
         {/* Earnings breakdown — three live tiles that top up the main balance */}
         {(() => {
           const fx = FX_FROM_USD[baseCurrency] || 1;
-          const tiles: Array<{ key: string; label: string; sub: string; valueUSD: number; icon: ReactNode; accent: string; text: string; ring: string; soon?: boolean }> = [
+          type Tile = {
+            key: string;
+            label: string;
+            sub: string;
+            valueUSD: number;
+            icon: ReactNode;
+            accent: string;
+            text: string;
+            ring: string;
+            soon?: boolean;
+            cta?: { label: string; to: string };
+          };
+          const tiles: Tile[] = [
             {
               key: "cashback",
               label: "Cashback",
@@ -366,12 +378,16 @@ export function Wallet() {
               key: "affiliate",
               label: "Affiliate",
               sub: "Referral · soon",
-              valueUSD: earnings.affiliateUSD,
+              valueUSD: 0,
               icon: <TrendingUp className="w-4 h-4" />,
               accent: "bg-fuchsia-500/10",
               text: "text-fuchsia-300",
               ring: "border-fuchsia-500/30",
               soon: true,
+              cta: {
+                label: affiliateReserved ? "Reserved ✓" : "Join Now",
+                to: "/affiliate",
+              },
             },
           ];
           return (
@@ -383,9 +399,22 @@ export function Wallet() {
                     <span className="wallet-earnings-label">
                       {t.label}{t.soon ? " (soon)" : ""}
                     </span>
-                    <span className="wallet-earnings-value">
-                      {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
-                    </span>
+                    {t.cta ? (
+                      <Link
+                        to={t.cta.to}
+                        className={`text-[11px] font-black px-2.5 py-1 rounded-md ${
+                          affiliateReserved
+                            ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40"
+                            : "bg-fuchsia-500 text-black hover:bg-fuchsia-400"
+                        }`}
+                      >
+                        {t.cta.label}
+                      </Link>
+                    ) : (
+                      <span className="wallet-earnings-value">
+                        {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>
@@ -394,7 +423,7 @@ export function Wallet() {
                 {tiles.map((t) => (
                   <div
                     key={t.key}
-                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon ? "opacity-70" : ""}`}
+                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon && !t.cta ? "opacity-70" : ""}`}
                   >
                     <div className="flex items-center gap-1.5 mb-2">
                       <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
@@ -402,13 +431,33 @@ export function Wallet() {
                       </div>
                       <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
                     </div>
-                    <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
-                      {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
-                    </div>
-                    <div className="mt-0.5 text-[10px] text-slate-500 truncate">
-                      {t.soon ? "Coming soon" : t.sub}
-                    </div>
-                    {t.soon && (
+                    {t.cta ? (
+                      <>
+                        <Link
+                          to={t.cta.to}
+                          className={`inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg ${
+                            affiliateReserved
+                              ? "bg-emerald-500/15 text-emerald-300 border border-emerald-500/40"
+                              : "bg-fuchsia-500 text-black hover:bg-fuchsia-400"
+                          }`}
+                        >
+                          {t.cta.label}
+                        </Link>
+                        <div className="mt-1 text-[10px] text-slate-500 truncate">
+                          {affiliateReserved ? "You're on the list" : "Reserve your spot"}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                          {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                        </div>
+                        <div className="mt-0.5 text-[10px] text-slate-500 truncate">
+                          {t.soon ? "Coming soon" : t.sub}
+                        </div>
+                      </>
+                    )}
+                    {t.soon && !t.cta && (
                       <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
                         Soon
                       </span>
@@ -420,6 +469,7 @@ export function Wallet() {
           );
 
         })()}
+
       </section>
 
 
