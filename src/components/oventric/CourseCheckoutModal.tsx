@@ -359,17 +359,17 @@ export function CourseCheckoutModal({
               )}
 
 
-              {shortfall != null && (
+              {shortfallLocal != null && (
                 <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200">
                   <div className="font-bold">Wallet balance too low</div>
-                  <div className="mt-0.5">Short by {fmt(shortfall, baseCurrency)}. Top up via card to continue.</div>
+                  <div className="mt-0.5">Short by {formatMoney(shortfallLocal, baseCurrency)}. Top up via card to continue.</div>
                   <button
                     onClick={doTopUp}
                     disabled={toppingUp}
                     className="mt-2 px-3 py-1.5 rounded bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold inline-flex items-center gap-1.5"
                   >
                     {toppingUp && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Top up {fmt(shortfall, baseCurrency)}
+                    Top up {formatMoney(shortfallLocal, baseCurrency)}
                   </button>
                 </div>
               )}
