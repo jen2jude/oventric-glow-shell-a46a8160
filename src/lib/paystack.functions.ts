@@ -340,7 +340,7 @@ async function settleOrder(
 
   const { data: pRow, error: pErr } = await supabaseAdmin
     .from("products")
-    .select("id, seller_id, price_usd")
+    .select("id, seller_id, price_usd, fx_snapshot")
     .eq("id", meta.productId)
     .maybeSingle();
   if (pErr) throw new Error(pErr.message);
@@ -362,8 +362,12 @@ async function settleOrder(
   const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
   const cashbackAppliedUSD = Math.max(0, Number(meta.cashbackAppliedUSD ?? 0));
   const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
-  const fx = FX_FROM_USD[meta.displayCurrency];
-  const displayTotal = Number((totalUSD * fx).toFixed(2));
+  const snapRaw = (pRow.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
+  const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
+  const convertedTotal = convertViaSnapshot(totalUSD, "USD", meta.displayCurrency, snap);
+  const displayTotal = Number((convertedTotal > 0 ? convertedTotal : totalUSD * FX_FROM_USD[meta.displayCurrency]).toFixed(2));
+  const fx = displayTotal && totalUSD > 0 ? displayTotal / totalUSD : FX_FROM_USD[meta.displayCurrency];
+
 
   const { data: oRow, error: oErr } = await supabaseAdmin
     .from("orders")
