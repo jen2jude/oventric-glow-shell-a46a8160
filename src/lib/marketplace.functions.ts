@@ -634,12 +634,15 @@ export interface CreateOrderInput {
   couponCode?: string | null;
   deliveryEmail?: string | null;
   deliveryWhatsapp?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this order. */
+  applyCashbackUSD?: number | null;
 }
 
 export interface CreateOrderResult {
   order: OrderDTO;
   walletShortfallUSD?: number;
   cashbackUSD?: number;
+  cashbackAppliedUSD?: number;
   discountUSD?: number;
 }
 
