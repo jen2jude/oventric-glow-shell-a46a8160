@@ -129,7 +129,7 @@ export const getWalletEarnings = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<WalletEarningsDTO> => {
     const { supabase, userId } = context;
 
-    const [walletsRes, saleRes, bountyRes, affiliateRes, profileRes] = await Promise.all([
+    const [walletsRes, saleRes, bountyRes, affiliateRes] = await Promise.all([
       supabase.from("wallets").select("accumulated_cashback").eq("user_id", userId),
       supabase
         .from("wallet_transactions")
@@ -152,12 +152,22 @@ export const getWalletEarnings = createServerFn({ method: "GET" })
         .eq("type", "Affiliate Cashback Payout")
         .eq("inflow", true)
         .eq("status", "success"),
-      supabase.from("profiles").select("country").eq("user_id", userId).maybeSingle(),
     ]);
 
     const cashbackUSD = ((walletsRes.data ?? []) as Array<{ accumulated_cashback: number }>)
       .reduce((s, r) => s + Number(r.accumulated_cashback ?? 0), 0);
-    const country = String((profileRes.data as { country?: string | null } | null)?.country ?? "").toUpperCase();
+    let country = "";
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: profile } = await supabaseAdmin
+        .from("profiles")
+        .select("country")
+        .eq("user_id", userId)
+        .maybeSingle();
+      country = String((profile as { country?: string | null } | null)?.country ?? "").toUpperCase();
+    } catch {
+      country = "";
+    }
     const marketplaceCurrency: WalletCurrency = country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
     const marketplaceHome = ((saleRes.data ?? []) as Array<{ amount: number; currency: WalletCurrency }>)
       .reduce((s, r) => {
