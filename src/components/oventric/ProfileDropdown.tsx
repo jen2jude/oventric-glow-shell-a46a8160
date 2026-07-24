@@ -1044,7 +1044,7 @@ function ProfileSettingsModal({
                     <input
                       type={pwShow ? "text" : "password"}
                       autoComplete="current-password"
-                      placeholder="Current password"
+                      placeholder="Current password (leave blank if none)"
                       value={pwCurrent}
                       onChange={(e) => setPwCurrent(e.target.value)}
                       className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
