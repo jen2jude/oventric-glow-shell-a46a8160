@@ -915,18 +915,52 @@ function ProfileSettingsModal({
               {errors.phone && <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.phone}</p>}
             </div>
             <div>
-              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Country</label>
-              <input
-                id={`${titleId}-country`}
-                autoComplete="country-name"
-                className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
-                  errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-                }`}
-                value={country}
-                maxLength={60}
-                placeholder="Nigeria"
-                onChange={(e) => { setCountry(e.target.value); setErrors((p) => ({ ...p, country: "" })); }}
-              />
+              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
+                Country {country.trim() && <span className="text-slate-500 font-normal normal-case">· locked</span>}
+              </label>
+              {(() => {
+                const locked = !!country.trim();
+                const known = country === "NG" || country === "GH";
+                const selectValue = known ? country : (country ? "OTHER" : "");
+                return (
+                  <>
+                    <select
+                      id={`${titleId}-country`}
+                      disabled={locked}
+                      value={selectValue}
+                      onChange={(e) => {
+                        const v = e.target.value;
+                        setCountry(v === "OTHER" ? "" : v);
+                        setErrors((p) => ({ ...p, country: "" }));
+                      }}
+                      className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                        errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                      } ${locked ? "opacity-60 cursor-not-allowed" : ""}`}
+                    >
+                      <option value="" disabled>Select a country</option>
+                      <option value="NG">🇳🇬 Nigeria</option>
+                      <option value="GH">🇬🇭 Ghana</option>
+                      <option value="OTHER">🌍 Other (type your country)</option>
+                    </select>
+                    {!locked && selectValue === "OTHER" && (
+                      <input
+                        className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
+                        placeholder="Type your country"
+                        maxLength={60}
+                        autoFocus
+                        value={country}
+                        onChange={(e) => setCountry(e.target.value)}
+                      />
+                    )}
+                    {locked && !known && (
+                      <div className="mt-1 text-xs text-slate-300">{country}</div>
+                    )}
+                    {locked && (
+                      <p className="mt-1 text-[11px] text-slate-500">Contact admin to change your country.</p>
+                    )}
+                  </>
+                );
+              })()}
             </div>
           </div>
 
