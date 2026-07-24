@@ -200,6 +200,7 @@ function CheckoutPage() {
           couponCode: canUseCoupon && coupon ? coupon.code : null,
           deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
           deliveryWhatsapp: needsDelivery ? digits : null,
+          applyCashbackUSD: cashbackApplyUSD,
         },
       });
       if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
