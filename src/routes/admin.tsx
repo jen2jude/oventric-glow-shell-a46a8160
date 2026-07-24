@@ -20,6 +20,7 @@ import {
   GraduationCap,
   Banknote,
   BookOpen,
+  TrendingUp,
 } from "lucide-react";
 
 
