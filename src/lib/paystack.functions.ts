@@ -56,7 +56,10 @@ type OrderIntent = {
   couponCode?: string | null;
   deliveryEmail?: string | null;
   deliveryWhatsapp?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this order. Debited atomically at init. */
+  applyCashbackUSD?: number | null;
 };
+
 
 export type PaystackInitInput = (WalletTopupIntent | OrderIntent) & {
   channel?: "card" | "bank_transfer" | "mobile_money" | "ussd";
@@ -127,7 +130,34 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           .maybeSingle();
         if (c) discountUSD = Number(((grossUSD * Number(c.discount_pct)) / 100).toFixed(2));
       }
-      const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+      const totalAfterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+
+      // Cashback Wallet spend — debit atomically BEFORE Paystack init so the
+      // charge amount is reduced. Refunded in the failure branch of the
+      // webhook / verification callback if the payment doesn't settle.
+      let cashbackAppliedUSD = 0;
+      const requestedCB = Math.max(0, Number(data.applyCashbackUSD ?? 0));
+      if (requestedCB > 0) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: wRow } = await supabaseAdmin
+          .from("wallets")
+          .select("accumulated_cashback")
+          .eq("user_id", context.userId)
+          .eq("currency", "USD")
+          .maybeSingle();
+        const availableCB = Number(wRow?.accumulated_cashback ?? 0);
+        const spend = Number(Math.min(requestedCB, availableCB, totalAfterCouponUSD).toFixed(2));
+        if (spend > 0) {
+          const { data: cbOk, error: cbErr } = await supabaseAdmin.rpc("cashback_debit", {
+            _user_id: context.userId,
+            _amount: spend,
+          });
+          if (cbErr) throw new Error(cbErr.message);
+          if (cbOk) cashbackAppliedUSD = spend;
+        }
+      }
+
+      const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
       const fx = FX_FROM_USD[displayCurrency];
       amount = Number((totalUSD * fx).toFixed(2));
       currency = displayCurrency;
@@ -136,9 +166,11 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       metadata.display_currency = displayCurrency;
       metadata.coupon_code = data.couponCode ?? null;
       metadata.total_usd = totalUSD;
+      metadata.cashback_applied_usd = cashbackAppliedUSD;
       metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
       metadata.delivery_whatsapp = data.deliveryWhatsapp ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null;
     }
+
 
     if (!SUPPORTED_CURRENCIES.includes(currency)) {
       throw new Error(`Currency ${currency} is not supported by Paystack.`);
@@ -282,8 +314,10 @@ async function settleOrder(
     couponCode: string | null;
     deliveryEmail?: string | null;
     deliveryWhatsapp?: string | null;
+    cashbackAppliedUSD?: number;
   },
 ) {
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const existing = await supabaseAdmin
@@ -316,7 +350,9 @@ async function settleOrder(
       .maybeSingle();
     if (c) discountUSD = Number(((grossUSD * Number(c.discount_pct)) / 100).toFixed(2));
   }
-  const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+  const afterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+  const cashbackAppliedUSD = Math.max(0, Number(meta.cashbackAppliedUSD ?? 0));
+  const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
   const fx = FX_FROM_USD[meta.displayCurrency];
   const displayTotal = Number((totalUSD * fx).toFixed(2));
 
@@ -366,11 +402,16 @@ async function settleOrder(
     _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference },
   });
 
-  // No cashback on card payments — cashback only applies to wallet-funded orders.
-  void WALLET_CASHBACK_PCT;
+  // Credit 2% cashback of the amount actually paid (excluding any cashback
+  // already spent) into the buyer's spend-only Cashback Wallet.
+  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+  if (cashbackEarnUSD > 0) {
+    await supabaseAdmin.rpc("cashback_credit", { _user_id: buyerId, _amount: cashbackEarnUSD });
+  }
 
-  return { alreadySettled: false as const, orderId: oRow.id as string };
+  return { alreadySettled: false as const, orderId: oRow.id as string, cashbackEarnUSD };
 }
+
 
 export async function verifyAndSettleByReference(reference: string) {
   const payload = await paystackFetch<PaystackVerifyPayload>(
@@ -386,6 +427,13 @@ export async function verifyAndSettleByReference(reference: string) {
         .eq("paystack_ref", payload.reference)
         .eq("type", "Wallet Top-Up")
         .eq("status", "pending");
+      // Refund any cashback that was atomically debited at init time.
+      const failedMeta = (payload.metadata ?? {}) as Record<string, unknown>;
+      const failedUser = String(failedMeta.user_id ?? "");
+      const refund = Math.max(0, Number(failedMeta.cashback_applied_usd ?? 0));
+      if (failedUser && refund > 0) {
+        await supabaseAdmin.rpc("cashback_credit", { _user_id: failedUser, _amount: refund });
+      }
     } catch (e) {
       console.error("[paystack] mark topup failed error", e);
     }
@@ -406,9 +454,11 @@ export async function verifyAndSettleByReference(reference: string) {
       couponCode: (meta.coupon_code as string | null) ?? null,
       deliveryEmail: (meta.delivery_email as string | null) ?? null,
       deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
+      cashbackAppliedUSD: Number(meta.cashback_applied_usd ?? 0),
     });
     return { ok: true as const, status: "success", redirectTo: `/order/${res.orderId}` };
   }
+
 
   await settleWalletTopup(userId, payload.reference, amount, currency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";

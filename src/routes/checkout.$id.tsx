@@ -17,11 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   getProduct,
   createOrder,
-  validateCoupon,
   WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import { LEGACY_USD_RATES } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -42,29 +42,28 @@ function fmtLocal(amount: number, cur: Currency) {
   return `${CURRENCY_SYMBOL[cur]}${cur === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString()}`;
 }
 
-/** Country-driven payment method availability. */
-function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string }> {
-  const base = [
-    { id: "wallet" as PaymentMethod, label: "Oventric Wallet", Icon: WalletIcon, hint: "Instant. No processor fees." },
-  ];
+/** Country-driven payment method availability. Wallet is greyed out on marketplace checkout — buyers pay directly. */
+function methodsForCountry(country: string | null): Array<{ id: PaymentMethod; label: string; Icon: React.ComponentType<{ className?: string }>; hint: string; disabled?: boolean }> {
+  const wallet = { id: "wallet" as PaymentMethod, label: "Oventric Wallet", Icon: WalletIcon, hint: "Direct checkout preferred — fund wallet for bounties & ads only", disabled: true };
   if (country === "NG") {
     return [
-      ...base,
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Verve, Mastercard, Visa" },
+      wallet,
     ];
   }
   if (country === "GH") {
     return [
-      ...base,
       { id: "mobile_money", label: "Mobile Money", Icon: Smartphone, hint: "MTN · Vodafone · AirtelTigo" },
       { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Mastercard, Visa" },
+      wallet,
     ];
   }
   return [
-    ...base,
     { id: "card", label: "Debit/Credit Card", Icon: CreditCard, hint: "Global cards" },
+    wallet,
   ];
 }
+
 
 export const Route = createFileRoute("/checkout/$id")({
   ssr: false,
@@ -81,7 +80,6 @@ function CheckoutPage() {
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
   const initPaystack = useServerFn(initPaystackPayment);
-  const checkCoupon = useServerFn(validateCoupon);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -95,26 +93,19 @@ function CheckoutPage() {
   const [topUpMethod, setTopUpMethod] = useState<PaymentMethod>("card");
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
-  const [couponInput, setCouponInput] = useState("");
-  const [couponBusy, setCouponBusy] = useState(false);
-  const [coupon, setCoupon] = useState<{ code: string; discountPct: number } | null>(null);
-  const [couponErr, setCouponErr] = useState<string | null>(null);
   const [deliveryEmail, setDeliveryEmail] = useState("");
   const [deliveryWhatsapp, setDeliveryWhatsapp] = useState("");
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
-  const canUseCoupon = method !== "wallet";
-  const discountUSD = useMemo(
-    () => (canUseCoupon && coupon ? Number(((subtotalUSD * coupon.discountPct) / 100).toFixed(2)) : 0),
-    [canUseCoupon, coupon, subtotalUSD],
-  );
-  const afterCouponUSD = Number((subtotalUSD - discountUSD).toFixed(2));
+  // Cashback (spend-only) can now be applied on ANY payment method.
   const cashbackApplyUSD = useMemo(() => {
-    if (method !== "wallet" || !useCashback) return 0;
-    return Math.min(cashbackUSD, Math.max(0, afterCouponUSD));
-  }, [method, useCashback, cashbackUSD, afterCouponUSD]);
-  const totalUSD = Number((afterCouponUSD - cashbackApplyUSD).toFixed(2));
+    if (!useCashback) return 0;
+    return Math.min(cashbackUSD, Math.max(0, subtotalUSD));
+  }, [useCashback, cashbackUSD, subtotalUSD]);
+  const totalUSD = Number((subtotalUSD - cashbackApplyUSD).toFixed(2));
+  const cashbackEarnUSD = Number((totalUSD * WALLET_CASHBACK_PCT).toFixed(2));
+
 
 
   useEffect(() => {
@@ -200,9 +191,10 @@ function CheckoutPage() {
             productId: product.id,
             quantity: qty,
             displayCurrency: baseCurrency,
-            couponCode: canUseCoupon && coupon ? coupon.code : null,
+            couponCode: null,
             deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
             deliveryWhatsapp: needsDelivery ? digits : null,
+            applyCashbackUSD: cashbackApplyUSD,
             channel,
           },
         });
@@ -216,12 +208,13 @@ function CheckoutPage() {
           quantity: qty,
           displayCurrency: baseCurrency,
           paymentMethod: method,
-          couponCode: canUseCoupon && coupon ? coupon.code : null,
+          couponCode: null,
           deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
           deliveryWhatsapp: needsDelivery ? digits : null,
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
+
       const shortDisplay = res.walletShortfallDisplay;
       const shortUSD = res.walletShortfallUSD;
       if ((shortDisplay != null && shortDisplay > 0) || (shortUSD != null && shortUSD > 0)) {
@@ -312,18 +305,26 @@ function CheckoutPage() {
                 return (
                   <button
                     key={m.id}
-                    onClick={() => setMethod(m.id)}
+                    onClick={() => { if (!m.disabled) setMethod(m.id); }}
+                    disabled={m.disabled}
+                    aria-disabled={m.disabled}
+                    title={m.disabled ? "Wallet is reserved for bounties & ads. Pay directly instead." : undefined}
                     className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
-                      active
-                        ? "bg-emerald-500/10 border-emerald-500/50"
-                        : "bg-[#1E1E24] border-white/10 hover:border-white/20"
+                      m.disabled
+                        ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                        : active
+                          ? "bg-emerald-500/10 border-emerald-500/50"
+                          : "bg-[#1E1E24] border-white/10 hover:border-white/20"
                     }`}
                   >
-                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active ? "bg-emerald-500/20" : "bg-white/5"}`}>
-                      <Icon className={`w-5 h-5 ${active ? "text-emerald-300" : "text-slate-300"}`} />
+                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}>
+                      <Icon className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`} />
                     </span>
                     <span className="flex-1 min-w-0">
-                      <span className="block text-sm text-white font-semibold">{m.label}</span>
+                      <span className="block text-sm text-white font-semibold">
+                        {m.label}
+                        {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Unavailable here</span>}
+                      </span>
                       <span className="block text-xs text-slate-500">{m.hint}</span>
                     </span>
                     {walletTag && (
@@ -334,6 +335,7 @@ function CheckoutPage() {
                   </button>
                 );
               })}
+
 
               {insufficient && (
                 <div className="mt-2 flex items-start gap-3 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
@@ -411,95 +413,49 @@ function CheckoutPage() {
               <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
               <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
 
-              {canUseCoupon && (
-                <div className="border-t border-white/5 pt-3 mb-3">
-                  <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Coupon Code</div>
-                  {coupon ? (
-                    <div className="flex items-center justify-between bg-emerald-500/10 border border-emerald-500/40 rounded-lg px-3 py-2">
-                      <div className="text-xs">
-                        <div className="text-emerald-300 font-bold font-mono">{coupon.code}</div>
-                        <div className="text-[11px] text-slate-400">{coupon.discountPct}% off applied</div>
+              {/* Cashback Wallet — spend-only. Replaces the old coupon field. */}
+              <div className="border-t border-white/5 pt-3 mb-3">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Cashback Wallet</div>
+                {cashbackUSD > 0 ? (
+                  <label className="flex items-start gap-3 bg-emerald-500/10 border border-emerald-500/40 rounded-lg px-3 py-2.5 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={useCashback}
+                      onChange={(e) => setUseCashback(e.target.checked)}
+                      className="mt-0.5 w-4 h-4 accent-emerald-500"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <div className="text-xs font-semibold text-white">Apply cashback to this order</div>
+                      <div className="text-[11px] text-emerald-300">
+                        Balance: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                       </div>
-                      <button
-                        onClick={() => { setCoupon(null); setCouponInput(""); setCouponErr(null); }}
-                        className="text-[11px] text-slate-400 hover:text-white underline"
-                      >
-                        Remove
-                      </button>
+                      <div className="text-[11px] text-slate-400 mt-0.5">
+                        Or leave it unchecked to keep compiling cashback for later.
+                      </div>
                     </div>
-                  ) : (
-                    <>
-                      <div className="flex gap-2">
-                        <input
-                          value={couponInput}
-                          onChange={(e) => { setCouponInput(e.target.value.toUpperCase()); setCouponErr(null); }}
-                          placeholder="Enter code"
-                          className="flex-1 min-w-0 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white font-mono uppercase"
-                        />
-                        <button
-                          onClick={async () => {
-                            const code = couponInput.trim();
-                            if (!code) return;
-                            setCouponBusy(true); setCouponErr(null);
-                            try {
-                              const r = await checkCoupon({ data: { code } });
-                              if (r.valid) {
-                                setCoupon({ code: r.code, discountPct: r.discountPct });
-                                toast.success("Coupon applied", { description: `${r.discountPct}% off your order.` });
-                              } else {
-                                setCouponErr("Invalid or expired code");
-                              }
-                            } catch (e) {
-                              setCouponErr(e instanceof Error ? e.message : "Failed");
-                            } finally {
-                              setCouponBusy(false);
-                            }
-                          }}
-                          disabled={couponBusy || !couponInput.trim()}
-                          className="px-3 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold disabled:opacity-50"
-                        >
-                          {couponBusy ? "…" : "Apply"}
-                        </button>
-                      </div>
-                      {couponErr && <div className="text-[11px] text-red-300 mt-1.5">{couponErr}</div>}
-                      <div className="text-[11px] text-slate-500 mt-1.5">Try <span className="font-mono text-slate-400">SAVE2</span> for 2% off.</div>
-                    </>
-                  )}
-                </div>
-              )}
-
-              {method === "wallet" && cashbackUSD > 0 && (
-                <label className="flex items-center gap-3 border-t border-white/5 pt-3 cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={useCashback}
-                    onChange={(e) => setUseCashback(e.target.checked)}
-                    className="w-4 h-4 accent-emerald-500"
-                  />
-                  <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-white">Apply Cashback Wallet</div>
-                    <div className="text-[11px] text-emerald-300">Available: {fmt(cashbackUSD, baseCurrency)} · spend-only</div>
+                  </label>
+                ) : (
+                  <div className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2.5 text-[11px] text-slate-400">
+                    Your Cashback Wallet is empty. You'll earn 2% cashback on this purchase — usable on your next order or course.
                   </div>
-                </label>
-              )}
+                )}
+              </div>
 
               <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
                 <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmt(subtotalUSD, baseCurrency)}</span></div>
-                {discountUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300"><span>Discount ({coupon?.discountPct}%)</span><span>− {fmt(discountUSD, baseCurrency)}</span></div>
-                )}
                 {cashbackApplyUSD > 0 && (
                   <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmt(cashbackApplyUSD, baseCurrency)}</span></div>
                 )}
                 <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
                 <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmt(totalUSD, baseCurrency)}</span></div>
-                {method === "wallet" && (
+                {cashbackEarnUSD > 0 && (
                   <div className="flex justify-between text-[11px] text-emerald-300/80 pt-1">
                     <span>You earn back ({(WALLET_CASHBACK_PCT * 100).toFixed(0)}%)</span>
-                    <span>+ {fmt(totalUSD * WALLET_CASHBACK_PCT, baseCurrency)}</span>
+                    <span>+ {fmt(cashbackEarnUSD, baseCurrency)} to Cashback Wallet</span>
                   </div>
                 )}
               </div>
+
               <button
                 onClick={pay}
                 disabled={submitting || (needsDelivery && !deliveryValid)}
