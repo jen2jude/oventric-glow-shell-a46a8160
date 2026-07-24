@@ -55,10 +55,19 @@ function SystemWalletsPage() {
 
   return (
     <div className="p-6 max-w-6xl mx-auto">
-      <header className="mb-6">
-        <h1 className="text-white text-2xl font-black">System Wallets</h1>
-        <p className="text-sm text-slate-400">Admin-only revenue held from marketplace, bounties, and ads.</p>
+      <header className="mb-6 flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-white text-2xl font-black">System Wallets</h1>
+          <p className="text-sm text-slate-400">Admin-only revenue held from marketplace, bounties, and ads.</p>
+        </div>
+        <Link
+          to="/admin/cashback-wallet"
+          className="shrink-0 px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
+        >
+          Cashback Wallet →
+        </Link>
       </header>
+
 
       {err && <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">{err}</div>}
 
