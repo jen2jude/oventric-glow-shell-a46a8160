@@ -2673,6 +2673,10 @@ export type Database = {
         Args: { _amount: number; _user_id: string }
         Returns: boolean
       }
+      wallet_debit_currency: {
+        Args: { _amount: number; _currency: string; _user_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "moderator" | "user"
