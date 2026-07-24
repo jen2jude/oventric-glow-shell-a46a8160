@@ -130,7 +130,34 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           .maybeSingle();
         if (c) discountUSD = Number(((grossUSD * Number(c.discount_pct)) / 100).toFixed(2));
       }
-      const totalUSD = Number((grossUSD - discountUSD).toFixed(2));
+      const totalAfterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+
+      // Cashback Wallet spend — debit atomically BEFORE Paystack init so the
+      // charge amount is reduced. Refunded in the failure branch of the
+      // webhook / verification callback if the payment doesn't settle.
+      let cashbackAppliedUSD = 0;
+      const requestedCB = Math.max(0, Number(data.applyCashbackUSD ?? 0));
+      if (requestedCB > 0) {
+        const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+        const { data: wRow } = await supabaseAdmin
+          .from("wallets")
+          .select("accumulated_cashback")
+          .eq("user_id", context.userId)
+          .eq("currency", "USD")
+          .maybeSingle();
+        const availableCB = Number(wRow?.accumulated_cashback ?? 0);
+        const spend = Number(Math.min(requestedCB, availableCB, totalAfterCouponUSD).toFixed(2));
+        if (spend > 0) {
+          const { data: cbOk, error: cbErr } = await supabaseAdmin.rpc("cashback_debit", {
+            _user_id: context.userId,
+            _amount: spend,
+          });
+          if (cbErr) throw new Error(cbErr.message);
+          if (cbOk) cashbackAppliedUSD = spend;
+        }
+      }
+
+      const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
       const fx = FX_FROM_USD[displayCurrency];
       amount = Number((totalUSD * fx).toFixed(2));
       currency = displayCurrency;
@@ -139,9 +166,11 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       metadata.display_currency = displayCurrency;
       metadata.coupon_code = data.couponCode ?? null;
       metadata.total_usd = totalUSD;
+      metadata.cashback_applied_usd = cashbackAppliedUSD;
       metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
       metadata.delivery_whatsapp = data.deliveryWhatsapp ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20) : null;
     }
+
 
     if (!SUPPORTED_CURRENCIES.includes(currency)) {
       throw new Error(`Currency ${currency} is not supported by Paystack.`);
