@@ -222,11 +222,16 @@ function CheckoutPage() {
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
-      if (res.walletShortfallUSD && res.walletShortfallUSD > 0) {
-        setShortfallUSD(res.walletShortfallUSD);
+      const shortDisplay = res.walletShortfallDisplay;
+      const shortUSD = res.walletShortfallUSD;
+      if ((shortDisplay != null && shortDisplay > 0) || (shortUSD != null && shortUSD > 0)) {
+        const shortLocal = shortDisplay != null
+          ? shortDisplay
+          : Number(((shortUSD ?? 0) * FX_FROM_USD[baseCurrency]).toFixed(2));
+        setShortfallUSD(shortUSD ?? Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
         setTopUpOpen(true);
-        setTopUpAmount(String(Math.ceil(res.walletShortfallUSD * FX_FROM_USD[baseCurrency])));
-        toast.error("Wallet balance too low", { description: `Top up ${fmt(res.walletShortfallUSD, baseCurrency)} to continue.` });
+        setTopUpAmount(String(Math.ceil(shortLocal)));
+        toast.error("Wallet balance too low", { description: `Top up ${fmtLocal(shortLocal, baseCurrency)} to continue.` });
         return;
       }
       if (res.cashbackUSD && res.cashbackUSD > 0) {
