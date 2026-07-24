@@ -314,8 +314,10 @@ async function settleOrder(
     couponCode: string | null;
     deliveryEmail?: string | null;
     deliveryWhatsapp?: string | null;
+    cashbackAppliedUSD?: number;
   },
 ) {
+
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
   const existing = await supabaseAdmin
