@@ -82,11 +82,14 @@ export function CourseCheckoutModal({
     return Number(((grossUSD * couponPct) / 100).toFixed(2));
   }, [grossUSD, couponPct, method]);
   const cashbackApplyUSD = useMemo(() => {
-    if (method !== "wallet" || !useCashback) return 0;
+    if (!useCashback) return 0;
     const remaining = Math.max(0, Number((grossUSD - discountUSD).toFixed(2)));
     return Math.min(cashbackUSD, remaining);
-  }, [method, useCashback, grossUSD, discountUSD, cashbackUSD]);
+  }, [useCashback, grossUSD, discountUSD, cashbackUSD]);
   const totalUSD = Math.max(0, Number((grossUSD - discountUSD - cashbackApplyUSD).toFixed(2)));
+  // 2% earn-back on the full post-coupon price, always — regardless of method
+  // or whether the buyer applied cashback this time.
+  const cashbackEarnUSD = Number((Math.max(0, grossUSD - discountUSD) * 0.02).toFixed(2));
 
   // Snapshot-aware display for the course price. Falls back safely inside
   // computeDisplayPrice when fxSnapshot is missing/invalid.
