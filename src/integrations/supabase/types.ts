@@ -2702,6 +2702,10 @@ export type Database = {
         Args: { _amount: number; _user_id: string }
         Returns: undefined
       }
+      wallet_credit_currency: {
+        Args: { _amount: number; _currency: string; _user_id: string }
+        Returns: undefined
+      }
       wallet_debit: {
         Args: { _amount: number; _user_id: string }
         Returns: boolean
@@ -2726,6 +2730,8 @@ export type Database = {
         | "Affiliate Cashback Payout"
         | "Wallet Top-Up"
         | "Payout Withdrawal"
+        | "Marketplace Sale"
+        | "Cashback Earned"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2867,6 +2873,8 @@ export const Constants = {
         "Affiliate Cashback Payout",
         "Wallet Top-Up",
         "Payout Withdrawal",
+        "Marketplace Sale",
+        "Cashback Earned",
       ],
     },
   },
