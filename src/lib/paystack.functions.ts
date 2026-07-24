@@ -355,7 +355,7 @@ async function settleOrder(
 
   const { data: pRow, error: pErr } = await supabaseAdmin
     .from("products")
-    .select("id, seller_id, price_usd, fx_snapshot")
+    .select("id, seller_id, price_usd, original_currency, original_amount, fx_snapshot, requires_manual_delivery")
     .eq("id", meta.productId)
     .maybeSingle();
   if (pErr) throw new Error(pErr.message);
@@ -427,23 +427,49 @@ async function settleOrder(
   const sellerCutUSD = Number((splitBaseUSD * SELLER_SHARE).toFixed(2));
   const platformCutUSD = Number((splitBaseUSD - sellerCutUSD).toFixed(2));
 
-  // Credit the seller in the BUYER's display currency (their local money) so
-  // the seller sees the sale amount they expect (₦395 on a ₦495 sale) and can
-  // withdraw via Paystack Transfers directly in that currency.
-  const sellerCutLocal = Number((displayTotal * SELLER_SHARE).toFixed(2));
-  await supabaseAdmin.rpc("wallet_credit_currency", {
-    _user_id: pRow.seller_id as string,
-    _amount: sellerCutLocal,
-    _currency: meta.displayCurrency,
-  });
+  const { data: sellerProfile } = await supabaseAdmin
+    .from("profiles")
+    .select("country")
+    .eq("user_id", pRow.seller_id as string)
+    .maybeSingle();
+  const sellerCountry = String(sellerProfile?.country ?? "").toUpperCase();
+  const sellerCurrency: OrderCurrency = sellerCountry === "NG" ? "NGN" : sellerCountry === "GH" ? "GHS" : "USD";
+  const originalCurrency = ((pRow.original_currency as string) ?? "USD") as OrderCurrency;
+  const originalAmount = Number(pRow.original_amount ?? 0);
+  const grossOriginalUSD = Number(pRow.price_usd) * qty;
+  const saleRatio = grossOriginalUSD > 0 ? afterCouponUSD / grossOriginalUSD : 1;
+  const sellerCutLocalRaw =
+    originalAmount > 0 && sellerCurrency === originalCurrency
+      ? originalAmount * qty * saleRatio * SELLER_SHARE
+      : convertViaSnapshot(sellerCutUSD, "USD", sellerCurrency, snap);
+  const sellerCutLocal = Number(sellerCutLocalRaw.toFixed(sellerCurrency === "USD" ? 2 : 0));
+  const holdEscrow = Boolean(pRow.requires_manual_delivery);
+
+  await supabaseAdmin
+    .from("orders")
+    .update({
+      escrow_status: holdEscrow ? "held" : "released",
+      seller_share_usd: sellerCutUSD,
+      released_at: holdEscrow ? null : new Date().toISOString(),
+    })
+    .eq("id", oRow.id as string);
+
+  if (!holdEscrow) {
+    await supabaseAdmin.rpc("wallet_credit_currency", {
+      _user_id: pRow.seller_id as string,
+      _amount: sellerCutLocal,
+      _currency: sellerCurrency,
+    });
+  }
   await supabaseAdmin.from("wallet_transactions").insert({
     user_id: pRow.seller_id as string,
+    paystack_ref: reference,
     tx_hash: `${reference}-S`,
     type: "Marketplace Sale",
     amount: sellerCutLocal,
-    currency: meta.displayCurrency,
+    currency: sellerCurrency,
     inflow: true,
-    status: "success",
+    status: holdEscrow ? "pending" : "success",
     occurred_at: new Date().toISOString(),
   });
 
@@ -452,7 +478,7 @@ async function settleOrder(
     _amount: platformCutUSD,
     _source: "marketplace_order_paystack",
     _ref: oRow.id as string,
-    _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference, seller_cut_local: sellerCutLocal, seller_cut_currency: meta.displayCurrency },
+    _meta: { order_id: oRow.id, product_id: pRow.id, buyer_id: buyerId, seller_id: pRow.seller_id, paystack_ref: reference, seller_cut_local: sellerCutLocal, seller_cut_currency: sellerCurrency, escrow: holdEscrow },
   });
 
   // Credit 2% cashback of the FULL gross sale price into the buyer's spend-only
