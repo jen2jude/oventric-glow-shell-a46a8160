@@ -151,7 +151,7 @@ function BountiesAdminPage() {
   }, [rows, query, categoryFilter, statusFilter, sortKey]);
 
   const refresh = useCallback(() => {
-    listFn().then((r) => setRows(r as Row[]));
+    listFn().then((r) => setRows(r as Row[])).catch((e) => toast.error((e as Error).message));
   }, [listFn]);
   const refreshCategories = useCallback(() => {
     listCatsFn()
@@ -159,6 +159,33 @@ function BountiesAdminPage() {
       .catch(() => setCategories(FALLBACK_CATEGORIES));
   }, [listCatsFn]);
   useEffect(() => { refresh(); refreshCategories(); }, [refresh, refreshCategories]);
+
+  // Live: refresh on any bounties row change + on tab focus + gentle polling.
+  useEffect(() => {
+    const channel = supabase
+      .channel("admin-bounties-live")
+      .on("postgres_changes", { event: "*", schema: "public", table: "bounties" }, () => refresh())
+      .subscribe();
+    const onVis = () => { if (document.visibilityState === "visible") refresh(); };
+    document.addEventListener("visibilitychange", onVis);
+    const poll = window.setInterval(refresh, 30000);
+    return () => {
+      supabase.removeChannel(channel);
+      document.removeEventListener("visibilitychange", onVis);
+      window.clearInterval(poll);
+    };
+  }, [refresh]);
+
+  const statusCounts = useMemo(() => {
+    const counts: Record<string, number> = { all: 0, active: 0, pending_review: 0, paused: 0, draft: 0, solved: 0, released: 0, disputed: 0, closed: 0, rejected: 0 };
+    if (!rows) return counts;
+    counts.all = rows.length;
+    for (const r of rows) {
+      const s = (r.status as string) ?? "";
+      if (s in counts) counts[s] += 1;
+    }
+    return counts;
+  }, [rows]);
 
   const signImagePaths = async (paths: string[]): Promise<ImageEntry[]> => {
     return Promise.all(
@@ -322,6 +349,46 @@ function BountiesAdminPage() {
           </button>
         </div>
       </header>
+
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {([
+          ["all", "All"],
+          ["active", "Active"],
+          ["pending_review", "Awaiting review"],
+          ["solved", "Solved"],
+          ["released", "Completed"],
+          ["disputed", "Disputed"],
+          ["paused", "Paused"],
+          ["draft", "Drafts"],
+          ["rejected", "Rejected"],
+          ["closed", "Closed"],
+        ] as const).map(([key, label]) => {
+          const active = statusFilter === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${
+                active
+                  ? "bg-emerald-500 border-emerald-400 text-black"
+                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+              }`}
+            >
+              {label}
+              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"}`}>
+                {statusCounts[key] ?? 0}
+              </span>
+            </button>
+          );
+        })}
+        <button
+          onClick={refresh}
+          className="ml-auto px-3 py-1.5 rounded-full text-xs font-bold border bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 inline-flex items-center gap-1.5"
+          aria-label="Refresh bounties"
+        >
+          <RotateCcw className="w-3.5 h-3.5" /> Refresh
+        </button>
+      </div>
 
       <div className="mb-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2">
         <input
