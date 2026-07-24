@@ -641,6 +641,8 @@ export interface CreateOrderInput {
 export interface CreateOrderResult {
   order: OrderDTO;
   walletShortfallUSD?: number;
+  walletShortfallDisplay?: number;
+  walletShortfallCurrency?: OrderCurrency;
   cashbackUSD?: number;
   cashbackAppliedUSD?: number;
   discountUSD?: number;
