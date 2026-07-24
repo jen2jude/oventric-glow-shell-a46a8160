@@ -736,7 +736,7 @@ export const createOrder = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     const { data: pRow, error: pErr } = await supabase
       .from("products")
-      .select("id, seller_id, name, category, description, price_usd, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at, requires_manual_delivery")
+      .select("id, seller_id, name, category, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, created_at, requires_manual_delivery")
       .eq("id", data.productId)
       .maybeSingle();
     if (pErr) throw new Error(pErr.message);
@@ -860,9 +860,8 @@ export const createOrder = createServerFn({ method: "POST" })
       occurred_at: new Date().toISOString(),
     });
 
-    // Buyer pays the exact sticker price (no visible surcharge). The gateway
-    // fee (Paystack) is skimmed off the top; the remainder splits 80/20
-    // between seller and platform. Wallet payments have zero gateway fee.
+    // Buyer pays the exact sticker price. Wallet payments settle internally
+    // with no gateway fee, so seller/platform split the full paid amount.
     const gatewayFeeUSD = estimatePaystackFeeUSD(totalUSD, data.displayCurrency, data.paymentMethod, fx);
     const netAfterGatewayUSD = Number(Math.max(0, totalUSD - gatewayFeeUSD).toFixed(2));
     const sellerCutUSD = Number((netAfterGatewayUSD * SELLER_SHARE).toFixed(2));
@@ -882,12 +881,36 @@ export const createOrder = createServerFn({ method: "POST" })
       })
       .eq("id", oRow.id as string);
 
+    const { data: sellerProfile } = await supabaseAdmin
+      .from("profiles")
+      .select("country")
+      .eq("user_id", product.sellerId)
+      .maybeSingle();
+    const sellerCountry = String(sellerProfile?.country ?? "").toUpperCase();
+    const sellerCurrency: OrderCurrency = sellerCountry === "NG" ? "NGN" : sellerCountry === "GH" ? "GHS" : "USD";
+    const sellerCutLocalRaw =
+      product.originalAmount > 0 && product.originalCurrency === sellerCurrency
+        ? product.originalAmount * data.quantity * SELLER_SHARE
+        : sellerCutUSD * FX_FROM_USD[sellerCurrency];
+    const sellerCutLocal = Number(sellerCutLocalRaw.toFixed(sellerCurrency === "USD" ? 2 : 0));
+
     if (!holdEscrow) {
-      await supabaseAdmin.rpc("wallet_credit", {
+      await supabaseAdmin.rpc("wallet_credit_currency", {
         _user_id: product.sellerId,
-        _amount: sellerCutUSD,
+        _amount: sellerCutLocal,
+        _currency: sellerCurrency,
       });
     }
+    await supabaseAdmin.from("wallet_transactions").insert({
+      user_id: product.sellerId,
+      tx_hash: `${oRow.id}-S`,
+      type: "Marketplace Sale",
+      amount: sellerCutLocal,
+      currency: sellerCurrency,
+      inflow: true,
+      status: holdEscrow ? "pending" : "success",
+      occurred_at: new Date().toISOString(),
+    });
 
     // Credit the admin marketplace revenue wallet via SECURITY DEFINER helper.
     await supabaseAdmin.rpc("system_wallet_credit", {
@@ -895,7 +918,7 @@ export const createOrder = createServerFn({ method: "POST" })
       _amount: platformCutUSD,
       _source: "marketplace_order",
       _ref: oRow.id as string,
-      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod, escrow: holdEscrow },
+      _meta: { order_id: oRow.id, product_id: product.id, buyer_id: userId, seller_id: product.sellerId, cashback_usd: cashbackUSD, gateway_fee_usd: gatewayFeeUSD, payment_method: data.paymentMethod, escrow: holdEscrow, seller_cut_local: sellerCutLocal, seller_cut_currency: sellerCurrency },
     });
 
 
@@ -908,7 +931,7 @@ export const createOrder = createServerFn({ method: "POST" })
       await supabaseAdmin.from("wallet_transactions").insert({
         user_id: userId,
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
-        type: "Affiliate Cashback Payout",
+        type: "Cashback Earned",
         amount: Number((cashbackUSD * fx).toFixed(2)),
         currency: data.displayCurrency,
         inflow: true,
