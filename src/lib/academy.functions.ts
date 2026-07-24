@@ -816,8 +816,12 @@ export const enrollPaid = createServerFn({ method: "POST" })
     });
 
     // 80/20 split — instructor gets 80%, platform academy wallet gets 20%.
-    const instructorCutUSD = Number((totalUSD * INSTRUCTOR_SHARE).toFixed(2));
-    const platformCutUSD = Number((totalUSD - instructorCutUSD).toFixed(2));
+    // ALWAYS computed on the full post-coupon price. Applying cashback only
+    // shifts value from wallet debit to Cashback Wallet debit; instructor +
+    // platform are made whole on the true sale price.
+    const splitBaseUSD = afterCouponUSD;
+    const instructorCutUSD = Number((splitBaseUSD * INSTRUCTOR_SHARE).toFixed(2));
+    const platformCutUSD = Number((splitBaseUSD - instructorCutUSD).toFixed(2));
 
     await supabaseAdmin.rpc("wallet_credit", {
       _user_id: course.owner_id as string,
@@ -837,29 +841,26 @@ export const enrollPaid = createServerFn({ method: "POST" })
       },
     });
 
-    // 2% cashback for wallet payments — credited to the SPEND-ONLY Cashback
-    // Wallet (accumulated_cashback). Never touches available_balance, so it
-    // cannot be withdrawn — only spent at future checkouts.
-    let cashbackUSD = 0;
-    if (data.paymentMethod === "wallet") {
-      cashbackUSD = Number((totalUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
-      if (cashbackUSD > 0) {
-        await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackUSD });
-        await supabaseAdmin.from("wallet_transactions").insert({
-          user_id: userId,
-          tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
-          type: "Affiliate Cashback Payout",
-          amount: Number((cashbackUSD * fx).toFixed(2)),
-          currency: data.displayCurrency,
-          inflow: true,
-          status: "success",
-          occurred_at: new Date().toISOString(),
-        });
-        await supabase
-          .from("course_enrollments")
-          .update({ cashback_usd: cashbackUSD })
-          .eq("id", eRow.id);
-      }
+    // 2% cashback credited to the SPEND-ONLY Cashback Wallet on EVERY paid
+    // enrollment (wallet or card), based on the full post-coupon price —
+    // regardless of whether the buyer applied cashback this time.
+    const cashbackUSD = Number((splitBaseUSD * WALLET_CASHBACK_PCT_ACADEMY).toFixed(2));
+    if (cashbackUSD > 0) {
+      await supabaseAdmin.rpc("cashback_credit", { _user_id: userId, _amount: cashbackUSD });
+      await supabaseAdmin.from("wallet_transactions").insert({
+        user_id: userId,
+        tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
+        type: "Affiliate Cashback Payout",
+        amount: Number((cashbackUSD * fx).toFixed(2)),
+        currency: data.displayCurrency,
+        inflow: true,
+        status: "success",
+        occurred_at: new Date().toISOString(),
+      });
+      await supabase
+        .from("course_enrollments")
+        .update({ cashback_usd: cashbackUSD })
+        .eq("id", eRow.id);
     }
 
     return {
