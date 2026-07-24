@@ -45,11 +45,13 @@ import { useKycGate } from "@/lib/kyc-gate/KycGate";
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
   | "Marketplace Purchase"
+  | "Marketplace Sale"
   | "Gig Bounty Escrowed"
   | "Ad Injection Charge"
   | "Affiliate Cashback Payout"
   | "Wallet Top-Up"
-  | "Payout Withdrawal";
+  | "Payout Withdrawal"
+  | "Cashback Earned";
 
 interface Tx {
   id: string;
@@ -196,7 +198,7 @@ export function Wallet() {
     queryFn: () => fetchEarnings(),
     staleTime: 15_000,
   });
-  const earnings = earningsQuery.data ?? { cashbackUSD: 0, bountyUSD: 0, affiliateUSD: 0 };
+  const earnings = earningsQuery.data ?? { cashbackUSD: 0, marketplaceHome: 0, marketplaceCurrency: baseCurrency, bountyUSD: 0, affiliateUSD: 0 };
 
   const fetchAffiliate = useServerFn(getMyAffiliateReservation);
   const affiliateQuery = useQuery({
@@ -345,7 +347,8 @@ export function Wallet() {
             key: string;
             label: string;
             sub: string;
-            valueUSD: number;
+            value: number;
+            currency: Currency;
             icon: ReactNode;
             accent: string;
             text: string;
@@ -358,17 +361,30 @@ export function Wallet() {
               key: "cashback",
               label: "Cashback",
               sub: "Spend at checkout only",
-              valueUSD: earnings.cashbackUSD,
+              value: earnings.cashbackUSD * fx,
+              currency: baseCurrency,
               icon: <Sparkles className="w-4 h-4" />,
               accent: "bg-emerald-500/10",
               text: "text-emerald-300",
               ring: "border-emerald-500/30",
             },
             {
+              key: "marketplace",
+              label: "Seller Earnings",
+              sub: "Marketplace sales",
+              value: earnings.marketplaceHome,
+              currency: earnings.marketplaceCurrency,
+              icon: <WalletIcon className="w-4 h-4" />,
+              accent: "bg-cyan-500/10",
+              text: "text-cyan-300",
+              ring: "border-cyan-500/30",
+            },
+            {
               key: "bounty",
               label: "Bounty Solved",
               sub: "Gig payouts",
-              valueUSD: earnings.bountyUSD,
+              value: earnings.bountyUSD * fx,
+              currency: baseCurrency,
               icon: <Zap className="w-4 h-4" />,
               accent: "bg-amber-500/10",
               text: "text-amber-300",
@@ -378,7 +394,8 @@ export function Wallet() {
               key: "affiliate",
               label: "Affiliate",
               sub: "Referral · soon",
-              valueUSD: 0,
+              value: 0,
+              currency: baseCurrency,
               icon: <TrendingUp className="w-4 h-4" />,
               accent: "bg-fuchsia-500/10",
               text: "text-fuchsia-300",
@@ -413,14 +430,14 @@ export function Wallet() {
                       </Link>
                     ) : (
                       <span className="wallet-earnings-value">
-                        {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                        {hide ? "•••" : fmt(t.value, t.currency)}
                       </span>
                     )}
                   </div>
                 ))}
               </div>
               {/* Desktop: original 3-up tiles */}
-              <div className="hidden md:grid grid-cols-3 gap-3">
+              <div className="hidden md:grid grid-cols-4 gap-3">
                 {tiles.map((t) => (
                   <div
                     key={t.key}
@@ -452,7 +469,7 @@ export function Wallet() {
                     ) : (
                       <>
                         <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
-                          {hide ? "•••" : fmt(t.valueUSD * fx, baseCurrency)}
+                          {hide ? "•••" : fmt(t.value, t.currency)}
                         </div>
                         <div className="mt-0.5 text-[10px] text-slate-500 truncate">
                           {t.soon ? "Coming soon" : t.sub}
