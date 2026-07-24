@@ -131,20 +131,29 @@ function CheckoutPage() {
       const { data: userRes } = await supabase.auth.getUser();
       const uid = userRes.user?.id;
       if (!uid) return;
-      const { data } = await supabase
+      // Read balance in the buyer's home currency (that's where Paystack top-ups
+      // credit and that's what the wallet will actually be debited in).
+      const { data: localRow } = await supabase
         .from("wallets")
-        .select("available_balance, accumulated_cashback")
+        .select("available_balance")
+        .eq("user_id", uid)
+        .eq("currency", baseCurrency)
+        .maybeSingle();
+      // Cashback pot is USD-canonical.
+      const { data: cbRow } = await supabase
+        .from("wallets")
+        .select("accumulated_cashback")
         .eq("user_id", uid)
         .eq("currency", "USD")
         .maybeSingle();
       if (!cancelled) {
-        setBalanceUSD(Number(data?.available_balance ?? 0));
-        setCashbackUSD(Number(data?.accumulated_cashback ?? 0));
+        setBalanceUSD(Number(localRow?.available_balance ?? 0));
+        setCashbackUSD(Number(cbRow?.accumulated_cashback ?? 0));
       }
     };
     refresh();
     return () => { cancelled = true; };
-  }, [shortfallUSD, topUpBusy]);
+  }, [shortfallUSD, topUpBusy, baseCurrency]);
 
   // Prefill delivery email from the current auth user.
   useEffect(() => {
