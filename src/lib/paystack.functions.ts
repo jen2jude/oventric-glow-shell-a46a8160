@@ -114,9 +114,10 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       // Order — resolve authoritative price from DB.
       const { data: p, error } = await context.supabase
         .from("products")
-        .select("id, price_usd")
+        .select("id, price_usd, original_currency, original_amount, fx_snapshot")
         .eq("id", data.productId)
         .maybeSingle();
+
       if (error) throw new Error(error.message);
       if (!p) throw new Error("Product not found");
       const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
