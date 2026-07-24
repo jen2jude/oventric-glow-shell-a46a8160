@@ -664,7 +664,10 @@ export interface EnrollPaidResult {
   discountUSD?: number;
   cashbackAppliedUSD?: number;
   cashbackUSD?: number;
+  /** Shortfall expressed in USD (legacy). */
   walletShortfallUSD?: number;
+  /** Shortfall expressed in the user's display currency (what the wallet is actually debited in). */
+  walletShortfallDisplay?: number;
 }
 
 export const enrollPaid = createServerFn({ method: "POST" })
