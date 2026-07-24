@@ -161,9 +161,13 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       }
 
       const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
-      const fx = FX_FROM_USD[displayCurrency];
-      amount = Number((totalUSD * fx).toFixed(2));
+      // Convert USD → displayCurrency using the product's LOCKED FX snapshot so the
+      // charge matches the price shown on the listing (no drift from legacy fallback rates).
+      const snap = (p.fx_snapshot as { rates?: Record<string, number> } | null) ?? null;
+      const converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
+      amount = Number((converted > 0 ? converted : totalUSD * FX_FROM_USD[displayCurrency]).toFixed(2));
       currency = displayCurrency;
+
       metadata.product_id = p.id;
       metadata.quantity = qty;
       metadata.display_currency = displayCurrency;
