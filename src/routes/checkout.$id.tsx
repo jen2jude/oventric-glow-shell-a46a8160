@@ -81,7 +81,9 @@ function CheckoutPage() {
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
   const [balanceUSD, setBalanceUSD] = useState<number | null>(null);
-  const [method, setMethod] = useState<PaymentMethod>("wallet");
+  const [cashbackUSD, setCashbackUSD] = useState<number>(0);
+  const [useCashback, setUseCashback] = useState(false);
+  const [method, setMethod] = useState<PaymentMethod>("card");
   const [submitting, setSubmitting] = useState(false);
   const [shortfallUSD, setShortfallUSD] = useState<number | null>(null);
   const [topUpOpen, setTopUpOpen] = useState(false);
