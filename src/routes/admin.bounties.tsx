@@ -350,6 +350,46 @@ function BountiesAdminPage() {
         </div>
       </header>
 
+      <div className="mb-3 flex flex-wrap gap-1.5">
+        {([
+          ["all", "All"],
+          ["active", "Active"],
+          ["pending_review", "Awaiting review"],
+          ["solved", "Solved"],
+          ["released", "Completed"],
+          ["disputed", "Disputed"],
+          ["paused", "Paused"],
+          ["draft", "Drafts"],
+          ["rejected", "Rejected"],
+          ["closed", "Closed"],
+        ] as const).map(([key, label]) => {
+          const active = statusFilter === key;
+          return (
+            <button
+              key={key}
+              onClick={() => setStatusFilter(key)}
+              className={`px-3 py-1.5 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${
+                active
+                  ? "bg-emerald-500 border-emerald-400 text-black"
+                  : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+              }`}
+            >
+              {label}
+              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"}`}>
+                {statusCounts[key] ?? 0}
+              </span>
+            </button>
+          );
+        })}
+        <button
+          onClick={refresh}
+          className="ml-auto px-3 py-1.5 rounded-full text-xs font-bold border bg-white/5 border-white/10 text-slate-300 hover:bg-white/10 inline-flex items-center gap-1.5"
+          aria-label="Refresh bounties"
+        >
+          <RotateCcw className="w-3.5 h-3.5" /> Refresh
+        </button>
+      </div>
+
       <div className="mb-4 grid grid-cols-1 md:grid-cols-[1fr_auto_auto_auto] gap-2">
         <input
           value={query}
