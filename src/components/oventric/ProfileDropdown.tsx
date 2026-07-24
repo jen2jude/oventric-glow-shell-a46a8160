@@ -923,7 +923,9 @@ function ProfileSettingsModal({
               {(() => {
                 const locked = !!country.trim();
                 const known = country === "NG" || country === "GH";
-                const selectValue = known ? country : (country ? "OTHER" : "");
+                const selectValue = locked
+                  ? (known ? country : "OTHER")
+                  : (countryOther ? "OTHER" : "");
                 return (
                   <>
                     <select
@@ -932,7 +934,13 @@ function ProfileSettingsModal({
                       value={selectValue}
                       onChange={(e) => {
                         const v = e.target.value;
-                        setCountry(v === "OTHER" ? "" : v);
+                        if (v === "OTHER") {
+                          setCountryOther(true);
+                          setCountry("");
+                        } else {
+                          setCountryOther(false);
+                          setCountry(v);
+                        }
                         setErrors((p) => ({ ...p, country: "" }));
                       }}
                       className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
@@ -944,7 +952,7 @@ function ProfileSettingsModal({
                       <option value="GH">🇬🇭 Ghana</option>
                       <option value="OTHER">🌍 Other (type your country)</option>
                     </select>
-                    {!locked && selectValue === "OTHER" && (
+                    {!locked && countryOther && (
                       <input
                         className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
                         placeholder="Type your country"
