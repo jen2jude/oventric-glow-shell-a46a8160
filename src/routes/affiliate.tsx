@@ -109,7 +109,7 @@ function AffiliatePage() {
     <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <button
-          onClick={() => router.history.back()}
+          onClick={goBack}
           className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back
