@@ -15,6 +15,7 @@ import { Route as PrivacyRouteImport } from './routes/privacy'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DashboardRouteImport } from './routes/dashboard'
+import { Route as AffiliateRouteImport } from './routes/affiliate'
 import { Route as AdvertiseRouteImport } from './routes/advertise'
 import { Route as AdsManagerRouteImport } from './routes/ads-manager'
 import { Route as AdminRouteImport } from './routes/admin'
@@ -81,6 +82,11 @@ const FaqRoute = FaqRouteImport.update({
 const DashboardRoute = DashboardRouteImport.update({
   id: '/dashboard',
   path: '/dashboard',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AffiliateRoute = AffiliateRouteImport.update({
+  id: '/affiliate',
+  path: '/affiliate',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AdvertiseRoute = AdvertiseRouteImport.update({
@@ -278,6 +284,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AdminRouteWithChildren
   '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
+  '/affiliate': typeof AffiliateRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
@@ -322,6 +329,7 @@ export interface FileRoutesByTo {
   '/about': typeof AboutRoute
   '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
+  '/affiliate': typeof AffiliateRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
@@ -367,6 +375,7 @@ export interface FileRoutesById {
   '/admin': typeof AdminRouteWithChildren
   '/ads-manager': typeof AdsManagerRouteWithChildren
   '/advertise': typeof AdvertiseRoute
+  '/affiliate': typeof AffiliateRoute
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
@@ -414,6 +423,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ads-manager'
     | '/advertise'
+    | '/affiliate'
     | '/dashboard'
     | '/faq'
     | '/help'
@@ -458,6 +468,7 @@ export interface FileRouteTypes {
     | '/about'
     | '/ads-manager'
     | '/advertise'
+    | '/affiliate'
     | '/dashboard'
     | '/faq'
     | '/help'
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/ads-manager'
     | '/advertise'
+    | '/affiliate'
     | '/dashboard'
     | '/faq'
     | '/help'
@@ -548,6 +560,7 @@ export interface RootRouteChildren {
   AdminRoute: typeof AdminRouteWithChildren
   AdsManagerRoute: typeof AdsManagerRouteWithChildren
   AdvertiseRoute: typeof AdvertiseRoute
+  AffiliateRoute: typeof AffiliateRoute
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
@@ -610,6 +623,13 @@ declare module '@tanstack/react-router' {
       path: '/dashboard'
       fullPath: '/dashboard'
       preLoaderRoute: typeof DashboardRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/affiliate': {
+      id: '/affiliate'
+      path: '/affiliate'
+      fullPath: '/affiliate'
+      preLoaderRoute: typeof AffiliateRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/advertise': {
@@ -958,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   AdminRoute: AdminRouteWithChildren,
   AdsManagerRoute: AdsManagerRouteWithChildren,
   AdvertiseRoute: AdvertiseRoute,
+  AffiliateRoute: AffiliateRoute,
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
