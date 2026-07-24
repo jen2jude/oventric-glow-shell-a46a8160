@@ -328,7 +328,7 @@ function CheckoutPage() {
                     </span>
                     {walletTag && (
                       <span className="text-[11px] font-mono text-slate-400">
-                        {fmt(balanceUSD ?? 0, baseCurrency)}
+                        {fmtLocal(balanceUSD ?? 0, baseCurrency)}
                       </span>
                     )}
                   </button>
@@ -340,13 +340,13 @@ function CheckoutPage() {
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div>
-                      Wallet has {fmt(balanceUSD ?? 0, baseCurrency)} — you need {fmt(totalUSD, baseCurrency)}.
+                      Wallet has {fmtLocal(balanceUSD ?? 0, baseCurrency)} — you need {fmtLocal(totalLocal, baseCurrency)}.
                     </div>
                     <button
                       onClick={() => {
-                        const shortfall = Math.max(0, totalUSD - (balanceUSD ?? 0));
-                        setShortfallUSD(shortfall);
-                        setTopUpAmount(String(Math.ceil(shortfall * FX_FROM_USD[baseCurrency])));
+                        const shortLocal = Math.max(0, totalLocal - (balanceUSD ?? 0));
+                        setShortfallUSD(Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
+                        setTopUpAmount(String(Math.ceil(shortLocal)));
                         setTopUpOpen(true);
                       }}
                       className="mt-2 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md bg-amber-400 hover:bg-amber-300 text-black text-[11px] font-black"
