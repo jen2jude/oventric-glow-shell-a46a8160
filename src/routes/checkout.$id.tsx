@@ -17,11 +17,11 @@ import { supabase } from "@/integrations/supabase/client";
 import {
   getProduct,
   createOrder,
-  validateCoupon,
   WALLET_CASHBACK_PCT,
   type ProductDTO,
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
+
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import { LEGACY_USD_RATES } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
