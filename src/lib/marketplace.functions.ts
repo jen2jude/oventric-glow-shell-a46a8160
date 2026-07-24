@@ -407,8 +407,9 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
         social_link: data.socialLink,
         promoted: false,
       })
-      .select()
+      .select("id")
       .single();
+
     if (error) throw new Error(error.message);
     return { id: row.id as string };
   });
