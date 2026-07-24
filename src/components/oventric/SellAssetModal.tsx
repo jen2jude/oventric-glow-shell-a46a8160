@@ -48,6 +48,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [file, setFile] = useState<File | null>(null);
   const [externalUrl, setExternalUrl] = useState("");
   const [requiresManualDelivery, setRequiresManualDelivery] = useState(false);
+  const [agreedToSplit, setAgreedToSplit] = useState(false);
   const [images, setImages] = useState<File[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
   const [submitting, setSubmitting] = useState(false);
@@ -55,6 +56,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
   const [success, setSuccess] = useState(false);
   const imageInputRef = useRef<HTMLInputElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+
 
   if (!open) return null;
 
