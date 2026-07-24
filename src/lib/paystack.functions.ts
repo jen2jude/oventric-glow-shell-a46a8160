@@ -427,6 +427,13 @@ export async function verifyAndSettleByReference(reference: string) {
         .eq("paystack_ref", payload.reference)
         .eq("type", "Wallet Top-Up")
         .eq("status", "pending");
+      // Refund any cashback that was atomically debited at init time.
+      const failedMeta = (payload.metadata ?? {}) as Record<string, unknown>;
+      const failedUser = String(failedMeta.user_id ?? "");
+      const refund = Math.max(0, Number(failedMeta.cashback_applied_usd ?? 0));
+      if (failedUser && refund > 0) {
+        await supabaseAdmin.rpc("cashback_credit", { _user_id: failedUser, _amount: refund });
+      }
     } catch (e) {
       console.error("[paystack] mark topup failed error", e);
     }
@@ -447,9 +454,11 @@ export async function verifyAndSettleByReference(reference: string) {
       couponCode: (meta.coupon_code as string | null) ?? null,
       deliveryEmail: (meta.delivery_email as string | null) ?? null,
       deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
+      cashbackAppliedUSD: Number(meta.cashback_applied_usd ?? 0),
     });
     return { ok: true as const, status: "success", redirectTo: `/order/${res.orderId}` };
   }
+
 
   await settleWalletTopup(userId, payload.reference, amount, currency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
