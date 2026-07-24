@@ -455,7 +455,7 @@ export async function verifyAndSettleByReference(reference: string) {
     } catch (e) {
       console.error("[paystack] mark topup failed error", e);
     }
-    return { ok: false as const, status: payload.status, redirectTo: null as string | null };
+    return { ok: false as const, status: payload.status, redirectTo: null as string | null, cashbackEarnedUSD: 0, displayCurrency: (payload.currency as OrderCurrency) };
   }
   const meta = (payload.metadata ?? {}) as Record<string, unknown>;
   const userId = String(meta.user_id ?? "");
@@ -474,13 +474,19 @@ export async function verifyAndSettleByReference(reference: string) {
       deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
       cashbackAppliedUSD: Number(meta.cashback_applied_usd ?? 0),
     });
-    return { ok: true as const, status: "success", redirectTo: `/order/${res.orderId}` };
+    return {
+      ok: true as const,
+      status: "success",
+      redirectTo: `/order/${res.orderId}`,
+      cashbackEarnedUSD: "cashbackEarnUSD" in res ? (res.cashbackEarnUSD ?? 0) : 0,
+      displayCurrency: ((meta.display_currency as OrderCurrency) ?? currency),
+    };
   }
 
 
   await settleWalletTopup(userId, payload.reference, amount, currency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
-  return { ok: true as const, status: "success", redirectTo: returnTo };
+  return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: currency };
 }
 
 export const verifyPaystackPayment = createServerFn({ method: "POST" })
