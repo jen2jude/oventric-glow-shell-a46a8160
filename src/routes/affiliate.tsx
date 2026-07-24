@@ -42,8 +42,17 @@ export const Route = createFileRoute("/affiliate")({
 
 function AffiliatePage() {
   const router = useRouter();
+  const navigate = useNavigate();
   const loadMine = useServerFn(getMyAffiliateReservation);
   const reserve = useServerFn(reserveAffiliateSpot);
+
+  function goBack() {
+    if (typeof window !== "undefined" && window.history.length > 1) {
+      router.history.back();
+    } else {
+      navigate({ to: "/dashboard" });
+    }
+  }
 
   const [state, setState] = useState<"loading" | "guest" | "none" | "reserved">(
     "loading",
