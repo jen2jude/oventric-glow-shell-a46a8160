@@ -1,86 +1,52 @@
-# Tier-Based UI Rollback (High-GPU Premium / Low-GPU Safe)
+## Goals
+1. **Direct checkout** for products + course enrollments — Paystack Inline, no pre-fund required.
+2. **Cashback Wallet** — separate spend-only balance (applies as discount at checkout, not withdrawable).
+3. **Selective wallet funding** — the Fund Wallet CTA appears in bounty/ad flows on shortfall (inline top-up modal that resumes the action on success).
+4. **Seller/Solver earnings** — continue crediting to internal wallet, withdrawable via existing payout flow.
+5. **Existing wallet balances stay spendable** at checkout as an optional fallback (per user choice).
 
-Restore the original animated / rich UI on capable devices while keeping the current flat, safe UI as the default and fallback for weak GPUs. Detection extends the existing `html.low-gpu` boot script in `src/routes/__root.tsx`, with a comprehensive allow/deny list built from your paste.
+## Backend changes (single migration)
+- Reuse existing `wallets.accumulated_cashback` as the Cashback Wallet balance.
+- Add SQL RPCs:
+  - `cashback_apply(_user_id, _amount_usd)` — debits cashback (spend-only, never inflow to available_balance).
+  - `cashback_credit(_user_id, _amount_usd)` — replaces inline `UPDATE wallets` in `enrollPaid`/product purchase for cashback rewards.
+- Add `wallet_transactions.type` values: `"Cashback Applied"`, `"Direct Card Purchase"` (no schema change; text column).
+- Block cashback from payouts: `payout_request_create` already reads `available_balance`, so cashback is naturally excluded — verify.
 
-## Detection Strategy (in `src/routes/__root.tsx` boot script)
+## Server-fn changes
+- `src/lib/marketplace.functions.ts`
+  - `purchaseProduct` / product checkout: add `paymentMethod: "card" | "wallet"`. For `"card"`, initialize Paystack transaction and return authorization URL; on webhook success, complete the order and credit seller 80%/platform 20% (existing logic). For `"wallet"`, keep existing wallet-debit path.
+  - Cashback rewards go to `accumulated_cashback` (not `available_balance`).
+  - Allow buyer to apply up to `cashback_balance` as discount at card checkout.
+- `src/lib/academy.functions.ts`
+  - `enrollPaid`: add card path (Paystack init → webhook completes enrollment + 80/20 split + cashback credit).
+- `src/lib/paystack.functions.ts` / webhook handler
+  - Extend metadata to route completion by `purpose`: `topup`, `product_purchase`, `course_enrollment`, `bounty_escrow_topup`, `ad_escrow_topup`.
+- `src/lib/payouts.functions.ts` — unchanged; confirm cashback excluded.
 
-Enhance the pre-paint detection so it emits three signals on `<html>`:
-- `html.low-gpu` (existing) — safe UI
-- `html.high-gpu` (new) — premium UI opt-in
-- neither → **default safe** (per your choice for uncertain cases)
+## UI changes
+- **CourseCheckoutModal** (`src/components/oventric/CourseCheckoutModal.tsx`)
+  - Default method = `card`. Show wallet only if `available_balance >= total`.
+  - Show cashback available and a "Apply cashback (max X)" input; deduct from total.
+  - On card: launch Paystack Inline; on success, invoke enrollment completion.
+- **Product checkout** (`src/routes/checkout.$id.tsx`)
+  - Same pattern: default card, wallet as optional fallback, cashback discount input.
+- **BountyEditorModal** (`src/components/oventric/BountyEditorModal.tsx`)
+  - On publish with shortfall → inline `TopUpForBountyModal` (Paystack Inline for exact NGN/GHS/USD equivalent). On success + webhook credit, retry publish.
+- **AdvertiseInquiryModal / ads-manager** — same inline top-up pattern for campaign escrow.
+- **Wallet.tsx**
+  - Cashback card: label "Spend at checkout only". Remove Withdraw affordance for cashback.
+  - Fund Wallet: reframe as "Fund wallet for bounties & ads". Copy update only; still usable from wallet page.
+  - Withdraw: continue to use `available_balance` only.
 
-Order of checks (first match wins):
+## Out of scope
+- No changes to KYC, existing escrow release logic, or the payout provider (Paystack Transfers).
+- No migration of existing wallet balances (stay spendable per Q3).
 
-1. **Manual override** — `localStorage['oventric:gpu-mode']` = `high` | `low` | unset.
-2. **prefers-reduced-motion** → low.
-3. **High-end allow-list** (from your paste) — matched against WebGL `UNMASKED_RENDERER_WEBGL` and `navigator.userAgentData` model, e.g.:
-   - Adreno 830 / 750 / 740 / 730 / 660 / 650 / 640 / 630
-   - Apple A18/A17/A16/A15/A14/A13/A12 GPU
-   - Mali-G925 / G720 / Immortalis-G925 / G715 / G710 / G78 (MP14+)
-   - Xclipse 920 / 940
-   → mark `high-gpu`.
-4. **Low-end deny-list** (your medium/low list) — Adreno 512/510/509/508/506/505/504/430/420/418/410/405/308/306, Mali-G72 MP3, G71 MP1/MP2, G52 MP1/MP2, G51, T-series, PowerVR G6xxx / GE8xxx / GX6450, plus Infinix / TECNO / itel / Note 11i UA hints, and hardware fallbacks (deviceMemory ≤ 4 or hardwareConcurrency ≤ 4 on mobile) → mark `low-gpu`.
-5. **Default** → no class → safe UI (matches your "safe default when uncertain" choice).
-
-Also set `data-gpu-tier` and `data-gpu-reason` for debugging.
-
-## CSS Tiering (in `src/styles.css`)
-
-Introduce tier-gated variants so components stay one file:
-
-```
-.rgb-animated-border { /* full animated RGB gradient border */ }
-html:not(.high-gpu) .rgb-animated-border { /* falls back to .rgb-static-border look */ }
-```
-
-Same pattern for: animated neon backgrounds, backdrop-filter blur, heavy box-shadow glows, gradient conic animations, `filter: blur()` overlays. Everything defaults to the flat safe styles; `.high-gpu` selectors re-enable the premium look.
-
-## Component Restorations (high-GPU only)
-
-Gate the original premium presentation behind `html.high-gpu` — components don't branch in JS, just swap class names.
-
-1. **Mobile `+` button** — `MobileNav.tsx`
-   - High: original animated `rgb-spectrum-shift` rotating gradient ring.
-   - Low: current 2px `rgb-static-border`.
-
-2. **Profile avatar rings** — `AvatarImage.tsx`, `ProfileDropdown.tsx`, profile header
-   - High: animated RGB ring around profile pic.
-   - Low: current neutral 1px outline.
-
-3. **Sovereign Wallet** — `src/components/oventric/Wallet.tsx`
-   - High: restore original layered cards, gradient hero, subtle blur, animated balance chip.
-   - Low: current flat rows preserved verbatim.
-
-4. **Dashboard overview** — `src/routes/dashboard.tsx`
-   - High: restore original KPI cards with gradients / shadows / hover glow.
-   - Low: current lightweight flat layout preserved.
-
-5. **Public profile stats block** — `src/routes/profile.$id.tsx`
-   - High: restore original horizontal card row (Star rating, Bounties solved, Product rating, Listings, Posts) with icons + gradient tiles.
-   - Low: current single-column `MobileRepLine` list preserved.
-
-No behavior/data changes — pure presentation gating.
-
-## Manual Override (unchanged, documented)
-
-Users can force a tier from the browser console:
-```
-localStorage.setItem('oventric:gpu-mode','high') // or 'low', then reload
-```
-Useful if the auto-detect misfires on a specific device.
-
-## Verification
-
-- Add a small dev-only debug badge (behind `?gpuDebug=1`) that prints `data-gpu-tier` + `data-gpu-reason` so we can confirm detection on your real devices without shipping visible UI.
-- Extend existing Playwright mobile visual specs with a second pass forcing `oventric:gpu-mode=high` to snapshot both tiers for Feed / Marketplace / Profile / Wallet / Dashboard / MobileNav.
-
-## Out of Scope
-
-- No changes to data fetching, RLS, escrow, notifications, or any server functions.
-- No new dependencies.
-
-## Technical Notes
-
-- Detection runs before first paint (inline script in `<head>`) so no FOUC between tiers.
-- `.high-gpu` is additive: removing the class instantly returns any device to the safe UI, so we can kill-switch remotely by shipping a CSS change if a device slips through.
-- The allow-list is regex-based on WebGL renderer strings; unknown Adrenos ≥ 620, Apple A12+, Mali-G7x MP10+ are treated as high, everything else defaults safe.
+## Rollout order
+1. Migration (RPCs + verify grants).
+2. Server fns (paystack purpose routing, cashback helpers, enrollPaid/purchaseProduct card path).
+3. Checkout UIs (CourseCheckoutModal, product checkout).
+4. Shortfall inline top-up in bounty & ad flows.
+5. Wallet UI cashback framing.
+6. Smoke test with Playwright against a course + bounty flow.
