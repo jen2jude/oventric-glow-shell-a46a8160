@@ -7,7 +7,8 @@ import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOf
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccount, type MyFullProfile } from "@/lib/profiles.functions";
+import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccount, getLiveReputation, type MyFullProfile } from "@/lib/profiles.functions";
+import { snapshotFxRates } from "@/lib/fx.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -92,6 +93,12 @@ export function ProfileDropdown() {
   // Load the real profile row (name, bio, avatar signed URL) once we know
   // this session's user id.
   const fetchRealProfile = useServerFn(getProfileByIdOrSlug);
+  const fetchReputation = useServerFn(getLiveReputation);
+  const fetchFx = useServerFn(snapshotFxRates);
+  const [liveStars, setLiveStars] = useState<number | null>(null);
+  const [verificationTier, setVerificationTier] = useState<string | null>(null);
+  const [fxRates, setFxRates] = useState<{ NGN: number; GHS: number } | null>(null);
+
   useEffect(() => {
     if (!userId || userId === "me") return;
     let cancelled = false;
@@ -104,14 +111,29 @@ export function ProfileDropdown() {
           bio: res.profile!.bio ?? p.bio,
           avatarDataUrl: res.profile!.avatarUrl ?? p.avatarDataUrl,
         }));
+        setVerificationTier(res.profile!.verificationTier ?? null);
       } catch (e) {
         console.error("[ProfileDropdown] real profile load failed", e);
+      }
+      try {
+        const rep = await fetchReputation({ data: { idOrSlug: userId } });
+        if (!cancelled && rep.reputation) setLiveStars(rep.reputation.stars);
+      } catch (e) {
+        console.error("[ProfileDropdown] reputation load failed", e);
+      }
+      try {
+        const fx = await fetchFx();
+        if (!cancelled) setFxRates({ NGN: fx.rates.NGN, GHS: fx.rates.GHS });
+      } catch (e) {
+        console.error("[ProfileDropdown] fx load failed", e);
       }
     })();
     return () => {
       cancelled = true;
     };
-  }, [userId, fetchRealProfile]);
+  }, [userId, fetchRealProfile, fetchReputation, fetchFx]);
+
+
 
 
   const getMenuItems = (): HTMLElement[] => {
@@ -213,8 +235,23 @@ export function ProfileDropdown() {
 
   const handle = "@" + slugify(profile.displayName);
 
-  const tierLabel = tier === 0 ? "Unverified" : `Tier ${tier} Verified`;
-  const reputation = (4.2 + Math.min(tier, 5) * 0.12).toFixed(2);
+  // Tier label derived from persisted verification_tier ("TIER_0/1/2/5"),
+  // falling back to the onboarding-derived numeric tier while the profile loads.
+  const tierNumeric = (() => {
+    if (verificationTier) {
+      const m = /TIER_(\d)/.exec(verificationTier);
+      if (m) return Number(m[1]);
+    }
+    return tier;
+  })();
+  const tierLabel = tierNumeric === 0
+    ? "Tier 0 · Guest"
+    : tierNumeric >= 5
+      ? "Tier 5 · Fully verified"
+      : tierNumeric >= 2
+        ? "Tier 2 · Commerce ready"
+        : "Tier 1 · Email verified";
+  const reputation = (liveStars ?? 0).toFixed(1);
 
   const onSignOut = async () => {
     closeMenu(false);
@@ -272,7 +309,7 @@ export function ProfileDropdown() {
         <div className="text-[11px] text-slate-500 font-mono truncate">{handle}</div>
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
           <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-            tier > 0
+            tierNumeric > 0
               ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
               : "bg-slate-500/15 border-slate-500/40 text-slate-300"
           }`}>
@@ -302,27 +339,43 @@ export function ProfileDropdown() {
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
-      <div className="grid grid-cols-3 gap-2" aria-label="Base currency (locked to profile country)">
-        {(["USD", "NGN", "GHS"] as Currency[]).map((c) => {
-          const active = baseCurrency === c;
-          return (
+      {(() => {
+        const baseBal = balances[baseCurrency] ?? 0;
+        // Convert base currency amount to USD using live snapshot when available.
+        // USD-base rates mean 1 USD = X <currency>, so USD = amount / rate.
+        let usdEquivalent = 0;
+        if (baseCurrency === "USD") usdEquivalent = baseBal;
+        else if (fxRates) {
+          const rate = baseCurrency === "NGN" ? fxRates.NGN : fxRates.GHS;
+          usdEquivalent = rate > 0 ? baseBal / rate : 0;
+        }
+        const showUsdTile = baseCurrency !== "USD";
+        return (
+          <div className={`grid gap-2 ${showUsdTile ? "grid-cols-2" : "grid-cols-1"}`} aria-label="Wallet balance">
             <div
-              key={c}
-              className={`rounded-lg px-2 py-2 text-center transition-colors ${
-                active
-                  ? "bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(16,185,129,0.9)]"
-                  : "bg-[#121214] border border-white/5 opacity-60"
-              }`}
-              title={active ? `${c} is your locked base currency (from your country)` : `${c} is locked — set your country to switch`}
+              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(16,185,129,0.9)]"
+              title={`${baseCurrency} is your locked base currency (from your country)`}
             >
-              <div className={`text-[9px] font-bold uppercase tracking-widest ${active ? "text-emerald-300" : "text-slate-500"}`}>{c}{active ? " · Locked" : ""}</div>
-              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : active ? "text-emerald-100" : "text-slate-500"}`}>
-                {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[c]}${fmtBalance(balances[c], c)}`}
+              <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">{baseCurrency} · Base</div>
+              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-emerald-100"}`}>
+                {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[baseCurrency]}${fmtBalance(baseBal, baseCurrency)}`}
               </div>
             </div>
-          );
-        })}
-      </div>
+            {showUsdTile && (
+              <div
+                className="rounded-lg px-2 py-2 text-center bg-[#121214] border border-white/5"
+                title="USD equivalent — display only, not withdrawable"
+              >
+                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">USD · Equivalent</div>
+                <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-slate-200"}`}>
+                  {balancesHidden ? "••••••" : `≈ $${fmtBalance(usdEquivalent, "USD")}`}
+                </div>
+                <div className="text-[8px] text-slate-500 mt-0.5">Not withdrawable</div>
+              </div>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 
