@@ -292,17 +292,36 @@ export function CourseCheckoutModal({
                 </div>
               )}
 
+              {method === "wallet" && cashbackUSD > 0 && (
+                <label className="flex items-center gap-3 p-3 rounded-lg bg-[#121214] border border-emerald-500/30 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    checked={useCashback}
+                    onChange={(e) => setUseCashback(e.target.checked)}
+                    className="w-4 h-4 accent-emerald-500"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-semibold text-white">Apply Cashback Wallet</div>
+                    <div className="text-[11px] text-emerald-300">Available: {fmt(cashbackUSD, baseCurrency)} · spend-only</div>
+                  </div>
+                </label>
+              )}
+
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
                 <Row label="Course price" value={grossFormatted} />
                 {discountUSD > 0 && <Row label="Coupon discount" value={`- ${fmt(discountUSD, baseCurrency)}`} accent="text-emerald-300" />}
+                {cashbackApplyUSD > 0 && (
+                  <Row label="Cashback applied" value={`- ${fmt(cashbackApplyUSD, baseCurrency)}`} accent="text-emerald-300" />
+                )}
                 {method === "wallet" && (
-                  <Row label="Wallet cashback (2%)" value={`+ ${fmt(totalUSD * 0.02, baseCurrency)}`} accent="text-emerald-300" />
+                  <Row label="You earn back (2%)" value={`+ ${fmt(totalUSD * 0.02, baseCurrency)}`} accent="text-emerald-300" />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
                   <span className="text-white font-black text-lg">{totalFormatted}</span>
                 </div>
               </div>
+
 
               {fxInvalid && (
                 <div
