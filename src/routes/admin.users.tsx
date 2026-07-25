@@ -8,6 +8,7 @@ import {
 import {
   listAdminUsers, setUserRole, getUserDetail, updateUserProfileAdmin,
   sendUserPasswordReset, setUserFlag, setUserBan, deleteUserAdmin, deleteUsersBulkAdmin,
+  adminResetWallet,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/users")({
