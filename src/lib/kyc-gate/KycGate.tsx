@@ -377,7 +377,7 @@ function KycLivenessModal({
           if (step === "id-capturing") {
             setIdBlob(blob);
             setIdUrl(URL.createObjectURL(blob));
-            setStep("id-review");
+            setStep(mode === "enroll" ? "id-review" : "id-matching");
           } else {
             setSelfieBlob(blob);
             setSelfieUrl(URL.createObjectURL(blob));
