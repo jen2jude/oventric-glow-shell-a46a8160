@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions, getWalletBalances, getWalletEarnings } from "@/lib/wallet.functions";
+import { listWalletTransactions, getWalletBalances, getWalletEarnings, transferBountyToMain } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import {
   listBanksForCurrency,
