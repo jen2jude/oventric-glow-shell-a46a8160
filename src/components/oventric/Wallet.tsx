@@ -1564,14 +1564,14 @@ function AmountStep({
         rec.method === "bank"
           ? {
               beneficiary_name: rec.account_name,
-              bank_name: rec.bank_name,
-              account_number: rec.account_number,
-              bank_code: rec.bank_code,
+              bank_name: rec.bank_name ?? undefined,
+              account_number: rec.account_number ?? undefined,
+              bank_code: rec.bank_code ?? undefined,
             }
           : {
               beneficiary_name: rec.account_name,
-              momo_network: rec.momo_network,
-              phone: rec.phone,
+              momo_network: rec.momo_network ?? undefined,
+              phone: rec.phone ?? undefined,
             };
       await create({
         data: {
@@ -1580,6 +1580,7 @@ function AmountStep({
           amount: amt,
           destination,
         },
+
       });
       const label =
         rec.method === "bank"
