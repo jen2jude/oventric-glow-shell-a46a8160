@@ -1563,16 +1563,17 @@ function AmountStep({
       const destination =
         rec.method === "bank"
           ? {
-              beneficiary_name: rec.account_name,
+              account_name: rec.account_name,
               bank_name: rec.bank_name ?? undefined,
               account_number: rec.account_number ?? undefined,
               bank_code: rec.bank_code ?? undefined,
             }
           : {
-              beneficiary_name: rec.account_name,
-              momo_network: rec.momo_network ?? undefined,
+              account_name: rec.account_name,
+              network: (rec.momo_network as "MTN" | "Vodafone" | "AirtelTigo" | undefined) ?? undefined,
               phone: rec.phone ?? undefined,
             };
+
       await create({
         data: {
           currency,
