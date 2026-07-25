@@ -989,8 +989,12 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
     const product = (o.products ?? {}) as Record<string, unknown>;
     let downloadUrl: string | null = null;
     const filePath = (product.file_path as string) ?? null;
-    if (o.status === "paid" && filePath) {
-      const { data: signed } = await supabase.storage
+    const manual = Boolean(product.requires_manual_delivery);
+    if (o.status === "paid" && filePath && !manual) {
+      // Use service-role client so RLS on storage.objects cannot silently strip
+      // the signed URL for the legitimate buyer we've already authorized above.
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const { data: signed } = await supabaseAdmin.storage
         .from("product-files")
         .createSignedUrl(filePath, 60 * 60);
       downloadUrl = signed?.signedUrl ?? null;
