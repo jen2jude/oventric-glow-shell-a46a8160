@@ -1682,7 +1682,7 @@ function WireForm({
   onClose: () => void;
   onBack: () => void;
   max: number;
-  onSubmitted: () => void;
+  onSubmitted: (amount: number, destinationLabel: string) => void;
 }) {
   const create = useServerFn(createPayoutRequest);
   const [amount, setAmount] = useState("");
