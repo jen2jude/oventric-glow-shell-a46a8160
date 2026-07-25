@@ -121,6 +121,7 @@ export function Wallet() {
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
   const [addReturnTo, setAddReturnTo] = useState<string | null>(null);
   const [payoutOpen, setPayoutOpen] = useState(false);
+  const [bountyModalOpen, setBountyModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [curFilter, setCurFilter] = useState<"ALL" | Currency>("ALL");
