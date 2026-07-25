@@ -382,14 +382,15 @@ export function Wallet() {
             },
             {
               key: "bounty",
-              label: "Bounty Solved",
-              sub: "Gig payouts",
-              value: earnings.bountyUSD * fx,
+              label: "Bounty Wallet",
+              sub: "Tap to send to main or withdraw",
+              value: (balancesQuery.data?.bountyBalance ?? 0) * fx,
               currency: baseCurrency,
               icon: <Zap className="w-4 h-4" />,
               accent: "bg-amber-500/10",
               text: "text-amber-300",
               ring: "border-amber-500/30",
+              onClick: () => setBountyModalOpen(true),
             },
             {
               key: "affiliate",
