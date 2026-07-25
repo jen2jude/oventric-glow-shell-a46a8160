@@ -269,7 +269,7 @@ export const adminListPayouts = createServerFn({ method: "POST" })
             
             country: (p.country as string) ?? null,
             kyc_completed_at: (p.kyc_completed_at as string) ?? null,
-            verification_tier: (p.verification_tier as number) ?? null,
+            verification_tier: p.verification_tier == null ? null : Number(p.verification_tier),
           },
         ]),
       );
