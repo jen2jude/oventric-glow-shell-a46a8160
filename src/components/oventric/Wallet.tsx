@@ -1724,8 +1724,8 @@ function WireForm({
           },
         },
       });
-      toast.success("Payout requested", { description: "USD wires are processed manually by admin within 24–48 hours." });
-      onSubmitted();
+      onSubmitted(Number(amount), `${wireBank} · ${wireAcct}`);
+
     } catch (e) {
       toast.error("Payout failed", { description: (e as Error).message });
     } finally {
