@@ -414,30 +414,38 @@ export function Wallet() {
             <div className="wallet-earnings-safe">
               {/* Mobile: dead-flat single-line rows (Chrome Android safe: solid bg, no borders, no tints) */}
               <div className="wallet-earnings-mobile md:hidden">
-                {tiles.map((t) => (
-                  <div key={t.key} className="wallet-earnings-row">
-                    <span className="wallet-earnings-label">
-                      {t.label}{t.soon ? " (soon)" : ""}
-                    </span>
-                    {t.cta ? (
-                      <Link
-                        to={t.cta.to}
-                        className="text-[11px] font-black px-2.5 py-1 rounded-md"
-                        style={
-                          affiliateReserved
-                            ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
-                            : { backgroundColor: "#d946ef", color: "#000000" }
-                        }
-                      >
-                        {t.cta.label}
-                      </Link>
-                    ) : (
-                      <span className="wallet-earnings-value">
-                        {hide ? "•••" : fmt(t.value, t.currency)}
+                {tiles.map((t) => {
+                  const clickable = !!t.onClick;
+                  const RowEl = clickable ? "button" : "div";
+                  return (
+                    <RowEl
+                      key={t.key}
+                      onClick={t.onClick}
+                      className={`wallet-earnings-row ${clickable ? "text-left w-full hover:bg-white/5" : ""}`}
+                    >
+                      <span className="wallet-earnings-label">
+                        {t.label}{t.soon ? " (soon)" : ""}
                       </span>
-                    )}
-                  </div>
-                ))}
+                      {t.cta ? (
+                        <Link
+                          to={t.cta.to}
+                          className="text-[11px] font-black px-2.5 py-1 rounded-md"
+                          style={
+                            affiliateReserved
+                              ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                              : { backgroundColor: "#d946ef", color: "#000000" }
+                          }
+                        >
+                          {t.cta.label}
+                        </Link>
+                      ) : (
+                        <span className="wallet-earnings-value">
+                          {hide ? "•••" : fmt(t.value, t.currency)}
+                        </span>
+                      )}
+                    </RowEl>
+                  );
+                })}
               </div>
               {/* Desktop: original 3-up tiles */}
               <div className="hidden md:grid grid-cols-4 gap-3">
