@@ -863,8 +863,7 @@ function KycLivenessModal({
             </div>
             <div className="text-white font-black">Face didn't match</div>
             <p className="text-xs text-slate-400 mt-1 text-center">
-              We couldn't confirm your identity against your stored liveness selfie.
-              Move to bright, even light and try again.
+              We couldn't confirm your identity. Move to bright, even light and try again.
               <span className="block mt-1 text-amber-300/80">
                 Attempt {selfieAttempts} of 2 — one more failure will require your government ID.
               </span>
