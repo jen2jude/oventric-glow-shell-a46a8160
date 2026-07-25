@@ -1599,7 +1599,7 @@ function AmountStep({
 
 
   return (
-    <ModalShell title="Confirm payout" onClose={onDone}>
+    <ModalShell title="Confirm payout" onClose={onBack}>
       <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
         ← Change destination
       </button>
