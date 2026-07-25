@@ -29,8 +29,78 @@ import {
   getOnboardingStatus as getStatusFn,
   saveKyc as saveKycFn,
 } from "@/lib/onboarding.functions";
+import { submitKycSupport as submitKycSupportFn } from "@/lib/kyc-support.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
+// ---------------------------------------------------------------------------
+// Perceptual image hashing (aHash 16x16 → 256-bit fingerprint).
+// Not real biometric matching, but rejects unrelated frames so returning-user
+// liveness cannot be bypassed with just any face in the camera.
+// ---------------------------------------------------------------------------
+
+async function loadImageBitmap(src: string | Blob): Promise<HTMLImageElement> {
+  const url = typeof src === "string" ? src : URL.createObjectURL(src);
+  try {
+    const img = new Image();
+    img.crossOrigin = "anonymous";
+    img.decoding = "async";
+    await new Promise<void>((resolve, reject) => {
+      img.onload = () => resolve();
+      img.onerror = () => reject(new Error("image load failed"));
+      img.src = url;
+    });
+    return img;
+  } finally {
+    if (typeof src !== "string") {
+      // Revoke after a tick so decode has settled.
+      setTimeout(() => URL.revokeObjectURL(url), 4000);
+    }
+  }
+}
+
+/** 256-bit average hash across a 16x16 grayscale downscale. */
+async function computeAHash(src: string | Blob): Promise<Uint8Array> {
+  const img = await loadImageBitmap(src);
+  const size = 16;
+  const c = document.createElement("canvas");
+  c.width = size;
+  c.height = size;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("no 2d ctx");
+  // Center-crop to square before downscale so aspect doesn't skew hash.
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const side = Math.min(iw, ih);
+  const sx = Math.floor((iw - side) / 2);
+  const sy = Math.floor((ih - side) / 2);
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+  const { data } = ctx.getImageData(0, 0, size, size);
+  const gray = new Uint8Array(size * size);
+  let sum = 0;
+  for (let i = 0; i < size * size; i++) {
+    const r = data[i * 4];
+    const g = data[i * 4 + 1];
+    const b = data[i * 4 + 2];
+    const v = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
+    gray[i] = v;
+    sum += v;
+  }
+  const mean = sum / (size * size);
+  const bits = new Uint8Array(size * size);
+  for (let i = 0; i < size * size; i++) bits[i] = gray[i] > mean ? 1 : 0;
+  return bits;
+}
+
+function hamming(a: Uint8Array, b: Uint8Array): number {
+  const n = Math.min(a.length, b.length);
+  let d = 0;
+  for (let i = 0; i < n; i++) if (a[i] !== b[i]) d++;
+  return d;
+}
+
+/** Threshold on 256-bit hash. ~28% differing bits still counts as a match. */
+const HASH_MATCH_MAX_DIFF = 72;
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
