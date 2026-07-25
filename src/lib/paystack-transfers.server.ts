@@ -96,6 +96,7 @@ export async function initiateTransfer(input: {
   recipient_code: string;
   reason: string;
   reference: string;
+  signal?: AbortSignal;
 }): Promise<InitiatedTransfer> {
   const body = {
     source: "balance",
@@ -107,6 +108,7 @@ export async function initiateTransfer(input: {
   return ps<InitiatedTransfer>("/transfer", {
     method: "POST",
     body: JSON.stringify(body),
+    signal: input.signal,
   });
 }
 

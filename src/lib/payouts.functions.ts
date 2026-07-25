@@ -1,15 +1,8 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
-import {
-  estimateTransferFee,
-  listBanks as psListBanks,
-  resolveAccount as psResolveAccount,
-  createTransferRecipient as psCreateRecipient,
-  initiateTransfer as psInitiateTransfer,
-  toSubunit,
-  type TransferCurrency,
-  type TransferMethod,
-} from "./paystack-transfers.server";
+
+export type TransferCurrency = "NGN" | "GHS";
+export type TransferMethod = "bank" | "momo";
 
 async function writePayoutAudit(
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -403,6 +396,7 @@ export const listBanksForCurrency = createServerFn({ method: "POST" })
     currency: (input?.currency === "GHS" ? "GHS" : "NGN") as TransferCurrency,
   }))
   .handler(async ({ data }) => {
+    const { listBanks: psListBanks } = await import("./paystack-transfers.server");
     const banks = await psListBanks(data.currency);
     return banks.map((b) => ({ name: b.name, code: b.code, type: b.type }));
   });
@@ -415,6 +409,7 @@ export const resolveBankAccount = createServerFn({ method: "POST" })
   }))
   .handler(async ({ data }) => {
     if (!data.account_number || !data.bank_code) throw new Error("Bank and account number required");
+    const { resolveAccount: psResolveAccount } = await import("./paystack-transfers.server");
     const res = await psResolveAccount(data);
     return { account_number: res.account_number, account_name: res.account_name };
   });
@@ -478,6 +473,7 @@ export const createMyRecipient = createServerFn({ method: "POST" })
   })
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
+    const { createTransferRecipient: psCreateRecipient } = await import("./paystack-transfers.server");
 
     let recipientCode: string;
     if (data.method === "bank") {
@@ -547,6 +543,7 @@ export const estimatePayoutFee = createServerFn({ method: "POST" })
     amount: Math.max(0, Number(input?.amount ?? 0)),
   }))
   .handler(async ({ data }) => {
+    const { estimateTransferFee } = await import("./paystack-transfers.server");
     const fee = estimateTransferFee(data.currency, data.method, data.amount);
     const net = Math.max(0, Number((data.amount - fee).toFixed(2)));
     return { fee, net };
@@ -567,6 +564,9 @@ export const createLivePayout = createServerFn({ method: "POST" })
     const { supabase, userId } = context;
     if (!data.recipientId) throw new Error("Recipient required");
     if (!(data.amount > 0)) throw new Error("Amount must be greater than zero");
+    const { estimateTransferFee, initiateTransfer: psInitiateTransfer, toSubunit } = await import(
+      "./paystack-transfers.server"
+    );
 
     const { data: rec, error: recErr } = await supabase
       .from("payout_recipients")
@@ -621,11 +621,24 @@ export const createLivePayout = createServerFn({ method: "POST" })
 
     try {
       const ref = `PYT_${payoutId.replace(/-/g, "").slice(0, 24)}`;
-      const result = await psInitiateTransfer({
-        amountSubunit: toSubunit(net),
-        recipient_code: rec.paystack_recipient_code as string,
-        reason: `Oventric payout ${payoutId.slice(0, 8)}`,
-        reference: ref,
+      const result = await new Promise<Awaited<ReturnType<typeof psInitiateTransfer>>>((resolve, reject) => {
+        const timer = setTimeout(() => {
+          reject(new Error("Transfer provider timed out. Your wallet was refunded; please try again."));
+        }, 25_000);
+        psInitiateTransfer({
+          amountSubunit: toSubunit(net),
+          recipient_code: rec.paystack_recipient_code as string,
+          reason: `Oventric payout ${payoutId.slice(0, 8)}`,
+          reference: ref,
+        })
+          .then((value) => {
+            clearTimeout(timer);
+            resolve(value);
+          })
+          .catch((err) => {
+            clearTimeout(timer);
+            reject(err);
+          });
       });
       const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
       await supabaseAdmin
@@ -634,15 +647,53 @@ export const createLivePayout = createServerFn({ method: "POST" })
         .eq("id", payoutId);
       return { id: payoutId, status: result.status, fee, net, currency };
     } catch (transferErr) {
+      const reason =
+        transferErr instanceof Error
+          ? transferErr.message.slice(0, 200)
+          : "Transfer initialisation failed";
       try {
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-        await supabaseAdmin.rpc("payout_request_reject", {
-          _id: payoutId,
-          _reason:
-            transferErr instanceof Error
-              ? transferErr.message.slice(0, 200)
-              : "Paystack transfer initialisation failed",
-        });
+        const { data: payoutRow } = await supabaseAdmin
+          .from("payout_requests")
+          .select("user_id, amount, currency")
+          .eq("id", payoutId)
+          .maybeSingle();
+        if (payoutRow) {
+          const { data: walletRow } = await supabaseAdmin
+            .from("wallets")
+            .select("available_balance, escrow_balance")
+            .eq("user_id", payoutRow.user_id as string)
+            .eq("currency", payoutRow.currency as string)
+            .maybeSingle();
+          const amount = Number(payoutRow.amount ?? 0);
+          if (walletRow && amount > 0) {
+            const currentAvailable = Number(walletRow.available_balance ?? 0);
+            const currentEscrow = Number(walletRow.escrow_balance ?? 0);
+            await supabaseAdmin
+              .from("wallets")
+              .update({
+                available_balance: Number((currentAvailable + amount).toFixed(2)),
+                escrow_balance: Number(Math.max(0, currentEscrow - amount).toFixed(2)),
+                updated_at: new Date().toISOString(),
+              })
+              .eq("user_id", payoutRow.user_id as string)
+              .eq("currency", payoutRow.currency as string);
+          }
+          await supabaseAdmin
+            .from("wallet_transactions")
+            .update({ status: "failed" })
+            .eq("user_id", payoutRow.user_id as string)
+            .eq("type", "Payout Withdrawal")
+            .eq("tx_hash", `PYT-${payoutId.slice(0, 8)}`);
+        }
+        await supabaseAdmin
+          .from("payout_requests")
+          .update({
+            status: "rejected",
+            reject_reason: reason,
+            processed_at: new Date().toISOString(),
+          })
+          .eq("id", payoutId);
       } catch (rollbackErr) {
         console.error("[createLivePayout] refund rollback failed", rollbackErr);
       }

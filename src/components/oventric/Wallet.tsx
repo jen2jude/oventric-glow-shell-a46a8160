@@ -1077,7 +1077,9 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         onBack={() => setStep("pick")}
         max={balances.USD ?? 0}
         onSubmitted={() => {
-          void qc.invalidateQueries({ queryKey: ["wallet"] });
+          void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
+          void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+          void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
           onClose();
         }}
       />
@@ -1099,14 +1101,29 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
   }
 
   // step === "amount"
+  if (!chosenRecipientId) {
+    return (
+      <DestinationPicker
+        currency={baseCurrency as "NGN" | "GHS"}
+        onClose={onClose}
+        onBack={() => setStep("pick")}
+        onPick={(id) => {
+          setChosenRecipientId(id);
+          setStep("amount");
+        }}
+      />
+    );
+  }
   return (
     <AmountStep
       currency={baseCurrency as "NGN" | "GHS"}
-      recipientId={chosenRecipientId!}
+      recipientId={chosenRecipientId}
       max={balances[baseCurrency] ?? 0}
       onBack={() => setStep("destination")}
       onDone={() => {
-        void qc.invalidateQueries({ queryKey: ["wallet"] });
+        void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
+        void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+        void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
         onClose();
       }}
     />
@@ -1460,6 +1477,10 @@ function AmountStep({
 
   const submit = async () => {
     if (!(amt > 0)) return;
+    if (!recipientId || !rec) {
+      toast.error("Choose a payout destination first");
+      return;
+    }
     if (amt > max) {
       toast.error("Amount exceeds available balance");
       return;
@@ -1472,7 +1493,13 @@ function AmountStep({
       });
       onDone();
     } catch (e) {
-      toast.error("Payout failed", { description: (e as Error).message });
+      const message = e instanceof Error ? e.message : "The payout request could not be completed.";
+      const friendly = /timed out|timeout/i.test(message)
+        ? "The transfer provider did not respond in time. Your wallet was refunded; please try again."
+        : /insufficient balance/i.test(message)
+          ? "Your available wallet balance changed before this payout could be sent."
+          : message;
+      toast.error("Payout failed", { description: friendly });
     } finally {
       setBusy(false);
     }
