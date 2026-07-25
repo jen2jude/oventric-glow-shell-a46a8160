@@ -780,3 +780,21 @@ export const resetSystemWallets = createServerFn({ method: "POST" })
     await writeAudit(sb, context.userId, "system_wallets.reset", "system_wallets", null);
     return { ok: true };
   });
+
+/** Admin: reset a specific user wallet balance component (available/escrow/cashback/bounty/all) for a currency. */
+export const adminResetWallet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string; currency: "USD" | "NGN" | "GHS"; which: "available" | "escrow" | "cashback" | "bounty" | "all" }) => {
+    if (!i?.userId) throw new Error("userId required");
+    if (!["USD", "NGN", "GHS"].includes(i.currency)) throw new Error("invalid currency");
+    if (!["available", "escrow", "cashback", "bounty", "all"].includes(i.which)) throw new Error("invalid target");
+    return i;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { error } = await sb.rpc("admin_reset_wallet", { _user_id: data.userId, _currency: data.currency, _which: data.which });
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
