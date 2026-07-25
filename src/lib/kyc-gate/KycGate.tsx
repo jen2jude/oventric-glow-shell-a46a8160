@@ -753,9 +753,9 @@ function KycLivenessModal({
                 <Camera className="w-4 h-4" /> Capture liveness
               </button>
             )}
-            {mode === "match" && attempts > 0 && (
+            {mode === "match" && selfieAttempts > 0 && (
               <p className="text-[11px] text-amber-300/80 mt-2">
-                Attempt {attempts + 1} of 3
+                Attempt {selfieAttempts + 1} of 2
               </p>
             )}
             <canvas ref={canvasRef} className="hidden" />
