@@ -564,7 +564,7 @@ export const getUserDetail = createServerFn({ method: "POST" })
 
     const { data: authUser } = await sb.auth.admin.getUserById(data.userId);
     const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", data.userId);
-    const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", data.userId);
+    const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance, accumulated_cashback, bounty_balance").eq("user_id", data.userId);
 
     const [
       postsCount, productsCount, ordersCount, followersCount,
