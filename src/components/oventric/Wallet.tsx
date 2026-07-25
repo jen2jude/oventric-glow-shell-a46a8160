@@ -753,10 +753,20 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
 }
 
 function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevTouch = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouch;
+    };
+  }, []);
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
       <div
-        className="w-full sm:max-w-lg bg-[#141418] border border-[#222226] rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-lg bg-[#141418] border border-[#222226] rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226]">
@@ -770,6 +780,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
     </div>
   );
 }
+
 
 function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
