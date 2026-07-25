@@ -242,7 +242,7 @@ export const adminListPayouts = createServerFn({ method: "POST" })
     let profileMap: Record<string, {
       display_name: string | null;
       username: string | null;
-      email: string | null;
+      country: string | null;
       country: string | null;
       kyc_completed_at: string | null;
       verification_tier: number | null;
