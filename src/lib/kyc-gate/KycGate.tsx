@@ -290,14 +290,24 @@ function KycLivenessModal({
 
 
   useEffect(() => {
-    if (mode !== "match" || !referencePath) return;
-    supabase.storage
-      .from("kyc-selfies")
-      .createSignedUrl(referencePath, 120)
-      .then(({ data }) => {
-        if (data?.signedUrl) setReferenceUrl(data.signedUrl);
-      });
-  }, [mode, referencePath]);
+    if (mode !== "match") return;
+    if (referencePath) {
+      supabase.storage
+        .from("kyc-selfies")
+        .createSignedUrl(referencePath, 300)
+        .then(({ data }) => {
+          if (data?.signedUrl) setReferenceUrl(data.signedUrl);
+        });
+    }
+    if (idReferencePath) {
+      supabase.storage
+        .from("kyc-selfies")
+        .createSignedUrl(idReferencePath, 300)
+        .then(({ data }) => {
+          if (data?.signedUrl) setIdReferenceUrl(data.signedUrl);
+        });
+    }
+  }, [mode, referencePath, idReferencePath]);
 
   // Start camera when entering an id-camera or selfie-camera step.
   useEffect(() => {
