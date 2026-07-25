@@ -1499,17 +1499,17 @@ function AmountStep({
   recipientId,
   max,
   onBack,
-  onDone,
+  onSubmitted,
 }: {
   currency: "NGN" | "GHS";
   recipientId: string;
   max: number;
   onBack: () => void;
-  onDone: () => void;
+  onSubmitted: (amount: number, destinationLabel: string) => void;
 }) {
   const listRec = useServerFn(listMyRecipients);
   const estimateFee = useServerFn(estimatePayoutFee);
-  const create = useServerFn(createLivePayout);
+  const create = useServerFn(createPayoutRequest);
 
   const [rec, setRec] = useState<PayoutRecipientDTO | null>(null);
   const [amount, setAmount] = useState<string>("");
@@ -1560,23 +1560,43 @@ function AmountStep({
     }
     setBusy(true);
     try {
-      await create({ data: { recipientId, amount: amt } });
-      toast.success("Payout initiated", {
-        description: `Bank will receive ${sym}${net.toLocaleString()} once Paystack confirms.`,
+      const destination =
+        rec.method === "bank"
+          ? {
+              beneficiary_name: rec.account_name,
+              bank_name: rec.bank_name,
+              account_number: rec.account_number,
+              bank_code: rec.bank_code,
+            }
+          : {
+              beneficiary_name: rec.account_name,
+              momo_network: rec.momo_network,
+              phone: rec.phone,
+            };
+      await create({
+        data: {
+          currency,
+          method: rec.method,
+          amount: amt,
+          destination,
+        },
       });
-      onDone();
+      const label =
+        rec.method === "bank"
+          ? `${rec.bank_name} · ${rec.account_number}`
+          : `${rec.momo_network} · ${rec.phone}`;
+      onSubmitted(amt, label);
     } catch (e) {
       const message = e instanceof Error ? e.message : "The payout request could not be completed.";
-      const friendly = /timed out|timeout/i.test(message)
-        ? "The transfer provider did not respond in time. Your wallet was refunded; please try again."
-        : /insufficient balance/i.test(message)
-          ? "Your available wallet balance changed before this payout could be sent."
-          : message;
+      const friendly = /insufficient balance/i.test(message)
+        ? "Your available wallet balance changed before this payout could be sent."
+        : message;
       toast.error("Payout failed", { description: friendly });
     } finally {
       setBusy(false);
     }
   };
+
 
   return (
     <ModalShell title="Confirm payout" onClose={onDone}>
