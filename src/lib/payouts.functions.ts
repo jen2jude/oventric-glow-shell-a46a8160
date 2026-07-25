@@ -622,7 +622,9 @@ export const createLivePayout = createServerFn({ method: "POST" })
     try {
       const ref = `PYT_${payoutId.replace(/-/g, "").slice(0, 24)}`;
       const result = await new Promise<Awaited<ReturnType<typeof psInitiateTransfer>>>((resolve, reject) => {
+        const controller = new AbortController();
         const timer = setTimeout(() => {
+          controller.abort();
           reject(new Error("Transfer provider timed out. Your wallet was refunded; please try again."));
         }, 25_000);
         psInitiateTransfer({
@@ -630,6 +632,7 @@ export const createLivePayout = createServerFn({ method: "POST" })
           recipient_code: rec.paystack_recipient_code as string,
           reason: `Oventric payout ${payoutId.slice(0, 8)}`,
           reference: ref,
+          signal: controller.signal,
         })
           .then((value) => {
             clearTimeout(timer);
