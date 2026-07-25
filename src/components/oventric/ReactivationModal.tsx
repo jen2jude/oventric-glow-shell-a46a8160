@@ -29,8 +29,13 @@ export function ReactivationModal({ open, daysRemaining, onReactivated, onSignOu
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    document.body.classList.add("kyc-active");
+    return () => {
+      document.body.style.overflow = prev;
+      document.body.classList.remove("kyc-active");
+    };
   }, [open]);
+
 
   const stopCam = useCallback(() => {
     streamRef.current?.getTracks().forEach((t) => t.stop());

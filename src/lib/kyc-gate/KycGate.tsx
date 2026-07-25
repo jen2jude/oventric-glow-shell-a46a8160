@@ -202,10 +202,13 @@ function KycLivenessModal({
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
+    document.body.classList.add("kyc-active");
     return () => {
       document.body.style.overflow = prev;
+      document.body.classList.remove("kyc-active");
     };
   }, []);
+
 
   useEffect(() => {
     if (mode !== "match" || !referencePath) return;
