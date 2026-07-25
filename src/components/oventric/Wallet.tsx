@@ -356,6 +356,7 @@ export function Wallet() {
             ring: string;
             soon?: boolean;
             cta?: { label: string; to: string };
+            onClick?: () => void;
           };
           const tiles: Tile[] = [
             {
