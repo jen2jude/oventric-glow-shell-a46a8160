@@ -67,7 +67,8 @@ function PaymentReturnPage() {
   }, [state, cashbackUSD, redirectTo, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200">
+    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
+
       <Header onOpenMessages={() => {}} />
       <main className="max-w-md mx-auto w-full px-4 py-24 text-center">
         {state === "verifying" && (
