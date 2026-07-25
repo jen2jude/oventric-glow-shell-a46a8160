@@ -232,9 +232,13 @@ type Step =
   | "selfie-capturing"
   | "review"
   | "matching"
+  | "id-matching"
   | "success"
   | "mismatch"
+  | "id-mismatch"
   | "fallback";
+
+type MatchPhase = "selfie" | "id";
 
 function KycLivenessModal({
   mode,
