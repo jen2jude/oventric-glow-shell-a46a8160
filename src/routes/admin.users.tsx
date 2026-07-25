@@ -310,7 +310,7 @@ interface DetailData {
   last_sign_in_at: string | null;
   auth_created_at: string | null;
   roles: string[];
-  wallets: Array<{ currency: string; available_balance: number; escrow_balance: number }>;
+  wallets: Array<{ currency: string; available_balance: number; escrow_balance: number; accumulated_cashback?: number; bounty_balance?: number }>;
   counts: {
     posts: number; products: number; orders: number; followers: number;
     bountiesPosted: number; bountiesWon: number; bountyApplications: number; contactedSellers: number;
