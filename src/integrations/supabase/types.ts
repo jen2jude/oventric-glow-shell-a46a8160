@@ -2445,6 +2445,7 @@ export type Database = {
         Row: {
           accumulated_cashback: number
           available_balance: number
+          bounty_balance: number
           created_at: string
           currency: string
           escrow_balance: number
@@ -2455,6 +2456,7 @@ export type Database = {
         Insert: {
           accumulated_cashback?: number
           available_balance?: number
+          bounty_balance?: number
           created_at?: string
           currency: string
           escrow_balance?: number
@@ -2465,6 +2467,7 @@ export type Database = {
         Update: {
           accumulated_cashback?: number
           available_balance?: number
+          bounty_balance?: number
           created_at?: string
           currency?: string
           escrow_balance?: number
@@ -2484,6 +2487,10 @@ export type Database = {
         Args: { _kind: string; _tier: string }
         Returns: number
       }
+      admin_reset_wallet: {
+        Args: { _currency: string; _user_id: string; _which: string }
+        Returns: undefined
+      }
       bounty_auto_release_due: { Args: never; Returns: number }
       bounty_publish_lock: {
         Args: { _amount_usd: number; _bounty_id: string }
@@ -2495,6 +2502,10 @@ export type Database = {
       }
       bounty_release_escrow: {
         Args: { _bounty_id: string }
+        Returns: undefined
+      }
+      bounty_wallet_transfer_to_main: {
+        Args: { _amount: number }
         Returns: undefined
       }
       cashback_credit: {

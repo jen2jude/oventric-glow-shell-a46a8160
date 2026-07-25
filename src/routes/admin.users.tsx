@@ -8,6 +8,7 @@ import {
 import {
   listAdminUsers, setUserRole, getUserDetail, updateUserProfileAdmin,
   sendUserPasswordReset, setUserFlag, setUserBan, deleteUserAdmin, deleteUsersBulkAdmin,
+  adminResetWallet,
 } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/users")({
@@ -309,7 +310,7 @@ interface DetailData {
   last_sign_in_at: string | null;
   auth_created_at: string | null;
   roles: string[];
-  wallets: Array<{ currency: string; available_balance: number; escrow_balance: number }>;
+  wallets: Array<{ currency: string; available_balance: number; escrow_balance: number; accumulated_cashback?: number; bounty_balance?: number }>;
   counts: {
     posts: number; products: number; orders: number; followers: number;
     bountiesPosted: number; bountiesWon: number; bountyApplications: number; contactedSellers: number;
@@ -551,50 +552,7 @@ function UserDetailModal({ userId, onClose, onChanged }: { userId: string; onClo
             )}
 
             {tab === "wallet" && (
-              <div className="space-y-3">
-                <div className="text-[10px] uppercase text-slate-500 tracking-wider">Wallets (read-only)</div>
-                {d.wallets.length === 0 ? <Empty label="No wallets yet." /> : (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {d.wallets.map((w) => (
-                      <div key={w.currency} className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
-                        <div className="text-[10px] uppercase text-slate-500 tracking-wider">{w.currency}</div>
-                        <div className="text-white font-bold text-lg">{Number(w.available_balance).toFixed(2)}</div>
-                        <div className="text-[11px] text-slate-500">escrow {Number(w.escrow_balance).toFixed(2)}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="text-[10px] uppercase text-slate-500 tracking-wider mt-3">Transaction history</div>
-                {d.walletTransactions.length === 0 ? <Empty label="No transactions." /> : (
-                  <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
-                    <table className="w-full text-xs">
-                      <thead className="bg-white/5 text-[10px] uppercase text-slate-400">
-                        <tr>
-                          <th className="text-left px-2 py-1.5">When</th>
-                          <th className="text-left px-2 py-1.5">Type</th>
-                          <th className="text-left px-2 py-1.5">Ref</th>
-                          <th className="text-right px-2 py-1.5">Amount</th>
-                          <th className="text-left px-2 py-1.5">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {d.walletTransactions.map((t) => (
-                          <tr key={t.id}>
-                            <td className="px-2 py-1.5 text-slate-400">{new Date(t.occurred_at).toLocaleString()}</td>
-                            <td className="px-2 py-1.5 text-slate-200">{t.type}</td>
-                            <td className="px-2 py-1.5 text-slate-500 font-mono">{t.tx_hash}</td>
-                            <td className={`px-2 py-1.5 text-right font-bold ${t.inflow ? "text-emerald-300" : "text-red-300"}`}>
-                              {t.inflow ? "+" : "−"}{Number(t.amount).toFixed(2)} {t.currency}
-                            </td>
-                            <td className="px-2 py-1.5 text-slate-400">{t.status}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-500 italic">Admins cannot withdraw from user wallets. This view is read-only.</div>
-              </div>
+              <WalletTab d={d} userId={userId} onChanged={load} />
             )}
 
             {tab === "downloads" && (
@@ -729,5 +687,107 @@ function ModBtn({
       {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Icon className="w-3.5 h-3.5" />}
       {label}
     </button>
+  );
+}
+
+type ResetTarget = "available" | "escrow" | "cashback" | "bounty" | "all";
+
+function WalletTab({ d, userId, onChanged }: { d: DetailData; userId: string; onChanged: () => void | Promise<void> }) {
+  const resetFn = useServerFn(adminResetWallet);
+  const [busy, setBusy] = useState<string | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const reset = async (currency: "USD" | "NGN" | "GHS", which: ResetTarget) => {
+    const label = which === "all" ? "ALL balances" : which;
+    if (!window.confirm(`Reset ${label} in ${currency} to 0? This cannot be undone.`)) return;
+    const key = `${currency}:${which}`;
+    setBusy(key); setErr(null);
+    try { await resetFn({ data: { userId, currency, which } }); await onChanged(); }
+    catch (e) { setErr((e as Error).message); }
+    finally { setBusy(null); }
+  };
+
+  const currencies: Array<"USD" | "NGN" | "GHS"> = ["USD", "NGN", "GHS"];
+  const rowFor = (c: "USD" | "NGN" | "GHS") =>
+    d.wallets.find((w) => w.currency === c) ?? { currency: c, available_balance: 0, escrow_balance: 0, accumulated_cashback: 0, bounty_balance: 0 };
+
+  return (
+    <div className="space-y-3">
+      {err && <div className="p-2 rounded border border-red-500/40 bg-red-500/10 text-xs text-red-300">{err}</div>}
+      <div className="text-[10px] uppercase text-slate-500 tracking-wider">Wallet balances · admin can reset any component</div>
+      <div className="grid grid-cols-1 gap-3">
+        {currencies.map((c) => {
+          const w = rowFor(c);
+          const cells: Array<{ key: ResetTarget; label: string; value: number }> = [
+            { key: "available", label: "Main", value: Number(w.available_balance) },
+            { key: "escrow", label: "Escrow", value: Number(w.escrow_balance) },
+            ...(c === "USD" ? ([
+              { key: "cashback" as ResetTarget, label: "Cashback", value: Number(w.accumulated_cashback ?? 0) },
+              { key: "bounty" as ResetTarget, label: "Bounty", value: Number(w.bounty_balance ?? 0) },
+            ]) : []),
+          ];
+          return (
+            <div key={c} className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
+              <div className="flex items-center justify-between mb-2">
+                <div className="text-white font-bold text-sm">{c}</div>
+                <button
+                  onClick={() => reset(c, "all")}
+                  disabled={busy === `${c}:all`}
+                  className="text-[10px] uppercase font-bold px-2 py-1 rounded border border-red-500/40 bg-red-500/10 text-red-200 hover:bg-red-500/20 disabled:opacity-50 inline-flex items-center gap-1"
+                >
+                  {busy === `${c}:all` ? <Loader2 className="w-3 h-3 animate-spin" /> : <Trash2 className="w-3 h-3" />}
+                  Reset all ({c})
+                </button>
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                {cells.map((cell) => (
+                  <div key={cell.key} className="bg-black/30 border border-white/10 rounded p-2">
+                    <div className="text-[10px] uppercase text-slate-500 tracking-wider">{cell.label}</div>
+                    <div className="text-white font-bold text-sm tabular-nums">{cell.value.toFixed(2)}</div>
+                    <button
+                      onClick={() => reset(c, cell.key)}
+                      disabled={busy === `${c}:${cell.key}` || cell.value === 0}
+                      className="mt-1 w-full text-[10px] uppercase font-bold px-1.5 py-1 rounded bg-white/5 border border-white/10 text-slate-200 hover:bg-red-500/15 hover:border-red-500/40 hover:text-red-200 disabled:opacity-40 inline-flex items-center justify-center gap-1"
+                    >
+                      {busy === `${c}:${cell.key}` ? <Loader2 className="w-3 h-3 animate-spin" /> : "Reset"}
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="text-[10px] uppercase text-slate-500 tracking-wider mt-3">Recent transactions</div>
+      {d.walletTransactions.length === 0 ? <Empty label="No transactions." /> : (
+        <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
+          <table className="w-full text-xs">
+            <thead className="bg-white/5 text-[10px] uppercase text-slate-400">
+              <tr>
+                <th className="text-left px-2 py-1.5">When</th>
+                <th className="text-left px-2 py-1.5">Type</th>
+                <th className="text-left px-2 py-1.5">Ref</th>
+                <th className="text-right px-2 py-1.5">Amount</th>
+                <th className="text-left px-2 py-1.5">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-white/5">
+              {d.walletTransactions.map((t) => (
+                <tr key={t.id}>
+                  <td className="px-2 py-1.5 text-slate-400">{new Date(t.occurred_at).toLocaleString()}</td>
+                  <td className="px-2 py-1.5 text-slate-200">{t.type}</td>
+                  <td className="px-2 py-1.5 text-slate-500 font-mono">{t.tx_hash}</td>
+                  <td className={`px-2 py-1.5 text-right font-bold ${t.inflow ? "text-emerald-300" : "text-red-300"}`}>
+                    {t.inflow ? "+" : "−"}{Number(t.amount).toFixed(2)} {t.currency}
+                  </td>
+                  <td className="px-2 py-1.5 text-slate-400">{t.status}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </div>
   );
 }

@@ -89,6 +89,7 @@ export interface WalletBalancesDTO {
   balances: Record<WalletCurrency, number>;
   escrow: Record<WalletCurrency, number>;
   cashback: number;
+  bountyBalance: number;
 }
 
 export const getWalletBalances = createServerFn({ method: "GET" })
@@ -97,22 +98,39 @@ export const getWalletBalances = createServerFn({ method: "GET" })
     const { supabase, userId } = context;
     const { data, error } = await supabase
       .from("wallets")
-      .select("currency, available_balance, escrow_balance, accumulated_cashback")
+      .select("currency, available_balance, escrow_balance, accumulated_cashback, bounty_balance")
       .eq("user_id", userId);
     if (error) throw new Error(error.message);
 
     const balances: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
     const escrow: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
     let cashback = 0;
-    for (const r of data ?? []) {
+    let bountyBalance = 0;
+    for (const r of (data ?? []) as Array<Record<string, unknown>>) {
       const c = r.currency as WalletCurrency;
       if (c in balances) {
         balances[c] = Number(r.available_balance ?? 0);
         escrow[c] = Number(r.escrow_balance ?? 0);
         cashback += Number(r.accumulated_cashback ?? 0);
+        if (c === "USD") bountyBalance = Number(r.bounty_balance ?? 0);
       }
     }
-    return { balances, escrow, cashback };
+    return { balances, escrow, cashback, bountyBalance };
+  });
+
+export const transferBountyToMain = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { amount: number }) => {
+    const amount = Number(i?.amount);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Invalid amount");
+    return { amount: Math.round(amount * 100) / 100 };
+  })
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { error } = await sb.rpc("bounty_wallet_transfer_to_main", { _amount: data.amount });
+    if (error) throw new Error(error.message);
+    return { ok: true, moved: data.amount };
   });
 
 

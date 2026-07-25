@@ -564,7 +564,7 @@ export const getUserDetail = createServerFn({ method: "POST" })
 
     const { data: authUser } = await sb.auth.admin.getUserById(data.userId);
     const { data: roles } = await sb.from("user_roles").select("role").eq("user_id", data.userId);
-    const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", data.userId);
+    const { data: wallets } = await sb.from("wallets").select("currency, available_balance, escrow_balance, accumulated_cashback, bounty_balance").eq("user_id", data.userId);
 
     const [
       postsCount, productsCount, ordersCount, followersCount,
@@ -778,5 +778,23 @@ export const resetSystemWallets = createServerFn({ method: "POST" })
     const { error } = await sb.from("system_wallets").update({ balance_usd: 0, updated_at: new Date().toISOString() }).gte("balance_usd", 0);
     if (error) throw new Error(error.message);
     await writeAudit(sb, context.userId, "system_wallets.reset", "system_wallets", null);
+    return { ok: true };
+  });
+
+/** Admin: reset a specific user wallet balance component (available/escrow/cashback/bounty/all) for a currency. */
+export const adminResetWallet = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((i: { userId: string; currency: "USD" | "NGN" | "GHS"; which: "available" | "escrow" | "cashback" | "bounty" | "all" }) => {
+    if (!i?.userId) throw new Error("userId required");
+    if (!["USD", "NGN", "GHS"].includes(i.currency)) throw new Error("invalid currency");
+    if (!["available", "escrow", "cashback", "bounty", "all"].includes(i.which)) throw new Error("invalid target");
+    return i;
+  })
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { error } = await sb.rpc("admin_reset_wallet", { _user_id: data.userId, _currency: data.currency, _which: data.which });
+    if (error) throw new Error(error.message);
     return { ok: true };
   });

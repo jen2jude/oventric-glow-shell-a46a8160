@@ -27,7 +27,7 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions, getWalletBalances, getWalletEarnings } from "@/lib/wallet.functions";
+import { listWalletTransactions, getWalletBalances, getWalletEarnings, transferBountyToMain } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
 import {
   listBanksForCurrency,
@@ -121,6 +121,7 @@ export function Wallet() {
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
   const [addReturnTo, setAddReturnTo] = useState<string | null>(null);
   const [payoutOpen, setPayoutOpen] = useState(false);
+  const [bountyModalOpen, setBountyModalOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [debounced, setDebounced] = useState("");
   const [curFilter, setCurFilter] = useState<"ALL" | Currency>("ALL");
@@ -355,6 +356,7 @@ export function Wallet() {
             ring: string;
             soon?: boolean;
             cta?: { label: string; to: string };
+            onClick?: () => void;
           };
           const tiles: Tile[] = [
             {
@@ -381,14 +383,15 @@ export function Wallet() {
             },
             {
               key: "bounty",
-              label: "Bounty Solved",
-              sub: "Gig payouts",
-              value: earnings.bountyUSD * fx,
+              label: "Bounty Wallet",
+              sub: "Tap to send to main or withdraw",
+              value: (balancesQuery.data?.bountyBalance ?? 0) * fx,
               currency: baseCurrency,
               icon: <Zap className="w-4 h-4" />,
               accent: "bg-amber-500/10",
               text: "text-amber-300",
               ring: "border-amber-500/30",
+              onClick: () => setBountyModalOpen(true),
             },
             {
               key: "affiliate",
@@ -411,49 +414,22 @@ export function Wallet() {
             <div className="wallet-earnings-safe">
               {/* Mobile: dead-flat single-line rows (Chrome Android safe: solid bg, no borders, no tints) */}
               <div className="wallet-earnings-mobile md:hidden">
-                {tiles.map((t) => (
-                  <div key={t.key} className="wallet-earnings-row">
-                    <span className="wallet-earnings-label">
-                      {t.label}{t.soon ? " (soon)" : ""}
-                    </span>
-                    {t.cta ? (
-                      <Link
-                        to={t.cta.to}
-                        className="text-[11px] font-black px-2.5 py-1 rounded-md"
-                        style={
-                          affiliateReserved
-                            ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
-                            : { backgroundColor: "#d946ef", color: "#000000" }
-                        }
-                      >
-                        {t.cta.label}
-                      </Link>
-                    ) : (
-                      <span className="wallet-earnings-value">
-                        {hide ? "•••" : fmt(t.value, t.currency)}
+                {tiles.map((t) => {
+                  const clickable = !!t.onClick;
+                  const RowEl = clickable ? "button" : "div";
+                  return (
+                    <RowEl
+                      key={t.key}
+                      onClick={t.onClick}
+                      className={`wallet-earnings-row ${clickable ? "text-left w-full hover:bg-white/5" : ""}`}
+                    >
+                      <span className="wallet-earnings-label">
+                        {t.label}{t.soon ? " (soon)" : ""}
                       </span>
-                    )}
-                  </div>
-                ))}
-              </div>
-              {/* Desktop: original 3-up tiles */}
-              <div className="hidden md:grid grid-cols-4 gap-3">
-                {tiles.map((t) => (
-                  <div
-                    key={t.key}
-                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon && !t.cta ? "opacity-70" : ""}`}
-                  >
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
-                        {t.icon}
-                      </div>
-                      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
-                    </div>
-                    {t.cta ? (
-                      <>
+                      {t.cta ? (
                         <Link
                           to={t.cta.to}
-                          className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
+                          className="text-[11px] font-black px-2.5 py-1 rounded-md"
                           style={
                             affiliateReserved
                               ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
@@ -462,27 +438,67 @@ export function Wallet() {
                         >
                           {t.cta.label}
                         </Link>
-                        <div className="mt-1 text-[10px] text-slate-500 truncate">
-                          {affiliateReserved ? "You're on the list" : "Reserve your spot"}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                      ) : (
+                        <span className="wallet-earnings-value">
                           {hide ? "•••" : fmt(t.value, t.currency)}
+                        </span>
+                      )}
+                    </RowEl>
+                  );
+                })}
+              </div>
+              {/* Desktop: original 3-up tiles */}
+              <div className="hidden md:grid grid-cols-4 gap-3">
+                {tiles.map((t) => {
+                  const clickable = !!t.onClick;
+                  const TileEl = clickable ? "button" : "div";
+                  return (
+                    <TileEl
+                      key={t.key}
+                      onClick={t.onClick}
+                      className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 text-left ${t.soon && !t.cta ? "opacity-70" : ""} ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                          {t.icon}
                         </div>
-                        <div className="mt-0.5 text-[10px] text-slate-500 truncate">
-                          {t.soon ? "Coming soon" : t.sub}
-                        </div>
-                      </>
-                    )}
-                    {t.soon && !t.cta && (
-                      <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                        Soon
-                      </span>
-                    )}
-                  </div>
-                ))}
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+                      </div>
+                      {t.cta ? (
+                        <>
+                          <Link
+                            to={t.cta.to}
+                            className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
+                            style={
+                              affiliateReserved
+                                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                                : { backgroundColor: "#d946ef", color: "#000000" }
+                            }
+                          >
+                            {t.cta.label}
+                          </Link>
+                          <div className="mt-1 text-[10px] text-slate-500 truncate">
+                            {affiliateReserved ? "You're on the list" : "Reserve your spot"}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                            {hide ? "•••" : fmt(t.value, t.currency)}
+                          </div>
+                          <div className="mt-0.5 text-[10px] text-slate-500 truncate">
+                            {t.soon ? "Coming soon" : t.sub}
+                          </div>
+                        </>
+                      )}
+                      {t.soon && !t.cta && (
+                        <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                          Soon
+                        </span>
+                      )}
+                    </TileEl>
+                  );
+                })}
               </div>
             </div>
           );
@@ -711,6 +727,20 @@ export function Wallet() {
         />
       )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
+      {bountyModalOpen && (
+        <BountyWalletModal
+          balanceUSD={balancesQuery.data?.bountyBalance ?? 0}
+          onClose={() => setBountyModalOpen(false)}
+          onTransferred={() => {
+            queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          }}
+          onWithdraw={() => {
+            setBountyModalOpen(false);
+            require(2, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw");
+          }}
+        />
+      )}
     </div>
   );
 }
@@ -1809,5 +1839,103 @@ function TxtInput({
       maxLength={maxLength}
       className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500/50"
     />
+  );
+}
+
+function BountyWalletModal({
+  balanceUSD, onClose, onTransferred, onWithdraw,
+}: {
+  balanceUSD: number;
+  onClose: () => void;
+  onTransferred: () => void;
+  onWithdraw: () => void;
+}) {
+  const transfer = useServerFn(transferBountyToMain);
+  const [amount, setAmount] = useState<string>(balanceUSD > 0 ? balanceUSD.toFixed(2) : "");
+  const [busy, setBusy] = useState<"send" | "withdraw" | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const parsed = Number(amount);
+  const valid = Number.isFinite(parsed) && parsed > 0 && parsed <= balanceUSD;
+
+  const sendToMain = async () => {
+    if (!valid) return;
+    setBusy("send"); setErr(null);
+    try {
+      await transfer({ data: { amount: parsed } });
+      onTransferred();
+      toast.success(`Moved $${parsed.toFixed(2)} to Main Wallet`);
+      onClose();
+    } catch (e) { setErr((e as Error).message); }
+    finally { setBusy(null); }
+  };
+
+  const withdrawAll = async () => {
+    if (balanceUSD <= 0) return;
+    setBusy("withdraw"); setErr(null);
+    try {
+      await transfer({ data: { amount: balanceUSD } });
+      onTransferred();
+      toast.success("Bounty funds moved to Main Wallet");
+      onWithdraw();
+    } catch (e) { setErr((e as Error).message); setBusy(null); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-amber-300" />
+            </div>
+            <div>
+              <div className="text-white font-black">Bounty Wallet</div>
+              <div className="text-[11px] text-slate-400">Earnings from solved gigs</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="rounded-xl bg-black/40 border border-white/10 p-4">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">Available</div>
+          <div className="text-white text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 font-normal">USD</span></div>
+        </div>
+
+        <div>
+          <label className="text-[10px] uppercase text-slate-500 tracking-wider">Amount to move (USD)</label>
+          <input
+            type="number" min={0} step="0.01" max={balanceUSD}
+            value={amount} onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white mt-1"
+            placeholder="0.00"
+          />
+        </div>
+
+        {err && <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded p-2">{err}</div>}
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={sendToMain}
+            disabled={!valid || busy !== null}
+            className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          >
+            {busy === "send" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowDownToLine className="w-4 h-4" />}
+            Send to Main
+          </button>
+          <button
+            onClick={withdrawAll}
+            disabled={balanceUSD <= 0 || busy !== null}
+            className="rounded-lg border border-sky-500/40 bg-sky-500/15 text-sky-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          >
+            {busy === "withdraw" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUpFromLine className="w-4 h-4" />}
+            Withdraw
+          </button>
+        </div>
+        <div className="text-[11px] text-slate-500">
+          Withdraw moves your full bounty balance to Main Wallet, then opens the payout flow (KYC + liveness required).
+        </div>
+      </div>
+    </div>
   );
 }
