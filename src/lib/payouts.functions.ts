@@ -253,7 +253,7 @@ export const adminListPayouts = createServerFn({ method: "POST" })
       const [profRes, walletRes] = await Promise.all([
         supabaseAdmin
           .from("profiles")
-          .select("user_id, display_name, username, email, country, kyc_completed_at, verification_tier")
+          .select("user_id, display_name, username, country, kyc_completed_at, verification_tier")
           .in("user_id", userIds),
         supabaseAdmin
           .from("wallets")
@@ -266,7 +266,7 @@ export const adminListPayouts = createServerFn({ method: "POST" })
           {
             display_name: (p.display_name as string) ?? null,
             username: (p.username as string) ?? null,
-            email: (p.email as string) ?? null,
+            
             country: (p.country as string) ?? null,
             kyc_completed_at: (p.kyc_completed_at as string) ?? null,
             verification_tier: (p.verification_tier as number) ?? null,
@@ -296,7 +296,7 @@ export const adminListPayouts = createServerFn({ method: "POST" })
         ...(r as unknown as PayoutDTO),
         requester_name: p?.display_name ?? null,
         requester_username: p?.username ?? null,
-        requester_email: p?.email ?? null,
+        
         requester_country: p?.country ?? null,
         kyc_completed_at: p?.kyc_completed_at ?? null,
         verification_tier: p?.verification_tier ?? null,
