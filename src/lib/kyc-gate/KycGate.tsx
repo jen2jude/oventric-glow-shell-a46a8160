@@ -638,8 +638,9 @@ function KycLivenessModal({
         {(step === "id-camera" || step === "id-capturing") && (
           <div className="flex flex-col items-center">
             <p className="text-[11px] text-slate-400 text-center mb-3 max-w-xs">
-              Hold your government-issued ID (passport, national ID, or driver's licence) inside the frame.
-              Keep it flat, well-lit, and readable — no glare.
+              {mode === "match"
+                ? "Face match failed twice. Hold the same government ID you registered during KYC inside the frame — flat, well-lit, no glare."
+                : "Hold your government-issued ID (passport, national ID, or driver's licence) inside the frame. Keep it flat, well-lit, and readable — no glare."}
             </p>
             <div className="rgb-neon-bg rounded-2xl p-[3px] mb-4 w-full">
               <div className="relative w-full aspect-[16/10] rounded-2xl bg-black overflow-hidden flex items-center justify-center">
