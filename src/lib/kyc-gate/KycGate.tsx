@@ -393,25 +393,80 @@ function KycLivenessModal({
     return () => window.clearTimeout(t);
   }, [step, countdown, mode]);
 
-  // Simulated liveness match (embedding not wired). Fail if either capture
-  // missing or when we hit the 3-strike threshold.
+  // Real face-match against the stored liveness selfie.
   useEffect(() => {
     if (step !== "matching") return;
-    const t = window.setTimeout(() => {
-      if (selfieBlob && referenceUrl) {
-        setAttempts(0);
-        setStep("success");
-      } else {
-        setAttempts((n) => {
-          const next = n + 1;
-          if (next >= 3) setStep("fallback");
-          else setStep("mismatch");
-          return next;
-        });
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!selfieBlob || !referenceUrl) throw new Error("Missing capture or reference");
+        const [refHash, liveHash] = await Promise.all([
+          computeAHash(referenceUrl),
+          computeAHash(selfieBlob),
+        ]);
+        if (cancelled) return;
+        const dist = hamming(refHash, liveHash);
+        setMatchDebug(`selfie Δ=${dist}/256`);
+        if (dist <= HASH_MATCH_MAX_DIFF) {
+          setStep("success");
+          return;
+        }
+        const next = selfieAttempts + 1;
+        setSelfieAttempts(next);
+        if (next >= 2) {
+          // After 2 selfie failures, ask for the government ID on file.
+          setMatchPhase("id");
+          setIdBlob(null);
+          if (idUrl) URL.revokeObjectURL(idUrl);
+          setIdUrl(null);
+          setError(null);
+          setStep("id-camera");
+        } else {
+          setStep("mismatch");
+        }
+      } catch {
+        if (cancelled) return;
+        const next = selfieAttempts + 1;
+        setSelfieAttempts(next);
+        setStep(next >= 2 ? "id-camera" : "mismatch");
+        if (next >= 2) setMatchPhase("id");
       }
-    }, 1600);
-    return () => window.clearTimeout(t);
-  }, [step, selfieBlob, referenceUrl]);
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [step, selfieBlob, referenceUrl, selfieAttempts, idUrl]);
+
+  // Real ID-match against the stored government ID snapshot.
+  useEffect(() => {
+    if (step !== "id-matching") return;
+    let cancelled = false;
+    (async () => {
+      try {
+        if (!idBlob || !idReferenceUrl) throw new Error("Missing capture or ID reference");
+        const [refHash, liveHash] = await Promise.all([
+          computeAHash(idReferenceUrl),
+          computeAHash(idBlob),
+        ]);
+        if (cancelled) return;
+        const dist = hamming(refHash, liveHash);
+        setMatchDebug(`id Δ=${dist}/256`);
+        if (dist <= HASH_MATCH_MAX_DIFF) {
+          setStep("success");
+          return;
+        }
+        setIdAttempts((n) => n + 1);
+        setStep("fallback");
+      } catch {
+        if (cancelled) return;
+        setIdAttempts((n) => n + 1);
+        setStep("fallback");
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [step, idBlob, idReferenceUrl]);
 
   const submitEnrollment = useCallback(async () => {
     if (!selfieBlob || !idBlob) return;
