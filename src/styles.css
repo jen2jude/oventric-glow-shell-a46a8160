@@ -1178,3 +1178,16 @@ html.high-gpu .rgb-promo-border {
     padding-bottom: calc(72px + env(safe-area-inset-bottom, 0px));
   }
 }
+
+/* KYC/liveness modal defense: when active, hide fixed floating chrome so no
+   button (mobile nav, create +, chat bubbles, etc.) can intercept the camera
+   frame or its capture controls. Also raise any modal at z-[240] safely. */
+body.kyc-active [data-testid="mobile-nav"],
+body.kyc-active .floating-cta,
+body.kyc-active .fab {
+  display: none !important;
+}
+body.kyc-active [data-radix-popper-content-wrapper],
+body.kyc-active .rgb-neon-bg.fixed {
+  display: none !important;
+}
