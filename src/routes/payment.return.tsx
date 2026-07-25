@@ -216,7 +216,7 @@ function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: 
 
         <div
           ref={amountRef}
-          className="mx-auto inline-flex items-center gap-2 rounded-2xl px-5 py-3 text-white text-3xl font-black tracking-tight"
+          className="mx-auto inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-white text-xl sm:text-2xl font-black tracking-tight max-w-full"
           style={{
             background: "linear-gradient(135deg, rgba(52,211,153,0.35), rgba(96,165,250,0.35))",
             border: "1px solid rgba(255,255,255,0.25)",
@@ -225,9 +225,10 @@ function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: 
             ...flyStyle,
           }}
         >
-          <WalletIcon className="w-6 h-6 text-emerald-200" />
-          <span>+ {amountLabel}</span>
+          <WalletIcon className="w-5 h-5 text-emerald-200 shrink-0" />
+          <span className="truncate">+ {amountLabel}</span>
         </div>
+
 
         <p className="mt-5 text-[11px] text-slate-300/70">
           {phase === "reveal" ? "Adding to your Cashback Wallet…" : "Sent to your wallet ✓"}
