@@ -449,51 +449,56 @@ export function Wallet() {
               </div>
               {/* Desktop: original 3-up tiles */}
               <div className="hidden md:grid grid-cols-4 gap-3">
-                {tiles.map((t) => (
-                  <div
-                    key={t.key}
-                    className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 ${t.soon && !t.cta ? "opacity-70" : ""}`}
-                  >
-                    <div className="flex items-center gap-1.5 mb-2">
-                      <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
-                        {t.icon}
+                {tiles.map((t) => {
+                  const clickable = !!t.onClick;
+                  const TileEl = clickable ? "button" : "div";
+                  return (
+                    <TileEl
+                      key={t.key}
+                      onClick={t.onClick}
+                      className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 text-left ${t.soon && !t.cta ? "opacity-70" : ""} ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
+                    >
+                      <div className="flex items-center gap-1.5 mb-2">
+                        <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                          {t.icon}
+                        </div>
+                        <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
                       </div>
-                      <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
-                    </div>
-                    {t.cta ? (
-                      <>
-                        <Link
-                          to={t.cta.to}
-                          className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
-                          style={
-                            affiliateReserved
-                              ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
-                              : { backgroundColor: "#d946ef", color: "#000000" }
-                          }
-                        >
-                          {t.cta.label}
-                        </Link>
-                        <div className="mt-1 text-[10px] text-slate-500 truncate">
-                          {affiliateReserved ? "You're on the list" : "Reserve your spot"}
-                        </div>
-                      </>
-                    ) : (
-                      <>
-                        <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
-                          {hide ? "•••" : fmt(t.value, t.currency)}
-                        </div>
-                        <div className="mt-0.5 text-[10px] text-slate-500 truncate">
-                          {t.soon ? "Coming soon" : t.sub}
-                        </div>
-                      </>
-                    )}
-                    {t.soon && !t.cta && (
-                      <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                        Soon
-                      </span>
-                    )}
-                  </div>
-                ))}
+                      {t.cta ? (
+                        <>
+                          <Link
+                            to={t.cta.to}
+                            className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
+                            style={
+                              affiliateReserved
+                                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                                : { backgroundColor: "#d946ef", color: "#000000" }
+                            }
+                          >
+                            {t.cta.label}
+                          </Link>
+                          <div className="mt-1 text-[10px] text-slate-500 truncate">
+                            {affiliateReserved ? "You're on the list" : "Reserve your spot"}
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                            {hide ? "•••" : fmt(t.value, t.currency)}
+                          </div>
+                          <div className="mt-0.5 text-[10px] text-slate-500 truncate">
+                            {t.soon ? "Coming soon" : t.sub}
+                          </div>
+                        </>
+                      )}
+                      {t.soon && !t.cta && (
+                        <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                          Soon
+                        </span>
+                      )}
+                    </TileEl>
+                  );
+                })}
               </div>
             </div>
           );
