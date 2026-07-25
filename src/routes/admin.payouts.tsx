@@ -232,6 +232,46 @@ function PayoutRow({
 
       {expanded && (
         <div className="px-4 pb-4 space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Balance before</div>
+              <div className="text-sm font-bold text-slate-100 tabular-nums">
+                {sym}{Number(p.balance_before_request ?? 0).toLocaleString("en-US", { minimumFractionDigits: p.currency === "NGN" ? 0 : 2 })}
+              </div>
+            </div>
+            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Available now</div>
+              <div className="text-sm font-bold text-emerald-200 tabular-nums">
+                {sym}{Number(p.wallet_available_now ?? 0).toLocaleString("en-US", { minimumFractionDigits: p.currency === "NGN" ? 0 : 2 })}
+              </div>
+            </div>
+            <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">In escrow</div>
+              <div className="text-sm font-bold text-amber-200 tabular-nums">
+                {sym}{Number(p.wallet_escrow_now ?? 0).toLocaleString("en-US", { minimumFractionDigits: p.currency === "NGN" ? 0 : 2 })}
+              </div>
+            </div>
+          </div>
+
+          <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3 flex items-center gap-3 flex-wrap">
+            <div className="text-[10px] uppercase tracking-wider text-slate-500">KYC</div>
+            {p.kyc_completed_at ? (
+              <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 px-2 py-0.5 text-[11px] font-bold">
+                <CheckCircle2 className="w-3 h-3" /> Verified {new Date(p.kyc_completed_at).toLocaleDateString()}
+              </span>
+            ) : (
+              <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 text-red-300 px-2 py-0.5 text-[11px] font-bold">
+                <AlertTriangle className="w-3 h-3" /> Not verified
+              </span>
+            )}
+            {p.verification_tier != null && (
+              <span className="text-[11px] text-slate-400">Tier {p.verification_tier}</span>
+            )}
+            {p.requester_country && (
+              <span className="text-[11px] text-slate-400">· {p.requester_country}</span>
+            )}
+          </div>
+
           <div className="rounded-lg border border-[#222226] bg-[#0A0A0C] p-3">
             <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-2">Destination</div>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
@@ -258,6 +298,7 @@ function PayoutRow({
               {p.processed_at && <div className="text-slate-500">Processed {new Date(p.processed_at).toLocaleString()}</div>}
             </div>
           )}
+
 
           <PayoutAuditTrail payoutId={p.id} expanded={expanded} />
 

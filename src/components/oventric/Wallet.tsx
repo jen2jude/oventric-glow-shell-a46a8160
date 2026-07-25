@@ -972,12 +972,95 @@ const GH_BANKS = [
   "Zenith Bank Ghana",
 ];
 
+function PayoutSuccessSplash({
+  amount,
+  currency,
+  destinationLabel,
+  onClose,
+}: {
+  amount: number;
+  currency: "NGN" | "GHS" | "USD";
+  destinationLabel: string;
+  onClose: () => void;
+}) {
+  const sym = currencyMeta[currency].symbol;
+  const digits = currency === "NGN" ? 0 : 2;
+  useEffect(() => {
+    document.body.style.overflow = "hidden";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
+  return (
+    <div className="fixed inset-0 z-[10000] overflow-hidden">
+      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
+      <div
+        className="absolute inset-0 pointer-events-none opacity-70"
+        style={{
+          background:
+            "radial-gradient(circle at 50% 30%, rgba(16,185,129,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
+        }}
+      />
+      <div className="relative h-full w-full flex items-center justify-center p-4">
+        <div className="relative w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-[#0A0F0C] shadow-[0_0_60px_rgba(16,185,129,0.35)] p-6 text-center animate-in fade-in zoom-in-95 duration-300">
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(16,185,129,0.6)]">
+            <CheckCircle2 className="w-10 h-10 text-black" strokeWidth={3} />
+          </div>
+          <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">Withdrawal Requested</div>
+          <div className="text-3xl font-black text-white tabular-nums mb-1">
+            {sym}{amount.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}
+          </div>
+          <div className="text-xs text-slate-400 mb-4 truncate">to {destinationLabel}</div>
+          <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3 text-left text-xs text-emerald-100/90 mb-4">
+            <div className="font-bold text-emerald-200 mb-1 flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" /> You're all set
+            </div>
+            <p className="text-[11px] leading-relaxed text-emerald-100/80">
+              Our admin team will review and process your payout shortly. You'll receive your money soon — this can take a few hours. We'll notify you the moment it's approved.
+            </p>
+          </div>
+          <button
+            onClick={onClose}
+            className="w-full inline-flex items-center justify-center rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-bold py-2.5 text-sm transition-colors"
+          >
+            OK, return to wallet
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function PayoutModal({ onClose }: { onClose: () => void }) {
   const { balances, baseCurrency } = useOnboarding();
   const qc = useQueryClient();
 
   const [step, setStep] = useState<"pick" | "destination" | "amount" | "wire">("pick");
   const [chosenRecipientId, setChosenRecipientId] = useState<string | null>(null);
+  const [splash, setSplash] = useState<{ amount: number; currency: "NGN" | "GHS" | "USD"; destinationLabel: string } | null>(null);
+
+  const finalizeWithSplash = (payload: { amount: number; currency: "NGN" | "GHS" | "USD"; destinationLabel: string }) => {
+    void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
+    void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+    void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
+    setSplash(payload);
+  };
+
+  const closeSplash = () => {
+    setSplash(null);
+    void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
+    void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
+    onClose();
+  };
+
+  if (splash) {
+    return (
+      <PayoutSuccessSplash
+        amount={splash.amount}
+        currency={splash.currency}
+        destinationLabel={splash.destinationLabel}
+        onClose={closeSplash}
+      />
+    );
+  }
 
   const railFor = (c: Currency): Rail =>
     c === "NGN"
@@ -1076,12 +1159,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         onClose={onClose}
         onBack={() => setStep("pick")}
         max={balances.USD ?? 0}
-        onSubmitted={() => {
-          void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
-          void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
-          void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
-          onClose();
-        }}
+        onSubmitted={(amt, label) => finalizeWithSplash({ amount: amt, currency: "USD", destinationLabel: label })}
       />
     );
   }
@@ -1120,12 +1198,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
       recipientId={chosenRecipientId}
       max={balances[baseCurrency] ?? 0}
       onBack={() => setStep("destination")}
-      onDone={() => {
-        void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
-        void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
-        void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
-        onClose();
-      }}
+      onSubmitted={(amt, label) => finalizeWithSplash({ amount: amt, currency: baseCurrency as "NGN" | "GHS", destinationLabel: label })}
     />
   );
 }
@@ -1426,17 +1499,17 @@ function AmountStep({
   recipientId,
   max,
   onBack,
-  onDone,
+  onSubmitted,
 }: {
   currency: "NGN" | "GHS";
   recipientId: string;
   max: number;
   onBack: () => void;
-  onDone: () => void;
+  onSubmitted: (amount: number, destinationLabel: string) => void;
 }) {
   const listRec = useServerFn(listMyRecipients);
   const estimateFee = useServerFn(estimatePayoutFee);
-  const create = useServerFn(createLivePayout);
+  const create = useServerFn(createPayoutRequest);
 
   const [rec, setRec] = useState<PayoutRecipientDTO | null>(null);
   const [amount, setAmount] = useState<string>("");
@@ -1487,26 +1560,47 @@ function AmountStep({
     }
     setBusy(true);
     try {
-      await create({ data: { recipientId, amount: amt } });
-      toast.success("Payout initiated", {
-        description: `Bank will receive ${sym}${net.toLocaleString()} once Paystack confirms.`,
+      const destination =
+        rec.method === "bank"
+          ? {
+              beneficiary_name: rec.account_name,
+              bank_name: rec.bank_name ?? undefined,
+              account_number: rec.account_number ?? undefined,
+              bank_code: rec.bank_code ?? undefined,
+            }
+          : {
+              beneficiary_name: rec.account_name,
+              momo_network: rec.momo_network ?? undefined,
+              phone: rec.phone ?? undefined,
+            };
+      await create({
+        data: {
+          currency,
+          method: rec.method,
+          amount: amt,
+          destination,
+        },
+
       });
-      onDone();
+      const label =
+        rec.method === "bank"
+          ? `${rec.bank_name} · ${rec.account_number}`
+          : `${rec.momo_network} · ${rec.phone}`;
+      onSubmitted(amt, label);
     } catch (e) {
       const message = e instanceof Error ? e.message : "The payout request could not be completed.";
-      const friendly = /timed out|timeout/i.test(message)
-        ? "The transfer provider did not respond in time. Your wallet was refunded; please try again."
-        : /insufficient balance/i.test(message)
-          ? "Your available wallet balance changed before this payout could be sent."
-          : message;
+      const friendly = /insufficient balance/i.test(message)
+        ? "Your available wallet balance changed before this payout could be sent."
+        : message;
       toast.error("Payout failed", { description: friendly });
     } finally {
       setBusy(false);
     }
   };
 
+
   return (
-    <ModalShell title="Confirm payout" onClose={onDone}>
+    <ModalShell title="Confirm payout" onClose={onBack}>
       <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
         ← Change destination
       </button>
@@ -1588,7 +1682,7 @@ function WireForm({
   onClose: () => void;
   onBack: () => void;
   max: number;
-  onSubmitted: () => void;
+  onSubmitted: (amount: number, destinationLabel: string) => void;
 }) {
   const create = useServerFn(createPayoutRequest);
   const [amount, setAmount] = useState("");
@@ -1630,8 +1724,8 @@ function WireForm({
           },
         },
       });
-      toast.success("Payout requested", { description: "USD wires are processed manually by admin within 24–48 hours." });
-      onSubmitted();
+      onSubmitted(Number(amount), `${wireBank} · ${wireAcct}`);
+
     } catch (e) {
       toast.error("Payout failed", { description: (e as Error).message });
     } finally {

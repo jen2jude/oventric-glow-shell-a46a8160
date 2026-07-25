@@ -74,7 +74,15 @@ export interface PayoutDTO {
   updated_at: string;
   requester_name?: string | null;
   requester_username?: string | null;
+  requester_email?: string | null;
+  requester_country?: string | null;
+  kyc_completed_at?: string | null;
+  verification_tier?: number | null;
+  wallet_available_now?: number | null;
+  wallet_escrow_now?: number | null;
+  balance_before_request?: number | null;
 }
+
 
 export interface CreatePayoutInput {
   currency: PayoutCurrency;
@@ -231,26 +239,74 @@ export const adminListPayouts = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
 
     const userIds = Array.from(new Set((rows ?? []).map((r) => r.user_id as string)));
-    let nameMap: Record<string, { display_name: string | null; username: string | null }> = {};
+    let profileMap: Record<string, {
+      display_name: string | null;
+      username: string | null;
+      country: string | null;
+
+      kyc_completed_at: string | null;
+      verification_tier: number | null;
+    }> = {};
+    let walletMap: Record<string, { available: number; escrow: number }> = {};
     if (userIds.length) {
-      const { data: profs } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, username")
-        .in("user_id", userIds);
-      nameMap = Object.fromEntries(
-        (profs ?? []).map((p) => [
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      const [profRes, walletRes] = await Promise.all([
+        supabaseAdmin
+          .from("profiles")
+          .select("user_id, display_name, username, country, kyc_completed_at, verification_tier")
+          .in("user_id", userIds),
+        supabaseAdmin
+          .from("wallets")
+          .select("user_id, currency, available_balance, escrow_balance")
+          .in("user_id", userIds),
+      ]);
+      profileMap = Object.fromEntries(
+        (profRes.data ?? []).map((p) => [
           p.user_id as string,
-          { display_name: (p.display_name as string) ?? null, username: (p.username as string) ?? null },
+          {
+            display_name: (p.display_name as string) ?? null,
+            username: (p.username as string) ?? null,
+            
+            country: (p.country as string) ?? null,
+            kyc_completed_at: (p.kyc_completed_at as string) ?? null,
+            verification_tier: p.verification_tier == null ? null : Number(p.verification_tier),
+          },
         ]),
       );
+      for (const w of walletRes.data ?? []) {
+        const key = `${w.user_id}|${w.currency}`;
+        walletMap[key] = {
+          available: Number(w.available_balance ?? 0),
+          escrow: Number(w.escrow_balance ?? 0),
+        };
+      }
     }
 
-    return (rows ?? []).map((r) => ({
-      ...(r as unknown as PayoutDTO),
-      requester_name: nameMap[r.user_id as string]?.display_name ?? null,
-      requester_username: nameMap[r.user_id as string]?.username ?? null,
-    })) as PayoutDTO[];
+    return (rows ?? []).map((r) => {
+      const p = profileMap[r.user_id as string];
+      const w = walletMap[`${r.user_id}|${r.currency}`];
+      const available = w?.available ?? 0;
+      const escrow = w?.escrow ?? 0;
+      const amount = Number(r.amount ?? 0);
+      // For pending/approved requests, escrow contains this payout — balance before = available + amount
+      const balanceBefore = ["pending", "approved"].includes(r.status as string)
+        ? available + amount
+        : available;
+      return {
+        ...(r as unknown as PayoutDTO),
+        requester_name: p?.display_name ?? null,
+        requester_username: p?.username ?? null,
+        
+        requester_country: p?.country ?? null,
+        kyc_completed_at: p?.kyc_completed_at ?? null,
+        verification_tier: p?.verification_tier ?? null,
+        wallet_available_now: available,
+        wallet_escrow_now: escrow,
+        balance_before_request: balanceBefore,
+      };
+    }) as PayoutDTO[];
   });
+
 
 export const adminApprovePayout = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
