@@ -74,7 +74,15 @@ export interface PayoutDTO {
   updated_at: string;
   requester_name?: string | null;
   requester_username?: string | null;
+  requester_email?: string | null;
+  requester_country?: string | null;
+  kyc_completed_at?: string | null;
+  verification_tier?: number | null;
+  wallet_available_now?: number | null;
+  wallet_escrow_now?: number | null;
+  balance_before_request?: number | null;
 }
+
 
 export interface CreatePayoutInput {
   currency: PayoutCurrency;
