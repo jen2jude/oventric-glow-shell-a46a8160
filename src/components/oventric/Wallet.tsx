@@ -727,6 +727,20 @@ export function Wallet() {
         />
       )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
+      {bountyModalOpen && (
+        <BountyWalletModal
+          balanceUSD={balancesQuery.data?.bountyBalance ?? 0}
+          onClose={() => setBountyModalOpen(false)}
+          onTransferred={() => {
+            queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          }}
+          onWithdraw={() => {
+            setBountyModalOpen(false);
+            require(2, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw");
+          }}
+        />
+      )}
     </div>
   );
 }
