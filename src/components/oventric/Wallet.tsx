@@ -1841,3 +1841,101 @@ function TxtInput({
     />
   );
 }
+
+function BountyWalletModal({
+  balanceUSD, onClose, onTransferred, onWithdraw,
+}: {
+  balanceUSD: number;
+  onClose: () => void;
+  onTransferred: () => void;
+  onWithdraw: () => void;
+}) {
+  const transfer = useServerFn(transferBountyToMain);
+  const [amount, setAmount] = useState<string>(balanceUSD > 0 ? balanceUSD.toFixed(2) : "");
+  const [busy, setBusy] = useState<"send" | "withdraw" | null>(null);
+  const [err, setErr] = useState<string | null>(null);
+
+  const parsed = Number(amount);
+  const valid = Number.isFinite(parsed) && parsed > 0 && parsed <= balanceUSD;
+
+  const sendToMain = async () => {
+    if (!valid) return;
+    setBusy("send"); setErr(null);
+    try {
+      await transfer({ data: { amount: parsed } });
+      onTransferred();
+      toast.success(`Moved $${parsed.toFixed(2)} to Main Wallet`);
+      onClose();
+    } catch (e) { setErr((e as Error).message); }
+    finally { setBusy(null); }
+  };
+
+  const withdrawAll = async () => {
+    if (balanceUSD <= 0) return;
+    setBusy("withdraw"); setErr(null);
+    try {
+      await transfer({ data: { amount: balanceUSD } });
+      onTransferred();
+      toast.success("Bounty funds moved to Main Wallet");
+      onWithdraw();
+    } catch (e) { setErr((e as Error).message); setBusy(null); }
+  };
+
+  return (
+    <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+      <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
+              <Zap className="w-4 h-4 text-amber-300" />
+            </div>
+            <div>
+              <div className="text-white font-black">Bounty Wallet</div>
+              <div className="text-[11px] text-slate-400">Earnings from solved gigs</div>
+            </div>
+          </div>
+          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+        </div>
+
+        <div className="rounded-xl bg-black/40 border border-white/10 p-4">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500">Available</div>
+          <div className="text-white text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 font-normal">USD</span></div>
+        </div>
+
+        <div>
+          <label className="text-[10px] uppercase text-slate-500 tracking-wider">Amount to move (USD)</label>
+          <input
+            type="number" min={0} step="0.01" max={balanceUSD}
+            value={amount} onChange={(e) => setAmount(e.target.value)}
+            className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white mt-1"
+            placeholder="0.00"
+          />
+        </div>
+
+        {err && <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded p-2">{err}</div>}
+
+        <div className="grid grid-cols-2 gap-2">
+          <button
+            onClick={sendToMain}
+            disabled={!valid || busy !== null}
+            className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          >
+            {busy === "send" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowDownToLine className="w-4 h-4" />}
+            Send to Main
+          </button>
+          <button
+            onClick={withdrawAll}
+            disabled={balanceUSD <= 0 || busy !== null}
+            className="rounded-lg border border-sky-500/40 bg-sky-500/15 text-sky-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
+          >
+            {busy === "withdraw" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUpFromLine className="w-4 h-4" />}
+            Withdraw
+          </button>
+        </div>
+        <div className="text-[11px] text-slate-500">
+          Withdraw moves your full bounty balance to Main Wallet, then opens the payout flow (KYC + liveness required).
+        </div>
+      </div>
+    </div>
+  );
+}
