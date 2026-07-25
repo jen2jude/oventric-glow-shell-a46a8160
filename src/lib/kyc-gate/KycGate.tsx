@@ -862,9 +862,13 @@ function KycLivenessModal({
             </div>
             <div className="text-white font-black">Face didn't match</div>
             <p className="text-xs text-slate-400 mt-1 text-center">
-              We couldn't confirm your identity. Move to bright, even light and try again.
-              {attempts > 0 && (
-                <span className="block mt-1 text-amber-300/80">Attempts: {attempts} of 3</span>
+              We couldn't confirm your identity against your stored liveness selfie.
+              Move to bright, even light and try again.
+              <span className="block mt-1 text-amber-300/80">
+                Attempt {selfieAttempts} of 2 — one more failure will require your government ID.
+              </span>
+              {matchDebug && (
+                <span className="block mt-1 text-[10px] text-slate-500">{matchDebug}</span>
               )}
             </p>
             <button
@@ -876,40 +880,42 @@ function KycLivenessModal({
           </div>
         )}
 
-        {step === "fallback" && (
-          <div className="space-y-4">
-            <div className="w-14 h-14 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center mb-2">
-              <IdCard className="w-7 h-7 text-amber-300" />
+        {step === "id-matching" && (
+          <div className="flex flex-col items-center py-6">
+            <div className="inline-flex items-center gap-2 text-sm text-emerald-300">
+              <Loader2 className="w-4 h-4 animate-spin" /> Matching your government ID…
             </div>
-            <div>
-              <div className="text-white font-black">Liveness failed 3 times</div>
-              <p className="text-xs text-slate-400 mt-1 leading-relaxed">
-                Verify with your stored government ID instead. If it matches your record, you'll
-                get in. Otherwise, contact Oventric admin and we'll verify you manually.
-              </p>
-            </div>
-            {idReferencePath && (
-              <FallbackIdPreview path={idReferencePath} />
-            )}
-            <div className="grid grid-cols-2 gap-2">
-              <a
-                href="mailto:admin@oventric.dev?subject=KYC%20manual%20verification"
-                className="h-11 rounded-lg border border-white/10 bg-[#121214] text-slate-200 font-bold text-xs inline-flex items-center justify-center gap-2 hover:border-emerald-500/40"
-              >
-                <LifeBuoy className="w-4 h-4" /> Contact admin
-              </a>
-              <button
-                onClick={() => {
-                  setAttempts(0);
-                  setError(null);
-                  setStep("selfie-camera");
-                }}
-                className="rgb-pulse-glow h-11 rounded-lg bg-[#121214] text-white font-black text-xs inline-flex items-center justify-center gap-2"
-              >
-                <RotateCw className="w-4 h-4 text-emerald-300" /> Reset & retry
-              </button>
-            </div>
+            <p className="text-[11px] text-slate-500 mt-2 text-center max-w-xs">
+              Comparing your capture with the ID you registered during KYC.
+            </p>
           </div>
+        )}
+
+        {step === "fallback" && (
+          <FallbackSupport
+            idReferencePath={idReferencePath}
+            selfieAttempts={selfieAttempts}
+            idAttempts={idAttempts}
+            matchDebug={matchDebug}
+            onSubmit={async (payload) => {
+              await submitSupport({
+                data: {
+                  reason: payload.reason,
+                  contact: payload.contact,
+                  message: payload.message,
+                  selfieAttempts,
+                  idAttempts,
+                },
+              });
+            }}
+            onReset={() => {
+              setSelfieAttempts(0);
+              setIdAttempts(0);
+              setMatchPhase("selfie");
+              setError(null);
+              setStep("selfie-camera");
+            }}
+          />
         )}
       </div>
     </div>,
