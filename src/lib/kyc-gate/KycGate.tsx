@@ -262,13 +262,18 @@ function KycLivenessModal({
   const [idBlob, setIdBlob] = useState<Blob | null>(null);
   const [idUrl, setIdUrl] = useState<string | null>(null);
   const [referenceUrl, setReferenceUrl] = useState<string | null>(null);
+  const [idReferenceUrl, setIdReferenceUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [attempts, setAttempts] = useState(0);
+  const [selfieAttempts, setSelfieAttempts] = useState(0);
+  const [idAttempts, setIdAttempts] = useState(0);
+  const [matchPhase, setMatchPhase] = useState<MatchPhase>("selfie");
+  const [matchDebug, setMatchDebug] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const saveKyc = useServerFn(saveKycFn);
+  const submitSupport = useServerFn(submitKycSupportFn);
 
   const isIdStep = step === "id-camera" || step === "id-capturing";
   const isSelfieStep = step === "selfie-camera" || step === "selfie-capturing";
