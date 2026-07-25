@@ -946,3 +946,128 @@ function FallbackIdPreview({ path }: { path: string }) {
     </div>
   );
 }
+
+// ---------------------------------------------------------------------------
+// Fallback: contact admin form after selfie + ID both fail.
+// ---------------------------------------------------------------------------
+
+function FallbackSupport({
+  idReferencePath,
+  selfieAttempts,
+  idAttempts,
+  matchDebug,
+  onSubmit,
+  onReset,
+}: {
+  idReferencePath: string | null;
+  selfieAttempts: number;
+  idAttempts: number;
+  matchDebug: string | null;
+  onSubmit: (payload: { reason: string; contact: string; message: string }) => Promise<void>;
+  onReset: () => void;
+}) {
+  const [reason, setReason] = useState("Face + ID match failed");
+  const [contact, setContact] = useState("");
+  const [message, setMessage] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const submit = async () => {
+    setErr(null);
+    if (contact.trim().length < 3) {
+      setErr("Enter an email or phone we can reply to.");
+      return;
+    }
+    if (message.trim().length < 5) {
+      setErr("Tell us briefly what happened.");
+      return;
+    }
+    setBusy(true);
+    try {
+      await onSubmit({ reason: reason.trim(), contact: contact.trim(), message: message.trim() });
+      setSent(true);
+    } catch (e) {
+      setErr(e instanceof Error ? e.message : "Could not send request.");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <div className="flex flex-col items-center py-6 space-y-3">
+        <div className="w-14 h-14 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+          <Check className="w-7 h-7 text-emerald-300" strokeWidth={3} />
+        </div>
+        <div className="text-white font-black text-center">Request received</div>
+        <p className="text-xs text-slate-400 text-center max-w-xs">
+          An Oventric admin will review your account and reach out on{" "}
+          <span className="text-emerald-300 font-semibold">{contact}</span> within 24 hours.
+        </p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-4">
+      <div className="flex items-center gap-3">
+        <div className="w-11 h-11 rounded-full bg-amber-500/15 border border-amber-500/40 flex items-center justify-center shrink-0">
+          <IdCard className="w-6 h-6 text-amber-300" />
+        </div>
+        <div>
+          <div className="text-white font-black text-sm">Manual review needed</div>
+          <p className="text-[11px] text-slate-400 leading-snug">
+            Face match failed {selfieAttempts}× and ID match failed {idAttempts}×.
+            Contact an admin to verify your identity.
+          </p>
+        </div>
+      </div>
+      {idReferencePath && <FallbackIdPreview path={idReferencePath} />}
+      <div className="space-y-2">
+        <input
+          type="text"
+          value={contact}
+          onChange={(e) => setContact(e.target.value)}
+          placeholder="Your email or phone (with country code)"
+          className="w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60"
+        />
+        <textarea
+          value={message}
+          onChange={(e) => setMessage(e.target.value)}
+          placeholder="What happened? (e.g. new haircut, damaged ID, wrong ID stored)"
+          rows={3}
+          className="w-full px-3 py-2 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 resize-none"
+        />
+        {matchDebug && (
+          <p className="text-[10px] text-slate-500">Diagnostics: {matchDebug}</p>
+        )}
+        {err && (
+          <p role="alert" className="text-[11px] text-red-400 border-l-2 border-red-500 pl-2">
+            {err}
+          </p>
+        )}
+      </div>
+      <div className="grid grid-cols-2 gap-2">
+        <button
+          onClick={onReset}
+          disabled={busy}
+          className="h-11 rounded-lg border border-white/10 bg-[#121214] text-slate-200 font-bold text-xs inline-flex items-center justify-center gap-2 hover:border-emerald-500/40 disabled:opacity-50"
+        >
+          <RotateCw className="w-4 h-4" /> Try again
+        </button>
+        <button
+          onClick={submit}
+          disabled={busy}
+          className="h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs inline-flex items-center justify-center gap-2 disabled:opacity-60"
+        >
+          {busy ? (
+            <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+          ) : (
+            <><LifeBuoy className="w-4 h-4" /> Contact admin</>
+          )}
+        </button>
+      </div>
+    </div>
+  );
+}
