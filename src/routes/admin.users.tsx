@@ -552,50 +552,7 @@ function UserDetailModal({ userId, onClose, onChanged }: { userId: string; onClo
             )}
 
             {tab === "wallet" && (
-              <div className="space-y-3">
-                <div className="text-[10px] uppercase text-slate-500 tracking-wider">Wallets (read-only)</div>
-                {d.wallets.length === 0 ? <Empty label="No wallets yet." /> : (
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
-                    {d.wallets.map((w) => (
-                      <div key={w.currency} className="bg-white/[0.02] border border-white/10 rounded-lg p-3">
-                        <div className="text-[10px] uppercase text-slate-500 tracking-wider">{w.currency}</div>
-                        <div className="text-white font-bold text-lg">{Number(w.available_balance).toFixed(2)}</div>
-                        <div className="text-[11px] text-slate-500">escrow {Number(w.escrow_balance).toFixed(2)}</div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-                <div className="text-[10px] uppercase text-slate-500 tracking-wider mt-3">Transaction history</div>
-                {d.walletTransactions.length === 0 ? <Empty label="No transactions." /> : (
-                  <div className="bg-white/[0.02] border border-white/10 rounded-lg overflow-hidden">
-                    <table className="w-full text-xs">
-                      <thead className="bg-white/5 text-[10px] uppercase text-slate-400">
-                        <tr>
-                          <th className="text-left px-2 py-1.5">When</th>
-                          <th className="text-left px-2 py-1.5">Type</th>
-                          <th className="text-left px-2 py-1.5">Ref</th>
-                          <th className="text-right px-2 py-1.5">Amount</th>
-                          <th className="text-left px-2 py-1.5">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-white/5">
-                        {d.walletTransactions.map((t) => (
-                          <tr key={t.id}>
-                            <td className="px-2 py-1.5 text-slate-400">{new Date(t.occurred_at).toLocaleString()}</td>
-                            <td className="px-2 py-1.5 text-slate-200">{t.type}</td>
-                            <td className="px-2 py-1.5 text-slate-500 font-mono">{t.tx_hash}</td>
-                            <td className={`px-2 py-1.5 text-right font-bold ${t.inflow ? "text-emerald-300" : "text-red-300"}`}>
-                              {t.inflow ? "+" : "−"}{Number(t.amount).toFixed(2)} {t.currency}
-                            </td>
-                            <td className="px-2 py-1.5 text-slate-400">{t.status}</td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-                <div className="text-[10px] text-slate-500 italic">Admins cannot withdraw from user wallets. This view is read-only.</div>
-              </div>
+              <WalletTab d={d} userId={userId} onChanged={load} />
             )}
 
             {tab === "downloads" && (
