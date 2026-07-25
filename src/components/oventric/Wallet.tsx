@@ -753,10 +753,20 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
 }
 
 function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    const prevTouch = document.body.style.touchAction;
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+      document.body.style.touchAction = prevTouch;
+    };
+  }, []);
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
       <div
-        className="w-full sm:max-w-lg bg-[#141418] border border-[#222226] rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto"
+        className="w-full sm:max-w-lg bg-[#141418] border border-[#222226] rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226]">
@@ -770,6 +780,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
     </div>
   );
 }
+
 
 function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
@@ -962,18 +973,22 @@ const GH_BANKS = [
 ];
 
 function PayoutModal({ onClose }: { onClose: () => void }) {
-  const { balances } = useOnboarding();
+  const { balances, baseCurrency } = useOnboarding();
   const qc = useQueryClient();
 
-  const [rail, setRail] = useState<Rail | null>(null);
   const [step, setStep] = useState<"pick" | "destination" | "amount" | "wire">("pick");
   const [chosenRecipientId, setChosenRecipientId] = useState<string | null>(null);
 
-  const rails: Rail[] = [
-    { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Direct to your Nigerian bank · Paystack" },
-    { c: "GHS", method: "momo", label: "GHS Bank / Mobile Money", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" },
-    { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" },
-  ];
+  const railFor = (c: Currency): Rail =>
+    c === "NGN"
+      ? { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Direct to your Nigerian bank · Paystack" }
+      : c === "GHS"
+        ? { c: "GHS", method: "momo", label: "GHS Bank / Mobile Money", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" }
+        : { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" };
+
+  const rail = railFor(baseCurrency);
+  const baseBal = balances[baseCurrency] ?? 0;
+  const others: Currency[] = (["NGN", "GHS", "USD"] as Currency[]).filter((c) => c !== baseCurrency);
 
   if (step === "pick") {
     return (
@@ -981,66 +996,79 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
           <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
           <p className="text-xs text-emerald-200/90">
-            Identity verified. Choose the currency to withdraw — Paystack pushes NGN/GHS straight to your bank.
+            Identity verified. Withdrawals are locked to your home currency ({baseCurrency}). Other currencies are shown for reference only.
           </p>
         </div>
         <div className="space-y-2">
-          {rails.map((r) => {
-            const active = rail?.c === r.c;
-            const bal = balances[r.c] ?? 0;
-            const disabled = bal <= 0;
+          {/* Active rail — user's base currency */}
+          <div
+            className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left ${
+              baseBal > 0 ? "border-sky-500/60 bg-sky-500/5" : "border-[#222226] bg-[#0A0A0C] opacity-70"
+            }`}
+          >
+            <div
+              className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${
+                rail.tone === "emerald"
+                  ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
+                  : rail.tone === "amber"
+                    ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
+                    : "border-sky-500/40 bg-sky-500/10 text-sky-300"
+              }`}
+            >
+              <Zap className="w-4 h-4" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-semibold text-white text-sm truncate">{rail.label}</div>
+              <div className="text-xs text-slate-400 truncate">{rail.hint} · {rail.eta}</div>
+            </div>
+            <div className="shrink-0 text-right">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500">Available</div>
+              <div className="text-xs font-bold text-slate-200 tabular-nums">
+                {currencyMeta[rail.c].symbol}
+                {baseBal.toLocaleString("en-US", { minimumFractionDigits: rail.c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+          </div>
+
+          {/* Reference — other currency equivalents (view only) */}
+          {others.map((c) => {
+            const r = railFor(c);
+            const baseUsd = baseBal / (FX_FROM_USD[baseCurrency] || 1);
+            const equiv = baseUsd * (FX_FROM_USD[c] || 1);
             return (
-              <button
-                key={r.c}
-                type="button"
-                disabled={disabled}
-                onClick={() => setRail(r)}
-                className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all ${
-                  active
-                    ? "border-sky-500/60 bg-sky-500/5"
-                    : disabled
-                      ? "border-[#1a1a1e] bg-[#0A0A0C] opacity-50 cursor-not-allowed"
-                      : "border-[#222226] bg-[#0A0A0C] hover:border-white/20"
-                }`}
+              <div
+                key={c}
+                className="w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-[#1a1a1e] bg-[#0A0A0C] opacity-50 p-3 text-left cursor-not-allowed"
+                title={`Payouts are locked to your home currency (${baseCurrency})`}
               >
-                <div
-                  className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${
-                    r.tone === "emerald"
-                      ? "border-emerald-500/40 bg-emerald-500/10 text-emerald-300"
-                      : r.tone === "amber"
-                        ? "border-amber-500/40 bg-amber-500/10 text-amber-300"
-                        : "border-sky-500/40 bg-sky-500/10 text-sky-300"
-                  }`}
-                >
+                <div className="w-10 h-10 rounded-lg border border-[#222226] flex items-center justify-center shrink-0 text-slate-500">
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-white text-sm truncate">{r.label}</div>
-                  <div className="text-xs text-slate-400 truncate">{r.hint} · {r.eta}</div>
+                  <div className="font-semibold text-slate-300 text-sm truncate">{r.label}</div>
+                  <div className="text-[11px] text-slate-500 truncate">Reference equivalent · not withdrawable</div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500">Available</div>
-                  <div className="text-xs font-bold text-slate-200 tabular-nums">
-                    {currencyMeta[r.c].symbol}
-                    {bal.toLocaleString("en-US", { minimumFractionDigits: r.c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500">≈</div>
+                  <div className="text-xs font-bold text-slate-400 tabular-nums">
+                    {currencyMeta[c].symbol}
+                    {equiv.toLocaleString("en-US", { minimumFractionDigits: c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
                   </div>
                 </div>
-              </button>
+              </div>
             );
           })}
         </div>
         <button
-          disabled={!rail}
-          onClick={() => setStep(rail?.c === "USD" ? "wire" : "destination")}
+          disabled={baseBal <= 0}
+          onClick={() => setStep(baseCurrency === "USD" ? "wire" : "destination")}
           className="w-full mt-2 rounded-xl bg-sky-500 hover:bg-sky-400 text-black font-bold py-2.5 text-sm transition-colors disabled:opacity-40 disabled:cursor-not-allowed"
         >
-          Continue
+          {baseBal > 0 ? `Continue with ${baseCurrency}` : `No ${baseCurrency} balance to withdraw`}
         </button>
       </ModalShell>
     );
   }
-
-  if (!rail) return null;
 
   if (step === "wire") {
     return (
@@ -1059,7 +1087,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
   if (step === "destination") {
     return (
       <DestinationPicker
-        currency={rail.c as "NGN" | "GHS"}
+        currency={baseCurrency as "NGN" | "GHS"}
         onClose={onClose}
         onBack={() => setStep("pick")}
         onPick={(id) => {
@@ -1073,9 +1101,9 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
   // step === "amount"
   return (
     <AmountStep
-      currency={rail.c as "NGN" | "GHS"}
+      currency={baseCurrency as "NGN" | "GHS"}
       recipientId={chosenRecipientId!}
-      max={balances[rail.c] ?? 0}
+      max={balances[baseCurrency] ?? 0}
       onBack={() => setStep("destination")}
       onDone={() => {
         void qc.invalidateQueries({ queryKey: ["wallet"] });
@@ -1084,6 +1112,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
     />
   );
 }
+
 
 function feeFor(currency: "NGN" | "GHS", method: "bank" | "momo", amount: number): number {
   if (currency === "NGN") {
