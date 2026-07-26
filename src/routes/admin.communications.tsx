@@ -113,6 +113,8 @@ function AnnouncementsTab() {
   const upsert = useServerFn(upsertAnnouncement);
   const del = useServerFn(deleteAnnouncement);
   const broadcast = useServerFn(broadcastAnnouncement);
+  const uploadFn = useServerFn(getCommsMediaUploadUrl);
+  const signFn = useServerFn(getCommsMediaSignedUrl);
 
   const [rows, setRows] = useState<AnnouncementRow[]>([]);
   const [loading, setLoading] = useState(true);
