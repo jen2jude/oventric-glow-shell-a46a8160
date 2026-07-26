@@ -266,12 +266,13 @@ export function BountyEditorModal({
         },
       });
 
-      toast.success("Bounty submitted for review", {
-        description: `${form.title.trim()} — $${priceUsd.toFixed(2)} is escrowed. It'll go live once an admin approves it.`,
-      });
+      const titleTxt = form.title.trim();
       reset();
-      if (result?.id) onPublished?.(result.id);
-      onClose();
+      setPublishedSplash({
+        title: titleTxt,
+        amountLabel: formatMoney(rewardBase, baseCurrency),
+        id: result?.id ?? "",
+      });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
