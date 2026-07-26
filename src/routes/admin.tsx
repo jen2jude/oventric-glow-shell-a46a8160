@@ -75,6 +75,7 @@ const NAV = [
 
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
+  { to: "/admin/circle-categories", label: "Circle Categories", icon: ShieldCheck },
   { to: "/admin/features", label: "Features", icon: ToggleLeft },
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
   { to: "/admin/settings", label: "Settings", icon: Settings },
