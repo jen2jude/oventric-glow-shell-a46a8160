@@ -77,6 +77,7 @@ export interface CircleSummary {
   slug: string;
   description: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
   isPrivate: boolean;
   category: string;
   emoji: string;
@@ -88,6 +89,7 @@ export interface CircleSummary {
   codeOfConduct: CodeOfConduct;
   createdAt: string;
 }
+
 
 export interface CircleJoinRequestRow {
   id: string;
