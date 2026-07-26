@@ -168,12 +168,14 @@ export function BountyEditorModal({
 
   const goToWallet = () => {
     saveDraft(true);
-    const topupUsd = Math.ceil(shortfallUsd * 100) / 100;
+    const topupLocal = baseCurrency === "USD"
+      ? Math.ceil(shortfallBase * 100) / 100
+      : Math.ceil(shortfallBase);
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent("oventric:wallet:topup", {
-        detail: { amountUsd: topupUsd, reason: "bounty-escrow" },
+        detail: { amountLocal: topupLocal, currency: baseCurrency, reason: "bounty-escrow" },
       }));
     }, 60);
   };
