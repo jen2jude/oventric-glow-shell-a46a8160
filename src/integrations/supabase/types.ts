@@ -876,6 +876,36 @@ export type Database = {
         }
         Relationships: []
       }
+      circle_categories: {
+        Row: {
+          created_at: string
+          enabled: boolean
+          id: string
+          name: string
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name: string
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          enabled?: boolean
+          id?: string
+          name?: string
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
       circle_join_requests: {
         Row: {
           circle_id: string
@@ -1021,6 +1051,7 @@ export type Database = {
           banner_hue: string
           category: string
           code_of_conduct: Json
+          cover_url: string | null
           created_at: string
           description: string | null
           emoji: string
@@ -1037,6 +1068,7 @@ export type Database = {
           banner_hue?: string
           category?: string
           code_of_conduct?: Json
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           emoji?: string
@@ -1053,6 +1085,7 @@ export type Database = {
           banner_hue?: string
           category?: string
           code_of_conduct?: Json
+          cover_url?: string | null
           created_at?: string
           description?: string | null
           emoji?: string
