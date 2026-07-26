@@ -3,6 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
 import { convertViaSnapshot } from "@/lib/fx-display";
+import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
 
 
 const PAYSTACK_BASE = "https://api.paystack.co";
