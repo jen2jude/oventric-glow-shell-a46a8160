@@ -376,7 +376,7 @@ export function NotificationsDrawer({
                       )}
                     </div>
                     {n.body && (
-                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{n.body}</p>
+                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{plainPreview(n.body)}</p>
                     )}
                     <div className="mt-1.5 flex items-center justify-between">
                       <span className="text-[10px] text-slate-500 uppercase tracking-wider">
