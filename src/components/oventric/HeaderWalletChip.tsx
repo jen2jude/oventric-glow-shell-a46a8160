@@ -26,6 +26,7 @@ export function HeaderWalletChip() {
   const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
   const hasCountry = country != null;
   const displayCurrency: Currency = hasCountry ? baseCurrency : "USD";
+  const getBalances = useServerFn(getWalletBalances);
   const [open, setOpen] = useState(false);
   const [main, setMain] = useState(0);
   const [escrow, setEscrow] = useState(0);
