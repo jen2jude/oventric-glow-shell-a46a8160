@@ -188,9 +188,7 @@ export function Bounties() {
           console.error("Bounties fetch error:", error);
           setBountiesError(error.message || "Bounties could not be loaded right now.");
         }
-        const now = Date.now();
         const rows: Bounty[] = (data ?? [])
-          .filter((b) => !b.end_at || new Date(b.end_at as string).getTime() > now)
           // Currency isolation: signed-in users only see bounties published in
           // their home currency. Anon viewers still see everything (USD preview).
           .filter((b) => {
@@ -464,6 +462,9 @@ function BountyRow({
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
+          </span>
+          <span className="inline-flex items-center gap-1 text-emerald-300/90">
+            Solver {formatMoney(bounty.rewardValue * 0.8, bounty.rewardCurrency)} · Fee {formatMoney(bounty.rewardValue * 0.2, bounty.rewardCurrency)}
           </span>
         </div>
       </div>
