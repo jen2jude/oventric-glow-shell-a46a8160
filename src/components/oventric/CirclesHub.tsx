@@ -581,10 +581,13 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
     enabled: isMember,
   });
   const [text, setText] = useState("");
+  const [openComments, setOpenComments] = useState<{ id: string; author: string } | null>(null);
+  const [lastShared, setLastShared] = useState<boolean | null>(null);
   const postM = useMutation({
     mutationFn: () => createFn({ data: { circleId: circle.id, text } }),
-    onSuccess: () => {
+    onSuccess: (res) => {
       setText("");
+      setLastShared(!!res?.sharedToFeed);
       qc.invalidateQueries({ queryKey: ["circle-posts", circle.id] });
     },
   });
@@ -611,7 +614,10 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
           placeholder="Share with the circle…"
           className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none min-h-[60px]"
         />
-        <div className="flex justify-end pt-2 border-t border-white/5">
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <span className="text-[11px] text-slate-500">
+            Every 5th post here also appears in the public news feed as a taster for non‑members.
+          </span>
           <button
             onClick={() => postM.mutate()}
             disabled={!text.trim() || postM.isPending}
@@ -620,6 +626,13 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
             <Send className="w-3.5 h-3.5" /> Post
           </button>
         </div>
+        {lastShared !== null && (
+          <div className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500"}`}>
+            {lastShared
+              ? "🎉 This post was also shared to the main news feed."
+              : "Posted to the circle. Only members can see it."}
+          </div>
+        )}
       </div>
 
       {postsQ.isLoading ? (
@@ -631,33 +644,106 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
       ) : (
         <div className="space-y-3">
           {postsQ.data!.map((p) => (
-            <div key={p.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2">
-                {p.authorAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover"  loading="lazy" decoding="async" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
-                    {p.authorName.slice(0, 1).toUpperCase()}
-                  </div>
-                )}
-                <button
-                  onClick={() =>
-                    (window.location.href = p.authorSlug
-                      ? `/profile/${p.authorSlug}`
-                      : `/profile/${p.authorId}`)
-                  }
-                  className="text-sm font-semibold text-white hover:text-emerald-300"
-                >
-                  {p.authorName}
-                </button>
-                <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
-              </div>
-              <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
-            </div>
+            <WatercoolerPost
+              key={p.id}
+              p={p}
+              onOpenComments={() => setOpenComments({ id: p.id, author: p.authorName })}
+            />
           ))}
         </div>
       )}
+
+      {openComments && (
+        <CommentsSheet
+          postId={openComments.id}
+          postAuthorName={openComments.author}
+          onClose={() => setOpenComments(null)}
+        />
+      )}
+    </div>
+  );
+}
+
+function WatercoolerPost({
+  p,
+  onOpenComments,
+}: {
+  p: import("@/lib/circles-groups.functions").CirclePostRow;
+  onOpenComments: () => void;
+}) {
+  const setReactionM = useServerFn(setReactionFn);
+  const [viewerReaction, setViewerReaction] = useState<ReactionType | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, laugh: 0, crown: 0 });
+
+  const react = async (r: ReactionType | null) => {
+    const prev = viewerReaction;
+    setViewerReaction(r);
+    setTotals((t) => {
+      const next = { ...t };
+      if (prev) next[prev] = Math.max(0, next[prev] - 1);
+      if (r) next[r] = (next[r] ?? 0) + 1;
+      return next;
+    });
+    setPickerOpen(false);
+    try {
+      await setReactionM({ data: { postId: p.id, reaction: r } });
+    } catch {
+      setViewerReaction(prev);
+    }
+  };
+
+  const total = totals.love + totals.like + totals.laugh + totals.crown;
+  const ActiveIcon = viewerReaction ? REACTION_META[viewerReaction].Icon : null;
+  const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
+
+  return (
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+      <div className="flex items-center gap-2 mb-2">
+        {p.authorAvatar ? (
+          <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
+            {p.authorName.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <button
+          onClick={() =>
+            (window.location.href = p.authorSlug
+              ? `/profile/${p.authorSlug}`
+              : `/profile/${p.authorId}`)
+          }
+          className="text-sm font-semibold text-white hover:text-emerald-300"
+        >
+          {p.authorName}
+        </button>
+        <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
+      </div>
+      <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
+      <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/5 relative">
+        <button
+          type="button"
+          onClick={() => (viewerReaction ? react(null) : setPickerOpen((v) => !v))}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+          style={activeColor ? { color: activeColor } : undefined}
+        >
+          {ActiveIcon ? <ActiveIcon className="w-3.5 h-3.5 fill-current" /> : <span>👍</span>}
+          <span>{total > 0 ? total : "React"}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onOpenComments}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+        >
+          <MessageCircle className="w-3.5 h-3.5" /> Comment
+        </button>
+        {pickerOpen && (
+          <ReactionPicker onPick={(r) => react(r)} onClose={() => setPickerOpen(false)} />
+        )}
+      </div>
+    </div>
+  );
+}
     </div>
   );
 }
