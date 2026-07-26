@@ -123,8 +123,16 @@ export function Academy() {
     );
   }
 
+  // Currency isolation: signed-in users only see courses priced in their home
+  // currency (or free). Anon viewers see everything (USD preview).
   const filtered =
-    courses?.filter((c) => category === "all" || c.category === category) ?? [];
+    courses?.filter((c) => {
+      if (category !== "all" && c.category !== category) return false;
+      if (!userId) return true;
+      if (c.isFree) return true;
+      const oc = String(c.originalCurrency ?? "USD").toUpperCase();
+      return oc === baseCurrency;
+    }) ?? [];
 
   return (
     <div className="max-w-5xl mx-auto w-full">
