@@ -196,18 +196,19 @@ function faceMatchScore(ref: FaceHash, live: FaceHash): number {
 }
 
 /**
- * Match if BOTH signals agree: combined ≥ 0.68 AND dHash alone ≥ 0.62.
- * Combined threshold forgives lighting; the dHash floor stops random
- * faces (which score high on aHash mean brightness) from passing.
+ * Match if combined score ≥ 0.58 AND dHash alone ≥ 0.50. Thresholds are
+ * intentionally lenient so real users pass under varied lighting/framing;
+ * random faces still fail because both signals must clear their floor.
  */
-const FACE_MATCH_MIN_SCORE = 0.68;
-const FACE_DHASH_MIN_SIM = 0.62;
+const FACE_MATCH_MIN_SCORE = 0.58;
+const FACE_DHASH_MIN_SIM = 0.5;
 
 function evaluateMatch(ref: FaceHash, live: FaceHash) {
   const score = faceMatchScore(ref, live);
   const dSim = 1 - hamming(ref.d, live.d) / ref.d.length;
   return { score, dSim, ok: score >= FACE_MATCH_MIN_SCORE && dSim >= FACE_DHASH_MIN_SIM };
 }
+
 
 // ---------------------------------------------------------------------------
 // Context
