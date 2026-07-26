@@ -150,9 +150,13 @@ export function Wallet() {
   // with a suggested amount already filled in.
   useEffect(() => {
     const onTopup = (e: Event) => {
-      const detail = (e as CustomEvent<{ amountUsd?: number; reason?: string; returnTo?: string }>).detail;
-      const amt = Number(detail?.amountUsd ?? 0);
-      if (amt > 0) setAddPrefillUsd(amt);
+      const detail = (e as CustomEvent<{ amountUsd?: number; amountLocal?: number; currency?: string; reason?: string; returnTo?: string }>).detail;
+      // Prefer the new base-currency payload; fall back to the legacy amountUsd
+      // for any old event dispatchers still in the wild.
+      const local = Number(detail?.amountLocal ?? 0);
+      const usd = Number(detail?.amountUsd ?? 0);
+      if (local > 0) setAddPrefillLocal(local);
+      else if (usd > 0) setAddPrefillUsd(usd);
       const explicitReturn = typeof detail?.returnTo === "string" && detail.returnTo.startsWith("/") ? detail.returnTo : null;
       const inferredReturn = detail?.reason === "bounty-escrow" ? "/?resume=bounty" : null;
       setAddReturnTo(explicitReturn ?? inferredReturn);
