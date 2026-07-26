@@ -5,28 +5,40 @@ import { toast } from "sonner";
 import { getCourseMediaUploadUrl, getCourseMediaSignedUrl } from "@/lib/academy.functions";
 import { supabase } from "@/integrations/supabase/client";
 
+type UploadFn = (args: { data: { filename: string; kind?: "image" | "video" } }) => Promise<{ path: string; token: string; signedUrl: string }>;
+type SignFn = (args: { data: { path: string } }) => Promise<{ url: string | null }>;
+
 /**
- * Lightweight contentEditable rich text editor with image upload
- * (uploads to the private `course-media` bucket and inserts a signed URL).
- * Value is HTML. Suitable for module bodies where instructors can inline
- * screenshots alongside written notes.
+ * Lightweight contentEditable rich text editor with image upload.
+ * Value is HTML.
+ * By default uploads to the private `course-media` bucket. Pass
+ * `uploadFn` / `signFn` + `bucket` to use a different bucket (e.g. comms).
  */
 export function RichTextEditor({
   value,
   onChange,
   placeholder = "Write the lesson notes… you can insert images and screenshots.",
   minHeight = 180,
+  uploadFn,
+  signFn,
+  bucket = "course-media",
 }: {
   value: string;
   onChange: (html: string) => void;
   placeholder?: string;
   minHeight?: number;
+  uploadFn?: UploadFn;
+  signFn?: SignFn;
+  bucket?: string;
 }) {
   const ref = useRef<HTMLDivElement | null>(null);
   const savedRange = useRef<Range | null>(null);
   const [uploading, setUploading] = useState(false);
-  const getUpload = useServerFn(getCourseMediaUploadUrl);
-  const getSigned = useServerFn(getCourseMediaSignedUrl);
+  const defaultUpload = useServerFn(getCourseMediaUploadUrl);
+  const defaultSign = useServerFn(getCourseMediaSignedUrl);
+  const getUpload = (uploadFn ?? defaultUpload) as UploadFn;
+  const getSigned = (signFn ?? defaultSign) as SignFn;
+
 
   const saveSelection = () => {
     const sel = window.getSelection();
