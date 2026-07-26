@@ -183,9 +183,10 @@ function ProductPage() {
                           <div className="text-white font-black text-3xl">{dp.formatted}</div>
                           {dp.originalFormatted && (
                             <div className="text-xs text-slate-500 mt-1">
-                              Locked at {dp.originalFormatted} {dp.originalCurrency}
+                              {dp.originalFormatted} in {dp.approxCurrency}
                             </div>
                           )}
+
                         </>
                       );
                     })()}
