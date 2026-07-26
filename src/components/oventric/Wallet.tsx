@@ -449,112 +449,128 @@ export function Wallet() {
       </section>
 
 
-      {/* 3. Transaction Ledger */}
+      {/* 3. Transaction Ledger (collapsible) */}
       <section className="rounded-2xl border border-[#222226] bg-[#141418] overflow-hidden">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] sm:flex sm:flex-wrap sm:justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+          <button
+            type="button"
+            onClick={() => setLedgerOpen((v) => !v)}
+            aria-expanded={ledgerOpen}
+            className="flex items-center gap-2 min-w-0 text-left"
+          >
             <WalletIcon className="w-4 h-4 text-emerald-400 shrink-0" />
             <h2 className="truncate text-sm font-bold text-white uppercase tracking-wide">
               Transaction Ledger
             </h2>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search hash, type…"
-                className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
-              />
+            <span className="text-[11px] text-slate-500 normal-case tracking-normal">
+              ({total})
+            </span>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
+          </button>
+          {ledgerOpen && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search hash, type…"
+                  className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
+                />
+              </div>
+              <select
+                value={curFilter}
+                onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
+              >
+                <option value="ALL">All currencies</option>
+                <option value="USD">USD</option>
+                <option value="NGN">NGN</option>
+                <option value="GHS">GHS</option>
+              </select>
+              <button
+                onClick={() => query.refetch()}
+                disabled={query.isFetching}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
+                title="Refresh ledger"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
+              </button>
             </div>
-            <select
-              value={curFilter}
-              onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
-              className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
-            >
-              <option value="ALL">All currencies</option>
-              <option value="USD">USD</option>
-              <option value="NGN">NGN</option>
-              <option value="GHS">GHS</option>
-            </select>
-            <button
-              onClick={() => query.refetch()}
-              disabled={query.isFetching}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
-              title="Refresh ledger"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
-            </button>
-          </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 bg-[#0F0F12]">
-                <th className="px-4 py-2.5 font-semibold">Tx ID</th>
-                <th className="px-4 py-2.5 font-semibold">Type</th>
-                <th className="px-4 py-2.5 font-semibold text-right">Impact</th>
-                <th className="px-4 py-2.5 font-semibold">Timestamp</th>
-                <th className="px-4 py-2.5 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((t) => (
-                <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
-                  <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
-                  <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" : "text-slate-300"}`}>
-                    {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
-                  <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
-                </tr>
-              ))}
-              {items.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                    {!authReady ? (
-                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
-                    ) : !userId ? (
-                      "Sign in to view your transaction ledger."
-                    ) : query.isLoading ? (
-                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
-                    ) : query.isError ? (
-                      `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
-                    ) : (
-                      "No transactions match your filters."
-                    )}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {ledgerOpen && (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[720px]">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 bg-[#0F0F12]">
+                    <th className="px-4 py-2.5 font-semibold">Tx ID</th>
+                    <th className="px-4 py-2.5 font-semibold">Type</th>
+                    <th className="px-4 py-2.5 font-semibold text-right">Impact</th>
+                    <th className="px-4 py-2.5 font-semibold">Timestamp</th>
+                    <th className="px-4 py-2.5 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((t) => (
+                    <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
+                      <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
+                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300"}`}>
+                        {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
+                      <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
+                    </tr>
+                  ))}
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                        {!authReady ? (
+                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
+                        ) : !userId ? (
+                          "Sign in to view your transaction ledger."
+                        ) : query.isLoading ? (
+                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
+                        ) : query.isError ? (
+                          `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
+                        ) : (
+                          "No transactions match your filters."
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-        <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
-          <div>
-            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={pageSafe === 1}
-              className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={pageSafe === totalPages}
-              className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+            <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
+              <div>
+                Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={pageSafe === 1}
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={pageSafe === totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </section>
+
 
       {/* Affiliate — single card (coming soon / reserve) */}
       <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(217,70,239,0.45)]">
