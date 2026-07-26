@@ -29,6 +29,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions, getWalletBalances, getWalletEarnings, transferBountyToMain } from "@/lib/wallet.functions";
 import { initPaystackPayment } from "@/lib/paystack.functions";
+import { paystackFee } from "@/lib/paystack-fees";
 import {
   listBanksForCurrency,
   resolveBankAccount,
@@ -849,10 +850,15 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
   ];
   const hasPrefill = !!((prefillLocalProp && prefillLocalProp > 0) || (prefillUsd && prefillUsd > 0));
   const numericAmount = Number(amount);
-  const formattedCharge =
+  const feeCurrency = baseCurrency;
+  const { fee: paystackFeeAmount, charge: paystackCharge } =
+    numericAmount > 0 ? paystackFee(numericAmount, feeCurrency) : { fee: 0, charge: 0 };
+  const fmt = (v: number) =>
     baseCurrency === "USD"
-      ? numericAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : Math.round(numericAmount).toLocaleString();
+      ? v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : Math.round(v).toLocaleString();
+  const formattedCharge = fmt(paystackCharge);
+  const formattedFee = fmt(paystackFeeAmount);
 
   const fund = async () => {
     const local = Number(amount);
@@ -911,13 +917,15 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           />
         </div>
         {numericAmount > 0 && (
-          <div className="mt-1 text-[11px] text-slate-500">
-            You&apos;ll be charged exactly{" "}
+          <div className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+            You&apos;ll be charged{" "}
             <span className="text-slate-200 font-semibold">
-              {symbol}
-              {formattedCharge}
+              {symbol}{formattedCharge}
             </span>{" "}
-            via Paystack — no hidden fees.
+            via Paystack — that&apos;s your{" "}
+            <span className="text-slate-300">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
+            <span className="text-amber-300">{symbol}{formattedFee}</span> Paystack transaction fee.
+            Your wallet is credited with the full {symbol}{fmt(numericAmount)}.
           </div>
         )}
       </div>

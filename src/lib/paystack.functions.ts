@@ -3,6 +3,7 @@ import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
 import { convertViaSnapshot } from "@/lib/fx-display";
+import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
 
 
 const PAYSTACK_BASE = "https://api.paystack.co";
@@ -103,10 +104,20 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       purpose: data.purpose,
     };
 
+    // Compute the Paystack transaction fee up front for wallet top-ups so the
+    // user (not the platform) covers it. We charge amount+fee via Paystack and
+    // credit the user's wallet with the entered `amount` on settlement.
+    let topupFee = 0;
+    let topupNet = 0;
     if (data.purpose === "wallet_topup") {
-      amount = Number(data.amount);
+      topupNet = Number(data.amount);
       currency = data.currency;
-      if (!(amount > 0)) throw new Error("Top-up amount must be greater than zero.");
+      if (!(topupNet > 0)) throw new Error("Top-up amount must be greater than zero.");
+      const { fee, charge } = paystackFee(topupNet, currency as PaystackFeeCurrency);
+      topupFee = fee;
+      amount = charge; // what Paystack will actually collect
+      metadata.wallet_credit_amount = topupNet;
+      metadata.topup_fee = fee;
       if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
         metadata.return_to = data.returnTo;
       }
@@ -238,7 +249,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           paystack_ref: result.reference,
           tx_hash: result.reference,
           type: "Wallet Top-Up",
-          amount,
+          amount: topupNet,
           currency,
           inflow: true,
           status: "pending",
@@ -566,7 +577,11 @@ export async function verifyAndSettleByReference(reference: string) {
   }
 
 
-  await settleWalletTopup(userId, payload.reference, amount, currency);
+  // The user paid `amount` (which includes the Paystack fee) but we credit
+  // only the entered top-up they saw on screen.
+  const creditAmount = Number(meta.wallet_credit_amount);
+  const netAmount = Number.isFinite(creditAmount) && creditAmount > 0 ? creditAmount : amount;
+  await settleWalletTopup(userId, payload.reference, netAmount, currency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
   return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: currency };
 }
