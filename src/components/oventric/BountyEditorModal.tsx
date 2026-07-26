@@ -98,7 +98,7 @@ export function BountyEditorModal({
       const _uid = session.user?.id ?? null;
       if (cancelled) return;
       setUid(_uid);
-      if (!_uid) { setWalletUsd(null); return; }
+      if (!_uid) { setWalletBase(null); return; }
       try {
         const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
         if (raw) {
@@ -128,9 +128,9 @@ export function BountyEditorModal({
         }
       } catch { /* ignore */ }
       const { data: walletData } = await supabase.from("wallets")
-        .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
+        .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
       if (cancelled) return;
-      setWalletUsd(Number(walletData?.available_balance ?? 0));
+      setWalletBase(Number(walletData?.available_balance ?? 0));
     })();
     return () => { cancelled = true; };
   }, [open]);
