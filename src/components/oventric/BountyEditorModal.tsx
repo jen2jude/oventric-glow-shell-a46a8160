@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save } from "lucide-react";
+import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
