@@ -21,7 +21,7 @@ function fromUSD(usd: number, target: Currency): number {
   return usd * (LEGACY_USD_RATES[target] ?? 1);
 }
 
-export function HeaderWalletChip() {
+export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" } = {}) {
   const { isAuthenticated } = useAuthGate();
   const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
   const hasCountry = country != null;
