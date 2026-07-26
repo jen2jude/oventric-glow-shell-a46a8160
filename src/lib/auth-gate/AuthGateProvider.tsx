@@ -236,20 +236,17 @@ function NeonSuccessSplash() {
       aria-live="polite"
       aria-label="Successfully signed in"
     >
-      <div className="absolute inset-0 rgb-neon-bg opacity-70" style={{ animation: "auth-flash 1.4s ease-out forwards" }} />
-      <div className="relative z-10 rgb-neon-bg rounded-2xl p-[2px]">
-        <div className="bg-[#0b0b0d] rounded-2xl px-8 py-6 text-center">
-          <div className="mx-auto w-14 h-14 rounded-full rgb-pulse-glow bg-[#121214] border border-white/10 flex items-center justify-center mb-3">
-            <ShieldCheck className="w-6 h-6 text-emerald-300" aria-hidden />
-          </div>
-          <div className="text-white font-black tracking-tight text-lg">Verified</div>
-          <div className="text-[12px] text-slate-400 mt-1">Welcome to Oventric.</div>
+      <div className="flex flex-col items-center gap-3">
+        <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center">
+          <ShieldCheck className="w-8 h-8 text-emerald-400" aria-hidden />
         </div>
+        <div className="text-white font-semibold tracking-tight text-base">Verified · Welcome to Oventric</div>
       </div>
     </div>,
     document.body,
   );
 }
+
 
 // ---------------------------------------------------------------------------
 // Modal — the shared OTP flow, portalled at z-[200]
