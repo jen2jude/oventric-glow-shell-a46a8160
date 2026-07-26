@@ -23,6 +23,8 @@ import {
 } from "@/lib/bounty-categories.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { computeDisplayPrice, formatMoney, type PriceableRow } from "@/lib/fx-display";
+import type { Currency } from "@/lib/onboarding/OnboardingContext";
 export const Route = createFileRoute("/admin/bounties")({
   head: () => ({ meta: [{ title: "Bounties · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: BountiesAdminPage,
@@ -110,6 +112,7 @@ function BountiesAdminPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<"newest" | "oldest" | "status" | "deadline" | "price_high" | "price_low">("newest");
+  const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
 
   const filteredRows = useMemo(() => {
     if (!rows) return null;
@@ -334,7 +337,19 @@ function BountiesAdminPage() {
             {rows && filteredRows && filteredRows.length !== rows.length ? ` of ${rows.length}` : ""} bounties · admin can edit any, including user-posted ones
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg border border-white/10 bg-white/5 overflow-hidden" role="group" aria-label="Display currency">
+            {(["USD", "NGN", "GHS"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => setDisplayCurrency(c)}
+                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/10"}`}
+                aria-pressed={displayCurrency === c}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setShowCategoryManager(true)}
             className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2"
@@ -472,10 +487,35 @@ function BountiesAdminPage() {
                     ) : null}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {b.category as string} · ${Number(b.price_usd).toFixed(2)} · limit {b.applicant_limit as number}
+                    {b.category as string} · limit {b.applicant_limit as number}
                     {b.deadline_at ? ` · due ${new Date(b.deadline_at as string).toLocaleDateString()}` : ""}
                     {b.solved_at ? ` · solved ${new Date(b.solved_at as string).toLocaleDateString()}` : ""}
                   </div>
+                  {(() => {
+                    const price = computeDisplayPrice(b as PriceableRow, displayCurrency);
+                    const solver = price.value * 0.8;
+                    const platform = price.value * 0.2;
+                    const nativeNote = price.originalCurrency !== displayCurrency
+                      ? ` · funded ${formatMoney(price.originalAmount, price.originalCurrency)}`
+                      : "";
+                    return (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span className="px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-200 font-bold">
+                          Escrow {price.formatted}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded border border-sky-500/30 bg-sky-500/10 text-sky-200">
+                          Solver 80% · {formatMoney(solver, displayCurrency)}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-200">
+                          Platform 20% · {formatMoney(platform, displayCurrency)}
+                        </span>
+                        <span className="text-slate-500">{nativeNote}</span>
+                        {!price.isLocked && (
+                          <span className="text-amber-400/80" title="Legacy row without locked FX snapshot">⚠ legacy fx</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <button
                   onClick={() => setDetailId(id)}
