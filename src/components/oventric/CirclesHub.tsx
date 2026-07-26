@@ -420,10 +420,19 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   return (
     <div className="max-w-6xl mx-auto w-full">
       {/* Banner */}
-      <div className={`h-40 md:h-48 bg-gradient-to-br ${circle.bannerHue} relative`}>
+      <div className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+        {circle.coverUrl && (
+          <img
+            src={circle.coverUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+        )}
         <button
           onClick={onBack}
-          className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 text-white text-sm backdrop-blur-sm"
+          className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 text-white text-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
@@ -436,8 +445,12 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
 
       <div className="px-4 md:px-6 -mt-10 relative">
         <div className="flex items-end gap-4">
-          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br ${circle.avatarHue} border-4 border-[#121214] flex items-center justify-center text-3xl md:text-4xl shrink-0`}>
-            {circle.emoji}
+          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}>
+            {circle.avatarUrl ? (
+              <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
+            ) : (
+              <span>{circle.emoji}</span>
+            )}
           </div>
           <div className="flex-1 min-w-0 pb-2">
             <h1 className="text-xl md:text-2xl font-black text-white truncate">{circle.name}</h1>
