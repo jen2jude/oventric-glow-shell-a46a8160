@@ -174,7 +174,7 @@ function AnnouncementsTab() {
         data: {
           id: form.id || undefined,
           title: form.title.trim(),
-          body: form.body.trim(),
+          body: form.body,
           audience: form.audience,
           channels: form.channels,
           active: form.active,
