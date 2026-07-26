@@ -231,11 +231,32 @@ export const publishBounty = createServerFn({ method: "POST" })
     const sb = context.supabase as any;
     if (!data.title?.trim()) throw new Error("Title required");
     const price = Number(data.price_usd);
-    if (!(price >= 0)) throw new Error("Price must be >= 0");
+    if (!Number.isFinite(price) || price <= 0) {
+      throw new Error("A reward greater than $0 is required to post a bounty.");
+    }
+
+    // Defense in depth: verify wallet balance server-side before we insert
+    // anything. The frontend already prompts on shortfall; this guarantees
+    // no bounty can ever be published while the poster's escrow is $0.
+    const { data: walletRow, error: walletErr } = await sb
+      .from("wallets")
+      .select("available_balance")
+      .eq("user_id", context.userId)
+      .eq("currency", "USD")
+      .maybeSingle();
+    if (walletErr) throw new Error(walletErr.message);
+    const balance = Number(walletRow?.available_balance ?? 0);
+    if (balance < price) {
+      throw new Error(
+        `Insufficient wallet balance. You need $${price.toFixed(2)} escrowed to post this bounty — fund your wallet and try again.`,
+      );
+    }
 
     const images = Array.isArray(data.images) ? data.images.slice(0, 5) : [];
     const cover = data.cover_path ?? images[0] ?? null;
 
+    // Insert the bounty as pending_review — only admin approval can flip it
+    // to "active" so it appears on the public bounties list.
     const { data: row, error } = await sb
       .from("bounties")
       .insert({
@@ -250,25 +271,24 @@ export const publishBounty = createServerFn({ method: "POST" })
         start_at: data.start_at ?? null,
         end_at: data.end_at ?? null,
         deadline_at: data.deadline_at ?? null,
-        status: "active",
+        status: "pending_review",
         promoted: false,
       })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
 
-    if (price > 0) {
-      const { error: lockErr } = await sb.rpc("bounty_publish_lock", {
-        _bounty_id: row.id,
-        _amount_usd: price,
-      });
-      if (lockErr) {
-        // Roll back the bounty row if we couldn't lock funds.
-        await sb.from("bounties").delete().eq("id", row.id);
-        throw new Error(lockErr.message);
-      }
+    // Lock escrow. If it fails, roll back the bounty row so we never leave
+    // an unfunded pending bounty behind.
+    const { error: lockErr } = await sb.rpc("bounty_publish_lock", {
+      _bounty_id: row.id,
+      _amount_usd: price,
+    });
+    if (lockErr) {
+      await sb.from("bounties").delete().eq("id", row.id);
+      throw new Error(lockErr.message);
     }
-    return { id: row.id as string };
+    return { id: row.id as string, status: "pending_review" as const };
   });
 
 /** Any signed-in user applies to a bounty. Also DMs the poster with the pitch. */
