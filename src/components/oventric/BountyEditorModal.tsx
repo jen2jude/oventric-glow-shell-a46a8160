@@ -79,6 +79,7 @@ export function BountyEditorModal({
   const [walletBase, setWalletBase] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [publishedSplash, setPublishedSplash] = useState<{ title: string; amountLabel: string; id: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
