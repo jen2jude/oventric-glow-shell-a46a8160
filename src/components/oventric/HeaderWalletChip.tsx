@@ -23,8 +23,9 @@ function fromUSD(usd: number, target: Currency): number {
 
 export function HeaderWalletChip() {
   const { isAuthenticated } = useAuthGate();
-  const { baseCurrency, balancesHidden, toggleBalancesHidden } = useOnboarding();
-  const getBalances = useServerFn(getWalletBalances);
+  const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
+  const hasCountry = country != null;
+  const displayCurrency: Currency = hasCountry ? baseCurrency : "USD";
   const [open, setOpen] = useState(false);
   const [main, setMain] = useState(0);
   const [escrow, setEscrow] = useState(0);
