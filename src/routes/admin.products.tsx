@@ -414,7 +414,12 @@ function ProductsPage() {
                     )}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {p.category as string} · ${Number(p.price_usd).toFixed(2)} · by {(p.vendor as string) ?? "—"}
+                    {p.category as string} · {computeDisplayPrice({
+                      price_usd: Number(p.price_usd) || 0,
+                      original_currency: (p.original_currency as string) ?? "USD",
+                      original_amount: Number(p.original_amount ?? p.price_usd) || 0,
+                      fx_snapshot: p.fx_snapshot,
+                    }, priceCurrency).formatted} · by {(p.vendor as string) ?? "—"}
                     {p.location ? ` · ${p.location as string}` : ""}
                   </div>
                   {status === "rejected" && Boolean(p.reject_reason) && (
