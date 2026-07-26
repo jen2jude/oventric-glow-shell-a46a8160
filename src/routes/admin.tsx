@@ -187,19 +187,39 @@ function AdminLayout() {
           </div>
         </div>
         <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
-          {NAV.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: n.exact }}
-              activeProps={{ className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" }}
-              inactiveProps={{ className: "text-slate-400 hover:text-white hover:bg-white/5 border-transparent" }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
-            >
-              <n.icon className="w-4 h-4 shrink-0" />
-              <span>{n.label}</span>
-            </Link>
-          ))}
+          {NAV.map((n) => {
+            const isPayouts = n.to === "/admin/payouts";
+            const alert = isPayouts && pendingPayouts > 0;
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                activeOptions={{ exact: n.exact }}
+                activeProps={{
+                  className: alert
+                    ? "bg-red-500/15 text-red-200 border-red-500/50"
+                    : "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+                }}
+                inactiveProps={{
+                  className: alert
+                    ? "text-red-300 bg-red-500/10 hover:bg-red-500/20 border-red-500/40 animate-pulse"
+                    : "text-slate-400 hover:text-white hover:bg-white/5 border-transparent",
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
+              >
+                <n.icon className="w-4 h-4 shrink-0" />
+                <span className="flex-1">{n.label}</span>
+                {alert && (
+                  <span
+                    aria-label={`${pendingPayouts} pending payouts`}
+                    className="min-w-[20px] h-[18px] px-1.5 rounded-full text-[10px] font-black bg-red-500 text-white flex items-center justify-center"
+                  >
+                    {pendingPayouts > 99 ? "99+" : pendingPayouts}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
         <button
           onClick={async () => { await supabase.auth.signOut(); router.invalidate(); }}
