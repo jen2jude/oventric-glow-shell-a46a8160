@@ -453,9 +453,25 @@ export function NotificationsDrawer({
               </div>
               <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
                 {viewing.body ? (
-                  <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
-                    {renderLinkified(viewing.body)}
-                  </p>
+                  isHtml(viewing.body) ? (
+                    <div
+                      className="rich-comms text-sm text-slate-200 leading-relaxed break-words"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(viewing.body, {
+                          ALLOWED_TAGS: [
+                            "a","p","br","strong","em","b","i","u","ul","ol","li",
+                            "h1","h2","h3","h4","blockquote","code","pre","img","hr","span","div",
+                          ],
+                          ALLOWED_ATTR: ["href","target","rel","src","alt","title","class","style"],
+                          ALLOWED_URI_REGEXP: /^(https?:|mailto:|\/)/i,
+                        }),
+                      }}
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+                      {renderLinkified(viewing.body)}
+                    </p>
+                  )
                 ) : (
                   <p className="text-sm text-slate-500 italic">No additional content.</p>
                 )}
