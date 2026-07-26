@@ -217,7 +217,9 @@ export function BountyEditorModal({
   const save = async () => {
     if (!form.title.trim()) return toast.error("Title is required");
     const rewardBase = Number(form.price_usd);
-    if (!(rewardBase >= 0)) return toast.error("Reward must be >= 0");
+    if (!Number.isFinite(rewardBase) || rewardBase <= 0) {
+      return toast.error("Set a reward greater than 0 — it funds the solver's payout.");
+    }
     const limit = Number(form.applicant_limit);
     if (!(limit > 0)) return toast.error("Applicant limit must be > 0");
     const start = fromLocalInput(form.start_at);
@@ -263,8 +265,8 @@ export function BountyEditorModal({
         },
       });
 
-      toast.success("Bounty published", {
-        description: `${form.title.trim()} — funds escrowed until solver delivers.`,
+      toast.success("Bounty submitted for review", {
+        description: `${form.title.trim()} — $${priceUsd.toFixed(2)} is escrowed. It'll go live once an admin approves it.`,
       });
       reset();
       if (result?.id) onPublished?.(result.id);
