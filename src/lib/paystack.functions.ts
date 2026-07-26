@@ -577,7 +577,11 @@ export async function verifyAndSettleByReference(reference: string) {
   }
 
 
-  await settleWalletTopup(userId, payload.reference, amount, currency);
+  // The user paid `amount` (which includes the Paystack fee) but we credit
+  // only the entered top-up they saw on screen.
+  const creditAmount = Number(meta.wallet_credit_amount);
+  const netAmount = Number.isFinite(creditAmount) && creditAmount > 0 ? creditAmount : amount;
+  await settleWalletTopup(userId, payload.reference, netAmount, currency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
   return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: currency };
 }
