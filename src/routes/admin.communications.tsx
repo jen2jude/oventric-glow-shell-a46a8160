@@ -164,7 +164,7 @@ function AnnouncementsTab() {
     });
 
   const submit = async () => {
-    if (!form.title.trim() || !form.body.trim()) {
+    if (!form.title.trim() || !stripHtml(form.body)) {
       toast.error("Title and body are required");
       return;
     }
