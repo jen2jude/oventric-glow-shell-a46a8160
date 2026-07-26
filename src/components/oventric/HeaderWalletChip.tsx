@@ -5,6 +5,7 @@ import { getWalletBalances } from "@/lib/wallet.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { supabase } from "@/integrations/supabase/client";
+import { LEGACY_USD_RATES } from "@/lib/fx-display";
 
 const SYM: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
@@ -13,6 +14,11 @@ function fmt(n: number, c: Currency) {
     minimumFractionDigits: c === "NGN" ? 0 : 2,
     maximumFractionDigits: 2,
   });
+}
+
+function fromUSD(usd: number, target: Currency): number {
+  if (target === "USD") return usd;
+  return usd * (LEGACY_USD_RATES[target] ?? 1);
 }
 
 export function HeaderWalletChip() {
