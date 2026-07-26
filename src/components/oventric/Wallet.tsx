@@ -287,72 +287,18 @@ export function Wallet() {
         </button>
       </header>
 
-      {/* 1. Currency Vault — locked to the user's country currency. Non-USD
-          bases also show the USD equivalent card so users can compare against
-          the global rail without switching currencies. */}
+      {/* 1. Main Balance — single big card + USD equivalent alongside,
+          with a dropdown revealing the four sub-wallets (Escrow, Bounty
+          Earnings, Cashback, Marketplace/Seller Earnings). */}
       <section className="space-y-3">
-        <div className={`grid grid-cols-1 gap-3 ${baseCurrency !== "USD" ? "md:grid-cols-2" : ""}`}>
-          {(() => {
-            const m = currencyMeta[baseCurrency];
-            const bal = balances[baseCurrency] ?? 0;
-            const usdEq = bal / (FX_FROM_USD[baseCurrency] || 1);
-            return (
-              <>
-                <div
-                  className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 ${m.glow}`}
-                >
-                  <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
-                  <div className="flex items-center justify-between mb-4">
-                    <div className="flex items-center gap-2 min-w-0">
-                      <div className={`w-9 h-9 rounded-lg border ${m.ring} bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0`}>
-                        {m.symbol}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Primary</div>
-                        <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
-                      </div>
-                    </div>
-                    <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
-                  </div>
-                  <div className={`text-2xl sm:text-3xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
-                    {hide ? mask : fmt(bal, baseCurrency)}
-                  </div>
-                  <div className="mt-2 text-[11px] text-slate-500 uppercase tracking-wider">
-                    Available balance {baseCurrency !== "USD" && !hide && (
-                      <span className="normal-case tracking-normal text-slate-400"> · ≈ ${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })} USD</span>
-                    )}
-                  </div>
-                </div>
-
-                {baseCurrency !== "USD" && (
-                  <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(56,189,248,0.4)]">
-                    <div className="absolute inset-x-0 top-0 h-[2px] bg-sky-400/50" />
-                    <div className="flex items-center justify-between mb-4">
-                      <div className="flex items-center gap-2 min-w-0">
-                        <div className="w-9 h-9 rounded-lg border border-sky-500/40 bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0">$</div>
-                        <div className="min-w-0">
-                          <div className="text-xs uppercase tracking-wider text-slate-400 font-semibold">USD · Equivalent</div>
-                          <div className="text-[11px] text-slate-500 truncate">Global rail · read-only</div>
-                        </div>
-                      </div>
-                      <span className="w-2 h-2 rounded-full bg-sky-400 animate-pulse" />
-                    </div>
-                    <div className={`text-2xl sm:text-3xl font-black tabular-nums text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)] ${hide ? "blur-sm select-none" : ""}`}>
-                      {hide ? mask : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
-                    </div>
-                    <div className="mt-2 text-[11px] text-slate-500 uppercase tracking-wider">
-                      USD value of your {baseCurrency} balance
-                    </div>
-                  </div>
-                )}
-              </>
-            );
-          })()}
-        </div>
-
-        {/* Earnings breakdown — three live tiles that top up the main balance */}
         {(() => {
+          const m = currencyMeta[baseCurrency];
+          const bal = balances[baseCurrency] ?? 0;
+          const usdEq = bal / (FX_FROM_USD[baseCurrency] || 1);
           const fx = FX_FROM_USD[baseCurrency] || 1;
+          const escrowHome = useOnboarding().escrow?.[baseCurrency] ?? 0;
+          const bountyHome = (balancesQuery.data?.bountyBalance ?? 0) * fx;
+          const cashbackHome = (earnings.cashbackUSD ?? 0) * fx;
           type Tile = {
             key: string;
             label: string;
@@ -363,16 +309,37 @@ export function Wallet() {
             accent: string;
             text: string;
             ring: string;
-            soon?: boolean;
-            cta?: { label: string; to: string };
             onClick?: () => void;
           };
           const tiles: Tile[] = [
             {
+              key: "escrow",
+              label: "Escrowed",
+              sub: "Locked in active contracts",
+              value: escrowHome,
+              currency: baseCurrency,
+              icon: <Lock className="w-4 h-4" />,
+              accent: "bg-purple-500/10",
+              text: "text-purple-300",
+              ring: "border-purple-500/30",
+            },
+            {
+              key: "bounty",
+              label: "Bounty Earnings",
+              sub: "Earned from solving bounties",
+              value: bountyHome,
+              currency: baseCurrency,
+              icon: <Zap className="w-4 h-4" />,
+              accent: "bg-amber-500/10",
+              text: "text-amber-300",
+              ring: "border-amber-500/30",
+              onClick: () => setBountyModalOpen(true),
+            },
+            {
               key: "cashback",
               label: "Cashback",
-              sub: "Spend at checkout only",
-              value: earnings.cashbackUSD * fx,
+              sub: "Redeem at checkout",
+              value: cashbackHome,
               currency: baseCurrency,
               icon: <Sparkles className="w-4 h-4" />,
               accent: "bg-emerald-500/10",
@@ -382,7 +349,7 @@ export function Wallet() {
             {
               key: "marketplace",
               label: "Seller Earnings",
-              sub: "Marketplace sales",
+              sub: "From marketplace sales",
               value: earnings.marketplaceHome,
               currency: earnings.marketplaceCurrency,
               icon: <WalletIcon className="w-4 h-4" />,
@@ -390,166 +357,95 @@ export function Wallet() {
               text: "text-cyan-300",
               ring: "border-cyan-500/30",
             },
-            {
-              key: "bounty",
-              label: "Bounty Wallet",
-              sub: "Tap to send to main or withdraw",
-              value: (balancesQuery.data?.bountyBalance ?? 0) * fx,
-              currency: baseCurrency,
-              icon: <Zap className="w-4 h-4" />,
-              accent: "bg-amber-500/10",
-              text: "text-amber-300",
-              ring: "border-amber-500/30",
-              onClick: () => setBountyModalOpen(true),
-            },
-            {
-              key: "affiliate",
-              label: "Affiliate",
-              sub: "Referral · soon",
-              value: 0,
-              currency: baseCurrency,
-              icon: <TrendingUp className="w-4 h-4" />,
-              accent: "bg-fuchsia-500/10",
-              text: "text-fuchsia-300",
-              ring: "border-fuchsia-500/30",
-              soon: true,
-              cta: {
-                label: affiliateReserved ? "Reserved ✓" : "Join Now",
-                to: "/affiliate",
-              },
-            },
           ];
           return (
-            <div className="wallet-earnings-safe">
-              {/* Mobile: dead-flat single-line rows (Chrome Android safe: solid bg, no borders, no tints) */}
-              <div className="wallet-earnings-mobile md:hidden">
-                {tiles.map((t) => {
-                  const clickable = !!t.onClick;
-                  const RowEl = clickable ? "button" : "div";
-                  return (
-                    <RowEl
-                      key={t.key}
-                      onClick={t.onClick}
-                      className={`wallet-earnings-row ${clickable ? "text-left w-full hover:bg-white/5" : ""}`}
-                    >
-                      <span className="wallet-earnings-label">
-                        {t.label}{t.soon ? " (soon)" : ""}
-                      </span>
-                      {t.cta ? (
-                        <Link
-                          to={t.cta.to}
-                          className="text-[11px] font-black px-2.5 py-1 rounded-md"
-                          style={
-                            affiliateReserved
-                              ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
-                              : { backgroundColor: "#d946ef", color: "#000000" }
-                          }
-                        >
-                          {t.cta.label}
-                        </Link>
-                      ) : (
-                        <span className="wallet-earnings-value">
-                          {hide ? "•••" : fmt(t.value, t.currency)}
-                        </span>
-                      )}
-                    </RowEl>
-                  );
-                })}
-              </div>
-              {/* Desktop: original 3-up tiles */}
-              <div className="hidden md:grid grid-cols-4 gap-3">
-                {tiles.map((t) => {
-                  const clickable = !!t.onClick;
-                  const TileEl = clickable ? "button" : "div";
-                  return (
-                    <TileEl
-                      key={t.key}
-                      onClick={t.onClick}
-                      className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-3 text-left ${t.soon && !t.cta ? "opacity-70" : ""} ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
-                    >
-                      <div className="flex items-center gap-1.5 mb-2">
-                        <div className={`w-6 h-6 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
-                          {t.icon}
-                        </div>
-                        <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+            <>
+              {/* Big main card + USD equivalent side by side (desktop). */}
+              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3 items-stretch">
+                <div className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-6 sm:p-7 ${m.glow}`}>
+                  <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
+                  <div className="flex items-center justify-between mb-5">
+                    <div className="flex items-center gap-2.5 min-w-0">
+                      <div className={`w-11 h-11 rounded-xl border ${m.ring} bg-black/40 flex items-center justify-center text-white text-base font-bold shrink-0`}>
+                        {m.symbol}
                       </div>
-                      {t.cta ? (
-                        <>
-                          <Link
-                            to={t.cta.to}
-                            className="inline-flex items-center justify-center w-full text-xs font-black px-3 py-1.5 rounded-lg"
-                            style={
-                              affiliateReserved
-                                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
-                                : { backgroundColor: "#d946ef", color: "#000000" }
-                            }
-                          >
-                            {t.cta.label}
-                          </Link>
-                          <div className="mt-1 text-[10px] text-slate-500 truncate">
-                            {affiliateReserved ? "You're on the list" : "Reserve your spot"}
+                      <div className="min-w-0">
+                        <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Main Balance</div>
+                        <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
+                      </div>
+                    </div>
+                    <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
+                  </div>
+                  <div className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
+                    {hide ? mask : fmt(bal, baseCurrency)}
+                  </div>
+                  <div className="mt-3 text-[11px] text-slate-500 uppercase tracking-wider">
+                    Available balance
+                  </div>
+                </div>
+
+                <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(56,189,248,0.4)] flex flex-col justify-between">
+                  <div className="flex items-center gap-2 min-w-0">
+                    <div className="w-9 h-9 rounded-lg border border-sky-500/40 bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0">$</div>
+                    <div className="min-w-0">
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">USD · Equivalent</div>
+                      <div className="text-[10px] text-slate-500 truncate">Global rail · read-only</div>
+                    </div>
+                  </div>
+                  <div className={`mt-4 text-2xl sm:text-3xl font-black tabular-nums text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)] ${hide ? "blur-sm select-none" : ""}`}>
+                    {hide ? mask : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  </div>
+                  <div className="mt-2 text-[10px] text-slate-500 uppercase tracking-wider">
+                    USD value of {baseCurrency} balance
+                  </div>
+                </div>
+              </div>
+
+              {/* Dropdown toggle: reveals sub-wallet tiles with animation */}
+              <button
+                onClick={() => setMoreOpen((v) => !v)}
+                aria-expanded={moreOpen}
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] bg-[#141418] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
+              >
+                <span>{moreOpen ? "Hide" : "Show"} sub-wallets</span>
+                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              <div
+                className={`grid transition-all duration-300 ease-out ${moreOpen ? "grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"}`}
+              >
+                <div className="overflow-hidden">
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 pt-1">
+                    {tiles.map((t) => {
+                      const clickable = !!t.onClick;
+                      const TileEl = clickable ? "button" : "div";
+                      return (
+                        <TileEl
+                          key={t.key}
+                          onClick={t.onClick}
+                          className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-4 text-left ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
+                        >
+                          <div className="flex items-center gap-2 mb-2.5">
+                            <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                              {t.icon}
+                            </div>
+                            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
                           </div>
-                        </>
-                      ) : (
-                        <>
-                          <div className={`text-base font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                          <div className={`text-lg sm:text-xl font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
                             {hide ? "•••" : fmt(t.value, t.currency)}
                           </div>
-                          <div className="mt-0.5 text-[10px] text-slate-500 truncate">
-                            {t.soon ? "Coming soon" : t.sub}
-                          </div>
-                        </>
-                      )}
-                      {t.soon && !t.cta && (
-                        <span className="absolute top-1.5 right-1.5 text-[8px] uppercase tracking-wider px-1 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
-                          Soon
-                        </span>
-                      )}
-                    </TileEl>
-                  );
-                })}
+                          <div className="mt-1 text-[10px] text-slate-500 truncate">{t.sub}</div>
+                        </TileEl>
+                      );
+                    })}
+                  </div>
+                </div>
               </div>
-            </div>
+            </>
           );
-
         })()}
-
       </section>
 
-
-
-
-      {/* 2. Ingestion & Extraction */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <button
-          onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
-          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl border border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center shrink-0">
-              <ArrowDownToLine className="w-5 h-5 text-emerald-300" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-bold text-white">➕ Fund Wallet</div>
-              <div className="text-xs text-slate-400 mt-0.5">For bounties & ad campaigns</div>
-            </div>
-          </div>
-        </button>
-        <button
-          onClick={() => require(2, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw")}
-          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
-        >
-          <div className="flex items-center gap-3">
-            <div className="w-11 h-11 rounded-xl border border-sky-500/40 bg-sky-500/10 flex items-center justify-center shrink-0">
-              <ArrowUpFromLine className="w-5 h-5 text-sky-300" />
-            </div>
-            <div className="min-w-0">
-              <div className="font-bold text-white">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 mt-0.5">Direct to your bank · fee auto-deducted</div>
-            </div>
-          </div>
-        </button>
-      </section>
 
       {/* 3. Transaction Ledger */}
       <section className="rounded-2xl border border-[#222226] bg-[#141418] overflow-hidden">
