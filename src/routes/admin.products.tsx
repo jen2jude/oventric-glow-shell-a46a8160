@@ -103,6 +103,7 @@ function ProductsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [priceCurrency, setPriceCurrency] = useState<Currency>("USD");
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
