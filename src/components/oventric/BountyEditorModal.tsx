@@ -162,8 +162,6 @@ export function BountyEditorModal({
   };
 
   const inputBase = Number(form.price_usd || 0);
-  const inputUsdApprox =
-    baseCurrency === "USD" ? inputBase : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
   const shortfallBase = Math.max(0, inputBase - (walletBase ?? 0));
 
   const goToWallet = () => {
