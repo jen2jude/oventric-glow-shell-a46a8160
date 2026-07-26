@@ -283,3 +283,36 @@ export const markAllNotificationsRead = createServerFn({ method: "POST" })
     if (error) throw new Error(error.message);
     return { ok: true };
   });
+
+/** ---------- Comms Media (rich body images) ----------
+ * Admin-only uploader that lands files in the private `post-media` bucket
+ * under a `comms/` prefix, then returns a long-lived signed URL so the image
+ * can be embedded inside announcement / DM HTML bodies.
+ */
+export const getCommsMediaUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ filename: z.string().min(1).max(200) }).parse(d),
+  )
+  .handler(async ({ data, context }) => {
+    await assertAdmin(context);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const safe = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_") || "file";
+    const path = `comms/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safe}`;
+    const { data: signed, error } = await (supabaseAdmin as any).storage
+      .from("post-media")
+      .createSignedUploadUrl(path);
+    if (error) throw new Error(error.message);
+    return { path, token: signed.token as string, signedUrl: signed.signedUrl as string };
+  });
+
+/** Long-lived (1 year) signed URL for an embedded comms image. */
+export const getCommsMediaSignedUrl = createServerFn({ method: "POST" })
+  .inputValidator((d) => z.object({ path: z.string().min(1).max(500) }).parse(d))
+  .handler(async ({ data }) => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed } = await (supabaseAdmin as any).storage
+      .from("post-media")
+      .createSignedUrl(data.path, 60 * 60 * 24 * 365);
+    return { url: signed?.signedUrl ?? null };
+  });
