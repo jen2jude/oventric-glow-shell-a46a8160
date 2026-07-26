@@ -265,8 +265,8 @@ export function BountyEditorModal({
         },
       });
 
-      toast.success("Bounty published", {
-        description: `${form.title.trim()} — funds escrowed until solver delivers.`,
+      toast.success("Bounty submitted for review", {
+        description: `${form.title.trim()} — $${priceUsd.toFixed(2)} is escrowed. It'll go live once an admin approves it.`,
       });
       reset();
       if (result?.id) onPublished?.(result.id);
