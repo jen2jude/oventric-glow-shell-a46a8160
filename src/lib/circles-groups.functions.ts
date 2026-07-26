@@ -833,3 +833,105 @@ export const listCircleBounties = createServerFn({ method: "GET" })
       createdAt: r.created_at,
     }));
   });
+
+/* ============================ Categories ============================ */
+
+export interface CircleCategoryRow {
+  id: string;
+  slug: string;
+  name: string;
+  sortOrder: number;
+  enabled: boolean;
+}
+
+const CategoryUpsertInput = z.object({
+  id: z.string().uuid().optional(),
+  slug: z.string().trim().min(1).max(60),
+  name: z.string().trim().min(1).max(80),
+  sortOrder: z.number().int().min(0).max(9999).optional(),
+  enabled: z.boolean().optional(),
+});
+
+const CategoryIdInput = z.object({ id: z.string().uuid() });
+
+/** Public list of enabled circle categories (used by the Forge form). */
+export const listCircleCategories = createServerFn({ method: "GET" }).handler(
+  async (): Promise<CircleCategoryRow[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("circle_categories")
+      .select("id, slug, name, sort_order, enabled")
+      .eq("enabled", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (error) {
+      console.error("[listCircleCategories]", error);
+      return [];
+    }
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      sortOrder: r.sort_order,
+      enabled: r.enabled,
+    }));
+  },
+);
+
+async function assertAdmin(supabase: any, userId: string) {
+  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+  if (!data) throw new Error("Forbidden");
+}
+
+export const adminListCircleCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CircleCategoryRow[]> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("circle_categories")
+      .select("id, slug, name, sort_order, enabled")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (error) throw new Error("Failed to load categories");
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      sortOrder: r.sort_order,
+      enabled: r.enabled,
+    }));
+  });
+
+export const adminUpsertCircleCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CategoryUpsertInput.parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch = {
+      slug: data.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+      name: data.name,
+      sort_order: data.sortOrder ?? 0,
+      enabled: data.enabled ?? true,
+    };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("circle_categories").update(patch).eq("id", data.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin.from("circle_categories").insert(patch);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const adminDeleteCircleCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CategoryIdInput.parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("circle_categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
+  });
