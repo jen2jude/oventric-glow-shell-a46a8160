@@ -23,7 +23,19 @@ import {
   sendDirectMessage,
   listRecentNotifications,
   type AnnouncementRow,
+  getCommsMediaUploadUrl,
+  getCommsMediaSignedUrl,
 } from "@/lib/communications.functions";
+import { RichTextEditor } from "@/components/ui/rich-text-editor";
+
+function stripHtml(html: string): string {
+  if (!html) return "";
+  if (typeof document === "undefined") return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
+}
+
 
 export const Route = createFileRoute("/admin/communications")({
   head: () => ({
@@ -110,6 +122,8 @@ function AnnouncementsTab() {
   const upsert = useServerFn(upsertAnnouncement);
   const del = useServerFn(deleteAnnouncement);
   const broadcast = useServerFn(broadcastAnnouncement);
+  const uploadFn = useServerFn(getCommsMediaUploadUrl);
+  const signFn = useServerFn(getCommsMediaSignedUrl);
 
   const [rows, setRows] = useState<AnnouncementRow[]>([]);
   const [loading, setLoading] = useState(true);
@@ -150,7 +164,7 @@ function AnnouncementsTab() {
     });
 
   const submit = async () => {
-    if (!form.title.trim() || !form.body.trim()) {
+    if (!form.title.trim() || !stripHtml(form.body)) {
       toast.error("Title and body are required");
       return;
     }
@@ -160,7 +174,7 @@ function AnnouncementsTab() {
         data: {
           id: form.id || undefined,
           title: form.title.trim(),
-          body: form.body.trim(),
+          body: form.body,
           audience: form.audience,
           channels: form.channels,
           active: form.active,
@@ -220,13 +234,20 @@ function AnnouncementsTab() {
             placeholder="Title"
             className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
           />
-          <textarea
-            value={form.body}
-            onChange={(e) => setForm({ ...form, body: e.target.value })}
-            placeholder="Message body"
-            rows={5}
-            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
-          />
+          <div>
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
+              Message body — rich text · images · links
+            </div>
+            <RichTextEditor
+              value={form.body}
+              onChange={(html) => setForm({ ...form, body: html })}
+              placeholder="Craft a rich announcement. Add headings, images, and clickable links."
+              minHeight={240}
+              bucket="post-media"
+              uploadFn={uploadFn}
+              signFn={signFn}
+            />
+          </div>
           <div>
             <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">Audience</div>
             <div className="flex gap-2">
@@ -337,7 +358,9 @@ function AnnouncementsTab() {
                         {r.audience}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{r.body}</p>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                      {stripHtml(r.body).slice(0, 220)}
+                    </p>
                     <div className="flex gap-1 mt-2 flex-wrap">
                       {r.channels.map((c) => (
                         <span
@@ -392,6 +415,8 @@ function AnnouncementsTab() {
 
 function DirectMessageTab() {
   const send = useServerFn(sendDirectMessage);
+  const uploadFn = useServerFn(getCommsMediaUploadUrl);
+  const signFn = useServerFn(getCommsMediaSignedUrl);
   const [recipients, setRecipients] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
@@ -405,14 +430,14 @@ function DirectMessageTab() {
       .map((s) => s.trim())
       .filter(Boolean);
     if (!parsed.length) return toast.error("Add at least one recipient");
-    if (!title.trim() || !body.trim()) return toast.error("Title and body are required");
+    if (!title.trim() || !stripHtml(body)) return toast.error("Title and body are required");
     setBusy(true);
     try {
       const { delivered } = await send({
         data: {
           recipients: parsed,
           title: title.trim(),
-          body: body.trim(),
+          body: body,
           link: link.trim() || undefined,
           kind,
         },
@@ -475,13 +500,20 @@ function DirectMessageTab() {
           placeholder="Title"
           className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
         />
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Message"
-          rows={5}
-          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
-        />
+        <div>
+          <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
+            Message — rich text · images · links
+          </div>
+          <RichTextEditor
+            value={body}
+            onChange={setBody}
+            placeholder="Write a rich personal message. Add headings, images, and clickable links."
+            minHeight={220}
+            bucket="post-media"
+            uploadFn={uploadFn}
+            signFn={signFn}
+          />
+        </div>
         <input
           value={link}
           onChange={(e) => setLink(e.target.value)}

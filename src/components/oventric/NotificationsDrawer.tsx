@@ -1,5 +1,7 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
+import DOMPurify from "isomorphic-dompurify";
+
 import {
   X,
   Bell,
@@ -73,6 +75,19 @@ function timeAgo(iso: string): string {
   const days = Math.floor(h / 24);
   if (days < 7) return `${days}d`;
   return new Date(iso).toLocaleDateString();
+}
+
+function isHtml(s: string | null | undefined): boolean {
+  return !!s && /<\/?[a-z][^>]*>/i.test(s);
+}
+
+function plainPreview(s: string | null | undefined): string {
+  if (!s) return "";
+  if (!isHtml(s)) return s;
+  if (typeof document === "undefined") return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const div = document.createElement("div");
+  div.innerHTML = DOMPurify.sanitize(s);
+  return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
 }
 
 function renderLinkified(text: string) {
@@ -374,7 +389,7 @@ export function NotificationsDrawer({
                       )}
                     </div>
                     {n.body && (
-                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{n.body}</p>
+                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{plainPreview(n.body)}</p>
                     )}
                     <div className="mt-1.5 flex items-center justify-between">
                       <span className="text-[10px] text-slate-500 uppercase tracking-wider">
@@ -438,9 +453,25 @@ export function NotificationsDrawer({
               </div>
               <div className="px-5 py-4 max-h-[60vh] overflow-y-auto">
                 {viewing.body ? (
-                  <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
-                    {renderLinkified(viewing.body)}
-                  </p>
+                  isHtml(viewing.body) ? (
+                    <div
+                      className="rich-comms text-sm text-slate-200 leading-relaxed break-words"
+                      dangerouslySetInnerHTML={{
+                        __html: DOMPurify.sanitize(viewing.body, {
+                          ALLOWED_TAGS: [
+                            "a","p","br","strong","em","b","i","u","ul","ol","li",
+                            "h1","h2","h3","h4","blockquote","code","pre","img","hr","span","div",
+                          ],
+                          ALLOWED_ATTR: ["href","target","rel","src","alt","title","class","style"],
+                          ALLOWED_URI_REGEXP: /^(https?:|mailto:|\/)/i,
+                        }),
+                      }}
+                    />
+                  ) : (
+                    <p className="text-sm text-slate-200 whitespace-pre-wrap leading-relaxed">
+                      {renderLinkified(viewing.body)}
+                    </p>
+                  )
                 ) : (
                   <p className="text-sm text-slate-500 italic">No additional content.</p>
                 )}
