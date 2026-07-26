@@ -123,14 +123,16 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           {LogoMark}
         </Link>
 
+        {/* Wallet chip - left-aligned, directly beside/below the logo */}
+        <HeaderWalletChip />
+
         {/* Desktop search input */}
         <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
           <GlobalSearch variant="inline" />
         </div>
 
         <div className="flex items-center gap-2 ml-auto shrink-0">
-          {/* Wallet chip - shows main balance in home currency */}
-          <HeaderWalletChip />
+
 
           {/* Circles & Guilds - mobile only in bottom row */}
           <button
