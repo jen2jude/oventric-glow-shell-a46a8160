@@ -112,6 +112,7 @@ function BountiesAdminPage() {
   const [categoryFilter, setCategoryFilter] = useState<string>("all");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [sortKey, setSortKey] = useState<"newest" | "oldest" | "status" | "deadline" | "price_high" | "price_low">("newest");
+  const [displayCurrency, setDisplayCurrency] = useState<Currency>("USD");
 
   const filteredRows = useMemo(() => {
     if (!rows) return null;
