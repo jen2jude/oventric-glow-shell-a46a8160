@@ -14,8 +14,12 @@ import {
   rejectProduct,
 } from "@/lib/admin.functions";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
+import { computeDisplayPrice } from "@/lib/fx-display";
+import type { Currency } from "@/lib/onboarding/OnboardingContext";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
+const PRICE_CURRENCIES: Currency[] = ["USD", "NGN", "GHS"];
 export const Route = createFileRoute("/admin/products")({
   head: () => ({ meta: [{ title: "Products · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ProductsPage,
@@ -99,6 +103,7 @@ function ProductsPage() {
   const [refreshing, setRefreshing] = useState(false);
   const [lastRefreshAt, setLastRefreshAt] = useState<number | null>(null);
   const [autoRefresh, setAutoRefresh] = useState(true);
+  const [priceCurrency, setPriceCurrency] = useState<Currency>("USD");
 
   const refresh = useCallback(async () => {
     setRefreshing(true);
@@ -298,7 +303,21 @@ function ProductsPage() {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-0.5" role="group" aria-label="Price currency">
+            {PRICE_CURRENCIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => setPriceCurrency(c)}
+                className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
+                  priceCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
+                }`}
+                aria-pressed={priceCurrency === c}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <label className="text-xs text-slate-400 inline-flex items-center gap-1.5 select-none">
             <input
               type="checkbox"
@@ -308,6 +327,7 @@ function ProductsPage() {
             />
             Auto
           </label>
+
           <button
             onClick={refresh}
             disabled={refreshing}
@@ -394,7 +414,12 @@ function ProductsPage() {
                     )}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {p.category as string} · ${Number(p.price_usd).toFixed(2)} · by {(p.vendor as string) ?? "—"}
+                    {p.category as string} · {computeDisplayPrice({
+                      price_usd: Number(p.price_usd) || 0,
+                      original_currency: (p.original_currency as string) ?? "USD",
+                      original_amount: Number(p.original_amount ?? p.price_usd) || 0,
+                      fx_snapshot: p.fx_snapshot,
+                    }, priceCurrency).formatted} · by {(p.vendor as string) ?? "—"}
                     {p.location ? ` · ${p.location as string}` : ""}
                   </div>
                   {status === "rejected" && Boolean(p.reject_reason) && (
