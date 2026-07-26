@@ -59,37 +59,111 @@ async function loadImageBitmap(src: string | Blob): Promise<HTMLImageElement> {
   }
 }
 
-/** 256-bit average hash across a 16x16 grayscale downscale. */
-async function computeAHash(src: string | Blob): Promise<Uint8Array> {
-  const img = await loadImageBitmap(src);
-  const size = 16;
+/**
+ * Compute a grayscale, brightness-normalized square patch at a given
+ * crop offset. Normalization stretches the 5–95 percentile brightness
+ * to [0,255] so overexposed / underexposed selfies produce the same
+ * fingerprint as the reference, making liveness robust to lighting.
+ */
+function rasterize(
+  img: HTMLImageElement,
+  size: number,
+  offset: { dx: number; dy: number } = { dx: 0, dy: 0 },
+): Uint8Array {
   const c = document.createElement("canvas");
   c.width = size;
   c.height = size;
   const ctx = c.getContext("2d");
   if (!ctx) throw new Error("no 2d ctx");
-  // Center-crop to square before downscale so aspect doesn't skew hash.
   const iw = img.naturalWidth || img.width;
   const ih = img.naturalHeight || img.height;
-  const side = Math.min(iw, ih);
-  const sx = Math.floor((iw - side) / 2);
-  const sy = Math.floor((ih - side) / 2);
+  const side = Math.floor(Math.min(iw, ih) * 0.92); // crop borders (hair, background)
+  const cx = Math.floor(iw / 2) + Math.floor(offset.dx * iw * 0.06);
+  const cy = Math.floor(ih / 2) + Math.floor(offset.dy * ih * 0.06);
+  const sx = Math.max(0, Math.min(iw - side, cx - Math.floor(side / 2)));
+  const sy = Math.max(0, Math.min(ih - side, cy - Math.floor(side / 2)));
   ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
   const { data } = ctx.getImageData(0, 0, size, size);
   const gray = new Uint8Array(size * size);
-  let sum = 0;
   for (let i = 0; i < size * size; i++) {
-    const r = data[i * 4];
-    const g = data[i * 4 + 1];
-    const b = data[i * 4 + 2];
-    const v = Math.round(0.299 * r + 0.587 * g + 0.114 * b);
-    gray[i] = v;
-    sum += v;
+    const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+    gray[i] = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
   }
-  const mean = sum / (size * size);
-  const bits = new Uint8Array(size * size);
-  for (let i = 0; i < size * size; i++) bits[i] = gray[i] > mean ? 1 : 0;
+  // Percentile-based contrast stretch → lighting invariance.
+  const sorted = Uint8Array.from(gray).sort();
+  const lo = sorted[Math.floor(sorted.length * 0.05)];
+  const hi = sorted[Math.floor(sorted.length * 0.95)];
+  const span = Math.max(1, hi - lo);
+  for (let i = 0; i < gray.length; i++) {
+    const v = ((gray[i] - lo) * 255) / span;
+    gray[i] = v < 0 ? 0 : v > 255 ? 255 : v | 0;
+  }
+  return gray;
+}
+
+/** 256-bit average-hash on a normalized 16x16 patch. */
+function aHashFrom(gray: Uint8Array): Uint8Array {
+  const bits = new Uint8Array(gray.length);
+  let sum = 0;
+  for (let i = 0; i < gray.length; i++) sum += gray[i];
+  const mean = sum / gray.length;
+  for (let i = 0; i < gray.length; i++) bits[i] = gray[i] > mean ? 1 : 0;
   return bits;
+}
+
+/**
+ * dHash — 16x17 → 256 bits encoding horizontal brightness gradients.
+ * Encodes facial structure (eye/nose/mouth edges) and is largely
+ * invariant to global brightness because it compares neighbours.
+ */
+function dHashFrom(img: HTMLImageElement, offset = { dx: 0, dy: 0 }): Uint8Array {
+  const w = 17, h = 16;
+  const c = document.createElement("canvas");
+  c.width = w; c.height = h;
+  const ctx = c.getContext("2d");
+  if (!ctx) throw new Error("no 2d ctx");
+  const iw = img.naturalWidth || img.width;
+  const ih = img.naturalHeight || img.height;
+  const side = Math.floor(Math.min(iw, ih) * 0.92);
+  const cx = Math.floor(iw / 2) + Math.floor(offset.dx * iw * 0.06);
+  const cy = Math.floor(ih / 2) + Math.floor(offset.dy * ih * 0.06);
+  const sx = Math.max(0, Math.min(iw - side, cx - Math.floor(side / 2)));
+  const sy = Math.max(0, Math.min(ih - side, cy - Math.floor(side / 2)));
+  ctx.drawImage(img, sx, sy, side, side, 0, 0, w, h);
+  const { data } = ctx.getImageData(0, 0, w, h);
+  const bits = new Uint8Array(h * (w - 1));
+  let k = 0;
+  for (let y = 0; y < h; y++) {
+    for (let x = 0; x < w - 1; x++) {
+      const i0 = (y * w + x) * 4, i1 = (y * w + x + 1) * 4;
+      const g0 = 0.299 * data[i0] + 0.587 * data[i0 + 1] + 0.114 * data[i0 + 2];
+      const g1 = 0.299 * data[i1] + 0.587 * data[i1 + 1] + 0.114 * data[i1 + 2];
+      bits[k++] = g1 > g0 ? 1 : 0;
+    }
+  }
+  return bits;
+}
+
+interface FaceHash {
+  a: Uint8Array;
+  d: Uint8Array;
+  variants: { a: Uint8Array; d: Uint8Array }[];
+}
+
+/** Compute the primary hash plus small crop-shifted variants. */
+async function computeFaceHash(src: string | Blob): Promise<FaceHash> {
+  const img = await loadImageBitmap(src);
+  const size = 16;
+  const primary = { a: aHashFrom(rasterize(img, size)), d: dHashFrom(img) };
+  const offsets = [
+    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
+    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+  ];
+  const variants = offsets.map((o) => ({
+    a: aHashFrom(rasterize(img, size, o)),
+    d: dHashFrom(img, o),
+  }));
+  return { a: primary.a, d: primary.d, variants };
 }
 
 function hamming(a: Uint8Array, b: Uint8Array): number {
@@ -99,8 +173,42 @@ function hamming(a: Uint8Array, b: Uint8Array): number {
   return d;
 }
 
-/** Threshold on 256-bit hash. ~28% differing bits still counts as a match. */
-const HASH_MATCH_MAX_DIFF = 72;
+/**
+ * Score two face hashes on a 0..1 scale (1 = identical). Combines aHash
+ * (lighting-normalized brightness structure) and dHash (edge/gradient
+ * structure — eyes, nose, mouth). We try all crop-shifted variants and
+ * keep the best pairing so small framing / distance changes don't fail.
+ */
+function faceMatchScore(ref: FaceHash, live: FaceHash): number {
+  const refSet = [{ a: ref.a, d: ref.d }, ...ref.variants];
+  const liveSet = [{ a: live.a, d: live.d }, ...live.variants];
+  let best = 0;
+  for (const r of refSet) {
+    for (const l of liveSet) {
+      const aSim = 1 - hamming(r.a, l.a) / r.a.length;
+      const dSim = 1 - hamming(r.d, l.d) / r.d.length;
+      // dHash weighted higher — it captures facial features, not brightness.
+      const score = aSim * 0.35 + dSim * 0.65;
+      if (score > best) best = score;
+    }
+  }
+  return best;
+}
+
+/**
+ * Match if BOTH signals agree: combined ≥ 0.68 AND dHash alone ≥ 0.62.
+ * Combined threshold forgives lighting; the dHash floor stops random
+ * faces (which score high on aHash mean brightness) from passing.
+ */
+const FACE_MATCH_MIN_SCORE = 0.68;
+const FACE_DHASH_MIN_SIM = 0.62;
+
+function evaluateMatch(ref: FaceHash, live: FaceHash) {
+  const score = faceMatchScore(ref, live);
+  const dSim = 1 - hamming(ref.d, live.d) / ref.d.length;
+  return { score, dSim, ok: score >= FACE_MATCH_MIN_SCORE && dSim >= FACE_DHASH_MIN_SIM };
+}
+
 // ---------------------------------------------------------------------------
 // Context
 // ---------------------------------------------------------------------------
@@ -401,16 +509,17 @@ function KycLivenessModal({
       try {
         if (!selfieBlob || !referenceUrl) throw new Error("Missing capture or reference");
         const [refHash, liveHash] = await Promise.all([
-          computeAHash(referenceUrl),
-          computeAHash(selfieBlob),
+          computeFaceHash(referenceUrl),
+          computeFaceHash(selfieBlob),
         ]);
         if (cancelled) return;
-        const dist = hamming(refHash, liveHash);
-        setMatchDebug(`selfie Δ=${dist}/256`);
-        if (dist <= HASH_MATCH_MAX_DIFF) {
+        const { score, dSim, ok } = evaluateMatch(refHash, liveHash);
+        setMatchDebug(`selfie score=${score.toFixed(2)} d=${dSim.toFixed(2)}`);
+        if (ok) {
           setStep("success");
           return;
         }
+
         const next = selfieAttempts + 1;
         setSelfieAttempts(next);
         if (next >= 2) {
@@ -445,16 +554,17 @@ function KycLivenessModal({
       try {
         if (!idBlob || !idReferenceUrl) throw new Error("Missing capture or ID reference");
         const [refHash, liveHash] = await Promise.all([
-          computeAHash(idReferenceUrl),
-          computeAHash(idBlob),
+          computeFaceHash(idReferenceUrl),
+          computeFaceHash(idBlob),
         ]);
         if (cancelled) return;
-        const dist = hamming(refHash, liveHash);
-        setMatchDebug(`id Δ=${dist}/256`);
-        if (dist <= HASH_MATCH_MAX_DIFF) {
+        const { score, dSim, ok } = evaluateMatch(refHash, liveHash);
+        setMatchDebug(`id score=${score.toFixed(2)} d=${dSim.toFixed(2)}`);
+        if (ok) {
           setStep("success");
           return;
         }
+
         setIdAttempts((n) => n + 1);
         setStep("fallback");
       } catch {
