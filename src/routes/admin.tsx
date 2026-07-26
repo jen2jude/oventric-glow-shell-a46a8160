@@ -83,8 +83,10 @@ const NAV = [
 
 function AdminLayout() {
   const check = useServerFn(checkIsAdmin);
+  const getPendingPayouts = useServerFn(adminGetPendingPayoutCount);
   const router = useRouter();
   const [state, setState] = useState<"loading" | "unauth" | "forbidden" | "ok">("loading");
+  const [pendingPayouts, setPendingPayouts] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -101,6 +103,20 @@ function AdminLayout() {
     })();
     return () => { cancelled = true; };
   }, [check]);
+
+  useEffect(() => {
+    if (state !== "ok") return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const r = await getPendingPayouts();
+        if (!cancelled) setPendingPayouts(r.count);
+      } catch { /* ignore */ }
+    };
+    load();
+    const id = window.setInterval(load, 30_000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [state, getPendingPayouts]);
 
   if (state === "loading") {
     return (
