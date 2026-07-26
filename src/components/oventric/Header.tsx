@@ -113,9 +113,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         {onMenuClick && (
           <button
             onClick={onMenuClick}
-            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 text-slate-300 transition-colors"
+            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 text-white transition-colors"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
           </button>
         )}
         {/* Desktop-only logo */}
