@@ -1,6 +1,5 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
-import { Icon3D } from "@/components/oventric/Icon3D";
 
 const left = [
   { icon: Home, label: "Feed" },
@@ -32,12 +31,12 @@ export function MobileNav({
       <button
         key={it.label}
         onClick={() => onSelect(it.label)}
-        className={`relative flex flex-col items-center justify-center gap-1.5 flex-1 py-1 ${
+        className={`relative flex flex-col items-center justify-center gap-1 flex-1 py-1 ${
           isActive ? "text-emerald-400" : "text-white"
         }`}
       >
         <span className="relative">
-          <Icon3D icon={it.icon} active={isActive} ariaLabel={it.label} />
+          <it.icon className="w-6 h-6" strokeWidth={2.5} />
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
         <span className="text-[10px] font-medium">{it.label}</span>
@@ -57,10 +56,10 @@ export function MobileNav({
       {left.map(Item)}
       <button
         onClick={onCreate}
-        className="relative -mt-8 mx-2 shrink-0 flex items-center justify-center"
+        className="relative -mt-6 mx-2 shrink-0 flex items-center justify-center w-12 h-12 rounded-full bg-gradient-to-br from-emerald-500 to-emerald-700 text-white shadow-lg border-2 border-white/20"
         aria-label="Create"
       >
-        <Icon3D icon={Plus} active size="lg" ariaLabel="Create" />
+        <Plus className="w-6 h-6" strokeWidth={2.5} />
       </button>
       {right.map(Item)}
     </nav>
