@@ -249,7 +249,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           paystack_ref: result.reference,
           tx_hash: result.reference,
           type: "Wallet Top-Up",
-          amount,
+          amount: topupNet,
           currency,
           inflow: true,
           status: "pending",
