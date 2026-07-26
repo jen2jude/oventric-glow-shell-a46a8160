@@ -509,16 +509,17 @@ function KycLivenessModal({
       try {
         if (!selfieBlob || !referenceUrl) throw new Error("Missing capture or reference");
         const [refHash, liveHash] = await Promise.all([
-          computeAHash(referenceUrl),
-          computeAHash(selfieBlob),
+          computeFaceHash(referenceUrl),
+          computeFaceHash(selfieBlob),
         ]);
         if (cancelled) return;
-        const dist = hamming(refHash, liveHash);
-        setMatchDebug(`selfie Δ=${dist}/256`);
-        if (dist <= HASH_MATCH_MAX_DIFF) {
+        const { score, dSim, ok } = evaluateMatch(refHash, liveHash);
+        setMatchDebug(`selfie score=${score.toFixed(2)} d=${dSim.toFixed(2)}`);
+        if (ok) {
           setStep("success");
           return;
         }
+
         const next = selfieAttempts + 1;
         setSelfieAttempts(next);
         if (next >= 2) {
