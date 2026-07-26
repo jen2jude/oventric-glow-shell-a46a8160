@@ -76,7 +76,7 @@ export function BountyEditorModal({
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
-  const [walletUsd, setWalletUsd] = useState<number | null>(null);
+  const [walletBase, setWalletBase] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
