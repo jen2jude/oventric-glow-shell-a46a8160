@@ -21,7 +21,7 @@ function fromUSD(usd: number, target: Currency): number {
   return usd * (LEGACY_USD_RATES[target] ?? 1);
 }
 
-export function HeaderWalletChip() {
+export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" } = {}) {
   const { isAuthenticated } = useAuthGate();
   const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
   const hasCountry = country != null;
@@ -131,7 +131,7 @@ export function HeaderWalletChip() {
       {open && (
         <div
           role="dialog"
-          className="absolute left-0 mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#17171B] border border-white/10 shadow-xl p-3 z-50 origin-top-left animate-scale-in"
+          className={`absolute mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#17171B] border border-white/10 shadow-xl p-3 z-50 animate-scale-in ${align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left"}`}
         >
           <div className="text-[11px] uppercase tracking-wide text-slate-500 px-1 pb-2">Sub-wallets · {displayCurrency}</div>
           <div className="grid grid-cols-2 gap-2">

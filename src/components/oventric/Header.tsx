@@ -123,8 +123,10 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           {LogoMark}
         </Link>
 
-        {/* Wallet chip - left-aligned, directly beside/below the logo */}
-        <HeaderWalletChip />
+        {/* Wallet chip - mobile only on the left, next to/below the logo */}
+        <div className="md:hidden">
+          <HeaderWalletChip align="left" />
+        </div>
 
         {/* Desktop search input */}
         <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
@@ -132,6 +134,11 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Wallet chip - desktop/tablet position in the right cluster */}
+          <div className="hidden md:inline-flex">
+            <HeaderWalletChip align="right" />
+          </div>
+
 
 
           {/* Circles & Guilds - mobile only in bottom row */}
