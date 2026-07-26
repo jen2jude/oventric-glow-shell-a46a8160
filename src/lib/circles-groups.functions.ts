@@ -225,7 +225,14 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
   const roleMap = new Map<string, CircleRole>((myMembership.data ?? []).map((r: any) => [r.circle_id, r.role]));
   const reqMap = new Map<string, string>((myReqs.data ?? []).map((r: any) => [r.circle_id, r.status]));
 
-  return rows.map((r) => {
+  const resolved = await Promise.all(
+    rows.map(async (r) => ({
+      avatarUrl: await resolveCircleImage(supabase, CIRCLE_AVATAR_BUCKET, r.avatar_url ?? null),
+      coverUrl: await resolveCircleImage(supabase, CIRCLE_COVER_BUCKET, r.cover_url ?? null),
+    })),
+  );
+
+  return rows.map((r, i) => {
     const myRole = roleMap.get(r.id) ?? null;
     const reqStatus = reqMap.get(r.id);
     const myStatus: JoinStatus = myRole
@@ -241,7 +248,8 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
       name: r.name,
       slug: r.slug,
       description: r.description,
-      avatarUrl: r.avatar_url,
+      avatarUrl: resolved[i].avatarUrl,
+      coverUrl: resolved[i].coverUrl,
       isPrivate: r.is_private,
       category: r.category ?? "SaaS Builders",
       emoji: r.emoji ?? "🛡️",
@@ -255,6 +263,7 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
     } satisfies CircleSummary;
   });
 }
+
 
 export const createCircle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
