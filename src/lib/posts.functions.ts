@@ -149,6 +149,47 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   }
 
 
+  // Resolve circle metadata (name/slug/avatar) for any post that carries a circle_id.
+  const circleIds = Array.from(new Set(rows.map((r) => r.circle_id).filter((x): x is string => !!x)));
+  const circleById = new Map<string, { id: string; name: string; slug: string; avatar_url: string | null }>();
+  let viewerCircleIds = new Set<string>();
+  if (circleIds.length > 0) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: circles } = await supabaseAdmin
+      .from("circles")
+      .select("id, name, slug, avatar_url")
+      .in("id", circleIds);
+    (circles ?? []).forEach((c: any) => {
+      circleById.set(c.id, { id: c.id, name: c.name, slug: c.slug, avatar_url: c.avatar_url ?? null });
+    });
+    if (userId) {
+      const { data: mem } = await supabaseAdmin
+        .from("circle_members")
+        .select("circle_id")
+        .eq("user_id", userId)
+        .in("circle_id", circleIds);
+      viewerCircleIds = new Set((mem ?? []).map((m: any) => m.circle_id as string));
+    }
+  }
+  // Sign circle avatars stored in the private circle-avatars bucket in one pass.
+  const circleAvatarPaths = Array.from(
+    new Set(
+      Array.from(circleById.values())
+        .map((c) => c.avatar_url)
+        .filter((v): v is string => !!v && !/^https?:\/\//i.test(v) && !v.startsWith("data:")),
+    ),
+  );
+  const circleAvatarByPath = new Map<string, string>();
+  if (circleAvatarPaths.length > 0) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: signed } = await supabaseAdmin.storage
+      .from("circle-avatars")
+      .createSignedUrls(circleAvatarPaths, 60 * 60 * 6);
+    (signed ?? []).forEach((s) => {
+      if (s.path && s.signedUrl) circleAvatarByPath.set(s.path, s.signedUrl);
+    });
+  }
+
   const profileById = new Map((profiles ?? []).map((p) => [p.user_id, p]));
   const reactionsByPost = new Map<string, Record<ReactionType, number>>();
   const viewerReactionByPost = new Map<string, ReactionType>();
@@ -172,7 +213,6 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     const arrPaths = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
     const media: PostMediaItem[] = [];
     if (arrPaths.length > 0) {
-      // New multi-image posts: media_paths is images, `media_type` optionally 'video' for a single video row.
       const kind: "image" | "video" = legacyType === "video" && arrPaths.length === 1 ? "video" : "image";
       arrPaths.forEach((p) => {
         const url = signedByPath.get(p);
@@ -183,6 +223,23 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       if (url) media.push({ url, type: legacyType ?? "image" });
     }
     const primary = media[0] ?? null;
+    let circle: PostCircleRef | null = null;
+    if (r.circle_id) {
+      const c = circleById.get(r.circle_id);
+      if (c) {
+        const raw = c.avatar_url;
+        const url = raw
+          ? (/^https?:\/\//i.test(raw) || raw.startsWith("data:") ? raw : (circleAvatarByPath.get(raw) ?? null))
+          : null;
+        circle = {
+          id: c.id,
+          name: c.name,
+          slug: c.slug,
+          avatarUrl: url,
+          viewerIsMember: viewerCircleIds.has(c.id),
+        };
+      }
+    }
     return {
       id: r.id,
       author_id: r.author_id,
@@ -211,6 +268,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
           };
         })
         .filter((m): m is MentionRef => m !== null),
+      circle,
     };
   });
   return { posts: out };
