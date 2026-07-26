@@ -133,6 +133,7 @@ export function Wallet() {
   const [spend, setSpend] = useState(2500);
   const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
