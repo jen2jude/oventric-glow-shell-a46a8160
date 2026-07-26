@@ -25,6 +25,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin } from "@/lib/admin.functions";
+import { adminGetPendingPayoutCount } from "@/lib/payouts.functions";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
