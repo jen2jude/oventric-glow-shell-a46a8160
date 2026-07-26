@@ -554,16 +554,17 @@ function KycLivenessModal({
       try {
         if (!idBlob || !idReferenceUrl) throw new Error("Missing capture or ID reference");
         const [refHash, liveHash] = await Promise.all([
-          computeAHash(idReferenceUrl),
-          computeAHash(idBlob),
+          computeFaceHash(idReferenceUrl),
+          computeFaceHash(idBlob),
         ]);
         if (cancelled) return;
-        const dist = hamming(refHash, liveHash);
-        setMatchDebug(`id Δ=${dist}/256`);
-        if (dist <= HASH_MATCH_MAX_DIFF) {
+        const { score, dSim, ok } = evaluateMatch(refHash, liveHash);
+        setMatchDebug(`id score=${score.toFixed(2)} d=${dSim.toFixed(2)}`);
+        if (ok) {
           setStep("success");
           return;
         }
+
         setIdAttempts((n) => n + 1);
         setStep("fallback");
       } catch {
