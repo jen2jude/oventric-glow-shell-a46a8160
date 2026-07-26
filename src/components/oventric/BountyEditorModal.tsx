@@ -427,11 +427,11 @@ export function BountyEditorModal({
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span> (≈ ${inputUsdApprox.toFixed(2)} USD).
-                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span>.
+                Your current wallet balance is <span className="text-white font-semibold">{formatMoney(walletBase ?? 0, baseCurrency)}</span>.
               </p>
               <p className="text-xs text-slate-400 mt-2">
-                Top up at least <span className="text-emerald-300 font-semibold">${shortfallUsd.toFixed(2)}</span> to publish.
+                Top up at least <span className="text-emerald-300 font-semibold">{formatMoney(shortfallBase, baseCurrency)}</span> to publish.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
                 <button onClick={goToWallet} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2">
