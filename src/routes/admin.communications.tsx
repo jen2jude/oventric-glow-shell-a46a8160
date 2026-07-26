@@ -500,13 +500,20 @@ function DirectMessageTab() {
           placeholder="Title"
           className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
         />
-        <textarea
-          value={body}
-          onChange={(e) => setBody(e.target.value)}
-          placeholder="Message"
-          rows={5}
-          className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
-        />
+        <div>
+          <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
+            Message — rich text · images · links
+          </div>
+          <RichTextEditor
+            value={body}
+            onChange={setBody}
+            placeholder="Write a rich personal message. Add headings, images, and clickable links."
+            minHeight={220}
+            bucket="post-media"
+            uploadFn={uploadFn}
+            signFn={signFn}
+          />
+        </div>
         <input
           value={link}
           onChange={(e) => setLink(e.target.value)}
