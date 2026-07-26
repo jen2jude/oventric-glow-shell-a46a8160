@@ -24,6 +24,8 @@ import {
   TrendingUp,
   Loader2,
   RefreshCw,
+  ChevronDown,
+  Lock,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
