@@ -18,6 +18,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
 import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
 
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
