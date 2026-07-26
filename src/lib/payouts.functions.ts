@@ -761,3 +761,17 @@ export const createLivePayout = createServerFn({ method: "POST" })
   });
 
 
+
+export const adminGetPendingPayoutCount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase, userId } = context;
+    const { data: isAdmin } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+    if (!isAdmin) return { count: 0 };
+    const { count, error } = await supabase
+      .from("payout_requests")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending");
+    if (error) return { count: 0 };
+    return { count: count ?? 0 };
+  });

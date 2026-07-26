@@ -25,6 +25,7 @@ import {
 
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin } from "@/lib/admin.functions";
+import { adminGetPendingPayoutCount } from "@/lib/payouts.functions";
 
 export const Route = createFileRoute("/admin")({
   head: () => ({
@@ -82,8 +83,10 @@ const NAV = [
 
 function AdminLayout() {
   const check = useServerFn(checkIsAdmin);
+  const getPendingPayouts = useServerFn(adminGetPendingPayoutCount);
   const router = useRouter();
   const [state, setState] = useState<"loading" | "unauth" | "forbidden" | "ok">("loading");
+  const [pendingPayouts, setPendingPayouts] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -100,6 +103,20 @@ function AdminLayout() {
     })();
     return () => { cancelled = true; };
   }, [check]);
+
+  useEffect(() => {
+    if (state !== "ok") return;
+    let cancelled = false;
+    const load = async () => {
+      try {
+        const r = await getPendingPayouts();
+        if (!cancelled) setPendingPayouts(r.count);
+      } catch { /* ignore */ }
+    };
+    load();
+    const id = window.setInterval(load, 30_000);
+    return () => { cancelled = true; window.clearInterval(id); };
+  }, [state, getPendingPayouts]);
 
   if (state === "loading") {
     return (
@@ -170,19 +187,39 @@ function AdminLayout() {
           </div>
         </div>
         <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
-          {NAV.map((n) => (
-            <Link
-              key={n.to}
-              to={n.to}
-              activeOptions={{ exact: n.exact }}
-              activeProps={{ className: "bg-emerald-500/10 text-emerald-300 border-emerald-500/30" }}
-              inactiveProps={{ className: "text-slate-400 hover:text-white hover:bg-white/5 border-transparent" }}
-              className="flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
-            >
-              <n.icon className="w-4 h-4 shrink-0" />
-              <span>{n.label}</span>
-            </Link>
-          ))}
+          {NAV.map((n) => {
+            const isPayouts = n.to === "/admin/payouts";
+            const alert = isPayouts && pendingPayouts > 0;
+            return (
+              <Link
+                key={n.to}
+                to={n.to}
+                activeOptions={{ exact: n.exact }}
+                activeProps={{
+                  className: alert
+                    ? "bg-red-500/15 text-red-200 border-red-500/50"
+                    : "bg-emerald-500/10 text-emerald-300 border-emerald-500/30",
+                }}
+                inactiveProps={{
+                  className: alert
+                    ? "text-red-300 bg-red-500/10 hover:bg-red-500/20 border-red-500/40 animate-pulse"
+                    : "text-slate-400 hover:text-white hover:bg-white/5 border-transparent",
+                }}
+                className="flex items-center gap-2.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors"
+              >
+                <n.icon className="w-4 h-4 shrink-0" />
+                <span className="flex-1">{n.label}</span>
+                {alert && (
+                  <span
+                    aria-label={`${pendingPayouts} pending payouts`}
+                    className="min-w-[20px] h-[18px] px-1.5 rounded-full text-[10px] font-black bg-red-500 text-white flex items-center justify-center"
+                  >
+                    {pendingPayouts > 99 ? "99+" : pendingPayouts}
+                  </span>
+                )}
+              </Link>
+            );
+          })}
         </nav>
         <button
           onClick={async () => { await supabase.auth.signOut(); router.invalidate(); }}
