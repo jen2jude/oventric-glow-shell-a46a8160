@@ -93,7 +93,7 @@ export function RichTextEditor({
     try {
       const { path, token } = await getUpload({ data: { filename: file.name, kind: "image" } });
       const up = await supabase.storage
-        .from("course-media")
+        .from(bucket)
         .uploadToSignedUrl(path, token, file, { contentType: file.type });
       if (up.error) throw up.error;
       const { url } = await getSigned({ data: { path } });
