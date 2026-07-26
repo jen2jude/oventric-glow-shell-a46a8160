@@ -487,10 +487,35 @@ function BountiesAdminPage() {
                     ) : null}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {b.category as string} · ${Number(b.price_usd).toFixed(2)} · limit {b.applicant_limit as number}
+                    {b.category as string} · limit {b.applicant_limit as number}
                     {b.deadline_at ? ` · due ${new Date(b.deadline_at as string).toLocaleDateString()}` : ""}
                     {b.solved_at ? ` · solved ${new Date(b.solved_at as string).toLocaleDateString()}` : ""}
                   </div>
+                  {(() => {
+                    const price = computeDisplayPrice(b as PriceableRow, displayCurrency);
+                    const solver = price.value * 0.8;
+                    const platform = price.value * 0.2;
+                    const nativeNote = price.originalCurrency !== displayCurrency
+                      ? ` · funded ${formatMoney(price.originalAmount, price.originalCurrency)}`
+                      : "";
+                    return (
+                      <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
+                        <span className="px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-200 font-bold">
+                          Escrow {price.formatted}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded border border-sky-500/30 bg-sky-500/10 text-sky-200">
+                          Solver 80% · {formatMoney(solver, displayCurrency)}
+                        </span>
+                        <span className="px-1.5 py-0.5 rounded border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-200">
+                          Platform 20% · {formatMoney(platform, displayCurrency)}
+                        </span>
+                        <span className="text-slate-500">{nativeNote}</span>
+                        {!price.isLocked && (
+                          <span className="text-amber-400/80" title="Legacy row without locked FX snapshot">⚠ legacy fx</span>
+                        )}
+                      </div>
+                    );
+                  })()}
                 </div>
                 <button
                   onClick={() => setDetailId(id)}
