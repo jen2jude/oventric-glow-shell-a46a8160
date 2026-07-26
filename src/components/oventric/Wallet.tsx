@@ -554,7 +554,69 @@ export function Wallet() {
         </div>
       </section>
 
-      {/* 4. Cashback Estimator */}
+      {/* Affiliate — single card (coming soon / reserve) */}
+      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(217,70,239,0.45)]">
+        <div className="absolute inset-x-0 top-0 h-[2px] bg-fuchsia-500/60" />
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
+          <div className="min-w-0 flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl border border-fuchsia-500/40 bg-fuchsia-500/10 flex items-center justify-center shrink-0">
+              <TrendingUp className="w-5 h-5 text-fuchsia-300" />
+            </div>
+            <div className="min-w-0">
+              <div className="flex items-center gap-2">
+                <div className="font-bold text-white truncate">Affiliate Program</div>
+                <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">Coming soon</span>
+              </div>
+              <div className="text-xs text-slate-400 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
+            </div>
+          </div>
+          <Link
+            to="/affiliate"
+            className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-lg"
+            style={
+              affiliateReserved
+                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                : { backgroundColor: "#d946ef", color: "#000000" }
+            }
+          >
+            {affiliateReserved ? "Reserved ✓" : "Join Now"}
+          </Link>
+        </div>
+      </section>
+
+      {/* Fund Wallet + Request Payout side-by-side */}
+      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+        <button
+          onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl border border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center shrink-0">
+              <ArrowDownToLine className="w-5 h-5 text-emerald-300" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-bold text-white">➕ Fund Wallet</div>
+              <div className="text-xs text-slate-400 mt-0.5">For bounties & ad campaigns</div>
+            </div>
+          </div>
+        </button>
+        <button
+          onClick={() => require(2, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw")}
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl border border-sky-500/40 bg-sky-500/10 flex items-center justify-center shrink-0">
+              <ArrowUpFromLine className="w-5 h-5 text-sky-300" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-bold text-white">📤 Request Payout</div>
+              <div className="text-xs text-slate-400 mt-0.5">Direct to your bank · fee auto-deducted</div>
+            </div>
+          </div>
+        </button>
+      </section>
+
+      {/* Cashback Estimator */}
       <section className="rounded-2xl border border-[#222226] bg-[#141418] p-5 space-y-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-emerald-400" />
