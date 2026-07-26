@@ -314,6 +314,8 @@ export const updateCircle = createServerFn({ method: "POST" })
     if (data.description !== undefined) patch.description = data.description;
     if (data.isPrivate !== undefined) patch.is_private = data.isPrivate;
     if (data.avatarUrl !== undefined) patch.avatar_url = data.avatarUrl;
+    if (data.coverUrl !== undefined) patch.cover_url = data.coverUrl;
+
     if (data.category !== undefined) patch.category = data.category;
     if (data.emoji !== undefined) patch.emoji = data.emoji;
     if (data.codeOfConduct !== undefined) patch.code_of_conduct = data.codeOfConduct;
