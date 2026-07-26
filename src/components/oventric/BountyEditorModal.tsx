@@ -257,6 +257,9 @@ export function BountyEditorModal({
           description: form.description,
           category: form.category,
           price_usd: priceUsd,
+          original_amount: rewardBase,
+          original_currency: baseCurrency,
+          fx_snapshot: snapshot,
           cover_path: imagePaths[0] ?? null,
           images: imagePaths,
           applicant_limit: limit,
@@ -265,6 +268,7 @@ export function BountyEditorModal({
           deadline_at: deadline,
         },
       });
+
 
       const titleTxt = form.title.trim();
       reset();

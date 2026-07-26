@@ -2496,6 +2496,10 @@ export type Database = {
         Args: { _amount_usd: number; _bounty_id: string }
         Returns: undefined
       }
+      bounty_publish_lock_currency: {
+        Args: { _amount: number; _bounty_id: string; _currency: string }
+        Returns: undefined
+      }
       bounty_refund_escrow: {
         Args: { _bounty_id: string; _reason: string }
         Returns: undefined

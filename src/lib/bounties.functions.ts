@@ -58,6 +58,9 @@ export interface BountyInput {
   description?: string;
   category: string;
   price_usd: number;
+  original_amount?: number;
+  original_currency?: "USD" | "NGN" | "GHS";
+  fx_snapshot?: unknown;
   cover_path?: string | null;
   images?: string[];
   applicant_limit?: number;
@@ -68,6 +71,7 @@ export interface BountyInput {
   poster_id?: string | null;
   promoted?: boolean;
 }
+
 
 /** Admin — list every bounty. */
 export const listAllBounties = createServerFn({ method: "GET" })
@@ -235,28 +239,46 @@ export const publishBounty = createServerFn({ method: "POST" })
       throw new Error("A reward greater than $0 is required to post a bounty.");
     }
 
-    // Defense in depth: verify wallet balance server-side before we insert
-    // anything. The frontend already prompts on shortfall; this guarantees
-    // no bounty can ever be published while the poster's escrow is $0.
+    // Determine poster's home currency (NG=NGN, GH=GHS, otherwise USD)
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("country")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const country = String((profile?.country ?? "")).toUpperCase();
+    const homeCurrency: "USD" | "NGN" | "GHS" =
+      country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
+
+    // Resolve local amount + currency. Client should send these; fall back to USD.
+    const inputCurrency = (data.original_currency ?? homeCurrency) as "USD" | "NGN" | "GHS";
+    if (inputCurrency !== homeCurrency) {
+      throw new Error(`Your account posts bounties in ${homeCurrency}. Switch amount to ${homeCurrency} and try again.`);
+    }
+    const originalAmount = Number(data.original_amount ?? (inputCurrency === "USD" ? price : 0));
+    if (!Number.isFinite(originalAmount) || originalAmount <= 0) {
+      throw new Error("Reward amount is required.");
+    }
+
+    // Verify poster's home-currency wallet balance before insert
     const { data: walletRow, error: walletErr } = await sb
       .from("wallets")
       .select("available_balance")
       .eq("user_id", context.userId)
-      .eq("currency", "USD")
+      .eq("currency", inputCurrency)
       .maybeSingle();
     if (walletErr) throw new Error(walletErr.message);
     const balance = Number(walletRow?.available_balance ?? 0);
-    if (balance < price) {
+    if (balance < originalAmount) {
+      const sym = inputCurrency === "NGN" ? "₦" : inputCurrency === "GHS" ? "₵" : "$";
       throw new Error(
-        `Insufficient wallet balance. You need $${price.toFixed(2)} escrowed to post this bounty — fund your wallet and try again.`,
+        `Insufficient wallet balance. You need ${sym}${originalAmount.toFixed(2)} in your ${inputCurrency} wallet — fund it and try again.`,
       );
     }
 
     const images = Array.isArray(data.images) ? data.images.slice(0, 5) : [];
     const cover = data.cover_path ?? images[0] ?? null;
 
-    // Insert the bounty as pending_review — only admin approval can flip it
-    // to "active" so it appears on the public bounties list.
+    // Insert bounty as pending_review with original currency captured
     const { data: row, error } = await sb
       .from("bounties")
       .insert({
@@ -265,6 +287,9 @@ export const publishBounty = createServerFn({ method: "POST" })
         description: data.description ?? "",
         category: data.category || "api",
         price_usd: price,
+        original_amount: originalAmount,
+        original_currency: inputCurrency,
+        fx_snapshot: data.fx_snapshot ?? null,
         cover_path: cover,
         images,
         applicant_limit: data.applicant_limit ?? 10,
@@ -278,11 +303,11 @@ export const publishBounty = createServerFn({ method: "POST" })
       .single();
     if (error) throw new Error(error.message);
 
-    // Lock escrow. If it fails, roll back the bounty row so we never leave
-    // an unfunded pending bounty behind.
-    const { error: lockErr } = await sb.rpc("bounty_publish_lock", {
+    // Lock escrow in the poster's home currency. Roll back on failure.
+    const { error: lockErr } = await sb.rpc("bounty_publish_lock_currency", {
       _bounty_id: row.id,
-      _amount_usd: price,
+      _amount: originalAmount,
+      _currency: inputCurrency,
     });
     if (lockErr) {
       await sb.from("bounties").delete().eq("id", row.id);
@@ -290,6 +315,7 @@ export const publishBounty = createServerFn({ method: "POST" })
     }
     return { id: row.id as string, status: "pending_review" as const };
   });
+
 
 /** Any signed-in user applies to a bounty. Also DMs the poster with the pitch. */
 export const applyToBounty = createServerFn({ method: "POST" })
