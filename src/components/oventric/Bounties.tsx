@@ -20,7 +20,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { computeDisplayPrice } from "@/lib/fx-display";
+import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { BountyEditorModal } from "./BountyEditorModal";
 import { BountyDetail } from "./BountyDetail";
 import { Plus } from "lucide-react";
@@ -40,14 +40,6 @@ const FILTERS: Array<{ key: Category; label: string }> = [
   { key: "uiux", label: "UI/UX Polishing" },
 ];
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-function fmt(usd: number, cur: Currency) {
-  const val = usd * FX_FROM_USD[cur];
-  const rounded = cur === "USD" ? val.toFixed(0) : Math.round(val).toLocaleString();
-  return `${CURRENCY_SYMBOL[cur]}${rounded}`;
-}
-
 interface Applicant {
   id: string;
   name: string;
@@ -63,7 +55,8 @@ interface Bounty {
   id: string;
   title: string;
   category: Exclude<Category, "all">;
-  priceUSD: number;
+  rewardValue: number;
+  rewardCurrency: Currency;
   displayFormatted: string;
   originalFormatted: string | null;
   expiresAt: number; // ms epoch
@@ -178,9 +171,11 @@ export function Bounties() {
 
   const [dbBounties, setDbBounties] = useState<Bounty[]>([]);
   const [bountiesLoading, setBountiesLoading] = useState(true);
+  const [bountiesError, setBountiesError] = useState<string | null>(null);
   useEffect(() => {
     let cancelled = false;
     setBountiesLoading(true);
+    setBountiesError(null);
     supabase
       .from("bounties")
       .select("id, title, category, price_usd, original_currency, original_amount, fx_snapshot, deadline_at, end_at, created_at, status")
@@ -191,6 +186,7 @@ export function Bounties() {
         if (error) {
           // eslint-disable-next-line no-console
           console.error("Bounties fetch error:", error);
+          setBountiesError(error.message || "Bounties could not be loaded right now.");
         }
         const now = Date.now();
         const rows: Bounty[] = (data ?? [])
@@ -222,7 +218,8 @@ export function Bounties() {
               id: b.id as string,
               title: (b.title as string) ?? "",
               category: (["frontend", "database", "api", "uiux"] as const).includes(cat) ? cat : "api",
-              priceUSD: Number(b.price_usd ?? 0),
+              rewardValue: dp.value,
+              rewardCurrency: dp.currency,
               displayFormatted: dp.formatted,
               originalFormatted: dp.originalFormatted,
               expiresAt,
@@ -267,7 +264,7 @@ export function Bounties() {
     [filter, ALL_BOUNTIES],
   );
 
-  const totalLocked = ALL_BOUNTIES.reduce((s, b) => s + b.priceUSD, 0);
+  const totalLocked = ALL_BOUNTIES.reduce((s, b) => s + b.rewardValue, 0);
   const activeCount = ALL_BOUNTIES.length;
 
   // ------- Live bounty detail (real backend) -------
@@ -309,9 +306,9 @@ export function Bounties() {
             <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
           </div>
           <div className="mt-2 text-white text-2xl md:text-3xl font-black">
-            {fmt(totalLocked, baseCurrency)}
+            {formatMoney(totalLocked, baseCurrency)}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Across {activeCount} live contracts</div>
+          <div className="text-xs text-slate-500 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
         </div>
         <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
           <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 inline-flex items-center gap-1.5">
@@ -351,6 +348,10 @@ export function Bounties() {
             <BountySkeleton />
             <BountySkeleton />
             <BountySkeleton />
+          </div>
+        ) : bountiesError ? (
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100">
+            {bountiesError}
           </div>
         ) : dbBounties.length === 0 ? (
           <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center">
