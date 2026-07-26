@@ -14,8 +14,12 @@ import {
   rejectProduct,
 } from "@/lib/admin.functions";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
+import { computeDisplayPrice } from "@/lib/fx-display";
+import type { Currency } from "@/lib/onboarding/OnboardingContext";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
+const PRICE_CURRENCIES: Currency[] = ["USD", "NGN", "GHS"];
 export const Route = createFileRoute("/admin/products")({
   head: () => ({ meta: [{ title: "Products · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: ProductsPage,
