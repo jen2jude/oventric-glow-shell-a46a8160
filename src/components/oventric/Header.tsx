@@ -94,16 +94,16 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMobileSearchOpen(true)}
             aria-label="Open search"
-            className="ml-auto p-2 rounded-lg hover:bg-white/5 text-slate-300"
+            className="ml-auto p-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-5 h-5" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-slate-300"
+            className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
           </button>
         </div>
       )}
