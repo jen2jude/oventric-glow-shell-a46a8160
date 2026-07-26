@@ -296,7 +296,7 @@ export function Wallet() {
           const bal = balances[baseCurrency] ?? 0;
           const usdEq = bal / (FX_FROM_USD[baseCurrency] || 1);
           const fx = FX_FROM_USD[baseCurrency] || 1;
-          const escrowHome = useOnboarding().escrow?.[baseCurrency] ?? 0;
+          const escrowHome = escrow?.[baseCurrency] ?? 0;
           const bountyHome = (balancesQuery.data?.bountyBalance ?? 0) * fx;
           const cashbackHome = (earnings.cashbackUSD ?? 0) * fx;
           type Tile = {
