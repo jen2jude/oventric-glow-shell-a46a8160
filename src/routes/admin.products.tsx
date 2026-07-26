@@ -303,7 +303,21 @@ function ProductsPage() {
             )}
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-0.5" role="group" aria-label="Price currency">
+            {PRICE_CURRENCIES.map((c) => (
+              <button
+                key={c}
+                onClick={() => setPriceCurrency(c)}
+                className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
+                  priceCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
+                }`}
+                aria-pressed={priceCurrency === c}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <label className="text-xs text-slate-400 inline-flex items-center gap-1.5 select-none">
             <input
               type="checkbox"
@@ -313,6 +327,7 @@ function ProductsPage() {
             />
             Auto
           </label>
+
           <button
             onClick={refresh}
             disabled={refreshing}
