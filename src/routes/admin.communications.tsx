@@ -430,7 +430,7 @@ function DirectMessageTab() {
       .map((s) => s.trim())
       .filter(Boolean);
     if (!parsed.length) return toast.error("Add at least one recipient");
-    if (!title.trim() || !body.trim()) return toast.error("Title and body are required");
+    if (!title.trim() || !stripHtml(body)) return toast.error("Title and body are required");
     setBusy(true);
     try {
       const { delivered } = await send({
