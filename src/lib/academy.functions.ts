@@ -685,7 +685,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
 
     const { data: course, error: cErr } = await supabase
       .from("courses")
-      .select("id, owner_id, price_usd, is_free, is_published")
+      .select("id, owner_id, price_usd, is_free, is_published, original_currency")
       .eq("id", data.courseId)
       .maybeSingle();
     if (cErr) throw new Error(cErr.message);
@@ -693,6 +693,14 @@ export const enrollPaid = createServerFn({ method: "POST" })
     if (!course.is_published) throw new Error("Course is not published");
     if (course.is_free) throw new Error("Course is free — use enrollFree");
     if ((course.owner_id as string) === userId) throw new Error("You already own this course");
+
+    // Currency isolation: buyer's home currency must match the course's
+    // original currency (NG-only for NGN, GH-only for GHS, OTHER-only for USD).
+    const courseCurrency = String((course as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
+    if (courseCurrency !== String(data.displayCurrency).toUpperCase()) {
+      throw new Error(`This course is priced in ${courseCurrency}. Your account transacts in ${data.displayCurrency} and cannot enroll.`);
+    }
+
 
     // Already enrolled?
     const { data: existing } = await supabase

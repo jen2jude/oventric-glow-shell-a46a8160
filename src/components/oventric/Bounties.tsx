@@ -195,6 +195,13 @@ export function Bounties() {
         const now = Date.now();
         const rows: Bounty[] = (data ?? [])
           .filter((b) => !b.end_at || new Date(b.end_at as string).getTime() > now)
+          // Currency isolation: signed-in users only see bounties published in
+          // their home currency. Anon viewers still see everything (USD preview).
+          .filter((b) => {
+            if (!isAuthenticated) return true;
+            const oc = String((b as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
+            return oc === baseCurrency;
+          })
           .map((b) => {
             const cat = (b.category as string) as Exclude<Category, "all">;
             const expiresAt = b.deadline_at
@@ -227,7 +234,7 @@ export function Bounties() {
         setBountiesLoading(false);
       });
     return () => { cancelled = true; };
-  }, [refreshTick, baseCurrency]);
+  }, [refreshTick, baseCurrency, isAuthenticated]);
 
   // Realtime: auto-refresh when any bounty is inserted/updated/deleted
   useEffect(() => {

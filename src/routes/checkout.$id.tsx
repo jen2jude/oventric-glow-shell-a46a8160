@@ -332,10 +332,24 @@ function CheckoutPage() {
           </div>
         )}
 
-        {product && (
+        {product && (product.originalCurrency as Currency) !== baseCurrency && (
+          <div className="bg-[#1E1E24] border border-amber-500/40 rounded-xl p-6 text-sm text-amber-200">
+            <div className="text-white font-bold mb-1">Not available in your region</div>
+            <p className="text-amber-200/80">
+              This item is priced in {String(product.originalCurrency).toUpperCase()} and can only be purchased by
+              accounts based in that currency’s region. Your account transacts in {baseCurrency}.
+            </p>
+            <Link to="/" className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
+              Back to marketplace
+            </Link>
+          </div>
+        )}
+
+        {product && (product.originalCurrency as Currency) === baseCurrency && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
             {/* Payment methods */}
             <div className="lg:col-span-2 space-y-3 min-w-0">
+
 
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Payment Method</h2>
               {methods.map((m) => {

@@ -122,6 +122,12 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       if (!p) throw new Error("Product not found");
       const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
       const displayCurrency = data.displayCurrency;
+      // Currency isolation: buyer's home currency must match the listing.
+      const listingCurrency = String((p as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
+      if (listingCurrency !== String(displayCurrency).toUpperCase()) {
+        throw new Error(`This item is priced in ${listingCurrency}. Your account transacts in ${displayCurrency} and cannot purchase it.`);
+      }
+
       const grossUSD = Number(p.price_usd) * qty;
       let discountUSD = 0;
       if (data.couponCode) {
