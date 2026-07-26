@@ -437,7 +437,7 @@ function DirectMessageTab() {
         data: {
           recipients: parsed,
           title: title.trim(),
-          body: body.trim(),
+          body: body,
           link: link.trim() || undefined,
           kind,
         },
