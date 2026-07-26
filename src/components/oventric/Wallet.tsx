@@ -75,7 +75,7 @@ const currencyMeta: Record<
     label: "US Dollar",
     glow: "shadow-[0_0_40px_-10px_rgba(59,130,246,0.55)]",
     ring: "border-sky-500/40",
-    text: "text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)]",
+    text: "text-sky-300",
     dot: "bg-sky-400",
   },
   NGN: {
@@ -83,7 +83,7 @@ const currencyMeta: Record<
     label: "Nigerian Naira",
     glow: "shadow-[0_0_40px_-10px_rgba(16,185,129,0.55)]",
     ring: "border-emerald-500/40",
-    text: "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
+    text: "text-emerald-300",
     dot: "bg-emerald-400",
   },
   GHS: {
@@ -91,7 +91,7 @@ const currencyMeta: Record<
     label: "Ghanaian Cedi",
     glow: "shadow-[0_0_40px_-10px_rgba(234,179,8,0.5)]",
     ring: "border-amber-500/40",
-    text: "text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+    text: "text-amber-300",
     dot: "bg-amber-400",
   },
 };
@@ -573,7 +573,7 @@ export function Wallet() {
 
 
       {/* Affiliate — single card (coming soon / reserve) */}
-      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(217,70,239,0.45)]">
+      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-fuchsia-500/60" />
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0 flex items-center gap-3">
@@ -686,7 +686,7 @@ export function Wallet() {
                 <div className="text-[11px] uppercase tracking-wider text-emerald-300/80 font-semibold">
                   Estimated Annual Cashback Earnings
                 </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_16px_rgba(52,211,153,0.7)]">
+                <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300">
                   {fmt(annualLocal, baseCurrency)}
                 </div>
                 <div className="mt-1 text-xs text-slate-400">
@@ -759,7 +759,7 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
     <div
       className={`rounded-lg border px-2.5 py-2 text-center transition-all ${
         active
-          ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_20px_-8px_rgba(52,211,153,0.6)]"
+          ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
           : "border-[#222226] bg-[#0A0A0C] text-slate-400"
       }`}
     >
@@ -1047,8 +1047,8 @@ function PayoutSuccessSplash({
         }}
       />
       <div className="relative h-full w-full flex items-center justify-center p-4">
-        <div className="relative w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-[#0A0F0C] shadow-[0_0_60px_rgba(16,185,129,0.35)] p-6 text-center animate-in fade-in zoom-in-95 duration-300">
-          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(16,185,129,0.6)]">
+        <div className="relative w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-[#0A0F0C] p-6 text-center animate-in fade-in zoom-in-95 duration-300">
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4">
             <CheckCircle2 className="w-10 h-10 text-black" strokeWidth={3} />
           </div>
           <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">Withdrawal Requested</div>
