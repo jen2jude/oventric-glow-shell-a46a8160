@@ -917,13 +917,15 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           />
         </div>
         {numericAmount > 0 && (
-          <div className="mt-1 text-[11px] text-slate-500">
-            You&apos;ll be charged exactly{" "}
+          <div className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+            You&apos;ll be charged{" "}
             <span className="text-slate-200 font-semibold">
-              {symbol}
-              {formattedCharge}
+              {symbol}{formattedCharge}
             </span>{" "}
-            via Paystack — no hidden fees.
+            via Paystack — that&apos;s your{" "}
+            <span className="text-slate-300">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
+            <span className="text-amber-300">{symbol}{formattedFee}</span> Paystack transaction fee.
+            Your wallet is credited with the full {symbol}{fmt(numericAmount)}.
           </div>
         )}
       </div>
