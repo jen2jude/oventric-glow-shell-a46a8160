@@ -1205,3 +1205,95 @@ body.kyc-active .rgb-neon-bg.fixed {
 .rich-comms ol { list-style: decimal; }
 .rich-comms blockquote { border-left: 3px solid rgba(255,255,255,0.15); padding-left: 0.75rem; color: #cbd5e1; margin: 0.5rem 0; }
 .rich-comms code { background: rgba(255,255,255,0.08); padding: 0.05rem 0.3rem; border-radius: 4px; font-size: 0.85em; }
+
+/* -------------------------------------------------------------------------
+   LIGHT MODE — true white theme override.
+   The app was authored in a hardcoded dark palette (bg-[#121214] etc.),
+   so shadcn semantic tokens alone can't flip the surface. These rules
+   remap the concrete hex/utility classes used across the app when
+   `html.light` is active. Kept scoped to `html.light` so dark mode is
+   unaffected.
+   ------------------------------------------------------------------------- */
+html.light {
+  color-scheme: light;
+  --background: oklch(1 0 0);
+  --foreground: oklch(0.18 0.01 260);
+  --card: oklch(0.985 0.003 260);
+  --card-foreground: oklch(0.18 0.01 260);
+  --popover: oklch(1 0 0);
+  --popover-foreground: oklch(0.18 0.01 260);
+  --secondary: oklch(0.96 0.005 260);
+  --secondary-foreground: oklch(0.18 0.01 260);
+  --muted: oklch(0.96 0.005 260);
+  --muted-foreground: oklch(0.45 0.01 260);
+  --accent: oklch(0.96 0.005 260);
+  --accent-foreground: oklch(0.18 0.01 260);
+  --border: oklch(0.18 0.01 260 / 12%);
+  --input: oklch(0.18 0.01 260 / 14%);
+}
+
+html.light body {
+  background-color: #ffffff !important;
+  color: #0f172a;
+}
+
+/* Remap the fixed dark surface hexes used across the app to light. */
+html.light .bg-\[\#121214\],
+html.light .bg-\[\#121214\]\/90,
+html.light .md\:bg-\[\#121214\]\/90,
+html.light .bg-\[\#0b0b0d\],
+html.light .bg-\[\#0b0b0d\]\/95,
+html.light .bg-\[\#0f0f13\],
+html.light .bg-\[\#141418\],
+html.light .bg-\[\#17171B\],
+html.light .bg-\[\#1E1E24\],
+html.light .bg-\[\#17171c\],
+html.light .bg-\[\#101014\] {
+  background-color: #ffffff !important;
+}
+
+/* Softer secondary surfaces (cards, chips, tiles). */
+html.light .bg-\[\#17171B\],
+html.light .bg-\[\#1E1E24\],
+html.light .bg-\[\#141418\],
+html.light .bg-\[\#0f0f13\] {
+  background-color: #f5f6f8 !important;
+}
+
+/* Semi-transparent light overlays used as elevation on dark — invert to
+   subtle dark overlays for elevation on white. */
+html.light .bg-white\/5   { background-color: rgba(15, 23, 42, 0.04) !important; }
+html.light .bg-white\/10  { background-color: rgba(15, 23, 42, 0.06) !important; }
+html.light .bg-white\/15  { background-color: rgba(15, 23, 42, 0.08) !important; }
+html.light .bg-white\/20  { background-color: rgba(15, 23, 42, 0.10) !important; }
+
+/* Borders: dark theme uses white/N — flip to slate/N. */
+html.light .border-white\/5   { border-color: rgba(15, 23, 42, 0.06) !important; }
+html.light .border-white\/10  { border-color: rgba(15, 23, 42, 0.10) !important; }
+html.light .border-white\/15  { border-color: rgba(15, 23, 42, 0.12) !important; }
+html.light .border-white\/20  { border-color: rgba(15, 23, 42, 0.16) !important; }
+
+/* Text: dark-theme slate scale reads white-on-dark; invert to dark-on-white. */
+html.light .text-white         { color: #0f172a !important; }
+html.light .text-slate-100     { color: #0f172a !important; }
+html.light .text-slate-200     { color: #1e293b !important; }
+html.light .text-slate-300     { color: #334155 !important; }
+html.light .text-slate-400     { color: #475569 !important; }
+html.light .text-slate-500     { color: #64748b !important; }
+
+/* Hover swaps that go "to white" on dark should stay dark on light. */
+html.light .hover\:text-white:hover { color: #0f172a !important; }
+
+/* Header wallet chip + other emerald outlines read fine on white, but the
+   inner chip background needs to lift off the page. */
+html.light .bg-\[\#1E1E24\].border-emerald-500\/30 {
+  background-color: #ecfdf5 !important;
+}
+
+/* Inputs / dropdowns rendered on the dark palette. */
+html.light input, html.light textarea, html.light select {
+  color: #0f172a;
+}
+html.light input::placeholder, html.light textarea::placeholder {
+  color: #94a3b8;
+}
