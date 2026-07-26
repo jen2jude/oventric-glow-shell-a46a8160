@@ -37,14 +37,15 @@ import {
   addCircleResource,
   removeCircleResource,
   listCircleBounties,
+  listCircleCategories,
   type CircleSummary,
 } from "@/lib/circles-groups.functions";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { supabase } from "@/integrations/supabase/client";
 
-const CATEGORIES = [
-  "All",
+const DEFAULT_CATEGORIES = [
   "SaaS Builders",
   "AI Engineering",
   "Design Systems",
@@ -52,8 +53,8 @@ const CATEGORIES = [
   "Mobile Apps",
   "Infra & DevOps",
   "Community",
-] as const;
-type CatFilter = (typeof CATEGORIES)[number];
+];
+
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
