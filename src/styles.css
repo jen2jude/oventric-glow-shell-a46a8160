@@ -1315,12 +1315,26 @@ html.light .text-pink-100,
 html.light .text-pink-200    { color: #be185d !important; }
 
 /* Tinted colored surfaces (e.g. bg-emerald-500/10) with direct text-white
-   are unreadable on white — force dark text when the same element carries
-   both a tinted bg-*/N class and text-white. */
-html.light [class*="/10"].text-white,
-html.light [class*="/15"].text-white,
-html.light [class*="/20"].text-white,
-html.light [class*="/5"].text-white { color: #0f172a !important; }
+   are unreadable on white — force dark text when the element carries both
+   a tinted bg color and text-white. Enumerated per color to avoid the
+   lightningcss parser refusing an unescaped "/" in an attribute value. */
+html.light .text-white[class*="bg-emerald-"][class*="/"],
+html.light .text-white[class*="bg-primary"][class*="/"],
+html.light .text-white[class*="bg-cyan-"][class*="/"],
+html.light .text-white[class*="bg-teal-"][class*="/"],
+html.light .text-white[class*="bg-sky-"][class*="/"],
+html.light .text-white[class*="bg-blue-"][class*="/"],
+html.light .text-white[class*="bg-indigo-"][class*="/"],
+html.light .text-white[class*="bg-violet-"][class*="/"],
+html.light .text-white[class*="bg-purple-"][class*="/"],
+html.light .text-white[class*="bg-fuchsia-"][class*="/"],
+html.light .text-white[class*="bg-pink-"][class*="/"],
+html.light .text-white[class*="bg-rose-"][class*="/"],
+html.light .text-white[class*="bg-red-"][class*="/"],
+html.light .text-white[class*="bg-orange-"][class*="/"],
+html.light .text-white[class*="bg-amber-"][class*="/"],
+html.light .text-white[class*="bg-yellow-"][class*="/"],
+html.light .text-white[class*="bg-green-"][class*="/"] { color: #0f172a !important; }
 
 /* Inputs / dropdowns rendered on the dark palette. */
 html.light input, html.light textarea, html.light select {
