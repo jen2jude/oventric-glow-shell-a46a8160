@@ -110,6 +110,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const [splash, setSplash] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
+  const splashCbRef = useRef<null | (() => void | Promise<void>)>(null);
 
   // Detect magic-link failures returned by Supabase in the URL hash
   // (e.g. #error=access_denied&error_code=otp_expired&error_description=...).
@@ -161,16 +162,13 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       setSession(next);
       setChecked(true);
       if (event === "SIGNED_IN" && next) {
-        // Fire the RGB neon success splash, then close the modal + run the
-        // pending action once the animation has had time to play.
-        setSplash(true);
-        setGateOpen(false);
+        // Fire the subtle success splash, then run the pending action once
+        // the animation has finished.
         const cb = pendingRef.current;
         pendingRef.current = null;
-        window.setTimeout(() => {
-          setSplash(false);
-          if (cb) void cb();
-        }, 1400);
+        splashCbRef.current = cb;
+        setSplash(true);
+        setGateOpen(false);
       }
     });
     return () => {
@@ -221,30 +219,68 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
           onClearLinkError={() => setLinkError(null)}
         />
       )}
-      {splash && <NeonSuccessSplash />}
+      {splash && (
+        <NeonSuccessSplash
+          onDone={() => {
+            const cb = splashCbRef.current;
+            splashCbRef.current = null;
+            setSplash(false);
+            if (cb) void cb();
+          }}
+        />
+      )}
 
     </AuthGateContext.Provider>
   );
 }
 
-function NeonSuccessSplash() {
+function NeonSuccessSplash({ onDone }: { onDone: () => void }) {
+  const [phase, setPhase] = useState<"enter" | "hold" | "leave">("enter");
+  const doneRef = useRef(false);
+
+  useEffect(() => {
+    const t1 = window.setTimeout(() => setPhase("hold"), 350);
+    const t2 = window.setTimeout(() => setPhase("leave"), 1200);
+    const t3 = window.setTimeout(() => {
+      if (!doneRef.current) {
+        doneRef.current = true;
+        onDone();
+      }
+    }, 1650);
+    return () => {
+      window.clearTimeout(t1);
+      window.clearTimeout(t2);
+      window.clearTimeout(t3);
+    };
+  }, [onDone]);
+
   if (typeof document === "undefined") return null;
+
+  const panelState =
+    phase === "enter"
+      ? "opacity-0 translate-y-4 scale-95"
+      : phase === "leave"
+        ? "opacity-0 -translate-y-2 scale-95"
+        : "opacity-100 translate-y-0 scale-100";
+
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center pointer-events-none bg-black/60"
+      className="fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-[300] pointer-events-none"
       role="status"
       aria-live="polite"
       aria-label="Successfully signed in"
     >
-      <div className="flex flex-col items-center gap-4">
-        <div className="w-24 h-24 rounded-full p-[3px] bg-gradient-to-r from-red-500 via-green-500 to-blue-500">
-          <div className="w-full h-full rounded-full bg-transparent flex items-center justify-center">
-            <ShieldCheck className="w-10 h-10 text-emerald-500" aria-hidden />
+      <div
+        className={`flex flex-col items-center gap-3 px-7 py-6 rounded-2xl bg-background border border-border shadow-2xl transition-all duration-500 ease-out ${panelState}`}
+      >
+        <div className="w-20 h-20 rounded-full p-[3px] bg-gradient-to-r from-red-500 via-green-500 to-blue-500">
+          <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
+            <ShieldCheck className="w-9 h-9 text-emerald-500" aria-hidden />
           </div>
         </div>
         <div className="text-center">
-          <div className="text-white font-semibold tracking-tight text-lg">Verified.</div>
-          <div className="text-white/90 font-medium tracking-tight text-base">Welcome to Oventric</div>
+          <div className="text-foreground font-semibold tracking-tight text-lg">Verified.</div>
+          <div className="text-muted-foreground font-medium tracking-tight text-base">Welcome to Oventric</div>
         </div>
       </div>
     </div>,
