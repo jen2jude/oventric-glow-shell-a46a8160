@@ -238,7 +238,7 @@ function NeonSuccessSplash() {
     >
       <div className="flex flex-col items-center gap-4">
         <div className="w-24 h-24 rounded-full p-[3px] bg-gradient-to-r from-red-500 via-green-500 to-blue-500">
-          <div className="w-full h-full rounded-full bg-background flex items-center justify-center">
+          <div className="w-full h-full rounded-full bg-transparent flex items-center justify-center">
             <ShieldCheck className="w-10 h-10 text-emerald-500" aria-hidden />
           </div>
         </div>
