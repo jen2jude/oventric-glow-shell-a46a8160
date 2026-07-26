@@ -2059,6 +2059,7 @@ export type Database = {
           media_paths: string[]
           media_type: string | null
           mentioned_user_ids: string[]
+          shared_to_feed: boolean
           text: string
           updated_at: string
         }
@@ -2072,6 +2073,7 @@ export type Database = {
           media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
+          shared_to_feed?: boolean
           text: string
           updated_at?: string
         }
@@ -2085,6 +2087,7 @@ export type Database = {
           media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
+          shared_to_feed?: boolean
           text?: string
           updated_at?: string
         }

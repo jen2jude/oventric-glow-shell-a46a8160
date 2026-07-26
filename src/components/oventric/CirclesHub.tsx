@@ -44,6 +44,9 @@ import { FollowButton } from "@/components/oventric/FollowButton";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
+import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
+import { ReactionPicker, REACTION_META } from "@/components/oventric/feed/Reactions";
+import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
   "SaaS Builders",
@@ -281,9 +284,16 @@ function Rail({
             onClick={() => onOpen(c)}
             className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
           >
-            <div className={`h-16 bg-gradient-to-br ${c.bannerHue} relative`}>
-              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg">
-                {c.emoji}
+            <div className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}>
+              {c.coverUrl && (
+                <img src={c.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+              )}
+              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg overflow-hidden">
+                {c.avatarUrl ? (
+                  <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  <span>{c.emoji}</span>
+                )}
               </div>
               {c.isPrivate && (
                 <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
@@ -313,9 +323,16 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
       onClick={onOpen}
       className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
     >
-      <div className={`h-20 bg-gradient-to-br ${circle.bannerHue} relative`}>
-        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl">
-          {circle.emoji}
+      <div className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+        {circle.coverUrl && (
+          <img src={circle.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+        )}
+        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl overflow-hidden">
+          {circle.avatarUrl ? (
+            <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          ) : (
+            <span>{circle.emoji}</span>
+          )}
         </div>
         {circle.isPrivate && (
           <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
@@ -406,10 +423,19 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   return (
     <div className="max-w-6xl mx-auto w-full">
       {/* Banner */}
-      <div className={`h-40 md:h-48 bg-gradient-to-br ${circle.bannerHue} relative`}>
+      <div className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+        {circle.coverUrl && (
+          <img
+            src={circle.coverUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="eager"
+            decoding="async"
+          />
+        )}
         <button
           onClick={onBack}
-          className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 text-white text-sm backdrop-blur-sm"
+          className="absolute top-4 left-4 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/40 hover:bg-black/60 text-white text-sm"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
@@ -422,8 +448,12 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
 
       <div className="px-4 md:px-6 -mt-10 relative">
         <div className="flex items-end gap-4">
-          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl bg-gradient-to-br ${circle.avatarHue} border-4 border-[#121214] flex items-center justify-center text-3xl md:text-4xl shrink-0`}>
-            {circle.emoji}
+          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}>
+            {circle.avatarUrl ? (
+              <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
+            ) : (
+              <span>{circle.emoji}</span>
+            )}
           </div>
           <div className="flex-1 min-w-0 pb-2">
             <h1 className="text-xl md:text-2xl font-black text-white truncate">{circle.name}</h1>
@@ -554,10 +584,13 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
     enabled: isMember,
   });
   const [text, setText] = useState("");
+  const [openComments, setOpenComments] = useState<{ id: string; author: string } | null>(null);
+  const [lastShared, setLastShared] = useState<boolean | null>(null);
   const postM = useMutation({
     mutationFn: () => createFn({ data: { circleId: circle.id, text } }),
-    onSuccess: () => {
+    onSuccess: (res) => {
       setText("");
+      setLastShared(!!res?.sharedToFeed);
       qc.invalidateQueries({ queryKey: ["circle-posts", circle.id] });
     },
   });
@@ -584,7 +617,10 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
           placeholder="Share with the circle…"
           className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none min-h-[60px]"
         />
-        <div className="flex justify-end pt-2 border-t border-white/5">
+        <div className="flex items-center justify-between pt-2 border-t border-white/5">
+          <span className="text-[11px] text-slate-500">
+            Every 5th post here also appears in the public news feed as a taster for non‑members.
+          </span>
           <button
             onClick={() => postM.mutate()}
             disabled={!text.trim() || postM.isPending}
@@ -593,6 +629,13 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
             <Send className="w-3.5 h-3.5" /> Post
           </button>
         </div>
+        {lastShared !== null && (
+          <div className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500"}`}>
+            {lastShared
+              ? "🎉 This post was also shared to the main news feed."
+              : "Posted to the circle. Only members can see it."}
+          </div>
+        )}
       </div>
 
       {postsQ.isLoading ? (
@@ -604,36 +647,107 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
       ) : (
         <div className="space-y-3">
           {postsQ.data!.map((p) => (
-            <div key={p.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
-              <div className="flex items-center gap-2 mb-2">
-                {p.authorAvatar ? (
-                  // eslint-disable-next-line @next/next/no-img-element
-                  <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover"  loading="lazy" decoding="async" />
-                ) : (
-                  <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
-                    {p.authorName.slice(0, 1).toUpperCase()}
-                  </div>
-                )}
-                <button
-                  onClick={() =>
-                    (window.location.href = p.authorSlug
-                      ? `/profile/${p.authorSlug}`
-                      : `/profile/${p.authorId}`)
-                  }
-                  className="text-sm font-semibold text-white hover:text-emerald-300"
-                >
-                  {p.authorName}
-                </button>
-                <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
-              </div>
-              <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
-            </div>
+            <WatercoolerPost
+              key={p.id}
+              p={p}
+              onOpenComments={() => setOpenComments({ id: p.id, author: p.authorName })}
+            />
           ))}
         </div>
+      )}
+
+      {openComments && (
+        <CommentsSheet
+          postId={openComments.id}
+          postAuthorName={openComments.author}
+          onClose={() => setOpenComments(null)}
+        />
       )}
     </div>
   );
 }
+
+function WatercoolerPost({
+  p,
+  onOpenComments,
+}: {
+  p: import("@/lib/circles-groups.functions").CirclePostRow;
+  onOpenComments: () => void;
+}) {
+  const setReactionM = useServerFn(setReactionFn);
+  const [viewerReaction, setViewerReaction] = useState<ReactionType | null>(null);
+  const [pickerOpen, setPickerOpen] = useState(false);
+  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, laugh: 0, crown: 0 });
+
+  const react = async (r: ReactionType | null) => {
+    const prev = viewerReaction;
+    setViewerReaction(r);
+    setTotals((t) => {
+      const next = { ...t };
+      if (prev) next[prev] = Math.max(0, next[prev] - 1);
+      if (r) next[r] = (next[r] ?? 0) + 1;
+      return next;
+    });
+    setPickerOpen(false);
+    try {
+      await setReactionM({ data: { postId: p.id, reaction: r } });
+    } catch {
+      setViewerReaction(prev);
+    }
+  };
+
+  const total = totals.love + totals.like + totals.laugh + totals.crown;
+  const ActiveIcon = viewerReaction ? REACTION_META[viewerReaction].Icon : null;
+  const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
+
+  return (
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+      <div className="flex items-center gap-2 mb-2">
+        {p.authorAvatar ? (
+          <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
+        ) : (
+          <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
+            {p.authorName.slice(0, 1).toUpperCase()}
+          </div>
+        )}
+        <button
+          onClick={() =>
+            (window.location.href = p.authorSlug
+              ? `/profile/${p.authorSlug}`
+              : `/profile/${p.authorId}`)
+          }
+          className="text-sm font-semibold text-white hover:text-emerald-300"
+        >
+          {p.authorName}
+        </button>
+        <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
+      </div>
+      <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
+      <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/5 relative">
+        <button
+          type="button"
+          onClick={() => (viewerReaction ? react(null) : setPickerOpen((v) => !v))}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+          style={activeColor ? { color: activeColor } : undefined}
+        >
+          {ActiveIcon ? <ActiveIcon className="w-3.5 h-3.5 fill-current" /> : <span>👍</span>}
+          <span>{total > 0 ? total : "React"}</span>
+        </button>
+        <button
+          type="button"
+          onClick={onOpenComments}
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+        >
+          <MessageCircle className="w-3.5 h-3.5" /> Comment
+        </button>
+        {pickerOpen && (
+          <ReactionPicker onPick={(r) => react(r)} onClose={() => setPickerOpen(false)} />
+        )}
+      </div>
+    </div>
+  );
+}
+
 
 /* ---- Tab: Members ---- */
 function MembersTab({ circle }: { circle: CircleSummary }) {

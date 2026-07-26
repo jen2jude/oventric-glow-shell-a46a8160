@@ -691,8 +691,17 @@ export const listCirclePosts = createServerFn({ method: "GET" })
 export const createCirclePost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => CreatePostInput.parse(d))
-  .handler(async ({ data, context }): Promise<{ id: string }> => {
-    const { data: row, error } = await context.supabase
+  .handler(async ({ data, context }): Promise<{ id: string; sharedToFeed: boolean }> => {
+    // Every 5th post to a given circle also lands on the main news feed as a
+    // preview so non-members discover the circle. RLS still hides the other 4.
+    const { count } = await context.supabase
+      .from("posts")
+      .select("id", { count: "exact", head: true })
+      .eq("circle_id", data.circleId);
+    const nextIndex = (count ?? 0) + 1;
+    const sharedToFeed = nextIndex % 5 === 0;
+
+    const { data: row, error } = await (context.supabase as any)
       .from("posts")
       .insert({
         author_id: context.userId,
@@ -700,6 +709,8 @@ export const createCirclePost = createServerFn({ method: "POST" })
         text: data.text,
         media_path: data.mediaPath ?? null,
         media_type: data.mediaType ?? null,
+        audience: "circle",
+        shared_to_feed: sharedToFeed,
       })
       .select("id")
       .single();
@@ -707,7 +718,7 @@ export const createCirclePost = createServerFn({ method: "POST" })
       console.error("[createCirclePost]", error);
       throw new Error("Failed to post — are you a member?");
     }
-    return { id: row.id };
+    return { id: row.id, sharedToFeed };
   });
 
 /* ---------------------------- Members ---------------------------- */
