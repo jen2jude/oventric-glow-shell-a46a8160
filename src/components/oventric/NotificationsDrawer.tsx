@@ -77,6 +77,19 @@ function timeAgo(iso: string): string {
   return new Date(iso).toLocaleDateString();
 }
 
+function isHtml(s: string | null | undefined): boolean {
+  return !!s && /<\/?[a-z][^>]*>/i.test(s);
+}
+
+function plainPreview(s: string | null | undefined): string {
+  if (!s) return "";
+  if (!isHtml(s)) return s;
+  if (typeof document === "undefined") return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const div = document.createElement("div");
+  div.innerHTML = DOMPurify.sanitize(s);
+  return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
+}
+
 function renderLinkified(text: string) {
   // Detects http(s) URLs and internal paths starting with '/'.
   const parts = text.split(/(\bhttps?:\/\/[^\s]+|(?:^|\s)\/[A-Za-z0-9/_\-?=&.#%]+)/g);
