@@ -129,6 +129,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Wallet chip - shows main balance in home currency */}
+          <HeaderWalletChip />
+
           {/* Circles & Guilds - mobile only in bottom row */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
