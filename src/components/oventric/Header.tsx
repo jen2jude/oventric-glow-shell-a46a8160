@@ -203,12 +203,14 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <button
               type="button"
               onClick={() => openGate("generic")}
-              className="inline-flex items-center gap-1.5 h-9 px-3 rounded-full bg-[#1E1E24] border-2 border-white text-white font-bold text-xs sm:text-sm hover:bg-white/10 transition-colors"
+              className="inline-flex items-center justify-center h-9 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity"
               aria-label="Connect account"
             >
-              <KeyRound className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
-              <span className="hidden sm:inline">Connect Account</span>
-              <span className="sm:hidden">Connect</span>
+              <span className="inline-flex items-center gap-1.5 h-full w-full px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
+                <KeyRound className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                <span className="hidden sm:inline">Connect Account</span>
+                <span className="sm:hidden">Connect</span>
+              </span>
             </button>
           )}
         </div>
