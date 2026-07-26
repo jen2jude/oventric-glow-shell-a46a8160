@@ -1302,6 +1302,26 @@ html.light .bg-\[\#1E1E24\].border-emerald-500\/30 {
   background-color: #ecfdf5 !important;
 }
 
+/* Light emerald text used as accent on pale emerald backgrounds is too pale
+   on the white canvas — remap the 100/200/300 tints to a readable emerald. */
+html.light .text-emerald-100,
+html.light .text-emerald-200 { color: #047857 !important; }
+html.light .text-emerald-300 { color: #059669 !important; }
+html.light .text-cyan-100,
+html.light .text-cyan-200    { color: #0e7490 !important; }
+html.light .text-purple-100,
+html.light .text-purple-200  { color: #6d28d9 !important; }
+html.light .text-pink-100,
+html.light .text-pink-200    { color: #be185d !important; }
+
+/* Tinted colored surfaces (e.g. bg-emerald-500/10) with direct text-white
+   are unreadable on white — force dark text when the same element carries
+   both a tinted bg-*/N class and text-white. */
+html.light [class*="/10"].text-white,
+html.light [class*="/15"].text-white,
+html.light [class*="/20"].text-white,
+html.light [class*="/5"].text-white { color: #0f172a !important; }
+
 /* Inputs / dropdowns rendered on the dark palette. */
 html.light input, html.light textarea, html.light select {
   color: #0f172a;
