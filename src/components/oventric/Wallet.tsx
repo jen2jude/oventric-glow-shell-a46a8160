@@ -360,46 +360,47 @@ export function Wallet() {
           ];
           return (
             <>
-              {/* Big main card + USD equivalent side by side (desktop). */}
-              <div className="grid grid-cols-1 md:grid-cols-[minmax(0,2fr)_minmax(0,1fr)] gap-3 items-stretch">
-                <div className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-6 sm:p-7 ${m.glow}`}>
-                  <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
-                  <div className="flex items-center justify-between mb-5">
-                    <div className="flex items-center gap-2.5 min-w-0">
-                      <div className={`w-11 h-11 rounded-xl border ${m.ring} bg-black/40 flex items-center justify-center text-white text-base font-bold shrink-0`}>
-                        {m.symbol}
-                      </div>
-                      <div className="min-w-0">
-                        <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Main Balance</div>
-                        <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
-                      </div>
+              {/* Big main card with USD equivalent inline (bottom-right snippet). */}
+              <div className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-6 sm:p-7 ${m.glow}`}>
+                <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
+                <div className="flex items-center justify-between mb-5">
+                  <div className="flex items-center gap-2.5 min-w-0">
+                    <div className={`w-11 h-11 rounded-xl border ${m.ring} bg-black/40 flex items-center justify-center text-white text-base font-bold shrink-0`}>
+                      {m.symbol}
                     </div>
-                    <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
-                  </div>
-                  <div className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
-                    {hide ? mask : fmt(bal, baseCurrency)}
-                  </div>
-                  <div className="mt-3 text-[11px] text-slate-500 uppercase tracking-wider">
-                    Available balance
-                  </div>
-                </div>
-
-                <div className="relative overflow-hidden rounded-2xl border border-sky-500/20 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(56,189,248,0.4)] flex flex-col justify-between">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-9 h-9 rounded-lg border border-sky-500/40 bg-black/40 flex items-center justify-center text-white text-sm font-bold shrink-0">$</div>
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">USD · Equivalent</div>
-                      <div className="text-[10px] text-slate-500 truncate">Global rail · read-only</div>
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Main Balance</div>
+                      <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
                     </div>
                   </div>
-                  <div className={`mt-4 text-2xl sm:text-3xl font-black tabular-nums text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)] ${hide ? "blur-sm select-none" : ""}`}>
-                    {hide ? mask : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                  <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
+                </div>
+                <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
+                  <div className="min-w-0">
+                    <div className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
+                      {hide ? mask : fmt(bal, baseCurrency)}
+                    </div>
+                    <div className="mt-3 text-[11px] text-slate-500 uppercase tracking-wider">
+                      Available balance
+                    </div>
                   </div>
-                  <div className="mt-2 text-[10px] text-slate-500 uppercase tracking-wider">
-                    USD value of {baseCurrency} balance
+                  <div
+                    className="shrink-0 text-right leading-tight"
+                    title="Reference only — not a withdrawable balance"
+                  >
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                      ≈ USD Equivalent
+                    </div>
+                    <div className={`text-base sm:text-lg font-bold tabular-nums text-sky-300/90 ${hide ? "blur-sm select-none" : ""}`}>
+                      {hide ? "•••" : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    </div>
+                    <div className="text-[9px] text-slate-600 uppercase tracking-wider">
+                      Preview · not spendable
+                    </div>
                   </div>
                 </div>
               </div>
+
 
               {/* Dropdown toggle: reveals sub-wallet tiles with animation */}
               <button
