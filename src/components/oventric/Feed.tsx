@@ -23,6 +23,7 @@ import {
   type FeedPost,
   type ReactionType,
 } from "@/lib/posts.functions";
+import { requestJoinCircle as requestJoinCircleFn } from "@/lib/circles-groups.functions";
 import {
   ReactionPicker,
   ReactionSplash,
