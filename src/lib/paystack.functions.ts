@@ -104,10 +104,20 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       purpose: data.purpose,
     };
 
+    // Compute the Paystack transaction fee up front for wallet top-ups so the
+    // user (not the platform) covers it. We charge amount+fee via Paystack and
+    // credit the user's wallet with the entered `amount` on settlement.
+    let topupFee = 0;
+    let topupNet = 0;
     if (data.purpose === "wallet_topup") {
-      amount = Number(data.amount);
+      topupNet = Number(data.amount);
       currency = data.currency;
-      if (!(amount > 0)) throw new Error("Top-up amount must be greater than zero.");
+      if (!(topupNet > 0)) throw new Error("Top-up amount must be greater than zero.");
+      const { fee, charge } = paystackFee(topupNet, currency as PaystackFeeCurrency);
+      topupFee = fee;
+      amount = charge; // what Paystack will actually collect
+      metadata.wallet_credit_amount = topupNet;
+      metadata.topup_fee = fee;
       if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
         metadata.return_to = data.returnTo;
       }
