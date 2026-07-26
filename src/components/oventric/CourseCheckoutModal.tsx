@@ -238,7 +238,18 @@ export function CourseCheckoutModal({
         </div>
 
         <div className="p-5 space-y-5">
-          {done ? (
+          {!isFree && conversionNeeded ? (
+            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
+              <div className="text-white font-bold mb-1">Not available in your region</div>
+              <p className="text-amber-200/80">
+                This course is priced in {String(course.originalCurrency).toUpperCase()} and can only be enrolled in
+                by accounts based in that currency’s region. Your account transacts in {baseCurrency}.
+              </p>
+              <button onClick={onClose} className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
+                Close
+              </button>
+            </div>
+          ) : done ? (
             <div className="text-center py-6">
               <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mb-4">
                 <CheckCircle2 className="w-8 h-8 text-emerald-300" />
@@ -248,6 +259,7 @@ export function CourseCheckoutModal({
             </div>
           ) : (
             <>
+
               <div>
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Payment method</div>
                 <div className="grid grid-cols-2 gap-2">
