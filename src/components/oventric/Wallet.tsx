@@ -73,7 +73,7 @@ const currencyMeta: Record<
   USD: {
     symbol: "$",
     label: "US Dollar",
-    glow: "shadow-[0_0_40px_-10px_rgba(59,130,246,0.55)]",
+    glow: "",
     ring: "border-sky-500/40",
     text: "text-sky-300",
     dot: "bg-sky-400",
@@ -81,7 +81,7 @@ const currencyMeta: Record<
   NGN: {
     symbol: "₦",
     label: "Nigerian Naira",
-    glow: "shadow-[0_0_40px_-10px_rgba(16,185,129,0.55)]",
+    glow: "",
     ring: "border-emerald-500/40",
     text: "text-emerald-300",
     dot: "bg-emerald-400",
@@ -89,7 +89,7 @@ const currencyMeta: Record<
   GHS: {
     symbol: "₵",
     label: "Ghanaian Cedi",
-    glow: "shadow-[0_0_40px_-10px_rgba(234,179,8,0.5)]",
+    glow: "",
     ring: "border-amber-500/40",
     text: "text-amber-300",
     dot: "bg-amber-400",
