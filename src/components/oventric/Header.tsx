@@ -18,6 +18,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
 import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
 
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
@@ -128,6 +129,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         <div className="flex items-center gap-2 ml-auto shrink-0">
+          {/* Wallet chip - shows main balance in home currency */}
+          <HeaderWalletChip />
+
           {/* Circles & Guilds - mobile only in bottom row */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
