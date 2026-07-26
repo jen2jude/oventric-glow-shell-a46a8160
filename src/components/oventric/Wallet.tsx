@@ -1623,6 +1623,8 @@ function AmountStep({
       const friendly = /insufficient balance/i.test(message)
         ? "Your available wallet balance changed before this payout could be sent."
         : message;
+      // eslint-disable-next-line no-console
+      console.error("[payout] create failed:", e);
       toast.error("Payout failed", { description: friendly });
     } finally {
       setBusy(false);

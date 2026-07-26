@@ -21,6 +21,7 @@ import { KycGateProvider } from "@/lib/kyc-gate/KycGate";
 import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
+import { Toaster } from "@/components/ui/sonner";
 
 
 function NotFoundComponent() {
@@ -268,6 +269,7 @@ function RootComponent() {
               <ProfileSetupModalHost />
               <ReactivationGate />
               <GlobalMobileNav />
+              <Toaster position="top-center" richColors closeButton />
             </KycGateProvider>
 
           </OnboardingProvider>
