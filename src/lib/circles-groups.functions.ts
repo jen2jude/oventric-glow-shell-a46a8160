@@ -9,13 +9,21 @@ const CircleIdInput = z.object({ circleId: z.string().uuid() });
 const SlugInput = z.object({ slug: z.string().min(1).max(80) });
 const UserInput = z.object({ userId: z.string().uuid() });
 
+const CoCQuestionSchema = z.object({ id: z.string(), text: z.string().trim().min(1).max(500) });
+const CoCSchema = z.object({
+  pledge: z.string().max(2000),
+  questions: z.array(CoCQuestionSchema).max(30),
+});
+
 const CreateCircleInput = z.object({
   name: z.string().trim().min(2).max(80),
   description: z.string().trim().max(1000).optional(),
   isPrivate: z.boolean().optional(),
   category: z.string().trim().max(60).optional(),
   emoji: z.string().trim().max(8).optional(),
-  avatarUrl: z.string().url().max(600).optional(),
+  avatarUrl: z.string().max(1000).optional(),
+  coverUrl: z.string().max(1000).optional(),
+  codeOfConduct: CoCSchema.optional(),
 });
 
 const UpdateCircleInput = z.object({
@@ -23,15 +31,11 @@ const UpdateCircleInput = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   description: z.string().trim().max(1000).nullable().optional(),
   isPrivate: z.boolean().optional(),
-  avatarUrl: z.string().url().max(600).nullable().optional(),
+  avatarUrl: z.string().max(1000).nullable().optional(),
+  coverUrl: z.string().max(1000).nullable().optional(),
   category: z.string().trim().max(60).optional(),
   emoji: z.string().trim().max(8).optional(),
-  codeOfConduct: z
-    .object({
-      pledge: z.string().max(1000),
-      questions: z.array(z.object({ id: z.string(), text: z.string().max(300) })).max(5),
-    })
-    .optional(),
+  codeOfConduct: CoCSchema.optional(),
 });
 
 const RequestActionInput = z.object({ requestId: z.string().uuid() });
@@ -45,9 +49,10 @@ const CreatePostInput = z.object({
 
 const CoCInput = z.object({
   circleId: z.string().uuid(),
-  answers: z.array(z.object({ id: z.string(), text: z.string().max(1000) })).max(5),
+  answers: z.array(z.object({ id: z.string(), text: z.string().max(1000) })).max(30),
   agreedPledge: z.literal(true),
 });
+
 
 const ResourceInput = z.object({
   circleId: z.string().uuid(),
