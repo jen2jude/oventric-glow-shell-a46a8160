@@ -1191,3 +1191,17 @@ body.kyc-active [data-radix-popper-content-wrapper],
 body.kyc-active .rgb-neon-bg.fixed {
   display: none !important;
 }
+
+/* Rich announcement / DM bodies rendered inside the notifications drawer. */
+.rich-comms img { max-width: 100%; height: auto; border-radius: 10px; margin: 0.5rem 0; }
+.rich-comms a { color: rgb(52 211 153); text-decoration: underline; word-break: break-word; }
+.rich-comms h1, .rich-comms h2, .rich-comms h3 { color: #fff; font-weight: 800; margin: 0.75rem 0 0.35rem; line-height: 1.2; }
+.rich-comms h1 { font-size: 1.15rem; }
+.rich-comms h2 { font-size: 1.05rem; }
+.rich-comms h3 { font-size: 0.98rem; }
+.rich-comms p { margin: 0.4rem 0; }
+.rich-comms ul, .rich-comms ol { padding-left: 1.25rem; margin: 0.4rem 0; }
+.rich-comms ul { list-style: disc; }
+.rich-comms ol { list-style: decimal; }
+.rich-comms blockquote { border-left: 3px solid rgba(255,255,255,0.15); padding-left: 0.75rem; color: #cbd5e1; margin: 0.5rem 0; }
+.rich-comms code { background: rgba(255,255,255,0.08); padding: 0.05rem 0.3rem; border-radius: 4px; font-size: 0.85em; }
