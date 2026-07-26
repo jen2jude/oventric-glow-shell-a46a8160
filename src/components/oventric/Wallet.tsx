@@ -829,6 +829,12 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
   const FX_FROM_USD_LOCAL: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
   const symbol = baseCurrency === "NGN" ? "₦" : baseCurrency === "GHS" ? "₵" : "$";
   const step = baseCurrency === "USD" ? "0.01" : "1";
+  // Paystack only routes mobile_money for GHS merchants — offering it to NGN
+  // or USD users triggers "no active channel to process transaction".
+  const momoAvailable = baseCurrency === "GHS";
+  useEffect(() => {
+    if (!momoAvailable && pick === "momo") setPick("card");
+  }, [momoAvailable, pick]);
   // Prefer an explicit home-currency prefill from the caller; only fall back
   // to a USD-derived value for legacy callers that still pass prefillUsd.
   const prefillLocal =
@@ -844,9 +850,9 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
   const [busy, setBusy] = useState(false);
   const initPaystack = useServerFn(initPaystackPayment);
   const options = [
-    { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Visa / Mastercard / Verve · secured by Paystack" },
-    { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack" },
-    { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: "MTN · Vodafone · AirtelTigo (Ghana)" },
+    { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Visa / Mastercard / Verve · secured by Paystack", disabled: false },
+    { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack", disabled: false },
+    { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: momoAvailable ? "MTN · Vodafone · AirtelTigo (Ghana)" : "Available for Ghana (GHS) accounts only", disabled: !momoAvailable },
   ];
   const hasPrefill = !!((prefillLocalProp && prefillLocalProp > 0) || (prefillUsd && prefillUsd > 0));
   const numericAmount = Number(amount);
