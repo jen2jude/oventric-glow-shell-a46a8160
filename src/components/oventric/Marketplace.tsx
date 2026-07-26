@@ -16,6 +16,7 @@ import {
   Package,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
