@@ -944,9 +944,14 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           return (
             <button
               key={o.id}
-              onClick={() => setPick(o.id)}
+              onClick={() => { if (!o.disabled) setPick(o.id); }}
+              disabled={o.disabled}
               className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all ${
-                active ? "border-emerald-500/60 bg-emerald-500/5" : "border-[#222226] bg-[#0A0A0C] hover:border-white/20"
+                o.disabled
+                  ? "border-[#1c1c20] bg-[#08080a] opacity-50 cursor-not-allowed"
+                  : active
+                    ? "border-emerald-500/60 bg-emerald-500/5"
+                    : "border-[#222226] bg-[#0A0A0C] hover:border-white/20"
               }`}
             >
               <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] bg-black/40"}`}>
@@ -956,7 +961,9 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
                 <div className="font-semibold text-white text-sm truncate">{o.title}</div>
                 <div className="text-xs text-slate-400 truncate">{o.sub}</div>
               </div>
-              {active ? (
+              {o.disabled ? (
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0">N/A</span>
+              ) : active ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" aria-label="Selected" />
               ) : (
                 <span className="w-4 h-4 rounded-full border-2 border-white/30 shrink-0" />
@@ -968,7 +975,13 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
       <button
         onClick={fund}
         disabled={!numericAmount || numericAmount <= 0 || busy}
-        className="w-full mt-3 rounded-xl bg-slate-200 hover:bg-white disabled:bg-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-900 font-extrabold py-3.5 text-base shadow-lg shadow-black/30 border border-white/60 md:border-white/20 inline-flex items-center justify-center gap-2 transition-all"
+        style={{
+          background: (!numericAmount || busy) ? undefined : "#10b981",
+          color: (!numericAmount || busy) ? undefined : "#0a0a0c",
+          borderColor: "rgba(255,255,255,0.35)",
+          boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
+        }}
+        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-900 font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
