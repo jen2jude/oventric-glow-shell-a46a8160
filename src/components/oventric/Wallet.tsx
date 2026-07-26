@@ -819,7 +819,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
 }
 
 
-function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => void; prefillUsd?: number | null; returnTo?: string | null }) {
+function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
 
@@ -828,12 +828,16 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
   const FX_FROM_USD_LOCAL: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
   const symbol = baseCurrency === "NGN" ? "₦" : baseCurrency === "GHS" ? "₵" : "$";
   const step = baseCurrency === "USD" ? "0.01" : "1";
+  // Prefer an explicit home-currency prefill from the caller; only fall back
+  // to a USD-derived value for legacy callers that still pass prefillUsd.
   const prefillLocal =
-    prefillUsd && prefillUsd > 0
-      ? baseCurrency === "USD"
-        ? prefillUsd.toFixed(2)
-        : String(Math.round(prefillUsd * FX_FROM_USD_LOCAL[baseCurrency]))
-      : "";
+    prefillLocalProp && prefillLocalProp > 0
+      ? (baseCurrency === "USD" ? prefillLocalProp.toFixed(2) : String(Math.round(prefillLocalProp)))
+      : prefillUsd && prefillUsd > 0
+        ? baseCurrency === "USD"
+          ? prefillUsd.toFixed(2)
+          : String(Math.round(prefillUsd * FX_FROM_USD_LOCAL[baseCurrency]))
+        : "";
 
   const [amount, setAmount] = useState<string>(prefillLocal);
   const [busy, setBusy] = useState(false);
@@ -843,7 +847,7 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
     { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack" },
     { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: "MTN · Vodafone · AirtelTigo (Ghana)" },
   ];
-  const hasPrefill = !!(prefillUsd && prefillUsd > 0);
+  const hasPrefill = !!((prefillLocalProp && prefillLocalProp > 0) || (prefillUsd && prefillUsd > 0));
   const numericAmount = Number(amount);
   const formattedCharge =
     baseCurrency === "USD"
@@ -882,12 +886,12 @@ function AddCapitalModal({ onClose, prefillUsd, returnTo }: { onClose: () => voi
           </div>
           <div className="mt-1 text-xs text-slate-300 leading-relaxed">
             Your saved bounty draft needs{" "}
-            <span className="text-emerald-300 font-bold">${(prefillUsd ?? 0).toFixed(2)} USD</span>{" "}
-            (≈ <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>)
+            <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>{" "}
             to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
           </div>
         </div>
       )}
+
 
       <div>
         <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
