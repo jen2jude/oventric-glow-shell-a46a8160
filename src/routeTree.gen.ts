@@ -40,6 +40,7 @@ import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
+import { Route as AdminCircleCategoriesRouteImport } from './routes/admin.circle-categories'
 import { Route as AdminCategoriesRouteImport } from './routes/admin.categories'
 import { Route as AdminCashbackWalletRouteImport } from './routes/admin.cashback-wallet'
 import { Route as AdminCampaignsRouteImport } from './routes/admin.campaigns'
@@ -213,6 +214,11 @@ const AdminCommunicationsRoute = AdminCommunicationsRouteImport.update({
   path: '/communications',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminCircleCategoriesRoute = AdminCircleCategoriesRouteImport.update({
+  id: '/circle-categories',
+  path: '/circle-categories',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCategoriesRoute = AdminCategoriesRouteImport.update({
   id: '/categories',
   path: '/categories',
@@ -323,6 +329,7 @@ export interface FileRoutesByFullPath {
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
@@ -371,6 +378,7 @@ export interface FileRoutesByTo {
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
@@ -422,6 +430,7 @@ export interface FileRoutesById {
   '/admin/campaigns': typeof AdminCampaignsRoute
   '/admin/cashback-wallet': typeof AdminCashbackWalletRoute
   '/admin/categories': typeof AdminCategoriesRoute
+  '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
@@ -474,6 +483,7 @@ export interface FileRouteTypes {
     | '/admin/campaigns'
     | '/admin/cashback-wallet'
     | '/admin/categories'
+    | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
@@ -522,6 +532,7 @@ export interface FileRouteTypes {
     | '/admin/campaigns'
     | '/admin/cashback-wallet'
     | '/admin/categories'
+    | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
@@ -572,6 +583,7 @@ export interface FileRouteTypes {
     | '/admin/campaigns'
     | '/admin/cashback-wallet'
     | '/admin/categories'
+    | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
@@ -850,6 +862,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminCommunicationsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/circle-categories': {
+      id: '/admin/circle-categories'
+      path: '/circle-categories'
+      fullPath: '/admin/circle-categories'
+      preLoaderRoute: typeof AdminCircleCategoriesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/categories': {
       id: '/admin/categories'
       path: '/categories'
@@ -995,6 +1014,7 @@ interface AdminRouteChildren {
   AdminCampaignsRoute: typeof AdminCampaignsRoute
   AdminCashbackWalletRoute: typeof AdminCashbackWalletRoute
   AdminCategoriesRoute: typeof AdminCategoriesRoute
+  AdminCircleCategoriesRoute: typeof AdminCircleCategoriesRoute
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
@@ -1016,6 +1036,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCampaignsRoute: AdminCampaignsRoute,
   AdminCashbackWalletRoute: AdminCashbackWalletRoute,
   AdminCategoriesRoute: AdminCategoriesRoute,
+  AdminCircleCategoriesRoute: AdminCircleCategoriesRoute,
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,

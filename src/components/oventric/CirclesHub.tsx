@@ -37,14 +37,15 @@ import {
   addCircleResource,
   removeCircleResource,
   listCircleBounties,
+  listCircleCategories,
   type CircleSummary,
 } from "@/lib/circles-groups.functions";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { supabase } from "@/integrations/supabase/client";
 
-const CATEGORIES = [
-  "All",
+const DEFAULT_CATEGORIES = [
   "SaaS Builders",
   "AI Engineering",
   "Design Systems",
@@ -52,8 +53,8 @@ const CATEGORIES = [
   "Mobile Apps",
   "Infra & DevOps",
   "Community",
-] as const;
-type CatFilter = (typeof CATEGORIES)[number];
+];
+
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -81,7 +82,17 @@ export function CirclesHub() {
     enabled: isAuthenticated,
   });
 
-  const [activeCategory, setActiveCategory] = useState<CatFilter>("All");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  const catsQ = useQuery({
+    queryKey: ["circle-categories"],
+    queryFn: () => listCircleCategories(),
+  });
+  const categoryOptions = useMemo(() => {
+    const names = (catsQ.data ?? []).map((c) => c.name);
+    return ["All", ...(names.length > 0 ? names : DEFAULT_CATEGORIES)];
+  }, [catsQ.data]);
+
   const [query, setQuery] = useState("");
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
@@ -196,7 +207,7 @@ export function CirclesHub() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-none min-w-0">
-          {CATEGORIES.map((cat) => {
+          {categoryOptions.map((cat) => {
             const active = activeCategory === cat;
             return (
               <button
@@ -812,6 +823,8 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
 }
 
 /* ============================ Forge Modal ============================ */
+type CocRule = { id: string; text: string };
+
 function ForgeCircleModal({
   onClose,
   onCreated,
@@ -820,26 +833,107 @@ function ForgeCircleModal({
   onCreated: (slug: string) => void;
 }) {
   const createFn = useServerFn(createCircle);
+  const catsQ = useQuery({ queryKey: ["circle-categories"], queryFn: () => listCircleCategories() });
+  const dynamicCategories = useMemo(() => {
+    const names = (catsQ.data ?? []).map((c) => c.name);
+    return names.length > 0 ? names : DEFAULT_CATEGORIES;
+  }, [catsQ.data]);
+
   const [name, setName] = useState("");
   const [bio, setBio] = useState("");
-  const [category, setCategory] = useState("SaaS Builders");
-  const [emoji, setEmoji] = useState("🛡️");
+  const [category, setCategory] = useState<string>("");
+  const [otherCategory, setOtherCategory] = useState("");
   const [isPrivate, setIsPrivate] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const submit = async () => {
-    if (!name.trim() || busy) return;
+  // Uploads
+  const [avatarPath, setAvatarPath] = useState<string | null>(null);
+  const [avatarPreview, setAvatarPreview] = useState<string | null>(null);
+  const [coverPath, setCoverPath] = useState<string | null>(null);
+  const [coverPreview, setCoverPreview] = useState<string | null>(null);
+  const [uploadingAvatar, setUploadingAvatar] = useState(false);
+  const [uploadingCover, setUploadingCover] = useState(false);
+
+  // Code of Conduct rules
+  const [pledge, setPledge] = useState(
+    "Be kind, respectful, and constructive. No spam, harassment, or self-promo without value.",
+  );
+  const [rules, setRules] = useState<CocRule[]>([
+    { id: crypto.randomUUID(), text: "" },
+  ]);
+
+  // Prevent body scroll while modal is open
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, []);
+
+  const pickAndUpload = async (
+    bucket: "circle-avatars" | "circle-covers",
+    file: File,
+    setPath: (p: string) => void,
+    setPreview: (p: string) => void,
+    setBusy: (b: boolean) => void,
+  ) => {
+    if (file.size > 5 * 1024 * 1024) {
+      setError("Image must be under 5 MB");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
+      const { data: sess } = await supabase.auth.getUser();
+      const uid = sess.user?.id ?? "anon";
+      const ext = (file.name.split(".").pop() || "jpg").toLowerCase();
+      const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+      const { error: upErr } = await supabase.storage.from(bucket).upload(path, file, {
+        cacheControl: "3600",
+        upsert: false,
+        contentType: file.type || undefined,
+      });
+      if (upErr) throw upErr;
+      const { data: signed } = await supabase.storage.from(bucket).createSignedUrl(path, 60 * 60);
+      setPath(path);
+      if (signed?.signedUrl) setPreview(signed.signedUrl);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const finalCategory =
+    category === "__other" ? otherCategory.trim() : category || dynamicCategories[0] || "Community";
+
+  const submit = async () => {
+    if (!name.trim() || busy) return;
+    if (category === "__other" && !otherCategory.trim()) {
+      setError("Enter a category name for “Other”.");
+      return;
+    }
+    setBusy(true);
+    setError(null);
+    try {
+      const cleanRules = rules
+        .map((r) => ({ id: r.id, text: r.text.trim() }))
+        .filter((r) => r.text.length > 0)
+        .slice(0, 20);
       const c = await createFn({
         data: {
           name: name.trim(),
           description: bio.trim() || undefined,
           isPrivate,
-          category,
-          emoji,
+          category: finalCategory,
+          avatarUrl: avatarPath ?? undefined,
+          coverUrl: coverPath ?? undefined,
+          codeOfConduct:
+            cleanRules.length > 0
+              ? { pledge: pledge.trim(), questions: cleanRules }
+              : undefined,
         },
       });
       onCreated(c.slug);
@@ -852,14 +946,14 @@ function ForgeCircleModal({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80"
       onClick={onClose}
     >
       <div
-        className="w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden"
+        className="w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden flex flex-col max-h-[90vh]"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10">
+        <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
           <div>
             <h2 className="text-white font-black text-lg">Forge New Circle</h2>
             <p className="text-xs text-slate-400">Rally your peers under one banner.</p>
@@ -869,18 +963,68 @@ function ForgeCircleModal({
           </button>
         </div>
 
-        <div className="px-5 py-4 space-y-4 max-h-[70vh] overflow-y-auto">
+        <div className="px-5 py-4 space-y-4 overflow-y-auto flex-1 overscroll-contain">
+          {/* Cover */}
+          <div>
+            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+              Cover image (optional)
+            </label>
+            <div className="mt-1 relative w-full h-28 rounded-xl border border-white/10 overflow-hidden bg-[#2a2a30]">
+              {coverPreview ? (
+                <img src={coverPreview} alt="Cover" className="w-full h-full object-cover" />
+              ) : (
+                <div className="w-full h-full flex items-center justify-center text-xs text-slate-500">
+                  {uploadingCover ? "Uploading…" : "No cover — a grey background will be used"}
+                </div>
+              )}
+              <label className="absolute bottom-2 right-2 px-2.5 py-1 rounded-md bg-black/60 text-white text-xs font-semibold cursor-pointer hover:bg-black/80">
+                {coverPreview ? "Replace" : "Upload"}
+                <input
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) pickAndUpload("circle-covers", f, setCoverPath, setCoverPreview, setUploadingCover);
+                    e.currentTarget.value = "";
+                  }}
+                />
+              </label>
+            </div>
+          </div>
+
+          {/* Icon + Name */}
           <div className="grid grid-cols-[auto_1fr] gap-3 items-end">
             <div>
-              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Icon</label>
-              <input
-                value={emoji}
-                onChange={(e) => setEmoji(e.target.value.slice(0, 4))}
-                className="mt-1 w-14 bg-[#121214] border border-white/10 rounded-lg px-2 py-2 text-center text-lg"
-              />
+              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+                Circle picture
+              </label>
+              <div className="mt-1 relative w-16 h-16 rounded-full border border-white/10 overflow-hidden bg-[#2a2a30] flex items-center justify-center">
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="Avatar" className="w-full h-full object-cover" />
+                ) : (
+                  <Users className="w-6 h-6 text-slate-500" />
+                )}
+                <label className="absolute inset-0 cursor-pointer opacity-0 hover:opacity-100 bg-black/50 text-[10px] text-white flex items-center justify-center font-semibold">
+                  {uploadingAvatar ? "…" : "Change"}
+                  <input
+                    type="file"
+                    accept="image/*"
+                    className="hidden"
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f)
+                        pickAndUpload("circle-avatars", f, setAvatarPath, setAvatarPreview, setUploadingAvatar);
+                      e.currentTarget.value = "";
+                    }}
+                  />
+                </label>
+              </div>
             </div>
             <div>
-              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Circle Name</label>
+              <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+                Circle Name
+              </label>
               <input
                 value={name}
                 onChange={(e) => setName(e.target.value)}
@@ -890,6 +1034,7 @@ function ForgeCircleModal({
               />
             </div>
           </div>
+
           <div>
             <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Scope / Bio</label>
             <textarea
@@ -900,14 +1045,17 @@ function ForgeCircleModal({
               className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[70px]"
             />
           </div>
+
+          {/* Category */}
           <div>
             <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Category</label>
             <div className="mt-1 flex flex-wrap gap-2">
-              {CATEGORIES.filter((c) => c !== "All").map((c) => {
+              {dynamicCategories.map((c) => {
                 const active = category === c;
                 return (
                   <button
                     key={c}
+                    type="button"
                     onClick={() => setCategory(c)}
                     className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
                       active
@@ -919,12 +1067,35 @@ function ForgeCircleModal({
                   </button>
                 );
               })}
+              <button
+                type="button"
+                onClick={() => setCategory("__other")}
+                className={`px-3 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
+                  category === "__other"
+                    ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                    : "bg-[#121214] border-white/10 text-slate-300 hover:text-white"
+                }`}
+              >
+                Other
+              </button>
             </div>
+            {category === "__other" && (
+              <input
+                value={otherCategory}
+                onChange={(e) => setOtherCategory(e.target.value)}
+                maxLength={40}
+                placeholder="Type your own category…"
+                className="mt-2 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+              />
+            )}
           </div>
+
+          {/* Privacy */}
           <div>
             <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Privacy</label>
             <div className="mt-1 grid grid-cols-2 gap-2">
               <button
+                type="button"
                 onClick={() => setIsPrivate(false)}
                 className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-colors ${
                   !isPrivate
@@ -939,6 +1110,7 @@ function ForgeCircleModal({
                 </div>
               </button>
               <button
+                type="button"
                 onClick={() => setIsPrivate(true)}
                 className={`flex items-start gap-2 p-3 rounded-lg border text-left transition-colors ${
                   isPrivate
@@ -955,14 +1127,60 @@ function ForgeCircleModal({
             </div>
           </div>
 
-          <div className="bg-[#121214] border border-white/10 rounded-lg p-3">
-            <div className="flex items-center gap-2 mb-1">
+          {/* Code of Conduct — dynamic */}
+          <div className="bg-[#121214] border border-white/10 rounded-lg p-3 space-y-3">
+            <div className="flex items-center gap-2">
               <ShieldCheck className="w-4 h-4 text-emerald-300" />
-              <div className="text-xs font-bold text-white">Code of conduct auto-attached</div>
+              <div className="text-xs font-bold text-white">Code of Conduct</div>
             </div>
             <p className="text-[11px] text-slate-500">
-              5 default questions and a kindness pledge will be shown to approved members before they join. Edit later in your circle settings.
+              Add rules members must accept before joining. You can add as many as you need.
             </p>
+            <div>
+              <label className="text-[10px] uppercase tracking-widest font-bold text-slate-400">
+                Kindness pledge
+              </label>
+              <textarea
+                value={pledge}
+                onChange={(e) => setPledge(e.target.value)}
+                maxLength={2000}
+                className="mt-1 w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50 resize-none min-h-[60px]"
+              />
+            </div>
+            <div className="space-y-2">
+              {rules.map((r, idx) => (
+                <div key={r.id} className="flex items-start gap-2">
+                  <span className="mt-2 text-[10px] font-bold text-slate-500 w-5 text-right">
+                    {idx + 1}.
+                  </span>
+                  <input
+                    value={r.text}
+                    onChange={(e) =>
+                      setRules((prev) => prev.map((p) => (p.id === r.id ? { ...p, text: e.target.value } : p)))
+                    }
+                    maxLength={500}
+                    placeholder={`Rule ${idx + 1} (e.g. Keep discussions on-topic)`}
+                    className="flex-1 bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-emerald-500/50"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setRules((prev) => prev.filter((p) => p.id !== r.id))}
+                    className="p-2 rounded-lg text-slate-500 hover:text-red-400 hover:bg-red-500/10"
+                    aria-label="Remove rule"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              ))}
+              <button
+                type="button"
+                disabled={rules.length >= 20}
+                onClick={() => setRules((prev) => [...prev, { id: crypto.randomUUID(), text: "" }])}
+                className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-[11px] text-slate-200 disabled:opacity-40"
+              >
+                <Plus className="w-3 h-3" /> Add rule {rules.length >= 20 ? "(max 20)" : ""}
+              </button>
+            </div>
           </div>
 
           {error && (
@@ -970,7 +1188,7 @@ function ForgeCircleModal({
           )}
         </div>
 
-        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50">
+        <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50 shrink-0">
           <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5">
             Cancel
           </button>
@@ -986,6 +1204,8 @@ function ForgeCircleModal({
     </div>
   );
 }
+
+
 
 /* ============================ Code-of-Conduct Modal ============================ */
 function CoCAcceptModal({

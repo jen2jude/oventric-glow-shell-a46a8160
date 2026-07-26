@@ -9,13 +9,21 @@ const CircleIdInput = z.object({ circleId: z.string().uuid() });
 const SlugInput = z.object({ slug: z.string().min(1).max(80) });
 const UserInput = z.object({ userId: z.string().uuid() });
 
+const CoCQuestionSchema = z.object({ id: z.string(), text: z.string().trim().min(1).max(500) });
+const CoCSchema = z.object({
+  pledge: z.string().max(2000),
+  questions: z.array(CoCQuestionSchema).max(30),
+});
+
 const CreateCircleInput = z.object({
   name: z.string().trim().min(2).max(80),
   description: z.string().trim().max(1000).optional(),
   isPrivate: z.boolean().optional(),
   category: z.string().trim().max(60).optional(),
   emoji: z.string().trim().max(8).optional(),
-  avatarUrl: z.string().url().max(600).optional(),
+  avatarUrl: z.string().max(1000).optional(),
+  coverUrl: z.string().max(1000).optional(),
+  codeOfConduct: CoCSchema.optional(),
 });
 
 const UpdateCircleInput = z.object({
@@ -23,15 +31,11 @@ const UpdateCircleInput = z.object({
   name: z.string().trim().min(2).max(80).optional(),
   description: z.string().trim().max(1000).nullable().optional(),
   isPrivate: z.boolean().optional(),
-  avatarUrl: z.string().url().max(600).nullable().optional(),
+  avatarUrl: z.string().max(1000).nullable().optional(),
+  coverUrl: z.string().max(1000).nullable().optional(),
   category: z.string().trim().max(60).optional(),
   emoji: z.string().trim().max(8).optional(),
-  codeOfConduct: z
-    .object({
-      pledge: z.string().max(1000),
-      questions: z.array(z.object({ id: z.string(), text: z.string().max(300) })).max(5),
-    })
-    .optional(),
+  codeOfConduct: CoCSchema.optional(),
 });
 
 const RequestActionInput = z.object({ requestId: z.string().uuid() });
@@ -45,9 +49,10 @@ const CreatePostInput = z.object({
 
 const CoCInput = z.object({
   circleId: z.string().uuid(),
-  answers: z.array(z.object({ id: z.string(), text: z.string().max(1000) })).max(5),
+  answers: z.array(z.object({ id: z.string(), text: z.string().max(1000) })).max(30),
   agreedPledge: z.literal(true),
 });
+
 
 const ResourceInput = z.object({
   circleId: z.string().uuid(),
@@ -72,6 +77,7 @@ export interface CircleSummary {
   slug: string;
   description: string | null;
   avatarUrl: string | null;
+  coverUrl: string | null;
   isPrivate: boolean;
   category: string;
   emoji: string;
@@ -83,6 +89,7 @@ export interface CircleSummary {
   codeOfConduct: CodeOfConduct;
   createdAt: string;
 }
+
 
 export interface CircleJoinRequestRow {
   id: string;
@@ -165,9 +172,30 @@ function normalizeCoc(v: unknown): CodeOfConduct {
   const o = (v ?? {}) as Partial<CodeOfConduct>;
   return {
     pledge: typeof o.pledge === "string" && o.pledge.trim() ? o.pledge : DEFAULT_COC.pledge,
-    questions: Array.isArray(o.questions) && o.questions.length > 0 ? o.questions.slice(0, 5) : DEFAULT_COC.questions,
+    questions: Array.isArray(o.questions) && o.questions.length > 0 ? o.questions.slice(0, 30) : DEFAULT_COC.questions,
   };
 }
+
+const CIRCLE_AVATAR_BUCKET = "circle-avatars";
+const CIRCLE_COVER_BUCKET = "circle-covers";
+
+async function resolveCircleImage(
+  supabase: any,
+  bucket: "circle-avatars" | "circle-covers",
+  value: string | null,
+): Promise<string | null> {
+  if (!value) return null;
+  // Full URLs (legacy or external) are returned as-is.
+  if (/^https?:\/\//i.test(value) || value.startsWith("data:")) return value;
+  try {
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(value, 60 * 60 * 24 * 7);
+    if (error || !data?.signedUrl) return null;
+    return data.signedUrl as string;
+  } catch {
+    return null;
+  }
+}
+
 
 async function annotateCircles(supabase: any, meId: string | null, rows: any[]): Promise<CircleSummary[]> {
   if (rows.length === 0) return [];
@@ -197,7 +225,14 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
   const roleMap = new Map<string, CircleRole>((myMembership.data ?? []).map((r: any) => [r.circle_id, r.role]));
   const reqMap = new Map<string, string>((myReqs.data ?? []).map((r: any) => [r.circle_id, r.status]));
 
-  return rows.map((r) => {
+  const resolved = await Promise.all(
+    rows.map(async (r) => ({
+      avatarUrl: await resolveCircleImage(supabase, CIRCLE_AVATAR_BUCKET, r.avatar_url ?? null),
+      coverUrl: await resolveCircleImage(supabase, CIRCLE_COVER_BUCKET, r.cover_url ?? null),
+    })),
+  );
+
+  return rows.map((r, i) => {
     const myRole = roleMap.get(r.id) ?? null;
     const reqStatus = reqMap.get(r.id);
     const myStatus: JoinStatus = myRole
@@ -213,7 +248,8 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
       name: r.name,
       slug: r.slug,
       description: r.description,
-      avatarUrl: r.avatar_url,
+      avatarUrl: resolved[i].avatarUrl,
+      coverUrl: resolved[i].coverUrl,
       isPrivate: r.is_private,
       category: r.category ?? "SaaS Builders",
       emoji: r.emoji ?? "🛡️",
@@ -227,6 +263,7 @@ async function annotateCircles(supabase: any, meId: string | null, rows: any[]):
     } satisfies CircleSummary;
   });
 }
+
 
 export const createCircle = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
@@ -244,12 +281,15 @@ export const createCircle = createServerFn({ method: "POST" })
           slug,
           description: data.description ?? null,
           avatar_url: data.avatarUrl ?? null,
+          cover_url: data.coverUrl ?? null,
           is_private: data.isPrivate ?? false,
           category: data.category ?? "SaaS Builders",
           emoji: data.emoji ?? "🛡️",
+          code_of_conduct: data.codeOfConduct ?? null,
         })
         .select("*")
         .single();
+
       if (!error && row) {
         const [annotated] = await annotateCircles(context.supabase, me, [row]);
         return annotated;
@@ -274,6 +314,8 @@ export const updateCircle = createServerFn({ method: "POST" })
     if (data.description !== undefined) patch.description = data.description;
     if (data.isPrivate !== undefined) patch.is_private = data.isPrivate;
     if (data.avatarUrl !== undefined) patch.avatar_url = data.avatarUrl;
+    if (data.coverUrl !== undefined) patch.cover_url = data.coverUrl;
+
     if (data.category !== undefined) patch.category = data.category;
     if (data.emoji !== undefined) patch.emoji = data.emoji;
     if (data.codeOfConduct !== undefined) patch.code_of_conduct = data.codeOfConduct;
@@ -790,4 +832,106 @@ export const listCircleBounties = createServerFn({ method: "GET" })
       status: r.status,
       createdAt: r.created_at,
     }));
+  });
+
+/* ============================ Categories ============================ */
+
+export interface CircleCategoryRow {
+  id: string;
+  slug: string;
+  name: string;
+  sortOrder: number;
+  enabled: boolean;
+}
+
+const CategoryUpsertInput = z.object({
+  id: z.string().uuid().optional(),
+  slug: z.string().trim().min(1).max(60),
+  name: z.string().trim().min(1).max(80),
+  sortOrder: z.number().int().min(0).max(9999).optional(),
+  enabled: z.boolean().optional(),
+});
+
+const CategoryIdInput = z.object({ id: z.string().uuid() });
+
+/** Public list of enabled circle categories (used by the Forge form). */
+export const listCircleCategories = createServerFn({ method: "GET" }).handler(
+  async (): Promise<CircleCategoryRow[]> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("circle_categories")
+      .select("id, slug, name, sort_order, enabled")
+      .eq("enabled", true)
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (error) {
+      console.error("[listCircleCategories]", error);
+      return [];
+    }
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      sortOrder: r.sort_order,
+      enabled: r.enabled,
+    }));
+  },
+);
+
+async function assertAdmin(supabase: any, userId: string) {
+  const { data } = await supabase.rpc("has_role", { _user_id: userId, _role: "admin" });
+  if (!data) throw new Error("Forbidden");
+}
+
+export const adminListCircleCategories = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }): Promise<CircleCategoryRow[]> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
+      .from("circle_categories")
+      .select("id, slug, name, sort_order, enabled")
+      .order("sort_order", { ascending: true })
+      .order("name", { ascending: true });
+    if (error) throw new Error("Failed to load categories");
+    return (data ?? []).map((r: any) => ({
+      id: r.id,
+      slug: r.slug,
+      name: r.name,
+      sortOrder: r.sort_order,
+      enabled: r.enabled,
+    }));
+  });
+
+export const adminUpsertCircleCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CategoryUpsertInput.parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const patch = {
+      slug: data.slug.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, ""),
+      name: data.name,
+      sort_order: data.sortOrder ?? 0,
+      enabled: data.enabled ?? true,
+    };
+    if (data.id) {
+      const { error } = await supabaseAdmin.from("circle_categories").update(patch).eq("id", data.id);
+      if (error) throw new Error(error.message);
+    } else {
+      const { error } = await supabaseAdmin.from("circle_categories").insert(patch);
+      if (error) throw new Error(error.message);
+    }
+    return { ok: true };
+  });
+
+export const adminDeleteCircleCategory = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d: unknown) => CategoryIdInput.parse(d))
+  .handler(async ({ data, context }): Promise<{ ok: true }> => {
+    await assertAdmin(context.supabase, context.userId);
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { error } = await supabaseAdmin.from("circle_categories").delete().eq("id", data.id);
+    if (error) throw new Error(error.message);
+    return { ok: true };
   });
