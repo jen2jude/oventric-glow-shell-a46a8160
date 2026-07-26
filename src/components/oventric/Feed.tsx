@@ -1077,6 +1077,37 @@ export function Feed() {
                       )}
                     </div>
                     <div className="text-xs text-slate-500">{timeAgo(post.created_at)}</div>
+                    {post.circle && (
+                      <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+                        <span className="text-slate-500">Posted in</span>
+                        <a
+                          href={`/?section=Circles&circle=${encodeURIComponent(post.circle.slug)}`}
+                          className="inline-flex items-center gap-1.5 text-emerald-300 font-semibold hover:underline"
+                        >
+                          {post.circle.avatarUrl ? (
+                            <img
+                              src={post.circle.avatarUrl}
+                              alt=""
+                              className="w-4 h-4 rounded-full object-cover"
+                              loading="lazy"
+                              decoding="async"
+                            />
+                          ) : (
+                            <Users className="w-3 h-3" />
+                          )}
+                          {post.circle.name}
+                        </a>
+                        {!post.circle.viewerIsMember && (
+                          <button
+                            type="button"
+                            onClick={() => handleJoinCircleFromFeed(post.circle!.id, post.circle!.slug)}
+                            className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold hover:bg-emerald-500/25"
+                          >
+                            Join
+                          </button>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {isReported ? (
                     <ReportedBadge details={reported.get(post.id)} />
