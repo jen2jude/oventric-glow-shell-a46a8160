@@ -245,10 +245,10 @@ export function BountyEditorModal({
 
       if (priceUsd > 0) {
         const { data: walletRow } = await supabase.from("wallets")
-          .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
+          .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
         const balance = Number(walletRow?.available_balance ?? 0);
-        setWalletUsd(balance);
-        if (balance < priceUsd) { setShowFundPrompt(true); setSaving(false); return; }
+        setWalletBase(balance);
+        if (balance < rewardBase) { setShowFundPrompt(true); setSaving(false); return; }
       }
 
       const imagePaths = form.images.map((i) => i.path);
