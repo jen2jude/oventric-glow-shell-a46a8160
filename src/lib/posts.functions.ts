@@ -19,6 +19,14 @@ export interface PostMediaItem {
   type: "image" | "video";
 }
 
+export interface PostCircleRef {
+  id: string;
+  name: string;
+  slug: string;
+  avatarUrl: string | null;
+  viewerIsMember: boolean;
+}
+
 export interface FeedPost {
   id: string;
   author_id: string;
@@ -39,6 +47,7 @@ export interface FeedPost {
   // Ordered list of all media items for this post (up to 10 images, or 1 video).
   media: PostMediaItem[];
   mentions: MentionRef[];
+  circle: PostCircleRef | null;
 }
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
