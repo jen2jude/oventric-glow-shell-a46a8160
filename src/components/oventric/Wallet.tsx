@@ -850,10 +850,15 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
   ];
   const hasPrefill = !!((prefillLocalProp && prefillLocalProp > 0) || (prefillUsd && prefillUsd > 0));
   const numericAmount = Number(amount);
-  const formattedCharge =
+  const feeCurrency = baseCurrency;
+  const { fee: paystackFeeAmount, charge: paystackCharge } =
+    numericAmount > 0 ? paystackFee(numericAmount, feeCurrency) : { fee: 0, charge: 0 };
+  const fmt = (v: number) =>
     baseCurrency === "USD"
-      ? numericAmount.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
-      : Math.round(numericAmount).toLocaleString();
+      ? v.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : Math.round(v).toLocaleString();
+  const formattedCharge = fmt(paystackCharge);
+  const formattedFee = fmt(paystackFeeAmount);
 
   const fund = async () => {
     const local = Number(amount);
