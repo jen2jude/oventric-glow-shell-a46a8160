@@ -219,7 +219,16 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
           onClearLinkError={() => setLinkError(null)}
         />
       )}
-      {splash && <NeonSuccessSplash />}
+      {splash && (
+        <NeonSuccessSplash
+          onDone={() => {
+            const cb = splashCbRef.current;
+            splashCbRef.current = null;
+            setSplash(false);
+            if (cb) void cb();
+          }}
+        />
+      )}
 
     </AuthGateContext.Provider>
   );
