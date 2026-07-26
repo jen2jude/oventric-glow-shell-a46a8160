@@ -28,6 +28,15 @@ import {
 } from "@/lib/communications.functions";
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
+function stripHtml(html: string): string {
+  if (!html) return "";
+  if (typeof document === "undefined") return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
+}
+
+
 export const Route = createFileRoute("/admin/communications")({
   head: () => ({
     meta: [
