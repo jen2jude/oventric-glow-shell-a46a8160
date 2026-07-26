@@ -151,7 +151,7 @@ export const listAllProducts = createServerFn({ method: "GET" })
     const sb = supabaseAdmin as any;
     const { data, error } = await sb
       .from("products")
-      .select("id, name, category, subcategory, vendor, price_usd, promoted, seller_id, created_at, kind, status, reject_reason, description, cover_path, image_paths, seller_phone, whatsapp_number, location, brand, condition, negotiable, delivery, social_link")
+      .select("id, name, category, subcategory, vendor, price_usd, original_currency, original_amount, fx_snapshot, promoted, seller_id, created_at, kind, status, reject_reason, description, cover_path, image_paths, seller_phone, whatsapp_number, location, brand, condition, negotiable, delivery, social_link")
       .order("created_at", { ascending: false })
       .limit(1000);
     if (error) throw new Error(error.message);
