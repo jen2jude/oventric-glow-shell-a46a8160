@@ -110,6 +110,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
   const [splash, setSplash] = useState(false);
   const [linkError, setLinkError] = useState<string | null>(null);
   const pendingRef = useRef<null | (() => void | Promise<void>)>(null);
+  const splashCbRef = useRef<null | (() => void | Promise<void>)>(null);
 
   // Detect magic-link failures returned by Supabase in the URL hash
   // (e.g. #error=access_denied&error_code=otp_expired&error_description=...).
