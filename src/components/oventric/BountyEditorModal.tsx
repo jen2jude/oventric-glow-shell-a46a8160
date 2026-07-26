@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save } from "lucide-react";
+import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,6 +79,7 @@ export function BountyEditorModal({
   const [walletBase, setWalletBase] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
+  const [publishedSplash, setPublishedSplash] = useState<{ title: string; amountLabel: string; id: string } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -265,12 +266,13 @@ export function BountyEditorModal({
         },
       });
 
-      toast.success("Bounty submitted for review", {
-        description: `${form.title.trim()} — $${priceUsd.toFixed(2)} is escrowed. It'll go live once an admin approves it.`,
-      });
+      const titleTxt = form.title.trim();
       reset();
-      if (result?.id) onPublished?.(result.id);
-      onClose();
+      setPublishedSplash({
+        title: titleTxt,
+        amountLabel: formatMoney(rewardBase, baseCurrency),
+        id: result?.id ?? "",
+      });
     } catch (e) {
       toast.error((e as Error).message);
     } finally {
@@ -447,6 +449,100 @@ export function BountyEditorModal({
           </div>
         )}
       </div>
+
+      {publishedSplash && (
+        <BountyPublishedSplash
+          title={publishedSplash.title}
+          amountLabel={publishedSplash.amountLabel}
+          onDone={() => {
+            const id = publishedSplash.id;
+            setPublishedSplash(null);
+            if (id) onPublished?.(id);
+            onClose();
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function BountyPublishedSplash({
+  title,
+  amountLabel,
+  onDone,
+}: {
+  title: string;
+  amountLabel: string;
+  onDone: () => void;
+}) {
+  useEffect(() => {
+    const t = setTimeout(onDone, 3200);
+    return () => clearTimeout(t);
+  }, [onDone]);
+  return (
+    <div
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 overflow-hidden"
+      style={{
+        background:
+          "radial-gradient(circle at 50% 40%, rgba(16,185,129,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
+        animation: "bpFadeIn 220ms ease-out both",
+      }}
+      role="dialog"
+      aria-live="polite"
+      aria-label="Bounty published"
+    >
+      <div
+        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(16,185,129,0.55)]"
+        style={{
+          background:
+            "linear-gradient(160deg, rgba(16,185,129,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
+          animation: "bpPop 480ms cubic-bezier(.2,1.4,.4,1) both",
+        }}
+      >
+        <div
+          className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center"
+          style={{
+            background: "linear-gradient(135deg, #34d399, #10b981)",
+            boxShadow: "0 10px 40px -6px rgba(16,185,129,0.7)",
+          }}
+        >
+          <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={2.5} />
+        </div>
+        <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-200 mb-2">
+          <Sparkles className="w-3.5 h-3.5" /> Bounty Published
+        </div>
+        <h2 className="text-xl font-black text-white mb-1">Your bounty is in! 🎉</h2>
+        <p className="text-sm text-slate-200/85 mb-4 leading-relaxed">
+          <span className="text-white font-semibold">{title}</span> has been published and is awaiting admin review.
+        </p>
+        <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-white text-sm font-bold"
+          style={{
+            background: "linear-gradient(135deg, rgba(52,211,153,0.35), rgba(96,165,250,0.35))",
+            border: "1px solid rgba(255,255,255,0.25)",
+          }}
+        >
+          <Wallet className="w-4 h-4 text-emerald-200" />
+          <span>{amountLabel} escrowed</span>
+        </div>
+        <p className="text-[11px] text-slate-300/70 inline-flex items-center gap-1.5 justify-center">
+          <ShieldCheck className="w-3.5 h-3.5 text-emerald-300" />
+          It goes live the moment an admin approves it.
+        </p>
+        <button
+          onClick={onDone}
+          className="mt-5 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-xs font-bold"
+        >
+          Got it
+        </button>
+      </div>
+      <style>{`
+        @keyframes bpFadeIn { from { opacity: 0 } to { opacity: 1 } }
+        @keyframes bpPop {
+          0% { transform: scale(0.6); opacity: 0 }
+          60% { transform: scale(1.04); opacity: 1 }
+          100% { transform: scale(1); opacity: 1 }
+        }
+      `}</style>
     </div>
   );
 }
