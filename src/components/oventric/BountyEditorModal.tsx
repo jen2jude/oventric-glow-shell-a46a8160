@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { publishBounty } from "@/lib/bounties.functions";
 import { listBountyCategories, type BountyCategory } from "@/lib/bounty-categories.functions";
-import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
+import { formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
