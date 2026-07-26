@@ -162,16 +162,13 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       setSession(next);
       setChecked(true);
       if (event === "SIGNED_IN" && next) {
-        // Fire the RGB neon success splash, then close the modal + run the
-        // pending action once the animation has had time to play.
-        setSplash(true);
-        setGateOpen(false);
+        // Fire the subtle success splash, then run the pending action once
+        // the animation has finished.
         const cb = pendingRef.current;
         pendingRef.current = null;
-        window.setTimeout(() => {
-          setSplash(false);
-          if (cb) void cb();
-        }, 1400);
+        splashCbRef.current = cb;
+        setSplash(true);
+        setGateOpen(false);
       }
     });
     return () => {
