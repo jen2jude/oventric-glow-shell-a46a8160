@@ -281,9 +281,16 @@ function Rail({
             onClick={() => onOpen(c)}
             className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
           >
-            <div className={`h-16 bg-gradient-to-br ${c.bannerHue} relative`}>
-              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg">
-                {c.emoji}
+            <div className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}>
+              {c.coverUrl && (
+                <img src={c.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+              )}
+              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg overflow-hidden">
+                {c.avatarUrl ? (
+                  <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                ) : (
+                  <span>{c.emoji}</span>
+                )}
               </div>
               {c.isPrivate && (
                 <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
@@ -313,9 +320,16 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
       onClick={onOpen}
       className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
     >
-      <div className={`h-20 bg-gradient-to-br ${circle.bannerHue} relative`}>
-        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl">
-          {circle.emoji}
+      <div className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+        {circle.coverUrl && (
+          <img src={circle.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+        )}
+        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl overflow-hidden">
+          {circle.avatarUrl ? (
+            <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          ) : (
+            <span>{circle.emoji}</span>
+          )}
         </div>
         {circle.isPrivate && (
           <span className="absolute top-2 right-2 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-black/50 border border-white/20 text-[10px] font-bold text-white">
