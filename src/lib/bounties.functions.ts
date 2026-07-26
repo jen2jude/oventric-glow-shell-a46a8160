@@ -305,7 +305,7 @@ export const applyToBounty = createServerFn({ method: "POST" })
 
     const { data: b, error: bErr } = await sb
       .from("bounties")
-      .select("id, title, poster_id, status")
+      .select("id, title, poster_id, status, original_currency")
       .eq("id", data.bounty_id)
       .maybeSingle();
     if (bErr) throw new Error(bErr.message);
@@ -314,6 +314,21 @@ export const applyToBounty = createServerFn({ method: "POST" })
     if (!["active", "pending_review"].includes(b.status as string)) {
       throw new Error("This bounty is no longer accepting applications");
     }
+
+    // Currency isolation: solver's home currency must match the bounty payout
+    // currency — earnings are settled in the poster's original currency.
+    const { data: profile } = await sb
+      .from("profiles")
+      .select("country")
+      .eq("user_id", context.userId)
+      .maybeSingle();
+    const country = String((profile?.country ?? "")).toUpperCase();
+    const solverCurrency = country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
+    const bountyCurrency = String((b as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
+    if (bountyCurrency !== solverCurrency) {
+      throw new Error(`This bounty pays in ${bountyCurrency}. Your account earns in ${solverCurrency} and cannot apply.`);
+    }
+
 
     const { error } = await sb.from("bounty_applications").insert({
       bounty_id: data.bounty_id,
