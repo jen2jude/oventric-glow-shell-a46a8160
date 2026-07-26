@@ -231,16 +231,21 @@ function NeonSuccessSplash() {
   if (typeof document === "undefined") return null;
   return createPortal(
     <div
-      className="fixed inset-0 z-[300] flex items-center justify-center pointer-events-none"
+      className="fixed inset-0 z-[300] flex items-center justify-center pointer-events-none bg-black/60"
       role="status"
       aria-live="polite"
       aria-label="Successfully signed in"
     >
-      <div className="flex flex-col items-center gap-3">
-        <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-400/40 flex items-center justify-center">
-          <ShieldCheck className="w-8 h-8 text-emerald-400" aria-hidden />
+      <div className="flex flex-col items-center gap-4">
+        <div className="w-24 h-24 rounded-full p-[3px] bg-gradient-to-r from-red-500 via-green-500 to-blue-500">
+          <div className="w-full h-full rounded-full bg-transparent flex items-center justify-center">
+            <ShieldCheck className="w-10 h-10 text-emerald-500" aria-hidden />
+          </div>
         </div>
-        <div className="text-white font-semibold tracking-tight text-base">Verified · Welcome to Oventric</div>
+        <div className="text-center">
+          <div className="text-white font-semibold tracking-tight text-lg">Verified.</div>
+          <div className="text-white/90 font-medium tracking-tight text-base">Welcome to Oventric</div>
+        </div>
       </div>
     </div>,
     document.body,
