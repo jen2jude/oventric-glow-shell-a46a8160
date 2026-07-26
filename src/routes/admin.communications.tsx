@@ -415,6 +415,8 @@ function AnnouncementsTab() {
 
 function DirectMessageTab() {
   const send = useServerFn(sendDirectMessage);
+  const uploadFn = useServerFn(getCommsMediaUploadUrl);
+  const signFn = useServerFn(getCommsMediaSignedUrl);
   const [recipients, setRecipients] = useState("");
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
