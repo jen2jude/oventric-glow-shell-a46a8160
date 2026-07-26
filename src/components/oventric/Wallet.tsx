@@ -73,25 +73,25 @@ const currencyMeta: Record<
   USD: {
     symbol: "$",
     label: "US Dollar",
-    glow: "shadow-[0_0_40px_-10px_rgba(59,130,246,0.55)]",
+    glow: "",
     ring: "border-sky-500/40",
-    text: "text-sky-300 drop-shadow-[0_0_8px_rgba(56,189,248,0.55)]",
+    text: "text-sky-300",
     dot: "bg-sky-400",
   },
   NGN: {
     symbol: "₦",
     label: "Nigerian Naira",
-    glow: "shadow-[0_0_40px_-10px_rgba(16,185,129,0.55)]",
+    glow: "",
     ring: "border-emerald-500/40",
-    text: "text-emerald-300 drop-shadow-[0_0_8px_rgba(52,211,153,0.5)]",
+    text: "text-emerald-300",
     dot: "bg-emerald-400",
   },
   GHS: {
     symbol: "₵",
     label: "Ghanaian Cedi",
-    glow: "shadow-[0_0_40px_-10px_rgba(234,179,8,0.5)]",
+    glow: "",
     ring: "border-amber-500/40",
-    text: "text-amber-300 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]",
+    text: "text-amber-300",
     dot: "bg-amber-400",
   },
 };
@@ -134,6 +134,7 @@ export function Wallet() {
   const [userId, setUserId] = useState<string | null>(null);
   const [authReady, setAuthReady] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
+  const [ledgerOpen, setLedgerOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -448,115 +449,131 @@ export function Wallet() {
       </section>
 
 
-      {/* 3. Transaction Ledger */}
+      {/* 3. Transaction Ledger (collapsible) */}
       <section className="rounded-2xl border border-[#222226] bg-[#141418] overflow-hidden">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] sm:flex sm:flex-wrap sm:justify-between">
-          <div className="flex items-center gap-2 min-w-0">
+          <button
+            type="button"
+            onClick={() => setLedgerOpen((v) => !v)}
+            aria-expanded={ledgerOpen}
+            className="flex items-center gap-2 min-w-0 text-left"
+          >
             <WalletIcon className="w-4 h-4 text-emerald-400 shrink-0" />
             <h2 className="truncate text-sm font-bold text-white uppercase tracking-wide">
               Transaction Ledger
             </h2>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap">
-            <div className="relative">
-              <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Search hash, type…"
-                className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
-              />
+            <span className="text-[11px] text-slate-500 normal-case tracking-normal">
+              ({total})
+            </span>
+            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
+          </button>
+          {ledgerOpen && (
+            <div className="flex items-center gap-2 flex-wrap">
+              <div className="relative">
+                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="Search hash, type…"
+                  className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
+                />
+              </div>
+              <select
+                value={curFilter}
+                onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
+              >
+                <option value="ALL">All currencies</option>
+                <option value="USD">USD</option>
+                <option value="NGN">NGN</option>
+                <option value="GHS">GHS</option>
+              </select>
+              <button
+                onClick={() => query.refetch()}
+                disabled={query.isFetching}
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
+                title="Refresh ledger"
+              >
+                <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
+              </button>
             </div>
-            <select
-              value={curFilter}
-              onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
-              className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
-            >
-              <option value="ALL">All currencies</option>
-              <option value="USD">USD</option>
-              <option value="NGN">NGN</option>
-              <option value="GHS">GHS</option>
-            </select>
-            <button
-              onClick={() => query.refetch()}
-              disabled={query.isFetching}
-              className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
-              title="Refresh ledger"
-            >
-              <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
-            </button>
-          </div>
+          )}
         </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full text-sm min-w-[720px]">
-            <thead>
-              <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 bg-[#0F0F12]">
-                <th className="px-4 py-2.5 font-semibold">Tx ID</th>
-                <th className="px-4 py-2.5 font-semibold">Type</th>
-                <th className="px-4 py-2.5 font-semibold text-right">Impact</th>
-                <th className="px-4 py-2.5 font-semibold">Timestamp</th>
-                <th className="px-4 py-2.5 font-semibold">Status</th>
-              </tr>
-            </thead>
-            <tbody>
-              {items.map((t) => (
-                <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
-                  <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
-                  <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
-                  <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400 drop-shadow-[0_0_6px_rgba(52,211,153,0.5)]" : "text-slate-300"}`}>
-                    {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
-                  </td>
-                  <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
-                  <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
-                </tr>
-              ))}
-              {items.length === 0 && (
-                <tr>
-                  <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
-                    {!authReady ? (
-                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
-                    ) : !userId ? (
-                      "Sign in to view your transaction ledger."
-                    ) : query.isLoading ? (
-                      <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
-                    ) : query.isError ? (
-                      `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
-                    ) : (
-                      "No transactions match your filters."
-                    )}
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+        {ledgerOpen && (
+          <>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm min-w-[720px]">
+                <thead>
+                  <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 bg-[#0F0F12]">
+                    <th className="px-4 py-2.5 font-semibold">Tx ID</th>
+                    <th className="px-4 py-2.5 font-semibold">Type</th>
+                    <th className="px-4 py-2.5 font-semibold text-right">Impact</th>
+                    <th className="px-4 py-2.5 font-semibold">Timestamp</th>
+                    <th className="px-4 py-2.5 font-semibold">Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {items.map((t) => (
+                    <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
+                      <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
+                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300"}`}>
+                        {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
+                      <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
+                    </tr>
+                  ))}
+                  {items.length === 0 && (
+                    <tr>
+                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                        {!authReady ? (
+                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
+                        ) : !userId ? (
+                          "Sign in to view your transaction ledger."
+                        ) : query.isLoading ? (
+                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
+                        ) : query.isError ? (
+                          `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
+                        ) : (
+                          "No transactions match your filters."
+                        )}
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
 
-        <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
-          <div>
-            Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
-          </div>
-          <div className="flex items-center gap-2">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={pageSafe === 1}
-              className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Prev
-            </button>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={pageSafe === totalPages}
-              className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
-            >
-              Next
-            </button>
-          </div>
-        </div>
+            <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
+              <div>
+                Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
+              </div>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={pageSafe === 1}
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Prev
+                </button>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={pageSafe === totalPages}
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          </>
+        )}
       </section>
 
+
       {/* Affiliate — single card (coming soon / reserve) */}
-      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5 shadow-[0_0_40px_-14px_rgba(217,70,239,0.45)]">
+      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-fuchsia-500/60" />
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0 flex items-center gap-3">
@@ -669,7 +686,7 @@ export function Wallet() {
                 <div className="text-[11px] uppercase tracking-wider text-emerald-300/80 font-semibold">
                   Estimated Annual Cashback Earnings
                 </div>
-                <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300 drop-shadow-[0_0_16px_rgba(52,211,153,0.7)]">
+                <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300">
                   {fmt(annualLocal, baseCurrency)}
                 </div>
                 <div className="mt-1 text-xs text-slate-400">
@@ -742,7 +759,7 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
     <div
       className={`rounded-lg border px-2.5 py-2 text-center transition-all ${
         active
-          ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200 shadow-[0_0_20px_-8px_rgba(52,211,153,0.6)]"
+          ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
           : "border-[#222226] bg-[#0A0A0C] text-slate-400"
       }`}
     >
@@ -1030,8 +1047,8 @@ function PayoutSuccessSplash({
         }}
       />
       <div className="relative h-full w-full flex items-center justify-center p-4">
-        <div className="relative w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-[#0A0F0C] shadow-[0_0_60px_rgba(16,185,129,0.35)] p-6 text-center animate-in fade-in zoom-in-95 duration-300">
-          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4 shadow-[0_0_40px_rgba(16,185,129,0.6)]">
+        <div className="relative w-full max-w-sm rounded-3xl border border-emerald-500/40 bg-[#0A0F0C] p-6 text-center animate-in fade-in zoom-in-95 duration-300">
+          <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4">
             <CheckCircle2 className="w-10 h-10 text-black" strokeWidth={3} />
           </div>
           <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">Withdrawal Requested</div>
