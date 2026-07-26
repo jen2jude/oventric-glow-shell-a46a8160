@@ -88,8 +88,15 @@ export function Marketplace() {
 
 
 
-  const digital = useMemo(() => (products ?? []).filter((p) => p.kind !== "physical"), [products]);
-  const physical = useMemo(() => (products ?? []).filter((p) => p.kind === "physical"), [products]);
+  // Currency isolation: signed-in users only see items priced in their home
+  // currency. Anon viewers see everything (USD preview) as marketing.
+  const currencyScoped = useMemo(() => {
+    if (!products) return products;
+    if (!isAuthenticated) return products;
+    return products.filter((p) => String(p.originalCurrency ?? "USD").toUpperCase() === baseCurrency);
+  }, [products, isAuthenticated, baseCurrency]);
+  const digital = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind !== "physical"), [currencyScoped]);
+  const physical = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind === "physical"), [currencyScoped]);
 
   const recommended = useMemo(() => {
     const src = mode === "digital" ? digital : physical;
