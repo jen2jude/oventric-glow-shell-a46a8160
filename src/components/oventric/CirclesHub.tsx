@@ -207,7 +207,7 @@ export function CirclesHub() {
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-none min-w-0">
-          {CATEGORIES.map((cat) => {
+          {categoryOptions.map((cat) => {
             const active = activeCategory === cat;
             return (
               <button
