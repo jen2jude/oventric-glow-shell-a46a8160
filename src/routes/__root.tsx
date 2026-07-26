@@ -269,6 +269,7 @@ function RootComponent() {
               <ProfileSetupModalHost />
               <ReactivationGate />
               <GlobalMobileNav />
+              <Toaster position="top-center" richColors closeButton />
             </KycGateProvider>
 
           </OnboardingProvider>
