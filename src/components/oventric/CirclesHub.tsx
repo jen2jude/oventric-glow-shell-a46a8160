@@ -82,7 +82,17 @@ export function CirclesHub() {
     enabled: isAuthenticated,
   });
 
-  const [activeCategory, setActiveCategory] = useState<CatFilter>("All");
+  const [activeCategory, setActiveCategory] = useState<string>("All");
+
+  const catsQ = useQuery({
+    queryKey: ["circle-categories"],
+    queryFn: () => listCircleCategories(),
+  });
+  const categoryOptions = useMemo(() => {
+    const names = (catsQ.data ?? []).map((c) => c.name);
+    return ["All", ...(names.length > 0 ? names : DEFAULT_CATEGORIES)];
+  }, [catsQ.data]);
+
   const [query, setQuery] = useState("");
   const [openSlug, setOpenSlug] = useState<string | null>(null);
   const [forgeOpen, setForgeOpen] = useState(false);
