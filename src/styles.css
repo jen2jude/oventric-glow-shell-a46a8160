@@ -1273,22 +1273,68 @@ html.light .border-white\/10  { border-color: rgba(15, 23, 42, 0.10) !important;
 html.light .border-white\/15  { border-color: rgba(15, 23, 42, 0.12) !important; }
 html.light .border-white\/20  { border-color: rgba(15, 23, 42, 0.16) !important; }
 
-/* Text: dark-theme slate scale reads white-on-dark; invert to dark-on-white. */
-html.light .text-white         { color: #0f172a !important; }
-html.light .text-slate-100     { color: #0f172a !important; }
-html.light .text-slate-200     { color: #1e293b !important; }
-html.light .text-slate-300     { color: #334155 !important; }
+/* Text: dark-theme slate scale reads white-on-dark; invert to dark-on-white,
+   but ONLY when the element itself does not carry a saturated colored
+   background or gradient (otherwise white text on emerald / primary / red
+   buttons would flip to unreadable dark text on color). */
+html.light .text-white:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-lime"]):not([class*="bg-teal"]):not([class*="bg-cyan"]):not([class*="bg-sky"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-purple"]):not([class*="bg-fuchsia"]):not([class*="bg-pink"]):not([class*="bg-gradient"]):not([class*="from-"]):not([class*="to-"]):not([class*="via-"]):not([class*="bg-black"]):not([class*="bg-destructive"]) { color: #0f172a !important; }
+html.light .text-slate-100:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-blue"]):not([class*="bg-purple"]):not([class*="bg-gradient"]):not([class*="from-"]) { color: #0f172a !important; }
+html.light .text-slate-200:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-blue"]):not([class*="bg-purple"]):not([class*="bg-gradient"]):not([class*="from-"]) { color: #1e293b !important; }
+html.light .text-slate-300:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-blue"]):not([class*="bg-purple"]):not([class*="bg-gradient"]):not([class*="from-"]) { color: #334155 !important; }
 html.light .text-slate-400     { color: #475569 !important; }
 html.light .text-slate-500     { color: #64748b !important; }
 
-/* Hover swaps that go "to white" on dark should stay dark on light. */
-html.light .hover\:text-white:hover { color: #0f172a !important; }
+/* Descendants of colored buttons/pills keep white text. */
+html.light [class*="bg-emerald-"] .text-white,
+html.light [class*="bg-primary"] .text-white,
+html.light [class*="bg-destructive"] .text-white,
+html.light [class*="bg-gradient"] .text-white,
+html.light [class*="from-emerald"] .text-white,
+html.light [class*="from-primary"] .text-white { color: #ffffff !important; }
+
+/* Hover swaps that go "to white" on dark should stay dark on light,
+   except when the hover-target itself is a colored button. */
+html.light .hover\:text-white:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-gradient"]):not([class*="from-"]):hover { color: #0f172a !important; }
 
 /* Header wallet chip + other emerald outlines read fine on white, but the
    inner chip background needs to lift off the page. */
 html.light .bg-\[\#1E1E24\].border-emerald-500\/30 {
   background-color: #ecfdf5 !important;
 }
+
+/* Light emerald text used as accent on pale emerald backgrounds is too pale
+   on the white canvas — remap the 100/200/300 tints to a readable emerald. */
+html.light .text-emerald-100,
+html.light .text-emerald-200 { color: #047857 !important; }
+html.light .text-emerald-300 { color: #059669 !important; }
+html.light .text-cyan-100,
+html.light .text-cyan-200    { color: #0e7490 !important; }
+html.light .text-purple-100,
+html.light .text-purple-200  { color: #6d28d9 !important; }
+html.light .text-pink-100,
+html.light .text-pink-200    { color: #be185d !important; }
+
+/* Tinted colored surfaces (e.g. bg-emerald-500/10) with direct text-white
+   are unreadable on white — force dark text when the element carries both
+   a tinted bg color and text-white. Enumerated per color to avoid the
+   lightningcss parser refusing an unescaped "/" in an attribute value. */
+html.light .text-white[class*="bg-emerald-"][class*="/"],
+html.light .text-white[class*="bg-primary"][class*="/"],
+html.light .text-white[class*="bg-cyan-"][class*="/"],
+html.light .text-white[class*="bg-teal-"][class*="/"],
+html.light .text-white[class*="bg-sky-"][class*="/"],
+html.light .text-white[class*="bg-blue-"][class*="/"],
+html.light .text-white[class*="bg-indigo-"][class*="/"],
+html.light .text-white[class*="bg-violet-"][class*="/"],
+html.light .text-white[class*="bg-purple-"][class*="/"],
+html.light .text-white[class*="bg-fuchsia-"][class*="/"],
+html.light .text-white[class*="bg-pink-"][class*="/"],
+html.light .text-white[class*="bg-rose-"][class*="/"],
+html.light .text-white[class*="bg-red-"][class*="/"],
+html.light .text-white[class*="bg-orange-"][class*="/"],
+html.light .text-white[class*="bg-amber-"][class*="/"],
+html.light .text-white[class*="bg-yellow-"][class*="/"],
+html.light .text-white[class*="bg-green-"][class*="/"] { color: #0f172a !important; }
 
 /* Inputs / dropdowns rendered on the dark palette. */
 html.light input, html.light textarea, html.light select {
