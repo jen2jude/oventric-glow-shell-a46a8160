@@ -172,9 +172,30 @@ function normalizeCoc(v: unknown): CodeOfConduct {
   const o = (v ?? {}) as Partial<CodeOfConduct>;
   return {
     pledge: typeof o.pledge === "string" && o.pledge.trim() ? o.pledge : DEFAULT_COC.pledge,
-    questions: Array.isArray(o.questions) && o.questions.length > 0 ? o.questions.slice(0, 5) : DEFAULT_COC.questions,
+    questions: Array.isArray(o.questions) && o.questions.length > 0 ? o.questions.slice(0, 30) : DEFAULT_COC.questions,
   };
 }
+
+const CIRCLE_AVATAR_BUCKET = "circle-avatars";
+const CIRCLE_COVER_BUCKET = "circle-covers";
+
+async function resolveCircleImage(
+  supabase: any,
+  bucket: "circle-avatars" | "circle-covers",
+  value: string | null,
+): Promise<string | null> {
+  if (!value) return null;
+  // Full URLs (legacy or external) are returned as-is.
+  if (/^https?:\/\//i.test(value) || value.startsWith("data:")) return value;
+  try {
+    const { data, error } = await supabase.storage.from(bucket).createSignedUrl(value, 60 * 60 * 24 * 7);
+    if (error || !data?.signedUrl) return null;
+    return data.signedUrl as string;
+  } catch {
+    return null;
+  }
+}
+
 
 async function annotateCircles(supabase: any, meId: string | null, rows: any[]): Promise<CircleSummary[]> {
   if (rows.length === 0) return [];
