@@ -215,7 +215,8 @@ export const listFollowers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => UserInput.parse(d))
   .handler(async ({ data, context }): Promise<PersonSummary[]> => {
-    const { data: rows, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
       .from("follows")
       .select("follower_id, created_at")
       .eq("followee_id", data.userId)
@@ -230,7 +231,8 @@ export const listFollowing = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d: unknown) => UserInput.parse(d))
   .handler(async ({ data, context }): Promise<PersonSummary[]> => {
-    const { data: rows, error } = await context.supabase
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: rows, error } = await supabaseAdmin
       .from("follows")
       .select("followee_id, created_at")
       .eq("follower_id", data.userId)
@@ -240,6 +242,7 @@ export const listFollowing = createServerFn({ method: "GET" })
     const map = await loadPeople(context.supabase, (rows ?? []).map((r: any) => r.followee_id));
     return (rows ?? []).map((r: any) => map.get(r.followee_id)!).filter(Boolean);
   });
+
 
 export interface IncomingFollowRequest {
   requesterId: string;
