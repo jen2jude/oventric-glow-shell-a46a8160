@@ -281,12 +281,15 @@ export const createCircle = createServerFn({ method: "POST" })
           slug,
           description: data.description ?? null,
           avatar_url: data.avatarUrl ?? null,
+          cover_url: data.coverUrl ?? null,
           is_private: data.isPrivate ?? false,
           category: data.category ?? "SaaS Builders",
           emoji: data.emoji ?? "🛡️",
+          code_of_conduct: data.codeOfConduct ?? null,
         })
         .select("*")
         .single();
+
       if (!error && row) {
         const [annotated] = await annotateCircles(context.supabase, me, [row]);
         return annotated;
