@@ -108,17 +108,12 @@ export interface PriceableRow {
 }
 
 export interface DisplayPrice {
-  /** Value in the LISTING's original currency (the static price the seller set). */
+  /** Value in viewer's currency. */
   value: number;
   currency: Currency;
-  /** Formatted using the ORIGINAL price/currency — this is the main static price shown everywhere. */
   formatted: string;
-  /** Approximate equivalent in the viewer's currency, e.g. "≈ ₦500". Null when viewer matches original. */
+  /** e.g. "≈ ₵850" when the row's original currency differs from the viewer's. */
   originalFormatted: string | null;
-  /** Viewer-currency approximation (same as originalFormatted). Prefer this name in new code. */
-  approxFormatted: string | null;
-  approxCurrency: Currency;
-  approxValue: number;
   originalCurrency: Currency;
   originalAmount: number;
   /** USD equivalent from the snapshot (canonical amount used for wallets/orders). */
@@ -128,13 +123,15 @@ export interface DisplayPrice {
 }
 
 /**
- * Compute how a listing should be displayed.
+ * Compute how a listing should be displayed in the viewer's base currency.
  *
- * The seller's originally posted price + currency is the STATIC main price
- * shown to every viewer. A viewer-currency approximation is provided as a
- * secondary hint only when the viewer's currency differs from the original.
+ * - If the row has a snapshot: convert from `original_currency` → viewer using
+ *   the snapshot rates. The amount is truly locked.
+ * - Otherwise: treat `price_usd` as USD-native and convert with fallback rates.
  */
 export function computeDisplayPrice(row: PriceableRow, viewer: Currency): DisplayPrice {
+  // Defensive: any malformed input should still yield a renderable price so
+  // the UI (and checkout) never crashes on a bad/missing fx_snapshot.
   try {
     const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
     const snapshot = normalizeSnapshot(row?.fx_snapshot);
@@ -144,25 +141,21 @@ export function computeDisplayPrice(row: PriceableRow, viewer: Currency): Displa
     const rawAmount = Number(row?.original_amount ?? row?.price_usd ?? 0);
     const originalAmount = Number.isFinite(rawAmount) && rawAmount >= 0 ? rawAmount : 0;
 
-    const approx = convertViaSnapshot(originalAmount, originalCurrency, safeViewer, snapshot);
+    const value = convertViaSnapshot(originalAmount, originalCurrency, safeViewer, snapshot);
     const usd =
       originalCurrency === "USD"
         ? originalAmount
         : convertViaSnapshot(originalAmount, originalCurrency, "USD", snapshot);
 
-    const safeApprox = Number.isFinite(approx) ? approx : originalAmount;
+    const safeValue = Number.isFinite(value) ? value : originalAmount;
     const safeUsd = Number.isFinite(usd) ? usd : originalAmount;
-    const approxFormatted =
-      originalCurrency !== safeViewer ? `≈ ${formatMoney(safeApprox, safeViewer)}` : null;
 
     return {
-      value: originalAmount,
-      currency: originalCurrency,
-      formatted: formatMoney(originalAmount, originalCurrency),
-      originalFormatted: approxFormatted,
-      approxFormatted,
-      approxCurrency: safeViewer,
-      approxValue: safeApprox,
+      value: safeValue,
+      currency: safeViewer,
+      formatted: formatMoney(safeValue, safeViewer),
+      originalFormatted:
+        originalCurrency !== safeViewer ? formatMoney(originalAmount, originalCurrency) : null,
       originalCurrency,
       originalAmount,
       usd: safeUsd,
@@ -171,14 +164,12 @@ export function computeDisplayPrice(row: PriceableRow, viewer: Currency): Displa
   } catch {
     const fallbackAmount = Number(row?.price_usd ?? row?.original_amount ?? 0) || 0;
     const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
+    const converted = fallbackAmount * (LEGACY_USD_RATES[safeViewer] ?? 1);
     return {
-      value: fallbackAmount,
-      currency: "USD",
-      formatted: formatMoney(fallbackAmount, "USD"),
+      value: converted,
+      currency: safeViewer,
+      formatted: formatMoney(converted, safeViewer),
       originalFormatted: null,
-      approxFormatted: null,
-      approxCurrency: safeViewer,
-      approxValue: fallbackAmount,
       originalCurrency: "USD",
       originalAmount: fallbackAmount,
       usd: fallbackAmount,
@@ -186,7 +177,6 @@ export function computeDisplayPrice(row: PriceableRow, viewer: Currency): Displa
     };
   }
 }
-
 
 /**
  * Safe wrapper for callers that want a plain formatted string. Guarantees a
