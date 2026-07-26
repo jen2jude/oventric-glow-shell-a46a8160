@@ -744,9 +744,7 @@ function WatercoolerPost({
     </div>
   );
 }
-    </div>
-  );
-}
+
 
 /* ---- Tab: Members ---- */
 function MembersTab({ circle }: { circle: CircleSummary }) {
