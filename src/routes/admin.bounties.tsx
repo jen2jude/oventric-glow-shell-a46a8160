@@ -337,7 +337,19 @@ function BountiesAdminPage() {
             {rows && filteredRows && filteredRows.length !== rows.length ? ` of ${rows.length}` : ""} bounties · admin can edit any, including user-posted ones
           </p>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
+          <div className="inline-flex rounded-lg border border-white/10 bg-white/5 overflow-hidden" role="group" aria-label="Display currency">
+            {(["USD", "NGN", "GHS"] as const).map((c) => (
+              <button
+                key={c}
+                onClick={() => setDisplayCurrency(c)}
+                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/10"}`}
+                aria-pressed={displayCurrency === c}
+              >
+                {c}
+              </button>
+            ))}
+          </div>
           <button
             onClick={() => setShowCategoryManager(true)}
             className="px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg flex items-center gap-2"
