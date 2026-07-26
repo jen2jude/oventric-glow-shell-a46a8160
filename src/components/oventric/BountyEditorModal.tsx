@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { publishBounty } from "@/lib/bounties.functions";
 import { listBountyCategories, type BountyCategory } from "@/lib/bounty-categories.functions";
-import { convertViaSnapshot, formatMoney } from "@/lib/fx-display";
+import { formatMoney } from "@/lib/fx-display";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -76,7 +76,7 @@ export function BountyEditorModal({
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [uid, setUid] = useState<string | null>(null);
-  const [walletUsd, setWalletUsd] = useState<number | null>(null);
+  const [walletBase, setWalletBase] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -98,7 +98,7 @@ export function BountyEditorModal({
       const _uid = session.user?.id ?? null;
       if (cancelled) return;
       setUid(_uid);
-      if (!_uid) { setWalletUsd(null); return; }
+      if (!_uid) { setWalletBase(null); return; }
       try {
         const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
         if (raw) {
@@ -128,9 +128,9 @@ export function BountyEditorModal({
         }
       } catch { /* ignore */ }
       const { data: walletData } = await supabase.from("wallets")
-        .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
+        .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
       if (cancelled) return;
-      setWalletUsd(Number(walletData?.available_balance ?? 0));
+      setWalletBase(Number(walletData?.available_balance ?? 0));
     })();
     return () => { cancelled = true; };
   }, [open]);
@@ -162,18 +162,18 @@ export function BountyEditorModal({
   };
 
   const inputBase = Number(form.price_usd || 0);
-  const inputUsdApprox =
-    baseCurrency === "USD" ? inputBase : convertViaSnapshot(inputBase, baseCurrency, "USD", null);
-  const shortfallUsd = Math.max(0, inputUsdApprox - (walletUsd ?? 0));
+  const shortfallBase = Math.max(0, inputBase - (walletBase ?? 0));
 
   const goToWallet = () => {
     saveDraft(true);
-    const topupUsd = Math.ceil(shortfallUsd * 100) / 100;
+    const topupLocal = baseCurrency === "USD"
+      ? Math.ceil(shortfallBase * 100) / 100
+      : Math.ceil(shortfallBase);
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
     setTimeout(() => {
       window.dispatchEvent(new CustomEvent("oventric:wallet:topup", {
-        detail: { amountUsd: topupUsd, reason: "bounty-escrow" },
+        detail: { amountLocal: topupLocal, currency: baseCurrency, reason: "bounty-escrow" },
       }));
     }, 60);
   };
@@ -243,10 +243,10 @@ export function BountyEditorModal({
 
       if (priceUsd > 0) {
         const { data: walletRow } = await supabase.from("wallets")
-          .select("available_balance").eq("user_id", _uid).eq("currency", "USD").maybeSingle();
+          .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
         const balance = Number(walletRow?.available_balance ?? 0);
-        setWalletUsd(balance);
-        if (balance < priceUsd) { setShowFundPrompt(true); setSaving(false); return; }
+        setWalletBase(balance);
+        if (balance < rewardBase) { setShowFundPrompt(true); setSaving(false); return; }
       }
 
       const imagePaths = form.images.map((i) => i.path);
@@ -425,11 +425,11 @@ export function BountyEditorModal({
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span> (≈ ${inputUsdApprox.toFixed(2)} USD).
-                Your current wallet balance is <span className="text-white font-semibold">${(walletUsd ?? 0).toFixed(2)} USD</span>.
+                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span>.
+                Your current wallet balance is <span className="text-white font-semibold">{formatMoney(walletBase ?? 0, baseCurrency)}</span>.
               </p>
               <p className="text-xs text-slate-400 mt-2">
-                Top up at least <span className="text-emerald-300 font-semibold">${shortfallUsd.toFixed(2)}</span> to publish.
+                Top up at least <span className="text-emerald-300 font-semibold">{formatMoney(shortfallBase, baseCurrency)}</span> to publish.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
                 <button onClick={goToWallet} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2">
