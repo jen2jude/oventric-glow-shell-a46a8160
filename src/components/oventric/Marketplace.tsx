@@ -54,6 +54,7 @@ type Mode = "digital" | "physical";
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
+  const { isAuthenticated } = useAuthGate();
   const navigate = useNavigate();
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
