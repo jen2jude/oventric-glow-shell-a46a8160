@@ -977,11 +977,11 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
         disabled={!numericAmount || numericAmount <= 0 || busy}
         style={{
           background: (!numericAmount || busy) ? undefined : "#10b981",
-          color: (!numericAmount || busy) ? undefined : "#0a0a0c",
+          color: "#ffffff",
           borderColor: "rgba(255,255,255,0.35)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
         }}
-        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-slate-900 font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
+        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
