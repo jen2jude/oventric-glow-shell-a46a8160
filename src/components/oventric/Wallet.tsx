@@ -118,7 +118,7 @@ function fmtTs(iso: string) {
 const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
 
 export function Wallet() {
-  const { balances, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances, baseCurrency, country } = useOnboarding();
+  const { balances, escrow, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances, baseCurrency, country } = useOnboarding();
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
