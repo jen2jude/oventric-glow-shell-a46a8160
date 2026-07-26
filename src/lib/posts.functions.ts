@@ -93,7 +93,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
 
   const { data: posts, error } = await sb
     .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids" as any)
+    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed" as any)
     .order("created_at", { ascending: false })
     .limit(100);
   if (error) {
