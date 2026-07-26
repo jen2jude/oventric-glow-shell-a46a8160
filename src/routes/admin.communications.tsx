@@ -349,7 +349,9 @@ function AnnouncementsTab() {
                         {r.audience}
                       </span>
                     </div>
-                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">{r.body}</p>
+                    <p className="text-xs text-slate-400 mt-1 line-clamp-2">
+                      {stripHtml(r.body).slice(0, 220)}
+                    </p>
                     <div className="flex gap-1 mt-2 flex-wrap">
                       {r.channels.map((c) => (
                         <span
