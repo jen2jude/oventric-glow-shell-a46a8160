@@ -94,16 +94,16 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMobileSearchOpen(true)}
             aria-label="Open search"
-            className="ml-auto p-2 rounded-lg hover:bg-white/5 text-slate-300"
+            className="ml-auto p-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Search className="w-5 h-5" />
+            <Search className="w-5 h-5" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-slate-300"
+            className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
           </button>
         </div>
       )}
@@ -113,9 +113,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         {onMenuClick && (
           <button
             onClick={onMenuClick}
-            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 text-slate-300 transition-colors"
+            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 text-white transition-colors"
           >
-            <Menu className="w-5 h-5" />
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
           </button>
         )}
         {/* Desktop-only logo */}
@@ -145,9 +145,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="relative md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Shield className="w-5 h-5" />
+            <Shield className="w-5 h-5" strokeWidth={2.5} />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
@@ -155,18 +155,18 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="hidden md:inline-flex p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="hidden md:inline-flex p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Grip className="w-5 h-5" />
+            <Grip className="w-5 h-5" strokeWidth={2.5} />
           </button>
 
           {/* Notifications */}
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Bell className="w-5 h-5" />
+            <Bell className="w-5 h-5" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
@@ -174,9 +174,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <UserPlus className="w-5 h-5" />
+            <UserPlus className="w-5 h-5" strokeWidth={2.5} />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
@@ -189,9 +189,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={onOpenMessages}
             aria-label="Open messages"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-slate-300 hover:text-white transition-colors"
+            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <MessageCircle className="w-5 h-5" />
+            <MessageCircle className="w-5 h-5" strokeWidth={2.5} />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
           </button>
 
