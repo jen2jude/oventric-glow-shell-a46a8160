@@ -225,13 +225,20 @@ function AnnouncementsTab() {
             placeholder="Title"
             className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
           />
-          <textarea
-            value={form.body}
-            onChange={(e) => setForm({ ...form, body: e.target.value })}
-            placeholder="Message body"
-            rows={5}
-            className="w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none"
-          />
+          <div>
+            <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">
+              Message body — rich text · images · links
+            </div>
+            <RichTextEditor
+              value={form.body}
+              onChange={(html) => setForm({ ...form, body: html })}
+              placeholder="Craft a rich announcement. Add headings, images, and clickable links."
+              minHeight={240}
+              bucket="post-media"
+              uploadFn={uploadFn}
+              signFn={signFn}
+            />
+          </div>
           <div>
             <div className="text-xs uppercase tracking-wider text-slate-500 mb-1.5">Audience</div>
             <div className="flex gap-2">
