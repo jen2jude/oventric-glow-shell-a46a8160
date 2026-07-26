@@ -97,7 +97,12 @@ export function HeaderWalletChip() {
 
   if (!isAuthenticated) return null;
 
-  const display = balancesHidden ? "••••" : fmt(main, baseCurrency);
+  const mainDisplay = hasCountry ? main : fromUSD(main, "USD");
+  const escrowDisplay = hasCountry ? escrow : fromUSD(escrow, "USD");
+  const bountyDisplay = fromUSD(bounty, displayCurrency);
+  const cashbackDisplay = fromUSD(cashback, displayCurrency);
+  const sellerDisplay = hasCountry ? seller : fromUSD(seller, "USD");
+  const display = balancesHidden ? "••••" : fmt(mainDisplay, displayCurrency);
 
   return (
     <div ref={wrapRef} className="relative">
@@ -126,14 +131,14 @@ export function HeaderWalletChip() {
       {open && (
         <div
           role="dialog"
-          className="absolute right-0 mt-2 w-72 rounded-2xl bg-[#17171B] border border-white/10 shadow-xl p-3 z-50 origin-top-right animate-scale-in"
+          className="absolute left-0 mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#17171B] border border-white/10 shadow-xl p-3 z-50 origin-top-left animate-scale-in"
         >
-          <div className="text-[11px] uppercase tracking-wide text-slate-500 px-1 pb-2">Sub-wallets · {baseCurrency}</div>
+          <div className="text-[11px] uppercase tracking-wide text-slate-500 px-1 pb-2">Sub-wallets · {displayCurrency}</div>
           <div className="grid grid-cols-2 gap-2">
-            <SubTile icon={<Lock className="w-4 h-4" />} label="Escrowed" value={balancesHidden ? "••••" : fmt(escrow, baseCurrency)} tint="text-amber-300" />
-            <SubTile icon={<TrendingUp className="w-4 h-4" />} label="Bounty earnings" value={balancesHidden ? "••••" : fmt(bounty, "USD")} tint="text-sky-300" />
-            <SubTile icon={<Gift className="w-4 h-4" />} label="Cashback" value={balancesHidden ? "••••" : fmt(cashback, "USD")} tint="text-emerald-300" />
-            <SubTile icon={<Store className="w-4 h-4" />} label="Seller earnings" value={balancesHidden ? "••••" : fmt(seller, baseCurrency)} tint="text-fuchsia-300" />
+            <SubTile icon={<Lock className="w-4 h-4" />} label="Escrowed" value={balancesHidden ? "••••" : fmt(escrowDisplay, displayCurrency)} tint="text-amber-300" />
+            <SubTile icon={<TrendingUp className="w-4 h-4" />} label="Bounty earnings" value={balancesHidden ? "••••" : fmt(bountyDisplay, displayCurrency)} tint="text-sky-300" />
+            <SubTile icon={<Gift className="w-4 h-4" />} label="Cashback" value={balancesHidden ? "••••" : fmt(cashbackDisplay, displayCurrency)} tint="text-emerald-300" />
+            <SubTile icon={<Store className="w-4 h-4" />} label="Seller earnings" value={balancesHidden ? "••••" : fmt(sellerDisplay, displayCurrency)} tint="text-fuchsia-300" />
           </div>
           <button
             type="button"
