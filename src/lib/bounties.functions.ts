@@ -58,6 +58,9 @@ export interface BountyInput {
   description?: string;
   category: string;
   price_usd: number;
+  original_amount?: number;
+  original_currency?: "USD" | "NGN" | "GHS";
+  fx_snapshot?: unknown;
   cover_path?: string | null;
   images?: string[];
   applicant_limit?: number;
@@ -68,6 +71,7 @@ export interface BountyInput {
   poster_id?: string | null;
   promoted?: boolean;
 }
+
 
 /** Admin — list every bounty. */
 export const listAllBounties = createServerFn({ method: "GET" })
