@@ -23,6 +23,8 @@ import {
 } from "@/lib/bounty-categories.functions";
 
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { computeDisplayPrice, formatMoney, type PriceableRow } from "@/lib/fx-display";
+import type { Currency } from "@/lib/onboarding/OnboardingContext";
 export const Route = createFileRoute("/admin/bounties")({
   head: () => ({ meta: [{ title: "Bounties · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
   component: BountiesAdminPage,
