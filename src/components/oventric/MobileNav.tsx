@@ -1,10 +1,11 @@
-import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus } from "lucide-react";
+import { Home, GraduationCap, Target, Wallet, Plus } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
+import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
 
 const left = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
-  { icon: ShoppingBag, label: "Market" },
+  { icon: Home, label: "Market", image: marketplaceIcon3D.url },
 ];
 const right = [
   { icon: GraduationCap, label: "Academy" },
