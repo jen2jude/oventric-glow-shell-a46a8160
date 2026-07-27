@@ -2,7 +2,7 @@ import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, Me
 import { useState } from "react";
 import messageIcon3D from "@/assets/message-3d.png";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
-import circlesIcon3D from "@/assets/circles-3d.avif.asset.json";
+import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 
 const items = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
