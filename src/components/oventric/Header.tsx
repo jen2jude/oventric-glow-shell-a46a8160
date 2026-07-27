@@ -191,9 +191,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
-            <UserPlus className="w-6 h-6" strokeWidth={2.5} />
+            <img src={followIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]" />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
