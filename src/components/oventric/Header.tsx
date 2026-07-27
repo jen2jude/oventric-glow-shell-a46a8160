@@ -154,7 +154,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               alt=""
               aria-hidden="true"
               draggable={false}
-              className="w-6 h-6 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
             />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
