@@ -43,7 +43,7 @@ export function MobileNav({
               alt=""
               aria-hidden="true"
               draggable={false}
-              className="w-7 h-7 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
             />
           ) : (
             <it.icon className="w-6 h-6" strokeWidth={2.5} />
