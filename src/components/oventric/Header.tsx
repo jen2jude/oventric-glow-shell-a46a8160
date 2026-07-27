@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
-import messageIcon3D from "@/assets/message-3d.png";
+import { Search, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
+import messageIcon3D from "@/assets/message-3d.webp.asset.json";
+import hamburgerIcon3D from "@/assets/hamburger-3d.webp.asset.json";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import notificationIcon3D from "@/assets/notification-3d.webp.asset.json";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
@@ -106,7 +107,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             aria-label="Open menu"
             className="p-2.5 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
+            <img src={hamburgerIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90" />
           </button>
         </div>
       )}
@@ -118,7 +119,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             onClick={onMenuClick}
             className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors"
           >
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
+            <img src={hamburgerIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90" />
           </button>
         )}
         {/* Desktop-only logo */}
@@ -207,7 +208,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
             <img
-              src={messageIcon3D}
+              src={messageIcon3D.url}
               alt=""
               aria-hidden="true"
               className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"

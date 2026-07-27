@@ -1,12 +1,12 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
 import { useState } from "react";
-import messageIcon3D from "@/assets/message-3d.png";
+import messageIcon3D from "@/assets/message-3d.webp.asset.json";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 
 const items = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
-  { icon: MessageSquare, label: "Messages", image: messageIcon3D },
+  { icon: MessageSquare, label: "Messages", image: messageIcon3D.url },
   { icon: Users, label: "Circles", image: circlesIcon3D.url },
   { icon: ShoppingBag, label: "Marketplace" },
   { icon: GraduationCap, label: "Academy" },
