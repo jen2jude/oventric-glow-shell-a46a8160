@@ -88,23 +88,23 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
       {/* Mobile top row: logo + search + hamburger (home only) */}
       {showMobileTopRow && (
-        <div className="md:hidden flex items-center gap-3 h-12 px-4 border-b border-white/5">
+        <div className="md:hidden flex items-center gap-3 h-14 px-4 border-b border-white/5">
           <Link to="/" aria-label="Oventric" className="flex items-center">
             {LogoMark}
           </Link>
           <button
             onClick={() => setMobileSearchOpen(true)}
             aria-label="Open search"
-            className="ml-auto p-2 rounded-lg hover:bg-white/5 text-white"
+            className="ml-auto p-2.5 rounded-lg hover:bg-white/5 text-white"
           >
-            <Search className="w-5 h-5" strokeWidth={2.5} />
+            <Search className="w-6 h-6" strokeWidth={2.5} />
           </button>
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="p-2 -mr-2 rounded-lg hover:bg-white/5 text-white"
+            className="p-2.5 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Menu className="w-5 h-5" strokeWidth={2.5} />
+            <Menu className="w-6 h-6" strokeWidth={2.5} />
           </button>
         </div>
       )}
