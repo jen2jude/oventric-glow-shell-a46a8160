@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
+import { Search, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
 import messageIcon3D from "@/assets/message-3d.png";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
+import notificationIcon3D from "@/assets/notification-3d.webp.asset.json";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -172,9 +173,15 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
-            <Bell className="w-6 h-6" strokeWidth={2.5} />
+            <img
+              src={notificationIcon3D.url}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
+            />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
