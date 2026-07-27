@@ -106,7 +106,7 @@ export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" 
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className="inline-flex items-center gap-1 h-9 pl-2.5 pr-1 rounded-full bg-[#1E1E24] border border-emerald-500/30">
+      <div className="inline-flex items-center gap-1.5 h-10 pl-3 pr-1.5 rounded-full bg-[#1E1E24] border border-emerald-500/30">
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -114,9 +114,9 @@ export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" 
           aria-expanded={open}
           className="inline-flex items-center gap-1.5 text-white hover:text-emerald-300 transition-colors"
         >
-          <WalletIcon className="w-4 h-4 text-emerald-300" />
-          <span className="text-xs sm:text-sm font-semibold tabular-nums">{display}</span>
-          <ChevronDown className={`w-3.5 h-3.5 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+          <WalletIcon className="w-5 h-5 text-emerald-300" />
+          <span className="text-sm font-semibold tabular-nums">{display}</span>
+          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
         </button>
         <button
           type="button"
@@ -124,7 +124,7 @@ export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" 
           aria-label={balancesHidden ? "Show balance" : "Hide balance"}
           className="p-1 rounded-full text-slate-400 hover:text-white transition-colors"
         >
-          {balancesHidden ? <EyeOff className="w-3.5 h-3.5" /> : <Eye className="w-3.5 h-3.5" />}
+          {balancesHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
         </button>
       </div>
 
