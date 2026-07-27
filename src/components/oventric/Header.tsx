@@ -1,8 +1,9 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, Bell, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
+import { Search, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
 import messageIcon3D from "@/assets/message-3d.png";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
+import notificationIcon3D from "@/assets/notification-3d.webp.asset.json";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
