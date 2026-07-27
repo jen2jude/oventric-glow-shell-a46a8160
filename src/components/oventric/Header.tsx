@@ -208,7 +208,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
             <img
-              src={messageIcon3D}
+              src={messageIcon3D.url}
               alt=""
               aria-hidden="true"
               className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
