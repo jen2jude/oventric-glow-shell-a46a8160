@@ -3,6 +3,8 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
 import academyIcon3D from "@/assets/academy-3d.png.asset.json";
+import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
+import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 
 const left = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
@@ -10,8 +12,8 @@ const left = [
 ];
 const right = [
   { icon: Home, label: "Academy", image: academyIcon3D.url },
-  { icon: Target, label: "Bounties" },
-  { icon: Wallet, label: "Wallet" },
+  { icon: Target, label: "Bounties", image: bountiesIcon3D.url },
+  { icon: Wallet, label: "Wallet", image: walletIcon3D.url },
 ];
 
 export type MobileNavCounts = Partial<Record<"Feed" | "Market" | "Academy" | "Bounties" | "Wallet", number>>;
