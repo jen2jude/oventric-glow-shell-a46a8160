@@ -107,7 +107,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             aria-label="Open menu"
             className="p-2.5 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
+            <img src={hamburgerIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90" />
           </button>
         </div>
       )}
