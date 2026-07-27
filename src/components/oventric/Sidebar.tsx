@@ -1,16 +1,17 @@
-import { Home, GraduationCap, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
+import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
 import { useState } from "react";
 import messageIcon3D from "@/assets/message-3d.webp.asset.json";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
+import academyIcon3D from "@/assets/academy-3d.png.asset.json";
 
 const items = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
   { icon: MessageSquare, label: "Messages", image: messageIcon3D.url },
   { icon: Users, label: "Circles", image: circlesIcon3D.url },
   { icon: Home, label: "Marketplace", image: marketplaceIcon3D.url },
-  { icon: GraduationCap, label: "Academy" },
+  { icon: Home, label: "Academy", image: academyIcon3D.url },
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
 ] as Array<{ icon: typeof Home; label: string; image?: string }>;
