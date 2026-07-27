@@ -55,7 +55,17 @@ export function Sidebar({
                   : "text-slate-400 hover:text-white hover:bg-white/5 border border-transparent"
               }`}
             >
-              <it.icon className="w-5 h-5 shrink-0" />
+              {it.image ? (
+                <img
+                  src={it.image}
+                  alt=""
+                  aria-hidden="true"
+                  draggable={false}
+                  className="w-7 h-7 shrink-0 object-contain select-none pointer-events-none -my-1 drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+                />
+              ) : (
+                <it.icon className="w-5 h-5 shrink-0" />
+              )}
               {!collapsed && <span className="text-sm font-medium truncate">{it.label}</span>}
             </button>
           );
