@@ -1,15 +1,17 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
 import { useState } from "react";
+import messageIcon3D from "@/assets/message-3d.png";
 
 const items = [
   { icon: Home, label: "Feed" },
-  { icon: MessageSquare, label: "Messages" },
+  { icon: MessageSquare, label: "Messages", image: messageIcon3D },
   { icon: Users, label: "Circles" },
   { icon: ShoppingBag, label: "Marketplace" },
   { icon: GraduationCap, label: "Academy" },
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
-];
+] as Array<{ icon: typeof Home; label: string; image?: string }>;
+
 
 export function Sidebar({
   onCreate,
