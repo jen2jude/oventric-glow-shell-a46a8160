@@ -3,12 +3,13 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
-  Target, Wallet as WalletIcon, GraduationCap,
+  Target, Wallet as WalletIcon,
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
   Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
+import academyIcon3D from "@/assets/academy-3d.png.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -140,7 +141,7 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: MessageCircle, label: "Marketplace", image: marketplaceIcon3D.url, onClick: () => go("/", "Marketplace") },
     { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
     { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
-    { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
+    { icon: MessageCircle, label: "Academy", image: academyIcon3D.url, onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
 

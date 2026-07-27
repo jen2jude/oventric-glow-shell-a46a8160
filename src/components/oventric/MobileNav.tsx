@@ -1,14 +1,15 @@
-import { Home, GraduationCap, Target, Wallet, Plus } from "lucide-react";
+import { Home, Target, Wallet, Plus } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import homeIcon3D from "@/assets/home-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
+import academyIcon3D from "@/assets/academy-3d.png.asset.json";
 
 const left = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
   { icon: Home, label: "Market", image: marketplaceIcon3D.url },
 ];
 const right = [
-  { icon: GraduationCap, label: "Academy" },
+  { icon: Home, label: "Academy", image: academyIcon3D.url },
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
 ];
