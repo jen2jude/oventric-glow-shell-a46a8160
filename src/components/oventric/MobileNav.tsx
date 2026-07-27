@@ -1,8 +1,9 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import homeIcon3D from "@/assets/home-3d.png.asset.json";
 
 const left = [
-  { icon: Home, label: "Feed" },
+  { icon: Home, label: "Feed", image: homeIcon3D.url },
   { icon: ShoppingBag, label: "Market" },
 ];
 const right = [
@@ -24,7 +25,7 @@ export function MobileNav({
   onSelect: (label: string) => void;
   counts?: MobileNavCounts;
 }) {
-  const Item = (it: { icon: typeof Home; label: string }) => {
+  const Item = (it: { icon: typeof Home; label: string; image?: string }) => {
     const isActive = active === it.label;
     const count = counts?.[it.label as keyof MobileNavCounts] ?? 0;
     return (
@@ -36,7 +37,17 @@ export function MobileNav({
         }`}
       >
         <span className="relative">
-          <it.icon className="w-6 h-6" strokeWidth={2.5} />
+          {it.image ? (
+            <img
+              src={it.image}
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              className="w-7 h-7 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+            />
+          ) : (
+            <it.icon className="w-6 h-6" strokeWidth={2.5} />
+          )}
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
         <span className="text-[10px] font-medium">{it.label}</span>
