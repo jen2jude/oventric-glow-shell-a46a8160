@@ -148,7 +148,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             aria-label="Circles & Guilds"
             className="relative md:hidden p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Shield className="w-6 h-6" strokeWidth={2.5} />
+            <img
+              src="/__l5e/assets-v1/3ae37d02-69a0-4979-ac29-b386f7fbb790/circles-3d.avif"
+              alt=""
+              aria-hidden="true"
+              draggable={false}
+              className="w-6 h-6 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+            />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 

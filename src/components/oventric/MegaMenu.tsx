@@ -7,6 +7,7 @@ import {
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
   Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
+import circlesIcon3D from "@/assets/circles-3d.avif.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
