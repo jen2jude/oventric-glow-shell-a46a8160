@@ -196,7 +196,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               src={messageIcon3D}
               alt=""
               aria-hidden="true"
-              className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
+              className="w-6 h-6 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
               draggable={false}
             />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
