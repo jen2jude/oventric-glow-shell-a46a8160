@@ -133,7 +133,7 @@ export function MegaMenu({ open, onClose }: Props) {
 
   const grid = [
     { icon: MessageCircle, label: "Messages", onClick: openMessages },
-    { icon: Shield, label: "Circles & Guilds", onClick: () => go("/", "Circles") },
+    { icon: Shield, label: "Circles & Guilds", image: circlesIcon3D.url, onClick: () => go("/", "Circles") },
     { icon: Users, label: "Followers", onClick: goFollowers },
     { icon: ImageIcon, label: "Gallery", onClick: () => go("/dashboard") },
     { icon: ShoppingBag, label: "Marketplace", onClick: () => go("/", "Marketplace") },
@@ -211,7 +211,19 @@ export function MegaMenu({ open, onClose }: Props) {
         <div className="megamenu-lowgpu-grid">
           {grid.map((g) => (
             <button key={g.label} onClick={g.onClick} className="megamenu-lowgpu-tile">
-              <span className="megamenu-lowgpu-icon"><g.icon className="w-4 h-4" /></span>
+              <span className="megamenu-lowgpu-icon">
+                {g.image ? (
+                  <img
+                    src={g.image}
+                    alt=""
+                    aria-hidden="true"
+                    draggable={false}
+                    className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
+                  />
+                ) : (
+                  <g.icon className="w-4 h-4" />
+                )}
+              </span>
               <span className="truncate text-sm font-bold text-white">{g.label}</span>
             </button>
           ))}
