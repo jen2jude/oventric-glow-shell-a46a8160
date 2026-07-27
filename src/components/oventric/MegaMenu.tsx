@@ -141,8 +141,8 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: Users, label: "Followers", onClick: goFollowers },
     { icon: ImageIcon, label: "Gallery", onClick: () => go("/dashboard") },
     { icon: MessageCircle, label: "Marketplace", image: marketplaceIcon3D.url, onClick: () => go("/", "Marketplace") },
-    { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
-    { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
+    { icon: Target, label: "Bounties", image: bountiesIcon3D.url, onClick: () => go("/", "Bounties") },
+    { icon: WalletIcon, label: "My Wallet", image: walletIcon3D.url, onClick: () => go("/", "Wallet") },
     { icon: MessageCircle, label: "Academy", image: academyIcon3D.url, onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
