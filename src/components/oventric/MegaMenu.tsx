@@ -348,7 +348,17 @@ export function MegaMenu({ open, onClose }: Props) {
               className="flex items-center gap-3 p-3 rounded-2xl bg-[#141418] border border-white/10 hover:border-emerald-400/40 transition-colors text-left"
             >
               <span className="w-9 h-9 grid place-items-center rounded-full bg-[#1E1E24] text-emerald-300 shrink-0">
-                <g.icon className="w-4 h-4" />
+                {g.image ? (
+                  <img
+                    src={g.image}
+                    alt=""
+                    aria-hidden="true"
+                    draggable={false}
+                    className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
+                  />
+                ) : (
+                  <g.icon className="w-4 h-4" />
+                )}
               </span>
               <span className="text-sm font-semibold text-white truncate">{g.label}</span>
             </button>
