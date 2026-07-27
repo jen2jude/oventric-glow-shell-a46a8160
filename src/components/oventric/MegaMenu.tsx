@@ -10,6 +10,8 @@ import {
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
 import academyIcon3D from "@/assets/academy-3d.png.asset.json";
+import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
+import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -139,8 +141,8 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: Users, label: "Followers", onClick: goFollowers },
     { icon: ImageIcon, label: "Gallery", onClick: () => go("/dashboard") },
     { icon: MessageCircle, label: "Marketplace", image: marketplaceIcon3D.url, onClick: () => go("/", "Marketplace") },
-    { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
-    { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
+    { icon: Target, label: "Bounties", image: bountiesIcon3D.url, onClick: () => go("/", "Bounties") },
+    { icon: WalletIcon, label: "My Wallet", image: walletIcon3D.url, onClick: () => go("/", "Wallet") },
     { icon: MessageCircle, label: "Academy", image: academyIcon3D.url, onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];

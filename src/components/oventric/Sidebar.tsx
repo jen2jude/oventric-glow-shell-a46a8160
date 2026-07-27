@@ -5,6 +5,8 @@ import homeIcon3D from "@/assets/home-3d.png.asset.json";
 import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
 import academyIcon3D from "@/assets/academy-3d.png.asset.json";
+import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
+import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 
 const items = [
   { icon: Home, label: "Feed", image: homeIcon3D.url },
@@ -12,8 +14,8 @@ const items = [
   { icon: Users, label: "Circles", image: circlesIcon3D.url },
   { icon: Home, label: "Marketplace", image: marketplaceIcon3D.url },
   { icon: Home, label: "Academy", image: academyIcon3D.url },
-  { icon: Target, label: "Bounties" },
-  { icon: Wallet, label: "Wallet" },
+  { icon: Target, label: "Bounties", image: bountiesIcon3D.url },
+  { icon: Wallet, label: "Wallet", image: walletIcon3D.url },
 ] as Array<{ icon: typeof Home; label: string; image?: string }>;
 
 
