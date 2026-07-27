@@ -1,15 +1,14 @@
 import { Home, ShoppingBag, GraduationCap, Target, Wallet, Plus } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
-import { Icon3D, type Icon3DTone } from "@/components/oventric/Icon3D";
 
-const left: { icon: typeof Home; label: string; tone: Icon3DTone }[] = [
-  { icon: Home, label: "Feed", tone: "sky" },
-  { icon: ShoppingBag, label: "Market", tone: "rose" },
+const left = [
+  { icon: Home, label: "Feed" },
+  { icon: ShoppingBag, label: "Market" },
 ];
-const right: { icon: typeof Home; label: string; tone: Icon3DTone }[] = [
-  { icon: GraduationCap, label: "Academy", tone: "violet" },
-  { icon: Target, label: "Bounties", tone: "amber" },
-  { icon: Wallet, label: "Wallet", tone: "mint" },
+const right = [
+  { icon: GraduationCap, label: "Academy" },
+  { icon: Target, label: "Bounties" },
+  { icon: Wallet, label: "Wallet" },
 ];
 
 export type MobileNavCounts = Partial<Record<"Feed" | "Market" | "Academy" | "Bounties" | "Wallet", number>>;
@@ -25,7 +24,7 @@ export function MobileNav({
   onSelect: (label: string) => void;
   counts?: MobileNavCounts;
 }) {
-  const Item = (it: { icon: typeof Home; label: string; tone: Icon3DTone }) => {
+  const Item = (it: { icon: typeof Home; label: string }) => {
     const isActive = active === it.label;
     const count = counts?.[it.label as keyof MobileNavCounts] ?? 0;
     return (
@@ -37,7 +36,7 @@ export function MobileNav({
         }`}
       >
         <span className="relative">
-          <Icon3D icon={it.icon} tone={it.tone} active={isActive} size="sm" ariaLabel={it.label} />
+          <it.icon className="w-6 h-6" strokeWidth={2.5} />
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
         <span className="text-[10px] font-medium">{it.label}</span>
