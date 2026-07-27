@@ -373,10 +373,13 @@ function usePendingCircleRequestsCount() {
     let cancelled = false;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
 
-    const load = () => {
-      listFn()
-        .then((rows) => { if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0); })
-        .catch(() => { if (!cancelled) setCount(0); });
+    const load = async () => {
+      const { data: s } = await supabase.auth.getSession();
+      if (!s.session) { if (!cancelled) setCount(0); return; }
+      try {
+        const rows = await listFn();
+        if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0);
+      } catch { if (!cancelled) setCount(0); }
     };
 
     (async () => {
