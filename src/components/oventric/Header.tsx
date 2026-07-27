@@ -110,13 +110,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       )}
 
       {/* Main row */}
-      <div className="h-16 flex items-center gap-3 px-4 md:px-6">
+      <div className="h-[4.5rem] flex items-center gap-3 px-4 md:px-6">
         {onMenuClick && (
           <button
             onClick={onMenuClick}
-            className="hidden md:flex p-2 rounded-lg hover:bg-white/5 text-white transition-colors"
+            className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors"
           >
-            <Menu className="w-5 h-5" strokeWidth={2.5} />
+            <Menu className="w-6 h-6" strokeWidth={2.5} />
           </button>
         )}
         {/* Desktop-only logo */}
@@ -134,7 +134,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <GlobalSearch variant="inline" />
         </div>
 
-        <div className="flex items-center gap-2 ml-auto shrink-0">
+        <div className="flex items-center gap-2.5 ml-auto shrink-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
           <div className="hidden md:inline-flex">
             <HeaderWalletChip align="right" />
@@ -146,9 +146,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="relative md:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="relative md:hidden p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Shield className="w-5 h-5" strokeWidth={2.5} />
+            <Shield className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
@@ -156,18 +156,18 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="hidden md:inline-flex p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Grip className="w-5 h-5" strokeWidth={2.5} />
+            <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
 
           {/* Notifications */}
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <Bell className="w-5 h-5" strokeWidth={2.5} />
+            <Bell className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
@@ -175,9 +175,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <UserPlus className="w-5 h-5" strokeWidth={2.5} />
+            <UserPlus className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
@@ -196,7 +196,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               src={messageIcon3D}
               alt=""
               aria-hidden="true"
-              className="w-6 h-6 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
+              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
               draggable={false}
             />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
@@ -211,11 +211,11 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <button
               type="button"
               onClick={() => openGate("generic")}
-              className="inline-flex items-center justify-center h-9 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity"
+              className="inline-flex items-center justify-center h-10 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity"
               aria-label="Connect account"
             >
               <span className="inline-flex items-center gap-1.5 h-full w-full px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
-                <KeyRound className="w-3.5 h-3.5 text-white" strokeWidth={2.5} />
+                <KeyRound className="w-4 h-4 text-white" strokeWidth={2.5} />
                 <span className="hidden sm:inline">Connect Account</span>
                 <span className="sm:hidden">Connect</span>
               </span>
