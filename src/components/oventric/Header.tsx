@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { Search, Bell, Menu, KeyRound, X, Shield, Grip, UserPlus } from "lucide-react";
 import messageIcon3D from "@/assets/message-3d.png";
+import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -149,7 +150,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="relative md:hidden p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
             <img
-              src="/__l5e/assets-v1/3ae37d02-69a0-4979-ac29-b386f7fbb790/circles-3d.avif"
+              src={circlesIcon3D.url}
               alt=""
               aria-hidden="true"
               draggable={false}
