@@ -62,7 +62,7 @@ export function Sidebar({
                   alt=""
                   aria-hidden="true"
                   draggable={false}
-                  className="w-7 h-7 shrink-0 object-contain select-none pointer-events-none -my-1 drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
+                  className="w-8 h-8 shrink-0 object-contain select-none pointer-events-none -my-1 drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
                 />
               ) : (
                 <it.icon className="w-5 h-5 shrink-0" />
