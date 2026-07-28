@@ -385,12 +385,12 @@ function BountiesAdminPage() {
               onClick={() => setStatusFilter(key)}
               className={`px-3 py-1.5 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${
                 active
-                  ? "bg-emerald-500 border-emerald-400 text-black"
+                  ? "bg-white border-white text-black"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
               }`}
             >
               {label}
-              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"}`}>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/15 text-black" : "bg-white/10 text-slate-200"}`}>
                 {statusCounts[key] ?? 0}
               </span>
             </button>
