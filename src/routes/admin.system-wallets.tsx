@@ -143,7 +143,10 @@ function SystemWalletsPage() {
                   <div className="text-white font-semibold">{metaFor(t.kind).label}</div>
                   <div className="text-[11px] text-slate-500 font-mono">{t.source} · {new Date(t.createdAt).toLocaleString()}</div>
                 </div>
-                <div className="text-emerald-300 font-mono font-bold">+ {fmtUsd(t.amountUSD)}</div>
+                <div className="text-emerald-300 font-mono font-bold text-right">
+                  + {fmtCur(t.amountUSD, view)}
+                  {view !== "USD" && <div className="text-[10px] text-slate-500 font-normal">≈ {fmtCur(t.amountUSD, "USD")}</div>}
+                </div>
               </div>
             ))
           )}
