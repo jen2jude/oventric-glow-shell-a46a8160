@@ -106,7 +106,7 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className={`inline-flex items-center gap-1 rounded-full bg-[#1E1E24] border border-transparent ${compact ? "h-8 pl-2 pr-1" : "h-10 pl-3 pr-1.5"}`}>
+      <div className={`inline-flex items-center gap-1 rounded-full bg-[#1E1E24] border border-emerald-500/30 ${compact ? "h-8 pl-2 pr-1" : "h-10 pl-3 pr-1.5"}`}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}

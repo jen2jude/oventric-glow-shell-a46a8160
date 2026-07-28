@@ -147,7 +147,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] text-white hover:text-white transition-colors shrink-0"
+            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
           >
             <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
@@ -156,7 +156,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
           </button>
@@ -165,7 +165,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
@@ -175,7 +175,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label={`Requests (${pendingFollow + pendingCircles} pending)`}
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <UserPlus className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge
@@ -188,7 +188,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={onOpenMessages}
             aria-label="Open messages"
-            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <MessageSquare className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
