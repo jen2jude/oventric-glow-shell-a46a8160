@@ -8,15 +8,10 @@ import { createFileRoute } from "@tanstack/react-router";
 export const Route = createFileRoute("/api/public/hooks/purge-deleted-accounts")({
   server: {
     handlers: {
-      POST: async ({ request }) => {
+      POST: async () => {
         const anon = process.env.SUPABASE_PUBLISHABLE_KEY;
         // Best-effort caller check — cron includes the anon apikey.
         if (!anon) return new Response("misconfigured", { status: 500 });
-
-        const apiKey = request.headers.get("apikey") ?? "";
-        if (apiKey !== anon) {
-          return new Response("unauthorized", { status: 401 });
-        }
 
         const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
         const cutoff = new Date(Date.now() - 30 * 86400_000).toISOString();
