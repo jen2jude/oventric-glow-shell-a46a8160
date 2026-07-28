@@ -381,7 +381,7 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
               <VideoItem
                 post={v}
                 active={v.id === activeId}
-                preload={dist <= 1}
+                preload={dist <= 2}
                 pinned={pinned.has(v.id)}
                 onReact={onReact}
                 onOpenComments={onOpenComments}
