@@ -330,7 +330,7 @@ function BountiesAdminPage() {
       <header className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-black flex items-center gap-2">
-            <Target className="w-6 h-6 text-emerald-400" /> Bounties
+            <Target className="w-6 h-6 text-slate-300" /> Bounties
           </h1>
           <p className="text-sm text-slate-400">
             {filteredRows?.length ?? 0}
@@ -343,7 +343,7 @@ function BountiesAdminPage() {
               <button
                 key={c}
                 onClick={() => setDisplayCurrency(c)}
-                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/10"}`}
+                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-white text-black" : "text-slate-300 hover:bg-white/10"}`}
                 aria-pressed={displayCurrency === c}
               >
                 {c}
@@ -358,7 +358,7 @@ function BountiesAdminPage() {
           </button>
           <button
             onClick={openCreate}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-white hover:bg-slate-200 text-black text-sm font-bold rounded-lg flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> New bounty
           </button>
@@ -385,12 +385,12 @@ function BountiesAdminPage() {
               onClick={() => setStatusFilter(key)}
               className={`px-3 py-1.5 rounded-full text-xs font-bold border inline-flex items-center gap-1.5 ${
                 active
-                  ? "bg-emerald-500 border-emerald-400 text-black"
+                  ? "bg-white border-white text-black"
                   : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
               }`}
             >
               {label}
-              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"}`}>
+              <span className={`px-1.5 py-0.5 rounded text-[10px] ${active ? "bg-black/15 text-black" : "bg-white/10 text-slate-200"}`}>
                 {statusCounts[key] ?? 0}
               </span>
             </button>
@@ -458,10 +458,10 @@ function BountiesAdminPage() {
             const id = b.id as string;
             const status = b.status as string;
             const statusColor =
-              status === "active" ? "text-emerald-300 border-emerald-500/40 bg-emerald-500/10" :
-              status === "paused" ? "text-amber-300 border-amber-500/40 bg-amber-500/10" :
-              status === "draft" ? "text-slate-300 border-slate-500/40 bg-slate-500/10" :
-              "text-red-300 border-red-500/40 bg-red-500/10";
+              status === "active" ? "text-slate-100 border-white/20 bg-white/5" :
+              status === "paused" ? "text-amber-200 border-amber-500/30 bg-white/5" :
+              status === "draft" ? "text-slate-300 border-white/15 bg-white/5" :
+              "text-red-300 border-red-500/30 bg-white/5";
             return (
               <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex items-center gap-3 flex-wrap">
                 <div className="flex-1 min-w-[220px]">
@@ -500,13 +500,13 @@ function BountiesAdminPage() {
                       : "";
                     return (
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-                        <span className="px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-200 font-bold">
+                        <span className="px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-slate-100 font-bold">
                           Escrow {price.formatted}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded border border-sky-500/30 bg-sky-500/10 text-sky-200">
+                        <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300">
                           Solver 80% · {formatMoney(solver, displayCurrency)}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-200">
+                        <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300">
                           Platform 20% · {formatMoney(platform, displayCurrency)}
                         </span>
                         <span className="text-slate-500">{nativeNote}</span>
@@ -519,7 +519,7 @@ function BountiesAdminPage() {
                 </div>
                 <button
                   onClick={() => setDetailId(id)}
-                  className="px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-xs font-bold inline-flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5"
                   aria-label="Manage bounty"
                 >
                   <Users className="w-4 h-4" /> Manage
@@ -529,7 +529,7 @@ function BountiesAdminPage() {
                   disabled={busy === id}
                   className={`px-3 py-2 rounded-lg border text-xs font-bold inline-flex items-center gap-1.5 ${
                     b.promoted
-                      ? "bg-fuchsia-500/20 border-fuchsia-500/40 text-fuchsia-200 hover:bg-fuchsia-500/30"
+                      ? "bg-white/10 border-white/20 text-slate-100 hover:bg-white/15"
                       : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
                   }`}
                   aria-label="Toggle promoted"
@@ -564,7 +564,7 @@ function BountiesAdminPage() {
       )}
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80">
           <div className="w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-black text-lg">
@@ -743,7 +743,7 @@ function BountiesAdminPage() {
                 <button
                   disabled={saving}
                   onClick={save}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-white hover:bg-slate-200 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {modal.id ? "Save changes" : "Publish bounty"}
