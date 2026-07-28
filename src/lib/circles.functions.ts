@@ -161,12 +161,27 @@ export const cancelCircleRequest = createServerFn({ method: "POST" })
   });
 
 /** List pending requests addressed to the signed-in user (via their profile slug). */
-export const listIncomingCircleRequests = createServerFn({ method: "GET" })
-  .middleware([requireSupabaseAuth])
-  .handler(async ({ context }): Promise<IncomingCircleRequest[]> => {
-    // Defensive: if middleware ever attaches without a userId, bail with [] instead of throwing.
-    if (!context?.userId) return [];
-    const { supabase, userId } = context;
+export const listIncomingCircleRequests = createServerFn({ method: "GET" }).handler(
+  async (): Promise<IncomingCircleRequest[]> => {
+    const { getRequest } = await import("@tanstack/react-start/server");
+    const { createClient } = await import("@supabase/supabase-js");
+    const req = getRequest();
+    const authHeader = req?.headers?.get("authorization") ?? "";
+    const token = authHeader.startsWith("Bearer ") ? authHeader.slice(7) : "";
+    if (!token || token.split(".").length !== 3) return [];
+
+    const supabase = createClient(
+      process.env.SUPABASE_URL!,
+      process.env.SUPABASE_PUBLISHABLE_KEY!,
+      {
+        global: { headers: { Authorization: `Bearer ${token}` } },
+        auth: { persistSession: false, autoRefreshToken: false, storage: undefined },
+      },
+    );
+    const { data: claims } = await supabase.auth.getClaims(token);
+    const userId = claims?.claims?.sub;
+    if (!userId) return [];
+
     const { data: me } = await supabase
       .from("profiles")
       .select("slug")
@@ -182,7 +197,7 @@ export const listIncomingCircleRequests = createServerFn({ method: "GET" })
       .order("created_at", { ascending: false });
     if (error) {
       console.error("[listIncomingCircleRequests] failed", error);
-      throw new Error("Failed to load incoming requests");
+      return [];
     }
     if (!rows || rows.length === 0) return [];
 
@@ -199,7 +214,8 @@ export const listIncomingCircleRequests = createServerFn({ method: "GET" })
       requesterName: map.get(r.requester_id)?.display_name ?? null,
       createdAt: r.created_at,
     }));
-  });
+  },
+);
 
 /** Accept a pending request from `requesterId` addressed to the signed-in user. */
 export const acceptIncomingRequest = createServerFn({ method: "POST" })
