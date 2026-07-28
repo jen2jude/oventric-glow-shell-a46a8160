@@ -341,11 +341,15 @@ export function Marketplace() {
 
       {mode === "digital" ? (
         <div className="px-4 py-6 space-y-10">
-          {(Object.keys(CATEGORY_META) as CategoryKey[]).map((cat) => {
-            const items = digital.filter((p) => p.category === cat);
-            if (items.length === 0) return null;
-            const meta = CATEGORY_META[cat];
-            const adIndex = Object.keys(CATEGORY_META).indexOf(cat);
+          {visibleDigitalGroups.length === 0 ? (
+            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center max-w-2xl mx-auto">
+              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <div className="text-white font-semibold mb-1">No digital products yet</div>
+              <div className="text-sm text-slate-400">Check back soon or be the first to list one.</div>
+            </div>
+          ) : visibleDigitalGroups.map(([cat, items], idx) => {
+            const label = digitalLabel(cat);
+            const title = digitalTitle(cat);
             return (
               <section
                 key={cat}
@@ -353,7 +357,7 @@ export function Marketplace() {
                 className="scroll-mt-20"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg md:text-xl font-black text-white truncate">{meta.title}</h2>
+                  <h2 className="text-lg md:text-xl font-black text-white truncate">{title}</h2>
                   <button
                     onClick={() => setFullCategory(cat)}
                     className="text-sm text-emerald-400 hover:text-emerald-300 font-medium whitespace-nowrap shrink-0"
@@ -362,11 +366,11 @@ export function Marketplace() {
                   </button>
                 </div>
                 <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
-                  {items.map((p) => (
+                  {items.slice(0, 12).map((p) => (
                     <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
                   ))}
-                  <AdSlot placement="marketplace" variant="grid" index={adIndex} />
-                  <ViewMoreButton label={meta.label} onClick={() => setFullCategory(cat)} />
+                  <AdSlot placement="marketplace" variant="grid" index={idx} />
+                  <ViewMoreButton label={label} onClick={() => setFullCategory(cat)} />
                 </div>
               </section>
             );
