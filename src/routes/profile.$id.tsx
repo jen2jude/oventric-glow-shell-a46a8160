@@ -1139,7 +1139,6 @@ function ProfilePage() {
             <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
               {(
                 [
-                  ["posts", "Posts"],
                   ["groups", "Circles"],
                   ["marketplace", "Marketplace"],
                   ["posted", "Bounties Posted"],
