@@ -59,7 +59,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 const profileSearchSchema = z.object({
-  tab: fallback(z.string(), "posts").default("posts"),
+  tab: fallback(z.string(), "groups").default("groups"),
   pages: fallback(z.number().int(), 1).default(1),
   y: fallback(z.number().int(), 0).default(0),
   q: fallback(z.string(), "").default(""),
