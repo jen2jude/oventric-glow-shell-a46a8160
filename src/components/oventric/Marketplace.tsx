@@ -59,10 +59,11 @@ export function Marketplace() {
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
   const [mode, setMode] = useState<Mode>("digital");
-  const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [activePhysicalTab, setActivePhysicalTab] = useState<string>("all");
   const [fullCategory, setFullCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductDTO[] | null>(null);
+  const [digitalCats, setDigitalCats] = useState<CategoryNode[]>([]);
   const [physicalCats, setPhysicalCats] = useState<CategoryNode[]>([]);
   const [error, setError] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -77,7 +78,17 @@ export function Marketplace() {
 
   useEffect(() => {
     loadCats()
-      .then((rows) => setPhysicalCats((rows ?? []).filter((r) => r.kind === "physical")))
+      .then((rows) => {
+        // Flatten roots + children so every enabled category is featured.
+        const flat: CategoryNode[] = [];
+        const walk = (n: CategoryNode) => {
+          flat.push(n);
+          n.children.forEach(walk);
+        };
+        (rows ?? []).forEach(walk);
+        setDigitalCats(flat.filter((r) => r.kind === "digital"));
+        setPhysicalCats(flat.filter((r) => r.kind === "physical"));
+      })
       .catch(() => {});
   }, [loadCats]);
 
