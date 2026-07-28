@@ -38,6 +38,22 @@ export const checkIsAdmin = createServerFn({ method: "GET" })
     return { isAdmin: Boolean(data) };
   });
 
+/** Live count of products awaiting admin approval. Drives the pulsing badge in the admin nav. */
+export const adminGetPendingProductsCount = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: isAdmin } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    if (!isAdmin) return { count: 0 };
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { count } = await (supabaseAdmin as any)
+      .from("products")
+      .select("id", { count: "exact", head: true })
+      .eq("status", "pending");
+    return { count: count ?? 0 };
+  });
+
 /** Aggregate stats for the admin overview page. Uses service-role so RLS
  * on `profiles`/`wallet_transactions` never zeroes out the KPIs. */
 export const getAdminStats = createServerFn({ method: "GET" })

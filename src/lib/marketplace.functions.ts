@@ -288,6 +288,13 @@ export const createProduct = createServerFn({ method: "POST" })
     if (!data.name) throw new Error("Name required");
     if (data.priceUSD < 0) throw new Error("Price cannot be negative");
 
+    // Admins publish directly; regular sellers enter the moderation queue.
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    const initialStatus = isAdmin ? "active" : "pending";
+
     const cover = data.coverPath ?? data.imagePaths[0] ?? null;
     const { data: row, error } = await context.supabase
       .from("products")
@@ -310,10 +317,11 @@ export const createProduct = createServerFn({ method: "POST" })
         requires_manual_delivery: data.requiresManualDelivery,
         promoted: false,
         kind: "digital",
-        status: "pending",
+        status: initialStatus,
       })
       .select("id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, image_paths, created_at, updated_at, kind, status, reject_reason, requires_manual_delivery")
       .single();
+
 
     if (error) throw new Error(error.message);
     let coverUrl: string | null = null;
@@ -379,7 +387,15 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
     if (data.imagePaths.length < 3) throw new Error("Please upload at least 3 product images");
     if (!data.sellerPhone || data.sellerPhone.length < 6) throw new Error("A valid phone number is required");
 
+    // Admins publish physical listings directly; regular sellers queue for review.
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    const initialStatus = isAdmin ? "active" : "pending";
+
     const { data: row, error } = await context.supabase
+
       .from("products")
       .insert({
         seller_id: context.userId,
@@ -396,7 +412,8 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
         cover_path: data.imagePaths[0] ?? null,
         image_paths: data.imagePaths,
         kind: "physical",
-        status: "pending",
+        status: initialStatus,
+
         condition: data.condition,
         brand: data.brand,
         location: data.location,
@@ -947,6 +964,35 @@ export const createOrder = createServerFn({ method: "POST" })
         occurred_at: new Date().toISOString(),
       });
     }
+
+    // Manual-delivery flow: notify the seller in-platform via DM + inbox so they
+    // know a paid order is waiting for them to deliver via URL, file upload, or
+    // chat. Escrow stays "held" until the buyer confirms receipt.
+    if (holdEscrow) {
+      const dmBody =
+        `📦 New paid order — "${product.name}" (Qty ${data.quantity})\n\n` +
+        `The buyer has paid and is waiting for delivery. Please deliver here on Oventric ` +
+        `(share a link, upload a file, or attach it in this chat) so the platform can protect both sides. ` +
+        `Payment will only be released to your wallet after the buyer confirms they received the goods.\n\n` +
+        `Buyer contact on file:\n` +
+        `• Email: ${data.deliveryEmail ?? "—"}\n` +
+        `• WhatsApp: ${data.deliveryWhatsapp ?? "—"}\n\n` +
+        `Order ref: ${(oRow.id as string).slice(0, 8)}`;
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: userId,
+        recipient_id: product.sellerId,
+        body: dmBody,
+      });
+      await supabaseAdmin.from("notifications").insert({
+        user_id: product.sellerId,
+        kind: "order_manual_delivery",
+        title: `Deliver "${product.name}"`,
+        body: `A buyer paid and is waiting for you to deliver on-platform. Escrow releases after they confirm receipt.`,
+        link: `/order/${oRow.id as string}`,
+        from_user_id: userId,
+      });
+    }
+
 
     return {
       order: {

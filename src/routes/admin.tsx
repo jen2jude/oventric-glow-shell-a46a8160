@@ -24,7 +24,7 @@ import {
 
 
 import { supabase } from "@/integrations/supabase/client";
-import { checkIsAdmin } from "@/lib/admin.functions";
+import { checkIsAdmin, adminGetPendingProductsCount } from "@/lib/admin.functions";
 import { adminGetPendingPayoutCount } from "@/lib/payouts.functions";
 
 export const Route = createFileRoute("/admin")({
@@ -85,9 +85,11 @@ const NAV = [
 function AdminLayout() {
   const check = useServerFn(checkIsAdmin);
   const getPendingPayouts = useServerFn(adminGetPendingPayoutCount);
+  const getPendingProducts = useServerFn(adminGetPendingProductsCount);
   const router = useRouter();
   const [state, setState] = useState<"loading" | "unauth" | "forbidden" | "ok">("loading");
   const [pendingPayouts, setPendingPayouts] = useState(0);
+  const [pendingProducts, setPendingProducts] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -110,14 +112,16 @@ function AdminLayout() {
     let cancelled = false;
     const load = async () => {
       try {
-        const r = await getPendingPayouts();
-        if (!cancelled) setPendingPayouts(r.count);
+        const [payouts, products] = await Promise.all([getPendingPayouts(), getPendingProducts()]);
+        if (cancelled) return;
+        setPendingPayouts(payouts.count);
+        setPendingProducts(products.count);
       } catch { /* ignore */ }
     };
     load();
     const id = window.setInterval(load, 30_000);
     return () => { cancelled = true; window.clearInterval(id); };
-  }, [state, getPendingPayouts]);
+  }, [state, getPendingPayouts, getPendingProducts]);
 
   if (state === "loading") {
     return (
@@ -189,8 +193,14 @@ function AdminLayout() {
         </div>
         <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
           {NAV.map((n) => {
-            const isPayouts = n.to === "/admin/payouts";
-            const alert = isPayouts && pendingPayouts > 0;
+            const badgeCount =
+              n.to === "/admin/payouts" ? pendingPayouts :
+              n.to === "/admin/products" ? pendingProducts : 0;
+            const alert = badgeCount > 0;
+            const badgeLabel =
+              n.to === "/admin/payouts" ? `${badgeCount} pending payouts` :
+              n.to === "/admin/products" ? `${badgeCount} listings awaiting approval` :
+              `${badgeCount} pending`;
             return (
               <Link
                 key={n.to}
@@ -212,10 +222,10 @@ function AdminLayout() {
                 <span className="flex-1">{n.label}</span>
                 {alert && (
                   <span
-                    aria-label={`${pendingPayouts} pending payouts`}
+                    aria-label={badgeLabel}
                     className="min-w-[20px] h-[18px] px-1.5 rounded-full text-[10px] font-black bg-red-500 text-white flex items-center justify-center"
                   >
-                    {pendingPayouts > 99 ? "99+" : pendingPayouts}
+                    {badgeCount > 99 ? "99+" : badgeCount}
                   </span>
                 )}
               </Link>
