@@ -143,9 +143,18 @@ export function Bounties() {
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
   useEffect(() => {
     const onOpen = () => setPostOpen(true);
+    const onOpenDetail = (e: Event) => {
+      const detail = (e as CustomEvent<{ id?: string }>).detail;
+      if (detail?.id) setSelectedId(detail.id);
+    };
     window.addEventListener("oventric:bounty:open", onOpen);
-    return () => window.removeEventListener("oventric:bounty:open", onOpen);
+    window.addEventListener("oventric:bounty:open-detail", onOpenDetail);
+    return () => {
+      window.removeEventListener("oventric:bounty:open", onOpen);
+      window.removeEventListener("oventric:bounty:open-detail", onOpenDetail);
+    };
   }, []);
+
 
 
   useEffect(() => {

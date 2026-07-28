@@ -106,7 +106,14 @@ export function CirclesHub() {
     const u = new URL(window.location.href);
     const c = u.searchParams.get("circle");
     if (c) setOpenSlug(c);
+    const onOpenSlug = (e: Event) => {
+      const detail = (e as CustomEvent<{ slug?: string }>).detail;
+      if (detail?.slug) setOpenSlug(detail.slug);
+    };
+    window.addEventListener("oventric:circle:open-slug", onOpenSlug);
+    return () => window.removeEventListener("oventric:circle:open-slug", onOpenSlug);
   }, []);
+
 
   const catalog = catalogQ.data;
   const filtered = useMemo(() => {
