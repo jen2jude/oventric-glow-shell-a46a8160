@@ -26,8 +26,13 @@ const KINDS: SystemWalletKind[] = ["marketplace", "bounty", "ads", "academy"];
 const FALLBACK_META = { label: "Other Revenue", sub: "", icon: ShoppingBag, hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30" } as const;
 const metaFor = (k: string) => (META as Record<string, typeof FALLBACK_META>)[k] ?? FALLBACK_META;
 
-function fmtUsd(n: number) {
-  return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+type ViewCur = "NGN" | "USD" | "GHS";
+const USD_TO: Record<ViewCur, number> = { USD: 1, NGN: 1500, GHS: 14 };
+const SYM: Record<ViewCur, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+function fmtCur(usd: number, cur: ViewCur) {
+  const v = usd * USD_TO[cur];
+  const s = cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString();
+  return `${SYM[cur]}${s}`;
 }
 
 function SystemWalletsPage() {
