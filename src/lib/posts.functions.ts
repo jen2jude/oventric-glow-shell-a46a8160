@@ -90,12 +90,19 @@ function zeroReactions(): Record<ReactionType, number> {
   return { love: 0, like: 0, laugh: 0, crown: 0 };
 }
 
+async function buildFeedPosts(sb: SupabaseClient<Database>, userId: string | null, rowsIn: any[]): Promise<FeedPost[]> {
+  const rows = rowsIn ?? [];
+  if (rows.length === 0) return [];
+  return await buildFeedFromRows(sb, userId, rows);
+}
+
 export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   const { sb, userId } = await getViewerClient();
 
   const { data: posts, error } = await sb
     .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed" as any)
+    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
+    .is("wall_user_id" as any, null)
     .order("created_at", { ascending: false })
     .limit(100);
   if (error) {
