@@ -343,7 +343,7 @@ function BountiesAdminPage() {
               <button
                 key={c}
                 onClick={() => setDisplayCurrency(c)}
-                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:bg-white/10"}`}
+                className={`px-3 py-2 text-xs font-bold ${displayCurrency === c ? "bg-white text-black" : "text-slate-300 hover:bg-white/10"}`}
                 aria-pressed={displayCurrency === c}
               >
                 {c}
