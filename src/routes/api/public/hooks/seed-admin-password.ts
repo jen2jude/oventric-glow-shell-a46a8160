@@ -4,11 +4,26 @@ import { createFileRoute } from "@tanstack/react-router";
  * One-shot bootstrap: sets the seed admin (jen2jude@gmail.com) password.
  * Self-locks by writing an audit_logs marker; subsequent calls return 410 Gone.
  * Rotate the seed's password afterwards via /admin/management-users.
+ *
+ * Requires ADMIN_BOOTSTRAP_SECRET in the x-bootstrap-secret header to prevent
+ * a race where an unauthorized caller sets the seed password first.
  */
 export const Route = createFileRoute("/api/public/hooks/seed-admin-password")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const secret = process.env.ADMIN_BOOTSTRAP_SECRET;
+        const provided = request.headers.get("x-bootstrap-secret") ?? "";
+        if (!secret) {
+          return new Response(
+            "ADMIN_BOOTSTRAP_SECRET is not configured. Add it via Settings > Secrets, then call again with the x-bootstrap-secret header.",
+            { status: 500 },
+          );
+        }
+        if (provided !== secret) {
+          return new Response("unauthorized", { status: 401 });
+        }
+
         const body = (await request.json().catch(() => ({}))) as { password?: string };
         const password = body?.password;
         if (!password || password.length < 8) {
