@@ -672,6 +672,46 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           )}
         </div>
       )}
+      {confirmSolved && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setConfirmSolved(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
+                <Send className="w-4 h-4 text-sky-300" />
+              </div>
+              <div className="text-white font-bold text-base">Mark work delivered?</div>
+            </div>
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              The poster will be notified to review your delivery. If they don't confirm within
+              <span className="text-white font-semibold"> 48 hours</span>, funds will auto-release to your wallet.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmSolved(false)}
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={doMarkSolved}
+                disabled={busy === "solved"}
+                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                {busy === "solved" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Yes, mark delivered
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
