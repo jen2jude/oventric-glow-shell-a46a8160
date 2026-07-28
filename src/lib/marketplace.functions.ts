@@ -412,7 +412,8 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
         cover_path: data.imagePaths[0] ?? null,
         image_paths: data.imagePaths,
         kind: "physical",
-        status: "pending",
+        status: initialStatus,
+
         condition: data.condition,
         brand: data.brand,
         location: data.location,
