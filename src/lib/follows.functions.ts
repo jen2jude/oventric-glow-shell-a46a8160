@@ -27,12 +27,24 @@ export interface SuggestedPerson extends PersonSummary {
   reputation: number;
 }
 
+async function signAvatarPaths(supabase: any, paths: (string | null | undefined)[]): Promise<Map<string, string>> {
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  if (unique.length === 0) return new Map();
+  const { data } = await supabase.storage.from("avatars").createSignedUrls(unique, 60 * 60 * 24 * 7);
+  const map = new Map<string, string>();
+  (data ?? []).forEach((r: any, i: number) => {
+    if (r?.signedUrl) map.set(unique[i], r.signedUrl);
+  });
+  return map;
+}
+
 async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, PersonSummary>> {
   if (ids.length === 0) return new Map();
   const { data } = await supabase
     .from("profiles")
     .select("user_id, display_name, username, slug, avatar_path, bio")
     .in("user_id", ids);
+  const signed = await signAvatarPaths(supabase, (data ?? []).map((p: any) => p.avatar_path));
   return new Map(
     (data ?? []).map((p: any) => [
       p.user_id,
@@ -41,7 +53,7 @@ async function loadPeople(supabase: any, ids: string[]): Promise<Map<string, Per
         displayName: p.display_name || p.username || "Unnamed member",
         username: p.username ?? null,
         slug: p.slug ?? null,
-        avatarUrl: p.avatar_path ?? null,
+        avatarUrl: p.avatar_path ? signed.get(p.avatar_path) ?? null : null,
         bio: p.bio ?? null,
       } satisfies PersonSummary,
     ]),
@@ -300,17 +312,16 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
       .limit(limit * 3);
     if (error) throw error;
 
-    const scored: SuggestedPerson[] = (rows ?? [])
-      .filter((p: any) => !exclude.has(p.user_id))
-      .slice(0, limit)
-      .map((p: any) => ({
-        userId: p.user_id,
-        displayName: p.display_name || p.username || "Unnamed member",
-        username: p.username ?? null,
-        slug: p.slug ?? null,
-        avatarUrl: p.avatar_path ?? null,
-        bio: p.bio ?? null,
-        reputation: Number(p.reputation_stars ?? 0),
-      }));
+    const filtered = (rows ?? []).filter((p: any) => !exclude.has(p.user_id)).slice(0, limit);
+    const signed = await signAvatarPaths(context.supabase, filtered.map((p: any) => p.avatar_path));
+    const scored: SuggestedPerson[] = filtered.map((p: any) => ({
+      userId: p.user_id,
+      displayName: p.display_name || p.username || "Unnamed member",
+      username: p.username ?? null,
+      slug: p.slug ?? null,
+      avatarUrl: p.avatar_path ? signed.get(p.avatar_path) ?? null : null,
+      bio: p.bio ?? null,
+      reputation: Number(p.reputation_stars ?? 0),
+    }));
     return scored;
   });
