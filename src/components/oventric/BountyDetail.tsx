@@ -487,10 +487,19 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             </div>
           )}
 
+          {isSolver && bounty.status === "solved" && !bounty.released_at && (
+            <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/40 text-sky-200 text-xs font-semibold">
+              <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+              <div>
+                Waiting for the poster to confirm the work was delivered okay. Your funds will be released to your wallet within 48 hours{autoReleaseIn !== null ? ` (~${Math.ceil(autoReleaseIn)}h remaining)` : ""}.
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2">
             {isSolver && !bounty.released_at && bounty.status !== "solved" && (
               <button
-                onClick={doMarkSolved}
+                onClick={() => setConfirmSolved(true)}
                 disabled={busy === "solved" || bounty.dispute_status === "open"}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
               >
