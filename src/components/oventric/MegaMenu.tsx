@@ -132,13 +132,13 @@ export function MegaMenu({ open, onClose }: Props) {
 
   const grid = [
     { icon: MessageCircle, label: "Messages", onClick: openMessages },
-    { icon: Shield, label: "Circles & Guilds", image: circlesIcon3D.url, onClick: () => go("/", "Circles") },
+    { icon: Shield, label: "Circles & Guilds", onClick: () => go("/", "Circles") },
     { icon: Users, label: "Followers", onClick: goFollowers },
     { icon: ImageIcon, label: "Gallery", onClick: () => go("/dashboard") },
-    { icon: MessageCircle, label: "Marketplace", image: marketplaceIcon3D.url, onClick: () => go("/", "Marketplace") },
-    { icon: Target, label: "Bounties", image: bountiesIcon3D.url, onClick: () => go("/", "Bounties") },
-    { icon: WalletIcon, label: "My Wallet", image: walletIcon3D.url, onClick: () => go("/", "Wallet") },
-    { icon: MessageCircle, label: "Academy", image: academyIcon3D.url, onClick: () => go("/", "Academy") },
+    { icon: ShoppingBag, label: "Marketplace", onClick: () => go("/", "Marketplace") },
+    { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
+    { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
+    { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
 
