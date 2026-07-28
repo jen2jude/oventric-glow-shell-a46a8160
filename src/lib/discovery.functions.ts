@@ -460,7 +460,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
 
     // ---- Blog news ----
     const blRows = blogRes.data ?? [];
-    const blCovers = await signBucket(sb, "blog-covers", blRows.map((b: any) => b.cover_path));
+    const blCovers = await signBucket(supabaseAdmin as any, "blog-covers", blRows.map((b: any) => b.cover_path));
     const catIds = Array.from(new Set(blRows.map((b: any) => b.category_id).filter(Boolean))) as string[];
     let catMap = new Map<string, string>();
     if (catIds.length) {
