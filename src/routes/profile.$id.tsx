@@ -131,7 +131,7 @@ function ProfilePage() {
   const profile = useMemo(() => getProfile(id), [id]);
   const { require, baseCurrency } = useOnboarding();
 
-  const tab: Tab = isTab(search.tab) ? search.tab : "posts";
+  const tab: Tab = isTab(search.tab) && search.tab !== "posts" ? search.tab : "groups";
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
   const restoreY = Math.max(0, search.y || 0);
   const q = (search.q || "").trim();
