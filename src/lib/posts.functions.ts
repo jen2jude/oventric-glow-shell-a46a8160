@@ -90,27 +90,12 @@ function zeroReactions(): Record<ReactionType, number> {
   return { love: 0, like: 0, laugh: 0, crown: 0 };
 }
 
-async function buildFeedPosts(sb: SupabaseClient<Database>, userId: string | null, rowsIn: any[]): Promise<FeedPost[]> {
-  const rows = rowsIn ?? [];
+async function buildFeedPosts(
+  sb: SupabaseClient<Database>,
+  userId: string | null,
+  rows: any[],
+): Promise<FeedPost[]> {
   if (rows.length === 0) return [];
-  return await buildFeedFromRows(sb, userId, rows);
-}
-
-export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
-  const { sb, userId } = await getViewerClient();
-
-  const { data: posts, error } = await sb
-    .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
-    .is("wall_user_id" as any, null)
-    .order("created_at", { ascending: false })
-    .limit(100);
-  if (error) {
-    console.error("[listPosts] failed", error);
-    throw new Error("Failed to load posts");
-  }
-  const rows = (posts ?? []) as Array<any>;
-  if (rows.length === 0) return { posts: [] as FeedPost[] };
 
   const authorIds = new Set<string>(rows.map((r) => r.author_id));
   const mentionedByPost = new Map<string, string[]>();
@@ -137,7 +122,6 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     (signed ?? []).forEach((s) => { if (s.path && s.signedUrl) avatarByPath.set(s.path, s.signedUrl); });
   }
 
-  // Collect every media path across legacy + new arrays and sign them all in one round-trip.
   const allMediaPaths = new Set<string>();
   const posterCandidates = new Set<string>();
   rows.forEach((r) => {
@@ -155,15 +139,11 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   const signedByPath = new Map<string, string>();
   const posterByVideoPath = new Map<string, string>();
   if (allMediaPaths.size > 0) {
-    // Sign with admin client so we can lock down post-media SELECT policy to owner-only.
-    // Post visibility/audience filtering is already enforced by the posts RLS above.
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const { data: signed } = await supabaseAdmin.storage
       .from("post-media")
       .createSignedUrls(Array.from(allMediaPaths), 60 * 60 * 6);
-    (signed ?? []).forEach((s) => {
-      if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl);
-    });
+    (signed ?? []).forEach((s) => { if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl); });
     if (posterCandidates.size > 0) {
       const { data: posters } = await supabaseAdmin.storage
         .from("post-media")
@@ -177,8 +157,6 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     }
   }
 
-
-  // Resolve circle metadata (name/slug/avatar) for any post that carries a circle_id.
   const circleIds = Array.from(new Set(rows.map((r) => r.circle_id).filter((x): x is string => !!x)));
   const circleById = new Map<string, { id: string; name: string; slug: string; avatar_url: string | null }>();
   let viewerCircleIds = new Set<string>();
@@ -200,7 +178,6 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       viewerCircleIds = new Set((mem ?? []).map((m: any) => m.circle_id as string));
     }
   }
-  // Sign circle avatars stored in the private circle-avatars bucket in one pass.
   const circleAvatarPaths = Array.from(
     new Set(
       Array.from(circleById.values())
@@ -214,9 +191,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     const { data: signed } = await supabaseAdmin.storage
       .from("circle-avatars")
       .createSignedUrls(circleAvatarPaths, 60 * 60 * 6);
-    (signed ?? []).forEach((s) => {
-      if (s.path && s.signedUrl) circleAvatarByPath.set(s.path, s.signedUrl);
-    });
+    (signed ?? []).forEach((s) => { if (s.path && s.signedUrl) circleAvatarByPath.set(s.path, s.signedUrl); });
   }
 
   const profileById = new Map((profiles ?? []).map((p) => [p.user_id, p]));
@@ -232,7 +207,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   const commentCounts = new Map<string, number>();
   (commentRows ?? []).forEach((c) => commentCounts.set(c.post_id, (commentCounts.get(c.post_id) ?? 0) + 1));
 
-  const out: FeedPost[] = rows.map((r) => {
+  return rows.map((r) => {
     const prof = profileById.get(r.author_id);
     const name = prof?.display_name || prof?.username || "Member";
     const reactions = reactionsByPost.get(r.id) ?? zeroReactions();
@@ -267,13 +242,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
         const url = raw
           ? (/^https?:\/\//i.test(raw) || raw.startsWith("data:") ? raw : (circleAvatarByPath.get(raw) ?? null))
           : null;
-        circle = {
-          id: c.id,
-          name: c.name,
-          slug: c.slug,
-          avatarUrl: url,
-          viewerIsMember: viewerCircleIds.has(c.id),
-        };
+        circle = { id: c.id, name: c.name, slug: c.slug, avatarUrl: url, viewerIsMember: viewerCircleIds.has(c.id) };
       }
     }
     return {
@@ -308,8 +277,55 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       circle,
     };
   });
+}
+
+export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
+  const { sb, userId } = await getViewerClient();
+  const { data: posts, error } = await sb
+    .from("posts")
+    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
+    .is("wall_user_id" as any, null)
+    .order("created_at", { ascending: false })
+    .limit(100);
+  if (error) {
+    console.error("[listPosts] failed", error);
+    throw new Error("Failed to load posts");
+  }
+  const out = await buildFeedPosts(sb, userId, (posts ?? []) as any[]);
   return { posts: out };
 });
+
+export const listWallPosts = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => z.object({ wallUserId: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { sb, userId } = await getViewerClient();
+    const { data: rows, error } = await sb
+      .from("posts")
+      .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
+      .eq("wall_user_id" as any, data.wallUserId)
+      .order("created_at", { ascending: false })
+      .limit(100);
+    if (error) {
+      console.error("[listWallPosts] failed", error);
+      throw new Error("Failed to load wall posts");
+    }
+    const out = await buildFeedPosts(sb, userId, (rows ?? []) as any[]);
+    return { posts: out };
+  });
+
+export const canPostOnWall = createServerFn({ method: "GET" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ wallUserId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    if (data.wallUserId === context.userId) return { allowed: true, reason: "self" as const };
+    const { data: f } = await context.supabase
+      .from("follows")
+      .select("follower_id")
+      .eq("followee_id", data.wallUserId)
+      .eq("follower_id", context.userId)
+      .maybeSingle();
+    return { allowed: !!f, reason: f ? ("follower" as const) : ("not_following" as const) };
+  });
 
 export const createPost = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
