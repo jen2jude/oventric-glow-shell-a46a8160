@@ -115,17 +115,20 @@ function VideoItem({
     <div className="relative w-full h-full snap-start flex items-center justify-center bg-black">
       <video
         ref={vRef}
-        src={post.media_url ?? undefined}
+        src={post.media_url ? `${post.media_url}#t=0.1` : undefined}
         className="max-h-full max-w-full object-contain"
         loop
         playsInline
-        preload={active ? "auto" : preload ? "auto" : "metadata"}
+        muted={false}
+        preload={active || preload ? "auto" : "none"}
+        disableRemotePlayback
         onClick={() => {
           const v = vRef.current;
           if (!v) return;
           if (v.paused) { v.play(); setPaused(false); } else { v.pause(); setPaused(true); }
         }}
       />
+
       {paused && (
         <button
           onClick={() => { vRef.current?.play(); setPaused(false); }}

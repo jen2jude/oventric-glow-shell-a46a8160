@@ -1210,12 +1210,17 @@ export function Feed() {
                       aria-label="Play video"
                     >
                       <video
-                        src={post.media_url}
+                        src={`${post.media_url}#t=0.1`}
                         preload="metadata"
                         muted
                         playsInline
+                        disableRemotePlayback
+                        // Hints the browser to paint the first frame as a poster
+                        // without downloading the full clip until the user opens
+                        // the reel viewer.
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                       />
+
                       <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
                         <div className="p-4 rounded-full bg-black/70 border border-white/25 backdrop-blur">
                           <Play className="w-8 h-8 text-white fill-white" />
