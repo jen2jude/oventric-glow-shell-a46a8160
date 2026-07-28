@@ -74,8 +74,6 @@ const NAV = [
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
   { to: "/admin/payouts", label: "Payouts", icon: Banknote },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
-
-
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/circle-categories", label: "Circle Categories", icon: ShieldCheck },
@@ -83,7 +81,8 @@ const NAV = [
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/reports", label: "Reports", icon: ShieldCheck },
-];
+  { to: "/admin/management-users", label: "Management Users", icon: UserCog },
+] as const;
 
 function AdminLayout() {
   const check = useServerFn(checkIsAdmin);
