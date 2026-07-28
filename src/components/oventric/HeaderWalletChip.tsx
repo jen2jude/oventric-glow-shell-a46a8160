@@ -115,7 +115,7 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
           className="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition-colors min-w-0"
         >
           <WalletIcon className={`shrink-0 text-emerald-300 ${compact ? "w-4 h-4" : "w-5 h-5"}`} />
-          <span className={`font-semibold tabular-nums truncate ${compact ? "text-xs max-w-[5.5rem]" : "text-sm max-w-[8rem]"}`}>{display}</span>
+          <span className={`font-semibold tabular-nums truncate ${compact ? "text-xs max-w-[4rem] sm:max-w-[5.5rem]" : "text-sm max-w-[8rem]"}`}>{display}</span>
           <ChevronDown className={`shrink-0 text-slate-400 transition-transform ${compact ? "w-3.5 h-3.5" : "w-4 h-4"} ${open ? "rotate-180" : ""}`} />
         </button>
         {!compact && (
