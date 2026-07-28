@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Outlet, Link, useRouter, useLocation } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ShieldCheck,
@@ -20,7 +20,10 @@ import {
   GraduationCap,
   Banknote,
   BookOpen,
+  UserCog,
 } from "lucide-react";
+
+import { canAccessSection, type ManagementRole } from "@/lib/admin-roles";
 
 
 import { supabase } from "@/integrations/supabase/client";
@@ -59,7 +62,8 @@ function AdminError({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/products", label: "Products", icon: Package },
@@ -71,8 +75,6 @@ const NAV = [
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
   { to: "/admin/payouts", label: "Payouts", icon: Banknote },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
-
-
   { to: "/admin/communications", label: "Communications", icon: Radio },
   { to: "/admin/categories", label: "Categories", icon: Tags },
   { to: "/admin/circle-categories", label: "Circle Categories", icon: ShieldCheck },
@@ -80,6 +82,7 @@ const NAV = [
   { to: "/admin/audit", label: "Audit Log", icon: ScrollText },
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/reports", label: "Reports", icon: ShieldCheck },
+  { to: "/admin/management-users", label: "Management Users", icon: UserCog },
 ];
 
 function AdminLayout() {
@@ -87,7 +90,9 @@ function AdminLayout() {
   const getPendingPayouts = useServerFn(adminGetPendingPayoutCount);
   const getPendingProducts = useServerFn(adminGetPendingProductsCount);
   const router = useRouter();
+  const location = useLocation();
   const [state, setState] = useState<"loading" | "unauth" | "forbidden" | "ok">("loading");
+  const [roles, setRoles] = useState<ManagementRole[]>([]);
   const [pendingPayouts, setPendingPayouts] = useState(0);
   const [pendingProducts, setPendingProducts] = useState(0);
 
@@ -99,6 +104,7 @@ function AdminLayout() {
       try {
         const res = await check();
         if (cancelled) return;
+        setRoles((res.roles ?? []) as ManagementRole[]);
         setState(res.isAdmin ? "ok" : "forbidden");
       } catch {
         if (!cancelled) setState("forbidden");
@@ -122,6 +128,12 @@ function AdminLayout() {
     const id = window.setInterval(load, 30_000);
     return () => { cancelled = true; window.clearInterval(id); };
   }, [state, getPendingPayouts, getPendingProducts]);
+
+  const visibleNav = useMemo(
+    () => NAV.filter((n) => canAccessSection(n.to, roles)),
+    [roles],
+  );
+  const currentAllowed = canAccessSection(location.pathname, roles);
 
   if (state === "loading") {
     return (
@@ -175,11 +187,13 @@ function AdminLayout() {
           </div>
           <div>
             <div className="text-white text-sm font-black leading-tight">Admin CRM</div>
-            <div className="text-[10px] text-slate-500 uppercase tracking-wider">Oventric</div>
+            <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+              {roles.length > 0 ? roles.join(" • ") : "Oventric"}
+            </div>
           </div>
         </div>
         <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
-          {NAV.map((n) => {
+          {visibleNav.map((n) => {
             const badgeCount =
               n.to === "/admin/payouts" ? pendingPayouts :
               n.to === "/admin/products" ? pendingProducts : 0;
@@ -191,7 +205,7 @@ function AdminLayout() {
             return (
               <Link
                 key={n.to}
-                to={n.to}
+                to={n.to as unknown as "/admin"}
                 activeOptions={{ exact: n.exact }}
                 activeProps={{
                   className: alert
@@ -227,7 +241,20 @@ function AdminLayout() {
         </button>
       </aside>
       <main className="flex-1 min-w-0 overflow-y-auto">
-        <Outlet />
+        {currentAllowed ? (
+          <Outlet />
+        ) : (
+          <div className="p-10 flex items-center justify-center min-h-full">
+            <div className="max-w-md text-center bg-[#141418] border border-white/10 rounded-2xl p-8">
+              <ShieldCheck className="w-8 h-8 text-amber-400 mx-auto mb-3" />
+              <h2 className="text-lg font-bold text-white">Restricted section</h2>
+              <p className="text-sm text-slate-400 mt-2">
+                Your role ({roles.join(", ") || "—"}) does not include access to this page.
+                Ask a Super Admin to grant it.
+              </p>
+            </div>
+          </div>
+        )}
       </main>
     </div>
   );

@@ -2625,6 +2625,7 @@ export type Database = {
           whatsapp_number: string
         }[]
       }
+      has_any_management_role: { Args: { _user_id: string }; Returns: boolean }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2767,7 +2768,13 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role:
+        | "admin"
+        | "moderator"
+        | "user"
+        | "finance"
+        | "content"
+        | "support"
       blog_status: "draft" | "published" | "scheduled"
       circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
@@ -2910,7 +2917,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "finance", "content", "support"],
       blog_status: ["draft", "published", "scheduled"],
       circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],

@@ -37,6 +37,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
+import { Route as AdminManagementUsersRouteImport } from './routes/admin.management-users'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
@@ -56,6 +57,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
+import { Route as ApiPublicHooksSeedAdminPasswordRouteImport } from './routes/api/public/hooks/seed-admin-password'
 import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
@@ -199,6 +201,11 @@ const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
   path: '/payouts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminManagementUsersRoute = AdminManagementUsersRouteImport.update({
+  id: '/management-users',
+  path: '/management-users',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeaturesRoute = AdminFeaturesRouteImport.update({
   id: '/features',
   path: '/features',
@@ -296,6 +303,12 @@ const ApiPublicPIdRoute = ApiPublicPIdRouteImport.update({
   path: '/api/public/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksSeedAdminPasswordRoute =
+  ApiPublicHooksSeedAdminPasswordRouteImport.update({
+    id: '/api/public/hooks/seed-admin-password',
+    path: '/api/public/hooks/seed-admin-password',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPurgeDeletedAccountsRoute =
   ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
     id: '/api/public/hooks/purge-deleted-accounts',
@@ -333,6 +346,7 @@ export interface FileRoutesByFullPath {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -353,6 +367,7 @@ export interface FileRoutesByFullPath {
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -382,6 +397,7 @@ export interface FileRoutesByTo {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -402,6 +418,7 @@ export interface FileRoutesByTo {
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog': typeof AdminBlogIndexRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -434,6 +451,7 @@ export interface FileRoutesById {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -454,6 +472,7 @@ export interface FileRoutesById {
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -487,6 +506,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -507,6 +527,7 @@ export interface FileRouteTypes {
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -536,6 +557,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -556,6 +578,7 @@ export interface FileRouteTypes {
     | '/api/public/paystack-webhook'
     | '/admin/blog'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -587,6 +610,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -607,6 +631,7 @@ export interface FileRouteTypes {
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -637,6 +662,7 @@ export interface RootRouteChildren {
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  ApiPublicHooksSeedAdminPasswordRoute: typeof ApiPublicHooksSeedAdminPasswordRoute
   ApiPublicPIdRoute: typeof ApiPublicPIdRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -841,6 +867,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPayoutsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/management-users': {
+      id: '/admin/management-users'
+      path: '/management-users'
+      fullPath: '/admin/management-users'
+      preLoaderRoute: typeof AdminManagementUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/features': {
       id: '/admin/features'
       path: '/features'
@@ -974,6 +1007,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/seed-admin-password': {
+      id: '/api/public/hooks/seed-admin-password'
+      path: '/api/public/hooks/seed-admin-password'
+      fullPath: '/api/public/hooks/seed-admin-password'
+      preLoaderRoute: typeof ApiPublicHooksSeedAdminPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/purge-deleted-accounts': {
       id: '/api/public/hooks/purge-deleted-accounts'
       path: '/api/public/hooks/purge-deleted-accounts'
@@ -1018,6 +1058,7 @@ interface AdminRouteChildren {
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
+  AdminManagementUsersRoute: typeof AdminManagementUsersRoute
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -1040,6 +1081,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
+  AdminManagementUsersRoute: AdminManagementUsersRoute,
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
@@ -1099,6 +1141,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
+  ApiPublicHooksSeedAdminPasswordRoute: ApiPublicHooksSeedAdminPasswordRoute,
   ApiPublicPIdRoute: ApiPublicPIdRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
@@ -1107,13 +1150,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
