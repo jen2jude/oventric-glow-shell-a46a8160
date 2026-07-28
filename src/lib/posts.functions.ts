@@ -238,11 +238,18 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       const kind: "image" | "video" = legacyType === "video" && arrPaths.length === 1 ? "video" : "image";
       arrPaths.forEach((p) => {
         const url = signedByPath.get(p);
-        if (url) media.push({ url, type: kind });
+        if (url) {
+          const poster = kind === "video" ? (posterByVideoPath.get(p) ?? null) : null;
+          media.push({ url, type: kind, poster_url: poster });
+        }
       });
     } else if (r.media_path) {
       const url = signedByPath.get(r.media_path);
-      if (url) media.push({ url, type: legacyType ?? "image" });
+      if (url) {
+        const kind = legacyType ?? "image";
+        const poster = kind === "video" ? (posterByVideoPath.get(r.media_path) ?? null) : null;
+        media.push({ url, type: kind, poster_url: poster });
+      }
     }
     const primary = media[0] ?? null;
     let circle: PostCircleRef | null = null;
@@ -278,6 +285,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
       comments_count: commentCounts.get(r.id) ?? 0,
       media_url: primary?.url ?? null,
       media_type: primary?.type ?? null,
+      poster_url: primary?.type === "video" ? (primary?.poster_url ?? null) : null,
       media,
       mentions: (mentionedByPost.get(r.id) ?? [])
         .map((uid): MentionRef | null => {
