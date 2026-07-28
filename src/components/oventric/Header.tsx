@@ -72,13 +72,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
       src={logoFull.url}
       alt="Oventric"
       sizes="160px"
-      className="h-8 w-auto object-contain rounded-[10px] [mix-blend-mode:screen]"
-      style={{
-        WebkitMaskImage:
-          "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
-        maskImage:
-          "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
-      }}
+      className="h-8 w-auto object-contain rounded-[10px]"
       draggable={false}
     />
   );
