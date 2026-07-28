@@ -466,9 +466,34 @@ export const markBountySolved = createServerFn({ method: "POST" })
       b.poster_id,
       "bounty_solved",
       `Work delivered — "${b.title}"`,
-      "The solver marked the bounty delivered. Review and release, or funds auto-release in 48h.",
+      "The solver marked the bounty delivered. Open the bounty to confirm and release funds, or they auto-release in 48h.",
       context.userId,
     );
+    // Also notify all admins so they can step in after the 48h window if needed.
+    try {
+      const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const { data: admins } = await (supabaseAdmin as any)
+        .from("user_roles")
+        .select("user_id")
+        .eq("role", "admin");
+      const rows = ((admins ?? []) as Array<{ user_id: string }>)
+        .filter((r) => r.user_id !== context.userId)
+        .map((r) => ({
+          user_id: r.user_id,
+          kind: "bounty_solved_admin",
+          title: `Bounty awaiting confirmation — "${b.title}"`,
+          body: "Solver marked delivered. If the poster doesn't confirm within 48 hours, funds can be released from the admin bounty console.",
+          link: "/admin/bounties",
+          from_user_id: context.userId,
+        }));
+      if (rows.length) {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await (supabaseAdmin as any).from("notifications").insert(rows);
+      }
+    } catch {
+      /* non-fatal */
+    }
     return { ok: true };
   });
 
