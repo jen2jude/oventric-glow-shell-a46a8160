@@ -1518,6 +1518,15 @@ function ProfilePage() {
                 );
               })()}
             </section>
+
+            {/* Member wall — followers can drop posts, owner is notified */}
+            {realProfile?.userId && (
+              <ProfileWall
+                wallUserId={realProfile.userId}
+                wallOwnerName={displayName}
+                viewerId={meId ?? null}
+              />
+            )}
           </div>
         </main>
         {/* Mobile footer nav is rendered globally in __root.tsx */}
