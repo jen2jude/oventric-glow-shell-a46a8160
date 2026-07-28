@@ -433,11 +433,11 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
       if (m.circle_id) memberByCircle.set(m.circle_id, (memberByCircle.get(m.circle_id) ?? 0) + 1);
     });
     const clRows = circleRes.data ?? [];
-    const clAvatars = await signBucket(sb, "circle-avatars", clRows.map((c: any) => {
+    const clAvatars = await signBucket(supabaseAdmin as any, "circle-avatars", clRows.map((c: any) => {
       const v = c.avatar_url as string | null;
       return v && !/^https?:\/\//.test(v) ? v : null;
     }));
-    const clCovers = await signBucket(sb, "circle-covers", clRows.map((c: any) => {
+    const clCovers = await signBucket(supabaseAdmin as any, "circle-covers", clRows.map((c: any) => {
       const v = c.cover_url as string | null;
       return v && !/^https?:\/\//.test(v) ? v : null;
     }));
