@@ -130,7 +130,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
           <GlobalSearch variant="inline" />
         </div>
 
-        <div className="flex items-center gap-1 md:gap-2.5 shrink-0 min-w-0">
+        <div className="flex items-center gap-0.5 sm:gap-1 md:gap-2.5 shrink-0 min-w-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
           <div className="hidden md:inline-flex shrink-0">
             <HeaderWalletChip align="right" />
