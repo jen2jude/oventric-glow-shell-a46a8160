@@ -339,8 +339,8 @@ export function NotificationsDrawer({
                 <span>{c.label}</span>
                 {chanCount > 0 && (
                   <span
-                    className={`min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black inline-flex items-center justify-center rgb-pulse-glow border border-emerald-400/60 ${
-                      active ? "bg-black text-white" : "bg-[#0b0b0d] text-white"
+                    className={`min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black inline-flex items-center justify-center ${
+                      active ? "bg-black text-white" : "bg-emerald-500 text-black"
                     }`}
                     aria-label={`${chanCount} unread`}
                   >
@@ -369,15 +369,13 @@ export function NotificationsDrawer({
               <button
                 key={n.id}
                 onClick={() => void handleOpenItem(n)}
-                className={`w-full text-left bg-[#121214] border border-white/5 rounded-xl p-3 mb-3 transition-all hover:border-white/10 ${
-                  !n.read_at ? "ring-1 ring-emerald-500/20" : ""
+                className={`w-full text-left bg-[#121214] border rounded-xl p-3 mb-3 transition-all ${
+                  !n.read_at ? "rgb-static-border" : "border-white/5 hover:border-white/10"
                 }`}
               >
                 <div className="flex items-start gap-3">
                   <div
-                    className={`w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10 ${
-                      !n.read_at ? "rgb-pulse-glow" : ""
-                    }`}
+                    className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10"
                   >
                     {iconForKind(n.kind)}
                   </div>
