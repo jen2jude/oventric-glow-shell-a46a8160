@@ -100,6 +100,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pitch, setPitch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmSolved, setConfirmSolved] = useState(false);
 
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
