@@ -1,19 +1,14 @@
-import { Home, Target, Wallet, Plus } from "lucide-react";
+import { Home, Target, Wallet, Plus, ShoppingBag, GraduationCap } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
-import homeIcon3D from "@/assets/home-3d.png.asset.json";
-import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon3D from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
-import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 
 const left = [
-  { icon: Home, label: "Feed", image: homeIcon3D.url },
-  { icon: Home, label: "Market", image: marketplaceIcon3D.url },
+  { icon: Home, label: "Feed" },
+  { icon: ShoppingBag, label: "Market" },
 ];
 const right = [
-  { icon: Home, label: "Academy", image: academyIcon3D.url },
-  { icon: Target, label: "Bounties", image: bountiesIcon3D.url },
-  { icon: Wallet, label: "Wallet", image: walletIcon3D.url },
+  { icon: GraduationCap, label: "Academy" },
+  { icon: Target, label: "Bounties" },
+  { icon: Wallet, label: "Wallet" },
 ];
 
 export type MobileNavCounts = Partial<Record<"Feed" | "Market" | "Academy" | "Bounties" | "Wallet", number>>;
@@ -29,7 +24,7 @@ export function MobileNav({
   onSelect: (label: string) => void;
   counts?: MobileNavCounts;
 }) {
-  const Item = (it: { icon: typeof Home; label: string; image?: string }) => {
+  const Item = (it: { icon: typeof Home; label: string }) => {
     const isActive = active === it.label;
     const count = counts?.[it.label as keyof MobileNavCounts] ?? 0;
     return (
@@ -41,17 +36,7 @@ export function MobileNav({
         }`}
       >
         <span className="relative">
-          {it.image ? (
-            <img
-              src={it.image}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
-            />
-          ) : (
-            <it.icon className="w-6 h-6" strokeWidth={2.5} />
-          )}
+          <it.icon className="w-6 h-6" strokeWidth={2.5} />
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
         <span className="text-[10px] font-medium">{it.label}</span>

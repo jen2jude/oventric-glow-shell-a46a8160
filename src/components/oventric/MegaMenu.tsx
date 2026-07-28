@@ -3,15 +3,10 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
-  Target, Wallet as WalletIcon,
+  Target, Wallet as WalletIcon, ShoppingBag, GraduationCap,
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
   Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
-import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
-import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon3D from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
-import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -137,13 +132,13 @@ export function MegaMenu({ open, onClose }: Props) {
 
   const grid = [
     { icon: MessageCircle, label: "Messages", onClick: openMessages },
-    { icon: Shield, label: "Circles & Guilds", image: circlesIcon3D.url, onClick: () => go("/", "Circles") },
+    { icon: Shield, label: "Circles & Guilds", onClick: () => go("/", "Circles") },
     { icon: Users, label: "Followers", onClick: goFollowers },
     { icon: ImageIcon, label: "Gallery", onClick: () => go("/dashboard") },
-    { icon: MessageCircle, label: "Marketplace", image: marketplaceIcon3D.url, onClick: () => go("/", "Marketplace") },
-    { icon: Target, label: "Bounties", image: bountiesIcon3D.url, onClick: () => go("/", "Bounties") },
-    { icon: WalletIcon, label: "My Wallet", image: walletIcon3D.url, onClick: () => go("/", "Wallet") },
-    { icon: MessageCircle, label: "Academy", image: academyIcon3D.url, onClick: () => go("/", "Academy") },
+    { icon: ShoppingBag, label: "Marketplace", onClick: () => go("/", "Marketplace") },
+    { icon: Target, label: "Bounties", onClick: () => go("/", "Bounties") },
+    { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
+    { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
   ];
 
@@ -216,17 +211,7 @@ export function MegaMenu({ open, onClose }: Props) {
           {grid.map((g) => (
             <button key={g.label} onClick={g.onClick} className="megamenu-lowgpu-tile">
               <span className="megamenu-lowgpu-icon">
-                {g.image ? (
-                  <img
-                    src={g.image}
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
-                  />
-                ) : (
-                  <g.icon className="w-4 h-4" />
-                )}
+                <g.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
               </span>
               <span className="truncate text-sm font-bold text-white">{g.label}</span>
             </button>
@@ -351,18 +336,8 @@ export function MegaMenu({ open, onClose }: Props) {
               onClick={g.onClick}
               className="flex items-center gap-3 p-3 rounded-2xl bg-[#141418] border border-white/10 hover:border-emerald-400/40 transition-colors text-left"
             >
-              <span className="w-9 h-9 grid place-items-center rounded-full bg-[#1E1E24] text-emerald-300 shrink-0">
-                {g.image ? (
-                  <img
-                    src={g.image}
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
-                  />
-                ) : (
-                  <g.icon className="w-4 h-4" />
-                )}
+              <span className="w-9 h-9 grid place-items-center rounded-full bg-[#1E1E24] text-white shrink-0">
+                <g.icon className="w-5 h-5" strokeWidth={2.5} />
               </span>
               <span className="text-sm font-semibold text-white truncate">{g.label}</span>
             </button>

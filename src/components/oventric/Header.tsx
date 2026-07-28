@@ -1,11 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip } from "lucide-react";
-import messageIcon3D from "@/assets/message-3d.webp.asset.json";
-import hamburgerIcon3D from "@/assets/hamburger-3d.webp.asset.json";
-import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
-import notificationIcon3D from "@/assets/notification-3d.webp.asset.json";
-import followIcon3D from "@/assets/follow-3d.png.asset.json";
+import { Search, KeyRound, X, Shield, Grip, Menu, Users, Bell, UserPlus, MessageSquare } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -108,7 +103,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             aria-label="Open menu"
             className="p-2.5 -mr-2 rounded-lg hover:bg-white/5 text-white"
           >
-            <img src={hamburgerIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90" />
+            <Menu className="w-6 h-6" strokeWidth={2.5} />
           </button>
         </div>
       )}
@@ -120,7 +115,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             onClick={onMenuClick}
             className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors"
           >
-            <img src={hamburgerIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90" />
+            <Menu className="w-6 h-6" strokeWidth={2.5} />
           </button>
         )}
         {/* Desktop-only logo */}
@@ -152,13 +147,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             aria-label="Circles & Guilds"
             className="relative md:hidden p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
           >
-            <img
-              src={circlesIcon3D.url}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
-            />
+            <Users className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
@@ -175,15 +164,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
-            <img
-              src={notificationIcon3D.url}
-              alt=""
-              aria-hidden="true"
-              draggable={false}
-              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
-            />
+            <Bell className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
@@ -191,9 +174,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
-            <img src={followIcon3D.url} alt="" aria-hidden="true" draggable={false} className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]" />
+            <UserPlus className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
@@ -206,15 +189,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={onOpenMessages}
             aria-label="Open messages"
-            className="relative p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
           >
-            <img
-              src={messageIcon3D.url}
-              alt=""
-              aria-hidden="true"
-              className="w-8 h-8 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
-              draggable={false}
-            />
+            <MessageSquare className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
           </button>
 
