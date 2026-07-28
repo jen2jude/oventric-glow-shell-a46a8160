@@ -387,7 +387,15 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
     if (data.imagePaths.length < 3) throw new Error("Please upload at least 3 product images");
     if (!data.sellerPhone || data.sellerPhone.length < 6) throw new Error("A valid phone number is required");
 
+    // Admins publish physical listings directly; regular sellers queue for review.
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    const initialStatus = isAdmin ? "active" : "pending";
+
     const { data: row, error } = await context.supabase
+
       .from("products")
       .insert({
         seller_id: context.userId,
