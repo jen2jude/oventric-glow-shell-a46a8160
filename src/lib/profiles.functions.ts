@@ -155,6 +155,7 @@ export interface RealProfileView {
   verificationTier: string;
   reputationStars: number;
   country: string | null;
+  address: string | null;
   joined: string; // ISO
 }
 
@@ -164,12 +165,14 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => ViewInput.parse(input))
   .handler(async ({ data }): Promise<{ profile: RealProfileView | null }> => {
     const supabase = await createServerPublicClient();
+    // Use admin for country/address which are restricted columns.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
     const looksLikeUuid = UUID_RE.test(data.idOrSlug);
-    const query = supabase
+    const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, created_at",
       )
       .limit(1);
 
@@ -201,11 +204,13 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         coverUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
-        country: null,
+        country: (row as { country?: string | null }).country ?? null,
+        address: (row as { address?: string | null }).address ?? null,
         joined: row.created_at,
       },
     };
   });
+
 
 
 
