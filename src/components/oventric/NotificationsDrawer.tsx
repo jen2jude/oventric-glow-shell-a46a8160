@@ -369,35 +369,39 @@ export function NotificationsDrawer({
               <button
                 key={n.id}
                 onClick={() => void handleOpenItem(n)}
-                className={`w-full text-left bg-[#121214] border rounded-xl p-3 mb-3 transition-all ${
-                  !n.read_at ? "rgb-static-border" : "border-white/5 hover:border-white/10"
+                className={`w-full text-left rounded-xl mb-3 transition-all ${
+                  !n.read_at
+                    ? "rgb-static-border p-[2px]"
+                    : "bg-[#121214] border border-white/5 hover:border-white/10 p-3"
                 }`}
               >
-                <div className="flex items-start gap-3">
-                  <div
-                    className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10"
-                  >
-                    {iconForKind(n.kind)}
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2">
-                      <p className="text-[13px] font-semibold text-white truncate">{n.title}</p>
-                      {!n.read_at && (
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-hidden />
-                      )}
+                <div className={`bg-[#121214] w-full text-left ${!n.read_at ? "rounded-[10px] p-3" : ""}`}>
+                  <div className="flex items-start gap-3">
+                    <div
+                      className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10"
+                    >
+                      {iconForKind(n.kind)}
                     </div>
-                    {n.body && (
-                      <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{plainPreview(n.body)}</p>
-                    )}
-                    <div className="mt-1.5 flex items-center justify-between">
-                      <span className="text-[10px] text-slate-500 uppercase tracking-wider">
-                        {timeAgo(n.created_at)}
-                      </span>
-                      {n.link && (
-                        <span className="text-[11px] font-semibold text-emerald-400 inline-flex items-center gap-1">
-                          Open <ArrowRight className="w-3 h-3" />
-                        </span>
+                    <div className="flex-1 min-w-0">
+                      <div className="flex items-center gap-2">
+                        <p className="text-[13px] font-semibold text-white truncate">{n.title}</p>
+                        {!n.read_at && (
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-hidden />
+                        )}
+                      </div>
+                      {n.body && (
+                        <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{plainPreview(n.body)}</p>
                       )}
+                      <div className="mt-1.5 flex items-center justify-between">
+                        <span className="text-[10px] text-slate-500 uppercase tracking-wider">
+                          {timeAgo(n.created_at)}
+                        </span>
+                        {n.link && (
+                          <span className="text-[11px] font-semibold text-emerald-400 inline-flex items-center gap-1">
+                            Open <ArrowRight className="w-3 h-3" />
+                          </span>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
