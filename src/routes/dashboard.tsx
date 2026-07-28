@@ -316,35 +316,35 @@ function DashboardPage() {
         </Link>
 
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-1.5 rounded-xl bg-[#141418] border border-white/10 p-1.5 mb-5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 rounded-2xl bg-[#141418] border border-white/10 p-2.5 mb-6">
           <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
-            <LayoutDashboard className="w-4 h-4 shrink-0" /> <span className="truncate">Overview</span>
+            <LayoutDashboard className="w-5 h-5 shrink-0" /> <span className="truncate">Overview</span>
           </TabButton>
           <TabButton active={tab === "bounties"} onClick={() => setTab("bounties")}>
-            <Target className="w-4 h-4 shrink-0" /> <span className="truncate">Bounties</span>
+            <Target className="w-5 h-5 shrink-0" /> <span className="truncate">Bounties</span>
           </TabButton>
           <TabButton active={tab === "courses"} onClick={() => setTab("courses")}>
-            <GraduationCap className="w-4 h-4 shrink-0" /> <span className="truncate">Courses</span>
+            <GraduationCap className="w-5 h-5 shrink-0" /> <span className="truncate">Courses</span>
           </TabButton>
           <TabButton active={tab === "wallet"} onClick={() => setTab("wallet")}>
-            <WalletIcon className="w-4 h-4 shrink-0" /> <span className="truncate">Wallet</span>
+            <WalletIcon className="w-5 h-5 shrink-0" /> <span className="truncate">Wallet</span>
           </TabButton>
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
-            <Package className="w-4 h-4 shrink-0" /> <span className="truncate">Digital</span>
+            <Package className="w-5 h-5 shrink-0" /> <span className="truncate">Digital</span>
           </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
-            <ShoppingBag className="w-4 h-4 shrink-0" /> <span className="truncate">Contacted</span>
+            <ShoppingBag className="w-5 h-5 shrink-0" /> <span className="truncate">Contacted</span>
           </TabButton>
           <TabButton active={tab === "listings"} onClick={() => setTab("listings")}>
-            <Store className="w-4 h-4 shrink-0" /> <span className="truncate">Listings</span>
+            <Store className="w-5 h-5 shrink-0" /> <span className="truncate">Listings</span>
             {stats.listingsRejected > 0 && (
-              <span className="ml-1 inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-500 text-white text-[10px] font-bold">
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold">
                 {stats.listingsRejected}
               </span>
             )}
           </TabButton>
           <TabButton active={tab === "social"} onClick={() => setTab("social")}>
-            <Users className="w-4 h-4 shrink-0" /> <span className="truncate">Social</span>
+            <Users className="w-5 h-5 shrink-0" /> <span className="truncate">Social</span>
           </TabButton>
         </div>
 
