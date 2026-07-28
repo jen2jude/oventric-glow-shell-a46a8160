@@ -21,7 +21,7 @@ function fromUSD(usd: number, target: Currency): number {
   return usd * (LEGACY_USD_RATES[target] ?? 1);
 }
 
-export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" } = {}) {
+export function HeaderWalletChip({ align = "left", compact = false }: { align?: "left" | "right"; compact?: boolean } = {}) {
   const { isAuthenticated } = useAuthGate();
   const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
   const hasCountry = country != null;
@@ -106,25 +106,25 @@ export function HeaderWalletChip({ align = "left" }: { align?: "left" | "right" 
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className="inline-flex items-center gap-1.5 h-10 pl-3 pr-1.5 rounded-full bg-[#1E1E24] border border-emerald-500/30">
+      <div className={`inline-flex items-center gap-1 rounded-full bg-[#1E1E24] border border-emerald-500/30 ${compact ? "h-8 pl-2 pr-1" : "h-10 pl-3 pr-1.5"}`}>
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
           aria-label="Wallet balance"
           aria-expanded={open}
-          className="inline-flex items-center gap-1.5 text-white hover:text-emerald-300 transition-colors"
+          className="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition-colors"
         >
-          <WalletIcon className="w-5 h-5 text-emerald-300" />
-          <span className="text-sm font-semibold tabular-nums">{display}</span>
-          <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
+          <WalletIcon className={`text-emerald-300 ${compact ? "w-4 h-4" : "w-5 h-5"}`} />
+          <span className={`font-semibold tabular-nums ${compact ? "text-xs" : "text-sm"}`}>{display}</span>
+          <ChevronDown className={`text-slate-400 transition-transform ${compact ? "w-3.5 h-3.5" : "w-4 h-4"} ${open ? "rotate-180" : ""}`} />
         </button>
         <button
           type="button"
           onClick={toggleBalancesHidden}
           aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-          className="p-1 rounded-full text-slate-400 hover:text-white transition-colors"
+          className="rounded-full text-slate-400 hover:text-white transition-colors"
         >
-          {balancesHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+          {balancesHidden ? <EyeOff className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} /> : <Eye className={compact ? "w-3.5 h-3.5" : "w-4 h-4"} />}
         </button>
       </div>
 
