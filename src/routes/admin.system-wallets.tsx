@@ -105,7 +105,10 @@ function SystemWalletsPage() {
                   <ArrowUpRight className="w-4 h-4 text-white/50" />
                 </div>
                 <div className="text-[11px] uppercase tracking-widest text-slate-300 font-bold">{m.label}</div>
-                <div className="text-white text-3xl font-black tracking-tight mt-1">{fmtUsd(w?.balanceUSD ?? 0)}</div>
+                <div className="text-white text-3xl font-black tracking-tight mt-1">{fmtCur(w?.balanceUSD ?? 0, view)}</div>
+                {view !== "USD" && (
+                  <div className="text-[10px] text-slate-500 mt-0.5">≈ {fmtCur(w?.balanceUSD ?? 0, "USD")}</div>
+                )}
                 <div className="text-xs text-slate-400 mt-1">{m.sub}</div>
               </div>
             );
