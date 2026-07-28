@@ -44,6 +44,7 @@ import {
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
+import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { Header } from "@/components/oventric/Header";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
