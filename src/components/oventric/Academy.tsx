@@ -174,8 +174,20 @@ export function Academy() {
       <div className="px-4 py-6 space-y-4">
         <AdSlot placement="academy" variant="banner" />
         {courses === null && (
-          <div className="text-center py-10"><Loader2 className="w-6 h-6 text-emerald-400 animate-spin mx-auto" /></div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse">
+                <div className="aspect-video bg-white/5" />
+                <div className="p-4 space-y-2">
+                  <div className="h-4 bg-white/10 rounded w-3/4" />
+                  <div className="h-3 bg-white/5 rounded w-1/2" />
+                  <div className="h-3 bg-white/5 rounded w-2/3 mt-3" />
+                </div>
+              </div>
+            ))}
+          </div>
         )}
+
         {courses !== null && filtered.length === 0 && (
           <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
             <GraduationCap className="w-10 h-10 text-slate-600 mx-auto mb-3" />
