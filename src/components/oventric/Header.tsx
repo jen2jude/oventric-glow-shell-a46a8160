@@ -104,7 +104,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
       </div>
 
       {/* Main row */}
-      <div className="h-11 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
+      <div className="h-10 md:h-[4.5rem] flex items-center justify-between gap-2 md:gap-3 px-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {onMenuClick && (
             <button
@@ -126,7 +126,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
         </div>
 
         {/* Desktop search input */}
-        <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
+        <div className="flex-1 max-w-xl mx-auto min-w-0 hidden md:block">
           <GlobalSearch variant="inline" />
         </div>
 
