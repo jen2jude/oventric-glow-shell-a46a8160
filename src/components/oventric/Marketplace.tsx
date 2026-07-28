@@ -59,10 +59,11 @@ export function Marketplace() {
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
   const [mode, setMode] = useState<Mode>("digital");
-  const [activeTab, setActiveTab] = useState<"all" | CategoryKey>("all");
+  const [activeTab, setActiveTab] = useState<string>("all");
   const [activePhysicalTab, setActivePhysicalTab] = useState<string>("all");
   const [fullCategory, setFullCategory] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductDTO[] | null>(null);
+  const [digitalCats, setDigitalCats] = useState<CategoryNode[]>([]);
   const [physicalCats, setPhysicalCats] = useState<CategoryNode[]>([]);
   const [error, setError] = useState<string | null>(null);
   const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
@@ -77,7 +78,17 @@ export function Marketplace() {
 
   useEffect(() => {
     loadCats()
-      .then((rows) => setPhysicalCats((rows ?? []).filter((r) => r.kind === "physical")))
+      .then((rows) => {
+        // Flatten roots + children so every enabled category is featured.
+        const flat: CategoryNode[] = [];
+        const walk = (n: CategoryNode) => {
+          flat.push(n);
+          n.children.forEach(walk);
+        };
+        (rows ?? []).forEach(walk);
+        setDigitalCats(flat.filter((r) => r.kind === "digital"));
+        setPhysicalCats(flat.filter((r) => r.kind === "physical"));
+      })
       .catch(() => {});
   }, [loadCats]);
 
@@ -104,6 +115,59 @@ export function Marketplace() {
     const rest = src.filter((p) => !p.promoted).slice(0, 6);
     return [...promoted, ...rest].slice(0, 8);
   }, [digital, physical, mode]);
+
+  // Group digital products by category. Order: "ai platform" first, then admin
+  // sort_order from marketplace_categories. Legacy CATEGORY_META order applied
+  // as fallback for categories not yet defined in the DB.
+  const digitalGroups = useMemo(() => {
+    const groups = new Map<string, ProductDTO[]>();
+    digital.forEach((p) => {
+      const key = (p.category || "other").toLowerCase();
+      const arr = groups.get(key) ?? [];
+      arr.push(p);
+      groups.set(key, arr);
+    });
+    const ordered: Array<[string, ProductDTO[]]> = [];
+    const takeSlug = (slug: string) => {
+      const items = groups.get(slug);
+      if (items && items.length > 0) {
+        ordered.push([slug, items]);
+        groups.delete(slug);
+      }
+    };
+    // AI Platform pinned to top.
+    takeSlug("ai platform");
+    takeSlug("ai_platform");
+    takeSlug("ai-platform");
+    // Then admin-ordered digital categories.
+    digitalCats.forEach((c) => takeSlug(c.slug.toLowerCase()));
+    // Legacy hardcoded roots.
+    (Object.keys(CATEGORY_META) as CategoryKey[]).forEach(takeSlug);
+    // Any leftover categories (unknown slugs with products).
+    groups.forEach((items, slug) => ordered.push([slug, items]));
+    return ordered;
+  }, [digital, digitalCats]);
+
+  const digitalLabel = (slug: string) => {
+    const meta = (CATEGORY_META as Record<string, { label: string; emoji: string; title: string } | undefined>)[slug];
+    if (meta) return meta.label;
+    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
+    if (c) return c.name;
+    return slug.charAt(0).toUpperCase() + slug.slice(1);
+  };
+  const digitalTitle = (slug: string) => {
+    const meta = (CATEGORY_META as Record<string, { title: string } | undefined>)[slug];
+    if (meta) return meta.title;
+    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
+    const name = c?.name ?? digitalLabel(slug);
+    if (slug === "ai platform") return `🤖 ${name}`;
+    return `✨ ${name}`;
+  };
+
+  const visibleDigitalGroups = useMemo(() => {
+    if (activeTab === "all") return digitalGroups;
+    return digitalGroups.filter(([slug]) => slug === activeTab);
+  }, [digitalGroups, activeTab]);
 
   // Group physical products by category, ordered by admin sort_order when available.
   const physicalGroups = useMemo(() => {
@@ -134,7 +198,7 @@ export function Marketplace() {
     return physicalGroups.filter(([slug]) => slug === activePhysicalTab);
   }, [physicalGroups, activePhysicalTab]);
 
-  const onPillClick = (key: "all" | CategoryKey) => {
+  const onPillClick = (key: string) => {
     setActiveTab(key);
     if (key === "all") return;
     const el = sectionRefs.current[key];
@@ -189,10 +253,11 @@ export function Marketplace() {
   // FULL CATEGORY VIEW
   if (fullCategory) {
     const src = mode === "digital" ? digital : physical;
-    const items = src.filter((p) => p.category === fullCategory);
-    const meta = (CATEGORY_META as Record<string, { label: string; emoji: string } | undefined>)[fullCategory];
-    const label = meta?.label ?? fullCategory.charAt(0).toUpperCase() + fullCategory.slice(1);
-    const emoji = meta?.emoji ?? "📦";
+    const items = src.filter((p) => (p.category || "").toLowerCase() === fullCategory);
+    const legacy = (CATEGORY_META as Record<string, { label: string; emoji: string } | undefined>)[fullCategory];
+    const dbCat = [...digitalCats, ...physicalCats].find((c) => c.slug.toLowerCase() === fullCategory);
+    const label = legacy?.label ?? dbCat?.name ?? fullCategory.charAt(0).toUpperCase() + fullCategory.slice(1);
+    const emoji = legacy?.emoji ?? (fullCategory === "ai platform" ? "🤖" : "📦");
     return (
       <div className="max-w-7xl mx-auto w-full px-4 py-6">
         <button
@@ -221,12 +286,11 @@ export function Marketplace() {
     );
   }
 
-  const digitalTabs: Array<{ key: "all" | CategoryKey; label: string }> = [
+  // Build digital tab list: All + AI Platform first, then admin-defined
+  // categories that actually have products.
+  const digitalTabs: Array<{ key: string; label: string }> = [
     { key: "all", label: "✨ All" },
-    { key: "themes", label: "🎨 Themes" },
-    { key: "plugins", label: "🔌 Plugins" },
-    { key: "blocks", label: "🧱 HTML Blocks" },
-    { key: "scripts", label: "📜 Scripts" },
+    ...digitalGroups.map(([slug]) => ({ key: slug, label: digitalLabel(slug) })),
   ];
 
   return (
@@ -277,11 +341,15 @@ export function Marketplace() {
 
       {mode === "digital" ? (
         <div className="px-4 py-6 space-y-10">
-          {(Object.keys(CATEGORY_META) as CategoryKey[]).map((cat) => {
-            const items = digital.filter((p) => p.category === cat);
-            if (items.length === 0) return null;
-            const meta = CATEGORY_META[cat];
-            const adIndex = Object.keys(CATEGORY_META).indexOf(cat);
+          {visibleDigitalGroups.length === 0 ? (
+            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center max-w-2xl mx-auto">
+              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <div className="text-white font-semibold mb-1">No digital products yet</div>
+              <div className="text-sm text-slate-400">Check back soon or be the first to list one.</div>
+            </div>
+          ) : visibleDigitalGroups.map(([cat, items], idx) => {
+            const label = digitalLabel(cat);
+            const title = digitalTitle(cat);
             return (
               <section
                 key={cat}
@@ -289,7 +357,7 @@ export function Marketplace() {
                 className="scroll-mt-20"
               >
                 <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg md:text-xl font-black text-white truncate">{meta.title}</h2>
+                  <h2 className="text-lg md:text-xl font-black text-white truncate">{title}</h2>
                   <button
                     onClick={() => setFullCategory(cat)}
                     className="text-sm text-emerald-400 hover:text-emerald-300 font-medium whitespace-nowrap shrink-0"
@@ -298,11 +366,11 @@ export function Marketplace() {
                   </button>
                 </div>
                 <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
-                  {items.map((p) => (
+                  {items.slice(0, 12).map((p) => (
                     <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
                   ))}
-                  <AdSlot placement="marketplace" variant="grid" index={adIndex} />
-                  <ViewMoreButton label={meta.label} onClick={() => setFullCategory(cat)} />
+                  <AdSlot placement="marketplace" variant="grid" index={idx} />
+                  <ViewMoreButton label={label} onClick={() => setFullCategory(cat)} />
                 </div>
               </section>
             );
