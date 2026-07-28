@@ -41,6 +41,7 @@ function SystemWalletsPage() {
   const [wallets, setWallets] = useState<SystemWalletDTO[] | null>(null);
   const [tx, setTx] = useState<SystemWalletTxDTO[] | null>(null);
   const [filter, setFilter] = useState<SystemWalletKind | "ALL">("ALL");
+  const [view, setView] = useState<ViewCur>("NGN");
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
