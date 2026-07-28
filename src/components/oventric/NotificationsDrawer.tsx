@@ -339,8 +339,8 @@ export function NotificationsDrawer({
                 <span>{c.label}</span>
                 {chanCount > 0 && (
                   <span
-                    className={`min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black inline-flex items-center justify-center rgb-pulse-glow border border-emerald-400/60 ${
-                      active ? "bg-black text-white" : "bg-[#0b0b0d] text-white"
+                    className={`min-w-[16px] h-4 px-1 rounded-full text-[9px] font-black inline-flex items-center justify-center ${
+                      active ? "bg-black text-white" : "bg-emerald-500 text-black"
                     }`}
                     aria-label={`${chanCount} unread`}
                   >
