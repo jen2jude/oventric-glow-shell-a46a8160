@@ -574,16 +574,7 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
     const { error: e2 } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
       .rpc("bounty_release_escrow", { _bounty_id: data.bounty_id });
     if (e2) throw new Error(e2.message);
-    if (b.accepted_applicant_id) {
-      await notifyBounty(
-        b.accepted_applicant_id as string,
-        "bounty_released",
-        `Funds released — "${b.title}"`,
-        "The poster released escrow. Your share has been credited to your wallet.",
-        context.userId,
-        `/?section=Bounties&bounty=${data.bounty_id}`,
-      );
-    }
+    await notifyReleaseSettlement(data.bounty_id, context.userId);
     return { ok: true };
   });
 
