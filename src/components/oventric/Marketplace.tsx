@@ -116,6 +116,59 @@ export function Marketplace() {
     return [...promoted, ...rest].slice(0, 8);
   }, [digital, physical, mode]);
 
+  // Group digital products by category. Order: "ai platform" first, then admin
+  // sort_order from marketplace_categories. Legacy CATEGORY_META order applied
+  // as fallback for categories not yet defined in the DB.
+  const digitalGroups = useMemo(() => {
+    const groups = new Map<string, ProductDTO[]>();
+    digital.forEach((p) => {
+      const key = (p.category || "other").toLowerCase();
+      const arr = groups.get(key) ?? [];
+      arr.push(p);
+      groups.set(key, arr);
+    });
+    const ordered: Array<[string, ProductDTO[]]> = [];
+    const takeSlug = (slug: string) => {
+      const items = groups.get(slug);
+      if (items && items.length > 0) {
+        ordered.push([slug, items]);
+        groups.delete(slug);
+      }
+    };
+    // AI Platform pinned to top.
+    takeSlug("ai platform");
+    takeSlug("ai_platform");
+    takeSlug("ai-platform");
+    // Then admin-ordered digital categories.
+    digitalCats.forEach((c) => takeSlug(c.slug.toLowerCase()));
+    // Legacy hardcoded roots.
+    (Object.keys(CATEGORY_META) as CategoryKey[]).forEach(takeSlug);
+    // Any leftover categories (unknown slugs with products).
+    groups.forEach((items, slug) => ordered.push([slug, items]));
+    return ordered;
+  }, [digital, digitalCats]);
+
+  const digitalLabel = (slug: string) => {
+    const meta = (CATEGORY_META as Record<string, { label: string; emoji: string; title: string } | undefined>)[slug];
+    if (meta) return meta.label;
+    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
+    if (c) return c.name;
+    return slug.charAt(0).toUpperCase() + slug.slice(1);
+  };
+  const digitalTitle = (slug: string) => {
+    const meta = (CATEGORY_META as Record<string, { title: string } | undefined>)[slug];
+    if (meta) return meta.title;
+    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
+    const name = c?.name ?? digitalLabel(slug);
+    if (slug === "ai platform") return `🤖 ${name}`;
+    return `✨ ${name}`;
+  };
+
+  const visibleDigitalGroups = useMemo(() => {
+    if (activeTab === "all") return digitalGroups;
+    return digitalGroups.filter(([slug]) => slug === activeTab);
+  }, [digitalGroups, activeTab]);
+
   // Group physical products by category, ordered by admin sort_order when available.
   const physicalGroups = useMemo(() => {
     const groups = new Map<string, ProductDTO[]>();
@@ -145,7 +198,7 @@ export function Marketplace() {
     return physicalGroups.filter(([slug]) => slug === activePhysicalTab);
   }, [physicalGroups, activePhysicalTab]);
 
-  const onPillClick = (key: "all" | CategoryKey) => {
+  const onPillClick = (key: string) => {
     setActiveTab(key);
     if (key === "all") return;
     const el = sectionRefs.current[key];
