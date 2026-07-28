@@ -83,7 +83,7 @@ const NAV: NavItem[] = [
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/reports", label: "Reports", icon: ShieldCheck },
   { to: "/admin/management-users", label: "Management Users", icon: UserCog },
-] as const;
+];
 
 function AdminLayout() {
   const check = useServerFn(checkIsAdmin);
