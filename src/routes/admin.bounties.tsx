@@ -519,7 +519,7 @@ function BountiesAdminPage() {
                 </div>
                 <button
                   onClick={() => setDetailId(id)}
-                  className="px-3 py-2 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-200 text-xs font-bold inline-flex items-center gap-1.5"
+                  className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/15 text-slate-100 text-xs font-bold inline-flex items-center gap-1.5"
                   aria-label="Manage bounty"
                 >
                   <Users className="w-4 h-4" /> Manage
@@ -529,7 +529,7 @@ function BountiesAdminPage() {
                   disabled={busy === id}
                   className={`px-3 py-2 rounded-lg border text-xs font-bold inline-flex items-center gap-1.5 ${
                     b.promoted
-                      ? "bg-fuchsia-500/20 border-fuchsia-500/40 text-fuchsia-200 hover:bg-fuchsia-500/30"
+                      ? "bg-white/10 border-white/20 text-slate-100 hover:bg-white/15"
                       : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
                   }`}
                   aria-label="Toggle promoted"
