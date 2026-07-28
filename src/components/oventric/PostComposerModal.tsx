@@ -31,11 +31,17 @@ export function PostComposerModal({
   open,
   onClose,
   onPosted,
+  wallUserId,
+  wallOwnerName,
 }: {
   open: boolean;
   onClose: () => void;
   onPosted?: () => void;
+  /** When set, the post is written to that member's wall (audience forced to public). */
+  wallUserId?: string | null;
+  wallOwnerName?: string | null;
 }) {
+  const isWall = !!wallUserId;
   const createPost = useServerFn(createPostFn);
   const searchMentions = useServerFn(searchMentionsFn);
   const listCircles = useServerFn(listCirclesFn);
