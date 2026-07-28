@@ -288,6 +288,13 @@ export const createProduct = createServerFn({ method: "POST" })
     if (!data.name) throw new Error("Name required");
     if (data.priceUSD < 0) throw new Error("Price cannot be negative");
 
+    // Admins publish directly; regular sellers enter the moderation queue.
+    const { data: isAdmin } = await context.supabase.rpc("has_role", {
+      _user_id: context.userId,
+      _role: "admin",
+    });
+    const initialStatus = isAdmin ? "active" : "pending";
+
     const cover = data.coverPath ?? data.imagePaths[0] ?? null;
     const { data: row, error } = await context.supabase
       .from("products")
@@ -310,10 +317,11 @@ export const createProduct = createServerFn({ method: "POST" })
         requires_manual_delivery: data.requiresManualDelivery,
         promoted: false,
         kind: "digital",
-        status: "pending",
+        status: initialStatus,
       })
       .select("id, seller_id, name, category, subcategory, description, price_usd, original_currency, original_amount, fx_snapshot, hue, vendor, rating, reviews, promoted, external_url, file_path, cover_path, image_paths, created_at, updated_at, kind, status, reject_reason, requires_manual_delivery")
       .single();
+
 
     if (error) throw new Error(error.message);
     let coverUrl: string | null = null;
