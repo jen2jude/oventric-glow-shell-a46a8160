@@ -290,7 +290,9 @@ export function PostComposerModal({
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="text-sm font-semibold text-white">Drop a post</div>
+          <div className="text-sm font-semibold text-white truncate max-w-[70%]">
+            {isWall ? (wallOwnerName ? `Post on ${wallOwnerName}'s wall` : "Post on wall") : "Drop a post"}
+          </div>
           <button
             onClick={doPost}
             disabled={!canPost}
