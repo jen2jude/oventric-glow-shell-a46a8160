@@ -330,7 +330,7 @@ function BountiesAdminPage() {
       <header className="mb-4 flex items-center justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-black flex items-center gap-2">
-            <Target className="w-6 h-6 text-emerald-400" /> Bounties
+            <Target className="w-6 h-6 text-slate-300" /> Bounties
           </h1>
           <p className="text-sm text-slate-400">
             {filteredRows?.length ?? 0}
