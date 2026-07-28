@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Users, Bell, UserPlus, MessageSquare } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
   NotificationsDrawer,
   useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
-import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
-import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
+import { RequestsInboxDrawer } from "@/components/oventric/RequestsInboxDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoFull from "@/assets/oventric-full.asset.json";
