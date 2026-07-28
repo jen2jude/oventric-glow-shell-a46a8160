@@ -522,6 +522,7 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
         `Funds released — "${b.title}"`,
         "The poster released escrow. Your share has been credited to your wallet.",
         context.userId,
+        `/?section=Bounties&bounty=${data.bounty_id}`,
       );
     }
     return { ok: true };
