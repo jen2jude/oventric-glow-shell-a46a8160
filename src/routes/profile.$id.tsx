@@ -59,7 +59,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { useScrollRestoration } from "@/hooks/useScrollRestoration";
 
 const profileSearchSchema = z.object({
-  tab: fallback(z.string(), "posts").default("posts"),
+  tab: fallback(z.string(), "groups").default("groups"),
   pages: fallback(z.number().int(), 1).default(1),
   y: fallback(z.number().int(), 0).default(0),
   q: fallback(z.string(), "").default(""),
@@ -131,7 +131,7 @@ function ProfilePage() {
   const profile = useMemo(() => getProfile(id), [id]);
   const { require, baseCurrency } = useOnboarding();
 
-  const tab: Tab = isTab(search.tab) ? search.tab : "posts";
+  const tab: Tab = isTab(search.tab) && search.tab !== "posts" ? search.tab : "groups";
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
   const restoreY = Math.max(0, search.y || 0);
   const q = (search.q || "").trim();
@@ -1139,7 +1139,6 @@ function ProfilePage() {
             <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
               {(
                 [
-                  ["posts", "Posts"],
                   ["groups", "Circles"],
                   ["marketplace", "Marketplace"],
                   ["posted", "Bounties Posted"],
