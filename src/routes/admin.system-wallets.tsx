@@ -26,8 +26,13 @@ const KINDS: SystemWalletKind[] = ["marketplace", "bounty", "ads", "academy"];
 const FALLBACK_META = { label: "Other Revenue", sub: "", icon: ShoppingBag, hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30" } as const;
 const metaFor = (k: string) => (META as Record<string, typeof FALLBACK_META>)[k] ?? FALLBACK_META;
 
-function fmtUsd(n: number) {
-  return `$${n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+type ViewCur = "NGN" | "USD" | "GHS";
+const USD_TO: Record<ViewCur, number> = { USD: 1, NGN: 1500, GHS: 14 };
+const SYM: Record<ViewCur, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+function fmtCur(usd: number, cur: ViewCur) {
+  const v = usd * USD_TO[cur];
+  const s = cur === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString();
+  return `${SYM[cur]}${s}`;
 }
 
 function SystemWalletsPage() {
@@ -36,6 +41,7 @@ function SystemWalletsPage() {
   const [wallets, setWallets] = useState<SystemWalletDTO[] | null>(null);
   const [tx, setTx] = useState<SystemWalletTxDTO[] | null>(null);
   const [filter, setFilter] = useState<SystemWalletKind | "ALL">("ALL");
+  const [view, setView] = useState<ViewCur>("NGN");
   const [err, setErr] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,12 +66,23 @@ function SystemWalletsPage() {
           <h1 className="text-white text-2xl font-black">System Wallets</h1>
           <p className="text-sm text-slate-400">Admin-only revenue held from marketplace, bounties, and ads.</p>
         </div>
-        <Link
-          to="/admin/cashback-wallet"
-          className="shrink-0 px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
-        >
-          Cashback Wallet →
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="inline-flex rounded-lg overflow-hidden border border-white/10 bg-[#0b0b0d]">
+            {(["NGN","USD","GHS"] as ViewCur[]).map((c) => (
+              <button
+                key={c}
+                onClick={() => setView(c)}
+                className={`px-3 py-1.5 text-xs font-bold ${view===c ? "bg-emerald-500/25 text-emerald-200" : "text-slate-400 hover:text-white"}`}
+              >{c}</button>
+            ))}
+          </div>
+          <Link
+            to="/admin/cashback-wallet"
+            className="px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
+          >
+            Cashback Wallet →
+          </Link>
+        </div>
       </header>
 
 
@@ -88,7 +105,10 @@ function SystemWalletsPage() {
                   <ArrowUpRight className="w-4 h-4 text-white/50" />
                 </div>
                 <div className="text-[11px] uppercase tracking-widest text-slate-300 font-bold">{m.label}</div>
-                <div className="text-white text-3xl font-black tracking-tight mt-1">{fmtUsd(w?.balanceUSD ?? 0)}</div>
+                <div className="text-white text-3xl font-black tracking-tight mt-1">{fmtCur(w?.balanceUSD ?? 0, view)}</div>
+                {view !== "USD" && (
+                  <div className="text-[10px] text-slate-500 mt-0.5">≈ {fmtCur(w?.balanceUSD ?? 0, "USD")}</div>
+                )}
                 <div className="text-xs text-slate-400 mt-1">{m.sub}</div>
               </div>
             );
@@ -123,7 +143,10 @@ function SystemWalletsPage() {
                   <div className="text-white font-semibold">{metaFor(t.kind).label}</div>
                   <div className="text-[11px] text-slate-500 font-mono">{t.source} · {new Date(t.createdAt).toLocaleString()}</div>
                 </div>
-                <div className="text-emerald-300 font-mono font-bold">+ {fmtUsd(t.amountUSD)}</div>
+                <div className="text-emerald-300 font-mono font-bold text-right">
+                  + {fmtCur(t.amountUSD, view)}
+                  {view !== "USD" && <div className="text-[10px] text-slate-500 font-normal">≈ {fmtCur(t.amountUSD, "USD")}</div>}
+                </div>
               </div>
             ))
           )}

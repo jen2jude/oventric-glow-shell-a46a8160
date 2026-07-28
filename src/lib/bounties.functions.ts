@@ -53,6 +53,61 @@ async function notifyBounty(
   }
 }
 
+/** Fan out settlement notifications after `bounty_release_escrow` succeeds.
+ *  - Solver gets a "funds credited" ping with local-currency amount.
+ *  - All admins get a settlement receipt for the ledger.
+ *  Poster is already notified by the `notify_on_bounty` DB trigger when
+ *  status flips to "released". */
+async function notifyReleaseSettlement(bountyId: string, actorId?: string | null) {
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = supabaseAdmin as any;
+    const { data: b } = await sb
+      .from("bounties")
+      .select("id, title, poster_id, accepted_applicant_id, original_currency, original_amount, price_usd")
+      .eq("id", bountyId)
+      .maybeSingle();
+    if (!b) return;
+    const cur: string = (b.original_currency as string) || "USD";
+    const amt: number = Number(b.original_amount ?? b.price_usd ?? 0);
+    const solverAmt = Math.round(amt * 0.8 * 100) / 100;
+    const platformAmt = Math.round((amt - solverAmt) * 100) / 100;
+    const sym = cur === "USD" ? "$" : cur === "NGN" ? "₦" : cur === "GHS" ? "₵" : `${cur} `;
+    const fmt = (n: number) =>
+      cur === "USD" ? `${sym}${n.toFixed(2)}` : `${sym}${Math.round(n).toLocaleString()}`;
+    const bountyLink = `/?section=Bounties&bounty=${bountyId}`;
+    const adminLink = `/admin/bounties?bounty=${bountyId}`;
+
+    if (b.accepted_applicant_id) {
+      await sb.from("notifications").insert({
+        user_id: b.accepted_applicant_id,
+        kind: "bounty_released",
+        title: `Payout received — ${fmt(solverAmt)}`,
+        body: `Your 80% share for "${b.title}" has been credited to your Bounty Wallet.`,
+        link: bountyLink,
+        from_user_id: actorId ?? null,
+      });
+    }
+
+    const { data: admins } = await sb.from("user_roles").select("user_id").eq("role", "admin");
+    const adminIds: string[] = Array.from(new Set(((admins ?? []) as { user_id: string }[]).map((r) => r.user_id)));
+    if (adminIds.length) {
+      const rows = adminIds.map((uid) => ({
+        user_id: uid,
+        kind: "bounty_released",
+        title: `Bounty settled — "${b.title}"`,
+        body: `Solver paid ${fmt(solverAmt)} • Platform ${fmt(platformAmt)} (${cur}).`,
+        link: adminLink,
+        from_user_id: actorId ?? null,
+      }));
+      await sb.from("notifications").insert(rows);
+    }
+  } catch {
+    /* non-fatal */
+  }
+}
+
 export interface BountyInput {
   id?: string;
   title: string;
@@ -519,16 +574,7 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
     const { error: e2 } = await (supabaseAdmin as unknown as { rpc: (n: string, p: unknown) => Promise<{ error: Error | null }> })
       .rpc("bounty_release_escrow", { _bounty_id: data.bounty_id });
     if (e2) throw new Error(e2.message);
-    if (b.accepted_applicant_id) {
-      await notifyBounty(
-        b.accepted_applicant_id as string,
-        "bounty_released",
-        `Funds released — "${b.title}"`,
-        "The poster released escrow. Your share has been credited to your wallet.",
-        context.userId,
-        `/?section=Bounties&bounty=${data.bounty_id}`,
-      );
-    }
+    await notifyReleaseSettlement(data.bounty_id, context.userId);
     return { ok: true };
   });
 
@@ -669,6 +715,7 @@ export const adminReleaseBounty = createServerFn({ method: "POST" })
       .rpc("bounty_release_escrow", { _bounty_id: data.id });
     if (error) throw new Error(error.message);
     await writeAudit(context.supabase as unknown as never, context.userId, "bounty.release", data.id, {});
+    await notifyReleaseSettlement(data.id, context.userId);
     return { ok: true };
   });
 
