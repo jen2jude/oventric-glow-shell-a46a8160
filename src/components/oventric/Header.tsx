@@ -87,45 +87,50 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
       {/* Mobile top row: logo + search + hamburger (home only) */}
       {showMobileTopRow && (
-        <div className="md:hidden flex items-center gap-3 h-14 px-4 border-b border-white/5">
-          <Link to="/" aria-label="Oventric" className="flex items-center">
+        <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
+          <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
             {LogoMark}
           </Link>
-          <button
-            onClick={() => setMobileSearchOpen(true)}
-            aria-label="Open search"
-            className="ml-auto p-2.5 rounded-lg hover:bg-white/5 text-white"
-          >
-            <Search className="w-6 h-6" strokeWidth={2.5} />
-          </button>
-          <button
-            onClick={() => setMegaOpen(true)}
-            aria-label="Open menu"
-            className="p-2.5 -mr-2 rounded-lg hover:bg-white/5 text-white"
-          >
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
-          </button>
+          <div className="min-w-0" />
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Open search"
+              className="p-2 rounded-lg hover:bg-white/5 text-white"
+            >
+              <Search className="w-5 h-5" strokeWidth={2.5} />
+            </button>
+            <button
+              onClick={() => setMegaOpen(true)}
+              aria-label="Open menu"
+              className="p-2 -mr-1 rounded-lg hover:bg-white/5 text-white"
+            >
+              <Menu className="w-5 h-5" strokeWidth={2.5} />
+            </button>
+          </div>
         </div>
       )}
 
       {/* Main row */}
-      <div className="h-[4.5rem] flex items-center gap-3 px-4 md:px-6">
-        {onMenuClick && (
-          <button
-            onClick={onMenuClick}
-            className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors"
-          >
-            <Menu className="w-6 h-6" strokeWidth={2.5} />
-          </button>
-        )}
-        {/* Desktop-only logo */}
-        <Link to="/" aria-label="Oventric" className="hidden md:flex items-center shrink-0">
-          {LogoMark}
-        </Link>
+      <div className="h-11 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
+        <div className="flex items-center gap-2 md:gap-3 min-w-0">
+          {onMenuClick && (
+            <button
+              onClick={onMenuClick}
+              className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors shrink-0"
+            >
+              <Menu className="w-6 h-6" strokeWidth={2.5} />
+            </button>
+          )}
+          {/* Desktop-only logo */}
+          <Link to="/" aria-label="Oventric" className="hidden md:flex items-center shrink-0">
+            {LogoMark}
+          </Link>
 
-        {/* Wallet chip - mobile only on the left, next to/below the logo */}
-        <div className="md:hidden">
-          <HeaderWalletChip align="left" />
+          {/* Wallet chip - mobile only on the left */}
+          <div className="md:hidden shrink-0">
+            <HeaderWalletChip align="left" compact />
+          </div>
         </div>
 
         {/* Desktop search input */}
@@ -133,55 +138,53 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <GlobalSearch variant="inline" />
         </div>
 
-        <div className="flex items-center gap-2.5 ml-auto shrink-0">
+        <div className="flex items-center gap-1 md:gap-2.5 shrink-0 min-w-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
-          <div className="hidden md:inline-flex">
+          <div className="hidden md:inline-flex shrink-0">
             <HeaderWalletChip align="right" />
           </div>
-
-
-
-          {/* Circles & Guilds - mobile only in bottom row */}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
-            aria-label="Circles & Guilds"
-            className="relative md:hidden p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
-          >
-            <Users className="w-6 h-6" strokeWidth={2.5} />
-            <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
-          </button>
 
           {/* Desktop candy-box menu */}
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors"
+            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
           >
             <Grip className="w-6 h-6" strokeWidth={2.5} />
+          </button>
+
+          {/* Circles & Guilds - desktop only (mobile uses footer nav) */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
+            aria-label="Circles & Guilds"
+            className="relative hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
+          >
+            <Users className="w-6 h-6" strokeWidth={2.5} />
+            <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
           {/* Notifications */}
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
-            <Bell className="w-6 h-6" strokeWidth={2.5} />
+            <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
-          {/* Follow requests */}
+          {/* Follow requests - desktop only */}
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <UserPlus className="w-6 h-6" strokeWidth={2.5} />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
-          {/* Circle join inbox: keep on desktop only so it stays reachable */}
-          <div className="hidden md:inline-flex">
+          {/* Circle join inbox: desktop only */}
+          <div className="hidden md:inline-flex shrink-0">
             <IncomingCircleInbox />
           </div>
 
@@ -189,25 +192,25 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={onOpenMessages}
             aria-label="Open messages"
-            className="relative p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0"
+            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
-            <MessageSquare className="w-6 h-6" strokeWidth={2.5} />
+            <MessageSquare className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
           </button>
 
-
-
           {/* Profile */}
           {isAuthenticated ? (
-            <ProfileDropdown />
+            <div className="shrink-0">
+              <ProfileDropdown />
+            </div>
           ) : (
             <button
               type="button"
               onClick={() => openGate("generic")}
-              className="inline-flex items-center justify-center h-10 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity"
+              className="inline-flex items-center justify-center h-9 md:h-10 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity shrink-0"
               aria-label="Connect account"
             >
-              <span className="inline-flex items-center gap-1.5 h-full w-full px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
+              <span className="inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
                 <KeyRound className="w-4 h-4 text-white" strokeWidth={2.5} />
                 <span className="hidden sm:inline">Connect Account</span>
                 <span className="sm:hidden">Connect</span>
