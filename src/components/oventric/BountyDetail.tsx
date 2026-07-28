@@ -506,6 +506,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 <Send className="w-4 h-4" /> Mark work delivered
               </button>
             )}
+            {isSolver && bounty.status === "solved" && !bounty.released_at && (
+              <button
+                onClick={() => setAwaitingPop(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-sky-500/40 text-sky-200 text-sm font-bold"
+              >
+                <Clock className="w-4 h-4" /> Awaiting confirmation
+              </button>
+            )}
             {isPoster && !bounty.released_at && (
               <button
                 onClick={doRelease}
