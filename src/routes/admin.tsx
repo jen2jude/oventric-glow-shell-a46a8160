@@ -1,5 +1,5 @@
-import { createFileRoute, Outlet, Link, useRouter } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { createFileRoute, Outlet, Link, useRouter, useLocation } from "@tanstack/react-router";
+import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ShieldCheck,
@@ -20,7 +20,10 @@ import {
   GraduationCap,
   Banknote,
   BookOpen,
+  UserCog,
 } from "lucide-react";
+
+import { canAccessSection, type ManagementRole } from "@/lib/admin-roles";
 
 
 import { supabase } from "@/integrations/supabase/client";
