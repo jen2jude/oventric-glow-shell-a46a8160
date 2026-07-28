@@ -1,14 +1,13 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Users, Bell, UserPlus, MessageSquare } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
   NotificationsDrawer,
   useUnreadNotificationsCount,
 } from "@/components/oventric/NotificationsDrawer";
-import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
-import { IncomingCircleInbox } from "@/components/oventric/IncomingCircleInbox";
+import { RequestsInboxDrawer } from "@/components/oventric/RequestsInboxDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoFull from "@/assets/oventric-full.asset.json";
@@ -153,16 +152,6 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
 
-          {/* Circles & Guilds */}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
-            aria-label="Circles & Guilds"
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
-          >
-            <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-            <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
-          </button>
-
           {/* Notifications */}
           <button
             onClick={() => setNotifOpen(true)}
@@ -173,20 +162,19 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
-          {/* Follow requests */}
+          {/* Merged Follow + Circle requests */}
           <button
             onClick={() => setFollowReqOpen(true)}
-            aria-label="Follow requests"
+            aria-label={`Requests (${pendingFollow + pendingCircles} pending)`}
             className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <UserPlus className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-            <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
+            <CountBadge
+              count={pendingFollow + pendingCircles}
+              ariaLabel={`${pendingFollow + pendingCircles} pending follow and circle requests`}
+            />
           </button>
 
-          {/* Circle join inbox */}
-          <div className="inline-flex shrink-0">
-            <IncomingCircleInbox />
-          </div>
 
 
           {/* Chat */}
@@ -222,7 +210,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       </div>
 
       <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
-      <FollowRequestsDrawer open={followReqOpen} onClose={() => setFollowReqOpen(false)} />
+      <RequestsInboxDrawer open={followReqOpen} onClose={() => setFollowReqOpen(false)} />
       <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
 
       {mobileSearchOpen && (
