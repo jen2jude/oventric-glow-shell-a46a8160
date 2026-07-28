@@ -382,7 +382,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
       if (r.course_id) enrollCount.set(r.course_id, (enrollCount.get(r.course_id) ?? 0) + 1);
     });
     const cRows = coursesRes.data ?? [];
-    const cCovers = await signBucket(sb, "course-covers", cRows.map((c: any) => c.cover_path));
+    const cCovers = await signBucket(supabaseAdmin as any, "course-covers", cRows.map((c: any) => c.cover_path));
     const coursesAll: RecoCourse[] = cRows.map((c: any, i: number) => ({
       id: c.id,
       title: c.title,
