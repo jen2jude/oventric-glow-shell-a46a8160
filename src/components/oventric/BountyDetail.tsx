@@ -293,13 +293,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doRelease = async () => {
-    if (!confirm(`Release ${dp.formatted} to the solver now? This cannot be undone.`)) return;
+    setConfirmRelease(false);
     setBusy("release");
     try {
       await releaseFn({ data: { bounty_id: bountyId } });
       await load();
     } catch (e) {
-      alert((e as Error).message);
+      setError((e as Error).message);
     } finally {
       setBusy(null);
     }
