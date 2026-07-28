@@ -62,7 +62,8 @@ function AdminError({ error, reset }: { error: Error; reset: () => void }) {
   );
 }
 
-const NAV = [
+type NavItem = { to: string; label: string; icon: typeof LayoutDashboard; exact?: boolean };
+const NAV: NavItem[] = [
   { to: "/admin", label: "Overview", icon: LayoutDashboard, exact: true },
   { to: "/admin/users", label: "Users", icon: Users },
   { to: "/admin/products", label: "Products", icon: Package },
