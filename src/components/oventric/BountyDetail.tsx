@@ -278,8 +278,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doMarkSolved = async () => {
-    if (!confirm("Mark this bounty delivered? The poster has 48h to review before auto-release."))
-      return;
+    setConfirmSolved(false);
     setBusy("solved");
     try {
       await solvedFn({ data: { bounty_id: bountyId } });
