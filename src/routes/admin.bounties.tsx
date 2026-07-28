@@ -743,7 +743,7 @@ function BountiesAdminPage() {
                 <button
                   disabled={saving}
                   onClick={save}
-                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+                  className="px-4 py-2 bg-white hover:bg-slate-200 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
                 >
                   {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
                   {modal.id ? "Save changes" : "Publish bounty"}
