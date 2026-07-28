@@ -37,6 +37,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
+import { Route as AdminManagementUsersRouteImport } from './routes/admin.management-users'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
@@ -199,6 +200,11 @@ const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
   path: '/payouts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminManagementUsersRoute = AdminManagementUsersRouteImport.update({
+  id: '/management-users',
+  path: '/management-users',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminFeaturesRoute = AdminFeaturesRouteImport.update({
   id: '/features',
   path: '/features',
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -382,6 +389,7 @@ export interface FileRoutesByTo {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -434,6 +442,7 @@ export interface FileRoutesById {
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
   '/admin/features': typeof AdminFeaturesRoute
+  '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -487,6 +496,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -587,6 +598,7 @@ export interface FileRouteTypes {
     | '/admin/communications'
     | '/admin/courses'
     | '/admin/features'
+    | '/admin/management-users'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -841,6 +853,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPayoutsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/management-users': {
+      id: '/admin/management-users'
+      path: '/management-users'
+      fullPath: '/admin/management-users'
+      preLoaderRoute: typeof AdminManagementUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/features': {
       id: '/admin/features'
       path: '/features'
@@ -1018,6 +1037,7 @@ interface AdminRouteChildren {
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
+  AdminManagementUsersRoute: typeof AdminManagementUsersRoute
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -1040,6 +1060,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
+  AdminManagementUsersRoute: AdminManagementUsersRoute,
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
