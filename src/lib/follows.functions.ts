@@ -312,17 +312,16 @@ export const listSuggestedFollows = createServerFn({ method: "GET" })
       .limit(limit * 3);
     if (error) throw error;
 
-    const scored: SuggestedPerson[] = (rows ?? [])
-      .filter((p: any) => !exclude.has(p.user_id))
-      .slice(0, limit)
-      .map((p: any) => ({
-        userId: p.user_id,
-        displayName: p.display_name || p.username || "Unnamed member",
-        username: p.username ?? null,
-        slug: p.slug ?? null,
-        avatarUrl: p.avatar_path ?? null,
-        bio: p.bio ?? null,
-        reputation: Number(p.reputation_stars ?? 0),
-      }));
+    const filtered = (rows ?? []).filter((p: any) => !exclude.has(p.user_id)).slice(0, limit);
+    const signed = await signAvatarPaths(context.supabase, filtered.map((p: any) => p.avatar_path));
+    const scored: SuggestedPerson[] = filtered.map((p: any) => ({
+      userId: p.user_id,
+      displayName: p.display_name || p.username || "Unnamed member",
+      username: p.username ?? null,
+      slug: p.slug ?? null,
+      avatarUrl: p.avatar_path ? signed.get(p.avatar_path) ?? null : null,
+      bio: p.bio ?? null,
+      reputation: Number(p.reputation_stars ?? 0),
+    }));
     return scored;
   });
