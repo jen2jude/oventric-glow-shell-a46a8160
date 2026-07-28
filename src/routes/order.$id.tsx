@@ -103,8 +103,11 @@ function OrderPage() {
               <div className="bg-[#1E1E24] border border-amber-500/40 rounded-lg p-4">
                 <h2 className="text-white font-bold text-base mb-1">Manual delivery</h2>
                 <p className="text-xs text-slate-400 mb-3">
-                  Payment received. The seller will verify your order and deliver this asset manually. Expect contact within 24 hours.
+                  Payment received and held in escrow. The seller will deliver this asset to you. Expect contact within 24 hours.
                 </p>
+                <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-[11px] text-amber-100 leading-relaxed mb-3">
+                  <strong className="text-amber-200">Keep the delivery on Oventric.</strong> Ask the seller to send the file, link, or setup instructions through your inbox here so we can protect both sides. Once you have the goods, tap <em>Confirm receipt</em> from your Dashboard → Digital purchases to release payment. <span className="text-amber-300 font-semibold">Do not accept off-platform deals</span> — we can't refund or mediate anything that happens outside Oventric.
+                </div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
                   <div className="bg-[#121214] border border-white/10 rounded-md px-3 py-2">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-0.5">Delivery email</div>
@@ -116,6 +119,7 @@ function OrderPage() {
                   </div>
                 </div>
               </div>
+
             ) : (
               <div className="bg-[#1E1E24] border border-emerald-500/40 rounded-lg p-4">
                 <h2 className="text-white font-bold text-base mb-1">Your download</h2>
