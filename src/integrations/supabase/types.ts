@@ -2790,6 +2790,11 @@ export type Database = {
         | "Payout Withdrawal"
         | "Marketplace Sale"
         | "Cashback Earned"
+        | "Bounty Payout"
+        | "Bounty Refund"
+        | "Bounty To Main"
+        | "Campaign Escrow"
+        | "Campaign Refund"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -2933,6 +2938,11 @@ export const Constants = {
         "Payout Withdrawal",
         "Marketplace Sale",
         "Cashback Earned",
+        "Bounty Payout",
+        "Bounty Refund",
+        "Bounty To Main",
+        "Campaign Escrow",
+        "Campaign Refund",
       ],
     },
   },
