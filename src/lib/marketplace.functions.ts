@@ -965,6 +965,35 @@ export const createOrder = createServerFn({ method: "POST" })
       });
     }
 
+    // Manual-delivery flow: notify the seller in-platform via DM + inbox so they
+    // know a paid order is waiting for them to deliver via URL, file upload, or
+    // chat. Escrow stays "held" until the buyer confirms receipt.
+    if (holdEscrow) {
+      const dmBody =
+        `📦 New paid order — "${product.name}" (Qty ${data.quantity})\n\n` +
+        `The buyer has paid and is waiting for delivery. Please deliver here on Oventric ` +
+        `(share a link, upload a file, or attach it in this chat) so the platform can protect both sides. ` +
+        `Payment will only be released to your wallet after the buyer confirms they received the goods.\n\n` +
+        `Buyer contact on file:\n` +
+        `• Email: ${data.deliveryEmail ?? "—"}\n` +
+        `• WhatsApp: ${data.deliveryWhatsapp ?? "—"}\n\n` +
+        `Order ref: ${(oRow.id as string).slice(0, 8)}`;
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: userId,
+        recipient_id: product.sellerId,
+        body: dmBody,
+      });
+      await supabaseAdmin.from("notifications").insert({
+        user_id: product.sellerId,
+        kind: "order_manual_delivery",
+        title: `Deliver "${product.name}"`,
+        body: `A buyer paid and is waiting for you to deliver on-platform. Escrow releases after they confirm receipt.`,
+        link: `/order/${oRow.id as string}`,
+        from_user_id: userId,
+      });
+    }
+
+
     return {
       order: {
         id: oRow.id as string,
