@@ -34,26 +34,30 @@
 
 :root {
   --radius: 0.5rem;
-  --background: oklch(0.16 0.005 260);
-  --foreground: oklch(0.96 0.005 260);
-  --card: oklch(0.22 0.008 265);
-  --card-foreground: oklch(0.96 0.005 260);
-  --popover: oklch(0.22 0.008 265);
-  --popover-foreground: oklch(0.96 0.005 260);
-  --primary: oklch(0.72 0.17 160);
-  --primary-foreground: oklch(0.16 0.005 260);
-  --secondary: oklch(0.28 0.008 265);
-  --secondary-foreground: oklch(0.96 0.005 260);
-  --muted: oklch(0.28 0.008 265);
-  --muted-foreground: oklch(0.68 0.01 260);
-  --accent: oklch(0.28 0.008 265);
-  --accent-foreground: oklch(0.96 0.005 260);
+  /* Premium black & white dark theme (Facebook-style elevation).
+     Base is near-black; cards/inputs step up in luminance so they
+     read as elevated surfaces above the background. */
+  --background: oklch(0.17 0 0);        /* ~#1a1a1a app bg */
+  --foreground: oklch(0.98 0 0);        /* near-white text */
+  --card: oklch(0.235 0 0);             /* ~#2a2a2a elevated card */
+  --card-foreground: oklch(0.98 0 0);
+  --popover: oklch(0.26 0 0);           /* ~#303030 popovers sit above cards */
+  --popover-foreground: oklch(0.98 0 0);
+  --primary: oklch(0.985 0 0);          /* white primary */
+  --primary-foreground: oklch(0.17 0 0);
+  --secondary: oklch(0.30 0 0);         /* ~#3a3a3a chips/buttons */
+  --secondary-foreground: oklch(0.98 0 0);
+  --muted: oklch(0.28 0 0);
+  --muted-foreground: oklch(0.72 0 0);  /* soft grey label text */
+  --accent: oklch(0.32 0 0);            /* hover surface */
+  --accent-foreground: oklch(0.98 0 0);
   --destructive: oklch(0.64 0.22 25);
-  --destructive-foreground: oklch(0.98 0.005 260);
+  --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.72 0.17 160);
+  --ring: oklch(0.85 0 0);
 }
+
 
 @keyframes rgb-neon-chase {
   0%   { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
