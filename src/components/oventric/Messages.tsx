@@ -89,40 +89,46 @@ function ThreadRow({
   return (
     <button
       onClick={onClick}
-      className={`w-full text-left flex items-start gap-3 px-3 py-3 rounded-lg border transition-colors ${
+      className={`w-full text-left rounded-lg transition-colors ${
         active
-          ? "bg-emerald-500/10 border-emerald-500/40"
+          ? "bg-emerald-500/10 border border-emerald-500/40"
           : unread
-            ? "rgb-pulse-glow bg-[#1E1E24] border-white/10 hover:bg-white/5"
-            : "bg-[#1E1E24] border-white/10 hover:bg-white/5"
+            ? "rgb-static-border p-[2px]"
+            : "bg-[#1E1E24] border border-white/10"
       }`}
     >
-      <div className="relative shrink-0">
-        <div
-          className={`w-10 h-10 rounded-full bg-gradient-to-br ${thread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
-        >
-          {thread.peerInitials}
-        </div>
-        {online && (
-          <span
-            className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
-            title="Online"
-          />
-        )}
-      </div>
-      <div className="min-w-0 flex-1">
-        <div className="flex items-center gap-1.5">
-          <span className="text-sm font-semibold text-white truncate">{thread.peerName}</span>
-          <span className="ml-auto shrink-0 text-[10px] text-slate-500">{formatTime(thread.lastAt)}</span>
-        </div>
-
-        <div className="flex items-center gap-2 mt-0.5">
-          <div className="text-xs text-slate-400 truncate flex-1">{thread.preview}</div>
-          {unread && (
-            <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-emerald-500 text-black text-[10px] font-black">
-              {thread.unread}
-            </span>
+      <div
+        className={`flex items-start gap-3 px-3 py-3 rounded-md ${
+          active ? "" : unread ? "bg-[#1E1E24] hover:bg-white/5" : "hover:bg-white/5"
+        }`}
+      >
+        <div className="relative shrink-0">
+          <div
+            className={`w-10 h-10 rounded-full bg-gradient-to-br ${thread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
+          >
+            {thread.peerInitials}
+          </div>
+          {online && (
+            <span
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+              title="Online"
+            />
           )}
+        </div>
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-1.5">
+            <span className="text-sm font-semibold text-white truncate">{thread.peerName}</span>
+            <span className="ml-auto shrink-0 text-[10px] text-slate-500">{formatTime(thread.lastAt)}</span>
+          </div>
+
+          <div className="flex items-center gap-2 mt-0.5">
+            <div className="text-xs text-slate-400 truncate flex-1">{thread.preview}</div>
+            {unread && (
+              <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-emerald-500 text-black text-[10px] font-black">
+                {thread.unread}
+              </span>
+            )}
+          </div>
         </div>
       </div>
     </button>
