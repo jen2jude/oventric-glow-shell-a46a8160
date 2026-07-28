@@ -101,6 +101,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [pitch, setPitch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmSolved, setConfirmSolved] = useState(false);
+  const [awaitingPop, setAwaitingPop] = useState(false);
 
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
@@ -506,6 +507,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 <Send className="w-4 h-4" /> Mark work delivered
               </button>
             )}
+            {isSolver && bounty.status === "solved" && !bounty.released_at && (
+              <button
+                onClick={() => setAwaitingPop(true)}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-sky-500/40 text-sky-200 text-sm font-bold"
+              >
+                <Clock className="w-4 h-4" /> Awaiting confirmation
+              </button>
+            )}
             {isPoster && !bounty.released_at && (
               <button
                 onClick={doRelease}
@@ -707,6 +716,49 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               >
                 {busy === "solved" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
                 Yes, mark delivered
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {awaitingPop && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setAwaitingPop(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
+                <Clock className="w-4 h-4 text-sky-300" />
+              </div>
+              <div className="text-white font-bold text-base">Awaiting poster confirmation</div>
+            </div>
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              Your delivery is submitted. Waiting for the poster to confirm and approve.
+              You can contact the poster via chat to nudge them to approve.
+              {autoReleaseIn !== null ? ` Funds auto-release in ~${Math.ceil(autoReleaseIn)}h if no response.` : ""}
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setAwaitingPop(false)}
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => {
+                  setAwaitingPop(false);
+                  window.dispatchEvent(new CustomEvent("oventric:open-messages"));
+                }}
+                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold inline-flex items-center gap-1.5"
+              >
+                <MessageCircle className="w-4 h-4" /> Contact poster
               </button>
             </div>
           </div>
