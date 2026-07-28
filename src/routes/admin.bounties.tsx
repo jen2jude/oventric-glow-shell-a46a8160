@@ -358,7 +358,7 @@ function BountiesAdminPage() {
           </button>
           <button
             onClick={openCreate}
-            className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+            className="px-4 py-2 bg-white hover:bg-slate-200 text-black text-sm font-bold rounded-lg flex items-center gap-2"
           >
             <Plus className="w-4 h-4" /> New bounty
           </button>
