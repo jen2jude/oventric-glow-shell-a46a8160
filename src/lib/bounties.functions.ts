@@ -715,6 +715,7 @@ export const adminReleaseBounty = createServerFn({ method: "POST" })
       .rpc("bounty_release_escrow", { _bounty_id: data.id });
     if (error) throw new Error(error.message);
     await writeAudit(context.supabase as unknown as never, context.userId, "bounty.release", data.id, {});
+    await notifyReleaseSettlement(data.id, context.userId);
     return { ok: true };
   });
 
