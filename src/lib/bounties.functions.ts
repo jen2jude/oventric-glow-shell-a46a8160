@@ -35,6 +35,7 @@ async function notifyBounty(
   title: string,
   body: string,
   fromUserId?: string | null,
+  link?: string,
 ) {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -44,7 +45,7 @@ async function notifyBounty(
       kind,
       title,
       body,
-      link: "/?section=Bounties",
+      link: link ?? "/?section=Bounties",
       from_user_id: fromUserId ?? null,
     });
   } catch {
