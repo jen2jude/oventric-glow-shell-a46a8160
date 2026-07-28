@@ -66,12 +66,23 @@ function SystemWalletsPage() {
           <h1 className="text-white text-2xl font-black">System Wallets</h1>
           <p className="text-sm text-slate-400">Admin-only revenue held from marketplace, bounties, and ads.</p>
         </div>
-        <Link
-          to="/admin/cashback-wallet"
-          className="shrink-0 px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
-        >
-          Cashback Wallet →
-        </Link>
+        <div className="flex items-center gap-2 shrink-0">
+          <div className="inline-flex rounded-lg overflow-hidden border border-white/10 bg-[#0b0b0d]">
+            {(["NGN","USD","GHS"] as ViewCur[]).map((c) => (
+              <button
+                key={c}
+                onClick={() => setView(c)}
+                className={`px-3 py-1.5 text-xs font-bold ${view===c ? "bg-emerald-500/25 text-emerald-200" : "text-slate-400 hover:text-white"}`}
+              >{c}</button>
+            ))}
+          </div>
+          <Link
+            to="/admin/cashback-wallet"
+            className="px-3 py-2 rounded-lg bg-pink-500/20 border border-pink-500/40 text-pink-200 text-xs font-bold hover:bg-pink-500/30"
+          >
+            Cashback Wallet →
+          </Link>
+        </div>
       </header>
 
 
