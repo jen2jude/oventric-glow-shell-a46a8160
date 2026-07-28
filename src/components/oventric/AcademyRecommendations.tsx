@@ -1,0 +1,297 @@
+import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
+import {
+  GraduationCap,
+  ShoppingBag,
+  Target,
+  Users,
+  Newspaper,
+  Sparkles,
+  ArrowRight,
+  Loader2,
+  Flame,
+} from "lucide-react";
+import {
+  getAcademyRecommendations,
+  type AcademyRecommendations as RecoDTO,
+  type RecoCourse,
+  type RecoCircle,
+  type RecoBlog,
+  type DiscoveryProduct,
+  type DiscoveryBounty,
+  type DiscoveryAd,
+} from "@/lib/discovery.functions";
+import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { computeDisplayPrice } from "@/lib/fx-display";
+
+function fmtPrice(usd: number, viewer: Currency): string {
+  if (!usd) return "Free";
+  return computeDisplayPrice(
+    { price_usd: usd, original_currency: "USD", original_amount: usd, fx_snapshot: null },
+    viewer,
+  ).formatted;
+}
+
+function SectionHeader({ icon: Icon, title, hint }: { icon: any; title: string; hint?: string }) {
+  return (
+    <div className="flex items-end justify-between mb-3 px-1">
+      <div className="flex items-center gap-2">
+        <Icon className="w-5 h-5 text-emerald-400" strokeWidth={2.5} />
+        <h3 className="text-white font-black text-lg tracking-tight">{title}</h3>
+      </div>
+      {hint && <span className="text-[11px] uppercase tracking-wider text-slate-500">{hint}</span>}
+    </div>
+  );
+}
+
+function CourseTile({ c, currency, onOpen }: { c: RecoCourse; currency: Currency; onOpen: (id: string) => void }) {
+  return (
+    <button
+      onClick={() => onOpen(c.id)}
+      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors group"
+    >
+      <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40">
+        {c.coverUrl ? (
+          <ResponsiveImage src={c.coverUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center"><GraduationCap className="w-10 h-10 text-white/30" /></div>
+        )}
+        <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">{c.category}</span>
+        <span className="absolute top-2 right-2 text-[10px] font-bold bg-emerald-500 text-black rounded px-2 py-0.5">
+          {c.isFree ? "Free" : fmtPrice(c.priceUsd, currency)}
+        </span>
+      </div>
+      <div className="p-3">
+        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{c.title}</h4>
+        <div className="mt-1.5 flex items-center gap-2 text-[11px] text-slate-500">
+          <Flame className="w-3 h-3 text-amber-400" />
+          <span>{c.enrollments} enrolled</span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
+function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency }) {
+  return (
+    <Link
+      to="/marketplace"
+      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors block"
+    >
+      <div className={`relative aspect-video bg-gradient-to-br ${p.hue}`}>
+        {p.coverUrl ? (
+          <ResponsiveImage src={p.coverUrl} alt={p.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center"><ShoppingBag className="w-8 h-8 text-white/40" /></div>
+        )}
+        <span className="absolute top-2 right-2 text-[11px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5">
+          {fmtPrice(p.priceUsd, currency)}
+        </span>
+      </div>
+      <div className="p-3">
+        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{p.title}</h4>
+        <div className="text-[11px] text-slate-500 mt-1 truncate">{p.vendor || p.category}</div>
+      </div>
+    </Link>
+  );
+}
+
+function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency }) {
+  return (
+    <Link to="/bounties" className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block">
+      <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
+        {b.coverUrl ? (
+          <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center"><Target className="w-8 h-8 text-white/40" /></div>
+        )}
+        <span className="absolute top-2 right-2 text-[11px] font-bold bg-black/70 text-amber-300 border border-amber-400/40 rounded px-2 py-0.5">
+          {fmtPrice(b.amountUsd, currency)}
+        </span>
+      </div>
+      <div className="p-3">
+        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
+        {b.category && <div className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider">{b.category}</div>}
+      </div>
+    </Link>
+  );
+}
+
+function CircleTile({ c }: { c: RecoCircle }) {
+  return (
+    <Link to="/" search={{ circle: c.slug } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block">
+      <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
+        {c.coverUrl ? (
+          <ResponsiveImage src={c.coverUrl} alt={c.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
+        ) : null}
+      </div>
+      <div className="p-3 flex items-center gap-3">
+        <div className="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+          {c.avatarUrl ? <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" /> : <span>{c.emoji}</span>}
+        </div>
+        <div className="min-w-0 flex-1">
+          <h4 className="text-white font-bold text-sm truncate">{c.name}</h4>
+          <div className="text-[11px] text-slate-500 flex items-center gap-1"><Users className="w-3 h-3" /> {c.memberCount} members</div>
+        </div>
+      </div>
+    </Link>
+  );
+}
+
+function BlogTile({ b }: { b: RecoBlog }) {
+  return (
+    <Link to="/blog/$slug" params={{ slug: b.slug }} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-sky-400/40 transition-colors block">
+      <div className="relative aspect-video bg-gradient-to-br from-sky-600/30 to-emerald-600/30">
+        {b.coverUrl ? (
+          <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
+        ) : (
+          <div className="absolute inset-0 flex items-center justify-center"><Newspaper className="w-8 h-8 text-white/40" /></div>
+        )}
+        {b.categoryName && (
+          <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">{b.categoryName}</span>
+        )}
+      </div>
+      <div className="p-3">
+        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
+        {b.excerpt && <p className="text-[12px] text-slate-400 line-clamp-2 mt-1">{b.excerpt}</p>}
+      </div>
+    </Link>
+  );
+}
+
+function PromotedStrip({ ads }: { ads: DiscoveryAd[] }) {
+  if (!ads.length) return null;
+  return (
+    <div className="my-6 rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-indigo-500/5 p-4">
+      <div className="flex items-center gap-2 mb-3">
+        <Sparkles className="w-4 h-4 text-emerald-400" />
+        <span className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold">Promoted picks</span>
+      </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        {ads.map((a) => (
+          <a
+            key={a.id}
+            href={a.ctaUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="flex gap-3 items-center bg-[#1E1E24] border border-white/10 hover:border-emerald-400/40 rounded-lg p-3 transition-colors"
+          >
+            {a.coverUrl ? (
+              <img src={a.coverUrl} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" loading="lazy" />
+            ) : (
+              <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
+            )}
+            <div className="min-w-0 flex-1">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500">{a.advertiser}</div>
+              <div className="text-white font-bold text-sm truncate">{a.title}</div>
+              {a.body && <div className="text-[12px] text-slate-400 line-clamp-1">{a.body}</div>}
+            </div>
+            <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
+          </a>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: string) => void }) {
+  const fetchReco = useServerFn(getAcademyRecommendations);
+  const { baseCurrency } = useOnboarding();
+  const [data, setData] = useState<RecoDTO | null>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    fetchReco()
+      .then(setData)
+      .catch((e) => setError(e?.message ?? "Failed to load"));
+  }, [fetchReco]);
+
+  if (error) return null;
+  if (!data) {
+    return (
+      <div className="mt-10 py-10 text-center">
+        <Loader2 className="w-5 h-5 text-emerald-400 animate-spin mx-auto" />
+      </div>
+    );
+  }
+
+  const halfAds = Math.ceil(data.promoted.length / 2);
+  const adsA = data.promoted.slice(0, halfAds);
+  const adsB = data.promoted.slice(halfAds);
+  const blogA = data.blog.slice(0, 3);
+  const blogB = data.blog.slice(3, 6);
+
+  return (
+    <section className="mt-12 border-t border-white/10 pt-8 space-y-10">
+      {/* Recommended courses */}
+      {data.courses.length > 0 && (
+        <div>
+          <SectionHeader icon={GraduationCap} title="Recommended courses" hint="Most enrolled" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {data.courses.map((c) => (
+              <CourseTile key={c.id} c={c} currency={baseCurrency} onOpen={onOpenCourse} />
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Blog news #1 */}
+      {blogA.length > 0 && (
+        <div>
+          <SectionHeader icon={Newspaper} title="From the blog" hint="Latest" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {blogA.map((b) => <BlogTile key={b.id} b={b} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Promoted A */}
+      <PromotedStrip ads={adsA} />
+
+      {/* Recommended products */}
+      {data.products.length > 0 && (
+        <div>
+          <SectionHeader icon={ShoppingBag} title="Recommended products" hint="Digital + physical" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {data.products.map((p) => <ProductTile key={p.id} p={p} currency={baseCurrency} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Top bounties */}
+      {data.bounties.length > 0 && (
+        <div>
+          <SectionHeader icon={Target} title="Top bounties" hint="Highest reward" />
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+            {data.bounties.map((b) => <BountyTile key={b.id} b={b} currency={baseCurrency} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Blog news #2 */}
+      {blogB.length > 0 && (
+        <div>
+          <SectionHeader icon={Newspaper} title="More reads" />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            {blogB.map((b) => <BlogTile key={b.id} b={b} />)}
+          </div>
+        </div>
+      )}
+
+      {/* Promoted B */}
+      <PromotedStrip ads={adsB} />
+
+      {/* Top circles */}
+      {data.circles.length > 0 && (
+        <div>
+          <SectionHeader icon={Users} title="Top circles" hint="Join the movement" />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            {data.circles.map((c) => <CircleTile key={c.id} c={c} />)}
+          </div>
+        </div>
+      )}
+    </section>
+  );
+}

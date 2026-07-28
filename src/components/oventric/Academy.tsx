@@ -41,6 +41,7 @@ import { CourseCheckoutModal } from "./CourseCheckoutModal";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
+import { AcademyRecommendations } from "@/components/oventric/AcademyRecommendations";
 
 function courseDisplayPrice(c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown }, viewer: Currency) {
   return computeDisplayPrice(
@@ -197,6 +198,10 @@ export function Academy() {
             />
           ))}
         </div>
+
+        <AcademyRecommendations
+          onOpenCourse={(id) => { setSelectedId(id); setView("course"); }}
+        />
       </div>
 
       {editingId ? (
