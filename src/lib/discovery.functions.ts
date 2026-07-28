@@ -290,3 +290,215 @@ export const getDiscoveryFeed = createServerFn({ method: "GET" }).handler(
     return { peers, topPeersAny, bounties, products, ads };
   },
 );
+
+// ─── Academy recommendations ─────────────────────────────────────────────────
+
+export interface RecoCourse {
+  id: string;
+  title: string;
+  category: string;
+  coverUrl: string | null;
+  priceUsd: number;
+  isFree: boolean;
+  instructor: string | null;
+  enrollments: number;
+}
+export interface RecoCircle {
+  id: string;
+  slug: string;
+  name: string;
+  emoji: string;
+  category: string;
+  memberCount: number;
+  coverUrl: string | null;
+  avatarUrl: string | null;
+}
+export interface RecoBlog {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverUrl: string | null;
+  categoryName: string | null;
+  publishedAt: string | null;
+}
+
+export interface AcademyRecommendations {
+  courses: RecoCourse[];
+  products: DiscoveryProduct[];
+  bounties: DiscoveryBounty[];
+  circles: RecoCircle[];
+  blog: RecoBlog[];
+  promoted: DiscoveryAd[];
+}
+
+export const getAcademyRecommendations = createServerFn({ method: "GET" }).handler(
+  async (): Promise<AcademyRecommendations> => {
+    const sb = serverPublicClient();
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+
+    const [coursesRes, enrollRes, prodRes, bntRes, circleRes, memberRes, blogRes, adsRes] = await Promise.all([
+      supabaseAdmin
+        .from("courses")
+        .select("id, title, category, cover_path, price_usd, is_free, instructor_name, is_published, promoted")
+        .eq("is_published", true)
+        .limit(60),
+      supabaseAdmin.from("course_enrollments").select("course_id"),
+      sb
+        .from("products")
+        .select("id, name, category, price_usd, cover_path, hue, vendor, kind, status, reviews, rating, promoted")
+        .eq("status", "active")
+        .order("promoted", { ascending: false })
+        .order("reviews", { ascending: false })
+        .order("rating", { ascending: false })
+        .limit(24),
+      sb
+        .from("bounties")
+        .select("id, title, price_usd, cover_path, category, status")
+        .eq("status", "active")
+        .order("price_usd", { ascending: false })
+        .limit(8),
+      supabaseAdmin
+        .from("circles")
+        .select("id, slug, name, emoji, category, cover_url, avatar_url")
+        .limit(60),
+      supabaseAdmin.from("circle_members").select("circle_id"),
+      supabaseAdmin
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, cover_path, published_at, category_id, status")
+        .eq("status", "published")
+        .order("published_at", { ascending: false })
+        .limit(8),
+      sb
+        .from("ad_campaigns")
+        .select("id, advertiser, title, header, body, cta_label, cta_url, tier, media_url, media_path, placements, status, start_at, end_at")
+        .eq("status", "active")
+        .limit(20),
+    ]);
+
+    // ---- Courses (most enrolled) ----
+    const enrollCount = new Map<string, number>();
+    (enrollRes.data ?? []).forEach((r: any) => {
+      if (r.course_id) enrollCount.set(r.course_id, (enrollCount.get(r.course_id) ?? 0) + 1);
+    });
+    const cRows = coursesRes.data ?? [];
+    const cCovers = await signBucket(sb, "course-covers", cRows.map((c: any) => c.cover_path));
+    const coursesAll: RecoCourse[] = cRows.map((c: any, i: number) => ({
+      id: c.id,
+      title: c.title,
+      category: c.category ?? "misc",
+      coverUrl: cCovers[i],
+      priceUsd: Number(c.price_usd ?? 0),
+      isFree: !!c.is_free,
+      instructor: c.instructor_name ?? null,
+      enrollments: enrollCount.get(c.id) ?? 0,
+    }));
+    const courses = coursesAll
+      .sort((a, b) => b.enrollments - a.enrollments || (b.priceUsd > 0 ? 1 : -1))
+      .slice(0, 6);
+
+    // ---- Products (mixed digital + physical, top rated / most reviewed) ----
+    const pRows = prodRes.data ?? [];
+    const pCovers = await signBucket(sb, "product-covers", pRows.map((p: any) => p.cover_path));
+    const productsAll: DiscoveryProduct[] = pRows.map((p: any, i: number) => ({
+      id: p.id,
+      title: p.name,
+      category: p.category ?? "misc",
+      priceUsd: Number(p.price_usd ?? 0),
+      coverUrl: pCovers[i],
+      hue: p.hue ?? "from-emerald-500 to-teal-600",
+      vendor: p.vendor ?? "",
+    }));
+    // Split by kind to keep the mix balanced
+    const digital = pRows.map((p: any, i: number) => ({ p: productsAll[i], kind: p.kind }))
+      .filter((x) => x.kind === "digital").slice(0, 4).map((x) => x.p);
+    const physical = pRows.map((p: any, i: number) => ({ p: productsAll[i], kind: p.kind }))
+      .filter((x) => x.kind !== "digital").slice(0, 4).map((x) => x.p);
+    const products = [...digital, ...physical].slice(0, 6);
+
+    // ---- Bounties ----
+    const bRows = bntRes.data ?? [];
+    const bCovers = await signBucket(sb, "bounty-covers", bRows.map((b: any) => b.cover_path));
+    const bounties: DiscoveryBounty[] = bRows.map((b: any, i: number) => ({
+      id: b.id,
+      title: b.title,
+      amountUsd: Number(b.price_usd ?? 0),
+      coverUrl: bCovers[i],
+      category: b.category ?? null,
+    })).slice(0, 6);
+
+    // ---- Circles (top by member count) ----
+    const memberByCircle = new Map<string, number>();
+    (memberRes.data ?? []).forEach((m: any) => {
+      if (m.circle_id) memberByCircle.set(m.circle_id, (memberByCircle.get(m.circle_id) ?? 0) + 1);
+    });
+    const clRows = circleRes.data ?? [];
+    const clAvatars = await signBucket(sb, "circle-avatars", clRows.map((c: any) => {
+      const v = c.avatar_url as string | null;
+      return v && !/^https?:\/\//.test(v) ? v : null;
+    }));
+    const clCovers = await signBucket(sb, "circle-covers", clRows.map((c: any) => {
+      const v = c.cover_url as string | null;
+      return v && !/^https?:\/\//.test(v) ? v : null;
+    }));
+    const circles: RecoCircle[] = clRows.map((c: any, i: number) => {
+      const avatarRaw = c.avatar_url as string | null;
+      const coverRaw = c.cover_url as string | null;
+      return {
+        id: c.id,
+        slug: c.slug,
+        name: c.name,
+        emoji: c.emoji ?? "🌐",
+        category: c.category ?? "general",
+        memberCount: memberByCircle.get(c.id) ?? 0,
+        coverUrl: coverRaw && /^https?:\/\//.test(coverRaw) ? coverRaw : clCovers[i],
+        avatarUrl: avatarRaw && /^https?:\/\//.test(avatarRaw) ? avatarRaw : clAvatars[i],
+      };
+    })
+      .sort((a, b) => b.memberCount - a.memberCount)
+      .slice(0, 6);
+
+    // ---- Blog news ----
+    const blRows = blogRes.data ?? [];
+    const blCovers = await signBucket(sb, "blog-covers", blRows.map((b: any) => b.cover_path));
+    const catIds = Array.from(new Set(blRows.map((b: any) => b.category_id).filter(Boolean))) as string[];
+    let catMap = new Map<string, string>();
+    if (catIds.length) {
+      const { data: cats } = await supabaseAdmin.from("blog_categories").select("id, name").in("id", catIds);
+      catMap = new Map((cats ?? []).map((c: any) => [c.id as string, c.name as string]));
+    }
+    const blog: RecoBlog[] = blRows.map((b: any, i: number) => ({
+      id: b.id,
+      slug: b.slug,
+      title: b.title,
+      excerpt: b.excerpt ?? "",
+      coverUrl: blCovers[i],
+      categoryName: b.category_id ? (catMap.get(b.category_id) ?? null) : null,
+      publishedAt: b.published_at,
+    })).slice(0, 6);
+
+    // ---- Promoted ads (any feed/marketplace/academy) ----
+    const now = Date.now();
+    const adRows = (adsRes.data ?? []).filter((a: any) => {
+      const placements = (a.placements as string[]) ?? [];
+      if (!placements.some((p) => ["feed", "marketplace", "academy"].includes(p))) return false;
+      if (a.start_at && new Date(a.start_at).getTime() > now) return false;
+      if (a.end_at && new Date(a.end_at).getTime() < now) return false;
+      return true;
+    });
+    const adCovers = await signBucket(sb, "product-covers",
+      adRows.map((a: any) => (a.media_path && !a.media_url ? a.media_path : null)));
+    const promoted: DiscoveryAd[] = adRows.map((a: any, i: number) => ({
+      id: a.id,
+      advertiser: a.advertiser ?? "Sponsor",
+      title: a.title || a.header || "Sponsored",
+      body: a.body ?? "",
+      ctaLabel: a.cta_label || "Learn more",
+      ctaUrl: a.cta_url || "#",
+      tier: (a.tier as "text" | "image" | "video") ?? "text",
+      coverUrl: a.media_url || adCovers[i],
+    })).slice(0, 4);
+
+    return { courses, products, bounties, circles, blog, promoted };
+  },
+);
