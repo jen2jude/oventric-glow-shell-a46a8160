@@ -1,0 +1,1 @@
+GRANT SELECT (address) ON public.profiles TO authenticated;
