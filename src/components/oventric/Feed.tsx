@@ -647,12 +647,27 @@ export function Feed() {
             .from("post-media")
             .upload(path, attachment.file, {
               contentType: attachment.file.type,
-              cacheControl: "3600",
+              cacheControl: "31536000",
               upsert: false,
             });
           if (upErr) throw upErr;
           mediaPath = path;
           mediaType = attachment.kind;
+          if (attachment.kind === "video") {
+            try {
+              const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+              const poster = await generateVideoPoster(attachment.file);
+              if (poster) {
+                await supabase.storage
+                  .from("post-media")
+                  .upload(posterPathFor(path), poster, {
+                    contentType: "image/jpeg",
+                    cacheControl: "31536000",
+                    upsert: true,
+                  });
+              }
+            } catch { /* poster is best-effort */ }
+          }
         }
         await createPost({ data: { text, mediaPath, mediaType } });
         setComposerDraft("");
@@ -1211,13 +1226,13 @@ export function Feed() {
                     >
                       <video
                         src={`${post.media_url}#t=0.1`}
-                        preload="metadata"
+                        poster={post.poster_url ?? undefined}
+                        preload={post.poster_url ? "none" : "metadata"}
                         muted
                         playsInline
                         disableRemotePlayback
-                        // Hints the browser to paint the first frame as a poster
-                        // without downloading the full clip until the user opens
-                        // the reel viewer.
+                        // The uploaded poster is served instantly; the clip
+                        // itself is only fetched when the user opens the reel.
                         className="absolute inset-0 w-full h-full object-cover pointer-events-none"
                       />
 
