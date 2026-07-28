@@ -500,13 +500,13 @@ function BountiesAdminPage() {
                       : "";
                     return (
                       <div className="mt-1.5 flex flex-wrap items-center gap-1.5 text-[11px]">
-                        <span className="px-1.5 py-0.5 rounded border border-emerald-500/30 bg-emerald-500/10 text-emerald-200 font-bold">
+                        <span className="px-1.5 py-0.5 rounded border border-white/15 bg-white/5 text-slate-100 font-bold">
                           Escrow {price.formatted}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded border border-sky-500/30 bg-sky-500/10 text-sky-200">
+                        <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300">
                           Solver 80% · {formatMoney(solver, displayCurrency)}
                         </span>
-                        <span className="px-1.5 py-0.5 rounded border border-fuchsia-500/30 bg-fuchsia-500/10 text-fuchsia-200">
+                        <span className="px-1.5 py-0.5 rounded border border-white/10 bg-white/5 text-slate-300">
                           Platform 20% · {formatMoney(platform, displayCurrency)}
                         </span>
                         <span className="text-slate-500">{nativeNote}</span>
