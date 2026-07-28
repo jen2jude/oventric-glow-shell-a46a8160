@@ -518,7 +518,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             )}
             {isPoster && !bounty.released_at && (
               <button
-                onClick={doRelease}
+                onClick={() => setConfirmRelease(true)}
                 disabled={busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
               >
