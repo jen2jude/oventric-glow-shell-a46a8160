@@ -418,7 +418,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
 
     // ---- Bounties ----
     const bRows = bntRes.data ?? [];
-    const bCovers = await signBucket(sb, "bounty-covers", bRows.map((b: any) => b.cover_path));
+    const bCovers = await signBucket(supabaseAdmin as any, "bounty-covers", bRows.map((b: any) => b.cover_path));
     const bounties: DiscoveryBounty[] = bRows.map((b: any, i: number) => ({
       id: b.id,
       title: b.title,
