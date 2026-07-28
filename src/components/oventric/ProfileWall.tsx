@@ -53,6 +53,7 @@ export function ProfileWall({
   const [allowed, setAllowed] = useState<null | { ok: boolean; reason: string }>(null);
   const [composerOpen, setComposerOpen] = useState(false);
   const [commentsFor, setCommentsFor] = useState<FeedPost | null>(null);
+  const [pickerFor, setPickerFor] = useState<string | null>(null);
 
   const load = useCallback(async () => {
     setLoading(true);
