@@ -77,7 +77,8 @@ function CourseTile({ c, currency, onOpen }: { c: RecoCourse; currency: Currency
 function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency }) {
   return (
     <Link
-      to="/marketplace"
+      to="/product/$id"
+      params={{ id: p.id }}
       className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors block"
     >
       <div className={`relative aspect-video bg-gradient-to-br ${p.hue}`}>
@@ -100,7 +101,7 @@ function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency 
 
 function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency }) {
   return (
-    <Link to="/bounties" className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block">
+    <Link to="/" search={{ section: "Bounties" } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block">
       <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
         {b.coverUrl ? (
           <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
@@ -121,7 +122,7 @@ function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency })
 
 function CircleTile({ c }: { c: RecoCircle }) {
   return (
-    <Link to="/" search={{ circle: c.slug } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block">
+    <Link to="/" search={{ section: "Circles", circle: c.slug } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block">
       <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
         {c.coverUrl ? (
           <ResponsiveImage src={c.coverUrl} alt={c.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
@@ -139,6 +140,7 @@ function CircleTile({ c }: { c: RecoCircle }) {
     </Link>
   );
 }
+
 
 function BlogTile({ b }: { b: RecoBlog }) {
   return (
@@ -241,9 +243,12 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       {blogA.length > 0 && (
         <div>
           <SectionHeader icon={Newspaper} title="From the blog" hint="Latest" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {blogA.map((b) => <BlogTile key={b.id} b={b} />)}
+          <div className="flex md:grid gap-3 md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {blogA.map((b) => (
+              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start"><BlogTile b={b} /></div>
+            ))}
           </div>
+
         </div>
       )}
 
@@ -274,9 +279,12 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       {blogB.length > 0 && (
         <div>
           <SectionHeader icon={Newspaper} title="More reads" />
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            {blogB.map((b) => <BlogTile key={b.id} b={b} />)}
+          <div className="flex md:grid gap-3 md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+            {blogB.map((b) => (
+              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start"><BlogTile b={b} /></div>
+            ))}
           </div>
+
         </div>
       )}
 
