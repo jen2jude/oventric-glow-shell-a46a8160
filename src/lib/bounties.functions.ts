@@ -35,6 +35,7 @@ async function notifyBounty(
   title: string,
   body: string,
   fromUserId?: string | null,
+  link?: string,
 ) {
   try {
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
@@ -44,7 +45,7 @@ async function notifyBounty(
       kind,
       title,
       body,
-      link: "/?section=Bounties",
+      link: link ?? "/?section=Bounties",
       from_user_id: fromUserId ?? null,
     });
   } catch {
@@ -468,6 +469,7 @@ export const markBountySolved = createServerFn({ method: "POST" })
       `Work delivered — "${b.title}"`,
       "The solver marked the bounty delivered. Open the bounty to confirm and release funds, or they auto-release in 48h.",
       context.userId,
+      `/?section=Bounties&bounty=${data.bounty_id}`,
     );
     // Also notify all admins so they can step in after the 48h window if needed.
     try {
@@ -484,7 +486,7 @@ export const markBountySolved = createServerFn({ method: "POST" })
           kind: "bounty_solved_admin",
           title: `Bounty awaiting confirmation — "${b.title}"`,
           body: "Solver marked delivered. If the poster doesn't confirm within 48 hours, funds can be released from the admin bounty console.",
-          link: "/admin/bounties",
+          link: `/admin/bounties?bounty=${data.bounty_id}`,
           from_user_id: context.userId,
         }));
       if (rows.length) {
@@ -520,6 +522,7 @@ export const confirmAndRelease = createServerFn({ method: "POST" })
         `Funds released — "${b.title}"`,
         "The poster released escrow. Your share has been credited to your wallet.",
         context.userId,
+        `/?section=Bounties&bounty=${data.bounty_id}`,
       );
     }
     return { ok: true };

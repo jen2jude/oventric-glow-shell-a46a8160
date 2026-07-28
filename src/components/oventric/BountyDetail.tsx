@@ -102,6 +102,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [busy, setBusy] = useState<string | null>(null);
   const [confirmSolved, setConfirmSolved] = useState(false);
   const [awaitingPop, setAwaitingPop] = useState(false);
+  const [confirmRelease, setConfirmRelease] = useState(false);
 
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
@@ -292,13 +293,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doRelease = async () => {
-    if (!confirm(`Release ${dp.formatted} to the solver now? This cannot be undone.`)) return;
+    setConfirmRelease(false);
     setBusy("release");
     try {
       await releaseFn({ data: { bounty_id: bountyId } });
       await load();
     } catch (e) {
-      alert((e as Error).message);
+      setError((e as Error).message);
     } finally {
       setBusy(null);
     }
@@ -517,7 +518,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             )}
             {isPoster && !bounty.released_at && (
               <button
-                onClick={doRelease}
+                onClick={() => setConfirmRelease(true)}
                 disabled={busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
               >
@@ -759,6 +760,46 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold inline-flex items-center gap-1.5"
               >
                 <MessageCircle className="w-4 h-4" /> Contact poster
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {confirmRelease && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setConfirmRelease(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              </div>
+              <div className="text-white font-bold text-base">Release {dp.formatted} to the solver?</div>
+            </div>
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              This confirms the work was delivered okay and releases escrow to the solver's wallet. This action cannot be undone.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmRelease(false)}
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={doRelease}
+                disabled={busy === "release"}
+                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                {busy === "release" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Confirm &amp; release
               </button>
             </div>
           </div>
