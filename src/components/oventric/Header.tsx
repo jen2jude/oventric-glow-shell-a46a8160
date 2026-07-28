@@ -86,30 +86,28 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
   return (
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
       {/* Mobile top row: logo + search + hamburger (always on mobile) */}
-      {
-        <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
-          <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
-            {LogoMark}
-          </Link>
-          <div className="min-w-0" />
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              onClick={() => setMobileSearchOpen(true)}
-              aria-label="Open search"
-              className="p-2 rounded-lg hover:bg-white/5 text-white"
-            >
-              <Search className="w-5 h-5" strokeWidth={2.5} />
-            </button>
-            <button
-              onClick={() => setMegaOpen(true)}
-              aria-label="Open menu"
-              className="p-2 -mr-1 rounded-lg hover:bg-white/5 text-white"
-            >
-              <Menu className="w-5 h-5" strokeWidth={2.5} />
-            </button>
-          </div>
+      <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
+        <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
+          {LogoMark}
+        </Link>
+        <div className="min-w-0" />
+        <div className="flex items-center gap-1 shrink-0">
+          <button
+            onClick={() => setMobileSearchOpen(true)}
+            aria-label="Open search"
+            className="p-2 rounded-lg hover:bg-white/5 text-white"
+          >
+            <Search className="w-5 h-5" strokeWidth={2.5} />
+          </button>
+          <button
+            onClick={() => setMegaOpen(true)}
+            aria-label="Open menu"
+            className="p-2 -mr-1 rounded-lg hover:bg-white/5 text-white"
+          >
+            <Menu className="w-5 h-5" strokeWidth={2.5} />
+          </button>
         </div>
-      )}
+      </div>
 
       {/* Main row */}
       <div className="h-11 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
