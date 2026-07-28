@@ -232,3 +232,84 @@ function AdminLayout() {
     </div>
   );
 }
+
+function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [showPw, setShowPw] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [err, setErr] = useState<string | null>(null);
+
+  const submit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErr(null);
+    setBusy(true);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email: email.trim().toLowerCase(),
+        password,
+      });
+      if (error) throw error;
+      onSignedIn();
+    } catch (e: any) {
+      setErr(e?.message ?? "Sign in failed");
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <form onSubmit={submit} className="flex flex-col gap-2 text-left">
+      <input
+        type="email"
+        autoComplete="email"
+        required
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="Admin email"
+        className="px-3 py-2.5 bg-[#0b0b0d] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+      />
+      <div className="relative">
+        <input
+          type={showPw ? "text" : "password"}
+          autoComplete="current-password"
+          required
+          minLength={6}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          placeholder="Password"
+          className="w-full px-3 py-2.5 pr-16 bg-[#0b0b0d] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+        />
+        <button
+          type="button"
+          onClick={() => setShowPw((v) => !v)}
+          className="absolute right-2 top-1/2 -translate-y-1/2 text-[11px] font-semibold text-slate-400 hover:text-white px-2 py-1"
+        >
+          {showPw ? "Hide" : "Show"}
+        </button>
+      </div>
+      {err && <div className="text-xs text-red-400">{err}</div>}
+      <button
+        type="submit"
+        disabled={busy}
+        className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg"
+      >
+        {busy ? "Signing in…" : "Sign in"}
+      </button>
+      <button
+        type="button"
+        onClick={async () => {
+          if (!email) { setErr("Enter your email first to receive a reset link."); return; }
+          const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
+            redirectTo: `${window.location.origin}/reset-password`,
+          });
+          setErr(error ? error.message : "Password reset link sent.");
+        }}
+        className="text-[11px] text-slate-500 hover:text-slate-300 text-center"
+      >
+        Forgot password?
+      </button>
+    </form>
+  );
+}
+
