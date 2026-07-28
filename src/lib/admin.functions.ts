@@ -28,14 +28,24 @@ async function writeAudit(
   });
 }
 
-/** Check if the current user is an admin. Never throws — returns false if not signed in. */
+/** Check if the current user has management access. Returns roles for sidebar gating. */
 export const checkIsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const sb = context.supabase as any;
-    const { data } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
-    return { isAdmin: Boolean(data) };
+    const { data: isSuper } = await sb.rpc("has_role", { _user_id: context.userId, _role: "admin" });
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { data: roleRows } = await (supabaseAdmin as any)
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", context.userId);
+    const VALID = ["admin", "moderator", "finance", "content", "support"] as const;
+    const roles = ((roleRows ?? []) as { role: string }[])
+      .map((r) => r.role)
+      .filter((r): r is (typeof VALID)[number] => (VALID as readonly string[]).includes(r));
+    return { isAdmin: Boolean(isSuper) || roles.length > 0, roles };
   });
 
 /** Live count of products awaiting admin approval. Drives the pulsing badge in the admin nav. */
