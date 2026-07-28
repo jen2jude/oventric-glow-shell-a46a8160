@@ -1108,56 +1108,29 @@ function ProfilePage() {
                 </div>
               </div>
 
-              {/* Star rating derivation */}
+              {/* Member details: country & address */}
               <div className="profile-card-safe mt-4 rounded-lg border border-white/5 bg-[#17171C] p-4">
-                <div className="flex items-center justify-between gap-2 mb-3">
-                  <div className="flex items-center gap-2">
-                    <Star className="w-4 h-4 fill-yellow-400 text-yellow-400" />
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300">
-                      How this rating is calculated
-                    </h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
+                  Member details
+                </h3>
+                <dl className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <dt className="text-[11px] uppercase tracking-wider text-slate-500">Country</dt>
+                    <dd className="mt-0.5 text-white font-semibold">
+                      {realProfile?.country?.trim() || <span className="text-slate-500 font-normal">Not provided</span>}
+                    </dd>
                   </div>
-                  <span className="text-[11px] text-slate-500">
-                    {liveRep ? "Weighted from live activity" : "Loading live metrics…"}
-                  </span>
-                </div>
-                {!liveRep ? (
-                  <div className="py-6 text-center text-[11px] text-slate-500">
-                    Fetching real metrics from bounties, marketplace, and posts…
+                  <div>
+                    <dt className="text-[11px] uppercase tracking-wider text-slate-500">Address</dt>
+                    <dd className="mt-0.5 text-white font-semibold break-words">
+                      {meId
+                        ? (realProfile?.address?.trim() || <span className="text-slate-500 font-normal">Not provided</span>)
+                        : <span className="text-slate-500 font-normal">Sign in to view</span>}
+                    </dd>
                   </div>
-                ) : (
-                  <ul className="space-y-3">
-                    {liveRep.items.map((item) => (
-                      <li
-                        key={item.key}
-                        className="flex flex-col sm:flex-row sm:items-start gap-2 sm:gap-3"
-                      >
-                        <div className="sm:w-28 shrink-0 flex items-baseline justify-between sm:block gap-2">
-                          <div className="text-xs text-white font-semibold">{item.label}</div>
-                          <div className="text-[10px] uppercase tracking-wider text-slate-500">
-                            {Math.round(item.weight * 100)}% weight
-                          </div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-[11px] text-slate-400 leading-snug">{item.detail}</div>
-                          <div className="mt-1.5 h-1.5 rounded-full bg-[#24242A]">
-                            <div
-                              className="h-full rounded-full bg-emerald-400"
-                              style={{ width: `${Math.round(item.score * 100)}%` }}
-                            />
-                          </div>
-                        </div>
-                        <div className="sm:w-24 shrink-0 flex items-baseline justify-between sm:block sm:text-right">
-                          <div className="text-xs font-bold text-white">{item.raw}</div>
-                          <div className="text-[10px] text-slate-500">
-                            {(item.score * 5).toFixed(1)} / 5
-                          </div>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                )}
+                </dl>
               </div>
+
 
 
 
