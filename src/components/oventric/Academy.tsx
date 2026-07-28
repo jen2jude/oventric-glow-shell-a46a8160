@@ -198,6 +198,10 @@ export function Academy() {
             />
           ))}
         </div>
+
+        <AcademyRecommendations
+          onOpenCourse={(id) => { setSelectedId(id); setView("course"); }}
+        />
       </div>
 
       {editingId ? (
