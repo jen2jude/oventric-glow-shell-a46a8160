@@ -1,27 +1,21 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Loader2, Wallet as WalletIcon, CreditCard, Building2, Smartphone, CheckCircle2, Tag, Sparkles } from "lucide-react";
+import { X, Loader2, CreditCard, Building2, Smartphone, CheckCircle2, Tag, Sparkles, Gift } from "lucide-react";
 import { toast } from "sonner";
 import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib/academy.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { validateCoupon, topUpWallet } from "@/lib/marketplace.functions";
+import { validateCoupon } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES, validateFxSnapshot } from "@/lib/fx-display";
 import { AlertTriangle } from "lucide-react";
 
-function fmt(usd: number, cur: EnrollCurrency) {
-  // Legacy USD-based display for wallet/cashback amounts that live in USD only.
-  const val = usd * LEGACY_USD_RATES[cur];
-  return cur === "USD"
-    ? formatMoney(val, "USD")
-    : formatMoney(val, cur);
-}
-
-const METHODS: { key: EnrollPaymentMethod; label: string; icon: typeof WalletIcon; hint: string }[] = [
-  { key: "wallet", label: "Wallet balance", icon: WalletIcon, hint: "Instant · 2% cashback" },
-  { key: "card", label: "Debit / Credit card", icon: CreditCard, hint: "Visa, Mastercard, Verve" },
-  { key: "bank_transfer", label: "Bank transfer", icon: Building2, hint: "Local bank rails" },
-  { key: "mobile_money", label: "Mobile money", icon: Smartphone, hint: "MTN, Airtel, MoMo" },
+// Course checkout is card / bank / mobile-money only. Wallet is intentionally
+// excluded — users pay directly and receive cashback (2%) to their cashback
+// wallet, which can then be spent on other transactions.
+const METHODS: { key: Exclude<EnrollPaymentMethod, "wallet">; label: string; icon: typeof CreditCard; hint: string }[] = [
+  { key: "card", label: "Debit / Credit card", icon: CreditCard, hint: "Visa, Mastercard, Verve · Instant" },
+  { key: "bank_transfer", label: "Bank transfer", icon: Building2, hint: "Local bank rails · Instant" },
+  { key: "mobile_money", label: "Mobile money", icon: Smartphone, hint: "MTN, Airtel, MoMo · Instant" },
 ];
 
 interface Course {
@@ -50,46 +44,28 @@ export function CourseCheckoutModal({
   const runEnroll = useServerFn(enrollPaid);
   const runBalances = useServerFn(getWalletBalances);
   const runCoupon = useServerFn(validateCoupon);
-  const runTopUp = useServerFn(topUpWallet);
 
-  const [method, setMethod] = useState<EnrollPaymentMethod>("card");
+  const [method, setMethod] = useState<Exclude<EnrollPaymentMethod, "wallet">>("card");
   const [couponInput, setCouponInput] = useState("");
   const [couponPct, setCouponPct] = useState(0);
   const [couponCode, setCouponCode] = useState<string | null>(null);
   const [couponBusy, setCouponBusy] = useState(false);
-  const [walletLocal, setWalletLocal] = useState<number | null>(null);
   const [cashbackUSD, setCashbackUSD] = useState<number>(0);
   const [useCashback, setUseCashback] = useState(false);
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(false);
-  const [shortfallLocal, setShortfallLocal] = useState<number | null>(null);
-  const [toppingUp, setToppingUp] = useState(false);
+  const [earnedDisplay, setEarnedDisplay] = useState<string>("");
 
   useEffect(() => {
     if (!open) return;
     setMethod("card");
     setCouponInput(""); setCouponPct(0); setCouponCode(null);
-    setBusy(false); setDone(false); setShortfallLocal(null); setToppingUp(false);
+    setBusy(false); setDone(false); setEarnedDisplay("");
     setUseCashback(false);
     runBalances()
-      .then((b) => { setWalletLocal(b.balances[baseCurrency] ?? 0); setCashbackUSD(b.cashback ?? 0); })
-      .catch(() => { setWalletLocal(0); setCashbackUSD(0); });
+      .then((b) => { setCashbackUSD(b.cashback ?? 0); })
+      .catch(() => { setCashbackUSD(0); });
   }, [open, runBalances, baseCurrency]);
-
-  const grossUSD = course?.priceUSD ?? 0;
-  const discountUSD = useMemo(() => {
-    if (method === "wallet") return 0;
-    return Number(((grossUSD * couponPct) / 100).toFixed(2));
-  }, [grossUSD, couponPct, method]);
-  const cashbackApplyUSD = useMemo(() => {
-    if (!useCashback) return 0;
-    const remaining = Math.max(0, Number((grossUSD - discountUSD).toFixed(2)));
-    return Math.min(cashbackUSD, remaining);
-  }, [useCashback, grossUSD, discountUSD, cashbackUSD]);
-  const totalUSD = Math.max(0, Number((grossUSD - discountUSD - cashbackApplyUSD).toFixed(2)));
-  // 2% earn-back on the full post-coupon price, always — regardless of method
-  // or whether the buyer applied cashback this time.
-  const cashbackEarnUSD = Number((Math.max(0, grossUSD - discountUSD) * 0.02).toFixed(2));
 
   // Snapshot-aware display for the course price. Falls back safely inside
   // computeDisplayPrice when fxSnapshot is missing/invalid.
@@ -106,10 +82,6 @@ export function CourseCheckoutModal({
     );
   }, [course, baseCurrency]);
 
-  // Validate the locked FX snapshot. Paid courses in a different original
-  // currency than the viewer's base require a valid snapshot to guarantee
-  // the price is the amount that was locked at publish time. When invalid,
-  // we still render a fallback price but block wallet checkout.
   const fxValidation = useMemo(() => {
     if (!course) return null;
     return validateFxSnapshot(
@@ -123,7 +95,38 @@ export function CourseCheckoutModal({
     );
   }, [course, baseCurrency]);
 
-  const isFree = (course?.priceUSD ?? 0) <= 0;
+  const grossUSD = course?.priceUSD ?? 0;
+  // Display-currency gross — this is the single source of truth for all money
+  // math in the modal, so the "Total due" row always aligns with the course
+  // price shown above it (no cross-basis rounding).
+  const displayGross = priceDisplay?.value ?? grossUSD * LEGACY_USD_RATES[baseCurrency];
+  // Conversion rate USD → display currency, derived from the same source as
+  // the price above so cashback/discount deductions match exactly.
+  const usdToDisplay = grossUSD > 0 ? displayGross / grossUSD : LEGACY_USD_RATES[baseCurrency];
+
+  const discountDisplay = useMemo(
+    () => Number(((displayGross * couponPct) / 100).toFixed(baseCurrency === "USD" ? 2 : 0)),
+    [displayGross, couponPct, baseCurrency],
+  );
+
+  // Cashback balance stored in USD → convert into course display currency
+  // using the same rate the course is priced in.
+  const cashbackAvailableDisplay = cashbackUSD * usdToDisplay;
+  const cashbackApplyDisplay = useMemo(() => {
+    if (!useCashback) return 0;
+    const remaining = Math.max(0, displayGross - discountDisplay);
+    return Math.min(cashbackAvailableDisplay, remaining);
+  }, [useCashback, displayGross, discountDisplay, cashbackAvailableDisplay]);
+  // Server still consumes cashback in USD.
+  const cashbackApplyUSD = usdToDisplay > 0 ? cashbackApplyDisplay / usdToDisplay : 0;
+
+  const totalDisplay = Math.max(0, displayGross - discountDisplay - cashbackApplyDisplay);
+  // Cashback earn: 2% of the post-coupon amount, always.
+  const cashbackEarnDisplay = Number(
+    (Math.max(0, displayGross - discountDisplay) * 0.02).toFixed(baseCurrency === "USD" ? 2 : 0),
+  );
+
+  const isFree = grossUSD <= 0;
   const conversionNeeded = !!course && course.originalCurrency !== baseCurrency;
   const fxInvalid = !isFree && conversionNeeded && fxValidation?.ok === false;
   const fxBlocksCheckout = fxInvalid && fxValidation?.reason !== "missing";
@@ -137,13 +140,12 @@ export function CourseCheckoutModal({
 
   if (!open || !course) return null;
 
-  const grossFormatted = priceDisplay?.formatted ?? fmt(grossUSD, baseCurrency);
-  const totalFormatted = fmt(totalUSD, baseCurrency);
+  const grossFormatted = formatMoney(displayGross, baseCurrency);
+  const totalFormatted = formatMoney(totalDisplay, baseCurrency);
 
   const applyCoupon = async () => {
     const code = couponInput.trim().toUpperCase();
     if (!code) return;
-    if (method === "wallet") { toast.info("Coupons apply to card/bank/mobile only."); return; }
     setCouponBusy(true);
     try {
       const res = await runCoupon({ data: { code } });
@@ -160,55 +162,27 @@ export function CourseCheckoutModal({
     }
   };
 
-  const doTopUp = async () => {
-    if (shortfallLocal == null) return;
-    setToppingUp(true);
-    try {
-      // shortfallLocal is already in the user's home currency.
-      const amount = Number(shortfallLocal.toFixed(2));
-      await runTopUp({ data: { amount, currency: baseCurrency, method: "card" } });
-      toast.success("Wallet topped up");
-      const b = await runBalances();
-      setWalletLocal(b.balances[baseCurrency] ?? 0);
-      setShortfallLocal(null);
-    } catch (e) {
-      toast.error(e instanceof Error ? e.message : "Top-up failed");
-    } finally {
-      setToppingUp(false);
-    }
-  };
-
   const enroll = async () => {
     if (fxBlocksCheckout) {
       toast.error("Checkout blocked: this course is missing a valid locked exchange rate.");
       return;
     }
-    setBusy(true); setShortfallLocal(null);
+    setBusy(true);
     try {
       const res = await runEnroll({
         data: {
           courseId: course.id,
           displayCurrency: baseCurrency,
           paymentMethod: method,
-          couponCode: method === "wallet" ? null : couponCode,
+          couponCode,
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
-      // Prefer the display-currency shortfall from the server; fall back to
-      // converting the legacy USD shortfall if it's the only one present.
-      const shortDisplay = (res as { walletShortfallDisplay?: number }).walletShortfallDisplay;
-      const shortUSD = res.walletShortfallUSD;
-      if (shortDisplay != null || shortUSD != null) {
-        const shortLocal = shortDisplay != null
-          ? shortDisplay
-          : Number(((shortUSD ?? 0) * LEGACY_USD_RATES[baseCurrency]).toFixed(2));
-        setShortfallLocal(shortLocal);
-        toast.error(`Wallet short by ${formatMoney(shortLocal, baseCurrency)}. Top up or switch method.`);
-        return;
-      }
+      const earnedUSD = Number(res.cashbackUSD ?? 0);
+      const earnedLocal = earnedUSD * usdToDisplay;
+      setEarnedDisplay(earnedLocal > 0 ? formatMoney(earnedLocal, baseCurrency) : "");
       setDone(true);
-      toast.success(res.cashbackUSD ? `Enrolled! +${fmt(res.cashbackUSD, baseCurrency)} cashback credited` : "Enrolled! Start learning below.");
-      setTimeout(() => { onEnrolled(); }, 900);
+      setTimeout(() => { onEnrolled(); }, earnedLocal > 0 ? 2400 : 1200);
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Enrollment failed");
     } finally {
@@ -216,12 +190,7 @@ export function CourseCheckoutModal({
     }
   };
 
-  // Wallet balance and the total the wallet will be debited are both in the
-  // user's home currency, so we compare them apples-to-apples.
-  const totalLocal = totalUSD * LEGACY_USD_RATES[baseCurrency];
-  const canPay =
-    !busy && !done && totalUSD >= 0 && !fxBlocksCheckout &&
-    (method !== "wallet" || (walletLocal != null && walletLocal >= totalLocal));
+  const canPay = !busy && !done && totalDisplay >= 0 && !fxBlocksCheckout;
 
   return (
     <div className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center">
@@ -250,25 +219,36 @@ export function CourseCheckoutModal({
               </button>
             </div>
           ) : done ? (
-            <div className="text-center py-6">
-              <div className="w-16 h-16 mx-auto rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mb-4">
-                <CheckCircle2 className="w-8 h-8 text-emerald-300" />
+            <div className="text-center py-8">
+              <div className="relative w-20 h-20 mx-auto mb-4">
+                <div className="absolute inset-0 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+                  <CheckCircle2 className="w-10 h-10 text-emerald-300" />
+                </div>
               </div>
-              <div className="text-white font-black text-lg">You're enrolled 🎉</div>
-              <p className="text-sm text-slate-400 mt-1">Redirecting you to the course…</p>
+              <div className="text-white font-black text-xl">You're enrolled 🎉</div>
+              {earnedDisplay && (
+                <div className="mt-4 mx-auto max-w-xs rounded-xl border border-emerald-400/40 bg-gradient-to-br from-emerald-500/15 to-emerald-500/5 p-4">
+                  <div className="flex items-center justify-center gap-2 text-emerald-300 text-[11px] font-bold uppercase tracking-wider">
+                    <Gift className="w-3.5 h-3.5" /> Cashback earned
+                  </div>
+                  <div className="mt-1 text-white font-black text-2xl">+ {earnedDisplay}</div>
+                  <div className="text-[11px] text-slate-400 mt-1">Credited to your Cashback Wallet — spend on any future purchase.</div>
+                </div>
+              )}
+              <p className="text-sm text-slate-400 mt-3">Redirecting you to the course…</p>
             </div>
           ) : (
             <>
 
               <div>
                 <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Payment method</div>
-                <div className="grid grid-cols-2 gap-2">
+                <div className="grid grid-cols-1 gap-2">
                   {METHODS.map((m) => {
                     const active = method === m.key;
                     return (
                       <button
                         key={m.key}
-                        onClick={() => { setMethod(m.key); if (m.key === "wallet") { setCouponPct(0); setCouponCode(null); } }}
+                        onClick={() => setMethod(m.key)}
                         className={`text-left p-3 rounded-lg border transition-colors ${
                           active
                             ? "bg-emerald-500/10 border-emerald-500/50"
@@ -280,45 +260,42 @@ export function CourseCheckoutModal({
                           <div className="text-sm font-semibold text-white">{m.label}</div>
                         </div>
                         <div className="text-[11px] text-slate-500 mt-1">{m.hint}</div>
-                        {m.key === "wallet" && walletLocal != null && (
-                          <div className="text-[11px] text-emerald-300 mt-1">Balance: {formatMoney(walletLocal, baseCurrency)}</div>
-                        )}
                       </button>
                     );
                   })}
                 </div>
+                <p className="text-[10px] text-slate-500 mt-2">
+                  Instant payment — you'll earn 2% cashback to your Cashback Wallet.
+                </p>
               </div>
 
-              {method !== "wallet" && (
-                <div>
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
-                    <Tag className="w-3 h-3" /> Coupon code
-                  </div>
-                  <div className="flex gap-2">
-                    <input
-                      value={couponInput}
-                      onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
-                      placeholder="ENTER CODE"
-                      className="flex-1 px-3 py-2 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
-                    />
-                    <button
-                      onClick={applyCoupon}
-                      disabled={couponBusy || !couponInput.trim()}
-                      className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
-                    >
-                      {couponBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
-                    </button>
-                  </div>
-                  {couponCode && (
-                    <div className="mt-2 text-[11px] text-emerald-300">
-                      <Sparkles className="w-3 h-3 inline mr-1" />
-                      {couponCode} — {couponPct}% off applied
-                    </div>
-                  )}
+              <div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center gap-1.5">
+                  <Tag className="w-3 h-3" /> Coupon code
                 </div>
-              )}
+                <div className="flex gap-2">
+                  <input
+                    value={couponInput}
+                    onChange={(e) => setCouponInput(e.target.value.toUpperCase())}
+                    placeholder="ENTER CODE"
+                    className="flex-1 px-3 py-2 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 outline-none focus:border-emerald-500/50"
+                  />
+                  <button
+                    onClick={applyCoupon}
+                    disabled={couponBusy || !couponInput.trim()}
+                    className="px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-slate-200 font-semibold disabled:opacity-50"
+                  >
+                    {couponBusy ? <Loader2 className="w-4 h-4 animate-spin" /> : "Apply"}
+                  </button>
+                </div>
+                {couponCode && (
+                  <div className="mt-2 text-[11px] text-emerald-300">
+                    <Sparkles className="w-3 h-3 inline mr-1" />
+                    {couponCode} — {couponPct}% off applied
+                  </div>
+                )}
+              </div>
 
-              {/* Cashback Wallet — always visible for any method; disabled when empty. */}
               <label
                 className={`flex items-start gap-3 p-3 rounded-lg border ${
                   cashbackUSD > 0
@@ -336,26 +313,25 @@ export function CourseCheckoutModal({
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-white">Use Cashback</div>
                   <div className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}>
-                    Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
+                    Available: {formatMoney(cashbackAvailableDisplay, baseCurrency)} · spend-only, not withdrawable
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5">
-                    You earn back: + {fmt(cashbackEarnUSD, baseCurrency)} (Oventric Bonus)
+                    You'll earn back: + {formatMoney(cashbackEarnDisplay, baseCurrency)} (Oventric Bonus)
                   </div>
                 </div>
               </label>
 
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
                 <Row label="Course price" value={grossFormatted} />
-                {discountUSD > 0 && <Row label="Coupon discount" value={`- ${fmt(discountUSD, baseCurrency)}`} accent="text-emerald-300" />}
-                {cashbackApplyUSD > 0 && (
-                  <Row label="Cashback applied" value={`- ${fmt(cashbackApplyUSD, baseCurrency)}`} accent="text-emerald-300" />
+                {discountDisplay > 0 && <Row label="Coupon discount" value={`- ${formatMoney(discountDisplay, baseCurrency)}`} accent="text-emerald-300" />}
+                {cashbackApplyDisplay > 0 && (
+                  <Row label="Cashback applied" value={`- ${formatMoney(cashbackApplyDisplay, baseCurrency)}`} accent="text-emerald-300" />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
                   <span className="text-white font-black text-lg">{totalFormatted}</span>
                 </div>
               </div>
-
 
               {fxInvalid && (
                 <div
@@ -381,29 +357,13 @@ export function CourseCheckoutModal({
                 </div>
               )}
 
-
-              {shortfallLocal != null && (
-                <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/40 text-xs text-amber-200">
-                  <div className="font-bold">Wallet balance too low</div>
-                  <div className="mt-0.5">Short by {formatMoney(shortfallLocal, baseCurrency)}. Top up via card to continue.</div>
-                  <button
-                    onClick={doTopUp}
-                    disabled={toppingUp}
-                    className="mt-2 px-3 py-1.5 rounded bg-amber-400 hover:bg-amber-300 text-black text-xs font-bold inline-flex items-center gap-1.5"
-                  >
-                    {toppingUp && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
-                    Top up {formatMoney(shortfallLocal, baseCurrency)}
-                  </button>
-                </div>
-              )}
-
               <button
                 onClick={enroll}
                 disabled={!canPay}
                 className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 disabled:cursor-not-allowed text-black font-black text-sm inline-flex items-center justify-center gap-2"
               >
                 {busy && <Loader2 className="w-4 h-4 animate-spin" />}
-                {method === "wallet" ? "Pay from wallet" : "Continue to payment"} · {totalFormatted}
+                Continue to payment · {totalFormatted}
               </button>
               <p className="text-[10px] text-slate-600 text-center leading-relaxed">
                 80% goes to the instructor · 20% to platform academy revenue · Secure ledgered payment.
