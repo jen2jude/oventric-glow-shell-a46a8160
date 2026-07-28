@@ -210,7 +210,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       </div>
 
       <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
-      <FollowRequestsDrawer open={followReqOpen} onClose={() => setFollowReqOpen(false)} />
+      <RequestsInboxDrawer open={followReqOpen} onClose={() => setFollowReqOpen(false)} />
       <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
 
       {mobileSearchOpen && (
