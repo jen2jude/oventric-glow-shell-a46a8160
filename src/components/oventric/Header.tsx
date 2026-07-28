@@ -87,7 +87,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
       {/* Mobile top row: logo + search + hamburger (home only) */}
       {showMobileTopRow && (
-        <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-12 px-3 border-b border-white/5">
+        <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
           <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
             {LogoMark}
           </Link>
@@ -112,7 +112,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       )}
 
       {/* Main row */}
-      <div className="h-12 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
+      <div className="h-11 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {onMenuClick && (
             <button
