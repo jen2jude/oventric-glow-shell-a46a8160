@@ -116,6 +116,7 @@ function VideoItem({
       <video
         ref={vRef}
         src={post.media_url ? `${post.media_url}#t=0.1` : undefined}
+        poster={post.poster_url ?? undefined}
         className="max-h-full max-w-full object-contain"
         loop
         playsInline
