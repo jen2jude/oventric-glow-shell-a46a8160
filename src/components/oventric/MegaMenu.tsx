@@ -3,15 +3,10 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import {
   X, Sun, Moon, MessageCircle, Shield, Users, Image as ImageIcon,
-  Target, Wallet as WalletIcon,
+  Target, Wallet as WalletIcon, ShoppingBag, GraduationCap,
   ChevronDown, Settings, HelpCircle, Info, FileText, Lock,
   Bug, ListChecks, Trash2, Gift, LogOut, Megaphone,
 } from "lucide-react";
-import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
-import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon3D from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
-import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
