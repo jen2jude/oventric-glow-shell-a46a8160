@@ -247,9 +247,10 @@ export function PostComposerModal({
           mediaPath,
           mediaType,
           mediaPaths,
-          audience,
-          circleId: audience === "circle" ? circleId : null,
+          audience: isWall ? "public" : audience,
+          circleId: isWall ? null : (audience === "circle" ? circleId : null),
           mentionedUserIds: mentions.map((m) => m.userId),
+          wallUserId: wallUserId ?? null,
         },
       });
       // Reset state
