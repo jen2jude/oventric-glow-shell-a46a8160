@@ -137,7 +137,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <GlobalSearch variant="inline" />
         </div>
 
-        <div className="flex items-center gap-1 md:gap-2.5 shrink-0 min-w-0">
+        <div className="flex items-center justify-between md:justify-start gap-1 md:gap-2.5 w-full md:w-auto shrink-0 min-w-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
           <div className="hidden md:inline-flex shrink-0">
             <HeaderWalletChip align="right" />
@@ -150,6 +150,15 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
           >
             <Grip className="w-6 h-6" strokeWidth={2.5} />
+          </button>
+
+          {/* Circles & Guilds */}
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
+            aria-label="Circles & Guilds"
+            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+          >
+            <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
           </button>
 
           {/* Notifications */}
@@ -174,8 +183,6 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               ariaLabel={`${pendingFollow + pendingCircles} pending follow and circle requests`}
             />
           </button>
-
-
 
           {/* Chat */}
           <button
