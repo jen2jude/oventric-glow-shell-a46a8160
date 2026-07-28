@@ -164,6 +164,8 @@ export const cancelCircleRequest = createServerFn({ method: "POST" })
 export const listIncomingCircleRequests = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<IncomingCircleRequest[]> => {
+    // Defensive: if middleware ever attaches without a userId, bail with [] instead of throwing.
+    if (!context?.userId) return [];
     const { supabase, userId } = context;
     const { data: me } = await supabase
       .from("profiles")
