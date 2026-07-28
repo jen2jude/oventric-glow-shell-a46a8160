@@ -100,6 +100,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [error, setError] = useState<string | null>(null);
   const [pitch, setPitch] = useState("");
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmSolved, setConfirmSolved] = useState(false);
 
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
@@ -277,8 +278,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doMarkSolved = async () => {
-    if (!confirm("Mark this bounty delivered? The poster has 48h to review before auto-release."))
-      return;
+    setConfirmSolved(false);
     setBusy("solved");
     try {
       await solvedFn({ data: { bounty_id: bountyId } });
@@ -487,10 +487,19 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             </div>
           )}
 
+          {isSolver && bounty.status === "solved" && !bounty.released_at && (
+            <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/40 text-sky-200 text-xs font-semibold">
+              <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
+              <div>
+                Waiting for the poster to confirm the work was delivered okay. Your funds will be released to your wallet within 48 hours{autoReleaseIn !== null ? ` (~${Math.ceil(autoReleaseIn)}h remaining)` : ""}.
+              </div>
+            </div>
+          )}
+
           <div className="flex flex-wrap gap-2">
             {isSolver && !bounty.released_at && bounty.status !== "solved" && (
               <button
-                onClick={doMarkSolved}
+                onClick={() => setConfirmSolved(true)}
                 disabled={busy === "solved" || bounty.dispute_status === "open"}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
               >
@@ -661,6 +670,46 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               })}
             </div>
           )}
+        </div>
+      )}
+      {confirmSolved && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setConfirmSolved(false)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
+                <Send className="w-4 h-4 text-sky-300" />
+              </div>
+              <div className="text-white font-bold text-base">Mark work delivered?</div>
+            </div>
+            <p className="text-white/70 text-sm leading-relaxed mb-4">
+              The poster will be notified to review your delivery. If they don't confirm within
+              <span className="text-white font-semibold"> 48 hours</span>, funds will auto-release to your wallet.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setConfirmSolved(false)}
+                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={doMarkSolved}
+                disabled={busy === "solved"}
+                className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                {busy === "solved" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                Yes, mark delivered
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
