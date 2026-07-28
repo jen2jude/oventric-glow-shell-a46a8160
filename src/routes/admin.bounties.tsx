@@ -458,10 +458,10 @@ function BountiesAdminPage() {
             const id = b.id as string;
             const status = b.status as string;
             const statusColor =
-              status === "active" ? "text-emerald-300 border-emerald-500/40 bg-emerald-500/10" :
-              status === "paused" ? "text-amber-300 border-amber-500/40 bg-amber-500/10" :
-              status === "draft" ? "text-slate-300 border-slate-500/40 bg-slate-500/10" :
-              "text-red-300 border-red-500/40 bg-red-500/10";
+              status === "active" ? "text-slate-100 border-white/20 bg-white/5" :
+              status === "paused" ? "text-amber-200 border-amber-500/30 bg-white/5" :
+              status === "draft" ? "text-slate-300 border-white/15 bg-white/5" :
+              "text-red-300 border-red-500/30 bg-white/5";
             return (
               <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex items-center gap-3 flex-wrap">
                 <div className="flex-1 min-w-[220px]">
