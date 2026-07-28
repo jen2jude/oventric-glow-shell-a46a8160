@@ -9,7 +9,7 @@ import {
   Newspaper,
   Sparkles,
   ArrowRight,
-  Loader2,
+  Flame,
   Flame,
 } from "lucide-react";
 import {
