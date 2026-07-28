@@ -253,10 +253,11 @@ export function Marketplace() {
   // FULL CATEGORY VIEW
   if (fullCategory) {
     const src = mode === "digital" ? digital : physical;
-    const items = src.filter((p) => p.category === fullCategory);
-    const meta = (CATEGORY_META as Record<string, { label: string; emoji: string } | undefined>)[fullCategory];
-    const label = meta?.label ?? fullCategory.charAt(0).toUpperCase() + fullCategory.slice(1);
-    const emoji = meta?.emoji ?? "📦";
+    const items = src.filter((p) => (p.category || "").toLowerCase() === fullCategory);
+    const legacy = (CATEGORY_META as Record<string, { label: string; emoji: string } | undefined>)[fullCategory];
+    const dbCat = [...digitalCats, ...physicalCats].find((c) => c.slug.toLowerCase() === fullCategory);
+    const label = legacy?.label ?? dbCat?.name ?? fullCategory.charAt(0).toUpperCase() + fullCategory.slice(1);
+    const emoji = legacy?.emoji ?? (fullCategory === "ai platform" ? "🤖" : "📦");
     return (
       <div className="max-w-7xl mx-auto w-full px-4 py-6">
         <button
@@ -285,12 +286,11 @@ export function Marketplace() {
     );
   }
 
-  const digitalTabs: Array<{ key: "all" | CategoryKey; label: string }> = [
+  // Build digital tab list: All + AI Platform first, then admin-defined
+  // categories that actually have products.
+  const digitalTabs: Array<{ key: string; label: string }> = [
     { key: "all", label: "✨ All" },
-    { key: "themes", label: "🎨 Themes" },
-    { key: "plugins", label: "🔌 Plugins" },
-    { key: "blocks", label: "🧱 HTML Blocks" },
-    { key: "scripts", label: "📜 Scripts" },
+    ...digitalGroups.map(([slug]) => ({ key: slug, label: digitalLabel(slug) })),
   ];
 
   return (
