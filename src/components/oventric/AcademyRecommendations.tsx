@@ -10,7 +10,7 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
-  Flame,
+
 } from "lucide-react";
 import {
   getAcademyRecommendations,
