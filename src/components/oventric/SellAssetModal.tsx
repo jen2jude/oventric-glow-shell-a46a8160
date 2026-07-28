@@ -355,14 +355,14 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                 )}
               </div>
 
-              <div>
+              <div className={requiresManualDelivery ? "opacity-50 pointer-events-none select-none" : ""} aria-disabled={requiresManualDelivery}>
                 <span className="text-xs font-medium text-slate-300">Delivery</span>
                 <div className="mt-1 grid grid-cols-2 gap-2">
-                  <button type="button" onClick={() => setMode("file")}
+                  <button type="button" onClick={() => setMode("file")} disabled={requiresManualDelivery}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${mode === "file" ? "border-emerald-500/60 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-400 hover:text-white"}`}>
                     <Upload className="w-4 h-4" /> Upload file
                   </button>
-                  <button type="button" onClick={() => setMode("url")}
+                  <button type="button" onClick={() => setMode("url")} disabled={requiresManualDelivery}
                     className={`flex items-center gap-2 px-3 py-2 rounded-lg border text-sm transition-colors ${mode === "url" ? "border-emerald-500/60 bg-emerald-500/10 text-white" : "border-white/10 bg-[#121214] text-slate-400 hover:text-white"}`}>
                     <Link2 className="w-4 h-4" /> External link
                   </button>
@@ -370,7 +370,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
                 {mode === "file" ? (
                   <>
-                    <input ref={fileInputRef} id="sell-asset-file" type="file"
+                    <input ref={fileInputRef} id="sell-asset-file" type="file" disabled={requiresManualDelivery}
                       style={{ position: "absolute", width: 1, height: 1, opacity: 0, pointerEvents: "none" }}
                       onChange={(e) => { handleFile(e.target.files?.[0] ?? null); if (e.target) e.target.value = ""; }}
                       accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed" />
@@ -392,10 +392,18 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
                   </>
                 ) : (
-                  <input value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} placeholder="https://your-delivery-link.com/download"
+                  <input value={externalUrl} onChange={(e) => setExternalUrl(e.target.value)} disabled={requiresManualDelivery} placeholder="https://your-delivery-link.com/download"
                     className="mt-2 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder-slate-500 focus:border-emerald-500/60 outline-none" />
                 )}
               </div>
+
+              {requiresManualDelivery && (
+                <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-[12px] text-amber-100 leading-relaxed">
+                  <div className="font-semibold text-amber-200 mb-1">Manual delivery selected — file / link fields are locked.</div>
+                  After a buyer pays, funds are held in escrow and you must deliver on Oventric (share a link, upload a file, or attach it in the buyer's chat). We also relay the order to your inbox, email, and WhatsApp on file. Payment releases to your wallet only after the buyer confirms receipt. <span className="text-amber-300 font-semibold">Do not finish deals off-platform</span> — we can't protect either side outside Oventric.
+                </div>
+              )}
+
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <label className={`flex items-start gap-2 text-sm p-3 rounded-lg border ${!requiresManualDelivery ? "bg-emerald-500/5 border-emerald-500/30 text-slate-100" : "bg-[#121214] border-white/10 text-slate-200"}`}>
