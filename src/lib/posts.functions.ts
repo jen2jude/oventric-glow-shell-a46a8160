@@ -17,6 +17,7 @@ export interface MentionRef {
 export interface PostMediaItem {
   url: string;
   type: "image" | "video";
+  poster_url?: string | null;
 }
 
 export interface PostCircleRef {
@@ -44,6 +45,7 @@ export interface FeedPost {
   // Legacy fields (kept so existing render paths keep working for single-media rows).
   media_url: string | null;
   media_type: "image" | "video" | null;
+  poster_url: string | null;
   // Ordered list of all media items for this post (up to 10 images, or 1 video).
   media: PostMediaItem[];
   mentions: MentionRef[];
@@ -130,12 +132,21 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
 
   // Collect every media path across legacy + new arrays and sign them all in one round-trip.
   const allMediaPaths = new Set<string>();
+  const posterCandidates = new Set<string>();
   rows.forEach((r) => {
-    if (r.media_path) allMediaPaths.add(r.media_path as string);
+    if (r.media_path) {
+      allMediaPaths.add(r.media_path as string);
+      if (r.media_type === "video") posterCandidates.add(`${r.media_path}.poster.jpg`);
+    }
     const arr = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
-    arr.forEach((p) => { if (p) allMediaPaths.add(p); });
+    arr.forEach((p) => {
+      if (!p) return;
+      allMediaPaths.add(p);
+      if (r.media_type === "video") posterCandidates.add(`${p}.poster.jpg`);
+    });
   });
   const signedByPath = new Map<string, string>();
+  const posterByVideoPath = new Map<string, string>();
   if (allMediaPaths.size > 0) {
     // Sign with admin client so we can lock down post-media SELECT policy to owner-only.
     // Post visibility/audience filtering is already enforced by the posts RLS above.
@@ -146,6 +157,17 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
     (signed ?? []).forEach((s) => {
       if (s.path && s.signedUrl) signedByPath.set(s.path, s.signedUrl);
     });
+    if (posterCandidates.size > 0) {
+      const { data: posters } = await supabaseAdmin.storage
+        .from("post-media")
+        .createSignedUrls(Array.from(posterCandidates), 60 * 60 * 6);
+      (posters ?? []).forEach((s) => {
+        if (s.path && s.signedUrl && !(s as any).error) {
+          const videoPath = s.path.replace(/\.poster\.jpg$/, "");
+          posterByVideoPath.set(videoPath, s.signedUrl);
+        }
+      });
+    }
   }
 
 
