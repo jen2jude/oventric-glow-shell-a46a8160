@@ -459,7 +459,11 @@ export const markBountySolved = createServerFn({ method: "POST" })
     if (!b) throw new Error("Bounty not found");
     if (b.accepted_applicant_id !== context.userId) throw new Error("Only the accepted solver can mark this solved");
     if (b.status === "released" || b.status === "closed") throw new Error("Bounty already settled");
-    const { error: e2 } = await sb.from("bounties")
+    // Use admin client: RLS UPDATE on bounties is poster/admin only, but the
+    // caller here is the accepted solver (verified above).
+    const { supabaseAdmin: _sbAdminSolved } = await import("@/integrations/supabase/client.server");
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const { error: e2 } = await (_sbAdminSolved as any).from("bounties")
       .update({ solved_at: new Date().toISOString(), status: "solved" })
       .eq("id", data.bounty_id);
     if (e2) throw new Error(e2.message);
