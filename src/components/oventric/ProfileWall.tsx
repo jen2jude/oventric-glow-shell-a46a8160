@@ -238,21 +238,27 @@ export function ProfileWall({
                     )}
                     <div className="mt-3 flex items-center gap-4 text-slate-400 text-xs">
                       <div className="relative">
-                        <ReactionPicker
-                          current={p.viewer_reaction}
-                          onSelect={(r) => onReact(p, r === p.viewer_reaction ? null : r)}
+                        {pickerFor === p.id && (
+                          <ReactionPicker
+                            onPick={(r) => {
+                              setPickerFor(null);
+                              void onReact(p, r === p.viewer_reaction ? null : r);
+                            }}
+                            onClose={() => setPickerFor(null)}
+                          />
+                        )}
+                        <button
+                          onClick={() => setPickerFor(pickerFor === p.id ? null : p.id)}
+                          className={`inline-flex items-center gap-1.5 hover:text-white ${
+                            meta ? "text-white" : ""
+                          }`}
+                          style={meta ? { color: meta.color } : undefined}
                         >
-                          <button
-                            className={`inline-flex items-center gap-1.5 hover:text-white ${
-                              meta ? meta.textClass : ""
-                            }`}
-                          >
-                            <Heart
-                              className={`w-4 h-4 ${p.viewer_reaction ? "fill-current" : ""}`}
-                            />
-                            <span>{p.likes_count}</span>
-                          </button>
-                        </ReactionPicker>
+                          <Heart
+                            className={`w-4 h-4 ${p.viewer_reaction ? "fill-current" : ""}`}
+                          />
+                          <span>{p.likes_count}</span>
+                        </button>
                       </div>
                       <button
                         onClick={() => setCommentsFor(p)}
