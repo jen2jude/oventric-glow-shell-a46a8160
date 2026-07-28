@@ -44,6 +44,7 @@ import {
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
+import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { Header } from "@/components/oventric/Header";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -1517,6 +1518,15 @@ function ProfilePage() {
                 );
               })()}
             </section>
+
+            {/* Member wall — followers can drop posts, owner is notified */}
+            {realProfile?.userId && (
+              <ProfileWall
+                wallUserId={realProfile.userId}
+                wallOwnerName={displayName}
+                viewerId={meId ?? null}
+              />
+            )}
           </div>
         </main>
         {/* Mobile footer nav is rendered globally in __root.tsx */}

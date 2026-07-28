@@ -2062,6 +2062,7 @@ export type Database = {
           shared_to_feed: boolean
           text: string
           updated_at: string
+          wall_user_id: string | null
         }
         Insert: {
           audience?: string
@@ -2076,6 +2077,7 @@ export type Database = {
           shared_to_feed?: boolean
           text: string
           updated_at?: string
+          wall_user_id?: string | null
         }
         Update: {
           audience?: string
@@ -2090,6 +2092,7 @@ export type Database = {
           shared_to_feed?: boolean
           text?: string
           updated_at?: string
+          wall_user_id?: string | null
         }
         Relationships: [
           {

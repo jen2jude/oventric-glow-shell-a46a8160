@@ -31,11 +31,17 @@ export function PostComposerModal({
   open,
   onClose,
   onPosted,
+  wallUserId,
+  wallOwnerName,
 }: {
   open: boolean;
   onClose: () => void;
   onPosted?: () => void;
+  /** When set, the post is written to that member's wall (audience forced to public). */
+  wallUserId?: string | null;
+  wallOwnerName?: string | null;
 }) {
+  const isWall = !!wallUserId;
   const createPost = useServerFn(createPostFn);
   const searchMentions = useServerFn(searchMentionsFn);
   const listCircles = useServerFn(listCirclesFn);
@@ -241,9 +247,10 @@ export function PostComposerModal({
           mediaPath,
           mediaType,
           mediaPaths,
-          audience,
-          circleId: audience === "circle" ? circleId : null,
+          audience: isWall ? "public" : audience,
+          circleId: isWall ? null : (audience === "circle" ? circleId : null),
           mentionedUserIds: mentions.map((m) => m.userId),
+          wallUserId: wallUserId ?? null,
         },
       });
       // Reset state
@@ -283,7 +290,9 @@ export function PostComposerModal({
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="text-sm font-semibold text-white">Drop a post</div>
+          <div className="text-sm font-semibold text-white truncate max-w-[70%]">
+            {isWall ? (wallOwnerName ? `Post on ${wallOwnerName}'s wall` : "Post on wall") : "Drop a post"}
+          </div>
           <button
             onClick={doPost}
             disabled={!canPost}
@@ -293,7 +302,15 @@ export function PostComposerModal({
           </button>
         </div>
 
-        {/* Audience picker */}
+        {/* Audience picker (hidden in wall mode — wall posts are always public on that member's wall) */}
+        {isWall ? (
+          <div className="px-4 pt-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-xs text-emerald-200">
+              <UsersRound className="w-3.5 h-3.5" />
+              <span>Wall post{wallOwnerName ? ` · ${wallOwnerName}` : ""}</span>
+            </div>
+          </div>
+        ) : (
         <div className="px-4 pt-3">
           <div className="relative inline-block">
             <button
@@ -362,6 +379,9 @@ export function PostComposerModal({
             )}
           </div>
         </div>
+        )}
+
+
 
         {/* Scroll area */}
         <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
