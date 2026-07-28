@@ -340,12 +340,15 @@ export const createPost = createServerFn({ method: "POST" })
       audience: z.enum(["public", "circle", "followers"]).optional(),
       circleId: z.string().uuid().nullable().optional(),
       mentionedUserIds: z.array(z.string().uuid()).max(20).optional(),
+      wallUserId: z.string().uuid().nullable().optional(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
-    const audience = data.audience ?? "public";
-    const circleId = audience === "circle" ? (data.circleId ?? null) : null;
-    if (audience === "circle" && !circleId) {
+    const wallUserId = data.wallUserId ?? null;
+    // Wall posts are always public + not circle-scoped; RLS enforces follower check.
+    const audience = wallUserId ? "public" : (data.audience ?? "public");
+    const circleId = wallUserId ? null : (audience === "circle" ? (data.circleId ?? null) : null);
+    if (!wallUserId && audience === "circle" && !circleId) {
       throw new Error("Choose a circle to share to");
     }
     if (circleId) {
@@ -362,8 +365,6 @@ export const createPost = createServerFn({ method: "POST" })
     );
 
     const paths = Array.isArray(data.mediaPaths) ? data.mediaPaths.slice(0, 10) : [];
-    // If a caller sends multiple images we store them in media_paths.
-    // For a single video we still use the legacy media_path/media_type route.
     const isVideo = data.mediaType === "video" && !!data.mediaPath;
     const legacyPath = isVideo ? data.mediaPath! : (paths.length === 0 ? (data.mediaPath ?? null) : null);
     const legacyType = isVideo ? "video" : (paths.length === 0 ? (data.mediaPath ? (data.mediaType ?? null) : null) : "image");
@@ -379,6 +380,7 @@ export const createPost = createServerFn({ method: "POST" })
         audience,
         circle_id: circleId,
         mentioned_user_ids: mentioned,
+        wall_user_id: wallUserId,
       })
       .select("id, author_id, text, created_at")
       .single();
