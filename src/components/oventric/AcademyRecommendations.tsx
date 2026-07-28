@@ -227,11 +227,22 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   if (error) return null;
   if (!data) {
     return (
-      <div className="mt-10 py-10 text-center">
-        <Loader2 className="w-5 h-5 text-emerald-400 animate-spin mx-auto" />
-      </div>
+      <section className="mt-12 border-t border-white/10 pt-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse">
+              <div className="aspect-video bg-white/5" />
+              <div className="p-3 space-y-2">
+                <div className="h-3 bg-white/10 rounded w-3/4" />
+                <div className="h-3 bg-white/5 rounded w-1/2" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
     );
   }
+
 
   const halfAds = Math.ceil(data.promoted.length / 2);
   const adsA = data.promoted.slice(0, halfAds);
