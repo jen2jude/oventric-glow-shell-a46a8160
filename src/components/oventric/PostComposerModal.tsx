@@ -203,11 +203,28 @@ export function PostComposerModal({
             .from("post-media")
             .upload(path, a.file, {
               contentType: a.file.type,
-              cacheControl: "3600",
+              cacheControl: "31536000",
               upsert: false,
             });
           if (upErr) throw upErr;
           uploaded.push(path);
+          // For videos, also capture and upload a poster JPEG so <video>
+          // can paint instantly without downloading the clip.
+          if (a.kind === "video") {
+            try {
+              const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+              const poster = await generateVideoPoster(a.file);
+              if (poster) {
+                await supabase.storage
+                  .from("post-media")
+                  .upload(posterPathFor(path), poster, {
+                    contentType: "image/jpeg",
+                    cacheControl: "31536000",
+                    upsert: true,
+                  });
+              }
+            } catch { /* poster is best-effort */ }
+          }
         }
         const isVideo = attachments[0].kind === "video";
         if (isVideo) {

@@ -647,12 +647,27 @@ export function Feed() {
             .from("post-media")
             .upload(path, attachment.file, {
               contentType: attachment.file.type,
-              cacheControl: "3600",
+              cacheControl: "31536000",
               upsert: false,
             });
           if (upErr) throw upErr;
           mediaPath = path;
           mediaType = attachment.kind;
+          if (attachment.kind === "video") {
+            try {
+              const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+              const poster = await generateVideoPoster(attachment.file);
+              if (poster) {
+                await supabase.storage
+                  .from("post-media")
+                  .upload(posterPathFor(path), poster, {
+                    contentType: "image/jpeg",
+                    cacheControl: "31536000",
+                    upsert: true,
+                  });
+              }
+            } catch { /* poster is best-effort */ }
+          }
         }
         await createPost({ data: { text, mediaPath, mediaType } });
         setComposerDraft("");
