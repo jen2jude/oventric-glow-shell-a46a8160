@@ -302,7 +302,15 @@ export function PostComposerModal({
           </button>
         </div>
 
-        {/* Audience picker */}
+        {/* Audience picker (hidden in wall mode — wall posts are always public on that member's wall) */}
+        {isWall ? (
+          <div className="px-4 pt-3">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-xs text-emerald-200">
+              <UsersRound className="w-3.5 h-3.5" />
+              <span>Wall post{wallOwnerName ? ` · ${wallOwnerName}` : ""}</span>
+            </div>
+          </div>
+        ) : (
         <div className="px-4 pt-3">
           <div className="relative inline-block">
             <button
