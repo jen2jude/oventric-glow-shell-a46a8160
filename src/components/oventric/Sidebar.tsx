@@ -1,22 +1,15 @@
-import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users } from "lucide-react";
+import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users, ShoppingBag, GraduationCap } from "lucide-react";
 import { useState } from "react";
-import messageIcon3D from "@/assets/message-3d.webp.asset.json";
-import homeIcon3D from "@/assets/home-3d.png.asset.json";
-import circlesIcon3D from "@/assets/circles-3d.png.asset.json";
-import marketplaceIcon3D from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon3D from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon3D from "@/assets/bounties-3d.webp.asset.json";
-import walletIcon3D from "@/assets/wallet-3d.webp.asset.json";
 
 const items = [
-  { icon: Home, label: "Feed", image: homeIcon3D.url },
-  { icon: MessageSquare, label: "Messages", image: messageIcon3D.url },
-  { icon: Users, label: "Circles", image: circlesIcon3D.url },
-  { icon: Home, label: "Marketplace", image: marketplaceIcon3D.url },
-  { icon: Home, label: "Academy", image: academyIcon3D.url },
-  { icon: Target, label: "Bounties", image: bountiesIcon3D.url },
-  { icon: Wallet, label: "Wallet", image: walletIcon3D.url },
-] as Array<{ icon: typeof Home; label: string; image?: string }>;
+  { icon: Home, label: "Feed" },
+  { icon: MessageSquare, label: "Messages" },
+  { icon: Users, label: "Circles" },
+  { icon: ShoppingBag, label: "Marketplace" },
+  { icon: GraduationCap, label: "Academy" },
+  { icon: Target, label: "Bounties" },
+  { icon: Wallet, label: "Wallet" },
+] as Array<{ icon: typeof Home; label: string }>;
 
 
 export function Sidebar({
@@ -58,20 +51,10 @@ export function Sidebar({
               className={`flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors ${
                 isActive
                   ? "bg-emerald-500/10 text-emerald-400 border border-emerald-500/30"
-                  : "text-slate-400 hover:text-white hover:bg-white/5 border border-transparent"
+                  : "text-white hover:bg-white/5 border border-transparent"
               }`}
             >
-              {it.image ? (
-                <img
-                  src={it.image}
-                  alt=""
-                  aria-hidden="true"
-                  draggable={false}
-                  className="w-8 h-8 shrink-0 object-contain select-none pointer-events-none -my-1 drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)] transition-transform duration-150 active:scale-90"
-                />
-              ) : (
-                <it.icon className="w-5 h-5 shrink-0" />
-              )}
+              <it.icon className="w-6 h-6 shrink-0" strokeWidth={2.5} />
               {!collapsed && <span className="text-sm font-medium truncate">{it.label}</span>}
             </button>
           );
