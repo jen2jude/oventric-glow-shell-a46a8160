@@ -211,17 +211,7 @@ export function MegaMenu({ open, onClose }: Props) {
           {grid.map((g) => (
             <button key={g.label} onClick={g.onClick} className="megamenu-lowgpu-tile">
               <span className="megamenu-lowgpu-icon">
-                {g.image ? (
-                  <img
-                    src={g.image}
-                    alt=""
-                    aria-hidden="true"
-                    draggable={false}
-                    className="w-5 h-5 object-contain select-none pointer-events-none drop-shadow-[0_4px_8px_rgba(59,130,246,0.35)]"
-                  />
-                ) : (
-                  <g.icon className="w-4 h-4" />
-                )}
+                <g.icon className="w-5 h-5 text-white" strokeWidth={2.5} />
               </span>
               <span className="truncate text-sm font-bold text-white">{g.label}</span>
             </button>
