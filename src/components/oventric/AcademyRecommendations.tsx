@@ -100,8 +100,15 @@ function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency 
 }
 
 function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency }) {
+  const open = () => {
+    window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
+    // give Bounties a tick to mount, then open the detail view
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("oventric:bounty:open-detail", { detail: { id: b.id } }));
+    }, 60);
+  };
   return (
-    <Link to="/" search={{ section: "Bounties" } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block">
+    <button onClick={open} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block w-full">
       <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
         {b.coverUrl ? (
           <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
@@ -116,13 +123,19 @@ function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency })
         <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
         {b.category && <div className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider">{b.category}</div>}
       </div>
-    </Link>
+    </button>
   );
 }
 
 function CircleTile({ c }: { c: RecoCircle }) {
+  const open = () => {
+    window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }));
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("oventric:circle:open-slug", { detail: { slug: c.slug } }));
+    }, 60);
+  };
   return (
-    <Link to="/" search={{ section: "Circles", circle: c.slug } as any} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block">
+    <button onClick={open} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block w-full">
       <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
         {c.coverUrl ? (
           <ResponsiveImage src={c.coverUrl} alt={c.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
@@ -137,9 +150,10 @@ function CircleTile({ c }: { c: RecoCircle }) {
           <div className="text-[11px] text-slate-500 flex items-center gap-1"><Users className="w-3 h-3" /> {c.memberCount} members</div>
         </div>
       </div>
-    </Link>
+    </button>
   );
 }
+
 
 
 function BlogTile({ b }: { b: RecoBlog }) {
