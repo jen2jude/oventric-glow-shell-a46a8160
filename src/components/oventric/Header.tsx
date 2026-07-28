@@ -153,13 +153,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
 
-          {/* Circles & Guilds - desktop only (mobile uses footer nav) */}
+          {/* Circles & Guilds */}
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="relative hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
+            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
           >
-            <Users className="w-6 h-6" strokeWidth={2.5} />
+            <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
           </button>
 
@@ -173,20 +173,21 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
-          {/* Follow requests - desktop only */}
+          {/* Follow requests */}
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label="Follow requests"
-            className="relative hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
-            <UserPlus className="w-6 h-6" strokeWidth={2.5} />
+            <UserPlus className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
           </button>
 
-          {/* Circle join inbox: desktop only */}
-          <div className="hidden md:inline-flex shrink-0">
+          {/* Circle join inbox */}
+          <div className="inline-flex shrink-0">
             <IncomingCircleInbox />
           </div>
+
 
           {/* Chat */}
           <button
