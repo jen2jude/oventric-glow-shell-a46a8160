@@ -159,7 +159,7 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
 
       <div className="flex h-full flex-col">
-        <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow />
+        <Header onOpenMessages={() => setMessagesOpen(true)} />
         <div className="flex flex-1 min-h-0">
           <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
           <main className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} pb-20 md:pb-0`}>

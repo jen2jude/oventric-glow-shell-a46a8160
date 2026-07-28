@@ -85,8 +85,8 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false }: { on
 
   return (
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
-      {/* Mobile top row: logo + search + hamburger (home only) */}
-      {showMobileTopRow && (
+      {/* Mobile top row: logo + search + hamburger (always on mobile) */}
+      {
         <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
           <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
             {LogoMark}
