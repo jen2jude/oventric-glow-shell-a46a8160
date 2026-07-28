@@ -144,21 +144,7 @@ function AdminLayout() {
           </p>
           <div className="mt-6 flex flex-col gap-2">
             {state === "unauth" ? (
-              <button
-                onClick={async () => {
-                  const email = window.prompt("Admin email:");
-                  if (!email) return;
-                  const { error } = await supabase.auth.signInWithOtp({
-                    email,
-                    options: { emailRedirectTo: window.location.href },
-                  });
-                  if (error) alert(error.message);
-                  else alert("Magic link sent. Check your inbox.");
-                }}
-                className="px-4 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg"
-              >
-                Send admin magic link
-              </button>
+              <AdminSignInForm onSignedIn={() => router.invalidate()} />
             ) : (
               <button
                 onClick={async () => { await supabase.auth.signOut(); router.invalidate(); }}
@@ -174,6 +160,7 @@ function AdminLayout() {
               Back to site
             </Link>
           </div>
+
         </div>
       </div>
     );
