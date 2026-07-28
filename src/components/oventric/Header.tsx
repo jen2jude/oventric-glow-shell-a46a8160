@@ -152,16 +152,6 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
 
-          {/* Circles & Guilds */}
-          <button
-            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
-            aria-label="Circles & Guilds"
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
-          >
-            <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-            <CountBadge count={pendingCircles} ariaLabel={`${pendingCircles} pending circle requests`} />
-          </button>
-
           {/* Notifications */}
           <button
             onClick={() => setNotifOpen(true)}
@@ -172,20 +162,19 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
           </button>
 
-          {/* Follow requests */}
+          {/* Merged Follow + Circle requests */}
           <button
             onClick={() => setFollowReqOpen(true)}
-            aria-label="Follow requests"
+            aria-label={`Requests (${pendingFollow + pendingCircles} pending)`}
             className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
           >
             <UserPlus className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-            <CountBadge count={pendingFollow} ariaLabel={`${pendingFollow} pending follow requests`} />
+            <CountBadge
+              count={pendingFollow + pendingCircles}
+              ariaLabel={`${pendingFollow + pendingCircles} pending follow and circle requests`}
+            />
           </button>
 
-          {/* Circle join inbox */}
-          <div className="inline-flex shrink-0">
-            <IncomingCircleInbox />
-          </div>
 
 
           {/* Chat */}
