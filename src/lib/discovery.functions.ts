@@ -382,7 +382,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
       if (r.course_id) enrollCount.set(r.course_id, (enrollCount.get(r.course_id) ?? 0) + 1);
     });
     const cRows = coursesRes.data ?? [];
-    const cCovers = await signBucket(sb, "course-covers", cRows.map((c: any) => c.cover_path));
+    const cCovers = await signBucket(supabaseAdmin as any, "course-covers", cRows.map((c: any) => c.cover_path));
     const coursesAll: RecoCourse[] = cRows.map((c: any, i: number) => ({
       id: c.id,
       title: c.title,
@@ -418,7 +418,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
 
     // ---- Bounties ----
     const bRows = bntRes.data ?? [];
-    const bCovers = await signBucket(sb, "bounty-covers", bRows.map((b: any) => b.cover_path));
+    const bCovers = await signBucket(supabaseAdmin as any, "bounty-covers", bRows.map((b: any) => b.cover_path));
     const bounties: DiscoveryBounty[] = bRows.map((b: any, i: number) => ({
       id: b.id,
       title: b.title,
@@ -433,11 +433,11 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
       if (m.circle_id) memberByCircle.set(m.circle_id, (memberByCircle.get(m.circle_id) ?? 0) + 1);
     });
     const clRows = circleRes.data ?? [];
-    const clAvatars = await signBucket(sb, "circle-avatars", clRows.map((c: any) => {
+    const clAvatars = await signBucket(supabaseAdmin as any, "circle-avatars", clRows.map((c: any) => {
       const v = c.avatar_url as string | null;
       return v && !/^https?:\/\//.test(v) ? v : null;
     }));
-    const clCovers = await signBucket(sb, "circle-covers", clRows.map((c: any) => {
+    const clCovers = await signBucket(supabaseAdmin as any, "circle-covers", clRows.map((c: any) => {
       const v = c.cover_url as string | null;
       return v && !/^https?:\/\//.test(v) ? v : null;
     }));
@@ -460,7 +460,7 @@ export const getAcademyRecommendations = createServerFn({ method: "GET" }).handl
 
     // ---- Blog news ----
     const blRows = blogRes.data ?? [];
-    const blCovers = await signBucket(sb, "blog-covers", blRows.map((b: any) => b.cover_path));
+    const blCovers = await signBucket(supabaseAdmin as any, "blog-covers", blRows.map((b: any) => b.cover_path));
     const catIds = Array.from(new Set(blRows.map((b: any) => b.category_id).filter(Boolean))) as string[];
     let catMap = new Map<string, string>();
     if (catIds.length) {
