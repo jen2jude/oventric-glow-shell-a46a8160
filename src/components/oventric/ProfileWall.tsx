@@ -207,9 +207,11 @@ export function ProfileWall({
                       )}
                     </div>
                     {p.text && (
-                      <p className="mt-1.5 text-slate-100 text-sm whitespace-pre-wrap break-words">
-                        {p.text}
-                      </p>
+                      <TruncatedText
+                        text={p.text}
+                        lines={3}
+                        className="mt-1.5 text-slate-100 text-sm"
+                      />
                     )}
                     {p.media.length > 0 && (
                       <div
