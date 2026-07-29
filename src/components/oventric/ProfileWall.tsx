@@ -12,6 +12,7 @@ import {
 import { PostComposerModal } from "./PostComposerModal";
 import { CommentsSheet } from "./feed/CommentsSheet";
 import { ReactionPicker, REACTION_META } from "./feed/Reactions";
+import { TruncatedText } from "./feed/TruncatedText";
 import { AvatarImage } from "./AvatarImage";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
