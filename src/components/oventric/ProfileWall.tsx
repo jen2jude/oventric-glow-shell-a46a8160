@@ -85,12 +85,10 @@ export function ProfileWall({
   const isSelf = viewerId === wallUserId;
 
   const cta = useMemo(() => {
-    if (!viewerId) return { label: "Sign in to post", disabled: true, hint: null };
-    if (allowed?.ok) return { label: isSelf ? "Post on your wall" : `Post on ${wallOwnerName}'s wall`, disabled: false, hint: null };
-    if (allowed?.reason === "not_following")
-      return { label: "Followers only", disabled: true, hint: `Follow ${wallOwnerName} to post on their wall` };
-    return { label: "Post on wall", disabled: true, hint: null };
-  }, [allowed, isSelf, viewerId, wallOwnerName]);
+    if (!viewerId) return { label: "Sign in to post", disabled: true, hint: null as string | null };
+    const label = isSelf ? "Post on your wall" : `Post on ${wallOwnerName}'s wall`;
+    return { label, disabled: false, hint: null as string | null };
+  }, [isSelf, viewerId, wallOwnerName]);
 
   const onReact = async (post: FeedPost, next: ReactionType | null) => {
     if (!viewerId) {
