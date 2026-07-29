@@ -1173,9 +1173,11 @@ export function Feed() {
                     You reported this post. It's hidden from your feed pending review.
                   </div>
                 )}
-                <p className="text-slate-300 text-sm leading-relaxed whitespace-pre-wrap break-words">
-                  {post.text}
-                </p>
+                <TruncatedText
+                  text={post.text || ""}
+                  lines={3}
+                  className="text-slate-300 text-sm leading-relaxed"
+                />
                 {post.media_type === "image" && post.media.length > 0 && (() => {
                   const imgs = post.media.filter((m) => m.type === "image").map((m) => m.url);
                   const count = imgs.length;
