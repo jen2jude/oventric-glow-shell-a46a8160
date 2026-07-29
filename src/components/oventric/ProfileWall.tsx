@@ -12,6 +12,7 @@ import {
 import { PostComposerModal } from "./PostComposerModal";
 import { CommentsSheet } from "./feed/CommentsSheet";
 import { ReactionPicker, REACTION_META } from "./feed/Reactions";
+import { TruncatedText } from "./feed/TruncatedText";
 import { AvatarImage } from "./AvatarImage";
 import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
@@ -206,9 +207,11 @@ export function ProfileWall({
                       )}
                     </div>
                     {p.text && (
-                      <p className="mt-1.5 text-slate-100 text-sm whitespace-pre-wrap break-words">
-                        {p.text}
-                      </p>
+                      <TruncatedText
+                        text={p.text}
+                        lines={3}
+                        className="mt-1.5 text-slate-100 text-sm"
+                      />
                     )}
                     {p.media.length > 0 && (
                       <div
