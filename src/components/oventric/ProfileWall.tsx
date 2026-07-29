@@ -85,12 +85,10 @@ export function ProfileWall({
   const isSelf = viewerId === wallUserId;
 
   const cta = useMemo(() => {
-    if (!viewerId) return { label: "Sign in to post", disabled: true, hint: null };
-    if (allowed?.ok) return { label: isSelf ? "Post on your wall" : `Post on ${wallOwnerName}'s wall`, disabled: false, hint: null };
-    if (allowed?.reason === "not_following")
-      return { label: "Followers only", disabled: true, hint: `Follow ${wallOwnerName} to post on their wall` };
-    return { label: "Post on wall", disabled: true, hint: null };
-  }, [allowed, isSelf, viewerId, wallOwnerName]);
+    if (!viewerId) return { label: "Sign in to post", disabled: true, hint: null as string | null };
+    const label = isSelf ? "Post on your wall" : `Post on ${wallOwnerName}'s wall`;
+    return { label, disabled: false, hint: null as string | null };
+  }, [isSelf, viewerId, wallOwnerName]);
 
   const onReact = async (post: FeedPost, next: ReactionType | null) => {
     if (!viewerId) {
@@ -140,20 +138,27 @@ export function ProfileWall({
         <h3 className="text-lg font-bold text-white">
           {isSelf ? "Your wall" : `${wallOwnerName}'s wall`}
         </h3>
-        <button
-          type="button"
-          onClick={() => setComposerOpen(true)}
-          disabled={cta.disabled}
-          className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:bg-white/5 disabled:text-slate-500 disabled:cursor-not-allowed text-black font-semibold text-sm"
-          title={cta.hint ?? undefined}
-        >
-          {cta.disabled ? <Lock className="w-3.5 h-3.5" /> : <PenSquare className="w-3.5 h-3.5" />}
-          {cta.label}
-        </button>
       </div>
-      {cta.hint && (
-        <p className="text-xs text-slate-500 -mt-2 mb-3">{cta.hint}</p>
-      )}
+
+      {/* Newsfeed-style composer trigger, open to any signed-in visitor */}
+      <button
+        type="button"
+        onClick={() => !cta.disabled && setComposerOpen(true)}
+        disabled={cta.disabled}
+        className="w-full mb-4 flex items-center gap-3 bg-[#141418] border border-white/10 rounded-2xl p-3 text-left hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed"
+      >
+        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300 text-sm font-semibold">
+          {viewerInitials || "You"}
+        </div>
+        <span className="flex-1 text-slate-400 text-sm">
+          {cta.disabled ? cta.label : isSelf ? "What's on your mind today?" : `Post on ${wallOwnerName}'s wall…`}
+        </span>
+        {cta.disabled ? (
+          <Lock className="w-4 h-4 text-slate-500" />
+        ) : (
+          <PenSquare className="w-4 h-4 text-emerald-400" />
+        )}
+      </button>
 
       {loading ? (
         <div className="flex items-center justify-center py-10 text-slate-500 text-sm">

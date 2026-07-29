@@ -299,10 +299,14 @@ export const listWallPosts = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ wallUserId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
     const { sb, userId } = await getViewerClient();
+    // Include: (a) posts written directly on the wall, AND
+    //         (b) the wall owner's own public newsfeed posts (no circle, no other wall).
     const { data: rows, error } = await sb
       .from("posts")
       .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
-      .eq("wall_user_id" as any, data.wallUserId)
+      .or(
+        `wall_user_id.eq.${data.wallUserId},and(wall_user_id.is.null,author_id.eq.${data.wallUserId},audience.eq.public,circle_id.is.null)`,
+      )
       .order("created_at", { ascending: false })
       .limit(100);
     if (error) {
@@ -317,14 +321,9 @@ export const canPostOnWall = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) => z.object({ wallUserId: z.string().uuid() }).parse(input))
   .handler(async ({ data, context }) => {
+    // Walls are open — any signed-in, non-anonymous user can post on any wall.
     if (data.wallUserId === context.userId) return { allowed: true, reason: "self" as const };
-    const { data: f } = await context.supabase
-      .from("follows")
-      .select("follower_id")
-      .eq("followee_id", data.wallUserId)
-      .eq("follower_id", context.userId)
-      .maybeSingle();
-    return { allowed: !!f, reason: f ? ("follower" as const) : ("not_following" as const) };
+    return { allowed: true, reason: "open" as const };
   });
 
 export const createPost = createServerFn({ method: "POST" })
