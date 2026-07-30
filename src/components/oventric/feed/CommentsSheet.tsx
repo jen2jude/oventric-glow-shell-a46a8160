@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { X, Send, CornerDownRight } from "lucide-react";
 import { listComments, addComment, setCommentReaction, type FeedComment } from "@/lib/comments.functions";
-import { REACTION_META, REACTION_ORDER, ReactionPicker, ReactionButton3D } from "./Reactions";
+import { REACTION_META, REACTION_ORDER, ReactionPicker, ReactionButton } from "./Reactions";
 import type { ReactionType } from "@/lib/posts.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { toast } from "sonner";
@@ -42,7 +42,7 @@ function Comment({
         </div>
         <div className="flex items-center gap-3 mt-1 pl-1 relative">
           <div className="flex items-center gap-1.5">
-            <ReactionButton3D
+            <ReactionButton
               reaction={viewer ?? "love"}
               size="xs"
               ariaLabel={viewer ? REACTION_META[viewer].label : "React"}

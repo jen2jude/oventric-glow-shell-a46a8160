@@ -3,7 +3,7 @@ import {
   X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag,
   ThumbsUp, ThumbsDown, EyeOff, Download, Link2,
 } from "lucide-react";
-import { ReactionPicker, ReactionSplash, ReactionButton3D, REACTION_META } from "./Reactions";
+import { ReactionPicker, ReactionSplash, ReactionButton, REACTION_META } from "./Reactions";
 import { togglePostSet } from "@/components/oventric/PostActionsMenu";
 import { toast } from "sonner";
 import type { FeedPost, ReactionType } from "@/lib/posts.functions";
@@ -167,7 +167,7 @@ function VideoItem({
       {/* Side actions */}
       <div className="absolute right-2 bottom-8 z-10 flex flex-col items-center gap-4">
         <div className="relative flex flex-col items-center">
-          <ReactionButton3D
+          <ReactionButton
             reaction={viewer ?? "love"}
             size="md"
             ariaLabel="React"

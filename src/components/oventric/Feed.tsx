@@ -28,7 +28,7 @@ import {
   ReactionPicker,
   ReactionSplash,
   ReactionImageBadge,
-  ReactionButton3D,
+  ReactionButton,
   REACTION_META,
 } from "@/components/oventric/feed/Reactions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
@@ -1258,7 +1258,7 @@ export function Feed() {
                 {/* Action bar */}
                 <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
                   <div className="relative flex items-center gap-2">
-                    <ReactionButton3D
+                    <ReactionButton
                       reaction={post.viewer_reaction ?? "love"}
                       size="sm"
                       ariaLabel="React"

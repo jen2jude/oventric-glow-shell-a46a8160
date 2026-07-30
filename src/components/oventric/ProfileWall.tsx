@@ -11,7 +11,7 @@ import {
 } from "@/lib/posts.functions";
 import { PostComposerModal } from "./PostComposerModal";
 import { CommentsSheet } from "./feed/CommentsSheet";
-import { ReactionPicker, ReactionButton3D, REACTION_META } from "./feed/Reactions";
+import { ReactionPicker, ReactionButton, REACTION_META } from "./feed/Reactions";
 import { TruncatedText } from "./feed/TruncatedText";
 import { AvatarImage } from "./AvatarImage";
 import { Link } from "@tanstack/react-router";
@@ -256,7 +256,7 @@ export function ProfileWall({
                             onClose={() => setPickerFor(null)}
                           />
                         )}
-                        <ReactionButton3D
+                        <ReactionButton
                           reaction={p.viewer_reaction ?? "love"}
                           size="sm"
                           ariaLabel="React"

@@ -4,81 +4,50 @@ import type { ReactionType } from "@/lib/posts.functions";
 
 export const REACTION_META: Record<
   ReactionType,
-  { label: string; Icon: typeof Heart; color: string; glow: string; bgTop: string; bgBottom: string; shadow: string }
+  { label: string; Icon: typeof Heart; color: string }
 > = {
-  love: {
-    label: "Love",
-    Icon: Heart,
-    color: "#f43f5e",
-    glow: "rgba(244,63,94,0.75)",
-    bgTop: "#ff6b8a",
-    bgBottom: "#be123c",
-    shadow: "#881337",
-  },
-  like: {
-    label: "Like",
-    Icon: ThumbsUp,
-    color: "#38bdf8",
-    glow: "rgba(56,189,248,0.75)",
-    bgTop: "#7dd3fc",
-    bgBottom: "#0284c7",
-    shadow: "#075985",
-  },
-  laugh: {
-    label: "Haha",
-    Icon: Laugh,
-    color: "#facc15",
-    glow: "rgba(250,204,21,0.75)",
-    bgTop: "#fde047",
-    bgBottom: "#ca8a04",
-    shadow: "#854d0e",
-  },
-  crown: {
-    label: "Crown",
-    Icon: Crown,
-    color: "#a78bfa",
-    glow: "rgba(167,139,250,0.75)",
-    bgTop: "#c4b5fd",
-    bgBottom: "#7c3aed",
-    shadow: "#5b21b6",
-  },
+  love: { label: "Love", Icon: Heart, color: "#f43f5e" },
+  like: { label: "Like", Icon: ThumbsUp, color: "#38bdf8" },
+  laugh: { label: "Haha", Icon: Laugh, color: "#facc15" },
+  crown: { label: "Crown", Icon: Crown, color: "#a78bfa" },
 };
 
 export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"];
 
-/** 3D-styled reaction button with gradient, inset highlight and bottom shadow. */
-export function ReactionButton3D({
+/** Default flat reaction button. */
+export function ReactionButton({
   reaction,
   onClick,
   size = "md",
   ariaLabel,
+  className,
 }: {
   reaction: ReactionType;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   size?: "xs" | "sm" | "md" | "lg";
   ariaLabel?: string;
+  className?: string;
 }) {
   const m = REACTION_META[reaction];
   const Icon = m.Icon;
   const dims =
-    size === "xs" ? "w-6 h-6 rounded-lg"
-    : size === "sm" ? "w-8 h-8"
-    : size === "lg" ? "w-14 h-14"
-    : "w-10 h-10";
+    size === "xs" ? "w-6 h-6 rounded-md"
+    : size === "sm" ? "w-8 h-8 rounded-full"
+    : size === "lg" ? "w-14 h-14 rounded-2xl"
+    : "w-10 h-10 rounded-full";
   const iconSize = size === "xs" ? 12 : size === "sm" ? 16 : size === "lg" ? 28 : 20;
-  const shadowOffset = size === "xs" ? 2 : 5;
   return (
     <button
       type="button"
       aria-label={ariaLabel ?? m.label}
       onClick={onClick}
       className={[
-        "relative inline-flex items-center justify-center transition-transform duration-150 active:translate-y-0.5",
+        "inline-flex items-center justify-center transition-transform duration-150 active:scale-95",
         dims,
+        className,
       ].join(" ")}
       style={{
-        background: `linear-gradient(180deg, ${m.bgTop} 0%, ${m.bgBottom} 100%)`,
-        boxShadow: `0 ${shadowOffset}px 0 ${m.shadow}, 0 ${shadowOffset + 1}px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)`,
+        backgroundColor: `${m.color}e6`,
         color: "#ffffff",
         WebkitTapHighlightColor: "transparent",
       }}
@@ -116,7 +85,7 @@ export function ReactionPicker({
       className={`absolute bottom-full ${alignCls} mb-3 z-30 flex items-center gap-2 rounded-full bg-[#141418] border border-white/10 px-2.5 py-2 shadow-xl shadow-black/60 animate-in fade-in slide-in-from-bottom-2 duration-150`}
     >
       {REACTION_ORDER.map((r) => (
-        <ReactionButton3D
+        <ReactionButton
           key={r}
           reaction={r}
           size="md"
@@ -141,11 +110,9 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
       className="pointer-events-none absolute inset-0 flex items-center justify-center z-20"
     >
       <div
-        className="rounded-2xl p-4"
+        className="rounded-2xl p-4 text-white"
         style={{
-          background: `linear-gradient(180deg, ${m.bgTop} 0%, ${m.bgBottom} 100%)`,
-          boxShadow: `0 6px 0 ${m.shadow}, 0 8px 16px rgba(0,0,0,0.45), inset 0 1px 0 rgba(255,255,255,0.35)`,
-          color: "#ffffff",
+          backgroundColor: m.color,
           animation: "reaction-splash 900ms cubic-bezier(0.16,1,0.3,1) forwards",
         }}
       >
@@ -155,19 +122,15 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
   );
 }
 
-/** Clean 3D badge on bottom-right of an image or video. */
+/** Clean flat badge on bottom-right of an image or video. */
 export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const m = REACTION_META[reaction];
   const Icon = m.Icon;
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
       <div
-        className="rounded-2xl w-10 h-10 flex items-center justify-center"
-        style={{
-          background: `linear-gradient(180deg, ${m.bgTop} 0%, ${m.bgBottom} 100%)`,
-          boxShadow: `0 4px 0 ${m.shadow}, 0 5px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)`,
-          color: "#ffffff",
-        }}
+        className="rounded-2xl w-10 h-10 flex items-center justify-center text-white"
+        style={{ backgroundColor: m.color }}
       >
         <Icon className="w-5 h-5 fill-current" strokeWidth={2.5} />
       </div>
