@@ -167,19 +167,18 @@ function VideoItem({
       {/* Side actions */}
       <div className="absolute right-2 bottom-8 z-10 flex flex-col items-center gap-4">
         <div className="relative flex flex-col items-center">
-          <button
-            type="button"
+          <ReactionButton3D
+            reaction={viewer ?? "love"}
+            size="md"
+            ariaLabel="React"
             onClick={() => (viewer ? doReact(null) : setPickerOpen((v) => !v))}
-            className="p-3 rounded-full bg-black/50 border border-white/20 backdrop-blur"
-            style={{ color: viewer ? REACTION_META[viewer].color : "#fff" }}
-            aria-label="React"
+          />
+          <span
+            className="text-[11px] font-semibold text-white/90 mt-1"
+            style={{ color: viewer ? REACTION_META[viewer].color : undefined }}
           >
-            {(() => {
-              const Icon = viewer ? REACTION_META[viewer].Icon : REACTION_META.love.Icon;
-              return <Icon className={`w-6 h-6 ${viewer ? "fill-current" : ""}`} />;
-            })()}
-          </button>
-          <span className="text-[11px] text-white/90 mt-1">{post.likes_count}</span>
+            {post.likes_count}
+          </span>
           {pickerOpen && (
             <ReactionPicker
               align="right"
