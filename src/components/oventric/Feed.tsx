@@ -28,7 +28,7 @@ import {
   ReactionPicker,
   ReactionSplash,
   ReactionImageBadge,
-  ReactionButton3D,
+  ReactionButton,
   REACTION_META,
 } from "@/components/oventric/feed/Reactions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
