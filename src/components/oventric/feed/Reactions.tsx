@@ -47,7 +47,7 @@ export const REACTION_META: Record<
 export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"];
 
 /** 3D-styled reaction button with gradient, inset highlight and bottom shadow. */
-function ReactionButton3D({
+export function ReactionButton3D({
   reaction,
   onClick,
   size = "md",
