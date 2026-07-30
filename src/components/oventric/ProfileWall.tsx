@@ -256,7 +256,7 @@ export function ProfileWall({
                             onClose={() => setPickerFor(null)}
                           />
                         )}
-                        <ReactionButton3D
+                        <ReactionButton
                           reaction={p.viewer_reaction ?? "love"}
                           size="sm"
                           ariaLabel="React"

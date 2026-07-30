@@ -167,7 +167,7 @@ function VideoItem({
       {/* Side actions */}
       <div className="absolute right-2 bottom-8 z-10 flex flex-col items-center gap-4">
         <div className="relative flex flex-col items-center">
-          <ReactionButton3D
+          <ReactionButton
             reaction={viewer ?? "love"}
             size="md"
             ariaLabel="React"

@@ -42,7 +42,7 @@ function Comment({
         </div>
         <div className="flex items-center gap-3 mt-1 pl-1 relative">
           <div className="flex items-center gap-1.5">
-            <ReactionButton3D
+            <ReactionButton
               reaction={viewer ?? "love"}
               size="xs"
               ariaLabel={viewer ? REACTION_META[viewer].label : "React"}
