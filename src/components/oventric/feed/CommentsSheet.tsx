@@ -3,7 +3,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { X, Send, CornerDownRight } from "lucide-react";
 import { listComments, addComment, setCommentReaction, type FeedComment } from "@/lib/comments.functions";
-import { REACTION_META, REACTION_ORDER, ReactionPicker } from "./Reactions";
+import { REACTION_META, REACTION_ORDER, ReactionPicker, ReactionButton3D } from "./Reactions";
 import type { ReactionType } from "@/lib/posts.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { toast } from "sonner";
@@ -41,27 +41,24 @@ function Comment({
           <div className="text-[13px] text-slate-100 whitespace-pre-wrap break-words">{c.text}</div>
         </div>
         <div className="flex items-center gap-3 mt-1 pl-1 relative">
-          <button
-            type="button"
-            onClick={() =>
-              viewer ? onReact(c.id, null) : setPickerOpen((v) => !v)
-            }
-            className="text-[11px] flex items-center gap-1"
-            style={{ color: viewer ? REACTION_META[viewer].color : "#94a3b8" }}
-          >
-            {viewer ? (
-              (() => {
-                const Icon = REACTION_META[viewer].Icon;
-                return (
-                  <>
-                    <Icon className="w-3.5 h-3.5 fill-current" /> {REACTION_META[viewer].label}
-                  </>
-                );
-              })()
-            ) : (
-              <>React</>
+          <div className="flex items-center gap-1.5">
+            <ReactionButton3D
+              reaction={viewer ?? "love"}
+              size="xs"
+              ariaLabel={viewer ? REACTION_META[viewer].label : "React"}
+              onClick={() =>
+                viewer ? onReact(c.id, null) : setPickerOpen((v) => !v)
+              }
+            />
+            {viewer && (
+              <span
+                className="text-[11px] font-medium"
+                style={{ color: REACTION_META[viewer].color }}
+              >
+                {REACTION_META[viewer].label}
+              </span>
             )}
-          </button>
+          </div>
           {total > 0 && (
             <span className="text-[11px] text-slate-500">
               {total} {total === 1 ? "reaction" : "reactions"}

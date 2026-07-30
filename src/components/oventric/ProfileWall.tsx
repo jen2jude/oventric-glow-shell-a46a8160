@@ -11,7 +11,7 @@ import {
 } from "@/lib/posts.functions";
 import { PostComposerModal } from "./PostComposerModal";
 import { CommentsSheet } from "./feed/CommentsSheet";
-import { ReactionPicker, REACTION_META } from "./feed/Reactions";
+import { ReactionPicker, ReactionButton3D, REACTION_META } from "./feed/Reactions";
 import { TruncatedText } from "./feed/TruncatedText";
 import { AvatarImage } from "./AvatarImage";
 import { Link } from "@tanstack/react-router";
@@ -246,7 +246,7 @@ export function ProfileWall({
                       </div>
                     )}
                     <div className="mt-3 flex items-center gap-4 text-slate-400 text-xs">
-                      <div className="relative">
+                      <div className="relative flex items-center gap-2">
                         {pickerFor === p.id && (
                           <ReactionPicker
                             onPick={(r) => {
@@ -256,18 +256,18 @@ export function ProfileWall({
                             onClose={() => setPickerFor(null)}
                           />
                         )}
-                        <button
+                        <ReactionButton3D
+                          reaction={p.viewer_reaction ?? "love"}
+                          size="sm"
+                          ariaLabel="React"
                           onClick={() => setPickerFor(pickerFor === p.id ? null : p.id)}
-                          className={`inline-flex items-center gap-1.5 hover:text-white ${
-                            meta ? "text-white" : ""
-                          }`}
+                        />
+                        <span
+                          className="font-semibold"
                           style={meta ? { color: meta.color } : undefined}
                         >
-                          <Heart
-                            className={`w-4 h-4 ${p.viewer_reaction ? "fill-current" : ""}`}
-                          />
-                          <span>{p.likes_count}</span>
-                        </button>
+                          {p.likes_count}
+                        </span>
                       </div>
                       <button
                         onClick={() => setCommentsFor(p)}

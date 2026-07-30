@@ -28,6 +28,7 @@ import {
   ReactionPicker,
   ReactionSplash,
   ReactionImageBadge,
+  ReactionButton3D,
   REACTION_META,
 } from "@/components/oventric/feed/Reactions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
@@ -1256,9 +1257,11 @@ export function Feed() {
 
                 {/* Action bar */}
                 <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
-                  <div className="relative">
-                    <button
-                      type="button"
+                  <div className="relative flex items-center gap-2">
+                    <ReactionButton3D
+                      reaction={post.viewer_reaction ?? "love"}
+                      size="sm"
+                      ariaLabel="React"
                       onClick={() => {
                         if (post.viewer_reaction) {
                           handleReact(post, null);
@@ -1266,24 +1269,15 @@ export function Feed() {
                           setPickerFor((v) => (v === post.id ? null : post.id));
                         }
                       }}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 transition-colors"
+                    />
+                    <span
+                      className="font-semibold"
                       style={{
                         color: post.viewer_reaction ? REACTION_META[post.viewer_reaction].color : undefined,
                       }}
-                      aria-pressed={post.viewer_liked}
-                      aria-label="React"
                     >
-                      {(() => {
-                        const key: ReactionType = post.viewer_reaction ?? "love";
-                        const Icon = REACTION_META[key].Icon;
-                        return (
-                          <Icon
-                            className={`w-4 h-4 ${post.viewer_reaction ? "fill-current" : ""}`}
-                          />
-                        );
-                      })()}
-                      <span>{post.likes_count}</span>
-                    </button>
+                      {post.likes_count}
+                    </span>
                     {pickerFor === post.id && (
                       <ReactionPicker
                         onPick={(r) => {

@@ -47,7 +47,7 @@ export const REACTION_META: Record<
 export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"];
 
 /** 3D-styled reaction button with gradient, inset highlight and bottom shadow. */
-function ReactionButton3D({
+export function ReactionButton3D({
   reaction,
   onClick,
   size = "md",
@@ -55,25 +55,30 @@ function ReactionButton3D({
 }: {
   reaction: ReactionType;
   onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
-  size?: "sm" | "md" | "lg";
+  size?: "xs" | "sm" | "md" | "lg";
   ariaLabel?: string;
 }) {
   const m = REACTION_META[reaction];
   const Icon = m.Icon;
-  const dims = size === "sm" ? "w-8 h-8" : size === "lg" ? "w-14 h-14" : "w-10 h-10";
-  const iconSize = size === "sm" ? 16 : size === "lg" ? 28 : 20;
+  const dims =
+    size === "xs" ? "w-6 h-6 rounded-lg"
+    : size === "sm" ? "w-8 h-8"
+    : size === "lg" ? "w-14 h-14"
+    : "w-10 h-10";
+  const iconSize = size === "xs" ? 12 : size === "sm" ? 16 : size === "lg" ? 28 : 20;
+  const shadowOffset = size === "xs" ? 2 : 5;
   return (
     <button
       type="button"
       aria-label={ariaLabel ?? m.label}
       onClick={onClick}
       className={[
-        "relative inline-flex items-center justify-center rounded-2xl transition-transform duration-150 active:translate-y-0.5",
+        "relative inline-flex items-center justify-center transition-transform duration-150 active:translate-y-0.5",
         dims,
       ].join(" ")}
       style={{
         background: `linear-gradient(180deg, ${m.bgTop} 0%, ${m.bgBottom} 100%)`,
-        boxShadow: `0 5px 0 ${m.shadow}, 0 6px 10px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)`,
+        boxShadow: `0 ${shadowOffset}px 0 ${m.shadow}, 0 ${shadowOffset + 1}px 8px rgba(0,0,0,0.35), inset 0 1px 0 rgba(255,255,255,0.35)`,
         color: "#ffffff",
         WebkitTapHighlightColor: "transparent",
       }}
