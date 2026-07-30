@@ -11,7 +11,7 @@ import {
 } from "@/lib/posts.functions";
 import { PostComposerModal } from "./PostComposerModal";
 import { CommentsSheet } from "./feed/CommentsSheet";
-import { ReactionPicker, REACTION_META } from "./feed/Reactions";
+import { ReactionPicker, ReactionButton3D, REACTION_META } from "./feed/Reactions";
 import { TruncatedText } from "./feed/TruncatedText";
 import { AvatarImage } from "./AvatarImage";
 import { Link } from "@tanstack/react-router";
