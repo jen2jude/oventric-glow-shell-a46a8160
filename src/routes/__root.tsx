@@ -90,6 +90,10 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { name: "theme-color", content: "#121214" },
+      { name: "color-scheme", content: "dark" },
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { title: "Oventric — The multi-vendor tech platform" },
       { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
       { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
