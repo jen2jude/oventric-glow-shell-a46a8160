@@ -40,6 +40,7 @@ export const SECTION_ACCESS: Record<string, ManagementRole[]> = {
   "/admin/payouts": ["admin", "finance"],
   "/admin/affiliates": ["admin", "finance"],
   "/admin/cashback-wallet": ["admin", "finance"],
+  "/admin/disputes": ["admin", "moderator", "finance", "support"],
   "/admin/communications": ["admin", "content"],
   "/admin/categories": ["admin", "content"],
   "/admin/circle-categories": ["admin", "content"],
