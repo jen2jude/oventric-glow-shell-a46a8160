@@ -376,6 +376,7 @@ function DashboardPage() {
         {tab === "digital" && (
           <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} onConfirm={async (orderId) => { try { await confirmFn({ data: { orderId } }); toast.success("Thanks! Seller funds released."); await loadPurchases(); } catch (e) { toast.error((e as Error).message); } }} />
         )}
+        {tab === "sales" && <SalesList rows={sales} onChanged={() => { void loadSales(); void loadOverview(); }} />}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
           <ListingsList
