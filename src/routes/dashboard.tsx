@@ -97,7 +97,7 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "physical" | "listings";
+type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "sales" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
