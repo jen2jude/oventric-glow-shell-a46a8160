@@ -245,7 +245,49 @@ function RootShell({ children }: { children: ReactNode }) {
           }}
         />
       </head>
-      <body>
+      <body style={{ background: "#121214" }}>
+        {/* Pre-hydration boot splash: painted with the very first HTML frame so
+            there is no white flash / raw logo before React mounts. Removed by
+            <BootSplash /> once the app is interactive. */}
+        <div id="oventric-boot" aria-hidden>
+          <img
+            src="/__l5e/assets-v1/685da575-6dc3-4bb2-8c32-a75c68fd8b6a/oventric-full.png"
+            alt=""
+            draggable={false}
+          />
+          <div className="ob-icons">
+            {[
+              { c: "#ff4d6d", p: <><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></> },
+              { c: "#ffb020", p: <><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></> },
+              { c: "#22ff88", p: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></> },
+              { c: "#00c2ff", p: <><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></> },
+              { c: "#7aa2ff", p: <><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></> },
+              { c: "#a855f7", p: <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /> },
+            ].map((it, i) => (
+              <svg
+                key={i}
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={2.2}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                style={{ color: it.c, animationDelay: `${i * 0.18}s` }}
+              >
+                {it.p}
+              </svg>
+            ))}
+          </div>
+          <style
+            dangerouslySetInnerHTML={{
+              __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
+#oventric-boot img{height:48px;width:auto;user-select:none}
+#oventric-boot .ob-icons{margin-top:24px;display:flex;align-items:center;gap:18px}
+#oventric-boot svg{width:22px;height:22px;animation:boot-splash-icon 1.8s ease-in-out infinite}
+@keyframes boot-splash-icon{0%,100%{opacity:.18;transform:translateY(0) scale(.92)}20%{opacity:1;transform:translateY(-3px) scale(1.12);filter:drop-shadow(0 0 10px currentColor)}45%{opacity:.18;transform:translateY(0) scale(.92)}}`,
+            }}
+          />
+        </div>
         {children}
         <Scripts />
       </body>
