@@ -39,6 +39,7 @@ import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
 import { Route as AdminManagementUsersRouteImport } from './routes/admin.management-users'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
+import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
 import { Route as AdminCoursesRouteImport } from './routes/admin.courses'
 import { Route as AdminCommunicationsRouteImport } from './routes/admin.communications'
 import { Route as AdminCircleCategoriesRouteImport } from './routes/admin.circle-categories'
@@ -211,6 +212,11 @@ const AdminFeaturesRoute = AdminFeaturesRouteImport.update({
   path: '/features',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminDisputesRoute = AdminDisputesRouteImport.update({
+  id: '/disputes',
+  path: '/disputes',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminCoursesRoute = AdminCoursesRouteImport.update({
   id: '/courses',
   path: '/courses',
@@ -345,6 +351,7 @@ export interface FileRoutesByFullPath {
   '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
+  '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
@@ -396,6 +403,7 @@ export interface FileRoutesByTo {
   '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
+  '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
@@ -450,6 +458,7 @@ export interface FileRoutesById {
   '/admin/circle-categories': typeof AdminCircleCategoriesRoute
   '/admin/communications': typeof AdminCommunicationsRoute
   '/admin/courses': typeof AdminCoursesRoute
+  '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
   '/admin/payouts': typeof AdminPayoutsRoute
@@ -505,6 +514,7 @@ export interface FileRouteTypes {
     | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
+    | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/payouts'
@@ -556,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
+    | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/payouts'
@@ -609,6 +620,7 @@ export interface FileRouteTypes {
     | '/admin/circle-categories'
     | '/admin/communications'
     | '/admin/courses'
+    | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
     | '/admin/payouts'
@@ -881,6 +893,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminFeaturesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/disputes': {
+      id: '/admin/disputes'
+      path: '/disputes'
+      fullPath: '/admin/disputes'
+      preLoaderRoute: typeof AdminDisputesRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/courses': {
       id: '/admin/courses'
       path: '/courses'
@@ -1057,6 +1076,7 @@ interface AdminRouteChildren {
   AdminCircleCategoriesRoute: typeof AdminCircleCategoriesRoute
   AdminCommunicationsRoute: typeof AdminCommunicationsRoute
   AdminCoursesRoute: typeof AdminCoursesRoute
+  AdminDisputesRoute: typeof AdminDisputesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
   AdminManagementUsersRoute: typeof AdminManagementUsersRoute
   AdminPayoutsRoute: typeof AdminPayoutsRoute
@@ -1080,6 +1100,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminCircleCategoriesRoute: AdminCircleCategoriesRoute,
   AdminCommunicationsRoute: AdminCommunicationsRoute,
   AdminCoursesRoute: AdminCoursesRoute,
+  AdminDisputesRoute: AdminDisputesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
   AdminManagementUsersRoute: AdminManagementUsersRoute,
   AdminPayoutsRoute: AdminPayoutsRoute,
@@ -1150,13 +1171,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
