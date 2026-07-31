@@ -75,6 +75,9 @@ import {
   PhotoGridSkeleton,
 } from "@/components/oventric/skeletons";
 import { formatMoney } from "@/lib/fx-display";
+import { listMySales, type SaleDTO } from "@/lib/fulfilment.functions";
+import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
+import { Truck } from "lucide-react";
 
 function formatHomeCurrency(n: number, c: "USD" | "NGN" | "GHS"): string {
   return formatMoney(Number.isFinite(n) ? n : 0, c);
@@ -94,7 +97,7 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "physical" | "listings";
+type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "sales" | "physical" | "listings";
 
 function DashboardPage() {
   const navigate = useNavigate();
@@ -123,6 +126,8 @@ function DashboardPage() {
   const [social, setSocial] = useState<DashboardSocial | null>(null);
   const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [sales, setSales] = useState<SaleDTO[] | null>(null);
+  const salesFn = useServerFn(listMySales);
 
 
 
@@ -143,6 +148,12 @@ function DashboardPage() {
     try { setPurchases(await purchasesFn()); }
     catch (e) { toast.error((e as Error).message); setPurchases([]); }
   }, [purchasesFn]);
+
+  const loadSales = useCallback(async () => {
+    try { setSales(await salesFn()); }
+    catch (e) { toast.error((e as Error).message); setSales([]); }
+  }, [salesFn]);
+
 
   const loadContacts = useCallback(async () => {
     try { setContacts(await contactsFn()); }
@@ -183,13 +194,14 @@ function DashboardPage() {
     if (!authChecked) return;
     if (tab === "overview" && overview === null) void loadOverview();
     if (tab === "digital" && purchases === null) void loadPurchases();
+    if (tab === "sales" && sales === null) void loadSales();
     if (tab === "physical" && contacts === null) void loadContacts();
     if (tab === "listings" && listings === null) void loadListings();
     if (tab === "bounties" && bounties === null) void loadBounties();
     if (tab === "courses" && courses === null) void loadCourses();
     if (tab === "wallet" && walletSummary === null) void loadWallet();
     if (tab === "social" && social === null) void loadSocial();
-  }, [authChecked, tab, overview, purchases, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
+  }, [authChecked, tab, overview, purchases, sales, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadSales, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
@@ -201,6 +213,7 @@ function DashboardPage() {
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => {
         void loadPurchases();
+        void loadSales();
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products" }, () => {
         void loadListings();
@@ -215,7 +228,7 @@ function DashboardPage() {
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [authChecked, loadContacts, loadPurchases, loadListings, loadOverview, loadWallet, walletSummary]);
+  }, [authChecked, loadContacts, loadPurchases, loadSales, loadListings, loadOverview, loadWallet, walletSummary]);
 
   // Refresh triggers from child modals (bounty publish, course publish).
   useEffect(() => {
@@ -332,6 +345,14 @@ function DashboardPage() {
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-5 h-5 shrink-0" /> <span className="truncate">Digital</span>
           </TabButton>
+          <TabButton active={tab === "sales"} onClick={() => setTab("sales")}>
+            <Truck className="w-5 h-5 shrink-0" /> <span className="truncate">Sales</span>
+            {(sales?.filter((s) => s.escrowStatus === "held" && s.requiresManualDelivery && !s.deliveredAt).length ?? 0) > 0 && (
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-black text-[11px] font-bold">
+                {sales!.filter((s) => s.escrowStatus === "held" && s.requiresManualDelivery && !s.deliveredAt).length}
+              </span>
+            )}
+          </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
             <ShoppingBag className="w-5 h-5 shrink-0" /> <span className="truncate">Contacted</span>
           </TabButton>
@@ -355,6 +376,7 @@ function DashboardPage() {
         {tab === "digital" && (
           <DigitalList rows={purchases} downloadingId={downloadingId} onDownload={handleDownload} onConfirm={async (orderId) => { try { await confirmFn({ data: { orderId } }); toast.success("Thanks! Seller funds released."); await loadPurchases(); } catch (e) { toast.error((e as Error).message); } }} />
         )}
+        {tab === "sales" && <SalesList rows={sales} onChanged={() => { void loadSales(); void loadOverview(); }} />}
         {tab === "physical" && <PhysicalList rows={contacts} onRelog={relogContact} />}
         {tab === "listings" && (
           <ListingsList
@@ -528,6 +550,7 @@ function DigitalList({
   onDownload: (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => void;
   onConfirm: (orderId: string) => void;
 }) {
+  const [tracking, setTracking] = useState<string | null>(null);
   if (rows === null) {
     return <DigitalSkeleton />;
   }
@@ -544,7 +567,8 @@ function DigitalList({
   return (
     <div className="space-y-3">
       {rows.map((r) => (
-        <div key={r.orderId} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
+        <div key={r.orderId} className="space-y-2">
+        <div className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
           <Link to="/order/$id" params={{ id: r.orderId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
             {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
           </Link>
@@ -596,15 +620,94 @@ function DigitalList({
                 >
                   View details
                 </Link>
+                <button
+                  onClick={() => setTracking((t) => (t === r.orderId ? null : r.orderId))}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                >
+                  <Truck className="w-3.5 h-3.5" /> {tracking === r.orderId ? "Hide tracking" : "Track order"}
+                </button>
               </div>
             </div>
           </div>
 
         </div>
+        {tracking === r.orderId && <OrderFulfilmentRoadmap orderId={r.orderId} />}
+        </div>
       ))}
     </div>
   );
 }
+
+function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () => void }) {
+  const [tracking, setTracking] = useState<string | null>(null);
+
+  if (rows === null) return <DigitalSkeleton />;
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Truck}
+        title="No sales yet"
+        hint="Orders placed on your listings appear here so you can deliver, track escrow and settle disputes."
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to Marketplace</Link>}
+      />
+    );
+  }
+
+  const badge = (s: SaleDTO) => {
+    if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300" };
+    if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300" };
+    if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300" };
+    if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black" };
+    return { label: "In escrow", cls: "bg-white/10 text-slate-200" };
+  };
+
+  return (
+    <div className="space-y-3">
+      {rows.map((s) => {
+        const b = badge(s);
+        return (
+          <div key={s.orderId} className="space-y-2">
+            <div className="rounded-xl border border-white/10 bg-[#141418] p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-white truncate">{s.productName}</div>
+                  <div className="text-xs text-slate-400 truncate">
+                    {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <span className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}>
+                  {b.label}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs text-slate-400">
+                  {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/order/$id"
+                    params={{ id: s.orderId }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  >
+                    View order
+                  </Link>
+                  <button
+                    onClick={() => setTracking((t) => (t === s.orderId ? null : s.orderId))}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
+                  >
+                    <Truck className="w-3.5 h-3.5" /> {tracking === s.orderId ? "Hide" : "Manage"}
+                  </button>
+                </div>
+              </div>
+            </div>
+            {tracking === s.orderId && <OrderFulfilmentRoadmap orderId={s.orderId} onChanged={onChanged} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 
 function PhysicalList({
   rows,

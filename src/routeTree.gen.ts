@@ -60,6 +60,7 @@ import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/em
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
 import { Route as ApiPublicHooksSeedAdminPasswordRouteImport } from './routes/api/public/hooks/seed-admin-password'
 import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
+import { Route as ApiPublicHooksAutoReleaseOrdersRouteImport } from './routes/api/public/hooks/auto-release-orders'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
 
 const TermsRoute = TermsRouteImport.update({
@@ -321,6 +322,12 @@ const ApiPublicHooksPurgeDeletedAccountsRoute =
     path: '/api/public/hooks/purge-deleted-accounts',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiPublicHooksAutoReleaseOrdersRoute =
+  ApiPublicHooksAutoReleaseOrdersRouteImport.update({
+    id: '/api/public/hooks/auto-release-orders',
+    path: '/api/public/hooks/auto-release-orders',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ProfileIdItemKindItemIdRoute = ProfileIdItemKindItemIdRouteImport.update({
   id: '/item/$kind/$itemId',
   path: '/item/$kind/$itemId',
@@ -373,6 +380,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
@@ -425,6 +433,7 @@ export interface FileRoutesByTo {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog': typeof AdminBlogIndexRoute
+  '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
@@ -480,6 +489,7 @@ export interface FileRoutesById {
   '/admin/blog/$id': typeof AdminBlogIdRoute
   '/api/public/paystack-webhook': typeof ApiPublicPaystackWebhookRoute
   '/admin/blog/': typeof AdminBlogIndexRoute
+  '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/seed-admin-password': typeof ApiPublicHooksSeedAdminPasswordRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
@@ -536,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
@@ -588,6 +599,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog'
+    | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
@@ -642,6 +654,7 @@ export interface FileRouteTypes {
     | '/admin/blog/$id'
     | '/api/public/paystack-webhook'
     | '/admin/blog/'
+    | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/seed-admin-password'
     | '/api/public/p/$id'
@@ -673,6 +686,7 @@ export interface RootRouteChildren {
   WalletHistoryRoute: typeof WalletHistoryRoute
   BlogIndexRoute: typeof BlogIndexRoute
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
+  ApiPublicHooksAutoReleaseOrdersRoute: typeof ApiPublicHooksAutoReleaseOrdersRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   ApiPublicHooksSeedAdminPasswordRoute: typeof ApiPublicHooksSeedAdminPasswordRoute
   ApiPublicPIdRoute: typeof ApiPublicPIdRoute
@@ -1040,6 +1054,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicHooksPurgeDeletedAccountsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/auto-release-orders': {
+      id: '/api/public/hooks/auto-release-orders'
+      path: '/api/public/hooks/auto-release-orders'
+      fullPath: '/api/public/hooks/auto-release-orders'
+      preLoaderRoute: typeof ApiPublicHooksAutoReleaseOrdersRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/profile/$id/item/$kind/$itemId': {
       id: '/profile/$id/item/$kind/$itemId'
       path: '/item/$kind/$itemId'
@@ -1160,6 +1181,7 @@ const rootRouteChildren: RootRouteChildren = {
   WalletHistoryRoute: WalletHistoryRoute,
   BlogIndexRoute: BlogIndexRoute,
   ApiPublicPaystackWebhookRoute: ApiPublicPaystackWebhookRoute,
+  ApiPublicHooksAutoReleaseOrdersRoute: ApiPublicHooksAutoReleaseOrdersRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
   ApiPublicHooksSeedAdminPasswordRoute: ApiPublicHooksSeedAdminPasswordRoute,
