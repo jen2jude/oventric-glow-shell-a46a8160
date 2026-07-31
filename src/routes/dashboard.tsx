@@ -194,13 +194,14 @@ function DashboardPage() {
     if (!authChecked) return;
     if (tab === "overview" && overview === null) void loadOverview();
     if (tab === "digital" && purchases === null) void loadPurchases();
+    if (tab === "sales" && sales === null) void loadSales();
     if (tab === "physical" && contacts === null) void loadContacts();
     if (tab === "listings" && listings === null) void loadListings();
     if (tab === "bounties" && bounties === null) void loadBounties();
     if (tab === "courses" && courses === null) void loadCourses();
     if (tab === "wallet" && walletSummary === null) void loadWallet();
     if (tab === "social" && social === null) void loadSocial();
-  }, [authChecked, tab, overview, purchases, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
+  }, [authChecked, tab, overview, purchases, sales, contacts, listings, bounties, courses, walletSummary, social, loadOverview, loadPurchases, loadSales, loadContacts, loadListings, loadBounties, loadCourses, loadWallet, loadSocial]);
 
   // Realtime: refresh contacts when a new contact log lands for this user
   useEffect(() => {
