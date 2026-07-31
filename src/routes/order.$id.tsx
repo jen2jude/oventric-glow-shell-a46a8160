@@ -5,6 +5,7 @@ import { CheckCircle2, Download, ExternalLink, Loader2, ArrowLeft, Mail } from "
 import { Header } from "@/components/oventric/Header";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { getOrderWithDownload, FX_FROM_USD, type OrderDTO } from "@/lib/marketplace.functions";
+import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
 
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 function fmt(v: number, c: Currency) {
@@ -98,6 +99,11 @@ function OrderPage() {
                 <div className="flex justify-between"><span>Placed</span><span>{new Date(order.createdAt).toLocaleString()}</span></div>
               </div>
             </div>
+
+            <div className="mb-4">
+              <OrderFulfilmentRoadmap orderId={order.id} />
+            </div>
+
 
             {order.requiresManualDelivery ? (
               <div className="bg-[#1E1E24] border border-amber-500/40 rounded-lg p-4">

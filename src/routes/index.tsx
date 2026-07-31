@@ -115,12 +115,13 @@ function Index() {
     return () => clearTimeout(t);
   }, []);
 
-  // Deep link ?section=<name>&bounty=<id> (used by notification links).
+  // Deep link ?section=<name>&bounty=<id>&dm=<peerId> (used by notification links).
   useEffect(() => {
     if (typeof window === "undefined") return;
     const params = new URLSearchParams(window.location.search);
     const section = params.get("section");
     const bountyId = params.get("bounty");
+    const dmPeer = params.get("dm");
     const allowed = ["Feed", "Marketplace", "Academy", "Bounties", "Wallet", "Circles", "Messages"];
     if (section && allowed.includes(section)) setActive(section);
     if (bountyId) {
@@ -131,9 +132,14 @@ function Index() {
         );
       }, 160);
     }
-    if (!section && !bountyId) return;
+    if (dmPeer) {
+      setMessagesPeer(dmPeer);
+      setMessagesOpen(true);
+    }
+    if (!section && !bountyId && !dmPeer) return;
     params.delete("section");
     params.delete("bounty");
+    params.delete("dm");
     const qs = params.toString();
     const next = `${window.location.pathname}${qs ? `?${qs}` : ""}${window.location.hash}`;
     window.history.replaceState({}, "", next);

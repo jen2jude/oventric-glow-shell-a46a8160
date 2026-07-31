@@ -1670,15 +1670,76 @@ export type Database = {
         }
         Relationships: []
       }
+      order_disputes: {
+        Row: {
+          admin_note: string | null
+          against_user_id: string | null
+          created_at: string
+          details: string | null
+          id: string
+          image_paths: string[]
+          opened_by: string
+          order_id: string
+          reason: string
+          resolved_at: string | null
+          resolved_by: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          admin_note?: string | null
+          against_user_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          image_paths?: string[]
+          opened_by: string
+          order_id: string
+          reason: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          admin_note?: string | null
+          against_user_id?: string | null
+          created_at?: string
+          details?: string | null
+          id?: string
+          image_paths?: string[]
+          opened_by?: string
+          order_id?: string
+          reason?: string
+          resolved_at?: string | null
+          resolved_by?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_disputes_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       orders: {
         Row: {
+          auto_release_at: string | null
           buyer_confirmed_at: string | null
           buyer_id: string
           created_at: string
+          delivered_at: string | null
+          delivered_by: string | null
           delivery_email: string | null
+          delivery_note: string | null
           delivery_whatsapp: string | null
           display_currency: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
+          dispute_status: string
           download_token: string
           escrow_status: string
           fx_rate: number
@@ -1697,13 +1758,18 @@ export type Database = {
           unit_price_usd: number
         }
         Insert: {
+          auto_release_at?: string | null
           buyer_confirmed_at?: string | null
           buyer_id: string
           created_at?: string
+          delivered_at?: string | null
+          delivered_by?: string | null
           delivery_email?: string | null
+          delivery_note?: string | null
           delivery_whatsapp?: string | null
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total: number
+          dispute_status?: string
           download_token?: string
           escrow_status?: string
           fx_rate?: number
@@ -1722,13 +1788,18 @@ export type Database = {
           unit_price_usd: number
         }
         Update: {
+          auto_release_at?: string | null
           buyer_confirmed_at?: string | null
           buyer_id?: string
           created_at?: string
+          delivered_at?: string | null
+          delivered_by?: string | null
           delivery_email?: string | null
+          delivery_note?: string | null
           delivery_whatsapp?: string | null
           display_currency?: Database["public"]["Enums"]["wallet_currency"]
           display_total?: number
+          dispute_status?: string
           download_token?: string
           escrow_status?: string
           fx_rate?: number
