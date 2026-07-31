@@ -126,6 +126,8 @@ function DashboardPage() {
   const [social, setSocial] = useState<DashboardSocial | null>(null);
   const [editing, setEditing] = useState<ProductDTO | null>(null);
   const [downloadingId, setDownloadingId] = useState<string | null>(null);
+  const [sales, setSales] = useState<SaleDTO[] | null>(null);
+  const salesFn = useServerFn(listMySales);
 
 
 
