@@ -550,6 +550,7 @@ function DigitalList({
   onDownload: (orderId: string, productId: string, externalUrl: string | null, hasFile: boolean) => void;
   onConfirm: (orderId: string) => void;
 }) {
+  const [tracking, setTracking] = useState<string | null>(null);
   if (rows === null) {
     return <DigitalSkeleton />;
   }
@@ -566,7 +567,8 @@ function DigitalList({
   return (
     <div className="space-y-3">
       {rows.map((r) => (
-        <div key={r.orderId} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
+        <div key={r.orderId} className="space-y-2">
+        <div className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
           <Link to="/order/$id" params={{ id: r.orderId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
             {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
           </Link>
