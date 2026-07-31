@@ -62,7 +62,7 @@ export function BootSplash() {
     (assetsReady ? 0.18 : 0);
 
   // Ease `shown` toward `target`; when it reaches 1, fade the splash away.
-  const raf = useRef<number>();
+  const raf = useRef<number | undefined>(undefined);
   useEffect(() => {
     const tick = () => {
       setShown((prev) => {
