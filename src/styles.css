@@ -1347,3 +1347,14 @@ html.light input, html.light textarea, html.light select {
 html.light input::placeholder, html.light textarea::placeholder {
   color: #94a3b8;
 }
+
+/* Boot splash: RGB bar sweeping left → right → left, endlessly. */
+@keyframes boot-splash-sweep {
+  0%   { transform: translateX(-20%); }
+  50%  { transform: translateX(320%); }
+  100% { transform: translateX(-20%); }
+}
+.boot-splash-bar {
+  background: linear-gradient(90deg, #ff0055, #ffaa00, #22ff88, #00c2ff, #a855f7);
+  animation: boot-splash-sweep 1.6s ease-in-out infinite;
+}

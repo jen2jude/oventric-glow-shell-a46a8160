@@ -22,6 +22,7 @@ import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 import { Toaster } from "@/components/ui/sonner";
+import { BootSplash } from "@/components/oventric/BootSplash";
 
 
 function NotFoundComponent() {
@@ -270,6 +271,7 @@ function RootComponent() {
               <ReactivationGate />
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
+              <BootSplash />
             </KycGateProvider>
 
           </OnboardingProvider>
