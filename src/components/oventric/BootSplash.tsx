@@ -1,4 +1,5 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useRouterState } from "@tanstack/react-router";
 import { ShoppingCart, Banknote, Target, GraduationCap, Wallet, MessageCircle } from "lucide-react";
 import logoFull from "@/assets/oventric-full.asset.json";
 
@@ -12,25 +13,80 @@ const ICONS = [
 ];
 
 /**
- * Full-screen boot splash: site logo + a row of soft-glowing app icons that
- * light up left → right endlessly until the app is mounted and ready.
+ * Full-screen boot splash: site logo + a row of icons that light up
+ * left → right in step with *real* load progress (hydration → route data →
+ * document load → fonts/first idle frame) rather than on a fixed loop.
  */
 export function BootSplash() {
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
+  // Eased value that chases the milestone target, so the sweep still looks
+  // smooth when several milestones land in the same frame.
+  const [shown, setShown] = useState(0);
+
+  // Milestone weights (sum = 1).
+  const [hydrated, setHydrated] = useState(false);
+  const [docLoaded, setDocLoaded] = useState(false);
+  const [assetsReady, setAssetsReady] = useState(false);
+  const routeLoading = useRouterState({ select: (s) => s.isLoading || s.status === "pending" });
 
   useEffect(() => {
     // Hand off from the server-rendered pre-hydration splash.
     document.getElementById("oventric-boot")?.remove();
-    const t1 = setTimeout(() => setFading(true), 450);
-    const t2 = setTimeout(() => setVisible(false), 900);
+    setHydrated(true);
+
+    const onLoad = () => setDocLoaded(true);
+    if (document.readyState === "complete") setDocLoaded(true);
+    else window.addEventListener("load", onLoad, { once: true });
+
+    let idle: number | undefined;
+    const markAssets = () => {
+      const ric = (window as unknown as { requestIdleCallback?: typeof setTimeout })
+        .requestIdleCallback;
+      idle = (ric ? ric(() => setAssetsReady(true)) : setTimeout(() => setAssetsReady(true), 120)) as unknown as number;
+    };
+    const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
+    if (fonts?.ready) fonts.ready.then(markAssets).catch(markAssets);
+    else markAssets();
+
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
+      window.removeEventListener("load", onLoad);
+      if (idle) clearTimeout(idle);
     };
   }, []);
 
+  const target =
+    (hydrated ? 0.3 : 0.12) +
+    (routeLoading ? 0 : 0.28) +
+    (docLoaded ? 0.24 : 0) +
+    (assetsReady ? 0.18 : 0);
+
+  // Ease `shown` toward `target`; when it reaches 1, fade the splash away.
+  const raf = useRef<number>();
+  useEffect(() => {
+    const tick = () => {
+      setShown((prev) => {
+        const next = prev + (target - prev) * 0.12;
+        return next > target - 0.002 ? target : next;
+      });
+      raf.current = requestAnimationFrame(tick);
+    };
+    raf.current = requestAnimationFrame(tick);
+    return () => {
+      if (raf.current) cancelAnimationFrame(raf.current);
+    };
+  }, [target]);
+
+  useEffect(() => {
+    if (target < 1 || shown < 0.985) return;
+    setFading(true);
+    const t = setTimeout(() => setVisible(false), 320);
+    return () => clearTimeout(t);
+  }, [target, shown]);
+
   if (!visible) return null;
+
+  const lit = shown * ICONS.length;
 
   return (
     <div
@@ -45,16 +101,24 @@ export function BootSplash() {
         draggable={false}
       />
       <div className="mt-6 flex items-center gap-4 sm:gap-5">
-        {ICONS.map(({ Icon, color }, i) => (
-          <Icon
-            key={i}
-            className="boot-splash-icon h-5 w-5 sm:h-6 sm:w-6"
-            strokeWidth={2.2}
-            style={{ color, animationDelay: `${i * 0.18}s` }}
-          />
-        ))}
+        {ICONS.map(({ Icon, color }, i) => {
+          // 0 → not reached, 1 → fully lit; partial for the icon at the edge.
+          const level = Math.max(0, Math.min(1, lit - i));
+          return (
+            <Icon
+              key={i}
+              className="h-5 w-5 transition-none sm:h-6 sm:w-6"
+              strokeWidth={2.2}
+              style={{
+                color,
+                opacity: 0.18 + level * 0.82,
+                transform: `translateY(${-3 * level}px) scale(${0.92 + level * 0.2})`,
+                filter: level > 0 ? `drop-shadow(0 0 ${10 * level}px currentColor)` : undefined,
+              }}
+            />
+          );
+        })}
       </div>
     </div>
   );
 }
-
