@@ -1,9 +1,19 @@
 import { useEffect, useState } from "react";
+import { ShoppingCart, Banknote, Target, GraduationCap, Wallet, MessageCircle } from "lucide-react";
 import logoFull from "@/assets/oventric-full.asset.json";
 
+const ICONS = [
+  { Icon: ShoppingCart, color: "#ff4d6d" },
+  { Icon: Banknote, color: "#ffb020" },
+  { Icon: Target, color: "#22ff88" },
+  { Icon: GraduationCap, color: "#00c2ff" },
+  { Icon: Wallet, color: "#7aa2ff" },
+  { Icon: MessageCircle, color: "#a855f7" },
+];
+
 /**
- * Full-screen boot splash: site logo + an RGB bar that sweeps left → right →
- * left endlessly until the app is mounted and ready.
+ * Full-screen boot splash: site logo + a row of soft-glowing app icons that
+ * light up left → right endlessly until the app is mounted and ready.
  */
 export function BootSplash() {
   const [visible, setVisible] = useState(true);
@@ -32,9 +42,17 @@ export function BootSplash() {
         className="h-12 w-auto select-none sm:h-14"
         draggable={false}
       />
-      <div className="mt-6 h-[3px] w-40 overflow-hidden rounded-full bg-white/10 sm:w-56">
-        <div className="boot-splash-bar h-full w-1/3 rounded-full" />
+      <div className="mt-6 flex items-center gap-4 sm:gap-5">
+        {ICONS.map(({ Icon, color }, i) => (
+          <Icon
+            key={i}
+            className="boot-splash-icon h-5 w-5 sm:h-6 sm:w-6"
+            strokeWidth={2.2}
+            style={{ color, animationDelay: `${i * 0.18}s` }}
+          />
+        ))}
       </div>
     </div>
   );
 }
+
