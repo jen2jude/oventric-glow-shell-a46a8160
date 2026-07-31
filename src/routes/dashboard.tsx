@@ -345,6 +345,14 @@ function DashboardPage() {
           <TabButton active={tab === "digital"} onClick={() => setTab("digital")}>
             <Package className="w-5 h-5 shrink-0" /> <span className="truncate">Digital</span>
           </TabButton>
+          <TabButton active={tab === "sales"} onClick={() => setTab("sales")}>
+            <Truck className="w-5 h-5 shrink-0" /> <span className="truncate">Sales</span>
+            {(sales?.filter((s) => s.escrowStatus === "held" && s.requiresManualDelivery && !s.deliveredAt).length ?? 0) > 0 && (
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-amber-500 text-black text-[11px] font-bold">
+                {sales!.filter((s) => s.escrowStatus === "held" && s.requiresManualDelivery && !s.deliveredAt).length}
+              </span>
+            )}
+          </TabButton>
           <TabButton active={tab === "physical"} onClick={() => setTab("physical")}>
             <ShoppingBag className="w-5 h-5 shrink-0" /> <span className="truncate">Contacted</span>
           </TabButton>
