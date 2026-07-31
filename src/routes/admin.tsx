@@ -19,6 +19,7 @@ import {
   Wallet,
   GraduationCap,
   Banknote,
+  ShieldAlert,
   BookOpen,
   UserCog,
 } from "lucide-react";
