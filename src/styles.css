@@ -1349,12 +1349,12 @@ html.light input::placeholder, html.light textarea::placeholder {
 }
 
 /* Boot splash: RGB bar sweeping left → right → left, endlessly. */
-@keyframes boot-splash-sweep {
-  0%   { transform: translateX(-20%); }
-  50%  { transform: translateX(320%); }
-  100% { transform: translateX(-20%); }
+@keyframes boot-splash-icon {
+  0%, 100% { opacity: 0.18; transform: translateY(0) scale(0.92); filter: drop-shadow(0 0 0 transparent); }
+  20%      { opacity: 1;    transform: translateY(-3px) scale(1.12); filter: drop-shadow(0 0 10px currentColor); }
+  45%      { opacity: 0.18; transform: translateY(0) scale(0.92); filter: drop-shadow(0 0 0 transparent); }
 }
-.boot-splash-bar {
-  background: linear-gradient(90deg, #ff0055, #ffaa00, #22ff88, #00c2ff, #a855f7);
-  animation: boot-splash-sweep 1.6s ease-in-out infinite;
+.boot-splash-icon {
+  animation: boot-splash-icon 1.8s ease-in-out infinite;
 }
+
