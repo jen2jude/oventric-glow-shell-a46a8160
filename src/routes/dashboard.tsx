@@ -149,6 +149,12 @@ function DashboardPage() {
     catch (e) { toast.error((e as Error).message); setPurchases([]); }
   }, [purchasesFn]);
 
+  const loadSales = useCallback(async () => {
+    try { setSales(await salesFn()); }
+    catch (e) { toast.error((e as Error).message); setSales([]); }
+  }, [salesFn]);
+
+
   const loadContacts = useCallback(async () => {
     try { setContacts(await contactsFn()); }
     catch (e) { toast.error((e as Error).message); setContacts([]); }
