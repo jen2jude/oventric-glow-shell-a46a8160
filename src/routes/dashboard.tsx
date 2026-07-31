@@ -618,15 +618,24 @@ function DigitalList({
                 >
                   View details
                 </Link>
+                <button
+                  onClick={() => setTracking((t) => (t === r.orderId ? null : r.orderId))}
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                >
+                  <Truck className="w-3.5 h-3.5" /> {tracking === r.orderId ? "Hide tracking" : "Track order"}
+                </button>
               </div>
             </div>
           </div>
 
         </div>
+        {tracking === r.orderId && <OrderFulfilmentRoadmap orderId={r.orderId} />}
+        </div>
       ))}
     </div>
   );
 }
+
 
 function PhysicalList({
   rows,
