@@ -213,6 +213,7 @@ function DashboardPage() {
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "orders" }, () => {
         void loadPurchases();
+        void loadSales();
       })
       .on("postgres_changes", { event: "UPDATE", schema: "public", table: "products" }, () => {
         void loadListings();
