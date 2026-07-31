@@ -228,7 +228,7 @@ function DashboardPage() {
       })
       .subscribe();
     return () => { supabase.removeChannel(ch); };
-  }, [authChecked, loadContacts, loadPurchases, loadListings, loadOverview, loadWallet, walletSummary]);
+  }, [authChecked, loadContacts, loadPurchases, loadSales, loadListings, loadOverview, loadWallet, walletSummary]);
 
   // Refresh triggers from child modals (bounty publish, course publish).
   useEffect(() => {
