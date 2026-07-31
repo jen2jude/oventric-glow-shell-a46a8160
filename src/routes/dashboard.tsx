@@ -638,6 +638,76 @@ function DigitalList({
   );
 }
 
+function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () => void }) {
+  const [tracking, setTracking] = useState<string | null>(null);
+
+  if (rows === null) return <DigitalSkeleton />;
+  if (rows.length === 0) {
+    return (
+      <EmptyState
+        icon={Truck}
+        title="No sales yet"
+        hint="Orders placed on your listings appear here so you can deliver, track escrow and settle disputes."
+        cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to Marketplace</Link>}
+      />
+    );
+  }
+
+  const badge = (s: SaleDTO) => {
+    if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300" };
+    if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300" };
+    if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300" };
+    if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black" };
+    return { label: "In escrow", cls: "bg-white/10 text-slate-200" };
+  };
+
+  return (
+    <div className="space-y-3">
+      {rows.map((s) => {
+        const b = badge(s);
+        return (
+          <div key={s.orderId} className="space-y-2">
+            <div className="rounded-xl border border-white/10 bg-[#141418] p-3">
+              <div className="flex items-start justify-between gap-3">
+                <div className="min-w-0">
+                  <div className="text-sm font-bold text-white truncate">{s.productName}</div>
+                  <div className="text-xs text-slate-400 truncate">
+                    {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
+                  </div>
+                </div>
+                <span className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}>
+                  {b.label}
+                </span>
+              </div>
+              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
+                <div className="text-xs text-slate-400">
+                  {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
+                </div>
+                <div className="flex items-center gap-2">
+                  <Link
+                    to="/order/$id"
+                    params={{ id: s.orderId }}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  >
+                    View order
+                  </Link>
+                  <button
+                    onClick={() => setTracking((t) => (t === s.orderId ? null : s.orderId))}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
+                  >
+                    <Truck className="w-3.5 h-3.5" /> {tracking === s.orderId ? "Hide" : "Manage"}
+                  </button>
+                </div>
+              </div>
+            </div>
+            {tracking === s.orderId && <OrderFulfilmentRoadmap orderId={s.orderId} onChanged={onChanged} />}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 
 function PhysicalList({
   rows,
