@@ -20,6 +20,8 @@ export function BootSplash() {
   const [fading, setFading] = useState(false);
 
   useEffect(() => {
+    // Hand off from the server-rendered pre-hydration splash.
+    document.getElementById("oventric-boot")?.remove();
     const t1 = setTimeout(() => setFading(true), 450);
     const t2 = setTimeout(() => setVisible(false), 900);
     return () => {
