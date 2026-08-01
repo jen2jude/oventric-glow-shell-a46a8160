@@ -120,10 +120,8 @@ function ThreadRow({
         }`}
       >
         <div className="relative shrink-0">
-          <div
-            className={`w-10 h-10 rounded-full bg-gradient-to-br ${thread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
-          >
-            {thread.peerInitials}
+          <div className="w-10 h-10 rounded-full overflow-hidden">
+            <AvatarImage src={thread.peerAvatarUrl} alt={thread.peerName} className="rounded-full" />
           </div>
           {online && (
             <span
