@@ -248,8 +248,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       return;
     }
     let cancelled = false;
-    // Remove any stale channel with the same topic (StrictMode / fast remounts
-    // return the still-subscribed instance, and .on() after .subscribe() throws).
     for (const c of supabase.getChannels()) {
       if (c.topic === "realtime:oventric:presence") supabase.removeChannel(c);
     }
@@ -257,42 +255,49 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       config: { presence: { key: me } },
     });
 
-    const GRADS = [
-      "from-purple-500 to-pink-500",
-      "from-emerald-400 to-teal-500",
-      "from-sky-400 to-indigo-500",
-      "from-amber-400 to-orange-500",
-      "from-fuchsia-500 to-pink-500",
-      "from-rose-400 to-red-500",
-      "from-cyan-400 to-blue-500",
-      "from-lime-400 to-emerald-500",
-    ];
-    const gradFor = (id: string) => {
-      let h = 0;
-      for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-      return GRADS[h % GRADS.length];
-    };
-    const initialsFor = (name: string) => {
-      const parts = name.trim().split(/\s+/).slice(0, 2);
-      return parts.map((s) => s[0]?.toUpperCase() ?? "").join("") || "??";
-    };
-
     const syncFromState = () => {
       if (cancelled) return;
       const state = channel.presenceState<{ user_id: string; name?: string; slug?: string }>();
-      const next = new Map<string, { name: string; slug: string; initials: string; gradient: string }>();
-      for (const key of Object.keys(state)) {
-        if (key === me) continue;
-        const meta = state[key][0];
-        const name = meta?.name || "Peer";
-        next.set(key, {
-          name,
-          slug: meta?.slug || key,
-          initials: initialsFor(name),
-          gradient: gradFor(key),
-        });
+      const ids = Object.keys(state).filter((k) => k !== me);
+      setOnlinePeers((prev) => {
+        const next = new Map<string, OnlinePeer>();
+        for (const key of ids) {
+          const meta = state[key][0];
+          const cached = prev.get(key);
+          next.set(key, {
+            name: cached?.name || meta?.name || "Peer",
+            slug: cached?.slug || meta?.slug || key,
+            avatarUrl: cached?.avatarUrl ?? null,
+            gradient: cached?.gradient ?? "from-emerald-400 to-teal-500",
+          });
+        }
+        return next;
+      });
+      // Hydrate real avatars/names for anyone we don't have yet.
+      const missing = ids.filter((id) => !peerCacheRef.current.has(id));
+      if (missing.length) {
+        missing.forEach((id) => peerCacheRef.current.add(id));
+        fetchPeerProfiles({ data: { userIds: missing.slice(0, 100) } })
+          .then((rows) => {
+            if (cancelled) return;
+            setOnlinePeers((prev) => {
+              const next = new Map(prev);
+              rows.forEach((r) => {
+                if (!next.has(r.userId)) return;
+                next.set(r.userId, {
+                  name: r.name,
+                  slug: r.slug,
+                  avatarUrl: r.avatarUrl,
+                  gradient: r.gradient,
+                });
+              });
+              return next;
+            });
+          })
+          .catch(() => {
+            missing.forEach((id) => peerCacheRef.current.delete(id));
+          });
       }
-      setOnlinePeers(next);
     };
 
     channel
@@ -301,7 +306,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       .on("presence", { event: "leave" }, syncFromState)
       .subscribe(async (status) => {
         if (status !== "SUBSCRIBED" || cancelled) return;
-        // Load own profile to publish minimal metadata.
         const { data: p } = await supabase
           .from("profiles")
           .select("display_name, username, slug")
@@ -316,7 +320,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [me]);
+  }, [me, fetchPeerProfiles]);
 
 
   // Sync activePeer when initialThreadId changes (e.g., opening chat from a new profile)
