@@ -319,7 +319,16 @@ const UpdateInput = z.object({
   phone: z.string().trim().min(6).max(24).optional().nullable(),
   country: z.string().trim().max(60).optional().nullable(),
   address: z.string().trim().max(200).optional().nullable(),
+  addressPublic: z.boolean().optional(),
+  dateOfBirth: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .optional()
+    .nullable(),
+  dobPublic: z.boolean().optional(),
   notificationPreferences: NotificationPrefsInput.optional(),
+
 });
 
 
