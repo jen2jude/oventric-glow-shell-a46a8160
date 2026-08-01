@@ -37,6 +37,7 @@ import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
 import { Route as AdminPayoutsRouteImport } from './routes/admin.payouts'
+import { Route as AdminManualPaymentsRouteImport } from './routes/admin.manual-payments'
 import { Route as AdminManagementUsersRouteImport } from './routes/admin.management-users'
 import { Route as AdminFeaturesRouteImport } from './routes/admin.features'
 import { Route as AdminDisputesRouteImport } from './routes/admin.disputes'
@@ -204,6 +205,11 @@ const AdminPayoutsRoute = AdminPayoutsRouteImport.update({
   path: '/payouts',
   getParentRoute: () => AdminRoute,
 } as any)
+const AdminManualPaymentsRoute = AdminManualPaymentsRouteImport.update({
+  id: '/manual-payments',
+  path: '/manual-payments',
+  getParentRoute: () => AdminRoute,
+} as any)
 const AdminManagementUsersRoute = AdminManagementUsersRouteImport.update({
   id: '/management-users',
   path: '/management-users',
@@ -368,6 +374,7 @@ export interface FileRoutesByFullPath {
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
+  '/admin/manual-payments': typeof AdminManualPaymentsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -422,6 +429,7 @@ export interface FileRoutesByTo {
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
+  '/admin/manual-payments': typeof AdminManualPaymentsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -479,6 +487,7 @@ export interface FileRoutesById {
   '/admin/disputes': typeof AdminDisputesRoute
   '/admin/features': typeof AdminFeaturesRoute
   '/admin/management-users': typeof AdminManagementUsersRoute
+  '/admin/manual-payments': typeof AdminManualPaymentsRoute
   '/admin/payouts': typeof AdminPayoutsRoute
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
@@ -537,6 +546,7 @@ export interface FileRouteTypes {
     | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
+    | '/admin/manual-payments'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -591,6 +601,7 @@ export interface FileRouteTypes {
     | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
+    | '/admin/manual-payments'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -647,6 +658,7 @@ export interface FileRouteTypes {
     | '/admin/disputes'
     | '/admin/features'
     | '/admin/management-users'
+    | '/admin/manual-payments'
     | '/admin/payouts'
     | '/admin/products'
     | '/admin/reports'
@@ -907,6 +919,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminPayoutsRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/admin/manual-payments': {
+      id: '/admin/manual-payments'
+      path: '/manual-payments'
+      fullPath: '/admin/manual-payments'
+      preLoaderRoute: typeof AdminManualPaymentsRouteImport
+      parentRoute: typeof AdminRoute
+    }
     '/admin/management-users': {
       id: '/admin/management-users'
       path: '/management-users'
@@ -1121,6 +1140,7 @@ interface AdminRouteChildren {
   AdminDisputesRoute: typeof AdminDisputesRoute
   AdminFeaturesRoute: typeof AdminFeaturesRoute
   AdminManagementUsersRoute: typeof AdminManagementUsersRoute
+  AdminManualPaymentsRoute: typeof AdminManualPaymentsRoute
   AdminPayoutsRoute: typeof AdminPayoutsRoute
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
@@ -1145,6 +1165,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminDisputesRoute: AdminDisputesRoute,
   AdminFeaturesRoute: AdminFeaturesRoute,
   AdminManagementUsersRoute: AdminManagementUsersRoute,
+  AdminManualPaymentsRoute: AdminManualPaymentsRoute,
   AdminPayoutsRoute: AdminPayoutsRoute,
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
