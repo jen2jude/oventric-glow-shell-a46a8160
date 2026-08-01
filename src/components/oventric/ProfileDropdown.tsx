@@ -1293,4 +1293,34 @@ function ProfileSettingsModal({
   );
 }
 
+/** Eye toggle controlling whether a sensitive field is public or private. */
+function VisibilityToggle({
+  on,
+  label,
+  onToggle,
+}: {
+  on: boolean;
+  label: string;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={on}
+      aria-label={on ? `Make ${label} private` : `Make ${label} visible to others`}
+      title={on ? `Visible to others — click to hide` : `Private — click to show publicly`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+        on
+          ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
+          : "border-white/10 bg-white/5 text-slate-400 hover:text-white"
+      }`}
+    >
+      {on ? <Eye className="w-3.5 h-3.5" aria-hidden /> : <EyeOff className="w-3.5 h-3.5" aria-hidden />}
+      {on ? "Public" : "Private"}
+    </button>
+  );
+}
+
+
 
