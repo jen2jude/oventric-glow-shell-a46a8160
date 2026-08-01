@@ -684,7 +684,7 @@ function WatercoolerPost({
   const setReactionM = useServerFn(setReactionFn);
   const [viewerReaction, setViewerReaction] = useState<ReactionType | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, laugh: 0, crown: 0 });
+  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 });
 
   const react = async (r: ReactionType | null) => {
     const prev = viewerReaction;

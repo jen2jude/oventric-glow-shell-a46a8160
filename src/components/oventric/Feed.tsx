@@ -704,7 +704,7 @@ export function Feed() {
     return () => window.removeEventListener("oventric:posts-updated", onUpdate);
   }, [listBlogFn]);
 
-  const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, laugh: 0, crown: 0 });
+  const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 });
 
   const handleReact = (post: FeedPost, reaction: ReactionType | null) => {
     require(1, async () => {
