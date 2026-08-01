@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { Heart, ThumbsUp, Laugh, Crown } from "lucide-react";
+import { Heart, ThumbsUp, ThumbsDown, Laugh, Crown } from "lucide-react";
 import type { ReactionType } from "@/lib/posts.functions";
 import heartAsset from "@/assets/heart-3d.png.asset.json";
+import thumbsUpAsset from "@/assets/thumbs-up-3d.png.asset.json";
+import thumbsDownAsset from "@/assets/thumbs-down-3d.png.asset.json";
 
 export const REACTION_META: Record<
   ReactionType,
@@ -9,17 +11,29 @@ export const REACTION_META: Record<
 > = {
   love: { label: "Love", Icon: Heart, color: "#f43f5e" },
   like: { label: "Like", Icon: ThumbsUp, color: "#38bdf8" },
+  dislike: { label: "Dislike", Icon: ThumbsDown, color: "#94a3b8" },
   laugh: { label: "Haha", Icon: Laugh, color: "#facc15" },
   crown: { label: "Crown", Icon: Crown, color: "#a78bfa" },
 };
 
-export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"];
+export const REACTION_ORDER: ReactionType[] = ["love", "like", "dislike", "laugh", "crown"];
 
 export const HEART_IMAGE_URL = heartAsset.url;
 
+/** Reactions rendered as 3D images instead of Lucide icons. */
+const IMAGE_REACTIONS: Partial<Record<ReactionType, string>> = {
+  love: heartAsset.url,
+  like: thumbsUpAsset.url,
+  dislike: thumbsDownAsset.url,
+};
+
+export function isImageReaction(reaction: ReactionType) {
+  return Boolean(IMAGE_REACTIONS[reaction]);
+}
+
 /**
- * Renders a reaction glyph. "love" uses the glossy 3D heart image with a
- * soft idle beat; the rest fall back to their Lucide icon.
+ * Renders a reaction glyph. "love", "like" and "dislike" use glossy 3D images
+ * with a soft idle motion; the rest fall back to their Lucide icon.
  */
 export function ReactionGlyph({
   reaction,
@@ -32,10 +46,15 @@ export function ReactionGlyph({
   size?: number;
   animate?: boolean;
 }) {
-  if (reaction === "love") {
+  const imageUrl = IMAGE_REACTIONS[reaction];
+  if (imageUrl) {
+    const motion =
+      reaction === "love" ? "reaction-heart-beat"
+      : reaction === "like" ? "reaction-thumb-up-bob"
+      : "reaction-thumb-down-bob";
     return (
       <img
-        src={HEART_IMAGE_URL}
+        src={imageUrl}
         alt=""
         aria-hidden
         draggable={false}
@@ -43,7 +62,7 @@ export function ReactionGlyph({
         height={size}
         className={[
           "select-none object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
-          animate ? "reaction-heart-beat" : "",
+          animate ? motion : "",
           className ?? "",
         ].join(" ")}
         style={size ? { width: size, height: size } : undefined}
@@ -53,6 +72,7 @@ export function ReactionGlyph({
   const Icon = REACTION_META[reaction].Icon;
   return <Icon size={size} className={`fill-current ${className ?? ""}`} strokeWidth={2.5} />;
 }
+
 
 /** Default flat reaction button. */
 export function ReactionButton({
