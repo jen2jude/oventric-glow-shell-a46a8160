@@ -98,13 +98,10 @@ export function Marketplace() {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
 
-  // Currency isolation: signed-in users only see items priced in their home
-  // currency. Anon viewers see everything (USD preview) as marketing.
-  const currencyScoped = useMemo(() => {
-    if (!products) return products;
-    if (!isAuthenticated) return products;
-    return products.filter((p) => String(p.originalCurrency ?? "USD").toUpperCase() === baseCurrency);
-  }, [products, isAuthenticated, baseCurrency]);
+  // Global catalogue: every shopper sees every active listing. Prices are
+  // converted into the viewer's home currency for display and checkout.
+  const currencyScoped = products;
+
 
   const digital = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind !== "physical"), [currencyScoped]);
   const physical = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind === "physical"), [currencyScoped]);
