@@ -57,22 +57,43 @@ function buildSrcSet(src: string, widths: number[]): string | null {
 
 export const ResponsiveImage = forwardRef<HTMLImageElement, ResponsiveImageProps>(
   function ResponsiveImage(
-    { src, widths = DEFAULT_WIDTHS, sizes = "100vw", loading, decoding, srcSet, ...rest },
+    { src, widths = DEFAULT_WIDTHS, sizes = "100vw", loading, decoding, srcSet, onError, ...rest },
     ref,
   ) {
-    const computedSrcSet = !srcSet && typeof src === "string" ? buildSrcSet(src, widths) : srcSet ?? undefined;
+    // If any transformed candidate fails (transform quota exhausted, unsupported
+    // source format, CDN hiccup), fall back to the untouched original URL —
+    // otherwise the browser renders a broken image even though `src` is fine.
+    const [transformFailed, setTransformFailed] = useState(false);
+    useEffect(() => {
+      setTransformFailed(false);
+    }, [src]);
+
+    const computedSrcSet =
+      !srcSet && typeof src === "string" ? buildSrcSet(src, widths) : (srcSet ?? undefined);
+    const effectiveSrcSet = transformFailed ? undefined : (computedSrcSet ?? undefined);
+
+    const handleError = (e: SyntheticEvent<HTMLImageElement, Event>) => {
+      if (!transformFailed && effectiveSrcSet) {
+        setTransformFailed(true);
+        return;
+      }
+      onError?.(e);
+    };
+
     return (
       <img
         ref={ref}
         src={src}
-        srcSet={computedSrcSet ?? undefined}
-        sizes={computedSrcSet ? sizes : undefined}
+        srcSet={effectiveSrcSet}
+        sizes={effectiveSrcSet ? sizes : undefined}
         loading={loading ?? "lazy"}
         decoding={decoding ?? "async"}
+        onError={handleError}
         {...rest}
       />
     );
   },
 );
+
 
 export default ResponsiveImage;
