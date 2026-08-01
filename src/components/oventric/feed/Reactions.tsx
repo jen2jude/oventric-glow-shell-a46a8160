@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Heart, ThumbsUp, Laugh, Crown } from "lucide-react";
 import type { ReactionType } from "@/lib/posts.functions";
+import heartAsset from "@/assets/heart-3d.png.asset.json";
 
 export const REACTION_META: Record<
   ReactionType,
@@ -13,6 +14,45 @@ export const REACTION_META: Record<
 };
 
 export const REACTION_ORDER: ReactionType[] = ["love", "like", "laugh", "crown"];
+
+export const HEART_IMAGE_URL = heartAsset.url;
+
+/**
+ * Renders a reaction glyph. "love" uses the glossy 3D heart image with a
+ * soft idle beat; the rest fall back to their Lucide icon.
+ */
+export function ReactionGlyph({
+  reaction,
+  className,
+  size,
+  animate = true,
+}: {
+  reaction: ReactionType;
+  className?: string;
+  size?: number;
+  animate?: boolean;
+}) {
+  if (reaction === "love") {
+    return (
+      <img
+        src={HEART_IMAGE_URL}
+        alt=""
+        aria-hidden
+        draggable={false}
+        width={size}
+        height={size}
+        className={[
+          "select-none object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
+          animate ? "reaction-heart-beat" : "",
+          className ?? "",
+        ].join(" ")}
+        style={size ? { width: size, height: size } : undefined}
+      />
+    );
+  }
+  const Icon = REACTION_META[reaction].Icon;
+  return <Icon size={size} className={`fill-current ${className ?? ""}`} strokeWidth={2.5} />;
+}
 
 /** Default flat reaction button. */
 export function ReactionButton({
@@ -29,7 +69,7 @@ export function ReactionButton({
   className?: string;
 }) {
   const m = REACTION_META[reaction];
-  const Icon = m.Icon;
+  const isLove = reaction === "love";
   const dims =
     size === "xs" ? "w-6 h-6 rounded-md"
     : size === "sm" ? "w-8 h-8 rounded-full"
@@ -42,20 +82,21 @@ export function ReactionButton({
       aria-label={ariaLabel ?? m.label}
       onClick={onClick}
       className={[
-        "inline-flex items-center justify-center transition-transform duration-150 active:scale-95",
+        "inline-flex items-center justify-center transition-transform duration-200 ease-out hover:scale-110 active:scale-90",
         dims,
         className,
       ].join(" ")}
       style={{
-        backgroundColor: `${m.color}e6`,
+        backgroundColor: isLove ? "transparent" : `${m.color}e6`,
         color: "#ffffff",
         WebkitTapHighlightColor: "transparent",
       }}
     >
-      <Icon size={iconSize} strokeWidth={2.5} className="fill-current" />
+      <ReactionGlyph reaction={reaction} size={isLove ? iconSize + 8 : iconSize} />
     </button>
   );
 }
+
 
 /** Floating chooser rendered above a trigger button. */
 export function ReactionPicker({
@@ -102,7 +143,7 @@ export function ReactionPicker({
 /** One-shot splash that animates in the center of a container. */
 export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; keyId: string | number }) {
   const m = REACTION_META[reaction];
-  const Icon = m.Icon;
+  const isLove = reaction === "love";
   return (
     <div
       key={keyId}
@@ -112,11 +153,11 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
       <div
         className="rounded-2xl p-4 text-white"
         style={{
-          backgroundColor: m.color,
+          backgroundColor: isLove ? "transparent" : m.color,
           animation: "reaction-splash 900ms cubic-bezier(0.16,1,0.3,1) forwards",
         }}
       >
-        <Icon className="w-12 h-12 fill-current" strokeWidth={2} />
+        <ReactionGlyph reaction={reaction} animate={false} className="w-16 h-16" />
       </div>
     </div>
   );
@@ -125,18 +166,19 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
 /** Clean flat badge on bottom-right of an image or video. */
 export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const m = REACTION_META[reaction];
-  const Icon = m.Icon;
+  const isLove = reaction === "love";
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
       <div
         className="rounded-2xl w-10 h-10 flex items-center justify-center text-white"
-        style={{ backgroundColor: m.color }}
+        style={{ backgroundColor: isLove ? "transparent" : m.color }}
       >
-        <Icon className="w-5 h-5 fill-current" strokeWidth={2.5} />
+        <ReactionGlyph reaction={reaction} className={isLove ? "w-8 h-8" : "w-5 h-5"} />
       </div>
     </div>
   );
 }
+
 
 /** Hook that manages picker + splash state for a single reactable target. */
 export function useReactionSplash() {

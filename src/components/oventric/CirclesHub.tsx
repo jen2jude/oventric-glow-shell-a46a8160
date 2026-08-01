@@ -45,7 +45,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
-import { ReactionPicker, REACTION_META } from "@/components/oventric/feed/Reactions";
+import { ReactionPicker, REACTION_META, ReactionGlyph } from "@/components/oventric/feed/Reactions";
 import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
@@ -704,7 +704,7 @@ function WatercoolerPost({
   };
 
   const total = totals.love + totals.like + totals.laugh + totals.crown;
-  const ActiveIcon = viewerReaction ? REACTION_META[viewerReaction].Icon : null;
+  
   const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
 
   return (
@@ -737,7 +737,12 @@ function WatercoolerPost({
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
           style={activeColor ? { color: activeColor } : undefined}
         >
-          {ActiveIcon ? <ActiveIcon className="w-3.5 h-3.5 fill-current" /> : <span>👍</span>}
+          {viewerReaction ? (
+            <ReactionGlyph reaction={viewerReaction} className={viewerReaction === "love" ? "w-5 h-5" : "w-3.5 h-3.5"} />
+          ) : (
+            <ReactionGlyph reaction="love" className="w-5 h-5" />
+          )}
+
           <span>{total > 0 ? total : "React"}</span>
         </button>
         <button

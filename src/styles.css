@@ -116,6 +116,25 @@
   50%      { transform: scale(1.08); }
 }
 
+/* Fluid heartbeat for the 3D love reaction */
+@keyframes reaction-heart-beat {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  15%      { transform: scale(1.18) rotate(-4deg); }
+  30%      { transform: scale(0.96) rotate(3deg); }
+  45%      { transform: scale(1.1) rotate(-2deg); }
+  60%      { transform: scale(1) rotate(0deg); }
+}
+.reaction-heart-beat {
+  animation: reaction-heart-beat 2.4s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reaction-heart-beat { animation: none; }
+}
+html.low-gpu .reaction-heart-beat { animation: none; }
+
+
 @keyframes rgb-spectrum-shift {
   0% { background-position: 0% 50%; }
   50% { background-position: 100% 50%; }
