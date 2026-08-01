@@ -519,7 +519,58 @@ function ModeCard({
   );
 }
 
+/** Compact hot-product card — matches the category card footprint. */
+function MiniProductCard({
+  p, currency, onClick,
+}: {
+  p: ProductDTO;
+  currency: Currency;
+  onClick: () => void;
+}) {
+  const Icon = categoryIcon(p.category);
+  return (
+    <button
+      onClick={onClick}
+      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
+        p.promoted ? "border-emerald-500/60 bg-emerald-500/5" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+      }`}
+    >
+      <div className="relative h-20 sm:h-24 bg-white/5">
+        {p.coverUrl ? (
+          <ResponsiveImage
+            sizes="200px"
+            src={p.coverUrl}
+            alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
+        {p.promoted && (
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
+            Promoted
+          </span>
+        )}
+        <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-black/60 text-amber-300 rounded px-1.5 py-0.5">
+          <Star className="w-2.5 h-2.5 fill-current" />
+          {p.rating.toFixed(1)}
+        </span>
+      </div>
+      <div className="px-3 py-2">
+        <div className="text-white text-sm font-bold leading-snug line-clamp-2">{p.name}</div>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <span className="text-white font-black text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
+          <span className="text-[10px] text-slate-500 shrink-0">{p.reviews} sold</span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function SubPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+
   return (
     <button
       onClick={onClick}
