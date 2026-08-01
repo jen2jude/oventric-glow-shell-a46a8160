@@ -202,3 +202,60 @@ export const resolvePeer = createServerFn({ method: "GET" })
       peerGradient: gradientFor(p.user_id),
     };
   });
+
+/* ------------------------------------------------------------------ *
+ * Order-aware chat context
+ * ------------------------------------------------------------------ */
+
+export interface PeerOrderContext {
+  orderId: string;
+  productName: string;
+  role: "buyer" | "seller";
+  requiresManualDelivery: boolean;
+  escrowStatus: string;
+  deliveredAt: string | null;
+  disputeStatus: string;
+  autoReleaseAt: string | null;
+  displayCurrency: string;
+  displayTotal: number;
+}
+
+/**
+ * The most recent still-open trade between the signed-in user and a peer.
+ * Powers the in-chat delivery / confirm-receipt banner so buyers and sellers
+ * never need to leave Oventric to complete a digital trade.
+ */
+export const getPeerOrderContext = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ peerId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<PeerOrderContext | null> => {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const me = context.userId;
+    const { data: rows, error } = await supabaseAdmin
+      .from("orders")
+      .select(
+        "id, buyer_id, seller_id, escrow_status, delivered_at, dispute_status, auto_release_at, display_currency, display_total, products:product_id (name, requires_manual_delivery)",
+      )
+      .or(
+        `and(buyer_id.eq.${me},seller_id.eq.${data.peerId}),and(buyer_id.eq.${data.peerId},seller_id.eq.${me})`,
+      )
+      .eq("escrow_status", "held")
+      .order("created_at", { ascending: false })
+      .limit(1);
+    if (error) throw new Error(error.message);
+    const o = (rows ?? [])[0] as Record<string, unknown> | undefined;
+    if (!o) return null;
+    const products = o.products as { name?: string; requires_manual_delivery?: boolean } | null;
+    return {
+      orderId: o.id as string,
+      productName: products?.name ?? "Order",
+      role: o.buyer_id === me ? "buyer" : "seller",
+      requiresManualDelivery: Boolean(products?.requires_manual_delivery),
+      escrowStatus: (o.escrow_status as string) ?? "held",
+      deliveredAt: (o.delivered_at as string) ?? null,
+      disputeStatus: (o.dispute_status as string) ?? "none",
+      autoReleaseAt: (o.auto_release_at as string) ?? null,
+      displayCurrency: (o.display_currency as string) ?? "USD",
+      displayTotal: Number(o.display_total ?? 0),
+    };
+  });
