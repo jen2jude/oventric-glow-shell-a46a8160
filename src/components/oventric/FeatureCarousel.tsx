@@ -69,7 +69,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     // source of truth on the device, but this keeps the flag in sync across
     // devices when the user has a session.
     try {
-      void markSeenServer({ data: {} });
+      void markSeenServer();
     } catch {
       // ignore
     }
@@ -87,10 +87,6 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
 
   const next = useCallback(() => goTo(index + 1, 1), [goTo, index]);
   const prev = useCallback(() => goTo(index - 1, -1), [goTo, index]);
-
-  const handleComplete = useCallback(() => {
-    onComplete();
-  }, [onComplete]);
 
   // Keyboard navigation
   useEffect(() => {
