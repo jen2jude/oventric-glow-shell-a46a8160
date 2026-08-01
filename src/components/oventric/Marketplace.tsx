@@ -493,7 +493,7 @@ function ModeCard({
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="relative overflow-hidden bg-white/5">
             {covers[i] ? (
-              <img src={covers[i]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              <img src={covers[i]} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
             ) : null}
           </div>
         ))}
