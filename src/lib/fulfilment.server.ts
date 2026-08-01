@@ -120,3 +120,38 @@ export async function autoReleaseDueOrders() {
   }
   return { released };
 }
+
+/**
+ * Warn buyers 12 hours before an escrow auto-release so they can confirm or
+ * dispute in time. Idempotent via `prerelease_notified_at`.
+ */
+export async function notifyPreReleaseDue() {
+  const sb = await admin();
+  const cutoff = new Date(Date.now() + 12 * 3600 * 1000).toISOString();
+  const { data, error } = await sb
+    .from("orders")
+    .select("id, buyer_id, auto_release_at, products:product_id (name)")
+    .eq("escrow_status", "held")
+    .eq("dispute_status", "none")
+    .is("prerelease_notified_at", null)
+    .not("auto_release_at", "is", null)
+    .lte("auto_release_at", cutoff)
+    .gt("auto_release_at", new Date().toISOString())
+    .limit(200);
+  if (error) throw new Error(error.message);
+  const rows = (data ?? []) as Array<Record<string, any>>;
+  for (const r of rows) {
+    const name = (r.products?.name as string) ?? "your order";
+    await notify(sb, [
+      {
+        user_id: r.buyer_id,
+        kind: "order_auto_release_soon",
+        title: "Auto-confirms in 12 hours",
+        body: `"${name}" releases payment to the seller in about 12 hours. Confirm receipt, or open a dispute if you haven't received it.`,
+        link: `/order/${r.id}`,
+      },
+    ]);
+    await sb.from("orders").update({ prerelease_notified_at: new Date().toISOString() }).eq("id", r.id);
+  }
+  return { warned: rows.length };
+}
