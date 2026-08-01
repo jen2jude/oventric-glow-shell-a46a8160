@@ -91,6 +91,7 @@ export function BootSplash() {
   return (
     <div
       aria-hidden
+      data-oventric-boot="react"
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300"
       style={{ opacity: fading ? 0 : 1 }}
     >
