@@ -589,6 +589,9 @@ function ProfileSettingsModal({
           setPhone(p.phone ?? "");
           setCountry(p.country ?? "");
           setAddress(p.address ?? "");
+          setAddressPublic(!!p.addressPublic);
+          setDateOfBirth(p.dateOfBirth ?? "");
+          setDobPublic(!!p.dobPublic);
           setAvatar(p.avatarUrl ?? profile.avatarDataUrl);
           setNotifPrefs(p.notificationPreferences);
         }
