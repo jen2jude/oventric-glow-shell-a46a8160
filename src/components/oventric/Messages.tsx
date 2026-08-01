@@ -22,12 +22,21 @@ import {
   listMessages,
   sendMessage,
   markThreadRead,
+  getPeerProfiles,
   type ThreadSummary,
   getPeerOrderContext,
   type DMRow,
   type PeerOrderContext,
 } from "@/lib/messaging/messages.functions";
 import { markOrderDelivered, buyerConfirmReceipt } from "@/lib/fulfilment.functions";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+
+interface OnlinePeer {
+  name: string;
+  slug: string;
+  avatarUrl: string | null;
+  gradient: string;
+}
 
 interface MessagesProps {
   variant?: "page" | "compact";
