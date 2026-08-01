@@ -270,7 +270,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           </div>
 
           {/* Slide content */}
-          <div className="relative w-full max-w-lg px-6 flex-1 flex flex-col items-center justify-center">
+          <div className="relative w-full max-w-lg mx-auto px-6 flex-1 flex flex-col items-center justify-center">
             <div
               key={slide.id}
               className="feature-carousel-slide flex flex-col items-center text-center w-full"
