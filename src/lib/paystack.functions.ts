@@ -519,6 +519,41 @@ async function settleOrder(
     });
   }
 
+  // Escrowed (manual-delivery) sale: tell the seller immediately and open the
+  // order-tagged chat thread so the whole hand-off happens on Oventric.
+  if (holdEscrow) {
+    const orderId = oRow.id as string;
+    const productName = (pRow.name as string) ?? "your listing";
+    try {
+      await supabaseAdmin.from("direct_messages").insert({
+        sender_id: buyerId,
+        recipient_id: pRow.seller_id as string,
+        order_id: orderId,
+        body:
+          `📦 New paid order — "${productName}" (Qty ${qty})\n\n` +
+          `Payment is verified and held in escrow. Deliver right here in this chat ` +
+          `(share the link, upload the file, or send the setup steps), then tap "Mark as delivered".\n\n` +
+          `Your wallet is funded once the buyer confirms receipt — or automatically after 48 hours. ` +
+          `Keep the trade on Oventric; we can't protect either side off-platform.\n\n` +
+          `Order ref: ${orderId.slice(0, 8)}`,
+      });
+    } catch (e) {
+      console.error("[settleOrder] seller DM failed", e);
+    }
+    try {
+      await supabaseAdmin.from("notifications").insert({
+        user_id: pRow.seller_id as string,
+        kind: "order_manual_delivery",
+        title: `New order — deliver "${productName}"`,
+        body: `${displayTotal.toLocaleString()} ${meta.displayCurrency} is held in escrow. Deliver in chat to get paid.`,
+        link: `/order/${orderId}`,
+        from_user_id: buyerId,
+      });
+    } catch (e) {
+      console.error("[settleOrder] seller notification failed", e);
+    }
+  }
+
   return { alreadySettled: false as const, orderId: oRow.id as string, cashbackEarnUSD };
 }
 

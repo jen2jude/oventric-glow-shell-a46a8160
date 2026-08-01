@@ -975,12 +975,12 @@ export const createOrder = createServerFn({ method: "POST" })
         `(share a link, upload a file, or attach it in this chat) so the platform can protect both sides. ` +
         `Payment will only be released to your wallet after the buyer confirms they received the goods.\n\n` +
         `Buyer contact on file:\n` +
-        `• Email: ${data.deliveryEmail ?? "—"}\n` +
-        `• WhatsApp: ${data.deliveryWhatsapp ?? "—"}\n\n` +
+        `• Email: ${data.deliveryEmail ?? "—"}\n\n` +
         `Order ref: ${(oRow.id as string).slice(0, 8)}`;
       await supabaseAdmin.from("direct_messages").insert({
         sender_id: userId,
         recipient_id: product.sellerId,
+        order_id: oRow.id as string,
         body: dmBody,
       });
       await supabaseAdmin.from("notifications").insert({
