@@ -22,6 +22,7 @@ export interface DMRow {
   media_type: string | null;
   created_at: string;
   read_at: string | null;
+  order_id?: string | null;
 }
 
 const GRADIENTS = [
@@ -117,7 +118,7 @@ export const listMessages = createServerFn({ method: "GET" })
     const limit = data.limit ?? 30;
     let q = context.supabase
       .from("direct_messages")
-      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at")
+      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at, order_id")
       .or(
         `and(sender_id.eq.${me},recipient_id.eq.${data.peerId}),and(sender_id.eq.${data.peerId},recipient_id.eq.${me})`,
       )
@@ -143,6 +144,7 @@ export const sendMessage = createServerFn({ method: "POST" })
         body: z.string().trim().max(4000).optional(),
         mediaPath: z.string().max(500).optional(),
         mediaType: z.string().max(64).optional(),
+        orderId: z.string().uuid().optional(),
       })
       .refine((v) => (v.body && v.body.length > 0) || v.mediaPath, {
         message: "Message must have a body or media attachment",
@@ -158,8 +160,9 @@ export const sendMessage = createServerFn({ method: "POST" })
         body: data.body ?? null,
         media_path: data.mediaPath ?? null,
         media_type: data.mediaType ?? null,
+        order_id: data.orderId ?? null,
       })
-      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at")
+      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at, order_id")
       .single();
     if (error) throw error;
     return row as DMRow;
