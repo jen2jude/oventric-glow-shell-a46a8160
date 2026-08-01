@@ -1,4 +1,4 @@
-import { forwardRef, type ImgHTMLAttributes } from "react";
+import { forwardRef, useEffect, useState, type ImgHTMLAttributes, type SyntheticEvent } from "react";
 
 /**
  * ResponsiveImage — drop-in replacement for <img> that emits srcset/sizes
