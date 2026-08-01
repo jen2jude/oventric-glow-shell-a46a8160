@@ -27,6 +27,8 @@ const IMAGE_REACTIONS: Partial<Record<ReactionType, string>> = {
   love: heartAsset.url,
   like: thumbsUpAsset.url,
   dislike: thumbsDownAsset.url,
+  laugh: laughAsset.url,
+  crown: crownAsset.url,
 };
 
 export function isImageReaction(reaction: ReactionType) {
