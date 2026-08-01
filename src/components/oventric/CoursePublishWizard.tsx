@@ -19,7 +19,7 @@ import {
 import { RichTextEditor } from "@/components/ui/rich-text-editor";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
+import { currencySymbol, usdRate } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
 
 const CATEGORIES: { key: CourseCategory; label: string }[] = [
@@ -143,7 +143,7 @@ export function CoursePublishWizard({
     let fxSnapshot: Awaited<ReturnType<typeof snapshotFx>> | null = null;
     if (!isFree) {
       fxSnapshot = await snapshotFx();
-      const rate = fxSnapshot.rates[baseCurrency] ?? LEGACY_USD_RATES[baseCurrency];
+      const rate = fxSnapshot.rates[baseCurrency] ?? usdRate(baseCurrency);
       priceUSD =
         baseCurrency === "USD"
           ? priceLocal
