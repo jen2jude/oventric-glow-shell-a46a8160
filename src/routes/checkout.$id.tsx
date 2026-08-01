@@ -200,7 +200,7 @@ function CheckoutPage() {
   // will be debited.
   const totalLocal = product && baseCurrency === (product.originalCurrency as Currency)
     ? totalLocalExact
-    : Number((totalUSD * FX_FROM_USD[baseCurrency]).toFixed(2));
+    : Number((totalUSD * rateFor(baseCurrency)).toFixed(2));
 
   const insufficient = method === "wallet" && balanceUSD !== null && balanceUSD < totalLocal;
 
@@ -255,8 +255,8 @@ function CheckoutPage() {
       if ((shortDisplay != null && shortDisplay > 0) || (shortUSD != null && shortUSD > 0)) {
         const shortLocal = shortDisplay != null
           ? shortDisplay
-          : Number(((shortUSD ?? 0) * FX_FROM_USD[baseCurrency]).toFixed(2));
-        setShortfallUSD(shortUSD ?? Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
+          : Number(((shortUSD ?? 0) * rateFor(baseCurrency)).toFixed(2));
+        setShortfallUSD(shortUSD ?? Number((shortLocal / rateFor(baseCurrency)).toFixed(2)));
         setTopUpOpen(true);
         setTopUpAmount(String(Math.ceil(shortLocal)));
         toast.error("Wallet balance too low", { description: `Top up ${fmtLocal(shortLocal, baseCurrency)} to continue.` });
@@ -396,7 +396,7 @@ function CheckoutPage() {
                     <button
                       onClick={() => {
                         const shortLocal = Math.max(0, totalLocal - (balanceUSD ?? 0));
-                        setShortfallUSD(Number((shortLocal / FX_FROM_USD[baseCurrency]).toFixed(2)));
+                        setShortfallUSD(Number((shortLocal / rateFor(baseCurrency)).toFixed(2)));
                         setTopUpAmount(String(Math.ceil(shortLocal)));
                         setTopUpOpen(true);
                       }}
