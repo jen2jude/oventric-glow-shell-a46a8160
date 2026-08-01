@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 
+import mockCashback from "@/assets/mock-cashback.jpg";
 import mockFeed from "@/assets/mock-feed.jpg";
 import mockMarketplace from "@/assets/mock-marketplace.jpg";
 import mockAcademy from "@/assets/mock-academy.jpg";
