@@ -82,9 +82,14 @@ export const listThreads = createServerFn({ method: "GET" })
     const peerIds = [...byPeer.keys()];
     const { data: profs, error: pErr } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug")
+      .select("user_id, display_name, username, slug, avatar_path")
       .in("user_id", peerIds);
     if (pErr) throw pErr;
+
+    const avatarByPath = await signAvatars(
+      context.supabase,
+      (profs ?? []).map((p) => (p as { avatar_path?: string | null }).avatar_path ?? null),
+    );
 
     const pMap = new Map((profs ?? []).map((p) => [p.user_id, p]));
     const out: ThreadSummary[] = peerIds.map((id) => {
@@ -92,12 +97,14 @@ export const listThreads = createServerFn({ method: "GET" })
       const name = p?.display_name || p?.username || "Unknown peer";
       const entry = byPeer.get(id)!;
       const preview = entry.last.body ?? (entry.last.media_path ? "📎 Attachment" : "…");
+      const ap = (p as { avatar_path?: string | null } | undefined)?.avatar_path ?? null;
       return {
         peerId: id,
         peerName: name,
         peerSlug: p?.slug ?? id,
         peerInitials: initialsFor(name),
         peerGradient: gradientFor(id),
+        peerAvatarUrl: ap ? (avatarByPath.get(ap) ?? null) : null,
         preview: preview.length > 90 ? preview.slice(0, 87) + "…" : preview,
         lastAt: entry.last.created_at,
         unread: entry.unread,
