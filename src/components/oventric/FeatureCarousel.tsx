@@ -2,6 +2,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 
+import mockCashback from "@/assets/mock-cashback.jpg";
 import mockFeed from "@/assets/mock-feed.jpg";
 import mockMarketplace from "@/assets/mock-marketplace.jpg";
 import mockAcademy from "@/assets/mock-academy.jpg";
@@ -20,10 +21,18 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
+    id: "cashback",
+    image: mockCashback,
+    title: "Cashback",
+    description: "Earn up to 10% cashback on every purchase.",
+    accent: "#22ff88",
+  },
+  {
     id: "feed",
     image: mockFeed,
     title: "Feed",
-    description: "Earn up to 10% cashback on every purchase.",
+    description:
+      "Follow creators, join circles, and see what Africa's builders are shipping.",
     accent: "#00c2ff",
   },
   {
@@ -239,7 +248,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
 
       {(phase === "slides" || introExiting) && (
         <div
-          className={`flex flex-col w-full h-full ${
+          className={`flex flex-col items-center w-full h-full ${
             introExiting ? "absolute inset-0 z-20" : ""
           }`}
         >
@@ -261,7 +270,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           </div>
 
           {/* Slide content */}
-          <div className="relative w-full max-w-lg px-6 flex-1 flex flex-col items-center justify-center">
+          <div className="relative w-full max-w-lg mx-auto px-6 flex-1 flex flex-col items-center justify-center">
             <div
               key={slide.id}
               className="feature-carousel-slide flex flex-col items-center text-center w-full"
@@ -296,7 +305,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           </div>
 
           {/* Bottom controls */}
-          <div className="w-full max-w-md px-6 pb-8 pt-4 z-10">
+          <div className="w-full max-w-md mx-auto px-6 pb-8 pt-4 z-10">
             <div className="flex items-center justify-center gap-2 mb-6">
               {SLIDES.map((s, i) => (
                 <button
