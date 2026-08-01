@@ -323,6 +323,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { show, markSeen, hydrated } = useFirstLaunch();
+  // Keeps live FX rates fresh for every price conversion in the app.
+  useLiveFx();
+
+
 
   return (
     <QueryClientProvider client={queryClient}>
