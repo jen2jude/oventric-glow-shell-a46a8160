@@ -6,7 +6,7 @@
 // exact amount they entered while Paystack still receives its cut from the
 // user (not from the platform).
 
-export type PaystackFeeCurrency = "NGN" | "GHS" | "USD";
+export type PaystackFeeCurrency = string;
 
 export interface PaystackFeeBreakdown {
   fee: number;   // rounded to currency precision

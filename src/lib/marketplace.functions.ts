@@ -2,11 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { dbCurrency } from "@/lib/currency/africa";
+import { fallbackRateTable } from "@/lib/currency/africa";
 
 export type ProductCategory = string;
 export type ProductKind = "digital" | "physical";
 export type ProductStatus = "pending" | "active" | "rejected";
-export type OrderCurrency = "USD" | "NGN" | "GHS";
+/** Any currency in the pan-African registry (see @/lib/currency/africa). */
+export type OrderCurrency = string;
 export type PaymentMethod = "wallet" | "card" | "bank_transfer" | "mobile_money";
 export type OrderStatus = "pending" | "paid" | "failed" | "refunded";
 
@@ -74,7 +77,7 @@ export interface OrderDTO {
   requiresManualDelivery: boolean;
 }
 
-export const FX_FROM_USD: Record<OrderCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+export const FX_FROM_USD: Record<OrderCurrency, number> = fallbackRateTable();
 
 function serverPublicClient() {
   const url = process.env.SUPABASE_URL;
@@ -638,7 +641,7 @@ export const topUpWallet = createServerFn({ method: "POST" })
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Wallet Top-Up",
       amount: data.amount,
-      currency: data.currency,
+      currency: dbCurrency(data.currency),
       inflow: true,
       status: "success",
       occurred_at: new Date().toISOString(),
@@ -858,7 +861,7 @@ export const createOrder = createServerFn({ method: "POST" })
         quantity: data.quantity,
         unit_price_usd: product.priceUSD,
         total_usd: totalUSD,
-        display_currency: data.displayCurrency,
+        display_currency: dbCurrency(data.displayCurrency),
         display_total: displayTotal,
         fx_rate: fx,
         payment_method: data.paymentMethod,
@@ -877,7 +880,7 @@ export const createOrder = createServerFn({ method: "POST" })
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Marketplace Purchase",
       amount: displayTotal,
-      currency: data.displayCurrency,
+      currency: dbCurrency(data.displayCurrency),
       inflow: false,
       status: "success",
       occurred_at: new Date().toISOString(),
@@ -929,7 +932,7 @@ export const createOrder = createServerFn({ method: "POST" })
       tx_hash: `${oRow.id}-S`,
       type: "Marketplace Sale",
       amount: sellerCutLocal,
-      currency: sellerCurrency,
+      currency: dbCurrency(sellerCurrency),
       inflow: true,
       status: holdEscrow ? "pending" : "success",
       occurred_at: new Date().toISOString(),
@@ -956,7 +959,7 @@ export const createOrder = createServerFn({ method: "POST" })
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
         type: "Cashback Earned",
         amount: Number((cashbackUSD * fx).toFixed(2)),
-        currency: data.displayCurrency,
+        currency: dbCurrency(data.displayCurrency),
         inflow: true,
         status: "success",
         occurred_at: new Date().toISOString(),

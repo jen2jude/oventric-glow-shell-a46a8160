@@ -5,6 +5,7 @@ import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, typ
 import { primeRuntimeFxRates } from "@/lib/fx.server";
 import { convertViaSnapshot } from "@/lib/fx-display";
 import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
+import { dbCurrency } from "@/lib/currency/africa";
 
 
 const PAYSTACK_BASE = "https://api.paystack.co";
@@ -252,7 +253,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           tx_hash: result.reference,
           type: "Wallet Top-Up",
           amount: topupNet,
-          currency,
+          currency: dbCurrency(currency),
           inflow: true,
           status: "pending",
           occurred_at: new Date().toISOString(),
@@ -325,7 +326,7 @@ async function settleWalletTopup(
   if (existing.data?.id) {
     await supabaseAdmin
       .from("wallet_transactions")
-      .update({ status: "success", occurred_at: now, amount, currency })
+      .update({ status: "success", occurred_at: now, amount, currency: dbCurrency(currency) })
       .eq("id", existing.data.id);
   } else {
     await supabaseAdmin.from("wallet_transactions").insert({
@@ -334,7 +335,7 @@ async function settleWalletTopup(
       tx_hash: reference,
       type: "Wallet Top-Up",
       amount,
-      currency,
+      currency: dbCurrency(currency),
       inflow: true,
       status: "success",
       occurred_at: now,
@@ -419,7 +420,7 @@ async function settleOrder(
       quantity: qty,
       unit_price_usd: priceUSD,
       total_usd: totalUSD,
-      display_currency: meta.displayCurrency,
+      display_currency: dbCurrency(meta.displayCurrency),
       display_total: displayTotal,
       fx_rate: fx,
       payment_method: "card" satisfies PaymentMethod,
@@ -439,7 +440,7 @@ async function settleOrder(
     tx_hash: reference,
     type: "Marketplace Purchase",
     amount: displayTotal,
-    currency: meta.displayCurrency,
+    currency: dbCurrency(meta.displayCurrency),
     inflow: false,
     status: "success",
     occurred_at: new Date().toISOString(),
@@ -491,7 +492,7 @@ async function settleOrder(
     tx_hash: `${reference}-S`,
     type: "Marketplace Sale",
     amount: sellerCutLocal,
-    currency: sellerCurrency,
+    currency: dbCurrency(sellerCurrency),
     inflow: true,
     status: holdEscrow ? "pending" : "success",
     occurred_at: new Date().toISOString(),

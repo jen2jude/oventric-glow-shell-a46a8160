@@ -2877,7 +2877,50 @@ export type Database = {
       circle_status: "pending" | "accepted"
       report_reason: "spam" | "harassment" | "ip" | "scam"
       report_status: "pending" | "approved" | "hidden"
-      wallet_currency: "USD" | "NGN" | "GHS"
+      wallet_currency:
+        | "USD"
+        | "NGN"
+        | "GHS"
+        | "ZAR"
+        | "KES"
+        | "EGP"
+        | "MAD"
+        | "DZD"
+        | "TND"
+        | "LYD"
+        | "XOF"
+        | "XAF"
+        | "ETB"
+        | "UGX"
+        | "TZS"
+        | "RWF"
+        | "BIF"
+        | "CDF"
+        | "AOA"
+        | "MZN"
+        | "ZMW"
+        | "MWK"
+        | "BWP"
+        | "NAD"
+        | "LSL"
+        | "SZL"
+        | "MUR"
+        | "SCR"
+        | "CVE"
+        | "GMD"
+        | "GNF"
+        | "LRD"
+        | "SLE"
+        | "SDG"
+        | "SSP"
+        | "SOS"
+        | "DJF"
+        | "ERN"
+        | "KMF"
+        | "MGA"
+        | "MRU"
+        | "STN"
+        | "ZWG"
       wallet_tx_status: "success" | "pending" | "failed"
       wallet_tx_type:
         | "Marketplace Purchase"
@@ -3025,7 +3068,51 @@ export const Constants = {
       circle_status: ["pending", "accepted"],
       report_reason: ["spam", "harassment", "ip", "scam"],
       report_status: ["pending", "approved", "hidden"],
-      wallet_currency: ["USD", "NGN", "GHS"],
+      wallet_currency: [
+        "USD",
+        "NGN",
+        "GHS",
+        "ZAR",
+        "KES",
+        "EGP",
+        "MAD",
+        "DZD",
+        "TND",
+        "LYD",
+        "XOF",
+        "XAF",
+        "ETB",
+        "UGX",
+        "TZS",
+        "RWF",
+        "BIF",
+        "CDF",
+        "AOA",
+        "MZN",
+        "ZMW",
+        "MWK",
+        "BWP",
+        "NAD",
+        "LSL",
+        "SZL",
+        "MUR",
+        "SCR",
+        "CVE",
+        "GMD",
+        "GNF",
+        "LRD",
+        "SLE",
+        "SDG",
+        "SSP",
+        "SOS",
+        "DJF",
+        "ERN",
+        "KMF",
+        "MGA",
+        "MRU",
+        "STN",
+        "ZWG",
+      ],
       wallet_tx_status: ["success", "pending", "failed"],
       wallet_tx_type: [
         "Marketplace Purchase",

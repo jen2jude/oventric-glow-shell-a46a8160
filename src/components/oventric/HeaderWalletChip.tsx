@@ -6,6 +6,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { supabase } from "@/integrations/supabase/client";
 import { usdRate } from "@/lib/fx-display";
+import { dbCurrency } from "@/lib/currency/africa";
 
 const SYM: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
@@ -62,7 +63,7 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
         .select("amount")
         .eq("user_id", uid)
         .eq("type", "Marketplace Sale")
-        .eq("currency", baseCurrency)
+        .eq("currency", dbCurrency(baseCurrency))
         .eq("inflow", true)
         .eq("status", "success");
       if (!cancelled) {

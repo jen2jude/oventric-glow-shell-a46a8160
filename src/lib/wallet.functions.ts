@@ -1,7 +1,10 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { dbCurrency } from "@/lib/currency/africa";
+import { zeroAmounts } from "@/lib/currency/africa";
 
-export type WalletCurrency = "USD" | "NGN" | "GHS";
+/** Any currency in the pan-African registry. */
+export type WalletCurrency = string;
 export type WalletTxStatus = "success" | "pending" | "failed";
 export type WalletTxType =
   | "Marketplace Purchase"
@@ -55,7 +58,7 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       .eq("user_id", userId)
       .order("occurred_at", { ascending: false });
 
-    if (data.currency !== "ALL") q = q.eq("currency", data.currency);
+    if (data.currency !== "ALL") q = q.eq("currency", dbCurrency(data.currency));
     if (data.search) {
       const s = data.search.replace(/[%,]/g, "");
       q = q.or(`tx_hash.ilike.%${s}%,type.ilike.%${s}%`);
@@ -102,8 +105,8 @@ export const getWalletBalances = createServerFn({ method: "GET" })
       .eq("user_id", userId);
     if (error) throw new Error(error.message);
 
-    const balances: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
-    const escrow: Record<WalletCurrency, number> = { USD: 0, NGN: 0, GHS: 0 };
+    const balances: Record<string, number> = zeroAmounts();
+    const escrow: Record<string, number> = zeroAmounts();
     let cashback = 0;
     let bountyBalance = 0;
     for (const r of (data ?? []) as Array<Record<string, unknown>>) {

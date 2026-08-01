@@ -1,4 +1,11 @@
 import type { Currency } from "@/lib/onboarding/OnboardingContext";
+import {
+  CURRENCY_CODES,
+  CURRENCY_META,
+  currencyDecimals,
+  fallbackRateTable,
+  isSupportedCurrency,
+} from "@/lib/currency/africa";
 
 /**
  * Snapshot object stored on rows (products/bounties/courses). Rates are always
@@ -14,9 +21,10 @@ export interface FxSnapshot {
 
 /**
  * Fallback rates used ONLY when no live rate has been fetched yet (first paint,
- * offline, provider outage) and the row carries no snapshot.
+ * offline, provider outage) and the row carries no snapshot. Covers every
+ * currency in the pan-African registry.
  */
-export const LEGACY_USD_RATES: Record<Currency, number> = { USD: 1, NGN: 1364, GHS: 11.7 };
+export const LEGACY_USD_RATES: Record<Currency, number> = fallbackRateTable();
 
 /**
  * Live USD-base rates, refreshed periodically by useLiveFx() at the app root.
@@ -28,7 +36,7 @@ let RUNTIME_RATES: Partial<Record<Currency, number>> | null = null;
 export function setRuntimeFxRates(rates: Partial<Record<Currency, number>> | null | undefined) {
   if (!rates) return;
   const next: Partial<Record<Currency, number>> = { USD: 1 };
-  for (const c of ["NGN", "GHS"] as Currency[]) {
+  for (const c of CURRENCY_CODES) {
     const v = Number(rates[c]);
     if (v > 0) next[c] = v;
   }
@@ -41,20 +49,24 @@ export function usdRate(currency: Currency): number {
   return Number(live) > 0 ? Number(live) : (LEGACY_USD_RATES[currency] ?? 1);
 }
 
-const SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
 export function formatMoney(amount: number, currency: Currency): string {
-  const rounded = currency === "USD" ? amount.toFixed(2) : Math.round(amount).toLocaleString();
-  return `${SYMBOL[currency]}${rounded}`;
+  const value = Number(amount) || 0;
+  const dp = currencyDecimals(currency);
+  const rounded =
+    dp === 2
+      ? value.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+      : Math.round(value).toLocaleString();
+  return `${currencySymbol(currency)}${rounded}`;
 }
 
 export function currencySymbol(currency: Currency): string {
-  return SYMBOL[currency];
+  return CURRENCY_META[currency]?.symbol ?? `${currency} `;
 }
 
 function isCurrency(c: unknown): c is Currency {
-  return c === "USD" || c === "NGN" || c === "GHS";
+  return isSupportedCurrency(c);
 }
+
 
 function normalizeSnapshot(raw: unknown): FxSnapshot | null {
   if (!raw || typeof raw !== "object") return null;

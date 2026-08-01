@@ -1,12 +1,15 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currencyForCountry, dbCurrency } from "@/lib/currency/africa";
 
 const Input = z.object({
   username: z.string().trim().min(2).max(24).optional(),
   displayName: z.string().trim().min(1).max(80).optional(),
 });
 
+// Every new user gets a USD rail; their home-currency wallet is created
+// when they complete their profile (see completeProfile below).
 const WALLET_CURRENCIES = ["USD", "NGN", "GHS"] as const;
 
 /**
@@ -177,7 +180,17 @@ export const completeProfile = createServerFn({ method: "POST" })
       console.error("[completeProfile] update failed", error);
       throw new Error("Failed to save profile");
     }
-    return { ok: true };
+
+    // Make sure the user's home-currency wallet exists so funding, payouts,
+    // marketplace and bounty settlement all have a rail to land on.
+    const homeCurrency = dbCurrency(currencyForCountry(data.country));
+    const { error: wErr } = await supabase.from("wallets").upsert(
+      [{ user_id: userId, currency: homeCurrency, available_balance: 0, escrow_balance: 0, accumulated_cashback: 0 }],
+      { onConflict: "user_id,currency", ignoreDuplicates: true },
+    );
+    if (wErr) console.error("[completeProfile] home wallet upsert failed (non-fatal)", wErr);
+
+    return { ok: true, homeCurrency };
   });
 
 

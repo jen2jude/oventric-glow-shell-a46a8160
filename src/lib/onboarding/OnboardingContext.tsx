@@ -1,42 +1,41 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { useAuthGate, type AuthGateContextKey } from "@/lib/auth-gate/AuthGateProvider";
+import {
+  currencyForCountry,
+  normalizeCountryCode,
+  zeroAmounts,
+} from "@/lib/currency/africa";
 
 export type Tier = 0 | 1 | 2 | 3 | 4 | 5;
 export type Stage = 1 | 2 | 3 | 4 | 5;
-export type Country = "NG" | "GH" | "OTHER";
-export type Currency = "USD" | "NGN" | "GHS";
+/** ISO-2 country code of any African country, or "OTHER" for rest-of-world. */
+export type Country = string;
+/** Any currency in the pan-African registry (see @/lib/currency/africa). */
+export type Currency = string;
 
 /**
- * Country → base currency map. Nigeria uses NGN, Ghana uses GHS, everywhere
- * else (OTHER) falls back to USD. This is the single source of truth used
- * both when a user picks their country during onboarding and when hydrating
- * an already-completed profile at sign-in.
+ * Country → base currency map. Every African country maps to its own national
+ * currency (NGN, GHS, KES, ZAR, XOF, …); rest-of-world falls back to USD.
+ * Single source of truth for onboarding, wallets, marketplace, bounties,
+ * academy and funding/withdrawal.
  */
 export function countryToCurrency(country: Country | null | undefined): Currency {
-  if (country === "NG") return "NGN";
-  if (country === "GH") return "GHS";
-  return "USD";
+  return currencyForCountry(country);
 }
 
 /**
- * Parses a raw country value from the database into the coarse Country enum.
- * Legacy "US"/"UK" rows and any user-typed free-form country name all map to
- * "OTHER" (USD baseline).
+ * Parses a raw country value from the database into a known country code.
+ * Unrecognised free-form values collapse into "OTHER" (USD baseline).
  */
 export function parseCountry(raw: string | null | undefined): Country | null {
-  if (!raw) return null;
-  const v = raw.trim().toUpperCase();
-  if (v === "NG") return "NG";
-  if (v === "GH") return "GH";
-  return "OTHER";
+  return normalizeCountryCode(raw);
 }
 
 /**
- * Countries whose native currency is USD. Only "OTHER" (or unknown) users
- * default to USD; NG/GH keep their local currency.
+ * Countries whose native currency is USD — i.e. rest-of-world members.
  */
 export function isUsdNativeCountry(country: Country | null | undefined): boolean {
-  return country === "OTHER" || country == null;
+  return currencyForCountry(country) === "USD";
 }
 
 export function canTransactInUsd(country: Country | null | undefined): boolean {
@@ -44,6 +43,7 @@ export function canTransactInUsd(country: Country | null | undefined): boolean {
   // as a secondary transaction currency alongside their base currency.
   return true;
 }
+
 
 
 export type PayoutBank =
@@ -59,8 +59,8 @@ interface OnboardingState {
   phone: string;
   baseCurrency: Currency;
   payoutBank: PayoutBank;
-  balances: Record<Currency, number>;
-  escrow: Record<Currency, number>;
+  balances: Record<string, number>;
+  escrow: Record<string, number>;
   cashback: number;
   balancesHidden: boolean;
 }
@@ -72,7 +72,7 @@ interface OnboardingContextValue extends OnboardingState {
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
-  setBalances: (balances: Record<Currency, number>, escrow?: Record<Currency, number>, cashback?: number) => void;
+  setBalances: (balances: Record<string, number>, escrow?: Record<string, number>, cashback?: number) => void;
   setBalancesHidden: (hidden: boolean) => void;
   toggleBalancesHidden: () => void;
 }
@@ -159,11 +159,12 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [],
   );
   const updateBalance = useCallback(
-    (c: Currency, delta: number) => setState((s) => ({ ...s, balances: { ...s.balances, [c]: s.balances[c] + delta } })),
+    (c: Currency, delta: number) =>
+      setState((s) => ({ ...s, balances: { ...s.balances, [c]: (s.balances[c] ?? 0) + delta } })),
     [],
   );
   const setBalances = useCallback(
-    (balances: Record<Currency, number>, escrow?: Record<Currency, number>, cashback?: number) =>
+    (balances: Record<string, number>, escrow?: Record<string, number>, cashback?: number) =>
       setState((s) => ({
         ...s,
         balances,

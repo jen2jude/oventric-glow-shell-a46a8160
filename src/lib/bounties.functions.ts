@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currencySymbol } from "@/lib/fx-display";
 
 async function assertAdmin(ctx: { supabase: ReturnType<typeof Object>; userId: string }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -73,7 +74,7 @@ async function notifyReleaseSettlement(bountyId: string, actorId?: string | null
     const amt: number = Number(b.original_amount ?? b.price_usd ?? 0);
     const solverAmt = Math.round(amt * 0.8 * 100) / 100;
     const platformAmt = Math.round((amt - solverAmt) * 100) / 100;
-    const sym = cur === "USD" ? "$" : cur === "NGN" ? "₦" : cur === "GHS" ? "₵" : `${cur} `;
+    const sym = currencySymbol(cur);
     const fmt = (n: number) =>
       cur === "USD" ? `${sym}${n.toFixed(2)}` : `${sym}${Math.round(n).toLocaleString()}`;
     const bountyLink = `/?section=Bounties&bounty=${bountyId}`;
@@ -115,7 +116,7 @@ export interface BountyInput {
   category: string;
   price_usd: number;
   original_amount?: number;
-  original_currency?: "USD" | "NGN" | "GHS";
+  original_currency?: string;
   fx_snapshot?: unknown;
   cover_path?: string | null;
   images?: string[];
@@ -302,11 +303,11 @@ export const publishBounty = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .maybeSingle();
     const country = String((profile?.country ?? "")).toUpperCase();
-    const homeCurrency: "USD" | "NGN" | "GHS" =
+    const homeCurrency: string =
       country === "NG" ? "NGN" : country === "GH" ? "GHS" : "USD";
 
     // Resolve local amount + currency. Client should send these; fall back to USD.
-    const inputCurrency = (data.original_currency ?? homeCurrency) as "USD" | "NGN" | "GHS";
+    const inputCurrency = (data.original_currency ?? homeCurrency) as string;
     if (inputCurrency !== homeCurrency) {
       throw new Error(`Your account posts bounties in ${homeCurrency}. Switch amount to ${homeCurrency} and try again.`);
     }
