@@ -431,8 +431,8 @@ export function Marketplace() {
             </div>
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-              {filtered.map((p, i) => (
-                <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+              {gridItems.map((p, i) => (
+                <ProductCard key={`${p.id}-${i}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
               ))}
             </div>
           )}
@@ -442,7 +442,23 @@ export function Marketplace() {
           </div>
         </div>
       </div>
+
+      {/* ── Recommended: best sellers + promoted ─────────────────── */}
+      {recommended.length > 0 && (
+        <section className="mt-10">
+          <div className="flex items-center gap-2 mb-3">
+            <Star className="w-4 h-4 text-amber-300 fill-current" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Recommended for you</h2>
+          </div>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            {recommended.map((p, i) => (
+              <ProductCard key={`reco-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
+
   );
 }
 
