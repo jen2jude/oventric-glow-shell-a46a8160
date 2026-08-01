@@ -541,6 +541,9 @@ function ProfileSettingsModal({
   const [country, setCountry] = useState("");
   const [countryOther, setCountryOther] = useState(false);
   const [address, setAddress] = useState("");
+  const [addressPublic, setAddressPublic] = useState(false);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dobPublic, setDobPublic] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
