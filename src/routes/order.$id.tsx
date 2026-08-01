@@ -6,10 +6,10 @@ import { Header } from "@/components/oventric/Header";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { getOrderWithDownload, FX_FROM_USD, type OrderDTO } from "@/lib/marketplace.functions";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
+import { formatMoney } from "@/lib/fx-display";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 function fmt(v: number, c: Currency) {
-  return `${CURRENCY_SYMBOL[c]}${c === "USD" ? v.toFixed(2) : Math.round(v).toLocaleString()}`;
+  return formatMoney(v, c);
 }
 
 export const Route = createFileRoute("/order/$id")({

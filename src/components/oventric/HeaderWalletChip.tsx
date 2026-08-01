@@ -5,16 +5,11 @@ import { getWalletBalances } from "@/lib/wallet.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { usdRate } from "@/lib/fx-display";
+import { usdRate, formatMoney } from "@/lib/fx-display";
 import { dbCurrency } from "@/lib/currency/africa";
 
-const SYM: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
 function fmt(n: number, c: Currency) {
-  return SYM[c] + n.toLocaleString("en-US", {
-    minimumFractionDigits: c === "NGN" ? 0 : 2,
-    maximumFractionDigits: 2,
-  });
+  return formatMoney(n, c);
 }
 
 function fromUSD(usd: number, target: Currency): number {
