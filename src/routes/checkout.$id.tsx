@@ -127,7 +127,7 @@ function CheckoutPage() {
   const [minipay, setMinipay] = useState<{ available: boolean }>({ available: false });
   const [minipayOpen, setMinipayOpen] = useState(false);
   // Gateway picker shown under "Debit/Credit Card".
-  const [cardOpen, setCardOpen] = useState(false);
+  const [cardOpen, setCardOpen] = useState(true);
   const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("flutterwave");
   const [recommended, setRecommended] = useState<"flutterwave" | "paystack">("flutterwave");
   const loadOptions = useServerFn(getPaymentOptions);
