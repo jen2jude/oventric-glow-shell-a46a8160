@@ -89,7 +89,7 @@ export function ReactionButton({
   className?: string;
 }) {
   const m = REACTION_META[reaction];
-  const isLove = reaction === "love";
+  const isImg = isImageReaction(reaction);
   const dims =
     size === "xs" ? "w-6 h-6 rounded-md"
     : size === "sm" ? "w-8 h-8 rounded-full"
@@ -107,12 +107,12 @@ export function ReactionButton({
         className,
       ].join(" ")}
       style={{
-        backgroundColor: isLove ? "transparent" : `${m.color}e6`,
+        backgroundColor: isImg ? "transparent" : `${m.color}e6`,
         color: "#ffffff",
         WebkitTapHighlightColor: "transparent",
       }}
     >
-      <ReactionGlyph reaction={reaction} size={isLove ? iconSize + 8 : iconSize} />
+      <ReactionGlyph reaction={reaction} size={isImg ? iconSize + 8 : iconSize} />
     </button>
   );
 }
@@ -163,7 +163,7 @@ export function ReactionPicker({
 /** One-shot splash that animates in the center of a container. */
 export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; keyId: string | number }) {
   const m = REACTION_META[reaction];
-  const isLove = reaction === "love";
+  const isImg = isImageReaction(reaction);
   return (
     <div
       key={keyId}
@@ -173,7 +173,7 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
       <div
         className="rounded-2xl p-4 text-white"
         style={{
-          backgroundColor: isLove ? "transparent" : m.color,
+          backgroundColor: isImg ? "transparent" : m.color,
           animation: "reaction-splash 900ms cubic-bezier(0.16,1,0.3,1) forwards",
         }}
       >
@@ -186,14 +186,14 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
 /** Clean flat badge on bottom-right of an image or video. */
 export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   const m = REACTION_META[reaction];
-  const isLove = reaction === "love";
+  const isImg = isImageReaction(reaction);
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
       <div
         className="rounded-2xl w-10 h-10 flex items-center justify-center text-white"
-        style={{ backgroundColor: isLove ? "transparent" : m.color }}
+        style={{ backgroundColor: isImg ? "transparent" : m.color }}
       >
-        <ReactionGlyph reaction={reaction} className={isLove ? "w-8 h-8" : "w-5 h-5"} />
+        <ReactionGlyph reaction={reaction} className={isImg ? "w-8 h-8" : "w-5 h-5"} />
       </div>
     </div>
   );
