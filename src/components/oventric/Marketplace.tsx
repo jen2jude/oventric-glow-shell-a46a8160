@@ -178,8 +178,50 @@ export function Marketplace() {
     return sorted;
   }, [modeItems, activeCat, activeSub, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
 
+  // Sales proxy: review volume first, then rating, then promotion.
+  const salesScore = (p: ProductDTO) => p.reviews * 10 + p.rating;
+
+  /** Hot products = top sellers inside the active mode (switches with mode). */
+  const hotItems = useMemo(() => {
+    const scoped = activeCat ? modeItems.filter((p) => norm(p.category) === activeCat) : modeItems;
+    const base = scoped.length >= 4 ? scoped : modeItems;
+    return [...base].sort((a, b) => salesScore(b) - salesScore(a)).slice(0, 12);
+  }, [modeItems, activeCat]);
+
+  /** Grid with promoted listings woven in after every few cards. */
+  const gridItems = useMemo(() => {
+    const regular = filtered.filter((p) => !p.promoted);
+    const catScope = activeCat ? modeItems.filter((p) => norm(p.category) === activeCat) : modeItems;
+    const promos = (filtered.filter((p) => p.promoted).length > 0
+      ? filtered.filter((p) => p.promoted)
+      : catScope.filter((p) => p.promoted));
+    if (promotedOnly || promos.length === 0) return filtered;
+    const out: ProductDTO[] = [];
+    let pi = 0;
+    regular.forEach((p, i) => {
+      out.push(p);
+      if ((i + 1) % 4 === 0) out.push(promos[pi++ % promos.length]);
+    });
+    if (out.length === regular.length && promos.length) out.push(promos[0]);
+    return out;
+  }, [filtered, modeItems, activeCat, promotedOnly]);
+
+  /** Recommended = best sellers + promoted across the whole marketplace. */
+  const recommended = useMemo(() => {
+    const pool = currencyScoped ?? [];
+    const promos = pool.filter((p) => p.promoted).sort((a, b) => salesScore(b) - salesScore(a));
+    const sellers = pool.filter((p) => !p.promoted).sort((a, b) => salesScore(b) - salesScore(a));
+    const mixed: ProductDTO[] = [];
+    for (let i = 0; i < 8; i++) {
+      if (sellers[i]) mixed.push(sellers[i]);
+      if (promos[i]) mixed.push(promos[i]);
+    }
+    return mixed.slice(0, 8);
+  }, [currencyScoped]);
+
   const activeFilterCount =
     (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (minRating ? 1 : 0) + (promotedOnly ? 1 : 0) + (sort !== "featured" ? 1 : 0);
+
 
   const resetFilters = () => {
     setMinPrice("");
@@ -310,6 +352,25 @@ export function Marketplace() {
         </div>
       </Collapse>
 
+      {/* ── Hot products (top sellers in this section) ───────────── */}
+      <Collapse open={!!mode && hotItems.length > 0}>
+        <div className="pt-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Flame className="w-4 h-4 text-orange-400" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+              Hot {mode === "physical" ? "physical" : "digital"} products
+            </h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+            {hotItems.map((p) => (
+              <MiniProductCard key={`hot-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
+            ))}
+          </div>
+        </div>
+      </Collapse>
+
+
+
       {/* ── Toolbar + grid with side filter ──────────────────────── */}
       <div className="mt-6 flex items-center justify-between gap-3">
         <div className="text-sm text-slate-400">
@@ -370,8 +431,8 @@ export function Marketplace() {
             </div>
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-              {filtered.map((p, i) => (
-                <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+              {gridItems.map((p, i) => (
+                <ProductCard key={`${p.id}-${i}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
               ))}
             </div>
           )}
@@ -381,7 +442,23 @@ export function Marketplace() {
           </div>
         </div>
       </div>
+
+      {/* ── Recommended: best sellers + promoted ─────────────────── */}
+      {recommended.length > 0 && (
+        <section className="mt-10">
+          <div className="flex items-center gap-2 mb-3">
+            <Star className="w-4 h-4 text-amber-300 fill-current" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Recommended for you</h2>
+          </div>
+          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+            {recommended.map((p, i) => (
+              <ProductCard key={`reco-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+            ))}
+          </div>
+        </section>
+      )}
     </div>
+
   );
 }
 
@@ -442,7 +519,58 @@ function ModeCard({
   );
 }
 
+/** Compact hot-product card — matches the category card footprint. */
+function MiniProductCard({
+  p, currency, onClick,
+}: {
+  p: ProductDTO;
+  currency: Currency;
+  onClick: () => void;
+}) {
+  const Icon = categoryIcon(p.category);
+  return (
+    <button
+      onClick={onClick}
+      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
+        p.promoted ? "border-emerald-500/60 bg-emerald-500/5" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+      }`}
+    >
+      <div className="relative h-20 sm:h-24 bg-white/5">
+        {p.coverUrl ? (
+          <ResponsiveImage
+            sizes="200px"
+            src={p.coverUrl}
+            alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : null}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
+        {p.promoted && (
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
+            Promoted
+          </span>
+        )}
+        <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-black/60 text-amber-300 rounded px-1.5 py-0.5">
+          <Star className="w-2.5 h-2.5 fill-current" />
+          {p.rating.toFixed(1)}
+        </span>
+      </div>
+      <div className="px-3 py-2">
+        <div className="text-white text-sm font-bold leading-snug line-clamp-2">{p.name}</div>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <span className="text-white font-black text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
+          <span className="text-[10px] text-slate-500 shrink-0">{p.reviews} sold</span>
+        </div>
+      </div>
+    </button>
+  );
+}
+
 function SubPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+
   return (
     <button
       onClick={onClick}
