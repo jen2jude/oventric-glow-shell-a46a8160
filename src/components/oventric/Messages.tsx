@@ -196,9 +196,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const [sending, setSending] = useState(false);
   const [orderCtx, setOrderCtx] = useState<PeerOrderContext | null>(null);
   const [showListOnMobile, setShowListOnMobile] = useState(!initialThreadId);
-  const [onlinePeers, setOnlinePeers] = useState<
-    Map<string, { name: string; slug: string; initials: string; gradient: string }>
-  >(new Map());
+  const [onlinePeers, setOnlinePeers] = useState<Map<string, OnlinePeer>>(new Map());
+  const peerCacheRef = useRef<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const [peerTyping, setPeerTyping] = useState(false);
   const typingChanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
