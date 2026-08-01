@@ -28,7 +28,7 @@ export interface FeedComment {
 }
 
 function zero(): Record<ReactionType, number> {
-  return { love: 0, like: 0, laugh: 0, crown: 0 };
+  return { love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 };
 }
 
 async function getViewerClient(): Promise<{ sb: SupabaseClient<Database>; userId: string | null }> {
@@ -190,7 +190,7 @@ export const setCommentReaction = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       commentId: z.string().uuid(),
-      reaction: z.enum(["love", "like", "laugh", "crown"]).nullable(),
+      reaction: z.enum(["love", "like", "dislike", "laugh", "crown"]).nullable(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {
