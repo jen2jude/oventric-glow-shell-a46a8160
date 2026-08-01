@@ -78,6 +78,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: PaystackInitInput) => input)
   .handler(async ({ data, context }): Promise<PaystackInitResult> => {
+    await primeRuntimeFxRates();
     let email = (context.claims as { email?: string })?.email;
     if (!email) {
       const { data: userRes } = await context.supabase.auth.getUser();
