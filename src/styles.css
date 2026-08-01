@@ -659,6 +659,18 @@ html.low-gpu {
     background-color: #1a1a1e !important;
   }
 
+  /* Absolutely-positioned gradient scrims sit ON TOP of product/category
+     images. Flattening them to an opaque colour hid every thumbnail on
+     low-GPU phones — keep them transparent instead. */
+  .marketplace-render-safe .absolute[class*="bg-gradient"],
+  .marketplace-render-safe .absolute[style*="gradient"],
+  .marketplace-render-safe .inset-0[class*="bg-gradient"],
+  .marketplace-render-safe .inset-0[style*="gradient"] {
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+
+
   .marketplace-render-safe .sticky {
     background-color: #121214 !important;
   }
