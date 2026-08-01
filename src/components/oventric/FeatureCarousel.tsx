@@ -58,7 +58,6 @@ const SLIDES: Slide[] = [
 
 export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const [index, setIndex] = useState(0);
-  const [direction, setDirection] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -76,8 +75,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     onComplete();
   }, [markSeenServer, onComplete]);
 
-  const goTo = useCallback((next: number, dir: number) => {
-    setDirection(dir);
+  const goTo = useCallback((next: number) => {
     setIndex((prev) => {
       if (next < 0) return SLIDES.length - 1;
       if (next >= SLIDES.length) return 0;
@@ -85,8 +83,8 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     });
   }, []);
 
-  const next = useCallback(() => goTo(index + 1, 1), [goTo, index]);
-  const prev = useCallback(() => goTo(index - 1, -1), [goTo, index]);
+  const next = useCallback(() => goTo(index + 1), [goTo, index]);
+  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
 
   // Keyboard navigation
   useEffect(() => {
