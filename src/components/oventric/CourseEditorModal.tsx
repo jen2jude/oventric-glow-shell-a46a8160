@@ -20,7 +20,7 @@ import {
 } from "@/lib/academy.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { currencySymbol, LEGACY_USD_RATES } from "@/lib/fx-display";
+import { currencySymbol, usdRate } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -132,7 +132,7 @@ export function CourseEditorModal({
         // currency so the seller sees the exact amount they set. Otherwise
         // fall back to their current base currency (legacy USD rows).
         const editCur = c.originalCurrency ?? baseCurrency;
-        const editAmount = c.originalAmount > 0 ? c.originalAmount : c.priceUSD * LEGACY_USD_RATES[editCur];
+        const editAmount = c.originalAmount > 0 ? c.originalAmount : c.priceUSD * usdRate(editCur);
         setForm({
           title: c.title,
           description: c.description,
@@ -188,7 +188,7 @@ export function CourseEditorModal({
       let fxSnapshot: Awaited<ReturnType<typeof snapshotFx>> | null = null;
       if (!form.isFree) {
         fxSnapshot = await snapshotFx();
-        const rate = fxSnapshot.rates[form.priceCurrency] ?? LEGACY_USD_RATES[form.priceCurrency];
+        const rate = fxSnapshot.rates[form.priceCurrency] ?? usdRate(form.priceCurrency);
         priceUSD = form.priceCurrency === "USD" ? form.priceLocal : Number((form.priceLocal / (rate || 1)).toFixed(2));
       } else {
         originalCurrency = "USD";

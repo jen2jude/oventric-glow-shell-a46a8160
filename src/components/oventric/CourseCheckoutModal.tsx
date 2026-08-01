@@ -6,7 +6,7 @@ import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { validateCoupon } from "@/lib/marketplace.functions";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import { computeDisplayPrice, formatMoney, LEGACY_USD_RATES, validateFxSnapshot } from "@/lib/fx-display";
+import { computeDisplayPrice, formatMoney, usdRate, validateFxSnapshot } from "@/lib/fx-display";
 import { AlertTriangle } from "lucide-react";
 
 // Course checkout is card / bank / mobile-money only. Wallet is intentionally
@@ -99,10 +99,10 @@ export function CourseCheckoutModal({
   // Display-currency gross — this is the single source of truth for all money
   // math in the modal, so the "Total due" row always aligns with the course
   // price shown above it (no cross-basis rounding).
-  const displayGross = priceDisplay?.value ?? grossUSD * LEGACY_USD_RATES[baseCurrency];
+  const displayGross = priceDisplay?.value ?? grossUSD * usdRate(baseCurrency);
   // Conversion rate USD → display currency, derived from the same source as
   // the price above so cashback/discount deductions match exactly.
-  const usdToDisplay = grossUSD > 0 ? displayGross / grossUSD : LEGACY_USD_RATES[baseCurrency];
+  const usdToDisplay = grossUSD > 0 ? displayGross / grossUSD : usdRate(baseCurrency);
 
   const discountDisplay = useMemo(
     () => Number(((displayGross * couponPct) / 100).toFixed(baseCurrency === "USD" ? 2 : 0)),
