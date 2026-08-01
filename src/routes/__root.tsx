@@ -23,6 +23,8 @@ import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 import { Toaster } from "@/components/ui/sonner";
 import { BootSplash } from "@/components/oventric/BootSplash";
+import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
+import { useFirstLaunch } from "@/hooks/useFirstLaunch";
 
 
 function NotFoundComponent() {
