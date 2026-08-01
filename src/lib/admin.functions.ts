@@ -396,8 +396,10 @@ export const listCampaigns = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
+    // Advertiser contact columns are admin-only at the grant level.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const sb = context.supabase as any;
+    const sb = supabaseAdmin as any;
     const { data, error } = await sb.from("ad_campaigns").select("*").order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return (data ?? []) as AdCampaignRow[];

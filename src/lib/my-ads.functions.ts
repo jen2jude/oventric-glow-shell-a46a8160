@@ -140,7 +140,10 @@ export const getMyCampaign = createServerFn({ method: "POST" })
   .inputValidator((i: unknown) => IdIn.parse(i))
   .handler(async ({ data, context }): Promise<MyCampaignDetail> => {
     const sb = context.supabase as AnySB;
-    const { data: c, error } = await sb
+    // Ownership-checked read. Contact columns (advertiser_email/whatsapp, cta_*) are not
+    // granted to the authenticated role, so use the admin client scoped to the owner's row.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: c, error } = await (supabaseAdmin as AnySB)
       .from("ad_campaigns")
       .select("*")
       .eq("id", data.id)

@@ -73,7 +73,10 @@ export const listCampaignsAdmin = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
     await assertAdmin(context);
-    const sb = context.supabase as AnySB;
+    // Advertiser contact columns are not granted to anon/authenticated; read as admin
+    // only after the admin role check above.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin as AnySB;
     const { data, error } = await sb
       .from("ad_campaigns")
       .select("*")
@@ -87,7 +90,8 @@ export const getCampaignAdmin = createServerFn({ method: "POST" })
   .inputValidator((i: { id: string }) => i)
   .handler(async ({ data, context }) => {
     await assertAdmin(context);
-    const sb = context.supabase as AnySB;
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const sb = supabaseAdmin as AnySB;
     const [{ data: campaign, error: e1 }, { data: creatives, error: e2 }] = await Promise.all([
       sb.from("ad_campaigns").select("*").eq("id", data.id).single(),
       sb.from("ad_creatives").select("*").eq("campaign_id", data.id).order("sort_order"),
