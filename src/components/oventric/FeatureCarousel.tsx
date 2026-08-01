@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState, useCallback } from "react";
-import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, X, Check } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 
-import home3d from "@/assets/home-3d.png.asset.json";
-import marketplace3d from "@/assets/marketplace-3d.png.asset.json";
-import academy3d from "@/assets/academy-3d.png.asset.json";
-import bounties3d from "@/assets/bounties-3d.webp.asset.json";
-import wallet3d from "@/assets/wallet-3d.webp.asset.json";
+import mockFeed from "@/assets/mock-feed.jpg";
+import mockMarketplace from "@/assets/mock-marketplace.jpg";
+import mockAcademy from "@/assets/mock-academy.jpg";
+import mockBounties from "@/assets/mock-bounties.jpg";
+import mockWallet from "@/assets/mock-wallet.jpg";
 import oventricFull from "@/assets/oventric-full.asset.json";
 import { markCarouselSeen as markCarouselSeenFn } from "@/lib/carousel.functions";
 
@@ -21,62 +21,82 @@ interface Slide {
 const SLIDES: Slide[] = [
   {
     id: "feed",
-    image: home3d.url,
+    image: mockFeed,
     title: "Feed",
-    description: "Connect with builders, share updates, and discover what your network is creating.",
+    description: "Earn up to 10% cashback on every purchase.",
     accent: "#00c2ff",
   },
   {
     id: "marketplace",
-    image: marketplace3d.url,
+    image: mockMarketplace,
     title: "Marketplace",
-    description: "Buy and sell digital & physical products with escrow-protected payments.",
+    description: "Buy and sell digital & physical products and earn real money.",
     accent: "#ff4d6d",
   },
   {
     id: "academy",
-    image: academy3d.url,
+    image: mockAcademy,
     title: "Academy",
-    description: "Learn new skills, publish courses, and earn credentials that matter.",
+    description: "Earn real money while you learn or teach new skills — learn top tech skills.",
     accent: "#22ff88",
   },
   {
     id: "bounties",
-    image: bounties3d.url,
+    image: mockBounties,
     title: "Bounties",
     description: "Post open work, solve challenges, and get paid when the job ships.",
     accent: "#ffb020",
   },
   {
     id: "wallet",
-    image: wallet3d.url,
+    image: mockWallet,
     title: "Sovereign Wallet",
-    description: "Hold NGN, GHS, or USD with cashback, affiliate earnings, and instant payouts.",
+    description: "Earn real cash to your wallet and withdraw it to your bank.",
     accent: "#7aa2ff",
   },
 ];
 
+const INTRO_MS = 5000;
+const CONGRATS_MS = 2400;
+const ENTER = "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+
+type Phase = "intro" | "slides" | "congrats";
+
 export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
+  const [phase, setPhase] = useState<Phase>("intro");
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const markSeenServer = useServerFn(markCarouselSeenFn);
 
+  // Intro frame auto-advances after 5s.
+  useEffect(() => {
+    if (phase !== "intro") return;
+    const t = setTimeout(() => setPhase("slides"), INTRO_MS);
+    return () => clearTimeout(t);
+  }, [phase]);
+
+  // Congratulation splash, then hand over to the newsfeed.
+  useEffect(() => {
+    if (phase !== "congrats") return;
+    const t = setTimeout(() => onComplete(), CONGRATS_MS);
+    return () => clearTimeout(t);
+  }, [phase, onComplete]);
+
   const handleComplete = useCallback(() => {
     // Fire-and-forget server sync for signed-in users; localStorage is the
-    // source of truth on the device, but this keeps the flag in sync across
-    // devices when the user has a session.
+    // source of truth on the device.
     try {
       void markSeenServer();
     } catch {
       // ignore
     }
-    onComplete();
-  }, [markSeenServer, onComplete]);
+    setPhase("congrats");
+  }, [markSeenServer]);
 
   const goTo = useCallback((next: number) => {
-    setIndex((prev) => {
+    setIndex(() => {
       if (next < 0) return SLIDES.length - 1;
       if (next >= SLIDES.length) return 0;
       return next;
@@ -88,6 +108,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
 
   // Keyboard navigation
   useEffect(() => {
+    if (phase !== "slides") return;
     const onKey = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight") next();
       else if (e.key === "ArrowLeft") prev();
@@ -95,7 +116,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [next, prev, handleComplete]);
+  }, [next, prev, handleComplete, phase]);
 
   // Touch swipe handlers
   const onTouchStart = (e: React.TouchEvent) => {
@@ -111,8 +132,10 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const onTouchEnd = () => {
     if (touchStart === null) return;
     const threshold = 60;
-    if (touchDelta > threshold) prev();
-    else if (touchDelta < -threshold) next();
+    if (phase === "slides") {
+      if (touchDelta > threshold) prev();
+      else if (touchDelta < -threshold) next();
+    }
     setTouchStart(null);
     setTouchDelta(0);
   };
@@ -131,95 +154,145 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
       role="dialog"
       aria-label="Welcome to Oventric"
     >
-      {/* Top bar */}
-      <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 pt-5 pb-4 z-10">
-        <img src={oventricFull.url} alt="Oventric" className="h-8 w-auto select-none" draggable={false} />
-        <button
-          onClick={handleComplete}
-          className="flex items-center gap-1 text-sm font-medium text-slate-300 hover:text-white transition-colors"
-          aria-label="Skip introduction"
-        >
-          Skip <X className="w-4 h-4" strokeWidth={2.5} />
-        </button>
-      </div>
-
-      {/* Slide content */}
-      <div className="relative w-full max-w-md px-6 flex-1 flex flex-col items-center justify-center">
+      {phase === "intro" && (
         <div
-          key={slide.id}
-          className="feature-carousel-slide flex flex-col items-center text-center"
-          style={{
-            animation: "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards",
-          }}
+          className="flex flex-col items-center text-center px-8 max-w-md"
+          style={{ animation: ENTER }}
         >
-          <div
-            className="relative w-56 h-56 sm:w-64 sm:h-64 mb-8 rounded-3xl overflow-hidden bg-[#1E1E24] border border-white/10 flex items-center justify-center"
-            style={{ boxShadow: `0 0 40px -10px ${slide.accent}30` }}
-          >
-            <img
-              src={slide.image}
-              alt=""
-              className="w-full h-full object-contain p-4 select-none"
-              draggable={false}
-            />
-          </div>
-
-          <div
-            className="w-12 h-1 rounded-full mb-5"
-            style={{ backgroundColor: slide.accent }}
+          <p className="text-sm font-semibold tracking-[0.3em] uppercase text-slate-400 mb-6">
+            Welcome to
+          </p>
+          <img
+            src={oventricFull.url}
+            alt="Oventric"
+            className="h-12 sm:h-14 w-auto select-none mb-8"
+            draggable={false}
           />
+          <p className="text-lg sm:text-xl text-slate-200 leading-relaxed">
+            The first cashback digital platform for Africa's creators &amp; developers.
+          </p>
+          <button
+            onClick={() => setPhase("slides")}
+            className="mt-10 text-sm font-medium text-slate-400 hover:text-white transition-colors"
+          >
+            Continue
+          </button>
+        </div>
+      )}
 
-          <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
-            {slide.title}
-          </h2>
-          <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-xs">
-            {slide.description}
+      {phase === "congrats" && (
+        <div
+          className="flex flex-col items-center text-center px-8 max-w-md"
+          style={{ animation: ENTER }}
+        >
+          <div className="h-20 w-20 rounded-full border-2 border-emerald-400 flex items-center justify-center mb-6">
+            <Check className="w-9 h-9 text-emerald-400" strokeWidth={3} />
+          </div>
+          <h2 className="text-3xl font-black mb-3">Congratulations!</h2>
+          <p className="text-base text-slate-300">
+            You're all set — taking you into Oventric.
           </p>
         </div>
-      </div>
+      )}
 
-      {/* Bottom controls */}
-      <div className="w-full max-w-md px-6 pb-8 pt-4 z-10">
-        <div className="flex items-center justify-center gap-2 mb-6">
-          {SLIDES.map((s, i) => (
-            <button
-              key={s.id}
-              onClick={() => goTo(i)}
-              className={`h-2 rounded-full transition-all duration-300 ${
-                i === index ? "w-8" : "w-2 bg-white/25 hover:bg-white/40"
-              }`}
-              style={{ backgroundColor: i === index ? slide.accent : undefined }}
-              aria-label={`Go to slide ${i + 1}`}
-              aria-current={i === index ? "true" : undefined}
+      {phase === "slides" && (
+        <>
+          {/* Top bar */}
+          <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 pt-5 pb-4 z-10">
+            <img
+              src={oventricFull.url}
+              alt="Oventric"
+              className="h-8 w-auto select-none"
+              draggable={false}
             />
-          ))}
-        </div>
+            <button
+              onClick={handleComplete}
+              className="flex items-center gap-1 text-sm font-medium text-slate-300 hover:text-white transition-colors"
+              aria-label="Skip introduction"
+            >
+              Skip <X className="w-4 h-4" strokeWidth={2.5} />
+            </button>
+          </div>
 
-        <div className="flex items-center gap-3">
-          <button
-            onClick={prev}
-            className="h-12 w-12 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"
-            aria-label="Previous slide"
-          >
-            <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
-          </button>
+          {/* Slide content */}
+          <div className="relative w-full max-w-lg px-6 flex-1 flex flex-col items-center justify-center">
+            <div
+              key={slide.id}
+              className="feature-carousel-slide flex flex-col items-center text-center w-full"
+              style={{ animation: ENTER }}
+            >
+              <div
+                className="relative w-full aspect-[4/3] mb-7 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10"
+                style={{ boxShadow: `0 0 40px -14px ${slide.accent}55` }}
+              >
+                <img
+                  src={slide.image}
+                  alt={`${slide.title} preview on desktop and mobile`}
+                  width={1024}
+                  height={768}
+                  className="w-full h-full object-cover select-none"
+                  draggable={false}
+                />
+              </div>
 
-          <button
-            onClick={isLast ? handleComplete : next}
-            className="flex-1 h-12 rounded-full bg-white text-black font-bold text-sm hover:bg-slate-200 transition-colors"
-          >
-            {isLast ? "Get started" : "Next"}
-          </button>
+              <div
+                className="w-12 h-1 rounded-full mb-5"
+                style={{ backgroundColor: slide.accent }}
+              />
 
-          <button
-            onClick={next}
-            className="h-12 w-12 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"
-            aria-label="Next slide"
-          >
-            <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
-          </button>
-        </div>
-      </div>
+              <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
+                {slide.title}
+              </h2>
+              <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-sm">
+                {slide.description}
+              </p>
+            </div>
+          </div>
+
+          {/* Bottom controls */}
+          <div className="w-full max-w-md px-6 pb-8 pt-4 z-10">
+            <div className="flex items-center justify-center gap-2 mb-6">
+              {SLIDES.map((s, i) => (
+                <button
+                  key={s.id}
+                  onClick={() => goTo(i)}
+                  className={`h-2 rounded-full transition-all duration-300 ${
+                    i === index ? "w-8" : "w-2 bg-white/25 hover:bg-white/40"
+                  }`}
+                  style={{ backgroundColor: i === index ? slide.accent : undefined }}
+                  aria-label={`Go to slide ${i + 1}`}
+                  aria-current={i === index ? "true" : undefined}
+                />
+              ))}
+            </div>
+
+            <div className="flex items-center gap-3">
+              <button
+                onClick={prev}
+                className="h-12 w-12 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"
+                aria-label="Previous slide"
+              >
+                <ChevronLeft className="w-5 h-5" strokeWidth={2.5} />
+              </button>
+
+              <button
+                onClick={isLast ? handleComplete : next}
+                className="flex-1 h-12 rounded-full bg-white text-black font-bold text-sm hover:bg-slate-200 transition-colors"
+              >
+                {isLast ? "Get started" : "Next"}
+              </button>
+
+              <button
+                onClick={next}
+                className="h-12 w-12 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white hover:bg-[#2a2a2a] transition-colors"
+                aria-label="Next slide"
+              >
+                <ChevronRight className="w-5 h-5" strokeWidth={2.5} />
+              </button>
+            </div>
+          </div>
+        </>
+      )}
     </div>
   );
 }
