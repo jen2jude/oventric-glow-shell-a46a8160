@@ -123,12 +123,21 @@ function CheckoutPage() {
   const [deliveryEmail, setDeliveryEmail] = useState("");
   const [minipay, setMinipay] = useState<{ available: boolean }>({ available: false });
   const [minipayOpen, setMinipayOpen] = useState(false);
+  // Gateway picker shown under "Debit/Credit Card".
+  const [cardOpen, setCardOpen] = useState(false);
+  const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("flutterwave");
+  const [recommended, setRecommended] = useState<"flutterwave" | "paystack">("flutterwave");
   const loadOptions = useServerFn(getPaymentOptions);
 
   useEffect(() => {
     let cancelled = false;
     loadOptions({ data: { currency: baseCurrency, purpose: "order" } })
-      .then((o) => { if (!cancelled) setMinipay({ available: o.minipay.available }); })
+      .then((o) => {
+        if (cancelled) return;
+        setMinipay({ available: o.minipay.available });
+        setRecommended(o.provider);
+        setGateway(o.provider);
+      })
       .catch(() => {});
     return () => { cancelled = true; };
   }, [loadOptions, baseCurrency]);
