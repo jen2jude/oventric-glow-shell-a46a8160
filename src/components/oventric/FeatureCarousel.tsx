@@ -56,26 +56,68 @@ const SLIDES: Slide[] = [
   },
 ];
 
-const INTRO_MS = 5000;
+const INTRO_HOLD_MS = 5000; // intro stays fully visible
+const INTRO_FADE_MS = 600; // fade-out into first slide
 const CONGRATS_MS = 2400;
 const ENTER = "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+const EXIT = "feature-carousel-exit 0.6s cubic-bezier(0.4, 0, 1, 1) forwards";
+const SLIDE_ENTER = "feature-carousel-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 
 type Phase = "intro" | "slides" | "congrats";
 
 export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
+  const [introExiting, setIntroExiting] = useState(false);
   const [index, setIndex] = useState(0);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   const markSeenServer = useServerFn(markCarouselSeenFn);
 
-  // Intro frame auto-advances after 5s.
+  // Intro frame stays fully visible for 5s *after the boot splash is gone*,
+  // then begins a smooth fade into slides.
   useEffect(() => {
     if (phase !== "intro") return;
-    const t = setTimeout(() => setPhase("slides"), INTRO_MS);
-    return () => clearTimeout(t);
+    let t: ReturnType<typeof setTimeout> | undefined;
+    let raf: number | undefined;
+
+    const startHold = () => {
+      t = setTimeout(() => setIntroExiting(true), INTRO_HOLD_MS);
+    };
+
+    const bootSplashGone = () =>
+      !document.getElementById("oventric-boot") &&
+      !document.querySelector('[data-oventric-boot="react"]');
+
+    const waitForBootSplash = () => {
+      if (bootSplashGone()) {
+        startHold();
+        return;
+      }
+      const observer = new MutationObserver(() => {
+        if (bootSplashGone()) {
+          observer.disconnect();
+          startHold();
+        }
+      });
+      observer.observe(document.body, { childList: true, subtree: true });
+    };
+
+    raf = requestAnimationFrame(waitForBootSplash);
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      if (t) clearTimeout(t);
+    };
   }, [phase]);
+
+  useEffect(() => {
+    if (!introExiting) return;
+    const t = setTimeout(() => {
+      setPhase("slides");
+      setIntroExiting(false);
+    }, INTRO_FADE_MS);
+    return () => clearTimeout(t);
+  }, [introExiting]);
 
   // Congratulation splash, then hand over to the newsfeed.
   useEffect(() => {
@@ -154,10 +196,10 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
       role="dialog"
       aria-label="Welcome to Oventric"
     >
-      {phase === "intro" && (
+      {(phase === "intro" || introExiting) && (
         <div
           className="flex flex-col items-center text-center px-8 max-w-md"
-          style={{ animation: ENTER }}
+          style={{ animation: introExiting ? EXIT : ENTER }}
         >
           <p className="text-sm font-semibold tracking-[0.3em] uppercase text-slate-400 mb-6">
             Welcome to
@@ -172,7 +214,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             The first cashback digital platform for Africa's creators &amp; developers.
           </p>
           <button
-            onClick={() => setPhase("slides")}
+            onClick={() => setIntroExiting(true)}
             className="mt-10 text-sm font-medium text-slate-400 hover:text-white transition-colors"
           >
             Continue
@@ -195,8 +237,12 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
         </div>
       )}
 
-      {phase === "slides" && (
-        <>
+      {(phase === "slides" || introExiting) && (
+        <div
+          className={`flex flex-col w-full h-full ${
+            introExiting ? "absolute inset-0 z-20" : ""
+          }`}
+        >
           {/* Top bar */}
           <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 pt-5 pb-4 z-10">
             <img
@@ -219,7 +265,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <div
               key={slide.id}
               className="feature-carousel-slide flex flex-col items-center text-center w-full"
-              style={{ animation: ENTER }}
+              style={{ animation: introExiting ? SLIDE_ENTER : ENTER }}
             >
               <div
                 className="relative w-full aspect-[4/3] mb-7 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10"
@@ -291,7 +337,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
               </button>
             </div>
           </div>
-        </>
+        </div>
       )}
     </div>
   );
