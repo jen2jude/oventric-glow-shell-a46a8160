@@ -2,10 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
-import { primeRuntimeFxRates } from "@/lib/fx.server";
+import { resolveFxRates, primeRuntimeFxRates } from "@/lib/fx.server";
 import { convertViaSnapshot } from "@/lib/fx-display";
 import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
-import { dbCurrency } from "@/lib/currency/africa";
+import { dbCurrency, gatewayCurrency } from "@/lib/currency/africa";
 
 
 const PAYSTACK_BASE = "https://api.paystack.co";
@@ -116,11 +116,9 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       topupNet = Number(data.amount);
       currency = data.currency;
       if (!(topupNet > 0)) throw new Error("Top-up amount must be greater than zero.");
-      const { fee, charge } = paystackFee(topupNet, currency as PaystackFeeCurrency);
-      topupFee = fee;
-      amount = charge; // what Paystack will actually collect
+      amount = topupNet; // fee is added below, in the gateway currency
       metadata.wallet_credit_amount = topupNet;
-      metadata.topup_fee = fee;
+      metadata.credit_currency = currency;
       if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
         metadata.return_to = data.returnTo;
       }
@@ -212,8 +210,25 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
     }
 
 
-    if (!SUPPORTED_CURRENCIES.includes(currency)) {
-      throw new Error(`Currency ${currency} is not supported by Paystack.`);
+    // Paystack can only settle a handful of currencies directly. Everything
+    // else in the pan-African registry is charged in USD at the live rate,
+    // while the wallet / order still records the user's home currency.
+    const chargeCurrency = gatewayCurrency(currency);
+    let chargeAmount = amount;
+    if (chargeCurrency !== currency) {
+      const { rates } = await resolveFxRates();
+      const rate = Number(rates[currency]) > 0 ? Number(rates[currency]) : 1;
+      chargeAmount = Number((amount / rate).toFixed(2));
+    }
+    if (data.purpose === "wallet_topup") {
+      const { fee, charge } = paystackFee(chargeAmount, chargeCurrency as PaystackFeeCurrency);
+      topupFee = fee;
+      chargeAmount = charge; // what Paystack will actually collect
+      metadata.topup_fee = fee;
+      metadata.topup_fee_currency = chargeCurrency;
+    }
+    if (!SUPPORTED_CURRENCIES.includes(chargeCurrency)) {
+      throw new Error(`Currency ${chargeCurrency} is not supported by Paystack.`);
     }
 
     const origin = inferOrigin();
@@ -229,8 +244,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
 
     const body = {
       email,
-      amount: subunit(amount),
-      currency,
+      amount: subunit(chargeAmount),
+      currency: chargeCurrency,
       reference,
       callback_url: `${origin}/payment/return`,
       metadata,
@@ -620,9 +635,12 @@ export async function verifyAndSettleByReference(reference: string) {
   // only the entered top-up they saw on screen.
   const creditAmount = Number(meta.wallet_credit_amount);
   const netAmount = Number.isFinite(creditAmount) && creditAmount > 0 ? creditAmount : amount;
-  await settleWalletTopup(userId, payload.reference, netAmount, currency);
+  // The charge may have been routed through USD; credit the user's home
+  // currency recorded at init time.
+  const creditCurrency = ((meta.credit_currency as string) || currency) as OrderCurrency;
+  await settleWalletTopup(userId, payload.reference, netAmount, creditCurrency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
-  return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: currency };
+  return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: creditCurrency };
 }
 
 export const verifyPaystackPayment = createServerFn({ method: "POST" })
