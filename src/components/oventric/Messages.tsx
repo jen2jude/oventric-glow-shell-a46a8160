@@ -182,6 +182,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const fetchMessages = useServerFn(listMessages);
   const postMessage = useServerFn(sendMessage);
   const markRead = useServerFn(markThreadRead);
+  const fetchPeerProfiles = useServerFn(getPeerProfiles);
 
   const [threads, setThreads] = useState<ThreadSummary[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(false);
