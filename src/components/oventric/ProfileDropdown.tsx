@@ -688,6 +688,9 @@ function ProfileSettingsModal({
           phone: phone.trim() || null,
           country: country.trim() || null,
           address: address.trim() || null,
+          addressPublic,
+          dateOfBirth: dateOfBirth.trim() || null,
+          dobPublic,
           ...(avatarPath !== undefined ? { avatarPath } : {}),
         },
       });
