@@ -75,6 +75,7 @@ const NAV: NavItem[] = [
   { to: "/admin/blog", label: "Blog", icon: BookOpen },
   { to: "/admin/system-wallets", label: "System Wallets", icon: Wallet },
   { to: "/admin/payouts", label: "Payouts", icon: Banknote },
+  { to: "/admin/manual-payments", label: "MiniPay", icon: Banknote },
   { to: "/admin/disputes", label: "Disputes", icon: ShieldAlert },
   { to: "/admin/affiliates", label: "Affiliates", icon: Users },
   { to: "/admin/communications", label: "Communications", icon: Radio },
