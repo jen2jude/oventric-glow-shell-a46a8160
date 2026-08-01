@@ -1358,3 +1358,39 @@ html.light input::placeholder, html.light textarea::placeholder {
   animation: boot-splash-icon 1.8s ease-in-out infinite;
 }
 
+/* -------------------------------------------------------------------------
+   Feature carousel — first-launch intro slides.
+   GPU-safe: only transform + opacity animations, no backdrop-filter or
+   animated background gradients. Low-GPU devices get static slides.
+   ------------------------------------------------------------------------- */
+@keyframes feature-carousel-enter {
+  from { opacity: 0; transform: translateY(12px) scale(0.98); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.feature-carousel-slide {
+  will-change: transform, opacity;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .feature-carousel-slide {
+    animation: none !important;
+  }
+}
+
+/* Mobile GPU safety: strip the soft glow shadow and any transforms/filters
+   on low-end devices to avoid raster corruption. */
+@media (max-width: 767px) { html:not(.high-gpu) {
+  .feature-carousel-slide,
+  .feature-carousel-slide * {
+    animation: none !important;
+    filter: none !important;
+    backdrop-filter: none !important;
+    -webkit-backdrop-filter: none !important;
+    transform: none !important;
+    -webkit-transform: none !important;
+    will-change: auto !important;
+    box-shadow: none !important;
+  }
+} }
+

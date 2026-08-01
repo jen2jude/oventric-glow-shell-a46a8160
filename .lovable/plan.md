@@ -1,68 +1,73 @@
-# Payment Roadmap for Digital Assets — Escrow-First, In-App Chat Only
+# First-Launch Feature Carousel
 
-## Decision
+## Goal
+Show a lightweight, skippable visual carousel the very first time a user opens Oventric (no local cache). After the carousel, route to the newsfeed/home. Returning users skip it entirely.
 
-Keep the **pay-first, escrow-protected** flow. All buyer↔seller communication and delivery for digital goods happens **exclusively in the in-app chat**. WhatsApp is removed entirely from the digital-goods path, and users are actively encouraged (with visible safety copy) to keep the whole transaction on Oventric.
+## Product decisions
+- **Trigger:** localStorage flag `oventric:seen-feature-carousel`. If missing, show carousel.
+- **Skippable:** always-visible "Skip" / "Get started" button.
+- **Slides:** 5 visuals matching Oventric's pillars — Feed, Marketplace, Academy, Bounties, Wallet.
+- **Design:** full-screen dark overlay, simple slide transitions, no heavy blur/backdrop-filter to stay GPU-safe.
+- **Auth behavior:** carousel runs before auth gate; users land on it cold, then proceed to sign-in or newsfeed.
 
-Flow:
-1. Buyer pays at checkout → funds held in escrow.
-2. Seller is notified of a pending order.
-3. Seller delivers the asset through in-app chat (file / link / note) and marks it delivered.
-4. Buyer confirms receipt → escrow releases to seller wallet.
-5. No confirmation after 48h → system auto-releases.
-6. Anything wrong → buyer opens a dispute; admin mediates.
+## Implementation steps
 
-## Current state (verified)
+### 1. Create the carousel component
+- File: `src/components/oventric/FeatureCarousel.tsx`
+- Props: `onComplete: () => void`
+- State: current slide index, direction, touch swipe offsets
+- Uses existing 3D/brand assets where possible (feed, marketplace, academy, bounties, wallet asset JSONs) or Lucide icons as fallback.
+- Each slide: icon/illustration, headline, one-line description, dot indicator.
+- Controls: previous/next chevrons, skip top-right, progress dots, swipe gestures for mobile.
+- Animation: simple CSS translate + opacity transitions; respect `prefers-reduced-motion`.
 
-- `OrderFulfilmentRoadmap.tsx` renders Paid → Delivered → Confirmed → Completed with confirm/dispute modals.
-- `fulfilment.server.ts` holds `releaseEscrow` + `autoReleaseDueOrders` (48h).
-- `fulfilment.functions.ts` exposes `markOrderDelivered`, `buyerConfirmReceipt`, `openOrderDispute`, `getDisputeUploadUrl`.
-- `/order/$id` shows the roadmap; Dashboard has Purchases + Sales tabs.
-- `/admin/disputes` mediation queue exists.
-- Cron hook `/api/public/hooks/auto-release-orders` exists.
+### 2. Add first-launch detection hook
+- File: `src/hooks/useFirstLaunch.ts`
+- Reads/writes `oventric:seen-feature-carousel` in localStorage.
+- Returns `[show, markSeen]`.
+- SSR-safe: defaults to `false` on server, hydrates from storage on mount.
 
-## Changes
+### 3. Mount carousel in the root route
+- File: `src/routes/__root.tsx`
+- Render `<FeatureCarousel />` inside `RootComponent` after providers but before `<Outlet />`, gated by `useFirstLaunch`.
+- On completion, call `markSeen()` and let `<Outlet />` render the normal route.
+- Ensure it sits above `BootSplash` visually (or wait for boot splash to finish before showing carousel).
 
-### 1. Remove WhatsApp from digital goods
-- Strip WhatsApp fields/buttons from the digital-asset checkout, product page, order page, and dashboard rows.
-- Digital listings no longer collect or surface `whatsappNumber` / `deliveryWhatsapp`.
-- Physical products keep their existing direct-contact behaviour (unchanged).
-- Replace every removed WhatsApp CTA with a **Message in app** button.
+### 4. Update home route head metadata
+- File: `src/routes/index.tsx`
+- Keep existing meta; no change needed unless we want a dedicated `/welcome` route.
+- **Decision:** keep carousel as an overlay on `/` so there is no URL change; simpler and avoids back-button issues.
 
-### 2. Safety encouragement copy
-- Persistent notice on the order page, chat thread header, and seller Sales row:
-  > "Keep this trade on Oventric. Payments are held in escrow and we can only refund or mediate deals completed in-app."
-- Warning banner in chat when a message contains an external contact pattern (phone number, "whatsapp", "telegram"): non-blocking inline caution.
+### 5. Add CSS tokens for safe transitions
+- File: `src/styles.css`
+- Add `.feature-carousel` utility classes with GPU-safe transforms (`transform`, `opacity`) and no `backdrop-filter`.
+- Add reduced-motion fallback that disables slide animation.
 
-### 3. Seller notification on new paid order
-- In the Paystack webhook, after the order becomes `paid` + escrow `held`, insert a seller notification: "New order — `{product}` · `{amount}` held in escrow. Deliver now."
-- Deep-link to Dashboard → Sales.
+### 6. Add a persistent backend flag (optional but recommended)
+- Add column `has_seen_feature_carousel` to `profiles` table with default `false`.
+- Update on carousel completion for authenticated users so the flag survives across devices.
+- For anonymous/not-yet-signed-in users, localStorage remains the source of truth until they create an account.
 
-### 4. Order-aware chat + structured delivery
-- Add nullable `order_id` context to message threads/messages.
-- From an order, "Message buyer/seller" opens the thread tagged to that order.
-- Seller gets a **Deliver order** action inside the chat: attach file/link/note → calls `markOrderDelivered` → auto-DM to buyer.
+### 7. Test and verify
+- Unit test `useFirstLaunch` hook behavior.
+- Playwright test: first visit shows carousel, clicking "Get started" hides it, reload no longer shows it.
+- Mobile swipe test and reduced-motion test.
 
-### 5. Buyer confirm CTA inside chat
-- Sticky banner in an order-tagged thread once delivered: "Seller marked this delivered — confirm to release funds." with **Confirm receipt** and **Open dispute** buttons wired to the existing server fns.
-
-### 6. Dashboard Sales polish
-- Sales rows show product, buyer, amount, escrow status, primary **Mark delivered**, secondary **Message buyer**.
-- Badge on orders pending delivery > 24h.
-
-### 7. Auto-release safeguard
-- 12h-before-auto-release notification to the buyer: "Auto-confirms in 12h — open a dispute if you haven't received the item."
+## Files to create/modify
+- `src/components/oventric/FeatureCarousel.tsx` (new)
+- `src/hooks/useFirstLaunch.ts` (new)
+- `src/routes/__root.tsx` (modify to mount carousel)
+- `src/styles.css` (add carousel-safe transition utilities)
+- Migration: add `profiles.has_seen_feature_carousel boolean default false` and RLS policy (optional)
 
 ## Out of scope
-- Any off-platform payment or delivery path.
-- Changes to the 80/20 split or currency isolation rules.
-- Physical-product contact flow.
+- Deep-linking to specific slides.
+- Video backgrounds or WebGL effects.
+- Replacing the existing onboarding stage modals.
 
-## Implementation order
-1. DB: `order_id` on threads/messages; index.
-2. Server fns: order-tagged thread open, deliver-with-note, seller new-order notification, 12h pre-release notice.
-3. Webhook: seller notification on paid order.
-4. UI: remove WhatsApp from digital paths; add in-app chat CTAs + safety copy.
-5. UI: chat order banner (deliver / confirm / dispute).
-6. Dashboard Sales polish.
-7. Verify happy path, auto-release, and dispute end-to-end.
+## Acceptance criteria
+- [ ] First visit on a fresh browser shows the carousel before the newsfeed.
+- [ ] Users can skip the carousel at any time.
+- [ ] After completion/skip, the carousel never appears again on that device/account.
+- [ ] Carousel is responsive and GPU-safe on low-end mobile devices.
+- [ ] Returning users see the newsfeed immediately.
