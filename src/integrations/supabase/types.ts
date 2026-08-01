@@ -2816,6 +2816,7 @@ export type Database = {
         Returns: {
           circle_members: number
           followers: number
+          following: number
         }[]
       }
       read_email_batch: {
