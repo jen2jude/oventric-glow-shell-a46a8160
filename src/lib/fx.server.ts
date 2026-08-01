@@ -1,7 +1,7 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-export interface FxRates {
+export interface FxRates extends Record<string, number> {
   USD: number;
   NGN: number;
   GHS: number;
