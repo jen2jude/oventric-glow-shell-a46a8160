@@ -281,7 +281,13 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <div
               key={slide.id}
               className="feature-carousel-slide flex flex-col items-center text-center w-full"
-              style={{ animation: introExiting ? SLIDE_ENTER : ENTER }}
+              style={{
+                animation: introExiting
+                  ? SLIDE_ENTER
+                  : direction === 1
+                    ? IN_FROM_RIGHT
+                    : IN_FROM_LEFT,
+              }}
             >
               <div
                 className="relative w-full aspect-[4/3] mb-7 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10"
