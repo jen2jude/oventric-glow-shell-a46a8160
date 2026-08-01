@@ -683,31 +683,58 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           </div>
         </div>
         {(() => {
-          const threadIds = new Set(threads.map((t) => t.peerId));
-          const rail = [...onlinePeers.entries()].filter(([id]) => !threadIds.has(id));
+          const online = [...onlinePeers.entries()].map(([id, p]) => ({
+            id,
+            name: p.name,
+            avatarUrl: p.avatarUrl,
+            online: true,
+          }));
+          const onlineIds = new Set(online.map((o) => o.id));
+          const offline = threads
+            .filter((t) => !onlineIds.has(t.peerId))
+            .slice(0, 20)
+            .map((t) => ({
+              id: t.peerId,
+              name: t.peerName,
+              avatarUrl: t.peerAvatarUrl,
+              online: false,
+            }));
+          const rail = [...online, ...offline];
           if (rail.length === 0) return null;
           return (
             <div className="border-b border-white/10 px-3 py-2.5">
               <div className="text-[10px] uppercase tracking-widest font-black text-emerald-400 mb-2">
-                Online now · {rail.length}
+                {online.length > 0 ? `Online now · ${online.length}` : "Recent peers"}
               </div>
               <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-0.5 px-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {rail.map(([id, p]) => (
+                {rail.map((p) => (
                   <button
-                    key={id}
-                    onClick={() => selectThread(id)}
+                    key={p.id}
+                    onClick={() => selectThread(p.id)}
                     title={p.name}
                     className="group shrink-0 flex flex-col items-center gap-1 w-14"
                   >
                     <div className="relative">
                       <div
-                        className={`w-11 h-11 rounded-full bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xs ring-2 ring-transparent group-hover:ring-emerald-400/60 transition`}
+                        className={`w-11 h-11 rounded-full overflow-hidden ring-2 transition ${
+                          p.online
+                            ? "ring-emerald-400/70"
+                            : "ring-white/10 group-hover:ring-emerald-400/40 opacity-80"
+                        }`}
                       >
-                        {p.initials}
+                        <AvatarImage src={p.avatarUrl} alt={p.name} className="rounded-full" />
                       </div>
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] ${
+                          p.online
+                            ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+                            : "bg-slate-600"
+                        }`}
+                      />
                     </div>
-                    <span className="text-[10px] text-slate-300 truncate max-w-full">{p.name}</span>
+                    <span className="text-[10px] text-slate-300 truncate max-w-full">
+                      {p.name.split(/\s+/)[0]}
+                    </span>
                   </button>
                 ))}
               </div>
