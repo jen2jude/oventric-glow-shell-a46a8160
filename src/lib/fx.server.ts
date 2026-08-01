@@ -1,12 +1,9 @@
 import { createClient } from "@supabase/supabase-js";
 import { setRuntimeFxRates } from "@/lib/fx-display";
 import type { Database } from "@/integrations/supabase/types";
+import { CURRENCY_CODES, fallbackRateTable } from "@/lib/currency/africa";
 
-export interface FxRates extends Record<string, number> {
-  USD: number;
-  NGN: number;
-  GHS: number;
-}
+export type FxRates = Record<string, number>;
 
 export interface FxSnapshotResult {
   base: "USD";
@@ -16,7 +13,26 @@ export interface FxSnapshotResult {
 }
 
 /** Last-resort rates if every provider and the admin table are unreachable. */
-const HARD_FALLBACK: FxRates = { USD: 1, NGN: 1364, GHS: 11.7 };
+const HARD_FALLBACK: FxRates = fallbackRateTable();
+
+/** Keep only the currencies we support, filling gaps from the fallback table. */
+function normalizeRates(raw: Record<string, unknown>, lowercase = false): FxRates | null {
+  const out: FxRates = { USD: 1 };
+  let hits = 0;
+  for (const code of CURRENCY_CODES) {
+    if (code === "USD") continue;
+    const v = Number(raw[lowercase ? code.toLowerCase() : code]);
+    if (v > 0) {
+      out[code] = v;
+      hits += 1;
+    } else {
+      out[code] = HARD_FALLBACK[code] ?? 1;
+    }
+  }
+  // Require the two core markets plus a reasonable spread before trusting it.
+  if (!(Number(out.NGN) > 0 && Number(out.GHS) > 0) || hits < 10) return null;
+  return out;
+}
 
 /** Server-side memory cache so we don't hit the FX provider on every publish/view. */
 const CACHE_TTL_MS = 15 * 60 * 1000;
@@ -35,13 +51,11 @@ async function getJson(url: string, ms = 4500): Promise<unknown | null> {
   }
 }
 
-function build(ngn: unknown, ghs: unknown): FxSnapshotResult | null {
-  const n = Number(ngn);
-  const g = Number(ghs);
-  if (!(n > 0) || !(g > 0)) return null;
+function build(rates: FxRates | null): FxSnapshotResult | null {
+  if (!rates) return null;
   return {
     base: "USD",
-    rates: { USD: 1, NGN: n, GHS: g },
+    rates,
     source: "live",
     fetched_at: new Date().toISOString(),
   };
@@ -53,7 +67,7 @@ async function fetchLiveRates(): Promise<FxSnapshotResult | null> {
     | { result?: string; rates?: Record<string, number> }
     | null;
   if (a?.rates) {
-    const built = build(a.rates.NGN, a.rates.GHS);
+    const built = build(normalizeRates(a.rates));
     if (built) return built;
   }
 
@@ -61,7 +75,7 @@ async function fetchLiveRates(): Promise<FxSnapshotResult | null> {
     "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/currencies/usd.min.json",
   )) as { usd?: Record<string, number> } | null;
   if (b?.usd) {
-    const built = build(b.usd.ngn, b.usd.ghs);
+    const built = build(normalizeRates(b.usd, true));
     if (built) return built;
   }
 
@@ -83,16 +97,12 @@ async function fetchAdminRates(): Promise<FxSnapshotResult> {
     const { data } = await (sb as any).from("platform_settings").select("fx_rates").maybeSingle();
     const rates = (data?.fx_rates ?? null) as Record<string, number> | null;
     if (!rates) return { base: "USD", rates: HARD_FALLBACK, source: "fallback", fetched_at };
-    return {
-      base: "USD",
-      rates: {
-        USD: 1,
-        NGN: Number(rates.NGN) > 0 ? Number(rates.NGN) : HARD_FALLBACK.NGN,
-        GHS: Number(rates.GHS) > 0 ? Number(rates.GHS) : HARD_FALLBACK.GHS,
-      },
-      source: "admin",
-      fetched_at,
-    };
+    const merged: FxRates = { ...HARD_FALLBACK, USD: 1 };
+    for (const code of CURRENCY_CODES) {
+      const v = Number(rates[code]);
+      if (v > 0) merged[code] = v;
+    }
+    return { base: "USD", rates: merged, source: "admin", fetched_at };
   } catch {
     return { base: "USD", rates: HARD_FALLBACK, source: "fallback", fetched_at };
   }

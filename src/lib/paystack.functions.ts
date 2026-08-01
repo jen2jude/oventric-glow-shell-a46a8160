@@ -2,9 +2,10 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
-import { primeRuntimeFxRates } from "@/lib/fx.server";
+import { resolveFxRates, primeRuntimeFxRates } from "@/lib/fx.server";
 import { convertViaSnapshot } from "@/lib/fx-display";
 import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
+import { dbCurrency, gatewayCurrency } from "@/lib/currency/africa";
 
 
 const PAYSTACK_BASE = "https://api.paystack.co";
@@ -115,11 +116,9 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       topupNet = Number(data.amount);
       currency = data.currency;
       if (!(topupNet > 0)) throw new Error("Top-up amount must be greater than zero.");
-      const { fee, charge } = paystackFee(topupNet, currency as PaystackFeeCurrency);
-      topupFee = fee;
-      amount = charge; // what Paystack will actually collect
+      amount = topupNet; // fee is added below, in the gateway currency
       metadata.wallet_credit_amount = topupNet;
-      metadata.topup_fee = fee;
+      metadata.credit_currency = currency;
       if (data.returnTo && typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
         metadata.return_to = data.returnTo;
       }
@@ -135,12 +134,9 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
       if (!p) throw new Error("Product not found");
       const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
       const displayCurrency = data.displayCurrency;
-      // Currency isolation: buyer's home currency must match the listing.
-      const listingCurrency = String((p as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
-      if (listingCurrency !== String(displayCurrency).toUpperCase()) {
-        throw new Error(`This item is priced in ${listingCurrency}. Your account transacts in ${displayCurrency} and cannot purchase it.`);
-      }
-
+      // Global catalogue: any shopper can buy any active listing. The price is
+      // converted into the buyer's home currency via the listing's locked FX
+      // snapshot below.
       const grossUSD = Number(p.price_usd) * qty;
       let discountUSD = 0;
       if (data.couponCode) {
@@ -211,8 +207,25 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
     }
 
 
-    if (!SUPPORTED_CURRENCIES.includes(currency)) {
-      throw new Error(`Currency ${currency} is not supported by Paystack.`);
+    // Paystack can only settle a handful of currencies directly. Everything
+    // else in the pan-African registry is charged in USD at the live rate,
+    // while the wallet / order still records the user's home currency.
+    const chargeCurrency = gatewayCurrency(currency);
+    let chargeAmount = amount;
+    if (chargeCurrency !== currency) {
+      const { rates } = await resolveFxRates();
+      const rate = Number(rates[currency]) > 0 ? Number(rates[currency]) : 1;
+      chargeAmount = Number((amount / rate).toFixed(2));
+    }
+    if (data.purpose === "wallet_topup") {
+      const { fee, charge } = paystackFee(chargeAmount, chargeCurrency as PaystackFeeCurrency);
+      topupFee = fee;
+      chargeAmount = charge; // what Paystack will actually collect
+      metadata.topup_fee = fee;
+      metadata.topup_fee_currency = chargeCurrency;
+    }
+    if (!SUPPORTED_CURRENCIES.includes(chargeCurrency)) {
+      throw new Error(`Currency ${chargeCurrency} is not supported by Paystack.`);
     }
 
     const origin = inferOrigin();
@@ -228,8 +241,8 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
 
     const body = {
       email,
-      amount: subunit(amount),
-      currency,
+      amount: subunit(chargeAmount),
+      currency: chargeCurrency,
       reference,
       callback_url: `${origin}/payment/return`,
       metadata,
@@ -252,7 +265,7 @@ export const initPaystackPayment = createServerFn({ method: "POST" })
           tx_hash: result.reference,
           type: "Wallet Top-Up",
           amount: topupNet,
-          currency,
+          currency: dbCurrency(currency),
           inflow: true,
           status: "pending",
           occurred_at: new Date().toISOString(),
@@ -325,7 +338,7 @@ async function settleWalletTopup(
   if (existing.data?.id) {
     await supabaseAdmin
       .from("wallet_transactions")
-      .update({ status: "success", occurred_at: now, amount, currency })
+      .update({ status: "success", occurred_at: now, amount, currency: dbCurrency(currency) })
       .eq("id", existing.data.id);
   } else {
     await supabaseAdmin.from("wallet_transactions").insert({
@@ -334,7 +347,7 @@ async function settleWalletTopup(
       tx_hash: reference,
       type: "Wallet Top-Up",
       amount,
-      currency,
+      currency: dbCurrency(currency),
       inflow: true,
       status: "success",
       occurred_at: now,
@@ -419,7 +432,7 @@ async function settleOrder(
       quantity: qty,
       unit_price_usd: priceUSD,
       total_usd: totalUSD,
-      display_currency: meta.displayCurrency,
+      display_currency: dbCurrency(meta.displayCurrency),
       display_total: displayTotal,
       fx_rate: fx,
       payment_method: "card" satisfies PaymentMethod,
@@ -439,7 +452,7 @@ async function settleOrder(
     tx_hash: reference,
     type: "Marketplace Purchase",
     amount: displayTotal,
-    currency: meta.displayCurrency,
+    currency: dbCurrency(meta.displayCurrency),
     inflow: false,
     status: "success",
     occurred_at: new Date().toISOString(),
@@ -491,7 +504,7 @@ async function settleOrder(
     tx_hash: `${reference}-S`,
     type: "Marketplace Sale",
     amount: sellerCutLocal,
-    currency: sellerCurrency,
+    currency: dbCurrency(sellerCurrency),
     inflow: true,
     status: holdEscrow ? "pending" : "success",
     occurred_at: new Date().toISOString(),
@@ -619,9 +632,12 @@ export async function verifyAndSettleByReference(reference: string) {
   // only the entered top-up they saw on screen.
   const creditAmount = Number(meta.wallet_credit_amount);
   const netAmount = Number.isFinite(creditAmount) && creditAmount > 0 ? creditAmount : amount;
-  await settleWalletTopup(userId, payload.reference, netAmount, currency);
+  // The charge may have been routed through USD; credit the user's home
+  // currency recorded at init time.
+  const creditCurrency = ((meta.credit_currency as string) || currency) as OrderCurrency;
+  await settleWalletTopup(userId, payload.reference, netAmount, creditCurrency);
   const returnTo = typeof meta.return_to === "string" && meta.return_to.startsWith("/") ? meta.return_to : "/?section=Wallet&wallet=funded";
-  return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: currency };
+  return { ok: true as const, status: "success", redirectTo: returnTo, cashbackEarnedUSD: 0, displayCurrency: creditCurrency };
 }
 
 export const verifyPaystackPayment = createServerFn({ method: "POST" })

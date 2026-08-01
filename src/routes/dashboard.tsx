@@ -79,7 +79,7 @@ import { listMySales, type SaleDTO } from "@/lib/fulfilment.functions";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
 import { Truck } from "lucide-react";
 
-function formatHomeCurrency(n: number, c: "USD" | "NGN" | "GHS"): string {
+function formatHomeCurrency(n: number, c: string): string {
   return formatMoney(Number.isFinite(n) ? n : 0, c);
 }
 
@@ -1659,10 +1659,8 @@ function EditBlockedModal({ course, onClose }: { course: DashboardPublishedCours
   );
 }
 
-function fmtHomeAmt(n: number, currency: "USD" | "NGN" | "GHS"): string {
-  const sym = currency === "USD" ? "$" : currency === "NGN" ? "₦" : "₵";
-  const val = currency === "USD" ? n.toFixed(2) : Math.round(n).toLocaleString();
-  return `${sym}${val}`;
+function fmtHomeAmt(n: number, currency: string): string {
+  return formatMoney(Number.isFinite(n) ? n : 0, currency);
 }
 
 function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | null; page: number; onPage: (p: number) => void }) {

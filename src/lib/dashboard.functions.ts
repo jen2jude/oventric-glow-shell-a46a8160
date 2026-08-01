@@ -1,20 +1,18 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { currencyForCountry, fallbackRateTable } from "@/lib/currency/africa";
 
 /* -------------------------------------------------------------------------- */
 /*  Overview snapshot                                                          */
 /* -------------------------------------------------------------------------- */
 
-type HomeCurrency = "USD" | "NGN" | "GHS";
+type HomeCurrency = string;
 
 function countryToHomeCurrency(country: string | null | undefined): HomeCurrency {
-  const c = (country ?? "").toUpperCase();
-  if (c === "NG") return "NGN";
-  if (c === "GH") return "GHS";
-  return "USD";
+  return currencyForCountry(country);
 }
 
-const FX_FALLBACK: Record<HomeCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+const FX_FALLBACK: Record<HomeCurrency, number> = fallbackRateTable();
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
@@ -22,11 +20,12 @@ async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
     const { data } = await sb.from("platform_settings").select("fx_rates").maybeSingle();
     const r = (data?.fx_rates ?? null) as Record<string, number> | null;
     if (!r) return FX_FALLBACK;
-    return {
-      USD: 1,
-      NGN: Number(r.NGN) > 0 ? Number(r.NGN) : FX_FALLBACK.NGN,
-      GHS: Number(r.GHS) > 0 ? Number(r.GHS) : FX_FALLBACK.GHS,
-    };
+    const merged: Record<string, number> = { ...FX_FALLBACK, USD: 1 };
+    for (const code of Object.keys(merged)) {
+      const v = Number(r[code]);
+      if (v > 0) merged[code] = v;
+    }
+    return merged;
   } catch {
     return FX_FALLBACK;
   }

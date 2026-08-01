@@ -3,6 +3,7 @@ import { X, ShieldCheck, Store, Wallet as WalletIcon, ScanFace, Loader2, Check, 
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { useOnboarding, type Country, type Currency, countryToCurrency } from "@/lib/onboarding/OnboardingContext";
+import { ALL_COUNTRIES, COUNTRY_META } from "@/lib/currency/africa";
 import { completeProfile as completeProfileFn } from "@/lib/onboarding.functions";
 
 
@@ -45,11 +46,8 @@ function StageIndicator({ current }: { current: number }) {
 // is fully handled by the global AuthGate — no legacy progressive form.
 
 
-const COUNTRY_META: Record<Country, { label: string; currency: Currency; dial: string }> = {
-  NG: { label: "Nigeria", currency: "NGN", dial: "+234" },
-  GH: { label: "Ghana", currency: "GHS", dial: "+233" },
-  OTHER: { label: "Other (type your country)", currency: "USD", dial: "+" },
-};
+// Country list + currency mapping now come from the pan-African registry.
+const COUNTRY_OPTIONS = ALL_COUNTRIES;
 
 function Stage2({ onClose }: { onClose: () => void }) {
   const { advanceTo, setBaseCurrency, fullName: existingName, country: existingCountry, phone: existingPhone } = useOnboarding();
@@ -62,7 +60,7 @@ function Stage2({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const currency = country ? COUNTRY_META[country].currency : null;
+  const currency = country ? COUNTRY_META[country]?.currency ?? "USD" : null;
 
   const canSubmit =
     name.trim().length >= 2 &&
@@ -134,9 +132,9 @@ function Stage2({ onClose }: { onClose: () => void }) {
         onChange={(e) => setCountry(e.target.value as Country)}
       >
         <option value="" disabled>Select a country</option>
-        {(Object.keys(COUNTRY_META) as Country[]).map((c) => (
-          <option key={c} value={c}>
-            {COUNTRY_META[c].label} · {COUNTRY_META[c].currency}
+        {COUNTRY_OPTIONS.map((c) => (
+          <option key={c.code} value={c.code}>
+            {c.flag} {c.name} · {c.currency}
           </option>
         ))}
       </select>
@@ -176,7 +174,7 @@ function Stage2({ onClose }: { onClose: () => void }) {
         className={inputCls}
         type="tel"
         autoComplete="tel"
-        placeholder={country ? `${COUNTRY_META[country].dial} 800 000 0000` : "+1 555 123 4567"}
+        placeholder={country ? `${COUNTRY_META[country]?.dial ?? "+"} 800 000 0000` : "+1 555 123 4567"}
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
       />
@@ -252,18 +250,13 @@ function Stage4({ onClose }: { onClose: () => void }) {
       <input className={inputCls} placeholder="94103" value={postal} onChange={(e) => setPostal(e.target.value)} />
       <div className="mt-5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
         <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">Baseline currency</div>
-        <div className="grid grid-cols-3 gap-2">
-          {(["USD", "NGN", "GHS"] as Currency[]).map((c) => (
-            <button
-              key={c}
-              onClick={() => setBaseCurrency(c)}
-              className={`h-10 rounded-md text-sm font-semibold border transition-colors ${
-                baseCurrency === c ? "bg-emerald-500 text-black border-emerald-400" : "bg-[#121214] text-slate-300 border-white/10 hover:border-emerald-500/40"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+        <div className="flex items-center justify-between gap-3">
+          <div className="h-10 px-3 rounded-md bg-emerald-500 text-black text-sm font-bold flex items-center">
+            {baseCurrency}
+          </div>
+          <p className="text-[11px] text-slate-400 flex-1">
+            Locked to your country of residence. Wallet, marketplace, bounties and payouts all settle in {baseCurrency}.
+          </p>
         </div>
       </div>
       <button

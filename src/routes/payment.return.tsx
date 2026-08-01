@@ -5,6 +5,7 @@ import { Loader2, CheckCircle2, XCircle, Sparkles, Wallet as WalletIcon } from "
 import { Header } from "@/components/oventric/Header";
 import { verifyPaystackPayment } from "@/lib/paystack.functions";
 import { usdRate } from "@/lib/fx-display";
+import { formatMoney as fmtMoney } from "@/lib/fx-display";
 
 export const Route = createFileRoute("/payment/return")({
   ssr: false,
@@ -14,13 +15,8 @@ export const Route = createFileRoute("/payment/return")({
   component: PaymentReturnPage,
 });
 
-const SYMBOL: Record<string, string> = { USD: "$", NGN: "₦", GHS: "₵" };
-
 function formatMoney(usd: number, cur: string) {
-  const rate = usdRate((cur === "NGN" || cur === "GHS" ? cur : "USD"));
-  const v = usd * rate;
-  const s = SYMBOL[cur] ?? "";
-  return cur === "USD" ? `${s}${v.toFixed(2)}` : `${s}${Math.round(v).toLocaleString()}`;
+  return fmtMoney(usd * usdRate(cur), cur);
 }
 
 function PaymentReturnPage() {

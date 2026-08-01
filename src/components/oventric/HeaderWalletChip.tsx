@@ -5,15 +5,11 @@ import { getWalletBalances } from "@/lib/wallet.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { usdRate } from "@/lib/fx-display";
-
-const SYM: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+import { usdRate, formatMoney } from "@/lib/fx-display";
+import { dbCurrency } from "@/lib/currency/africa";
 
 function fmt(n: number, c: Currency) {
-  return SYM[c] + n.toLocaleString("en-US", {
-    minimumFractionDigits: c === "NGN" ? 0 : 2,
-    maximumFractionDigits: 2,
-  });
+  return formatMoney(n, c);
 }
 
 function fromUSD(usd: number, target: Currency): number {
@@ -62,7 +58,7 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
         .select("amount")
         .eq("user_id", uid)
         .eq("type", "Marketplace Sale")
-        .eq("currency", baseCurrency)
+        .eq("currency", dbCurrency(baseCurrency))
         .eq("inflow", true)
         .eq("status", "success");
       if (!cancelled) {

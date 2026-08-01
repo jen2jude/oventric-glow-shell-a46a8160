@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isSupportedCurrency } from "@/lib/currency/africa";
 
 async function assertAdmin(ctx: { supabase: ReturnType<typeof Object>; userId: string }) {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -810,9 +811,9 @@ export const resetSystemWallets = createServerFn({ method: "POST" })
 /** Admin: reset a specific user wallet balance component (available/escrow/cashback/bounty/all) for a currency. */
 export const adminResetWallet = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((i: { userId: string; currency: "USD" | "NGN" | "GHS"; which: "available" | "escrow" | "cashback" | "bounty" | "all" }) => {
+  .inputValidator((i: { userId: string; currency: string; which: "available" | "escrow" | "cashback" | "bounty" | "all" }) => {
     if (!i?.userId) throw new Error("userId required");
-    if (!["USD", "NGN", "GHS"].includes(i.currency)) throw new Error("invalid currency");
+    if (!isSupportedCurrency(i.currency)) throw new Error("invalid currency");
     if (!["available", "escrow", "cashback", "bounty", "all"].includes(i.which)) throw new Error("invalid target");
     return i;
   })

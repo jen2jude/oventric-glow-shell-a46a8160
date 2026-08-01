@@ -1,5 +1,6 @@
 import { createServerFn } from "@tanstack/react-start";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { isSupportedCurrency } from "@/lib/currency/africa";
 
 export type TransferCurrency = "NGN" | "GHS";
 export type TransferMethod = "bank" | "momo";
@@ -37,7 +38,7 @@ export interface PayoutAuditEntry {
   meta: Record<string, string | number | boolean | null>;
 }
 
-export type PayoutCurrency = "USD" | "NGN" | "GHS";
+export type PayoutCurrency = string;
 export type PayoutMethod = "bank" | "momo" | "wire";
 export type PayoutStatus = "pending" | "approved" | "rejected" | "paid" | "cancelled";
 
@@ -139,7 +140,7 @@ export const createPayoutRequest = createServerFn({ method: "POST" })
     const currency = input?.currency;
     const method = input?.method;
     const amount = Number(input?.amount);
-    if (!["USD", "NGN", "GHS"].includes(currency)) throw new Error("Invalid currency");
+    if (!isSupportedCurrency(currency)) throw new Error("Invalid currency");
     if (!["bank", "momo", "wire"].includes(method)) throw new Error("Invalid method");
     if (!Number.isFinite(amount) || amount <= 0) throw new Error("Amount must be positive");
     const destination = sanitizeDestination(method, input?.destination ?? {});

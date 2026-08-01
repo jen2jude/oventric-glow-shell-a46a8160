@@ -44,6 +44,8 @@ import {
   type PayoutRecipientDTO,
 } from "@/lib/payouts.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
+import { currencySymbol, formatMoney, usdRate } from "@/lib/fx-display";
+import { CURRENCY_CODES, CURRENCY_META, currencyDecimals, fallbackRateTable } from "@/lib/currency/africa";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
@@ -66,10 +68,9 @@ interface Tx {
   status: TxStatus;
 }
 
-const currencyMeta: Record<
-  Currency,
-  { symbol: string; label: string; glow: string; ring: string; text: string; dot: string }
-> = {
+type CurMeta = { symbol: string; label: string; glow: string; ring: string; text: string; dot: string };
+
+const CURRENCY_STYLES: Record<string, CurMeta> = {
   USD: {
     symbol: "$",
     label: "US Dollar",
@@ -96,12 +97,21 @@ const currencyMeta: Record<
   },
 };
 
+/** Style + symbol for ANY supported currency, falling back to a neutral theme. */
+const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
+  get: (_t, key: string) =>
+    CURRENCY_STYLES[key] ?? {
+      symbol: currencySymbol(key),
+      label: CURRENCY_META[key]?.name ?? key,
+      glow: "",
+      ring: "border-slate-500/40",
+      text: "text-slate-300",
+      dot: "bg-slate-400",
+    },
+});
+
 function fmt(n: number, c: Currency) {
-  const opts: Intl.NumberFormatOptions = {
-    minimumFractionDigits: c === "NGN" ? 0 : 2,
-    maximumFractionDigits: 2,
-  };
-  return currencyMeta[c].symbol + n.toLocaleString("en-US", opts);
+  return formatMoney(n, c);
 }
 
 const PAGE_SIZE = 6;
@@ -115,7 +125,7 @@ function fmtTs(iso: string) {
   }
 }
 
-const FX_FROM_USD: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+const FX_FROM_USD: Record<Currency, number> = fallbackRateTable();
 
 export function Wallet() {
   const { balances, escrow, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances, baseCurrency, country } = useOnboarding();
@@ -484,9 +494,9 @@ export function Wallet() {
                 className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
               >
                 <option value="ALL">All currencies</option>
-                <option value="USD">USD</option>
-                <option value="NGN">NGN</option>
-                <option value="GHS">GHS</option>
+                {CURRENCY_CODES.map((c) => (
+                  <option key={c} value={c}>{c}</option>
+                ))}
               </select>
               <button
                 onClick={() => query.refetch()}
@@ -805,9 +815,9 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
 
   // Amount is now entered directly in the user's locked home currency —
   // no more silent USD → local FX conversion at charge time.
-  const FX_FROM_USD_LOCAL: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
-  const symbol = baseCurrency === "NGN" ? "₦" : baseCurrency === "GHS" ? "₵" : "$";
-  const step = baseCurrency === "USD" ? "0.01" : "1";
+  const FX_FROM_USD_LOCAL = (c: Currency) => usdRate(c);
+  const symbol = currencySymbol(baseCurrency);
+  const step = currencyDecimals(baseCurrency) === 2 ? "0.01" : "1";
   // Paystack only routes mobile_money for GHS merchants — offering it to NGN
   // or USD users triggers "no active channel to process transaction".
   const momoAvailable = baseCurrency === "GHS";
@@ -818,11 +828,11 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
   // to a USD-derived value for legacy callers that still pass prefillUsd.
   const prefillLocal =
     prefillLocalProp && prefillLocalProp > 0
-      ? (baseCurrency === "USD" ? prefillLocalProp.toFixed(2) : String(Math.round(prefillLocalProp)))
+      ? (currencyDecimals(baseCurrency) === 2 ? prefillLocalProp.toFixed(2) : String(Math.round(prefillLocalProp)))
       : prefillUsd && prefillUsd > 0
-        ? baseCurrency === "USD"
-          ? prefillUsd.toFixed(2)
-          : String(Math.round(prefillUsd * FX_FROM_USD_LOCAL[baseCurrency]))
+        ? currencyDecimals(baseCurrency) === 2
+          ? (prefillUsd * FX_FROM_USD_LOCAL(baseCurrency)).toFixed(2)
+          : String(Math.round(prefillUsd * FX_FROM_USD_LOCAL(baseCurrency)))
         : "";
 
   const [amount, setAmount] = useState<string>(prefillLocal);
@@ -1114,11 +1124,13 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
       ? { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Direct to your Nigerian bank · Paystack" }
       : c === "GHS"
         ? { c: "GHS", method: "momo", label: "GHS Bank / Mobile Money", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" }
-        : { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" };
+        : c === "USD"
+          ? { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" }
+          : { c, method: "wire", label: `${c} Bank Transfer`, eta: "24–48 hours", tone: "sky", hint: `Local ${CURRENCY_META[c]?.name ?? c} bank payout · manual review` };
 
   const rail = railFor(baseCurrency);
   const baseBal = balances[baseCurrency] ?? 0;
-  const others: Currency[] = (["NGN", "GHS", "USD"] as Currency[]).filter((c) => c !== baseCurrency);
+  const others: Currency[] = (["USD"] as Currency[]).filter((c) => c !== baseCurrency);
 
   if (step === "pick") {
     return (
@@ -1155,7 +1167,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
               <div className="text-[10px] uppercase tracking-wider text-slate-500">Available</div>
               <div className="text-xs font-bold text-slate-200 tabular-nums">
                 {currencyMeta[rail.c].symbol}
-                {baseBal.toLocaleString("en-US", { minimumFractionDigits: rail.c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
+                {baseBal.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(rail.c), maximumFractionDigits: 2 })}
               </div>
             </div>
           </div>
@@ -1182,7 +1194,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
                   <div className="text-[10px] uppercase tracking-wider text-slate-500">≈</div>
                   <div className="text-xs font-bold text-slate-400 tabular-nums">
                     {currencyMeta[c].symbol}
-                    {equiv.toLocaleString("en-US", { minimumFractionDigits: c === "NGN" ? 0 : 2, maximumFractionDigits: 2 })}
+                    {equiv.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(c), maximumFractionDigits: 2 })}
                   </div>
                 </div>
               </div>

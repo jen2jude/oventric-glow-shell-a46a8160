@@ -2,12 +2,14 @@ import { createServerFn } from "@tanstack/react-start";
 import { createClient } from "@supabase/supabase-js";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
+import { dbCurrency } from "@/lib/currency/africa";
+import { fallbackRateTable } from "@/lib/currency/africa";
 
 export type CourseCategory = "frontend" | "uiux" | "ai" | "backend" | "security";
 export type CourseLevel = "beginner" | "intermediate" | "advanced";
 export type VideoProvider = "youtube" | "vimeo";
 
-export type CourseCurrency = "USD" | "NGN" | "GHS";
+export type CourseCurrency = string;
 export type CourseFxSnapshot = {
   base: string;
   rates: Record<string, number>;
@@ -639,10 +641,10 @@ export const getCourseCoverViewUrl = createServerFn({ method: "POST" })
 
 // ---------- PAID ENROLLMENT ----------
 
-export type EnrollCurrency = "USD" | "NGN" | "GHS";
+export type EnrollCurrency = string;
 export type EnrollPaymentMethod = "wallet" | "card" | "bank_transfer" | "mobile_money";
 
-export const FX_FROM_USD_ACADEMY: Record<EnrollCurrency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+export const FX_FROM_USD_ACADEMY: Record<EnrollCurrency, number> = fallbackRateTable();
 export const INSTRUCTOR_SHARE = 0.8;
 export const PLATFORM_ACADEMY_SHARE = 0.2;
 export const WALLET_CASHBACK_PCT_ACADEMY = 0.02;
@@ -817,7 +819,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
       tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
       type: "Marketplace Purchase",
       amount: displayTotal,
-      currency: data.displayCurrency,
+      currency: dbCurrency(data.displayCurrency),
       inflow: false,
       status: "success",
       occurred_at: new Date().toISOString(),
@@ -860,7 +862,7 @@ export const enrollPaid = createServerFn({ method: "POST" })
         tx_hash: `0x${Math.random().toString(16).slice(2, 6).toUpperCase()}-${Date.now().toString(16).toUpperCase()}`,
         type: "Affiliate Cashback Payout",
         amount: Number((cashbackUSD * fx).toFixed(2)),
-        currency: data.displayCurrency,
+        currency: dbCurrency(data.displayCurrency),
         inflow: true,
         status: "success",
         occurred_at: new Date().toISOString(),

@@ -11,8 +11,13 @@ import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccoun
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { currencySymbol } from "@/lib/fx-display";
+import { currencyDecimals } from "@/lib/currency/africa";
+import { AFRICA_COUNTRIES, COUNTRY_META } from "@/lib/currency/africa";
 
-const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
+const CURRENCY_SYMBOL = new Proxy({} as Record<Currency, string>, {
+  get: (_t, key: string) => currencySymbol(key),
+});
 
 
 
@@ -21,9 +26,10 @@ function slugify(v: string): string {
 }
 
 function fmtBalance(n: number, c: Currency): string {
+  const dp = currencyDecimals(c);
   return new Intl.NumberFormat("en-US", {
-    minimumFractionDigits: c === "NGN" ? 0 : 2,
-    maximumFractionDigits: c === "NGN" ? 0 : 2,
+    minimumFractionDigits: dp,
+    maximumFractionDigits: dp,
   }).format(n);
 }
 
@@ -97,7 +103,7 @@ export function ProfileDropdown() {
   const fetchFx = useServerFn(snapshotFxRates);
   const [liveStars, setLiveStars] = useState<number | null>(null);
   const [verificationTier, setVerificationTier] = useState<string | null>(null);
-  const [fxRates, setFxRates] = useState<{ NGN: number; GHS: number } | null>(null);
+  const [fxRates, setFxRates] = useState<Record<string, number> | null>(null);
 
   useEffect(() => {
     if (!userId || userId === "me") return;
@@ -123,7 +129,7 @@ export function ProfileDropdown() {
       }
       try {
         const fx = await fetchFx();
-        if (!cancelled) setFxRates({ NGN: fx.rates.NGN, GHS: fx.rates.GHS });
+        if (!cancelled) setFxRates(fx.rates as Record<string, number>);
       } catch (e) {
         console.error("[ProfileDropdown] fx load failed", e);
       }
@@ -346,7 +352,7 @@ export function ProfileDropdown() {
         let usdEquivalent = 0;
         if (baseCurrency === "USD") usdEquivalent = baseBal;
         else if (fxRates) {
-          const rate = baseCurrency === "NGN" ? fxRates.NGN : fxRates.GHS;
+          const rate = Number(fxRates[baseCurrency]) || 0;
           usdEquivalent = rate > 0 ? baseBal / rate : 0;
         }
         const showUsdTile = baseCurrency !== "USD";
@@ -984,9 +990,9 @@ function ProfileSettingsModal({
               </label>
               {(() => {
                 const locked = !!country.trim();
-                const known = country === "NG" || country === "GH";
+                const known = !!COUNTRY_META[country.toUpperCase()] && country.toUpperCase() !== "OTHER";
                 const selectValue = locked
-                  ? (known ? country : "OTHER")
+                  ? (known ? country.toUpperCase() : "OTHER")
                   : (countryOther ? "OTHER" : "");
                 return (
                   <>
@@ -1010,8 +1016,11 @@ function ProfileSettingsModal({
                       } ${locked ? "opacity-60 cursor-not-allowed" : ""}`}
                     >
                       <option value="" disabled>Select a country</option>
-                      <option value="NG">🇳🇬 Nigeria</option>
-                      <option value="GH">🇬🇭 Ghana</option>
+                      {AFRICA_COUNTRIES.map((c) => (
+                        <option key={c.code} value={c.code}>
+                          {c.flag} {c.name} · {c.currency}
+                        </option>
+                      ))}
                       <option value="OTHER">🌍 Other (type your country)</option>
                     </select>
                     {!locked && countryOther && (
