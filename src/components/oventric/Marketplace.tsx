@@ -19,7 +19,6 @@ import {
   X,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
@@ -60,7 +59,6 @@ const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
-  const { isAuthenticated } = useAuthGate();
   const navigate = useNavigate();
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
@@ -98,13 +96,10 @@ export function Marketplace() {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
 
-  // Currency isolation: signed-in users only see items priced in their home
-  // currency. Anon viewers see everything (USD preview) as marketing.
-  const currencyScoped = useMemo(() => {
-    if (!products) return products;
-    if (!isAuthenticated) return products;
-    return products.filter((p) => String(p.originalCurrency ?? "USD").toUpperCase() === baseCurrency);
-  }, [products, isAuthenticated, baseCurrency]);
+  // Global catalogue: every shopper sees every active listing. Prices are
+  // converted into the viewer's home currency for display and checkout.
+  const currencyScoped = products;
+
 
   const digital = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind !== "physical"), [currencyScoped]);
   const physical = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind === "physical"), [currencyScoped]);
