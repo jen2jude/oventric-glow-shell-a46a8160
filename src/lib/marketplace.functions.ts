@@ -760,12 +760,10 @@ export const createOrder = createServerFn({ method: "POST" })
     if (!pRow) throw new Error("Product not found");
     const product = mapProduct(pRow as Record<string, unknown>);
 
-    // Currency isolation: buyer's home currency (displayCurrency) must match
-    // the listing's original currency. NG/GH/OTHER cannot cross-buy.
-    const listingCurrency = String((pRow as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
-    if (listingCurrency !== String(data.displayCurrency).toUpperCase()) {
-      throw new Error(`This item is priced in ${listingCurrency}. Your account transacts in ${data.displayCurrency} and cannot purchase it.`);
-    }
+    // Global catalogue: listings are sold across regions. The buyer is charged
+    // in their own home currency (displayCurrency), converted from the USD
+    // base price, so no cross-currency block is applied here.
+
 
 
     const grossUSD = Number((product.priceUSD * data.quantity).toFixed(2));
