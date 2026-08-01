@@ -129,10 +129,39 @@
   transform-origin: center;
   will-change: transform;
 }
-@media (prefers-reduced-motion: reduce) {
-  .reaction-heart-beat { animation: none; }
+
+/* Playful bob for the 3D thumbs up / thumbs down reactions */
+@keyframes reaction-thumb-up-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(-12%) rotate(-8deg); }
+  55%      { transform: translateY(0) rotate(4deg); }
+  75%      { transform: translateY(-4%) rotate(-2deg); }
 }
-html.low-gpu .reaction-heart-beat { animation: none; }
+@keyframes reaction-thumb-down-bob {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  25%      { transform: translateY(12%) rotate(8deg); }
+  55%      { transform: translateY(0) rotate(-4deg); }
+  75%      { transform: translateY(4%) rotate(2deg); }
+}
+.reaction-thumb-up-bob {
+  animation: reaction-thumb-up-bob 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.reaction-thumb-down-bob {
+  animation: reaction-thumb-down-bob 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+@media (prefers-reduced-motion: reduce) {
+  .reaction-heart-beat,
+  .reaction-thumb-up-bob,
+  .reaction-thumb-down-bob { animation: none; }
+}
+html.low-gpu .reaction-heart-beat,
+html.low-gpu .reaction-thumb-up-bob,
+html.low-gpu .reaction-thumb-down-bob { animation: none; }
+
 
 
 @keyframes rgb-spectrum-shift {

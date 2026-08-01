@@ -5,8 +5,8 @@ import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import type { Database } from "@/integrations/supabase/types";
 
-export type ReactionType = "love" | "like" | "laugh" | "crown";
-export const REACTION_TYPES: ReactionType[] = ["love", "like", "laugh", "crown"];
+export type ReactionType = "love" | "like" | "dislike" | "laugh" | "crown";
+export const REACTION_TYPES: ReactionType[] = ["love", "like", "dislike", "laugh", "crown"];
 
 export interface MentionRef {
   user_id: string;
@@ -87,7 +87,7 @@ async function getViewerClient(): Promise<{ sb: SupabaseClient<Database>; userId
 }
 
 function zeroReactions(): Record<ReactionType, number> {
-  return { love: 0, like: 0, laugh: 0, crown: 0 };
+  return { love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 };
 }
 
 async function buildFeedPosts(
@@ -211,7 +211,7 @@ async function buildFeedPosts(
     const prof = profileById.get(r.author_id);
     const name = prof?.display_name || prof?.username || "Member";
     const reactions = reactionsByPost.get(r.id) ?? zeroReactions();
-    const total = reactions.love + reactions.like + reactions.laugh + reactions.crown;
+    const total = reactions.love + reactions.like + reactions.dislike + reactions.laugh + reactions.crown;
     const viewer_reaction = viewerReactionByPost.get(r.id) ?? null;
     const legacyType = (r.media_type as "image" | "video" | null) ?? null;
     const arrPaths = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
@@ -483,7 +483,7 @@ export const setReaction = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) =>
     z.object({
       postId: z.string().uuid(),
-      reaction: z.enum(["love", "like", "laugh", "crown"]).nullable(),
+      reaction: z.enum(["love", "like", "dislike", "laugh", "crown"]).nullable(),
     }).parse(input),
   )
   .handler(async ({ data, context }) => {

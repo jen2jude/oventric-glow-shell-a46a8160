@@ -45,7 +45,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
-import { ReactionPicker, REACTION_META, ReactionGlyph } from "@/components/oventric/feed/Reactions";
+import { ReactionPicker, REACTION_META, ReactionGlyph, isImageReaction } from "@/components/oventric/feed/Reactions";
 import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
@@ -684,7 +684,7 @@ function WatercoolerPost({
   const setReactionM = useServerFn(setReactionFn);
   const [viewerReaction, setViewerReaction] = useState<ReactionType | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, laugh: 0, crown: 0 });
+  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 });
 
   const react = async (r: ReactionType | null) => {
     const prev = viewerReaction;
@@ -738,7 +738,7 @@ function WatercoolerPost({
           style={activeColor ? { color: activeColor } : undefined}
         >
           {viewerReaction ? (
-            <ReactionGlyph reaction={viewerReaction} className={viewerReaction === "love" ? "w-5 h-5" : "w-3.5 h-3.5"} />
+            <ReactionGlyph reaction={viewerReaction} className={isImageReaction(viewerReaction) ? "w-5 h-5" : "w-3.5 h-3.5"} />
           ) : (
             <ReactionGlyph reaction="love" className="w-5 h-5" />
           )}
