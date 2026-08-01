@@ -45,7 +45,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
-import { ReactionPicker, REACTION_META } from "@/components/oventric/feed/Reactions";
+import { ReactionPicker, REACTION_META, ReactionGlyph } from "@/components/oventric/feed/Reactions";
 import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
