@@ -156,6 +156,9 @@ export interface RealProfileView {
   reputationStars: number;
   country: string | null;
   address: string | null;
+  addressPublic: boolean;
+  dateOfBirth: string | null;
+  dobPublic: boolean;
   joined: string; // ISO
 }
 
@@ -172,7 +175,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
       )
       .limit(1);
 
@@ -193,6 +196,8 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
 
     const cleanDisplay = (row.display_name ?? "").trim();
     const cleanUsername = (row.username ?? "").trim();
+    const addressPublic = !!(row as { address_public?: boolean }).address_public;
+    const dobPublic = !!(row as { dob_public?: boolean }).dob_public;
     return {
       profile: {
         userId: row.user_id,
@@ -205,11 +210,16 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: (row as { country?: string | null }).country ?? null,
-        address: (row as { address?: string | null }).address ?? null,
+        // Private-by-default: never leak address / DOB unless the owner opted in.
+        address: addressPublic ? ((row as { address?: string | null }).address ?? null) : null,
+        addressPublic,
+        dateOfBirth: dobPublic ? ((row as { date_of_birth?: string | null }).date_of_birth ?? null) : null,
+        dobPublic,
         joined: row.created_at,
       },
     };
   });
+
 
 
 
