@@ -2351,6 +2351,7 @@ export type Database = {
           display_name: string | null
           flag_reason: string | null
           flagged: boolean
+          has_seen_feature_carousel: boolean
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
@@ -2379,6 +2380,7 @@ export type Database = {
           display_name?: string | null
           flag_reason?: string | null
           flagged?: boolean
+          has_seen_feature_carousel?: boolean
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
@@ -2407,6 +2409,7 @@ export type Database = {
           display_name?: string | null
           flag_reason?: string | null
           flagged?: boolean
+          has_seen_feature_carousel?: boolean
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
