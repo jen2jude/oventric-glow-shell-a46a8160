@@ -537,7 +537,8 @@ function MiniProductCard({
             src={p.coverUrl}
             alt={p.name}
             className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
+            loading="eager"
+
             decoding="async"
           />
         ) : null}
