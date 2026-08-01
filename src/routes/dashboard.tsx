@@ -647,18 +647,30 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
       <EmptyState
         icon={Truck}
         title="No sales yet"
-        hint="Orders placed on your listings appear here so you can deliver, track escrow and settle disputes."
+        hint="Orders placed on your listings appear here. Deliver in the buyer's Oventric chat — escrow only protects trades completed in-app."
         cta={<Link to="/" className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black text-sm font-bold">Go to Marketplace</Link>}
       />
     );
   }
 
+  const overdue = (s: SaleDTO) =>
+    s.requiresManualDelivery &&
+    !s.deliveredAt &&
+    s.escrowStatus === "held" &&
+    Date.now() - new Date(s.createdAt).getTime() > 24 * 3600 * 1000;
+
   const badge = (s: SaleDTO) => {
     if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300" };
     if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300" };
     if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300" };
+    if (overdue(s)) return { label: "Overdue 24h+", cls: "bg-red-500 text-white" };
     if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black" };
     return { label: "In escrow", cls: "bg-white/10 text-slate-200" };
+  };
+
+  const messageBuyer = (buyerId: string) => {
+    if (typeof window === "undefined") return;
+    window.location.href = `/?dm=${buyerId}`;
   };
 
   return (
@@ -684,6 +696,12 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
                   {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
                 </div>
                 <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => messageBuyer(s.buyerId)}
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  >
+                    <MessageCircle className="w-3.5 h-3.5" /> Message buyer
+                  </button>
                   <Link
                     to="/order/$id"
                     params={{ id: s.orderId }}

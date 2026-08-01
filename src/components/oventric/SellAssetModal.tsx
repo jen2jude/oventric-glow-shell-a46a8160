@@ -400,7 +400,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
               {requiresManualDelivery && (
                 <div className="rounded-lg border border-amber-500/40 bg-amber-500/5 p-3 text-[12px] text-amber-100 leading-relaxed">
                   <div className="font-semibold text-amber-200 mb-1">Manual delivery selected — file / link fields are locked.</div>
-                  After a buyer pays, funds are held in escrow and you must deliver on Oventric (share a link, upload a file, or attach it in the buyer's chat). We also relay the order to your inbox, email, and WhatsApp on file. Payment releases to your wallet only after the buyer confirms receipt. <span className="text-amber-300 font-semibold">Do not finish deals off-platform</span> — we can't protect either side outside Oventric.
+                  After a buyer pays, funds are held in escrow and you must deliver on Oventric (share a link, upload a file, or attach it in the buyer's chat). We also relay the order to your Oventric inbox and email. Payment releases to your wallet only after the buyer confirms receipt. <span className="text-amber-300 font-semibold">Never finish deals on WhatsApp or any other app</span> — escrow, refunds and dispute mediation only cover trades completed on Oventric.
                 </div>
               )}
 
@@ -417,7 +417,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
                   <input type="checkbox" checked={requiresManualDelivery} onChange={(e) => setRequiresManualDelivery(e.target.checked)} className="mt-0.5 accent-emerald-500" />
                   <span>
                     <span className="block font-medium">Requires manual delivery / setup</span>
-                    <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email and WhatsApp at checkout so you can deliver.</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">Check this if the buyer needs custom deployment (SaaS setup, provisioning, license issuance) instead of an instant download. We’ll collect their email at checkout and open an order chat so you can deliver in-app.</span>
                   </span>
                 </label>
               </div>
