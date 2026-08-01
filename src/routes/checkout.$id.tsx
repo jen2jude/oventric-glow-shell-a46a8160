@@ -382,54 +382,93 @@ function CheckoutPage() {
                 const active = method === m.id;
                 const Icon = m.Icon;
                 const walletTag = m.id === "wallet" && balanceUSD !== null;
+                const hasGateways = m.id === "card" || m.id === "mobile_money" || m.id === "bank_transfer";
+                const expanded = hasGateways && active && cardOpen;
+                const gateways: Array<{ id: "flutterwave" | "paystack" | "minipay"; label: string; hint: string; Icon: React.ComponentType<{ className?: string }> }> = [
+                  { id: "flutterwave", label: "Flutterwave", hint: "Cards, bank transfer & mobile money", Icon: CreditCard },
+                  { id: "paystack", label: "Paystack", hint: "Cards, bank transfer & USSD", Icon: Building2 },
+                  ...(minipay.available
+                    ? [{ id: "minipay" as const, label: "MiniPay", hint: "Send manually, upload receipt · verified by our team", Icon: Smartphone }]
+                    : []),
+                ];
                 return (
-                  <button
-                    key={m.id}
-                    onClick={() => { if (!m.disabled) setMethod(m.id); }}
-                    disabled={m.disabled}
-                    aria-disabled={m.disabled}
-                    title={m.disabled ? "Wallet is reserved for bounties & ads. Pay directly instead." : undefined}
-                    className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
-                      m.disabled
-                        ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
-                        : active
-                          ? "bg-emerald-500/10 border-emerald-500/50"
-                          : "bg-[#1E1E24] border-white/10 hover:border-white/20"
-                    }`}
-                  >
-                    <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}>
-                      <Icon className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`} />
-                    </span>
-                    <span className="flex-1 min-w-0">
-                      <span className="block text-sm text-white font-semibold">
-                        {m.label}
-                        {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Unavailable here</span>}
+                  <div key={m.id}>
+                    <button
+                      onClick={() => {
+                        if (m.disabled) return;
+                        setMethod(m.id);
+                        if (hasGateways) setCardOpen(active ? !cardOpen : true);
+                      }}
+                      disabled={m.disabled}
+                      aria-disabled={m.disabled}
+                      aria-expanded={hasGateways ? expanded : undefined}
+                      title={m.disabled ? "Wallet is reserved for bounties & ads. Pay directly instead." : undefined}
+                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
+                        m.disabled
+                          ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                          : active
+                            ? "bg-emerald-500/10 border-emerald-500/50"
+                            : "bg-[#1E1E24] border-white/10 hover:border-white/20"
+                      }`}
+                    >
+                      <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}>
+                        <Icon className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`} />
                       </span>
-                      <span className="block text-xs text-slate-500">{m.hint}</span>
-                    </span>
-                    {walletTag && (
-                      <span className="text-[11px] font-mono text-slate-400">
-                        {fmtLocal(balanceUSD ?? 0, baseCurrency)}
+                      <span className="flex-1 min-w-0">
+                        <span className="block text-sm text-white font-semibold">
+                          {m.label}
+                          {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Unavailable here</span>}
+                        </span>
+                        <span className="block text-xs text-slate-500">
+                          {hasGateways && active
+                            ? `via ${gateways.find((g) => g.id === gateway)?.label ?? m.hint}`
+                            : m.hint}
+                        </span>
                       </span>
+                      {walletTag && (
+                        <span className="text-[11px] font-mono text-slate-400">
+                          {fmtLocal(balanceUSD ?? 0, baseCurrency)}
+                        </span>
+                      )}
+                      {hasGateways && !m.disabled && (
+                        <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${expanded ? "rotate-180" : ""}`} />
+                      )}
+                    </button>
+
+                    {expanded && (
+                      <div className="mt-2 ml-4 pl-4 border-l border-white/10 space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Choose payment provider</div>
+                        {gateways.map((g) => {
+                          const on = gateway === g.id;
+                          return (
+                            <button
+                              key={g.id}
+                              onClick={() => setGateway(g.id)}
+                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-colors ${
+                                on ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] border-white/10 hover:border-white/20"
+                              }`}
+                            >
+                              <g.Icon className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`} />
+                              <span className="flex-1 min-w-0">
+                                <span className="block text-sm text-white font-semibold">
+                                  {g.label}
+                                  {g.id === recommended && (
+                                    <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-emerald-300">Recommended</span>
+                                  )}
+                                </span>
+                                <span className="block text-[11px] text-slate-500">{g.hint}</span>
+                              </span>
+                              {on && <Check className="w-4 h-4 text-emerald-300 shrink-0" />}
+                            </button>
+                          );
+                        })}
+                      </div>
                     )}
-                  </button>
+                  </div>
                 );
               })}
 
-              {minipay.available && (
-                <button
-                  onClick={() => setMinipayOpen(true)}
-                  className="w-full text-left rounded-xl border border-white/10 bg-[#1E1E24] hover:border-white/20 p-4 flex items-center gap-4 transition-colors"
-                >
-                  <span className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
-                    <Smartphone className="w-5 h-5 text-slate-300" />
-                  </span>
-                  <span className="flex-1 min-w-0">
-                    <span className="block text-sm text-white font-semibold">MiniPay</span>
-                    <span className="block text-xs text-slate-500">Send manually, upload receipt · verified by our team</span>
-                  </span>
-                </button>
-              )}
+
 
 
 
