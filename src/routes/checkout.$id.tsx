@@ -231,10 +231,15 @@ function CheckoutPage() {
       toast.error("Add your delivery details", { description: "We need a valid email address to deliver your purchase." });
       return;
     }
+    // MiniPay is a manual (proof-of-transfer) flow — open its panel instead.
+    if (method !== "wallet" && gateway === "minipay") {
+      setMinipayOpen(true);
+      return;
+    }
     setSubmitting(true);
     setShortfallUSD(null);
     try {
-      // Non-wallet methods: initialize Paystack and redirect to secure checkout.
+      // Non-wallet methods: initialize the selected gateway and redirect to its secure checkout.
       if (method !== "wallet") {
         const channel: "card" | "bank_transfer" | "mobile_money" | undefined =
           method === "card" ? "card"
@@ -252,11 +257,13 @@ function CheckoutPage() {
             deliveryWhatsapp: null,
             applyCashbackUSD: cashbackApplyUSD,
             channel,
+            provider: gateway,
           },
         });
         window.location.href = init.authorizationUrl;
         return;
       }
+
 
       const res = await submitOrder({
         data: {
