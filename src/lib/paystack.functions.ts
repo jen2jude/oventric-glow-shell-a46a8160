@@ -357,6 +357,7 @@ async function settleOrder(
     cashbackAppliedUSD?: number;
   },
 ) {
+  await primeRuntimeFxRates();
 
   const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
 
