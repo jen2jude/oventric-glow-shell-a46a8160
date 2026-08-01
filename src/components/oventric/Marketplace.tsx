@@ -307,7 +307,7 @@ export function Marketplace() {
                         src={c.cover}
                         alt={c.name}
                         className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                       />
                     ) : null}
@@ -493,7 +493,7 @@ function ModeCard({
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="relative overflow-hidden bg-white/5">
             {covers[i] ? (
-              <img src={covers[i]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+              <img src={covers[i]} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
             ) : null}
           </div>
         ))}
@@ -537,7 +537,8 @@ function MiniProductCard({
             src={p.coverUrl}
             alt={p.name}
             className="absolute inset-0 w-full h-full object-cover"
-            loading="lazy"
+            loading="eager"
+
             decoding="async"
           />
         ) : null}
