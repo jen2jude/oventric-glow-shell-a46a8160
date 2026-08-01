@@ -19,7 +19,6 @@ import {
   X,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
-import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
@@ -60,7 +59,6 @@ const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
-  const { isAuthenticated } = useAuthGate();
   const navigate = useNavigate();
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
