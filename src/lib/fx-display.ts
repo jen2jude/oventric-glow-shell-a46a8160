@@ -99,9 +99,9 @@ export function validateFxSnapshot(row: PriceableRow | null | undefined, viewer:
 }
 
 /**
- * Convert an amount between two currencies using a snapshot (USD-base rates).
- * Falls back to LEGACY_USD_RATES if the snapshot is missing a rate — this is
- * only relevant for rows created before the snapshot system.
+ * Convert an amount between two currencies. Prefers current live rates (so a
+ * Ghanaian buyer sees today's true GHS value of a Nigerian seller's price),
+ * then the row's publish-time snapshot, then the static fallback.
  */
 export function convertViaSnapshot(
   amount: number,
@@ -110,9 +110,16 @@ export function convertViaSnapshot(
   snapshot: FxSnapshot | null | undefined,
 ): number {
   if (from === to || !(amount > 0)) return amount;
-  const rates = snapshot?.rates ?? {};
-  const fromRate = Number(rates[from] ?? LEGACY_USD_RATES[from]);
-  const toRate = Number(rates[to] ?? LEGACY_USD_RATES[to]);
+  const snapRates = snapshot?.rates ?? {};
+  const pick = (c: Currency) => {
+    const live = RUNTIME_RATES?.[c];
+    if (Number(live) > 0) return Number(live);
+    const snap = snapRates[c];
+    if (Number(snap) > 0) return Number(snap);
+    return Number(LEGACY_USD_RATES[c]);
+  };
+  const fromRate = pick(from);
+  const toRate = pick(to);
   if (!(fromRate > 0) || !(toRate > 0)) return amount;
   return (amount / fromRate) * toRate;
 }
