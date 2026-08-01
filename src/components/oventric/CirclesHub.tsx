@@ -704,7 +704,7 @@ function WatercoolerPost({
   };
 
   const total = totals.love + totals.like + totals.laugh + totals.crown;
-  const ActiveIcon = viewerReaction ? REACTION_META[viewerReaction].Icon : null;
+  
   const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
 
   return (
