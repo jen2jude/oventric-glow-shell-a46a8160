@@ -11,7 +11,8 @@ import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccoun
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
-import { currencySymbol, currencyDecimals } from "@/lib/fx-display";
+import { currencySymbol } from "@/lib/fx-display";
+import { currencyDecimals } from "@/lib/currency/africa";
 import { AFRICA_COUNTRIES, COUNTRY_META } from "@/lib/currency/africa";
 
 const CURRENCY_SYMBOL = new Proxy({} as Record<Currency, string>, {
