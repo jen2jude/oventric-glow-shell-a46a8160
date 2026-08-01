@@ -71,6 +71,10 @@ const CONGRATS_MS = 2400;
 const ENTER = "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 const EXIT = "feature-carousel-exit 0.6s cubic-bezier(0.4, 0, 1, 1) forwards";
 const SLIDE_ENTER = "feature-carousel-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+const IN_FROM_RIGHT =
+  "feature-carousel-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+const IN_FROM_LEFT =
+  "feature-carousel-in-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 
 type Phase = "intro" | "slides" | "congrats";
 
@@ -78,6 +82,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [introExiting, setIntroExiting] = useState(false);
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -146,16 +151,18 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     setPhase("congrats");
   }, [markSeenServer]);
 
-  const goTo = useCallback((next: number) => {
-    setIndex(() => {
-      if (next < 0) return SLIDES.length - 1;
-      if (next >= SLIDES.length) return 0;
-      return next;
+  const goTo = useCallback((next: number, dir?: 1 | -1) => {
+    setIndex((cur) => {
+      let target = next;
+      if (target < 0) target = SLIDES.length - 1;
+      if (target >= SLIDES.length) target = 0;
+      setDirection(dir ?? (target === cur ? 1 : target > cur ? 1 : -1));
+      return target;
     });
   }, []);
 
-  const next = useCallback(() => goTo(index + 1), [goTo, index]);
-  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
+  const next = useCallback(() => goTo(index + 1, 1), [goTo, index]);
+  const prev = useCallback(() => goTo(index - 1, -1), [goTo, index]);
 
   // Keyboard navigation
   useEffect(() => {
@@ -274,7 +281,13 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <div
               key={slide.id}
               className="feature-carousel-slide flex flex-col items-center text-center w-full"
-              style={{ animation: introExiting ? SLIDE_ENTER : ENTER }}
+              style={{
+                animation: introExiting
+                  ? SLIDE_ENTER
+                  : direction === 1
+                    ? IN_FROM_RIGHT
+                    : IN_FROM_LEFT,
+              }}
             >
               <div
                 className="relative w-full aspect-[4/3] mb-7 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10"
