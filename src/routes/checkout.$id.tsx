@@ -22,7 +22,8 @@ import {
   type PaymentMethod,
 } from "@/lib/marketplace.functions";
 
-import { initPaystackPayment } from "@/lib/paystack.functions";
+import { initPayment, getPaymentOptions } from "@/lib/payments.functions";
+import { MiniPayPanel } from "@/components/oventric/MiniPayPanel";
 import { usdRate, convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
@@ -105,7 +106,7 @@ function CheckoutPage() {
 
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
-  const initPaystack = useServerFn(initPaystackPayment);
+  const initCharge = useServerFn(initPayment);
 
   const [product, setProduct] = useState<ProductDTO | null>(null);
   const [loadErr, setLoadErr] = useState<string | null>(null);
@@ -120,6 +121,17 @@ function CheckoutPage() {
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
   const [deliveryEmail, setDeliveryEmail] = useState("");
+  const [minipay, setMinipay] = useState<{ available: boolean }>({ available: false });
+  const [minipayOpen, setMinipayOpen] = useState(false);
+  const loadOptions = useServerFn(getPaymentOptions);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadOptions({ data: { currency: baseCurrency, purpose: "order" } })
+      .then((o) => { if (!cancelled) setMinipay({ available: o.minipay.available }); })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [loadOptions, baseCurrency]);
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
@@ -220,7 +232,7 @@ function CheckoutPage() {
           : method === "bank_transfer" ? "bank_transfer"
           : method === "mobile_money" ? "mobile_money"
           : undefined;
-        const init = await initPaystack({
+        const init = await initCharge({
           data: {
             purpose: "order",
             productId: product.id,
@@ -282,7 +294,7 @@ function CheckoutPage() {
     setTopUpBusy(true);
     try {
       const channel = topUpMethod === "card" ? "card" : topUpMethod === "bank_transfer" ? "bank_transfer" : topUpMethod === "mobile_money" ? "mobile_money" : "card";
-      const init = await initPaystack({
+      const init = await initCharge({
         data: {
           purpose: "wallet_topup",
           amount: amt,
@@ -384,6 +396,23 @@ function CheckoutPage() {
                   </button>
                 );
               })}
+
+              {minipay.available && (
+                <button
+                  onClick={() => setMinipayOpen(true)}
+                  className="w-full text-left rounded-xl border border-white/10 bg-[#1E1E24] hover:border-white/20 p-4 flex items-center gap-4 transition-colors"
+                >
+                  <span className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center">
+                    <Smartphone className="w-5 h-5 text-slate-300" />
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm text-white font-semibold">MiniPay</span>
+                    <span className="block text-xs text-slate-500">Send manually, upload receipt · verified by our team</span>
+                  </span>
+                </button>
+              )}
+
+
 
 
               {insufficient && (
@@ -548,6 +577,16 @@ function CheckoutPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {minipayOpen && product && (
+        <MiniPayPanel
+          purpose="order"
+          targetId={product.id}
+          quantity={qty}
+          currency={baseCurrency}
+          onClose={() => setMinipayOpen(false)}
+        />
       )}
     </div>
   );

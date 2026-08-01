@@ -1,73 +1,86 @@
-# First-Launch Feature Carousel
-
 ## Goal
-Show a lightweight, skippable visual carousel the very first time a user opens Oventric (no local cache). After the carousel, route to the newsfeed/home. Returning users skip it entirely.
 
-## Product decisions
-- **Trigger:** localStorage flag `oventric:seen-feature-carousel`. If missing, show carousel.
-- **Skippable:** always-visible "Skip" / "Get started" button.
-- **Slides:** 5 visuals matching Oventric's pillars — Feed, Marketplace, Academy, Bounties, Wallet.
-- **Design:** full-screen dark overlay, simple slide transitions, no heavy blur/backdrop-filter to stay GPU-safe.
-- **Auth behavior:** carousel runs before auth gate; users land on it cold, then proceed to sign-in or newsfeed.
+Widen payment coverage now that the platform serves all African countries:
 
-## Implementation steps
+1. **Flutterwave** becomes the primary gateway (test mode until your account clears validation).
+2. **Paystack** stays wired as a fallback, chosen automatically per currency.
+3. **MiniPay** is added as a manual transfer option on **direct payments only** — product purchases, Academy courses, and bounty posting. It is **not** offered in the wallet funding flow.
 
-### 1. Create the carousel component
-- File: `src/components/oventric/FeatureCarousel.tsx`
-- Props: `onComplete: () => void`
-- State: current slide index, direction, touch swipe offsets
-- Uses existing 3D/brand assets where possible (feed, marketplace, academy, bounties, wallet asset JSONs) or Lucide icons as fallback.
-- Each slide: icon/illustration, headline, one-line description, dot indicator.
-- Controls: previous/next chevrons, skip top-right, progress dots, swipe gestures for mobile.
-- Animation: simple CSS translate + opacity transitions; respect `prefers-reduced-motion`.
+## Why this helps
 
-### 2. Add first-launch detection hook
-- File: `src/hooks/useFirstLaunch.ts`
-- Reads/writes `oventric:seen-feature-carousel` in localStorage.
-- Returns `[show, markSeen]`.
-- SSR-safe: defaults to `false` on server, hydrates from storage on mount.
+Paystack can only charge in NGN, GHS, ZAR, KES, USD — everyone else is currently forced into a USD cross-border charge with a ~3.9% + $0.30 fee. Flutterwave settles natively in NGN, GHS, KES, ZAR, UGX, TZS, RWF, XAF, XOF, ZMW, MWK, EGP, MAD (plus USD/GBP/EUR), so most African users get charged in their own currency with local cards, bank transfer, and mobile money.
 
-### 3. Mount carousel in the root route
-- File: `src/routes/__root.tsx`
-- Render `<FeatureCarousel />` inside `RootComponent` after providers but before `<Outlet />`, gated by `useFirstLaunch`.
-- On completion, call `markSeen()` and let `<Outlet />` render the normal route.
-- Ensure it sits above `BootSplash` visually (or wait for boot splash to finish before showing carousel).
+## 1. Gateway router
 
-### 4. Update home route head metadata
-- File: `src/routes/index.tsx`
-- Keep existing meta; no change needed unless we want a dedicated `/welcome` route.
-- **Decision:** keep carousel as an overlay on `/` so there is no URL change; simpler and avoids back-button issues.
+A single decision point picks the provider for a given currency and amount:
 
-### 5. Add CSS tokens for safe transitions
-- File: `src/styles.css`
-- Add `.feature-carousel` utility classes with GPU-safe transforms (`transform`, `opacity`) and no `backdrop-filter`.
-- Add reduced-motion fallback that disables slide animation.
+- Currency natively supported by Flutterwave and Flutterwave is enabled → **Flutterwave**
+- Otherwise, currency is NGN/GHS/ZAR/KES → **Paystack**
+- Otherwise → Flutterwave in USD (widest reach) with the home currency recorded in metadata, so settlement still lands in the user's own currency
+- MiniPay is never auto-selected — it is an explicit user choice, and only on the direct-payment screens
 
-### 6. Add a persistent backend flag (optional but recommended)
-- Add column `has_seen_feature_carousel` to `profiles` table with default `false`.
-- Update on carousel completion for authenticated users so the flag survives across devices.
-- For anonymous/not-yet-signed-in users, localStorage remains the source of truth until they create an account.
+The existing FX layer, cashback logic, 80/20 seller split, and wallet settlement stay untouched. Only the "who charges the card" layer changes.
 
-### 7. Test and verify
-- Unit test `useFirstLaunch` hook behavior.
-- Playwright test: first visit shows carousel, clicking "Get started" hides it, reload no longer shows it.
-- Mobile swipe test and reduced-motion test.
+## 2. Flutterwave integration
 
-## Files to create/modify
-- `src/components/oventric/FeatureCarousel.tsx` (new)
-- `src/hooks/useFirstLaunch.ts` (new)
-- `src/routes/__root.tsx` (modify to mount carousel)
-- `src/styles.css` (add carousel-safe transition utilities)
-- Migration: add `profiles.has_seen_feature_carousel boolean default false` and RLS policy (optional)
+New server-only module mirroring the current Paystack one, so the rest of the app doesn't care which gateway ran:
 
-## Out of scope
-- Deep-linking to specific slides.
-- Video backgrounds or WebGL effects.
-- Replacing the existing onboarding stage modals.
+- Initialize a payment (Standard hosted checkout) → returns a redirect URL
+- Verify by transaction ID / tx_ref on return
+- Signed webhook endpoint (`verif-hash` header) with the same duplicate-event table pattern already used for Paystack, so retries can never double-credit a wallet
+- Fee model file for Flutterwave's local/international card and mobile-money rates, used by both the "you'll be charged X" preview and the server charge, exactly like today
 
-## Acceptance criteria
-- [ ] First visit on a fresh browser shows the carousel before the newsfeed.
-- [ ] Users can skip the carousel at any time.
-- [ ] After completion/skip, the carousel never appears again on that device/account.
-- [ ] Carousel is responsive and GPU-safe on low-end mobile devices.
-- [ ] Returning users see the newsfeed immediately.
+**Payouts:** Flutterwave Transfers becomes the default withdrawal rail — bank list, account name resolution, recipient creation, transfer initiation, and transfer webhook status handling (success / failed / reversed → escrow refund). This unlocks withdrawals to far more countries and to mobile-money wallets (M-Pesa, MTN MoMo, Airtel). Paystack transfers remain available for existing NGN/GHS recipients.
+
+**Test mode:** everything runs on your test keys. A single config flag flips live when validation completes — no code change needed.
+
+## 3. MiniPay manual transfer (direct payments only)
+
+MiniPay has no charge API, so this is a proof-of-payment flow. It appears as a payment option **only** on:
+
+- Marketplace product checkout
+- Academy course checkout
+- Bounty posting (escrow funding)
+
+It does **not** appear in the Fund Wallet flow.
+
+How it works:
+
+- User picks "Pay with MiniPay"
+- Screen shows your MiniPay number/handle, the exact amount in their currency, and a unique reference code to include in the transfer note
+- User uploads a screenshot of the transfer
+- The order / enrolment / bounty is created in a **"Payment pending confirmation"** state — nothing is delivered, escrowed, or published yet
+- Admin sees it in a review queue with the proof, reference, and amount
+- **Approve** → the exact same settlement path the card gateways use runs (order paid, course unlocked, bounty escrowed and published, cashback credited)
+- **Reject** → the pending record is cancelled with a reason
+- Buyer and seller both get notifications at each step; the buyer sees a clear "Awaiting confirmation" state meanwhile
+
+Because delivery is gated on admin approval, digital products bought via MiniPay are held until confirmed rather than released instantly — the UI states this upfront so buyers who want instant access pick a card option.
+
+## 4. Admin controls
+
+New section in admin settings:
+
+- Toggle each gateway on/off (Flutterwave, Paystack, MiniPay)
+- Set MiniPay receiving details and which currencies it accepts
+- MiniPay review queue with proof image, reference, amount, buyer, target item, and approve/reject
+
+## Technical notes
+
+- New tables: `manual_payments` (user, purpose, target id, currency, amount, reference, proof path, status, reviewer, reason) and `flutterwave_webhook_events` (dedupe). New `payment-proofs` storage bucket with owner-scoped RLS; admins read via the service role.
+- `payout_recipients` / `payout_requests` gain a `provider` column so existing Paystack recipients keep working while new ones go to Flutterwave.
+- `src/lib/currency/africa.ts` gains a `FLUTTERWAVE_CURRENCIES` list; the router replaces the current `gatewayCurrency()` helper.
+- The settlement logic currently inside the Paystack verify path is extracted into a provider-agnostic function so card payments and approved MiniPay payments run identical fulfilment.
+- New files: `src/lib/flutterwave.functions.ts`, `src/lib/flutterwave-transfers.server.ts`, `src/lib/flutterwave-fees.ts`, `src/lib/payments/router.ts`, `src/lib/manual-payments.functions.ts`, `src/routes/api/public/flutterwave-webhook.ts`, `src/routes/admin.manual-payments.tsx`, plus a MiniPay payment modal component.
+- Existing Paystack files stay in place and are still reachable through the router; the payment return page handles both providers.
+- Secrets needed: `FLUTTERWAVE_SECRET_KEY`, `FLUTTERWAVE_PUBLIC_KEY`, `FLUTTERWAVE_ENCRYPTION_KEY`, `FLUTTERWAVE_WEBHOOK_HASH`. I'll request these when we start; test keys are fine.
+- Webhook URL to register in your Flutterwave dashboard: `https://oventric.com/api/public/flutterwave-webhook`.
+
+## Order of work
+
+1. Database migration (tables, columns, bucket)
+2. Currency registry + gateway router + shared settlement extraction
+3. Flutterwave charge + verify + webhook
+4. Flutterwave payouts and bank/momo resolution
+5. MiniPay manual flow on the three direct-payment screens + admin queue
+6. Admin gateway toggles, then end-to-end test in Flutterwave test mode

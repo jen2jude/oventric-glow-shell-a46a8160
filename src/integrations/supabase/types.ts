@@ -1553,6 +1553,27 @@ export type Database = {
         }
         Relationships: []
       }
+      flutterwave_webhook_events: {
+        Row: {
+          event: string | null
+          received_at: string
+          reference: string | null
+          signature: string
+        }
+        Insert: {
+          event?: string | null
+          received_at?: string
+          reference?: string | null
+          signature: string
+        }
+        Update: {
+          event?: string | null
+          received_at?: string
+          reference?: string | null
+          signature?: string
+        }
+        Relationships: []
+      }
       follow_requests: {
         Row: {
           created_at: string
@@ -1595,6 +1616,72 @@ export type Database = {
           created_at?: string
           followee_id?: string
           follower_id?: string
+        }
+        Relationships: []
+      }
+      manual_payments: {
+        Row: {
+          amount: number
+          amount_usd: number
+          created_at: string
+          currency: string
+          id: string
+          meta: Json
+          payer_note: string | null
+          proof_path: string | null
+          provider: string
+          purpose: string
+          reference: string
+          reject_reason: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
+          status: string
+          target_id: string | null
+          target_label: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          amount_usd?: number
+          created_at?: string
+          currency: string
+          id?: string
+          meta?: Json
+          payer_note?: string | null
+          proof_path?: string | null
+          provider?: string
+          purpose: string
+          reference: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_label?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          amount_usd?: number
+          created_at?: string
+          currency?: string
+          id?: string
+          meta?: Json
+          payer_note?: string | null
+          proof_path?: string | null
+          provider?: string
+          purpose?: string
+          reference?: string
+          reject_reason?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
+          status?: string
+          target_id?: string | null
+          target_label?: string | null
+          updated_at?: string
+          user_id?: string
         }
         Relationships: []
       }
@@ -1841,6 +1928,45 @@ export type Database = {
           },
         ]
       }
+      payment_gateway_settings: {
+        Row: {
+          flutterwave_enabled: boolean
+          id: number
+          meta: Json
+          minipay_account_name: string | null
+          minipay_currencies: string[]
+          minipay_enabled: boolean
+          minipay_handle: string | null
+          minipay_instructions: string | null
+          paystack_enabled: boolean
+          updated_at: string
+        }
+        Insert: {
+          flutterwave_enabled?: boolean
+          id?: number
+          meta?: Json
+          minipay_account_name?: string | null
+          minipay_currencies?: string[]
+          minipay_enabled?: boolean
+          minipay_handle?: string | null
+          minipay_instructions?: string | null
+          paystack_enabled?: boolean
+          updated_at?: string
+        }
+        Update: {
+          flutterwave_enabled?: boolean
+          id?: number
+          meta?: Json
+          minipay_account_name?: string | null
+          minipay_currencies?: string[]
+          minipay_enabled?: boolean
+          minipay_handle?: string | null
+          minipay_instructions?: string | null
+          paystack_enabled?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
       payout_recipients: {
         Row: {
           account_name: string
@@ -1855,6 +1981,8 @@ export type Database = {
           momo_network: string | null
           paystack_recipient_code: string
           phone: string | null
+          provider: string
+          provider_recipient_code: string | null
           updated_at: string
           user_id: string
           verified_at: string | null
@@ -1872,6 +2000,8 @@ export type Database = {
           momo_network?: string | null
           paystack_recipient_code: string
           phone?: string | null
+          provider?: string
+          provider_recipient_code?: string | null
           updated_at?: string
           user_id: string
           verified_at?: string | null
@@ -1889,6 +2019,8 @@ export type Database = {
           momo_network?: string | null
           paystack_recipient_code?: string
           phone?: string | null
+          provider?: string
+          provider_recipient_code?: string | null
           updated_at?: string
           user_id?: string
           verified_at?: string | null
@@ -1910,6 +2042,9 @@ export type Database = {
           paystack_transfer_code: string | null
           processed_at: string | null
           processed_by: string | null
+          provider: string
+          provider_recipient_code: string | null
+          provider_transfer_code: string | null
           recipient_id: string | null
           reject_reason: string | null
           status: string
@@ -1930,6 +2065,9 @@ export type Database = {
           paystack_transfer_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
+          provider?: string
+          provider_recipient_code?: string | null
+          provider_transfer_code?: string | null
           recipient_id?: string | null
           reject_reason?: string | null
           status?: string
@@ -1950,6 +2088,9 @@ export type Database = {
           paystack_transfer_code?: string | null
           processed_at?: string | null
           processed_by?: string | null
+          provider?: string
+          provider_recipient_code?: string | null
+          provider_transfer_code?: string | null
           recipient_id?: string | null
           reject_reason?: string | null
           status?: string
@@ -2789,19 +2930,34 @@ export type Database = {
         }
         Returns: string
       }
-      payout_request_create_live: {
-        Args: {
-          _amount: number
-          _currency: string
-          _destination: Json
-          _fee: number
-          _method: string
-          _net: number
-          _recipient_code: string
-          _recipient_id: string
-        }
-        Returns: string
-      }
+      payout_request_create_live:
+        | {
+            Args: {
+              _amount: number
+              _currency: string
+              _destination: Json
+              _fee: number
+              _method: string
+              _net: number
+              _recipient_code: string
+              _recipient_id: string
+            }
+            Returns: string
+          }
+        | {
+            Args: {
+              _amount: number
+              _currency: string
+              _destination: Json
+              _fee: number
+              _method: string
+              _net: number
+              _provider?: string
+              _recipient_code: string
+              _recipient_id: string
+            }
+            Returns: string
+          }
       payout_request_mark_paid: {
         Args: { _id: string; _note: string }
         Returns: undefined

@@ -30,7 +30,7 @@ import {
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
 import { listWalletTransactions, getWalletBalances, getWalletEarnings, transferBountyToMain } from "@/lib/wallet.functions";
-import { initPaystackPayment } from "@/lib/paystack.functions";
+import { initPayment } from "@/lib/payments.functions";
 import { paystackFee } from "@/lib/paystack-fees";
 import {
   listBanksForCurrency,
@@ -837,7 +837,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
 
   const [amount, setAmount] = useState<string>(prefillLocal);
   const [busy, setBusy] = useState(false);
-  const initPaystack = useServerFn(initPaystackPayment);
+  const initCharge = useServerFn(initPayment);
   const options = [
     { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Visa / Mastercard / Verve · secured by Paystack", disabled: false },
     { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack", disabled: false },
@@ -863,7 +863,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
       // Charge in the user's home currency, exactly what they see on screen.
       const chargeAmount = baseCurrency === "USD" ? Number(local.toFixed(2)) : Math.round(local);
       const channel = pick === "card" ? "card" : pick === "bank" ? "bank_transfer" : "mobile_money";
-      const init = await initPaystack({
+      const init = await initCharge({
         data: {
           purpose: "wallet_topup",
           amount: chargeAmount,

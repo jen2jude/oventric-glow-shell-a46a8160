@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, CheckCircle2, XCircle, Sparkles, Wallet as WalletIcon } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
-import { verifyPaystackPayment } from "@/lib/paystack.functions";
+import { verifyPayment } from "@/lib/payments.functions";
 import { usdRate } from "@/lib/fx-display";
 import { formatMoney as fmtMoney } from "@/lib/fx-display";
 
@@ -21,7 +21,7 @@ function formatMoney(usd: number, cur: string) {
 
 function PaymentReturnPage() {
   const { reference } = Route.useSearch();
-  const verify = useServerFn(verifyPaystackPayment);
+  const verify = useServerFn(verifyPayment);
   const navigate = useNavigate();
   const [state, setState] = useState<"verifying" | "ok" | "failed">("verifying");
   const [msg, setMsg] = useState<string>("");

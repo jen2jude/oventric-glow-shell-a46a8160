@@ -1,0 +1,185 @@
+/**
+ * Provider-agnostic payment intent builder.
+ *
+ * Turns a user's checkout/top-up request into an authoritative
+ * { amount, currency, metadata } triple, using DB prices (never client
+ * amounts) and atomically debiting any Cashback Wallet spend.
+ *
+ * Both Flutterwave and Paystack consume this, so the money maths lives in
+ * exactly one place.
+ */
+import { getRequestHeader } from "@tanstack/react-start/server";
+import { primeRuntimeFxRates } from "@/lib/fx.server";
+import { convertViaSnapshot } from "@/lib/fx-display";
+import { FX_FROM_USD, type OrderCurrency } from "@/lib/marketplace.functions";
+
+export type WalletTopupIntent = {
+  purpose: "wallet_topup";
+  amount: number;
+  currency: OrderCurrency;
+  returnTo?: string;
+};
+
+export type OrderIntent = {
+  purpose: "order";
+  productId: string;
+  quantity: number;
+  displayCurrency: OrderCurrency;
+  couponCode?: string | null;
+  deliveryEmail?: string | null;
+  deliveryWhatsapp?: string | null;
+  /** Amount of Cashback Wallet (USD) to spend on this order. Debited atomically. */
+  applyCashbackUSD?: number | null;
+};
+
+export type PaymentIntentInput = WalletTopupIntent | OrderIntent;
+
+export interface BuiltIntent {
+  /** Amount in the user's own (display / home) currency. */
+  amount: number;
+  currency: OrderCurrency;
+  metadata: Record<string, unknown>;
+  /** For top-ups: the amount to credit the wallet with (fee excluded). */
+  topupNet: number;
+}
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type Sb = any;
+
+export async function buildPaymentIntent(
+  supabase: Sb,
+  userId: string,
+  data: PaymentIntentInput,
+): Promise<BuiltIntent> {
+  await primeRuntimeFxRates();
+
+  const metadata: Record<string, unknown> = { user_id: userId, purpose: data.purpose };
+
+  if (data.purpose === "wallet_topup") {
+    const topupNet = Number(data.amount);
+    if (!(topupNet > 0)) throw new Error("Top-up amount must be greater than zero.");
+    metadata.wallet_credit_amount = topupNet;
+    metadata.credit_currency = data.currency;
+    if (typeof data.returnTo === "string" && data.returnTo.startsWith("/")) {
+      metadata.return_to = data.returnTo;
+    }
+    return { amount: topupNet, currency: data.currency, metadata, topupNet };
+  }
+
+  // Order — resolve the authoritative price from the database.
+  const { data: p, error } = await supabase
+    .from("products")
+    .select("id, price_usd, original_currency, original_amount, fx_snapshot")
+    .eq("id", data.productId)
+    .maybeSingle();
+  if (error) throw new Error(error.message);
+  if (!p) throw new Error("Product not found");
+
+  const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
+  const displayCurrency = data.displayCurrency;
+  const grossUSD = Number(p.price_usd) * qty;
+
+  let discountUSD = 0;
+  if (data.couponCode) {
+    const { data: c } = await supabase
+      .from("coupons")
+      .select("discount_pct")
+      .eq("code", data.couponCode)
+      .eq("active", true)
+      .maybeSingle();
+    if (c) discountUSD = Number(((grossUSD * Number(c.discount_pct)) / 100).toFixed(2));
+  }
+  const totalAfterCouponUSD = Number((grossUSD - discountUSD).toFixed(2));
+
+  // Cashback Wallet spend — debited BEFORE the gateway charge is created so
+  // the charge amount is reduced. Refunded if the payment never settles.
+  let cashbackAppliedUSD = 0;
+  const requestedCB = Math.max(0, Number(data.applyCashbackUSD ?? 0));
+  if (requestedCB > 0) {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data: wRow } = await supabaseAdmin
+      .from("wallets")
+      .select("accumulated_cashback")
+      .eq("user_id", userId)
+      .eq("currency", "USD")
+      .maybeSingle();
+    const availableCB = Number(wRow?.accumulated_cashback ?? 0);
+    const spend = Number(Math.min(requestedCB, availableCB, totalAfterCouponUSD).toFixed(2));
+    if (spend > 0) {
+      const { data: cbOk, error: cbErr } = await supabaseAdmin.rpc("cashback_debit", {
+        _user_id: userId,
+        _amount: spend,
+      });
+      if (cbErr) throw new Error(cbErr.message);
+      if (cbOk) cashbackAppliedUSD = spend;
+    }
+  }
+
+  const totalUSD = Number((totalAfterCouponUSD - cashbackAppliedUSD).toFixed(2));
+
+  // Prefer the seller's exact locked amount when the buyer pays in the
+  // product's ORIGINAL currency — avoids USD round-trip drift.
+  const originalCurrency = ((p.original_currency as string) ?? "USD") as OrderCurrency;
+  const originalAmount = Number(p.original_amount ?? 0);
+  let converted = 0;
+  if (originalAmount > 0 && displayCurrency === originalCurrency && totalAfterCouponUSD > 0) {
+    const ratio = totalUSD / totalAfterCouponUSD;
+    converted = Number((originalAmount * qty * ratio).toFixed(2));
+  } else {
+    const snapRaw = (p.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
+    const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
+    converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
+  }
+
+  const amount = Number(
+    (converted > 0 ? converted : totalUSD * (FX_FROM_USD[displayCurrency] ?? 1)).toFixed(2),
+  );
+
+  metadata.product_id = p.id;
+  metadata.quantity = qty;
+  metadata.display_currency = displayCurrency;
+  metadata.coupon_code = data.couponCode ?? null;
+  metadata.total_usd = totalUSD;
+  metadata.cashback_applied_usd = cashbackAppliedUSD;
+  metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
+  metadata.delivery_whatsapp = data.deliveryWhatsapp
+    ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20)
+    : null;
+
+  return { amount, currency: displayCurrency, metadata, topupNet: 0 };
+}
+
+/** Best-effort email lookup — gateways require a valid-format address. */
+export async function resolveUserEmail(
+  supabase: Sb,
+  userId: string,
+  claims: { email?: string } | null,
+): Promise<string> {
+  let email = claims?.email;
+  if (!email) {
+    const { data: userRes } = await supabase.auth.getUser();
+    email = userRes?.user?.email ?? undefined;
+  }
+  if (!email) {
+    const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+    const url = process.env.SUPABASE_URL;
+    if (key && url) {
+      const r = await fetch(`${url}/auth/v1/admin/users/${userId}`, {
+        headers: { apikey: key, Authorization: `Bearer ${key}` },
+      });
+      const j = await r.json().catch(() => null);
+      email = (j?.email && String(j.email)) || (j?.user?.email && String(j.user.email)) || undefined;
+    }
+  }
+  return email || `guest-${userId}@guest.oventric.com`;
+}
+
+/** Public origin of the current request (for gateway redirect URLs). */
+export function inferOrigin(): string {
+  const explicit = getRequestHeader("origin");
+  if (explicit) return explicit;
+  const host = getRequestHeader("host");
+  const proto = getRequestHeader("x-forwarded-proto") || "https";
+  if (host) return `${proto}://${host}`;
+  return "https://oventric.com";
+}
