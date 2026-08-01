@@ -1397,7 +1397,6 @@ html.light input::placeholder, html.light textarea::placeholder {
 /* Mobile GPU safety: strip the soft glow shadow and any transforms/filters
    on low-end devices to avoid raster corruption. */
 @media (max-width: 767px) { html:not(.high-gpu) {
-  .feature-carousel-slide,
   .feature-carousel-slide * {
     animation: none !important;
     filter: none !important;
@@ -1408,5 +1407,18 @@ html.light input::placeholder, html.light textarea::placeholder {
     will-change: auto !important;
     box-shadow: none !important;
   }
+  /* Slide container itself keeps a light fade so navigation feels responsive. */
+  .feature-carousel-slide {
+    filter: none !important;
+    backdrop-filter: none !important;
+    box-shadow: none !important;
+    animation: feature-carousel-fade 0.35s ease-out forwards !important;
+  }
 } }
+
+@keyframes feature-carousel-fade {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
 
