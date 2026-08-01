@@ -156,6 +156,9 @@ export interface RealProfileView {
   reputationStars: number;
   country: string | null;
   address: string | null;
+  addressPublic: boolean;
+  dateOfBirth: string | null;
+  dobPublic: boolean;
   joined: string; // ISO
 }
 
@@ -172,7 +175,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
       )
       .limit(1);
 
@@ -193,6 +196,8 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
 
     const cleanDisplay = (row.display_name ?? "").trim();
     const cleanUsername = (row.username ?? "").trim();
+    const addressPublic = !!(row as { address_public?: boolean }).address_public;
+    const dobPublic = !!(row as { dob_public?: boolean }).dob_public;
     return {
       profile: {
         userId: row.user_id,
@@ -205,11 +210,16 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: (row as { country?: string | null }).country ?? null,
-        address: (row as { address?: string | null }).address ?? null,
+        // Private-by-default: never leak address / DOB unless the owner opted in.
+        address: addressPublic ? ((row as { address?: string | null }).address ?? null) : null,
+        addressPublic,
+        dateOfBirth: dobPublic ? ((row as { date_of_birth?: string | null }).date_of_birth ?? null) : null,
+        dobPublic,
         joined: row.created_at,
       },
     };
   });
+
 
 
 
@@ -309,7 +319,16 @@ const UpdateInput = z.object({
   phone: z.string().trim().min(6).max(24).optional().nullable(),
   country: z.string().trim().max(60).optional().nullable(),
   address: z.string().trim().max(200).optional().nullable(),
+  addressPublic: z.boolean().optional(),
+  dateOfBirth: z
+    .string()
+    .trim()
+    .regex(/^\d{4}-\d{2}-\d{2}$/, "Use YYYY-MM-DD")
+    .optional()
+    .nullable(),
+  dobPublic: z.boolean().optional(),
   notificationPreferences: NotificationPrefsInput.optional(),
+
 });
 
 
@@ -327,6 +346,9 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       phone?: string | null;
       country?: string | null;
       address?: string | null;
+      address_public?: boolean;
+      date_of_birth?: string | null;
+      dob_public?: boolean;
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -338,7 +360,11 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
     if (data.address !== undefined) patch.address = data.address;
+    if (data.addressPublic !== undefined) patch.address_public = data.addressPublic;
+    if (data.dateOfBirth !== undefined) patch.date_of_birth = data.dateOfBirth;
+    if (data.dobPublic !== undefined) patch.dob_public = data.dobPublic;
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
+
 
     if (Object.keys(patch).length === 0) return { ok: true };
 
@@ -370,6 +396,10 @@ export interface MyFullProfile {
   phone: string | null;
   country: string | null;
   address: string | null;
+  addressPublic: boolean;
+  dateOfBirth: string | null;
+  dobPublic: boolean;
+
   avatarUrl: string | null;
   verificationTier: string;
   reputationStars: number;
@@ -393,7 +423,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
       .eq("user_id", userId)
       .maybeSingle();
@@ -422,6 +452,9 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         phone: row.phone,
         country: row.country,
         address: (row as { address?: string | null }).address ?? null,
+        addressPublic: !!(row as { address_public?: boolean }).address_public,
+        dateOfBirth: (row as { date_of_birth?: string | null }).date_of_birth ?? null,
+        dobPublic: !!(row as { dob_public?: boolean }).dob_public,
         avatarUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),

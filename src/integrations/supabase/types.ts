@@ -2338,6 +2338,7 @@ export type Database = {
       profiles: {
         Row: {
           address: string | null
+          address_public: boolean
           avatar_path: string | null
           banned_at: string | null
           bio: string | null
@@ -2349,6 +2350,7 @@ export type Database = {
           deletion_liveness_path: string | null
           deletion_reason: string | null
           display_name: string | null
+          dob_public: boolean
           flag_reason: string | null
           flagged: boolean
           has_seen_feature_carousel: boolean
@@ -2367,6 +2369,7 @@ export type Database = {
         }
         Insert: {
           address?: string | null
+          address_public?: boolean
           avatar_path?: string | null
           banned_at?: string | null
           bio?: string | null
@@ -2378,6 +2381,7 @@ export type Database = {
           deletion_liveness_path?: string | null
           deletion_reason?: string | null
           display_name?: string | null
+          dob_public?: boolean
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean
@@ -2396,6 +2400,7 @@ export type Database = {
         }
         Update: {
           address?: string | null
+          address_public?: boolean
           avatar_path?: string | null
           banned_at?: string | null
           bio?: string | null
@@ -2407,6 +2412,7 @@ export type Database = {
           deletion_liveness_path?: string | null
           deletion_reason?: string | null
           display_name?: string | null
+          dob_public?: boolean
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean

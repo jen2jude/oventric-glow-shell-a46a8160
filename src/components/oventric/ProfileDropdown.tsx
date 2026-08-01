@@ -541,6 +541,9 @@ function ProfileSettingsModal({
   const [country, setCountry] = useState("");
   const [countryOther, setCountryOther] = useState(false);
   const [address, setAddress] = useState("");
+  const [addressPublic, setAddressPublic] = useState(false);
+  const [dateOfBirth, setDateOfBirth] = useState("");
+  const [dobPublic, setDobPublic] = useState(false);
   const [avatar, setAvatar] = useState<string | null>(profile.avatarDataUrl);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [saving, setSaving] = useState(false);
@@ -586,6 +589,9 @@ function ProfileSettingsModal({
           setPhone(p.phone ?? "");
           setCountry(p.country ?? "");
           setAddress(p.address ?? "");
+          setAddressPublic(!!p.addressPublic);
+          setDateOfBirth(p.dateOfBirth ?? "");
+          setDobPublic(!!p.dobPublic);
           setAvatar(p.avatarUrl ?? profile.avatarDataUrl);
           setNotifPrefs(p.notificationPreferences);
         }
@@ -682,6 +688,9 @@ function ProfileSettingsModal({
           phone: phone.trim() || null,
           country: country.trim() || null,
           address: address.trim() || null,
+          addressPublic,
+          dateOfBirth: dateOfBirth.trim() || null,
+          dobPublic,
           ...(avatarPath !== undefined ? { avatarPath } : {}),
         },
       });
@@ -1028,7 +1037,14 @@ function ProfileSettingsModal({
           </div>
 
           <div>
-            <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
+              <VisibilityToggle
+                on={addressPublic}
+                label="address"
+                onToggle={() => setAddressPublic((v) => !v)}
+              />
+            </div>
             <input
               id={`${titleId}-address`}
               autoComplete="street-address"
@@ -1040,7 +1056,33 @@ function ProfileSettingsModal({
               placeholder="Street, City"
               onChange={(e) => { setAddress(e.target.value); setErrors((p) => ({ ...p, address: "" })); }}
             />
+            <p className="mt-1 text-[11px] text-slate-500">
+              {addressPublic ? "Visible on your public profile." : "Private — only you can see this."}
+            </p>
           </div>
+
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label htmlFor={`${titleId}-dob`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of birth</label>
+              <VisibilityToggle
+                on={dobPublic}
+                label="date of birth"
+                onToggle={() => setDobPublic((v) => !v)}
+              />
+            </div>
+            <input
+              id={`${titleId}-dob`}
+              type="date"
+              autoComplete="bday"
+              className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-slate-500">
+              {dobPublic ? "Visible on your public profile." : "Private — only you can see this."}
+            </p>
+          </div>
+
 
           {/* Notification preferences */}
           <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
@@ -1250,5 +1292,35 @@ function ProfileSettingsModal({
     document.body,
   );
 }
+
+/** Eye toggle controlling whether a sensitive field is public or private. */
+function VisibilityToggle({
+  on,
+  label,
+  onToggle,
+}: {
+  on: boolean;
+  label: string;
+  onToggle: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onToggle}
+      aria-pressed={on}
+      aria-label={on ? `Make ${label} private` : `Make ${label} visible to others`}
+      title={on ? `Visible to others — click to hide` : `Private — click to show publicly`}
+      className={`inline-flex items-center gap-1.5 rounded-full border px-2 py-1 text-[10px] font-bold uppercase tracking-widest transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+        on
+          ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300"
+          : "border-white/10 bg-white/5 text-slate-400 hover:text-white"
+      }`}
+    >
+      {on ? <Eye className="w-3.5 h-3.5" aria-hidden /> : <EyeOff className="w-3.5 h-3.5" aria-hidden />}
+      {on ? "Public" : "Private"}
+    </button>
+  );
+}
+
 
 
