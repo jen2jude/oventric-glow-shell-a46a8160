@@ -307,7 +307,7 @@ export function Marketplace() {
                         src={c.cover}
                         alt={c.name}
                         className="absolute inset-0 w-full h-full object-cover"
-                        loading="lazy"
+                        loading="eager"
                         decoding="async"
                       />
                     ) : null}
