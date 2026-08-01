@@ -55,6 +55,8 @@ export function ReactionGlyph({
     const motion =
       reaction === "love" ? "reaction-heart-beat"
       : reaction === "like" ? "reaction-thumb-up-bob"
+      : reaction === "laugh" ? "reaction-laugh-wobble"
+      : reaction === "crown" ? "reaction-crown-float"
       : "reaction-thumb-down-bob";
     return (
       <img
