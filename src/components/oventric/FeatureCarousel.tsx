@@ -8,6 +8,7 @@ import academy3d from "@/assets/academy-3d.png.asset.json";
 import bounties3d from "@/assets/bounties-3d.webp.asset.json";
 import wallet3d from "@/assets/wallet-3d.webp.asset.json";
 import oventricFull from "@/assets/oventric-full.asset.json";
+import { markCarouselSeen as markCarouselSeenFn } from "@/lib/carousel.functions";
 
 interface Slide {
   id: string;
