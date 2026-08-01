@@ -738,7 +738,7 @@ function WatercoolerPost({
           style={activeColor ? { color: activeColor } : undefined}
         >
           {viewerReaction ? (
-            <ReactionGlyph reaction={viewerReaction} className={viewerReaction === "love" ? "w-5 h-5" : "w-3.5 h-3.5"} />
+            <ReactionGlyph reaction={viewerReaction} className={isImageReaction(viewerReaction) ? "w-5 h-5" : "w-3.5 h-3.5"} />
           ) : (
             <ReactionGlyph reaction="love" className="w-5 h-5" />
           )}
