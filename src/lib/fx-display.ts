@@ -13,12 +13,33 @@ export interface FxSnapshot {
 }
 
 /**
- * Fallback rates used ONLY for legacy rows that were created before the FX
- * snapshot system existed. These match the platform's historical default —
- * legacy rows are treated as USD-native so their `price_usd` still renders
- * sensibly for viewers on other currencies.
+ * Fallback rates used ONLY when no live rate has been fetched yet (first paint,
+ * offline, provider outage) and the row carries no snapshot.
  */
-export const LEGACY_USD_RATES: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+export const LEGACY_USD_RATES: Record<Currency, number> = { USD: 1, NGN: 1364, GHS: 11.7 };
+
+/**
+ * Live USD-base rates, refreshed periodically by useLiveFx() at the app root.
+ * Every conversion prefers these so buyers and sellers in different countries
+ * see near-accurate, current conversions.
+ */
+let RUNTIME_RATES: Partial<Record<Currency, number>> | null = null;
+
+export function setRuntimeFxRates(rates: Partial<Record<Currency, number>> | null | undefined) {
+  if (!rates) return;
+  const next: Partial<Record<Currency, number>> = { USD: 1 };
+  for (const c of ["NGN", "GHS"] as Currency[]) {
+    const v = Number(rates[c]);
+    if (v > 0) next[c] = v;
+  }
+  RUNTIME_RATES = next;
+}
+
+/** Current USD → `currency` rate (live when available, otherwise fallback). */
+export function usdRate(currency: Currency): number {
+  const live = RUNTIME_RATES?.[currency];
+  return Number(live) > 0 ? Number(live) : (LEGACY_USD_RATES[currency] ?? 1);
+}
 
 const SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
@@ -78,9 +99,9 @@ export function validateFxSnapshot(row: PriceableRow | null | undefined, viewer:
 }
 
 /**
- * Convert an amount between two currencies using a snapshot (USD-base rates).
- * Falls back to LEGACY_USD_RATES if the snapshot is missing a rate — this is
- * only relevant for rows created before the snapshot system.
+ * Convert an amount between two currencies. Prefers current live rates (so a
+ * Ghanaian buyer sees today's true GHS value of a Nigerian seller's price),
+ * then the row's publish-time snapshot, then the static fallback.
  */
 export function convertViaSnapshot(
   amount: number,
@@ -89,9 +110,16 @@ export function convertViaSnapshot(
   snapshot: FxSnapshot | null | undefined,
 ): number {
   if (from === to || !(amount > 0)) return amount;
-  const rates = snapshot?.rates ?? {};
-  const fromRate = Number(rates[from] ?? LEGACY_USD_RATES[from]);
-  const toRate = Number(rates[to] ?? LEGACY_USD_RATES[to]);
+  const snapRates = snapshot?.rates ?? {};
+  const pick = (c: Currency) => {
+    const live = RUNTIME_RATES?.[c];
+    if (Number(live) > 0) return Number(live);
+    const snap = snapRates[c];
+    if (Number(snap) > 0) return Number(snap);
+    return Number(LEGACY_USD_RATES[c]);
+  };
+  const fromRate = pick(from);
+  const toRate = pick(to);
   if (!(fromRate > 0) || !(toRate > 0)) return amount;
   return (amount / fromRate) * toRate;
 }
@@ -164,7 +192,7 @@ export function computeDisplayPrice(row: PriceableRow, viewer: Currency): Displa
   } catch {
     const fallbackAmount = Number(row?.price_usd ?? row?.original_amount ?? 0) || 0;
     const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
-    const converted = fallbackAmount * (LEGACY_USD_RATES[safeViewer] ?? 1);
+    const converted = fallbackAmount * usdRate(safeViewer);
     return {
       value: converted,
       currency: safeViewer,

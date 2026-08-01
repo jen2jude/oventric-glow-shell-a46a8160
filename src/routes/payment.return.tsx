@@ -4,7 +4,7 @@ import { useServerFn } from "@tanstack/react-start";
 import { Loader2, CheckCircle2, XCircle, Sparkles, Wallet as WalletIcon } from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { verifyPaystackPayment } from "@/lib/paystack.functions";
-import { LEGACY_USD_RATES } from "@/lib/fx-display";
+import { usdRate } from "@/lib/fx-display";
 
 export const Route = createFileRoute("/payment/return")({
   ssr: false,
@@ -17,7 +17,7 @@ export const Route = createFileRoute("/payment/return")({
 const SYMBOL: Record<string, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
 function formatMoney(usd: number, cur: string) {
-  const rate = LEGACY_USD_RATES[cur as keyof typeof LEGACY_USD_RATES] ?? 1;
+  const rate = usdRate((cur === "NGN" || cur === "GHS" ? cur : "USD"));
   const v = usd * rate;
   const s = SYMBOL[cur] ?? "";
   return cur === "USD" ? `${s}${v.toFixed(2)}` : `${s}${Math.round(v).toLocaleString()}`;

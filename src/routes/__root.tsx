@@ -23,6 +23,7 @@ import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 import { Toaster } from "@/components/ui/sonner";
 import { BootSplash } from "@/components/oventric/BootSplash";
+import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
 
@@ -323,6 +324,10 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { show, markSeen, hydrated } = useFirstLaunch();
+  // Keeps live FX rates fresh for every price conversion in the app.
+  useLiveFx();
+
+
 
   return (
     <QueryClientProvider client={queryClient}>

@@ -23,13 +23,13 @@ import {
 } from "@/lib/marketplace.functions";
 
 import { initPaystackPayment } from "@/lib/paystack.functions";
-import { LEGACY_USD_RATES, convertViaSnapshot } from "@/lib/fx-display";
+import { usdRate, convertViaSnapshot } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
 // conversion for the viewer uses the LEGACY fallback rates; the true locked
 // price is shown on the product/listing card via computeDisplayPrice.
-const FX_FROM_USD = LEGACY_USD_RATES;
+const FX_FROM_USD: Record<Currency, number> = { get USD() { return usdRate("USD"); }, get NGN() { return usdRate("NGN"); }, get GHS() { return usdRate("GHS"); } };
 const CURRENCY_SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
 function fmt(usd: number, cur: Currency) {
