@@ -27,11 +27,11 @@ test.describe("First-launch feature carousel", () => {
 
       // Navigate through all 5 slides.
       for (let i = 0; i < 4; i++) {
-        await page.get_by_role("button", { name: "Next slide" }).click();
+        await page.getByRole("button", { name: "Next slide" }).click();
         await page.waitForTimeout(300);
       }
 
-      await page.get_by_role("button", { name: "Get started" }).click();
+      await page.getByRole("button", { name: "Get started" }).click();
       await page.waitForTimeout(500);
 
       // Carousel should be dismissed.
