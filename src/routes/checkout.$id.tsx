@@ -121,7 +121,6 @@ function CheckoutPage() {
   const [topUpAmount, setTopUpAmount] = useState("");
   const [topUpBusy, setTopUpBusy] = useState(false);
   const [deliveryEmail, setDeliveryEmail] = useState("");
-  const [deliveryWhatsapp, setDeliveryWhatsapp] = useState("");
 
   const methods = useMemo(() => methodsForCountry(country), [country]);
   const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
@@ -194,9 +193,7 @@ function CheckoutPage() {
 
   const isDigital = product?.kind === "digital";
   const needsDelivery = Boolean(isDigital);
-  const deliveryValid = !needsDelivery || (
-    /^\S+@\S+\.\S+$/.test(deliveryEmail.trim()) && deliveryWhatsapp.replace(/\D/g, "").length >= 6
-  );
+  const deliveryValid = !needsDelivery || /^\S+@\S+\.\S+$/.test(deliveryEmail.trim());
 
   // `balanceUSD` state actually holds the buyer's balance in their HOME
   // currency (see the fetcher above). Compare it against the total in that
@@ -211,13 +208,12 @@ function CheckoutPage() {
   const pay = async () => {
     if (!product || submitting) return;
     if (needsDelivery && !deliveryValid) {
-      toast.error("Add your delivery details", { description: "We need a valid email and WhatsApp number to deliver your purchase." });
+      toast.error("Add your delivery details", { description: "We need a valid email address to deliver your purchase." });
       return;
     }
     setSubmitting(true);
     setShortfallUSD(null);
     try {
-      const digits = deliveryWhatsapp.replace(/\D/g, "");
       // Non-wallet methods: initialize Paystack and redirect to secure checkout.
       if (method !== "wallet") {
         const channel: "card" | "bank_transfer" | "mobile_money" | undefined =
@@ -233,7 +229,7 @@ function CheckoutPage() {
             displayCurrency: baseCurrency,
             couponCode: null,
             deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
-            deliveryWhatsapp: needsDelivery ? digits : null,
+            deliveryWhatsapp: null,
             applyCashbackUSD: cashbackApplyUSD,
             channel,
           },
@@ -250,7 +246,7 @@ function CheckoutPage() {
           paymentMethod: method,
           couponCode: null,
           deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
-          deliveryWhatsapp: needsDelivery ? digits : null,
+          deliveryWhatsapp: null,
           applyCashbackUSD: cashbackApplyUSD,
         },
       });
@@ -418,7 +414,7 @@ function CheckoutPage() {
                   <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Delivery details</div>
                   <p className="text-[11px] text-slate-500 mb-3">
                     {product.requiresManualDelivery
-                      ? "This product requires manual deployment. After payment is verified, the seller will use these details to deliver your purchase."
+                      ? "This product requires manual deployment. After payment is verified, the seller delivers it to you in your Oventric chat."
                       : "We’ll send the receipt and download link here after payment is verified."}
                   </p>
                   <label className="block mb-2">
@@ -431,19 +427,12 @@ function CheckoutPage() {
                       className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
                     />
                   </label>
-                  <label className="block">
-                    <span className="text-xs text-slate-300">WhatsApp number</span>
-                    <input
-                      inputMode="tel"
-                      value={deliveryWhatsapp}
-                      onChange={(e) => setDeliveryWhatsapp(e.target.value)}
-                      placeholder="+234 800 000 0000"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
-                    />
-                  </label>
-                  {!deliveryValid && (deliveryEmail || deliveryWhatsapp) && (
-                    <div className="text-[11px] text-red-300 mt-2">Enter a valid email and phone number with at least 6 digits.</div>
+                  {!deliveryValid && deliveryEmail && (
+                    <div className="text-[11px] text-red-300 mt-2">Enter a valid email address.</div>
                   )}
+                  <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-[11px] text-emerald-100 leading-relaxed">
+                    <strong className="text-emerald-200">Delivery happens in your Oventric chat.</strong> Your payment is held in escrow and only released after you confirm receipt. Never move a trade to WhatsApp or any other app — we can only refund or mediate deals completed here.
+                  </div>
                 </div>
               )}
             </div>

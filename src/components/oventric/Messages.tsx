@@ -8,7 +8,12 @@ import {
   X,
   MessageSquare,
   Loader2,
+  Truck,
+  CheckCircle2,
+  ShieldAlert,
+  AlertTriangle,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -18,8 +23,11 @@ import {
   sendMessage,
   markThreadRead,
   type ThreadSummary,
+  getPeerOrderContext,
   type DMRow,
+  type PeerOrderContext,
 } from "@/lib/messaging/messages.functions";
+import { markOrderDelivered, buyerConfirmReceipt } from "@/lib/fulfilment.functions";
 
 interface MessagesProps {
   variant?: "page" | "compact";
@@ -186,6 +194,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const [query, setQuery] = useState("");
   const [draft, setDraft] = useState("");
   const [sending, setSending] = useState(false);
+  const [orderCtx, setOrderCtx] = useState<PeerOrderContext | null>(null);
   const [showListOnMobile, setShowListOnMobile] = useState(!initialThreadId);
   const [onlinePeers, setOnlinePeers] = useState<
     Map<string, { name: string; slug: string; initials: string; gradient: string }>
@@ -563,6 +572,18 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     }
   }, [activePeer, lastMsgId]);
 
+  const orderCtxFn = useServerFn(getPeerOrderContext);
+  const refreshOrderCtx = useCallback(async () => {
+    if (!me || !activePeer) { setOrderCtx(null); return; }
+    try {
+      setOrderCtx(await orderCtxFn({ data: { peerId: activePeer } }));
+    } catch {
+      setOrderCtx(null);
+    }
+  }, [me, activePeer, orderCtxFn]);
+
+  useEffect(() => { void refreshOrderCtx(); }, [refreshOrderCtx]);
+
   const selectThread = (peerId: string) => {
     setActivePeer(peerId);
     setShowListOnMobile(false);
@@ -774,6 +795,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               </Link>
             </header>
 
+            <OrderTradeBanner ctx={orderCtx} onChanged={() => void refreshOrderCtx()} />
+
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {loadingMessages ? (
                 <div className="text-xs text-slate-500 text-center py-8 flex items-center justify-center gap-2">
@@ -823,6 +846,15 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
 
 
             <div className="border-t border-white/10 bg-[#16161B] p-3">
+              {OFF_PLATFORM_RE.test(draft) && (
+                <div className="mb-2 flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-100">
+                  <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
+                  <span>
+                    Heads up — trades finished off Oventric aren't covered by escrow, refunds or dispute mediation. Keep the
+                    conversation and the delivery right here.
+                  </span>
+                </div>
+              )}
               <div className="flex items-end gap-2">
                 <textarea
                   value={draft}
@@ -856,6 +888,83 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           </>
         )}
       </section>
+    </div>
+  );
+}
+
+const OFF_PLATFORM_RE = /(whats\s?app|telegram|signal app|\bwa\.me\b|\bt\.me\b|\+?\d[\d\s().-]{8,}\d)/i;
+
+function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; onChanged: () => void }) {
+  const deliverFn = useServerFn(markOrderDelivered);
+  const confirmFn = useServerFn(buyerConfirmReceipt);
+  const [busy, setBusy] = useState(false);
+  if (!ctx) return null;
+
+  const disputed = ctx.disputeStatus === "open";
+  const sellerCanDeliver = ctx.role === "seller" && ctx.requiresManualDelivery && !ctx.deliveredAt && !disputed;
+  const buyerCanConfirm = ctx.role === "buyer" && !disputed;
+
+  const run = async (kind: "deliver" | "confirm") => {
+    setBusy(true);
+    try {
+      if (kind === "deliver") {
+        await deliverFn({ data: { orderId: ctx.orderId } });
+        toast.success("Marked delivered — the buyer has been notified here.");
+      } else {
+        await confirmFn({ data: { orderId: ctx.orderId } });
+        toast.success("Receipt confirmed. The seller's wallet has been funded.");
+      }
+      onChanged();
+    } catch (e) {
+      toast.error((e as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  return (
+    <div className="border-b border-white/10 bg-[#1A1A20] px-4 py-3">
+      <div className="flex items-start justify-between gap-3 flex-wrap">
+        <div className="min-w-0">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
+            {disputed ? "Disputed trade" : ctx.deliveredAt ? "Delivered — awaiting confirmation" : "Active trade in escrow"}
+          </div>
+          <div className="text-sm text-white font-semibold truncate">{ctx.productName}</div>
+          <div className="text-[11px] text-slate-500">
+            {ctx.displayCurrency} {ctx.displayTotal.toLocaleString()} held in escrow · Order {ctx.orderId.slice(0, 8)}
+          </div>
+        </div>
+        <div className="flex items-center gap-2">
+          {sellerCanDeliver && (
+            <button
+              onClick={() => void run("deliver")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60"
+            >
+              {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Truck className="w-3.5 h-3.5" />} Mark delivered
+            </button>
+          )}
+          {buyerCanConfirm && (
+            <button
+              onClick={() => void run("confirm")}
+              disabled={busy}
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60"
+            >
+              {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />} Confirm receipt
+            </button>
+          )}
+          <Link
+            to="/order/$id"
+            params={{ id: ctx.orderId }}
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-200 bg-[#2A2A31] border border-white/10"
+          >
+            <ShieldAlert className="w-3.5 h-3.5" /> {ctx.role === "buyer" ? "Order & disputes" : "Order details"}
+          </Link>
+        </div>
+      </div>
+      <div className="mt-2 text-[11px] text-emerald-100/80">
+        Deliver and confirm here. Escrow, refunds and dispute mediation only cover trades completed on Oventric.
+      </div>
     </div>
   );
 }
