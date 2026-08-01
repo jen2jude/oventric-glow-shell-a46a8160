@@ -1,9 +1,7 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  ArrowRight,
-  ArrowLeft,
   Star,
   ShoppingCart,
   Palette,
@@ -14,6 +12,11 @@ import {
   PackageOpen,
   MapPin,
   Package,
+  ChevronDown,
+  SlidersHorizontal,
+  Cloud,
+  Truck,
+  X,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -26,12 +29,12 @@ type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
 const CATEGORY_META: Record<
   CategoryKey,
-  { label: string; emoji: string; title: string; Icon: React.ComponentType<{ className?: string }> }
+  { label: string; emoji: string; Icon: React.ComponentType<{ className?: string }> }
 > = {
-  themes: { label: "Themes", emoji: "🎨", title: "🔥 Featured Themes", Icon: Palette },
-  plugins: { label: "Plugins", emoji: "🔌", title: "⚙️ Popular Plugins", Icon: Plug },
-  blocks: { label: "HTML Blocks", emoji: "🧱", title: "🧱 Trending HTML Blocks", Icon: Blocks },
-  scripts: { label: "Scripts", emoji: "📜", title: "📜 Top Scripts", Icon: Code2 },
+  themes: { label: "Themes", emoji: "🎨", Icon: Palette },
+  plugins: { label: "Plugins", emoji: "🔌", Icon: Plug },
+  blocks: { label: "HTML Blocks", emoji: "🧱", Icon: Blocks },
+  scripts: { label: "Scripts", emoji: "📜", Icon: Code2 },
 };
 
 function categoryIcon(cat: string): React.ComponentType<{ className?: string }> {
@@ -51,6 +54,9 @@ function displayPriceForProduct(p: ProductDTO, viewer: Currency) {
 }
 
 type Mode = "digital" | "physical";
+type SortKey = "featured" | "price-asc" | "price-desc" | "rating";
+
+const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 
 export function Marketplace() {
   const { require, baseCurrency } = useOnboarding();
@@ -58,15 +64,21 @@ export function Marketplace() {
   const navigate = useNavigate();
   const load = useServerFn(listProducts);
   const loadCats = useServerFn(listMarketplaceCategories);
-  const [mode, setMode] = useState<Mode>("digital");
-  const [activeTab, setActiveTab] = useState<string>("all");
-  const [activePhysicalTab, setActivePhysicalTab] = useState<string>("all");
-  const [fullCategory, setFullCategory] = useState<string | null>(null);
+
+  const [mode, setMode] = useState<Mode | null>("digital");
+  const [activeCat, setActiveCat] = useState<string | null>(null);
+  const [activeSub, setActiveSub] = useState<string | null>(null);
   const [products, setProducts] = useState<ProductDTO[] | null>(null);
-  const [digitalCats, setDigitalCats] = useState<CategoryNode[]>([]);
-  const [physicalCats, setPhysicalCats] = useState<CategoryNode[]>([]);
+  const [catRoots, setCatRoots] = useState<CategoryNode[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const sectionRefs = useRef<Record<string, HTMLElement | null>>({});
+
+  // Filters
+  const [filtersOpen, setFiltersOpen] = useState(false);
+  const [minPrice, setMinPrice] = useState("");
+  const [maxPrice, setMaxPrice] = useState("");
+  const [minRating, setMinRating] = useState(0);
+  const [promotedOnly, setPromotedOnly] = useState(false);
+  const [sort, setSort] = useState<SortKey>("featured");
 
   const refresh = () => {
     setError(null);
@@ -78,26 +90,13 @@ export function Marketplace() {
 
   useEffect(() => {
     loadCats()
-      .then((rows) => {
-        // Flatten roots + children so every enabled category is featured.
-        const flat: CategoryNode[] = [];
-        const walk = (n: CategoryNode) => {
-          flat.push(n);
-          n.children.forEach(walk);
-        };
-        (rows ?? []).forEach(walk);
-        setDigitalCats(flat.filter((r) => r.kind === "digital"));
-        setPhysicalCats(flat.filter((r) => r.kind === "physical"));
-      })
+      .then((rows) => setCatRoots(rows ?? []))
       .catch(() => {});
   }, [loadCats]);
-
 
   const onOpenProduct = (p: ProductDTO) => {
     require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
-
-
 
   // Currency isolation: signed-in users only see items priced in their home
   // currency. Anon viewers see everything (USD preview) as marketing.
@@ -106,112 +105,100 @@ export function Marketplace() {
     if (!isAuthenticated) return products;
     return products.filter((p) => String(p.originalCurrency ?? "USD").toUpperCase() === baseCurrency);
   }, [products, isAuthenticated, baseCurrency]);
+
   const digital = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind !== "physical"), [currencyScoped]);
   const physical = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind === "physical"), [currencyScoped]);
 
-  const recommended = useMemo(() => {
-    const src = mode === "digital" ? digital : physical;
-    const promoted = src.filter((p) => p.promoted);
-    const rest = src.filter((p) => !p.promoted).slice(0, 6);
-    return [...promoted, ...rest].slice(0, 8);
-  }, [digital, physical, mode]);
+  const modeItems = mode === "physical" ? physical : mode === "digital" ? digital : [];
 
-  // Group digital products by category. Order: "ai platform" first, then admin
-  // sort_order from marketplace_categories. Legacy CATEGORY_META order applied
-  // as fallback for categories not yet defined in the DB.
-  const digitalGroups = useMemo(() => {
-    const groups = new Map<string, ProductDTO[]>();
-    digital.forEach((p) => {
-      const key = (p.category || "other").toLowerCase();
-      const arr = groups.get(key) ?? [];
+  // Category cards for the active mode: DB categories that have products, plus
+  // any product category not defined in the DB. AI Platform pinned first.
+  const categories = useMemo(() => {
+    if (!mode) return [] as Array<{ slug: string; name: string; count: number; cover: string | null; subs: CategoryNode[] }>;
+    const roots = catRoots.filter((c) => c.kind === mode);
+    const counts = new Map<string, ProductDTO[]>();
+    modeItems.forEach((p) => {
+      const key = norm(p.category) || "other";
+      const arr = counts.get(key) ?? [];
       arr.push(p);
-      groups.set(key, arr);
+      counts.set(key, arr);
     });
-    const ordered: Array<[string, ProductDTO[]]> = [];
-    const takeSlug = (slug: string) => {
-      const items = groups.get(slug);
-      if (items && items.length > 0) {
-        ordered.push([slug, items]);
-        groups.delete(slug);
-      }
+    const out: Array<{ slug: string; name: string; count: number; cover: string | null; subs: CategoryNode[] }> = [];
+    const push = (slug: string, name: string, subs: CategoryNode[]) => {
+      const items = counts.get(slug) ?? [];
+      counts.delete(slug);
+      out.push({
+        slug,
+        name,
+        count: items.length,
+        cover: items.find((i) => i.coverUrl)?.coverUrl ?? null,
+        subs,
+      });
     };
-    // AI Platform pinned to top.
-    takeSlug("ai platform");
-    takeSlug("ai_platform");
-    takeSlug("ai-platform");
-    // Then admin-ordered digital categories.
-    digitalCats.forEach((c) => takeSlug(c.slug.toLowerCase()));
-    // Legacy hardcoded roots.
-    (Object.keys(CATEGORY_META) as CategoryKey[]).forEach(takeSlug);
-    // Any leftover categories (unknown slugs with products).
-    groups.forEach((items, slug) => ordered.push([slug, items]));
-    return ordered;
-  }, [digital, digitalCats]);
-
-  const digitalLabel = (slug: string) => {
-    const meta = (CATEGORY_META as Record<string, { label: string; emoji: string; title: string } | undefined>)[slug];
-    if (meta) return meta.label;
-    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
-    if (c) return c.name;
-    return slug.charAt(0).toUpperCase() + slug.slice(1);
-  };
-  const digitalTitle = (slug: string) => {
-    const meta = (CATEGORY_META as Record<string, { title: string } | undefined>)[slug];
-    if (meta) return meta.title;
-    const c = digitalCats.find((x) => x.slug.toLowerCase() === slug);
-    const name = c?.name ?? digitalLabel(slug);
-    if (slug === "ai platform") return `🤖 ${name}`;
-    return `✨ ${name}`;
-  };
-
-  const visibleDigitalGroups = useMemo(() => {
-    if (activeTab === "all") return digitalGroups;
-    return digitalGroups.filter(([slug]) => slug === activeTab);
-  }, [digitalGroups, activeTab]);
-
-  // Group physical products by category, ordered by admin sort_order when available.
-  const physicalGroups = useMemo(() => {
-    const groups = new Map<string, ProductDTO[]>();
-    physical.forEach((p) => {
-      const key = p.category || "other";
-      const arr = groups.get(key) ?? [];
-      arr.push(p);
-      groups.set(key, arr);
+    const ai = roots.find((c) => norm(c.slug).startsWith("ai"));
+    if (ai) push(norm(ai.slug), ai.name, ai.children);
+    roots.forEach((c) => {
+      if (ai && c.id === ai.id) return;
+      push(norm(c.slug), c.name, c.children);
     });
-    if (physicalCats.length === 0) return Array.from(groups.entries());
-    const ordered: Array<[string, ProductDTO[]]> = [];
-    physicalCats.forEach((c) => {
-      const items = groups.get(c.slug);
-      if (items && items.length > 0) ordered.push([c.slug, items]);
-      groups.delete(c.slug);
+    (Object.keys(CATEGORY_META) as CategoryKey[]).forEach((k) => {
+      if (out.some((o) => o.slug === k)) return;
+      if (counts.has(k)) push(k, CATEGORY_META[k].label, []);
     });
-    // Any leftover categories the admin hasn't defined
-    groups.forEach((items, slug) => ordered.push([slug, items]));
-    return ordered;
-  }, [physical, physicalCats]);
+    counts.forEach((_items, slug) => push(slug, slug.charAt(0).toUpperCase() + slug.slice(1), []));
+    return out.filter((c) => c.count > 0);
+  }, [catRoots, mode, modeItems]);
 
-  const physicalLabel = (slug: string) =>
-    physicalCats.find((c) => c.slug === slug)?.name ?? slug.charAt(0).toUpperCase() + slug.slice(1);
+  const activeCatNode = categories.find((c) => c.slug === activeCat) ?? null;
 
-  const visiblePhysicalGroups = useMemo(() => {
-    if (activePhysicalTab === "all") return physicalGroups;
-    return physicalGroups.filter(([slug]) => slug === activePhysicalTab);
-  }, [physicalGroups, activePhysicalTab]);
+  const filtered = useMemo(() => {
+    let list = modeItems;
+    if (activeCat) list = list.filter((p) => norm(p.category) === activeCat);
+    if (activeSub) list = list.filter((p) => norm(p.subcategory) === activeSub);
+    const min = Number(minPrice);
+    const max = Number(maxPrice);
+    list = list.filter((p) => {
+      const v = displayPriceForProduct(p, baseCurrency).value;
+      if (minPrice && Number.isFinite(min) && v < min) return false;
+      if (maxPrice && Number.isFinite(max) && v > max) return false;
+      if (minRating && p.rating < minRating) return false;
+      if (promotedOnly && !p.promoted) return false;
+      return true;
+    });
+    const sorted = [...list];
+    if (sort === "price-asc") {
+      sorted.sort((a, b) => displayPriceForProduct(a, baseCurrency).value - displayPriceForProduct(b, baseCurrency).value);
+    } else if (sort === "price-desc") {
+      sorted.sort((a, b) => displayPriceForProduct(b, baseCurrency).value - displayPriceForProduct(a, baseCurrency).value);
+    } else if (sort === "rating") {
+      sorted.sort((a, b) => b.rating - a.rating);
+    } else {
+      sorted.sort((a, b) => Number(b.promoted) - Number(a.promoted));
+    }
+    return sorted;
+  }, [modeItems, activeCat, activeSub, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
 
-  const onPillClick = (key: string) => {
-    setActiveTab(key);
-    if (key === "all") return;
-    const el = sectionRefs.current[key];
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const activeFilterCount =
+    (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (minRating ? 1 : 0) + (promotedOnly ? 1 : 0) + (sort !== "featured" ? 1 : 0);
+
+  const resetFilters = () => {
+    setMinPrice("");
+    setMaxPrice("");
+    setMinRating(0);
+    setPromotedOnly(false);
+    setSort("featured");
   };
 
-  const onPhysicalPillClick = (slug: string) => {
-    setActivePhysicalTab(slug);
-    if (slug === "all") return;
-    const el = sectionRefs.current[`p_${slug}`];
-    if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
+  const selectMode = (m: Mode) => {
+    setMode((prev) => (prev === m ? null : m));
+    setActiveCat(null);
+    setActiveSub(null);
   };
 
+  const selectCat = (slug: string) => {
+    setActiveCat((prev) => (prev === slug ? null : slug));
+    setActiveSub(null);
+  };
 
   if (error) {
     return (
@@ -227,217 +214,315 @@ export function Marketplace() {
 
   if (!products) return <MarketplaceSkeleton />;
 
-  const ModeToggle = () => (
-    <div className="inline-flex items-center gap-2 bg-[#1E1E24] border border-white/10 rounded-full p-1 select-none">
-      {(["digital", "physical"] as const).map((m) => {
-        const active = mode === m;
-        return (
-          <button
-            key={m}
-            onClick={() => { setMode(m); setFullCategory(null); setActiveTab("all"); }}
-            className={`rounded-full transition-colors ${active ? "rgb-static-border p-[2px]" : "p-0"}`}
-          >
-            <span
-              className={`block px-5 py-1.5 text-sm font-semibold rounded-full transition-colors ${
-                active ? "bg-[#1E1E24] text-white" : "text-slate-300 hover:text-white"
-              }`}
-            >
-              {m === "digital" ? "Digital" : "Physical"}
-            </span>
-          </button>
-        );
-      })}
-    </div>
-  );
-
-  // FULL CATEGORY VIEW
-  if (fullCategory) {
-    const src = mode === "digital" ? digital : physical;
-    const items = src.filter((p) => (p.category || "").toLowerCase() === fullCategory);
-    const legacy = (CATEGORY_META as Record<string, { label: string; emoji: string } | undefined>)[fullCategory];
-    const dbCat = [...digitalCats, ...physicalCats].find((c) => c.slug.toLowerCase() === fullCategory);
-    const label = legacy?.label ?? dbCat?.name ?? fullCategory.charAt(0).toUpperCase() + fullCategory.slice(1);
-    const emoji = legacy?.emoji ?? (fullCategory === "ai platform" ? "🤖" : "📦");
-    return (
-      <div className="max-w-7xl mx-auto w-full px-4 py-6">
-        <button
-          onClick={() => setFullCategory(null)}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6"
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Marketplace
-        </button>
-        <div className="flex items-baseline justify-between mb-5">
-          <h1 className="text-2xl md:text-3xl font-black text-white">{emoji} All {label}</h1>
-          <span className="text-xs text-slate-500">{items.length} items</span>
-        </div>
-        {items.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
-            <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <div className="text-white font-semibold mb-1">No items yet</div>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-            {items.map((p) => (
-              <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} full />
-            ))}
-          </div>
-        )}
-      </div>
-    );
-  }
-
-  // Build digital tab list: All + AI Platform first, then admin-defined
-  // categories that actually have products.
-  const digitalTabs: Array<{ key: string; label: string }> = [
-    { key: "all", label: "✨ All" },
-    ...digitalGroups.map(([slug]) => ({ key: slug, label: digitalLabel(slug) })),
-  ];
-
   return (
-    <div className="max-w-7xl mx-auto w-full marketplace-render-safe">
-      <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 flex items-center justify-between gap-3">
-        <ModeToggle />
-        {mode === "digital" ? (
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
-            {digitalTabs.map((t) => {
-              const active = activeTab === t.key;
-              return (
-                <button
-                  key={t.key}
-                  onClick={() => onPillClick(t.key)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                    active
-                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
-                  }`}
-                >
-                  {t.label}
-                </button>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
-            {[{ slug: "all", name: "✨ All" }, ...physicalCats.map((c) => ({ slug: c.slug, name: c.name }))].map((t) => {
-              const active = activePhysicalTab === t.slug;
-              return (
-                <button
-                  key={t.slug}
-                  onClick={() => onPhysicalPillClick(t.slug)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                    active
-                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
-                  }`}
-                >
-                  {t.name}
-                </button>
-              );
-            })}
-          </div>
-        )}
-
+    <div className="max-w-7xl mx-auto w-full marketplace-render-safe px-4 py-5">
+      {/* ── Mode cards ─────────────────────────────────────────── */}
+      <div className="grid grid-cols-2 gap-3 sm:gap-4">
+        <ModeCard
+          label="Digital Products"
+          sub="Themes, plugins, scripts & AI tools"
+          Icon={Cloud}
+          count={digital.length}
+          covers={digital.map((p) => p.coverUrl).filter(Boolean).slice(0, 4) as string[]}
+          active={mode === "digital"}
+          onClick={() => selectMode("digital")}
+        />
+        <ModeCard
+          label="Physical Products"
+          sub="Goods you can see, touch & collect"
+          Icon={Truck}
+          count={physical.length}
+          covers={physical.map((p) => p.coverUrl).filter(Boolean).slice(0, 4) as string[]}
+          active={mode === "physical"}
+          onClick={() => selectMode("physical")}
+        />
       </div>
 
-      {mode === "digital" ? (
-        <div className="px-4 py-6 space-y-10">
-          {visibleDigitalGroups.length === 0 ? (
-            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center max-w-2xl mx-auto">
-              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <div className="text-white font-semibold mb-1">No digital products yet</div>
-              <div className="text-sm text-slate-400">Check back soon or be the first to list one.</div>
-            </div>
-          ) : visibleDigitalGroups.map(([cat, items], idx) => {
-            const label = digitalLabel(cat);
-            const title = digitalTitle(cat);
-            return (
-              <section
-                key={cat}
-                ref={(el) => { sectionRefs.current[cat] = el; }}
-                className="scroll-mt-20"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg md:text-xl font-black text-white truncate">{title}</h2>
-                  <button
-                    onClick={() => setFullCategory(cat)}
-                    className="text-sm text-emerald-400 hover:text-emerald-300 font-medium whitespace-nowrap shrink-0"
-                  >
-                    View All →
-                  </button>
-                </div>
-                <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
-                  {items.slice(0, 12).map((p) => (
-                    <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
-                  ))}
-                  <AdSlot placement="marketplace" variant="grid" index={idx} />
-                  <ViewMoreButton label={label} onClick={() => setFullCategory(cat)} />
-                </div>
-              </section>
-            );
-          })}
-
-          {recommended.length > 0 && (
-            <div className="border-t border-white/5 pt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg md:text-xl font-black text-white">🤖 Recommended For You</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {recommended.slice(0, 7).map((p) => (
-                  <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} full />
-                ))}
-              </div>
-            </div>
-          )}
+      {/* ── Category slider (drops down under the selected mode) ── */}
+      <Collapse open={!!mode && categories.length > 0}>
+        <div className="pt-5">
+          <div className="flex items-center justify-between mb-3">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+              {mode === "physical" ? "Physical" : "Digital"} categories
+            </h2>
+            {activeCat && (
+              <button onClick={() => { setActiveCat(null); setActiveSub(null); }} className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">
+                Clear category
+              </button>
+            )}
+          </div>
+          <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+            {categories.map((c) => {
+              const Icon = categoryIcon(c.slug);
+              const active = activeCat === c.slug;
+              return (
+                <button
+                  key={c.slug}
+                  onClick={() => selectCat(c.slug)}
+                  className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
+                    active ? "border-emerald-500/70 bg-emerald-500/10" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+                  }`}
+                >
+                  <div className="relative h-20 sm:h-24 bg-white/5">
+                    {c.cover ? (
+                      <ResponsiveImage
+                        sizes="200px"
+                        src={c.cover}
+                        alt={c.name}
+                        className="absolute inset-0 w-full h-full object-cover"
+                        loading="lazy"
+                        decoding="async"
+                      />
+                    ) : null}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
+                    <span className="absolute right-2 top-2 text-[10px] font-bold bg-black/60 text-slate-200 rounded px-1.5 py-0.5">
+                      {c.count}
+                    </span>
+                  </div>
+                  <div className="px-3 py-2">
+                    <div className="text-white text-sm font-bold leading-snug line-clamp-2">{c.name}</div>
+                    {c.subs.length > 0 && (
+                      <div className="text-[11px] text-slate-500 mt-0.5 inline-flex items-center gap-1">
+                        {c.subs.length} subcategories <ChevronDown className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`} />
+                      </div>
+                    )}
+                  </div>
+                </button>
+              );
+            })}
+          </div>
         </div>
-      ) : (
-        <div className="px-4 py-6 space-y-10">
-          {physical.length === 0 ? (
-            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center max-w-2xl mx-auto">
+      </Collapse>
+
+      {/* ── Subcategory drop-down ────────────────────────────────── */}
+      <Collapse open={!!activeCatNode && activeCatNode.subs.length > 0}>
+        <div className="pt-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+          <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} />
+          {(activeCatNode?.subs ?? []).map((s) => (
+            <SubPill
+              key={s.id}
+              label={s.name}
+              active={activeSub === norm(s.slug)}
+              onClick={() => setActiveSub((prev) => (prev === norm(s.slug) ? null : norm(s.slug)))}
+            />
+          ))}
+        </div>
+      </Collapse>
+
+      {/* ── Toolbar + grid with side filter ──────────────────────── */}
+      <div className="mt-6 flex items-center justify-between gap-3">
+        <div className="text-sm text-slate-400">
+          <span className="text-white font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
+          {activeCatNode ? <> in <span className="text-emerald-400">{activeCatNode.name}</span></> : null}
+        </div>
+        <button
+          onClick={() => setFiltersOpen((v) => !v)}
+          className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-sm text-slate-200"
+        >
+          <SlidersHorizontal className="w-4 h-4" /> Filters
+          {activeFilterCount > 0 && (
+            <span className="text-[10px] font-bold bg-emerald-500 text-black rounded-full px-1.5">{activeFilterCount}</span>
+          )}
+        </button>
+      </div>
+
+      <div className="mt-4 flex gap-6 items-start">
+        <aside className="hidden lg:block w-64 shrink-0 sticky top-4">
+          <FilterPanel
+            currency={baseCurrency}
+            minPrice={minPrice} setMinPrice={setMinPrice}
+            maxPrice={maxPrice} setMaxPrice={setMaxPrice}
+            minRating={minRating} setMinRating={setMinRating}
+            promotedOnly={promotedOnly} setPromotedOnly={setPromotedOnly}
+            sort={sort} setSort={setSort}
+            onReset={resetFilters}
+          />
+        </aside>
+
+        <div className="flex-1 min-w-0">
+          <Collapse open={filtersOpen}>
+            <div className="lg:hidden mb-4">
+              <FilterPanel
+                currency={baseCurrency}
+                minPrice={minPrice} setMinPrice={setMinPrice}
+                maxPrice={maxPrice} setMaxPrice={setMaxPrice}
+                minRating={minRating} setMinRating={setMinRating}
+                promotedOnly={promotedOnly} setPromotedOnly={setPromotedOnly}
+                sort={sort} setSort={setSort}
+                onReset={resetFilters}
+                onClose={() => setFiltersOpen(false)}
+              />
+            </div>
+          </Collapse>
+
+          {!mode ? (
+            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
               <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <div className="text-white font-semibold mb-1">No physical goods yet</div>
-              <div className="text-sm text-slate-400">Check back soon or be the first to post one.</div>
+              <div className="text-white font-semibold mb-1">Pick a section</div>
+              <div className="text-sm text-slate-400">Choose Digital or Physical products above to browse.</div>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
+              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
+              <div className="text-white font-semibold mb-1">Nothing matches</div>
+              <div className="text-sm text-slate-400">Try clearing the category or price filters.</div>
             </div>
           ) : (
-            visiblePhysicalGroups.map(([cat, items]) => (
-              <section
-                key={cat}
-                ref={(el) => { sectionRefs.current[`p_${cat}`] = el; }}
-                className="scroll-mt-20"
-              >
-                <div className="flex items-center justify-between mb-4">
-                  <h2 className="text-lg md:text-xl font-black text-white capitalize">📦 {physicalLabel(cat)}</h2>
-                  <button
-                    onClick={() => setFullCategory(cat)}
-                    className="text-sm text-emerald-400 hover:text-emerald-300 font-medium"
-                  >
-                    View All →
-                  </button>
-                </div>
-                <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
-                  {items.slice(0, 12).map((p) => (
-                    <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
-                  ))}
-                  <ViewMoreButton label={physicalLabel(cat)} onClick={() => setFullCategory(cat)} />
-                </div>
-              </section>
-            ))
-
-          )}
-
-          {mode === "physical" && recommended.length > 0 && (
-            <div className="border-t border-white/5 pt-8">
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="text-lg md:text-xl font-black text-white">🤖 Recommended For You</h2>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-                {recommended.slice(0, 7).map((p) => (
-                  <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} full />
-                ))}
-              </div>
+            <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+              {filtered.map((p, i) => (
+                <ProductCard key={p.id} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+              ))}
             </div>
           )}
+
+          <div className="mt-6">
+            <AdSlot placement="marketplace" variant="grid" index={0} />
+          </div>
         </div>
-      )}
+      </div>
+    </div>
+  );
+}
+
+/** Height-animated drop-down wrapper — no filters/blur, GPU-safe. */
+function Collapse({ open, children }: { open: boolean; children: React.ReactNode }) {
+  return (
+    <div
+      className="grid transition-[grid-template-rows,opacity] duration-300 ease-out"
+      style={{ gridTemplateRows: open ? "1fr" : "0fr", opacity: open ? 1 : 0 }}
+      aria-hidden={!open}
+    >
+      <div className="overflow-hidden min-h-0">{children}</div>
+    </div>
+  );
+}
+
+function ModeCard({
+  label, sub, Icon, count, covers, active, onClick,
+}: {
+  label: string;
+  sub: string;
+  Icon: React.ComponentType<{ className?: string }>;
+  count: number;
+  covers: string[];
+  active: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      onClick={onClick}
+      aria-expanded={active}
+      className={`text-left rounded-2xl overflow-hidden border transition-colors ${
+        active ? "border-emerald-500/70 bg-emerald-500/10" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+      }`}
+    >
+      <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-white/5">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <div key={i} className="relative overflow-hidden bg-white/5">
+            {covers[i] ? (
+              <img src={covers[i]} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+            ) : null}
+          </div>
+        ))}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <Icon className="absolute left-3 top-3 w-6 h-6 text-white" />
+        <span className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-slate-200 rounded px-2 py-0.5">
+          {count} items
+        </span>
+      </div>
+      <div className="px-3 sm:px-4 py-3">
+        <div className="flex items-center justify-between gap-2">
+          <h2 className="text-white font-black text-sm sm:text-lg leading-tight">{label}</h2>
+          <ChevronDown className={`w-4 h-4 shrink-0 text-slate-300 transition-transform ${active ? "rotate-180" : ""}`} />
+        </div>
+        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug">{sub}</p>
+      </div>
+    </button>
+  );
+}
+
+function SubPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap ${
+        active
+          ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+          : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/25"
+      }`}
+    >
+      {label}
+    </button>
+  );
+}
+
+function FilterPanel({
+  currency, minPrice, setMinPrice, maxPrice, setMaxPrice, minRating, setMinRating,
+  promotedOnly, setPromotedOnly, sort, setSort, onReset, onClose,
+}: {
+  currency: Currency;
+  minPrice: string; setMinPrice: (v: string) => void;
+  maxPrice: string; setMaxPrice: (v: string) => void;
+  minRating: number; setMinRating: (v: number) => void;
+  promotedOnly: boolean; setPromotedOnly: (v: boolean) => void;
+  sort: SortKey; setSort: (v: SortKey) => void;
+  onReset: () => void;
+  onClose?: () => void;
+}) {
+  const input = "w-full bg-[#121214] border border-white/10 rounded-lg px-2.5 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50";
+  return (
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+      <div className="flex items-center justify-between mb-4">
+        <div className="inline-flex items-center gap-2 text-white font-bold text-sm">
+          <SlidersHorizontal className="w-4 h-4" /> Filters
+        </div>
+        <div className="flex items-center gap-2">
+          <button onClick={onReset} className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">Reset</button>
+          {onClose && (
+            <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+          )}
+        </div>
+      </div>
+
+      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Price ({currency})</label>
+      <div className="flex items-center gap-2 mb-4">
+        <input inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Min" className={input} />
+        <span className="text-slate-600">–</span>
+        <input inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Max" className={input} />
+      </div>
+
+      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Sort by</label>
+      <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={`${input} mb-4`}>
+        <option value="featured">Featured</option>
+        <option value="price-asc">Price: low to high</option>
+        <option value="price-desc">Price: high to low</option>
+        <option value="rating">Top rated</option>
+      </select>
+
+      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Minimum rating</label>
+      <div className="flex gap-2 mb-4">
+        {[0, 3, 4, 4.5].map((r) => (
+          <button
+            key={r}
+            onClick={() => setMinRating(r)}
+            className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
+              minRating === r ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#121214] border-white/10 text-slate-300"
+            }`}
+          >
+            {r === 0 ? "Any" : `${r}+`}
+          </button>
+        ))}
+      </div>
+
+      <button
+        onClick={() => setPromotedOnly(!promotedOnly)}
+        className={`w-full inline-flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
+          promotedOnly ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#121214] border-white/10 text-slate-300"
+        }`}
+      >
+        <Flame className="w-3.5 h-3.5" /> Promoted only
+      </button>
     </div>
   );
 }
@@ -446,40 +531,49 @@ function ProductCard({
   p,
   currency,
   onClick,
-  full = false,
+  index = 0,
 }: {
   p: ProductDTO;
   currency: Currency;
   onClick: () => void;
-  full?: boolean;
+  index?: number;
 }) {
   const Icon = categoryIcon(p.category);
+  const eager = index < 4;
   const cardInner = (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-3 flex flex-col h-full">
-      <div className={`relative h-28 rounded-lg bg-white/5 mb-3 overflow-hidden`}>
+    <div className="bg-[#1E1E24] border border-white/5 rounded-2xl p-3 flex flex-col h-full">
+      <div className="relative aspect-[4/3] rounded-xl bg-white/5 mb-3 overflow-hidden">
         {p.coverUrl ? (
-          <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.coverUrl} alt={p.name} className="absolute inset-0 w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
+          <ResponsiveImage
+            sizes="(min-width: 1280px) 300px, (min-width: 640px) 40vw, 50vw"
+            src={p.coverUrl}
+            alt={p.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading={eager ? "eager" : "lazy"}
+            fetchPriority={eager ? "high" : "auto"}
+            decoding="async"
+          />
         ) : (
           <div className="absolute inset-0 opacity-30" style={{
             backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
           }} />
         )}
-        <Icon className="absolute right-2 bottom-2 w-6 h-6 text-white/70 drop-shadow" />
+        <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white/70" />
         {p.promoted && (
           <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
             <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" />
             Promoted
           </span>
         )}
-        {p.kind === "physical" && (
-          <span className="absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-sky-300 border border-sky-400/50 rounded px-1.5 py-0.5">
-            Physical
-          </span>
-        )}
+        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 rounded px-1.5 py-0.5 border ${
+          p.kind === "physical" ? "text-sky-300 border-sky-400/50" : "text-emerald-300 border-emerald-400/50"
+        }`}>
+          {p.kind === "physical" ? "Physical" : "Digital"}
+        </span>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-white text-sm font-semibold truncate">{p.name}</h3>
-        <div className="text-[11px] text-slate-500 truncate">{p.vendor}</div>
+        <h3 className="text-white text-sm sm:text-base font-bold leading-snug line-clamp-2">{p.name}</h3>
+        <div className="text-[11px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         {p.kind === "physical" && p.location && (
           <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
             <MapPin className="w-3 h-3" /> {p.location}
@@ -491,11 +585,11 @@ function ProductCard({
           <span className="text-slate-500">({p.reviews})</span>
         </div>
       </div>
-      <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
-        <div className="text-white font-black text-base">{displayPriceForProduct(p, currency).formatted}</div>
+      <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-white/5">
+        <div className="text-white font-black text-sm sm:text-base truncate">{displayPriceForProduct(p, currency).formatted}</div>
         <button
           onClick={onClick}
-          className="flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
+          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
         >
           <ShoppingCart className="w-3.5 h-3.5" /> {p.kind === "physical" ? "View" : "Buy"}
         </button>
@@ -503,43 +597,16 @@ function ProductCard({
     </div>
   );
 
-  const sizeCls = full ? "w-full" : "w-[220px] sm:w-[260px] snap-start";
   if (p.promoted) {
-    return (
-      <div className={`${sizeCls} rounded-2xl rgb-promo-border`}>
-        {cardInner}
-      </div>
-    );
+    return <div className="rounded-2xl rgb-promo-border">{cardInner}</div>;
   }
-  return <div className={sizeCls}>{cardInner}</div>;
-}
-
-function ViewMoreButton({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="w-[220px] sm:w-[260px] snap-start row-span-2 flex flex-col items-center justify-center gap-3 rounded-xl bg-[#1E1E24]/40"
-      aria-label={`View more ${label}`}
-    >
-      <span className="rgb-neon-bg rounded-full p-[3px]">
-        <span className="w-14 h-14 rounded-full bg-[#1E1E24] flex items-center justify-center">
-          <ArrowRight className="w-6 h-6 text-white" />
-        </span>
-      </span>
-      <div className="text-white font-bold text-sm">View More</div>
-      <div className="text-xs text-slate-400 px-4 text-center">Browse the full {label} catalog</div>
-    </button>
-  );
-}
-
-function SkeletonPill() {
-  return <div className="shrink-0 px-4 py-2 rounded-full bg-white/5 animate-pulse h-9 w-20" />;
+  return cardInner;
 }
 
 function SkeletonCard() {
   return (
-    <div className="w-[220px] sm:w-[260px] snap-start bg-[#1E1E24] border border-white/5 rounded-xl p-3 animate-pulse">
-      <div className="h-28 rounded-lg bg-white/5 mb-3" />
+    <div className="bg-[#1E1E24] border border-white/5 rounded-2xl p-3 animate-pulse">
+      <div className="aspect-[4/3] rounded-xl bg-white/5 mb-3" />
       <div className="h-4 w-3/4 bg-white/5 rounded mb-2" />
       <div className="h-3 w-1/2 bg-white/5 rounded mb-4" />
       <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
@@ -552,25 +619,19 @@ function SkeletonCard() {
 
 function MarketplaceSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto w-full">
-      <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5">
-        <div className="flex gap-2 overflow-x-auto scrollbar-none">
-          <SkeletonPill />
-          <SkeletonPill />
-          <SkeletonPill />
-          <SkeletonPill />
-        </div>
+    <div className="max-w-7xl mx-auto w-full px-4 py-5">
+      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <div className="h-44 rounded-2xl bg-white/5 animate-pulse" />
+        <div className="h-44 rounded-2xl bg-white/5 animate-pulse" />
       </div>
-      <div className="px-4 py-6 space-y-10">
-        {["a", "b", "c"].map((cat) => (
-          <section key={cat}>
-            <div className="h-6 w-48 bg-white/5 rounded animate-pulse mb-4" />
-            <div className="grid grid-rows-2 grid-flow-col auto-cols-max overflow-x-auto snap-x scrollbar-none gap-4 pb-4">
-              {Array.from({ length: 6 }).map((_, i) => (
-                <SkeletonCard key={`${cat}-${i}`} />
-              ))}
-            </div>
-          </section>
+      <div className="flex gap-3 mb-6 overflow-hidden">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-xl bg-white/5 animate-pulse" />
+        ))}
+      </div>
+      <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+        {Array.from({ length: 6 }).map((_, i) => (
+          <SkeletonCard key={i} />
         ))}
       </div>
     </div>
