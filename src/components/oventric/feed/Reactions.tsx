@@ -4,6 +4,8 @@ import type { ReactionType } from "@/lib/posts.functions";
 import heartAsset from "@/assets/heart-3d.png.asset.json";
 import thumbsUpAsset from "@/assets/thumbs-up-3d.png.asset.json";
 import thumbsDownAsset from "@/assets/thumbs-down-3d.png.asset.json";
+import laughAsset from "@/assets/laugh-3d.png.asset.json";
+import crownAsset from "@/assets/crown-3d.png.asset.json";
 
 export const REACTION_META: Record<
   ReactionType,
@@ -25,6 +27,8 @@ const IMAGE_REACTIONS: Partial<Record<ReactionType, string>> = {
   love: heartAsset.url,
   like: thumbsUpAsset.url,
   dislike: thumbsDownAsset.url,
+  laugh: laughAsset.url,
+  crown: crownAsset.url,
 };
 
 export function isImageReaction(reaction: ReactionType) {
@@ -51,6 +55,8 @@ export function ReactionGlyph({
     const motion =
       reaction === "love" ? "reaction-heart-beat"
       : reaction === "like" ? "reaction-thumb-up-bob"
+      : reaction === "laugh" ? "reaction-laugh-wobble"
+      : reaction === "crown" ? "reaction-crown-float"
       : "reaction-thumb-down-bob";
     return (
       <img
