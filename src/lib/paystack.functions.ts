@@ -373,7 +373,7 @@ async function settleOrder(
 
   const { data: pRow, error: pErr } = await supabaseAdmin
     .from("products")
-    .select("id, seller_id, price_usd, original_currency, original_amount, fx_snapshot, requires_manual_delivery")
+    .select("id, name, seller_id, price_usd, original_currency, original_amount, fx_snapshot, requires_manual_delivery")
     .eq("id", meta.productId)
     .maybeSingle();
   if (pErr) throw new Error(pErr.message);
