@@ -178,8 +178,50 @@ export function Marketplace() {
     return sorted;
   }, [modeItems, activeCat, activeSub, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
 
+  // Sales proxy: review volume first, then rating, then promotion.
+  const salesScore = (p: ProductDTO) => p.reviews * 10 + p.rating;
+
+  /** Hot products = top sellers inside the active mode (switches with mode). */
+  const hotItems = useMemo(() => {
+    const scoped = activeCat ? modeItems.filter((p) => norm(p.category) === activeCat) : modeItems;
+    const base = scoped.length >= 4 ? scoped : modeItems;
+    return [...base].sort((a, b) => salesScore(b) - salesScore(a)).slice(0, 12);
+  }, [modeItems, activeCat]);
+
+  /** Grid with promoted listings woven in after every few cards. */
+  const gridItems = useMemo(() => {
+    const regular = filtered.filter((p) => !p.promoted);
+    const catScope = activeCat ? modeItems.filter((p) => norm(p.category) === activeCat) : modeItems;
+    const promos = (filtered.filter((p) => p.promoted).length > 0
+      ? filtered.filter((p) => p.promoted)
+      : catScope.filter((p) => p.promoted));
+    if (promotedOnly || promos.length === 0) return filtered;
+    const out: ProductDTO[] = [];
+    let pi = 0;
+    regular.forEach((p, i) => {
+      out.push(p);
+      if ((i + 1) % 4 === 0) out.push(promos[pi++ % promos.length]);
+    });
+    if (out.length === regular.length && promos.length) out.push(promos[0]);
+    return out;
+  }, [filtered, modeItems, activeCat, promotedOnly]);
+
+  /** Recommended = best sellers + promoted across the whole marketplace. */
+  const recommended = useMemo(() => {
+    const pool = currencyScoped ?? [];
+    const promos = pool.filter((p) => p.promoted).sort((a, b) => salesScore(b) - salesScore(a));
+    const sellers = pool.filter((p) => !p.promoted).sort((a, b) => salesScore(b) - salesScore(a));
+    const mixed: ProductDTO[] = [];
+    for (let i = 0; i < 8; i++) {
+      if (sellers[i]) mixed.push(sellers[i]);
+      if (promos[i]) mixed.push(promos[i]);
+    }
+    return mixed.slice(0, 8);
+  }, [currencyScoped]);
+
   const activeFilterCount =
     (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (minRating ? 1 : 0) + (promotedOnly ? 1 : 0) + (sort !== "featured" ? 1 : 0);
+
 
   const resetFilters = () => {
     setMinPrice("");
