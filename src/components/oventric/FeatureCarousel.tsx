@@ -248,7 +248,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
 
       {(phase === "slides" || introExiting) && (
         <div
-          className={`flex flex-col w-full h-full ${
+          className={`flex flex-col items-center w-full h-full ${
             introExiting ? "absolute inset-0 z-20" : ""
           }`}
         >
