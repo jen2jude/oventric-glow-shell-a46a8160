@@ -161,8 +161,8 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     });
   }, []);
 
-  const next = useCallback(() => goTo(index + 1), [goTo, index]);
-  const prev = useCallback(() => goTo(index - 1), [goTo, index]);
+  const next = useCallback(() => goTo(index + 1, 1), [goTo, index]);
+  const prev = useCallback(() => goTo(index - 1, -1), [goTo, index]);
 
   // Keyboard navigation
   useEffect(() => {
