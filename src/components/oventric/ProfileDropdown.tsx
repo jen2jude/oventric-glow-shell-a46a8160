@@ -1037,7 +1037,14 @@ function ProfileSettingsModal({
           </div>
 
           <div>
-            <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
+              <VisibilityToggle
+                on={addressPublic}
+                label="address"
+                onToggle={() => setAddressPublic((v) => !v)}
+              />
+            </div>
             <input
               id={`${titleId}-address`}
               autoComplete="street-address"
@@ -1049,7 +1056,33 @@ function ProfileSettingsModal({
               placeholder="Street, City"
               onChange={(e) => { setAddress(e.target.value); setErrors((p) => ({ ...p, address: "" })); }}
             />
+            <p className="mt-1 text-[11px] text-slate-500">
+              {addressPublic ? "Visible on your public profile." : "Private — only you can see this."}
+            </p>
           </div>
+
+          <div>
+            <div className="flex items-center justify-between gap-2 mb-1.5">
+              <label htmlFor={`${titleId}-dob`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of birth</label>
+              <VisibilityToggle
+                on={dobPublic}
+                label="date of birth"
+                onToggle={() => setDobPublic((v) => !v)}
+              />
+            </div>
+            <input
+              id={`${titleId}-dob`}
+              type="date"
+              autoComplete="bday"
+              className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+              value={dateOfBirth}
+              onChange={(e) => setDateOfBirth(e.target.value)}
+            />
+            <p className="mt-1 text-[11px] text-slate-500">
+              {dobPublic ? "Visible on your public profile." : "Private — only you can see this."}
+            </p>
+          </div>
+
 
           {/* Notification preferences */}
           <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
