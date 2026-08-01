@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { setRuntimeFxRates } from "@/lib/fx-display";
 import type { Database } from "@/integrations/supabase/types";
 
 export interface FxRates extends Record<string, number> {
@@ -105,4 +106,14 @@ export async function resolveFxRates(): Promise<FxSnapshotResult> {
   // Only cache successful live pulls for the full TTL; retry fallbacks sooner.
   cache = { at: value.source === "live" ? Date.now() : Date.now() - CACHE_TTL_MS + 60_000, value };
   return value;
+}
+
+/**
+ * Load current rates and publish them to the shared display layer so
+ * server-side charge amounts match what the buyer saw in the UI.
+ */
+export async function primeRuntimeFxRates(): Promise<FxSnapshotResult> {
+  const r = await resolveFxRates();
+  setRuntimeFxRates(r.rates);
+  return r;
 }

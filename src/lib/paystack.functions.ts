@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
 import { FX_FROM_USD, SELLER_SHARE, WALLET_CASHBACK_PCT, type OrderCurrency, type PaymentMethod } from "./marketplace.functions";
+import { primeRuntimeFxRates } from "@/lib/fx.server";
 import { convertViaSnapshot } from "@/lib/fx-display";
 import { paystackFee, type PaystackFeeCurrency } from "@/lib/paystack-fees";
 
