@@ -1,6 +1,7 @@
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { requireSupabaseAuth } from "@/integrations/supabase/auth-middleware";
+import { signAvatars } from "./avatars.server";
 
 export interface ThreadSummary {
   peerId: string;
@@ -8,9 +9,19 @@ export interface ThreadSummary {
   peerSlug: string;
   peerInitials: string;
   peerGradient: string;
+  peerAvatarUrl: string | null;
   preview: string;
   lastAt: string;
   unread: number;
+}
+
+export interface PeerProfileLite {
+  userId: string;
+  name: string;
+  slug: string;
+  initials: string;
+  gradient: string;
+  avatarUrl: string | null;
 }
 
 export interface DMRow {
@@ -72,9 +83,14 @@ export const listThreads = createServerFn({ method: "GET" })
     const peerIds = [...byPeer.keys()];
     const { data: profs, error: pErr } = await context.supabase
       .from("profiles")
-      .select("user_id, display_name, username, slug")
+      .select("user_id, display_name, username, slug, avatar_path")
       .in("user_id", peerIds);
     if (pErr) throw pErr;
+
+    const avatarByPath = await signAvatars(
+      context.supabase,
+      (profs ?? []).map((p) => (p as { avatar_path?: string | null }).avatar_path ?? null),
+    );
 
     const pMap = new Map((profs ?? []).map((p) => [p.user_id, p]));
     const out: ThreadSummary[] = peerIds.map((id) => {
@@ -82,12 +98,14 @@ export const listThreads = createServerFn({ method: "GET" })
       const name = p?.display_name || p?.username || "Unknown peer";
       const entry = byPeer.get(id)!;
       const preview = entry.last.body ?? (entry.last.media_path ? "📎 Attachment" : "…");
+      const ap = (p as { avatar_path?: string | null } | undefined)?.avatar_path ?? null;
       return {
         peerId: id,
         peerName: name,
         peerSlug: p?.slug ?? id,
         peerInitials: initialsFor(name),
         peerGradient: gradientFor(id),
+        peerAvatarUrl: ap ? (avatarByPath.get(ap) ?? null) : null,
         preview: preview.length > 90 ? preview.slice(0, 87) + "…" : preview,
         lastAt: entry.last.created_at,
         unread: entry.unread,
@@ -181,6 +199,41 @@ export const markThreadRead = createServerFn({ method: "POST" })
     if (error) throw error;
     return { ok: true };
   });
+
+/** Lightweight profile cards (name + real avatar) for a set of user ids. */
+export const getPeerProfiles = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ userIds: z.array(z.string().uuid()).max(100) }).parse(d),
+  )
+  .handler(async ({ data, context }): Promise<PeerProfileLite[]> => {
+    if (!data.userIds.length) return [];
+    const { data: profs, error } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug, avatar_path")
+      .in("user_id", data.userIds);
+    if (error) throw error;
+    const rows = (profs ?? []) as Array<{
+      user_id: string;
+      display_name: string | null;
+      username: string | null;
+      slug: string | null;
+      avatar_path: string | null;
+    }>;
+    const avatarByPath = await signAvatars(context.supabase, rows.map((r) => r.avatar_path));
+    return rows.map((r) => {
+      const name = r.display_name || r.username || "Peer";
+      return {
+        userId: r.user_id,
+        name,
+        slug: r.slug ?? r.user_id,
+        initials: initialsFor(name),
+        gradient: gradientFor(r.user_id),
+        avatarUrl: r.avatar_path ? (avatarByPath.get(r.avatar_path) ?? null) : null,
+      };
+    });
+  });
+
 
 export const resolvePeer = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])

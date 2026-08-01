@@ -22,12 +22,21 @@ import {
   listMessages,
   sendMessage,
   markThreadRead,
+  getPeerProfiles,
   type ThreadSummary,
   getPeerOrderContext,
   type DMRow,
   type PeerOrderContext,
 } from "@/lib/messaging/messages.functions";
 import { markOrderDelivered, buyerConfirmReceipt } from "@/lib/fulfilment.functions";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+
+interface OnlinePeer {
+  name: string;
+  slug: string;
+  avatarUrl: string | null;
+  gradient: string;
+}
 
 interface MessagesProps {
   variant?: "page" | "compact";
@@ -111,10 +120,8 @@ function ThreadRow({
         }`}
       >
         <div className="relative shrink-0">
-          <div
-            className={`w-10 h-10 rounded-full bg-gradient-to-br ${thread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
-          >
-            {thread.peerInitials}
+          <div className="w-10 h-10 rounded-full overflow-hidden">
+            <AvatarImage src={thread.peerAvatarUrl} alt={thread.peerName} className="rounded-full" />
           </div>
           {online && (
             <span
@@ -182,6 +189,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const fetchMessages = useServerFn(listMessages);
   const postMessage = useServerFn(sendMessage);
   const markRead = useServerFn(markThreadRead);
+  const fetchPeerProfiles = useServerFn(getPeerProfiles);
 
   const [threads, setThreads] = useState<ThreadSummary[]>([]);
   const [loadingThreads, setLoadingThreads] = useState(false);
@@ -196,9 +204,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const [sending, setSending] = useState(false);
   const [orderCtx, setOrderCtx] = useState<PeerOrderContext | null>(null);
   const [showListOnMobile, setShowListOnMobile] = useState(!initialThreadId);
-  const [onlinePeers, setOnlinePeers] = useState<
-    Map<string, { name: string; slug: string; initials: string; gradient: string }>
-  >(new Map());
+  const [onlinePeers, setOnlinePeers] = useState<Map<string, OnlinePeer>>(new Map());
+  const peerCacheRef = useRef<Set<string>>(new Set());
   const scrollRef = useRef<HTMLDivElement>(null);
   const [peerTyping, setPeerTyping] = useState(false);
   const typingChanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
@@ -248,8 +255,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       return;
     }
     let cancelled = false;
-    // Remove any stale channel with the same topic (StrictMode / fast remounts
-    // return the still-subscribed instance, and .on() after .subscribe() throws).
     for (const c of supabase.getChannels()) {
       if (c.topic === "realtime:oventric:presence") supabase.removeChannel(c);
     }
@@ -257,42 +262,49 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       config: { presence: { key: me } },
     });
 
-    const GRADS = [
-      "from-purple-500 to-pink-500",
-      "from-emerald-400 to-teal-500",
-      "from-sky-400 to-indigo-500",
-      "from-amber-400 to-orange-500",
-      "from-fuchsia-500 to-pink-500",
-      "from-rose-400 to-red-500",
-      "from-cyan-400 to-blue-500",
-      "from-lime-400 to-emerald-500",
-    ];
-    const gradFor = (id: string) => {
-      let h = 0;
-      for (let i = 0; i < id.length; i++) h = (h * 31 + id.charCodeAt(i)) >>> 0;
-      return GRADS[h % GRADS.length];
-    };
-    const initialsFor = (name: string) => {
-      const parts = name.trim().split(/\s+/).slice(0, 2);
-      return parts.map((s) => s[0]?.toUpperCase() ?? "").join("") || "??";
-    };
-
     const syncFromState = () => {
       if (cancelled) return;
       const state = channel.presenceState<{ user_id: string; name?: string; slug?: string }>();
-      const next = new Map<string, { name: string; slug: string; initials: string; gradient: string }>();
-      for (const key of Object.keys(state)) {
-        if (key === me) continue;
-        const meta = state[key][0];
-        const name = meta?.name || "Peer";
-        next.set(key, {
-          name,
-          slug: meta?.slug || key,
-          initials: initialsFor(name),
-          gradient: gradFor(key),
-        });
+      const ids = Object.keys(state).filter((k) => k !== me);
+      setOnlinePeers((prev) => {
+        const next = new Map<string, OnlinePeer>();
+        for (const key of ids) {
+          const meta = state[key][0];
+          const cached = prev.get(key);
+          next.set(key, {
+            name: cached?.name || meta?.name || "Peer",
+            slug: cached?.slug || meta?.slug || key,
+            avatarUrl: cached?.avatarUrl ?? null,
+            gradient: cached?.gradient ?? "from-emerald-400 to-teal-500",
+          });
+        }
+        return next;
+      });
+      // Hydrate real avatars/names for anyone we don't have yet.
+      const missing = ids.filter((id) => !peerCacheRef.current.has(id));
+      if (missing.length) {
+        missing.forEach((id) => peerCacheRef.current.add(id));
+        fetchPeerProfiles({ data: { userIds: missing.slice(0, 100) } })
+          .then((rows) => {
+            if (cancelled) return;
+            setOnlinePeers((prev) => {
+              const next = new Map(prev);
+              rows.forEach((r) => {
+                if (!next.has(r.userId)) return;
+                next.set(r.userId, {
+                  name: r.name,
+                  slug: r.slug,
+                  avatarUrl: r.avatarUrl,
+                  gradient: r.gradient,
+                });
+              });
+              return next;
+            });
+          })
+          .catch(() => {
+            missing.forEach((id) => peerCacheRef.current.delete(id));
+          });
       }
-      setOnlinePeers(next);
     };
 
     channel
@@ -301,7 +313,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       .on("presence", { event: "leave" }, syncFromState)
       .subscribe(async (status) => {
         if (status !== "SUBSCRIBED" || cancelled) return;
-        // Load own profile to publish minimal metadata.
         const { data: p } = await supabase
           .from("profiles")
           .select("display_name, username, slug")
@@ -316,7 +327,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       cancelled = true;
       supabase.removeChannel(channel);
     };
-  }, [me]);
+  }, [me, fetchPeerProfiles]);
 
 
   // Sync activePeer when initialThreadId changes (e.g., opening chat from a new profile)
@@ -335,38 +346,19 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     if (threads.some((t) => t.peerId === activePeer)) return;
     let cancel = false;
     (async () => {
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, username, slug")
-        .eq("user_id", activePeer)
-        .maybeSingle();
+      const [p] = await fetchPeerProfiles({ data: { userIds: [activePeer] } });
       if (cancel || !p) return;
-      const name = (p.display_name as string) || (p.username as string) || "Peer";
-      const parts = name.trim().split(/\s+/).slice(0, 2);
-      const initials = parts.map((s) => s[0]?.toUpperCase() ?? "").join("") || "??";
-      const GRADS = [
-        "from-purple-500 to-pink-500",
-        "from-emerald-400 to-teal-500",
-        "from-sky-400 to-indigo-500",
-        "from-amber-400 to-orange-500",
-        "from-fuchsia-500 to-pink-500",
-        "from-rose-400 to-red-500",
-        "from-cyan-400 to-blue-500",
-        "from-lime-400 to-emerald-500",
-      ];
-      let h = 0;
-      for (let i = 0; i < activePeer.length; i++) h = (h * 31 + activePeer.charCodeAt(i)) >>> 0;
-      const gradient = GRADS[h % GRADS.length];
       setThreads((prev) =>
         prev.some((t) => t.peerId === activePeer)
           ? prev
           : [
               {
                 peerId: activePeer,
-                peerName: name,
-                peerSlug: (p.slug as string) ?? activePeer,
-                peerInitials: initials,
-                peerGradient: gradient,
+                peerName: p.name,
+                peerSlug: p.slug,
+                peerInitials: p.initials,
+                peerGradient: p.gradient,
+                peerAvatarUrl: p.avatarUrl,
                 preview: "New conversation",
                 lastAt: new Date().toISOString(),
                 unread: 0,
@@ -378,7 +370,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     return () => {
       cancel = true;
     };
-  }, [me, activePeer, threads]);
+  }, [me, activePeer, threads, fetchPeerProfiles]);
 
 
   // Load latest page of messages for active peer
@@ -683,31 +675,58 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           </div>
         </div>
         {(() => {
-          const threadIds = new Set(threads.map((t) => t.peerId));
-          const rail = [...onlinePeers.entries()].filter(([id]) => !threadIds.has(id));
+          const online = [...onlinePeers.entries()].map(([id, p]) => ({
+            id,
+            name: p.name,
+            avatarUrl: p.avatarUrl,
+            online: true,
+          }));
+          const onlineIds = new Set(online.map((o) => o.id));
+          const offline = threads
+            .filter((t) => !onlineIds.has(t.peerId))
+            .slice(0, 20)
+            .map((t) => ({
+              id: t.peerId,
+              name: t.peerName,
+              avatarUrl: t.peerAvatarUrl,
+              online: false,
+            }));
+          const rail = [...online, ...offline];
           if (rail.length === 0) return null;
           return (
             <div className="border-b border-white/10 px-3 py-2.5">
               <div className="text-[10px] uppercase tracking-widest font-black text-emerald-400 mb-2">
-                Online now · {rail.length}
+                {online.length > 0 ? `Online now · ${online.length}` : "Recent peers"}
               </div>
               <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-0.5 px-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-                {rail.map(([id, p]) => (
+                {rail.map((p) => (
                   <button
-                    key={id}
-                    onClick={() => selectThread(id)}
+                    key={p.id}
+                    onClick={() => selectThread(p.id)}
                     title={p.name}
                     className="group shrink-0 flex flex-col items-center gap-1 w-14"
                   >
                     <div className="relative">
                       <div
-                        className={`w-11 h-11 rounded-full bg-gradient-to-br ${p.gradient} flex items-center justify-center text-white font-bold text-xs ring-2 ring-transparent group-hover:ring-emerald-400/60 transition`}
+                        className={`w-11 h-11 rounded-full overflow-hidden ring-2 transition ${
+                          p.online
+                            ? "ring-emerald-400/70"
+                            : "ring-white/10 group-hover:ring-emerald-400/40 opacity-80"
+                        }`}
                       >
-                        {p.initials}
+                        <AvatarImage src={p.avatarUrl} alt={p.name} className="rounded-full" />
                       </div>
-                      <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]" />
+                      <span
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] ${
+                          p.online
+                            ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+                            : "bg-slate-600"
+                        }`}
+                      />
                     </div>
-                    <span className="text-[10px] text-slate-300 truncate max-w-full">{p.name}</span>
+                    <span className="text-[10px] text-slate-300 truncate max-w-full">
+                      {p.name.split(/\s+/)[0]}
+                    </span>
                   </button>
                 ))}
               </div>
@@ -754,10 +773,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 ← Back
               </button>
               <div className="relative shrink-0">
-                <div
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${activeThread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
-                >
-                  {activeThread.peerInitials}
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <AvatarImage
+                    src={activeThread.peerAvatarUrl}
+                    alt={activeThread.peerName}
+                    className="rounded-full"
+                    loading="eager"
+                  />
                 </div>
                 {onlinePeers.has(activeThread.peerId) && (
                   <span
