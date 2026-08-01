@@ -754,10 +754,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 ← Back
               </button>
               <div className="relative shrink-0">
-                <div
-                  className={`w-10 h-10 rounded-full bg-gradient-to-br ${activeThread.peerGradient} flex items-center justify-center text-white font-bold text-xs`}
-                >
-                  {activeThread.peerInitials}
+                <div className="w-10 h-10 rounded-full overflow-hidden">
+                  <AvatarImage
+                    src={activeThread.peerAvatarUrl}
+                    alt={activeThread.peerName}
+                    className="rounded-full"
+                    loading="eager"
+                  />
                 </div>
                 {onlinePeers.has(activeThread.peerId) && (
                   <span
