@@ -257,7 +257,7 @@ function CheckoutPage() {
             deliveryWhatsapp: null,
             applyCashbackUSD: cashbackApplyUSD,
             channel,
-            provider: gateway,
+            provider: gateway === "minipay" ? undefined : gateway,
           },
         });
         window.location.href = init.authorizationUrl;
