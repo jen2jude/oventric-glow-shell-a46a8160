@@ -305,7 +305,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           </div>
 
           {/* Bottom controls */}
-          <div className="w-full max-w-md px-6 pb-8 pt-4 z-10">
+          <div className="w-full max-w-md mx-auto px-6 pb-8 pt-4 z-10">
             <div className="flex items-center justify-center gap-2 mb-6">
               {SLIDES.map((s, i) => (
                 <button
