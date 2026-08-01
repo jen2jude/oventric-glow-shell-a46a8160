@@ -322,6 +322,7 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const { show, markSeen, hydrated } = useFirstLaunch();
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -338,6 +339,7 @@ function RootComponent() {
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
               <BootSplash />
+              {show && hydrated && <FeatureCarousel onComplete={markSeen} />}
             </KycGateProvider>
 
           </OnboardingProvider>
