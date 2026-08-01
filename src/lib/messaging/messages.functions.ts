@@ -8,9 +8,19 @@ export interface ThreadSummary {
   peerSlug: string;
   peerInitials: string;
   peerGradient: string;
+  peerAvatarUrl: string | null;
   preview: string;
   lastAt: string;
   unread: number;
+}
+
+export interface PeerProfileLite {
+  userId: string;
+  name: string;
+  slug: string;
+  initials: string;
+  gradient: string;
+  avatarUrl: string | null;
 }
 
 export interface DMRow {
