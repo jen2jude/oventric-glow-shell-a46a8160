@@ -335,38 +335,19 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     if (threads.some((t) => t.peerId === activePeer)) return;
     let cancel = false;
     (async () => {
-      const { data: p } = await supabase
-        .from("profiles")
-        .select("user_id, display_name, username, slug")
-        .eq("user_id", activePeer)
-        .maybeSingle();
+      const [p] = await fetchPeerProfiles({ data: { userIds: [activePeer] } });
       if (cancel || !p) return;
-      const name = (p.display_name as string) || (p.username as string) || "Peer";
-      const parts = name.trim().split(/\s+/).slice(0, 2);
-      const initials = parts.map((s) => s[0]?.toUpperCase() ?? "").join("") || "??";
-      const GRADS = [
-        "from-purple-500 to-pink-500",
-        "from-emerald-400 to-teal-500",
-        "from-sky-400 to-indigo-500",
-        "from-amber-400 to-orange-500",
-        "from-fuchsia-500 to-pink-500",
-        "from-rose-400 to-red-500",
-        "from-cyan-400 to-blue-500",
-        "from-lime-400 to-emerald-500",
-      ];
-      let h = 0;
-      for (let i = 0; i < activePeer.length; i++) h = (h * 31 + activePeer.charCodeAt(i)) >>> 0;
-      const gradient = GRADS[h % GRADS.length];
       setThreads((prev) =>
         prev.some((t) => t.peerId === activePeer)
           ? prev
           : [
               {
                 peerId: activePeer,
-                peerName: name,
-                peerSlug: (p.slug as string) ?? activePeer,
-                peerInitials: initials,
-                peerGradient: gradient,
+                peerName: p.name,
+                peerSlug: p.slug,
+                peerInitials: p.initials,
+                peerGradient: p.gradient,
+                peerAvatarUrl: p.avatarUrl,
                 preview: "New conversation",
                 lastAt: new Date().toISOString(),
                 unread: 0,
@@ -378,7 +359,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     return () => {
       cancel = true;
     };
-  }, [me, activePeer, threads]);
+  }, [me, activePeer, threads, fetchPeerProfiles]);
 
 
   // Load latest page of messages for active peer
