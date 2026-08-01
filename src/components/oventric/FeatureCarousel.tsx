@@ -82,6 +82,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const [phase, setPhase] = useState<Phase>("intro");
   const [introExiting, setIntroExiting] = useState(false);
   const [index, setIndex] = useState(0);
+  const [direction, setDirection] = useState<1 | -1>(1);
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
