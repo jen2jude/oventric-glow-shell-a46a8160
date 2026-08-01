@@ -1393,6 +1393,7 @@ export type Database = {
           id: string
           media_path: string | null
           media_type: string | null
+          order_id: string | null
           read_at: string | null
           recipient_id: string
           sender_id: string
@@ -1403,6 +1404,7 @@ export type Database = {
           id?: string
           media_path?: string | null
           media_type?: string | null
+          order_id?: string | null
           read_at?: string | null
           recipient_id: string
           sender_id: string
@@ -1413,11 +1415,20 @@ export type Database = {
           id?: string
           media_path?: string | null
           media_type?: string | null
+          order_id?: string | null
           read_at?: string | null
           recipient_id?: string
           sender_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "direct_messages_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_send_log: {
         Row: {
@@ -1747,6 +1758,7 @@ export type Database = {
           paid_at: string | null
           payment_method: string
           paystack_ref: string | null
+          prerelease_notified_at: string | null
           product_id: string
           quantity: number
           released_at: string | null
@@ -1777,6 +1789,7 @@ export type Database = {
           paid_at?: string | null
           payment_method: string
           paystack_ref?: string | null
+          prerelease_notified_at?: string | null
           product_id: string
           quantity?: number
           released_at?: string | null
@@ -1807,6 +1820,7 @@ export type Database = {
           paid_at?: string | null
           payment_method?: string
           paystack_ref?: string | null
+          prerelease_notified_at?: string | null
           product_id?: string
           quantity?: number
           released_at?: string | null
