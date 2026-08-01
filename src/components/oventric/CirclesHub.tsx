@@ -737,7 +737,12 @@ function WatercoolerPost({
           className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
           style={activeColor ? { color: activeColor } : undefined}
         >
-          {ActiveIcon ? <ActiveIcon className="w-3.5 h-3.5 fill-current" /> : <span>👍</span>}
+          {viewerReaction ? (
+            <ReactionGlyph reaction={viewerReaction} className={viewerReaction === "love" ? "w-5 h-5" : "w-3.5 h-3.5"} />
+          ) : (
+            <ReactionGlyph reaction="love" className="w-5 h-5" />
+          )}
+
           <span>{total > 0 ? total : "React"}</span>
         </button>
         <button
