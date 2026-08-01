@@ -192,7 +192,7 @@ export function computeDisplayPrice(row: PriceableRow, viewer: Currency): Displa
   } catch {
     const fallbackAmount = Number(row?.price_usd ?? row?.original_amount ?? 0) || 0;
     const safeViewer: Currency = isCurrency(viewer) ? viewer : "USD";
-    const converted = fallbackAmount * (LEGACY_USD_RATES[safeViewer] ?? 1);
+    const converted = fallbackAmount * usdRate(safeViewer);
     return {
       value: converted,
       currency: safeViewer,
