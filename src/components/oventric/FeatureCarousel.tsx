@@ -184,7 +184,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           {SLIDES.map((s, i) => (
             <button
               key={s.id}
-              onClick={() => goTo(i, i > index ? 1 : -1)}
+              onClick={() => goTo(i)}
               className={`h-2 rounded-full transition-all duration-300 ${
                 i === index ? "w-8" : "w-2 bg-white/25 hover:bg-white/40"
               }`}
