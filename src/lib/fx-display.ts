@@ -13,12 +13,33 @@ export interface FxSnapshot {
 }
 
 /**
- * Fallback rates used ONLY for legacy rows that were created before the FX
- * snapshot system existed. These match the platform's historical default —
- * legacy rows are treated as USD-native so their `price_usd` still renders
- * sensibly for viewers on other currencies.
+ * Fallback rates used ONLY when no live rate has been fetched yet (first paint,
+ * offline, provider outage) and the row carries no snapshot.
  */
-export const LEGACY_USD_RATES: Record<Currency, number> = { USD: 1, NGN: 1500, GHS: 14 };
+export const LEGACY_USD_RATES: Record<Currency, number> = { USD: 1, NGN: 1364, GHS: 11.7 };
+
+/**
+ * Live USD-base rates, refreshed periodically by useLiveFx() at the app root.
+ * Every conversion prefers these so buyers and sellers in different countries
+ * see near-accurate, current conversions.
+ */
+let RUNTIME_RATES: Partial<Record<Currency, number>> | null = null;
+
+export function setRuntimeFxRates(rates: Partial<Record<Currency, number>> | null | undefined) {
+  if (!rates) return;
+  const next: Partial<Record<Currency, number>> = { USD: 1 };
+  for (const c of ["NGN", "GHS"] as Currency[]) {
+    const v = Number(rates[c]);
+    if (v > 0) next[c] = v;
+  }
+  RUNTIME_RATES = next;
+}
+
+/** Current USD → `currency` rate (live when available, otherwise fallback). */
+export function usdRate(currency: Currency): number {
+  const live = RUNTIME_RATES?.[currency];
+  return Number(live) > 0 ? Number(live) : (LEGACY_USD_RATES[currency] ?? 1);
+}
 
 const SYMBOL: Record<Currency, string> = { USD: "$", NGN: "₦", GHS: "₵" };
 
