@@ -58,7 +58,7 @@ test.describe("First-launch feature carousel", () => {
       const carousel = page.locator(CAROUSEL);
       await expect(carousel).toBeVisible({ timeout: 15000 });
 
-      await page.get_by_role("button", { name: "Skip introduction" }).click();
+      await page.getByRole("button", { name: "Skip introduction" }).click();
       await page.waitForTimeout(500);
 
       await expect(carousel).not.toBeVisible();
