@@ -22,6 +22,9 @@ export function paystackFee(net: number, currency: PaystackFeeCurrency): Paystac
     // 1.5% + ₦100 flat (flat waived under ₦2,500), capped at ₦2,000.
     feeRaw = amount * 0.015 + (amount >= 2500 ? 100 : 0);
     if (feeRaw > 2000) feeRaw = 2000;
+  } else if (currency === "ZAR" || currency === "KES") {
+    // Local card processing ~2.9%.
+    feeRaw = amount * 0.029;
   } else if (currency === "GHS") {
     // 1.95% local card fee.
     feeRaw = amount * 0.0195;
@@ -30,8 +33,9 @@ export function paystackFee(net: number, currency: PaystackFeeCurrency): Paystac
     feeRaw = amount * 0.039 + 0.3;
   }
 
-  const round = (v: number) => (currency === "USD" ? Number(v.toFixed(2)) : Math.ceil(v));
+  const twoDp = currency === "USD" || currency === "ZAR";
+  const round = (v: number) => (twoDp ? Number(v.toFixed(2)) : Math.ceil(v));
   const fee = round(feeRaw);
-  const charge = currency === "USD" ? Number((amount + fee).toFixed(2)) : Math.round(amount) + fee;
+  const charge = twoDp ? Number((amount + fee).toFixed(2)) : Math.round(amount) + fee;
   return { fee, charge };
 }
