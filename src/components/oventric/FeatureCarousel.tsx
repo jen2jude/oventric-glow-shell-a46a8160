@@ -21,10 +21,18 @@ interface Slide {
 
 const SLIDES: Slide[] = [
   {
+    id: "cashback",
+    image: mockCashback,
+    title: "Cashback",
+    description: "Earn up to 10% cashback on every purchase.",
+    accent: "#22ff88",
+  },
+  {
     id: "feed",
     image: mockFeed,
     title: "Feed",
-    description: "Earn up to 10% cashback on every purchase.",
+    description:
+      "Follow creators, join circles, and see what Africa's builders are shipping.",
     accent: "#00c2ff",
   },
   {
