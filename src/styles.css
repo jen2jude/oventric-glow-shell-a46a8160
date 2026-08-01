@@ -717,6 +717,17 @@ html.low-gpu {
     background-color: #1a1a1e !important;
   }
 
+  /* Same overlay exception as marketplace — scrims must not become opaque
+     blocks over avatars, covers and tile thumbnails. */
+  .profile-render-safe .absolute[class*="bg-gradient"],
+  .profile-render-safe .absolute[style*="gradient"],
+  .profile-render-safe .inset-0[class*="bg-gradient"],
+  .profile-render-safe .inset-0[style*="gradient"] {
+    background-image: none !important;
+    background-color: transparent !important;
+  }
+
+
   .profile-render-safe .sticky,
   .profile-render-safe .fixed {
     background-color: #121214 !important;
