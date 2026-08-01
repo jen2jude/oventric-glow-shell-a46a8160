@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState, useCallback } from "react";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 
 import home3d from "@/assets/home-3d.png.asset.json";
 import marketplace3d from "@/assets/marketplace-3d.png.asset.json";
