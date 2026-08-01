@@ -62,6 +62,19 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchDelta, setTouchDelta] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
+  const markSeenServer = useServerFn(markCarouselSeenFn);
+
+  const handleComplete = useCallback(() => {
+    // Fire-and-forget server sync for signed-in users; localStorage is the
+    // source of truth on the device, but this keeps the flag in sync across
+    // devices when the user has a session.
+    try {
+      void markSeenServer({ data: {} });
+    } catch {
+      // ignore
+    }
+    onComplete();
+  }, [markSeenServer, onComplete]);
 
   const goTo = useCallback((next: number, dir: number) => {
     setDirection(dir);
