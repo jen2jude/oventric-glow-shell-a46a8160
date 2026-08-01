@@ -261,6 +261,24 @@ export const markOrderDelivered = createServerFn({ method: "POST" })
       .eq("id", data.orderId);
 
     const name = (o.products?.name as string) ?? "your order";
+    // Deliver the hand-off inside the platform chat so the trade stays on
+    // Oventric and stays protected by escrow.
+    const chatBody =
+      `✅ Delivered — "${name}"\n\n` +
+      (data.note ? `${data.note}\n\n` : "") +
+      `Please check it over and tap "Confirm receipt" to release the escrowed payment. ` +
+      `It auto-confirms in ${AUTO_RELEASE_HOURS} hours if you don't act. ` +
+      `Keep everything in this chat — we can only mediate trades completed on Oventric.`;
+    try {
+      await sb.from("direct_messages").insert({
+        sender_id: context.userId,
+        recipient_id: o.buyer_id,
+        body: chatBody,
+        order_id: data.orderId,
+      });
+    } catch (e) {
+      console.error("[markOrderDelivered] delivery DM failed", e);
+    }
     await notify(sb, [
       {
         user_id: o.buyer_id,
