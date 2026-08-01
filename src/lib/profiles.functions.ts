@@ -263,20 +263,12 @@ export const getProfileSocialCounts = createServerFn({ method: "GET" })
       userId = row?.user_id ?? null;
     }
 
-    const [{ data: rows, error }, followingRes] = await Promise.all([
-      supabase.rpc("profile_social_counts", { _slug: slug }),
-      userId
-        ? supabase
-            .from("follows")
-            .select("*", { count: "exact", head: true })
-            .eq("follower_id", userId)
-        : Promise.resolve({ count: 0 } as { count: number | null }),
-    ]);
+    const { data: rows, error } = await supabase.rpc("profile_social_counts", { _slug: slug });
     if (error) console.error("[getProfileSocialCounts] rpc failed", error);
     const first = Array.isArray(rows) ? rows[0] : rows;
     return {
       followers: Number(first?.followers ?? 0),
-      following: Number(followingRes.count ?? 0),
+      following: Number((first as { following?: number } | null)?.following ?? 0),
       circleMembers: Number(first?.circle_members ?? 0),
       userId,
     };
