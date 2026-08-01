@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, type ReactNode } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   CheckCircle2,
@@ -75,7 +75,8 @@ export function OrderFulfilmentRoadmap({
     setBusy(kind);
     try {
       if (kind === "deliver") {
-        await deliverFn({ data: { orderId }, ...(deliveryNote.trim() ? { data: { orderId, note: deliveryNote.trim() } } : {}) });
+        const note = deliveryNote.trim();
+        await deliverFn({ data: note ? { orderId, note } : { orderId } });
         setDeliveryNote("");
         toast.success("Marked delivered — buyer notified in chat.");
       } else {
@@ -311,7 +312,7 @@ function ConfirmModal({
   busy: boolean;
   onCancel: () => void;
   onConfirm: () => void;
-  children?: React.ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70">
