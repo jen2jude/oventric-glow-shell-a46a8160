@@ -352,6 +352,25 @@ export function Marketplace() {
         </div>
       </Collapse>
 
+      {/* ── Hot products (top sellers in this section) ───────────── */}
+      <Collapse open={!!mode && hotItems.length > 0}>
+        <div className="pt-5">
+          <div className="flex items-center gap-2 mb-3">
+            <Flame className="w-4 h-4 text-orange-400" />
+            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+              Hot {mode === "physical" ? "physical" : "digital"} products
+            </h2>
+          </div>
+          <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+            {hotItems.map((p) => (
+              <MiniProductCard key={`hot-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
+            ))}
+          </div>
+        </div>
+      </Collapse>
+
+
+
       {/* ── Toolbar + grid with side filter ──────────────────────── */}
       <div className="mt-6 flex items-center justify-between gap-3">
         <div className="text-sm text-slate-400">
