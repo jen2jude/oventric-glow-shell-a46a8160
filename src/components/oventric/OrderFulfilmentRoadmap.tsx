@@ -58,6 +58,7 @@ export function OrderFulfilmentRoadmap({
   const [busy, setBusy] = useState<string | null>(null);
   const [showDispute, setShowDispute] = useState(false);
   const [confirmModal, setConfirmModal] = useState<null | "deliver" | "receive">(null);
+  const [deliveryNote, setDeliveryNote] = useState("");
 
   const load = useCallback(async () => {
     try {
@@ -74,8 +75,9 @@ export function OrderFulfilmentRoadmap({
     setBusy(kind);
     try {
       if (kind === "deliver") {
-        await deliverFn({ data: { orderId } });
-        toast.success("Marked delivered — buyer notified.");
+        await deliverFn({ data: { orderId }, ...(deliveryNote.trim() ? { data: { orderId, note: deliveryNote.trim() } } : {}) });
+        setDeliveryNote("");
+        toast.success("Marked delivered — buyer notified in chat.");
       } else {
         await confirmFn({ data: { orderId } });
         toast.success("Receipt confirmed. Seller wallet funded.");
@@ -182,6 +184,11 @@ export function OrderFulfilmentRoadmap({
         </div>
       )}
 
+      <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 mb-3 text-[11px] text-emerald-100 leading-relaxed">
+        <strong className="text-emerald-200">Keep this trade on Oventric.</strong> Payments are held in escrow and we can only
+        refund or mediate deals completed in-app. Deliver, chat and confirm here — never on WhatsApp or any other app.
+      </div>
+
       {/* Actions */}
       <div className="flex flex-wrap gap-2">
         {canDeliver && (
@@ -224,13 +231,29 @@ export function OrderFulfilmentRoadmap({
           title={confirmModal === "deliver" ? "Mark this order delivered?" : "Confirm you received this item?"}
           body={
             confirmModal === "deliver"
-              ? "The buyer will be notified and gets 48 hours to confirm. After that, funds auto-release to your wallet."
+              ? "We'll post your delivery note in the buyer's chat. They get 48 hours to confirm — after that funds auto-release to your wallet."
               : "This releases the escrowed payment to the seller immediately. Only confirm if you have the item."
           }
           busy={busy !== null}
-          onCancel={() => setConfirmModal(null)}
+          onCancel={() => { setConfirmModal(null); setDeliveryNote(""); }}
           onConfirm={() => act(confirmModal)}
-        />
+        >
+          {confirmModal === "deliver" && (
+            <label className="block mb-4">
+              <span className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">
+                Delivery note (sent to the buyer's chat)
+              </span>
+              <textarea
+                value={deliveryNote}
+                onChange={(e) => setDeliveryNote(e.target.value)}
+                rows={3}
+                maxLength={1000}
+                placeholder="Paste the download link, licence key or setup steps here."
+                className="w-full rounded-md bg-[#121214] border border-white/10 px-3 py-2 text-sm text-white placeholder:text-slate-600"
+              />
+            </label>
+          )}
+        </ConfirmModal>
       )}
 
       {showDispute && (
@@ -281,18 +304,21 @@ function ConfirmModal({
   busy,
   onCancel,
   onConfirm,
+  children,
 }: {
   title: string;
   body: string;
   busy: boolean;
   onCancel: () => void;
   onConfirm: () => void;
+  children?: React.ReactNode;
 }) {
   return (
     <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70">
       <div className="w-full max-w-sm rounded-xl border border-white/10 bg-[#1E1E24] p-5">
         <h3 className="text-white font-bold text-base mb-2">{title}</h3>
         <p className="text-xs text-slate-400 mb-4">{body}</p>
+        {children}
         <div className="flex gap-2 justify-end">
           <button onClick={onCancel} className="px-3 py-2 rounded-md text-sm text-slate-300 bg-[#2A2A31] border border-white/10">
             Cancel
