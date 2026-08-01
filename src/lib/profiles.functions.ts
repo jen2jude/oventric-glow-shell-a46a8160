@@ -346,6 +346,9 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       phone?: string | null;
       country?: string | null;
       address?: string | null;
+      address_public?: boolean;
+      date_of_birth?: string | null;
+      dob_public?: boolean;
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -357,7 +360,11 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.phone !== undefined) patch.phone = data.phone;
     if (data.country !== undefined) patch.country = data.country;
     if (data.address !== undefined) patch.address = data.address;
+    if (data.addressPublic !== undefined) patch.address_public = data.addressPublic;
+    if (data.dateOfBirth !== undefined) patch.date_of_birth = data.dateOfBirth;
+    if (data.dobPublic !== undefined) patch.dob_public = data.dobPublic;
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
+
 
     if (Object.keys(patch).length === 0) return { ok: true };
 
