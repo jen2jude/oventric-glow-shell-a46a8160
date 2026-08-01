@@ -150,11 +150,13 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
     setPhase("congrats");
   }, [markSeenServer]);
 
-  const goTo = useCallback((next: number) => {
-    setIndex(() => {
-      if (next < 0) return SLIDES.length - 1;
-      if (next >= SLIDES.length) return 0;
-      return next;
+  const goTo = useCallback((next: number, dir?: 1 | -1) => {
+    setIndex((cur) => {
+      let target = next;
+      if (target < 0) target = SLIDES.length - 1;
+      if (target >= SLIDES.length) target = 0;
+      setDirection(dir ?? (target === cur ? 1 : target > cur ? 1 : -1));
+      return target;
     });
   }, []);
 
