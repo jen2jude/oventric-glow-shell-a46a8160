@@ -396,6 +396,10 @@ export interface MyFullProfile {
   phone: string | null;
   country: string | null;
   address: string | null;
+  addressPublic: boolean;
+  dateOfBirth: string | null;
+  dobPublic: boolean;
+
   avatarUrl: string | null;
   verificationTier: string;
   reputationStars: number;
