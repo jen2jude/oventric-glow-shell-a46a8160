@@ -200,6 +200,41 @@ export const markThreadRead = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+/** Lightweight profile cards (name + real avatar) for a set of user ids. */
+export const getPeerProfiles = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) =>
+    z.object({ userIds: z.array(z.string().uuid()).max(100) }).parse(d),
+  )
+  .handler(async ({ data, context }): Promise<PeerProfileLite[]> => {
+    if (!data.userIds.length) return [];
+    const { data: profs, error } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug, avatar_path")
+      .in("user_id", data.userIds);
+    if (error) throw error;
+    const rows = (profs ?? []) as Array<{
+      user_id: string;
+      display_name: string | null;
+      username: string | null;
+      slug: string | null;
+      avatar_path: string | null;
+    }>;
+    const avatarByPath = await signAvatars(context.supabase, rows.map((r) => r.avatar_path));
+    return rows.map((r) => {
+      const name = r.display_name || r.username || "Peer";
+      return {
+        userId: r.user_id,
+        name,
+        slug: r.slug ?? r.user_id,
+        initials: initialsFor(name),
+        gradient: gradientFor(r.user_id),
+        avatarUrl: r.avatar_path ? (avatarByPath.get(r.avatar_path) ?? null) : null,
+      };
+    });
+  });
+
+
 export const resolvePeer = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((d) => z.object({ slug: z.string().min(1) }).parse(d))
