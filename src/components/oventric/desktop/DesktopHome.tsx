@@ -306,7 +306,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
   return (
     <div className="min-h-full bg-white text-slate-700">
-      <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} search={searchBar} />
+      <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} search={renderSearch("nav")} />
 
       {/* Hero */}
       <section className="relative overflow-hidden">
@@ -331,7 +331,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               own currency, wherever you are on the continent.
             </p>
             {/* Search-first entry */}
-            <div className="mt-9 max-w-xl">{heroSearch}</div>
+            <div className="mt-9 max-w-xl">{renderSearch("hero")}</div>
 
             <div className="mt-6 flex items-center gap-3">
               <button
