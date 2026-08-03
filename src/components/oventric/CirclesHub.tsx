@@ -150,7 +150,7 @@ export function CirclesHub() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 py-6">
+    <div className="max-w-7xl mx-auto w-full px-4 py-6 md:bg-white md:min-h-screen">
       {/* Header row */}
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
         <div className="min-w-0">
@@ -295,7 +295,7 @@ function Rail({
               {c.coverUrl && (
                 <img src={c.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
               )}
-              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-lg overflow-hidden">
+              <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-lg overflow-hidden">
                 {c.avatarUrl ? (
                   <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
                 ) : (
@@ -334,7 +334,7 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         {circle.coverUrl && (
           <img src={circle.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
         )}
-        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] border-2 border-[#1E1E24] flex items-center justify-center text-xl overflow-hidden">
+        <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-xl overflow-hidden">
           {circle.avatarUrl ? (
             <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
           ) : (
@@ -428,7 +428,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   const isMember = circle.myStatus === "member";
 
   return (
-    <div className="max-w-6xl mx-auto w-full">
+    <div className="max-w-6xl mx-auto w-full md:bg-white md:min-h-screen">
       {/* Banner */}
       <div className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
         {circle.coverUrl && (
@@ -455,7 +455,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
 
       <div className="px-4 md:px-6 -mt-10 relative">
         <div className="flex items-end gap-4">
-          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}>
+          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] md:border-white shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}>
             {circle.avatarUrl ? (
               <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
             ) : (
