@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowRight,
   ChevronRight,
+  Clock,
   Eye,
   EyeOff,
+  Headphones,
   Newspaper,
+  Search,
   ShieldCheck,
   Sparkles,
+  Star,
   Store,
   GraduationCap,
   Target,
@@ -21,6 +25,7 @@ import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
+import { listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
 import { formatMoney, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -31,6 +36,7 @@ import marketIcon from "@/assets/marketplace-3d.png.asset.json";
 import academyIcon from "@/assets/academy-3d.png.asset.json";
 import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
 import circlesIcon from "@/assets/circles-3d.png.asset.json";
+
 
 export type DesktopHomeProps = {
   onSelect: (section: string) => void;
@@ -103,6 +109,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
+  const loadCats = useServerFn(listMarketplaceCategories);
+  const navigate = useNavigate();
 
   const [main, setMain] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -111,6 +119,43 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const [courses, setCourses] = useState<Card[]>([]);
   const [bounties, setBounties] = useState<Card[]>([]);
   const [counts, setCounts] = useState({ products: 0, courses: 0, bounties: 0 });
+  const [cats, setCats] = useState<CategoryNode[]>([]);
+  const [catTab, setCatTab] = useState<"digital" | "physical">("digital");
+  const [q, setQ] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCats()
+      .then((rows) => {
+        if (!cancelled) setCats(rows ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [loadCats]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [searchOpen]);
+
+  const results = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return [] as Array<Card & { kind: "product" | "course" | "bounty" }>;
+    const tag = (list: Card[], kind: "product" | "course" | "bounty") =>
+      list.filter((c) => c.title.toLowerCase().includes(term)).map((c) => ({ ...c, kind }));
+    return [...tag(products, "product"), ...tag(courses, "course"), ...tag(bounties, "bounty")].slice(0, 8);
+  }, [q, products, courses, bounties]);
+
+  const catList = useMemo(() => cats.filter((c) => c.kind === catTab), [cats, catTab]);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -211,7 +256,63 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
               own currency, wherever you are on the continent.
             </p>
-            <div className="mt-9 flex items-center gap-3">
+            {/* Search-first entry */}
+            <div ref={searchRef} className="relative mt-9 max-w-xl">
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (results[0]) {
+                    setSearchOpen(false);
+                    if (results[0].kind === "product") navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
+                    else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
+                  } else onSelect("Marketplace");
+                }}
+                className="flex h-14 items-center gap-3 rounded-2xl border border-white/15 bg-[#1E1E24] pl-5 pr-2"
+              >
+                <Search className="h-5 w-5 shrink-0 text-slate-500" />
+                <input
+                  value={q}
+                  onChange={(e) => {
+                    setQ(e.target.value);
+                    setSearchOpen(true);
+                  }}
+                  onFocus={() => setSearchOpen(true)}
+                  placeholder="Search products, courses and bounties"
+                  aria-label="Search Oventric"
+                  className="h-full flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+                />
+                <button
+                  type="submit"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-500 px-5 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+                >
+                  Search
+                </button>
+              </form>
+              {searchOpen && results.length > 0 && (
+                <div className="absolute left-0 right-0 top-16 z-30 overflow-hidden rounded-2xl border border-white/10 bg-[#17171B] shadow-2xl">
+                  {results.map((r) => (
+                    <button
+                      key={`${r.kind}-${r.id}`}
+                      type="button"
+                      onClick={() => {
+                        setSearchOpen(false);
+                        if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
+                        else onSelect(r.kind === "course" ? "Academy" : "Bounties");
+                      }}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
+                    >
+                      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-white/5">
+                        {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
+                      </span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-white">{r.title}</span>
+                      <span className="shrink-0 text-xs font-semibold text-emerald-300">{r.meta}</span>
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="mt-6 flex items-center gap-3">
               <button
                 type="button"
                 onClick={primary}
@@ -227,6 +328,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 Explore marketplace
               </button>
             </div>
+
             <div className="mt-8 flex items-center gap-6 text-xs text-slate-500">
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-emerald-400" /> Escrow on every order
@@ -305,6 +407,82 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           <Stat value={54} label="Countries covered" />
         </div>
       </section>
+
+      {/* Trust strip */}
+      <section className="border-b border-white/10 bg-[#121214]">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
+          {[
+            { Icon: ShieldCheck, title: "Escrow protection", body: "Funds held until delivery is confirmed" },
+            { Icon: Clock, title: "Fast delivery", body: "In-app handover with 48h auto-release" },
+            { Icon: Star, title: "2% cashback", body: "Earned on every completed purchase" },
+            { Icon: Headphones, title: "Support & disputes", body: "Live chat and mediated resolution" },
+          ].map((t) => (
+            <div key={t.title} className="flex items-start gap-3">
+              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-300">
+                <t.Icon className="h-4 w-4" strokeWidth={2.4} />
+              </span>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-white">{t.title}</div>
+                <div className="mt-0.5 text-xs leading-relaxed text-slate-500">{t.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Explore categories */}
+      {catList.length > 0 && (
+        <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
+          <div className="flex items-end justify-between">
+            <h2 className="text-4xl font-bold tracking-tight text-white">Explore categories</h2>
+            <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-[#1E1E24] p-1">
+              {(["digital", "physical"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setCatTab(k)}
+                  className={`h-9 rounded-xl px-4 text-sm font-semibold capitalize transition-colors ${
+                    catTab === k ? "bg-emerald-500 text-[#08130f]" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {k}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-3 gap-5">
+            {catList.slice(0, 6).map((c) => (
+              <div key={c.id} className="rounded-3xl border border-white/10 bg-[#1E1E24] p-6">
+                <button
+                  type="button"
+                  onClick={() => onSelect("Marketplace")}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <span className="text-base font-bold text-white">{c.name}</span>
+                  <ChevronRight className="h-4 w-4 text-slate-500" />
+                </button>
+                {c.description && <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-500">{c.description}</p>}
+                {c.children.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {c.children.slice(0, 5).map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => onSelect("Marketplace")}
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-emerald-500/40 hover:text-white"
+                      >
+                        {s.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+
 
       {/* Feature blocks */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
