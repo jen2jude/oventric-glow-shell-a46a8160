@@ -31,6 +31,16 @@ async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
   }
 }
 
+export interface DashboardActivityItem {
+  id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  createdAt: string;
+  unread: boolean;
+}
+
 export interface DashboardOverview {
   homeCurrency: HomeCurrency;
   wallet: { currency: HomeCurrency; available: number; escrow: number } | null;
@@ -41,7 +51,14 @@ export interface DashboardOverview {
   courses: { enrolled: number; completed: number; published: number };
   social: { followers: number; following: number; circles: number };
   unread: { messages: number; notifications: number };
+  /** Buyer + seller order pipeline for the key overview cards. */
+  orders: { placed: number; awaitingBuyer: number; toFulfil: number; last30: number };
+  /** Seller revenue released to the user, in USD and home currency. */
+  revenue: { grossUSD: number; gross: number; last30USD: number; last30: number; currency: HomeCurrency };
+  /** Recent notifications, newest first. */
+  activity: DashboardActivityItem[];
 }
+
 
 export const getDashboardOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
@@ -65,10 +82,12 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
       unreadMsgRes,
       unreadNotifRes,
       profileRes,
+      sellerOrdersRes,
+      activityRes,
       rates,
     ] = await Promise.all([
       sb.from("wallets").select("currency, available_balance, escrow_balance").eq("user_id", me),
-      sb.from("orders").select("id, status", { count: "exact", head: false }).eq("buyer_id", me),
+      sb.from("orders").select("id, status, created_at, escrow_status, buyer_confirmed_at", { count: "exact", head: false }).eq("buyer_id", me),
       sb.from("product_contacts").select("id", { count: "exact", head: true }).eq("user_id", me),
       sb.from("products").select("id, status").eq("seller_id", me),
       sb.from("bounties").select("id, status", { count: "exact", head: false }).eq("poster_id", me),
@@ -90,6 +109,16 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
           return { data: null } as { data: { country: string | null } | null };
         }
       })(),
+      sb
+        .from("orders")
+        .select("id, status, created_at, seller_share_usd, escrow_status, released_at, delivered_at")
+        .eq("seller_id", me),
+      sb
+        .from("notifications")
+        .select("id, kind, title, body, link, read_at, created_at")
+        .eq("user_id", me)
+        .order("created_at", { ascending: false })
+        .limit(6),
       loadUsdRates(sb),
     ]);
 
@@ -103,11 +132,35 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
     const walletRows = (wallets.data ?? []) as Array<{ currency: string; available_balance: number; escrow_balance: number }>;
     const home = walletRows.find((w) => w.currency === homeCurrency) ?? null;
 
-    const orderRows = (ordersRes.data ?? []) as Array<{ status: string }>;
+    const orderRows = (ordersRes.data ?? []) as Array<{
+      status: string;
+      created_at: string;
+      escrow_status: string | null;
+      buyer_confirmed_at: string | null;
+    }>;
+    const sellerOrderRows = (sellerOrdersRes.data ?? []) as Array<{
+      status: string;
+      created_at: string;
+      seller_share_usd: number | null;
+      escrow_status: string | null;
+      released_at: string | null;
+      delivered_at: string | null;
+    }>;
     const productRows = (productsRes.data ?? []) as Array<{ status: string }>;
     const bountyRows = (bountiesPostedRes.data ?? []) as Array<{ status: string }>;
     const enrollRows = (enrolledRes.data ?? []) as Array<{ completed_at: string | null }>;
     const payoutRows = (bountyPayoutsRes.data ?? []) as Array<{ amount: number }>;
+
+    const since30 = Date.now() - 30 * 24 * 60 * 60 * 1000;
+    const isRecent = (iso: string | null) => (iso ? new Date(iso).getTime() >= since30 : false);
+    const paidSellerOrders = sellerOrderRows.filter((o) => o.status === "paid");
+    const releasedSellerOrders = paidSellerOrders.filter((o) => !!o.released_at);
+    const revenueUSD = releasedSellerOrders.reduce((sum, o) => sum + Number(o.seller_share_usd || 0), 0);
+    const revenue30USD = releasedSellerOrders
+      .filter((o) => isRecent(o.released_at))
+      .reduce((sum, o) => sum + Number(o.seller_share_usd || 0), 0);
+    const homeRate = rates[homeCurrency] ?? 1;
+    const homeDigits = homeCurrency === "USD" ? 2 : 0;
 
     const earnedUSD = payoutRows.reduce((sum, r) => sum + Number(r.amount || 0), 0);
     const earnedHome = earnedUSD * (rates[homeCurrency] ?? 1);
@@ -152,6 +205,40 @@ export const getDashboardOverview = createServerFn({ method: "GET" })
         messages: unreadMsgRes.count ?? 0,
         notifications: unreadNotifRes.count ?? 0,
       },
+      orders: {
+        placed: orderRows.length,
+        awaitingBuyer: orderRows.filter(
+          (o) => o.status === "paid" && !o.buyer_confirmed_at && o.escrow_status !== "released",
+        ).length,
+        toFulfil: paidSellerOrders.filter((o) => !o.delivered_at).length,
+        last30:
+          orderRows.filter((o) => isRecent(o.created_at)).length +
+          sellerOrderRows.filter((o) => isRecent(o.created_at)).length,
+      },
+      revenue: {
+        grossUSD: Number(revenueUSD.toFixed(2)),
+        gross: Number((revenueUSD * homeRate).toFixed(homeDigits)),
+        last30USD: Number(revenue30USD.toFixed(2)),
+        last30: Number((revenue30USD * homeRate).toFixed(homeDigits)),
+        currency: homeCurrency,
+      },
+      activity: ((activityRes.data ?? []) as Array<{
+        id: string;
+        kind: string | null;
+        title: string | null;
+        body: string | null;
+        link: string | null;
+        read_at: string | null;
+        created_at: string;
+      }>).map((n) => ({
+        id: n.id,
+        kind: n.kind ?? "update",
+        title: n.title ?? "Activity",
+        body: n.body,
+        link: n.link,
+        createdAt: n.created_at,
+        unread: !n.read_at,
+      })),
     };
   });
 
