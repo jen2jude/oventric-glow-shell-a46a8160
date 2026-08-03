@@ -952,7 +952,7 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
             {disputed ? "Disputed trade" : ctx.deliveredAt ? "Delivered — awaiting confirmation" : "Active trade in escrow"}
           </div>
           <div className="text-sm text-white md:text-slate-900 font-semibold truncate">{ctx.productName}</div>
-          <div className="text-[11px] text-slate-500 md:text-slate-400">
+          <div className="text-[11px] text-slate-500 md:text-slate-600">
             {ctx.displayCurrency} {ctx.displayTotal.toLocaleString()} held in escrow · Order {ctx.orderId.slice(0, 8)}
           </div>
         </div>
