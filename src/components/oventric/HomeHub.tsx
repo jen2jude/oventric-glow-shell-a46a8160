@@ -366,45 +366,43 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         />
       </section>
 
-      {/* Live strip */}
-      {products.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-bold text-white">Fresh in the market</h2>
-            <button
-              type="button"
-              onClick={() => onSelect("Marketplace")}
-              className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
-            >
-              See all <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
-            {products.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => onSelect("Marketplace")}
-                className="shrink-0 w-32 text-left active:scale-95 transition-transform"
-              >
-                <span className="block w-32 h-24 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10">
-                  {p.coverUrl ? (
-                    <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <span className="w-full h-full flex items-center justify-center text-slate-600">
-                      <Newspaper className="w-6 h-6" />
-                    </span>
-                  )}
-                </span>
-                <span className="mt-1.5 block text-[11px] font-semibold text-white line-clamp-2 leading-tight">{p.title}</span>
-                <span className="block text-[11px] text-emerald-300 font-bold">
-                  {safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency)}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Live strips */}
+      <MiniRail
+        title="Fresh in the market"
+        onSeeAll={() => onSelect("Marketplace")}
+        items={products.map((p) => ({
+          id: p.id,
+          title: p.title,
+          coverUrl: p.coverUrl,
+          meta: safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency),
+          onClick: () => onSelect("Marketplace"),
+        }))}
+      />
+
+      <MiniRail
+        title="Learn on Academy"
+        onSeeAll={() => onSelect("Academy")}
+        items={courses.map((c) => ({
+          id: c.id,
+          title: c.title,
+          coverUrl: c.coverUrl,
+          meta: c.isFree ? "Free" : safeFormatDisplayPrice({ price_usd: c.priceUsd }, currency),
+          onClick: () => onSelect("Academy"),
+        }))}
+      />
+
+      <MiniRail
+        title="Open bounties"
+        onSeeAll={() => onSelect("Bounties")}
+        items={bounties.map((b) => ({
+          id: b.id,
+          title: b.title,
+          coverUrl: b.coverUrl,
+          meta: safeFormatDisplayPrice({ price_usd: b.amountUsd }, currency),
+          onClick: () => onSelect("Bounties"),
+        }))}
+      />
+
 
       {!isAuthenticated && (
         <button
