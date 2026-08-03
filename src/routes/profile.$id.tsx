@@ -42,6 +42,7 @@ import {
 
 } from "lucide-react";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
+import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
@@ -202,6 +203,7 @@ function ProfilePage() {
   const [realProfileLoaded, setRealProfileLoaded] = useState(false);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [meId, setMeId] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
@@ -1977,3 +1979,26 @@ function tabNoun(tab: Tab): string {
   }
 }
 
+
+
+function HeaderStat({
+  icon,
+  label,
+  value,
+  muted,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  muted?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.04] px-2 py-2.5 text-center">
+      <div className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        <span className="shrink-0">{icon}</span>
+        <span className="truncate">{label}</span>
+      </div>
+      <div className={`mt-1 truncate text-sm font-black ${muted ? "text-slate-500" : "text-white"}`}>{value}</div>
+    </div>
+  );
+}
