@@ -1,10 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
-import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { ShieldCheck, Store, MessagesSquare, ShoppingCart, Sparkles, ArrowRight, Lock } from "lucide-react";
+import { ShieldCheck, Store, MessagesSquare, Sparkles, ArrowRight, Lock, Package } from "lucide-react";
 import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
-import { safeFormatDisplayPrice } from "@/lib/fx-display";
-import type { Currency } from "@/lib/onboarding/OnboardingContext";
 import {
   VisaMark,
   MastercardMark,
@@ -65,94 +62,88 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
 }
 
 /* ------------------------------------------------------------------ */
-/* Scrollable product rails                                            */
+/* Trending category tiles (G2G-style)                                   */
 /* ------------------------------------------------------------------ */
 
-function isAiCategory(p: ProductDTO) {
-  const s = `${p.category ?? ""} ${p.subcategory ?? ""}`.toLowerCase();
-  return s.includes("ai") && /\bai\b|artificial|prompt|gpt|machine learning/.test(s);
+type CategoryBucket = {
+  name: string;
+  normalized: string;
+  count: number;
+  cover: string | null;
+};
+
+function norm(s: string) {
+  return s.toLowerCase().trim();
 }
 
-function ProductCard({ p, currency }: { p: ProductDTO; currency: Currency }) {
-  const cover = p.coverUrl ?? p.imageUrls[0] ?? null;
+function groupByCategory(rows: ProductDTO[]): CategoryBucket[] {
+  const map = new Map<string, CategoryBucket>();
+  rows.forEach((p) => {
+    const key = norm(p.category) || "other";
+    const existing = map.get(key);
+    if (existing) {
+      existing.count += 1;
+      if (!existing.cover && p.coverUrl) existing.cover = p.coverUrl;
+    } else {
+      map.set(key, {
+        name: p.category || "Other",
+        normalized: key,
+        count: 1,
+        cover: p.coverUrl ?? null,
+      });
+    }
+  });
+  return Array.from(map.values()).sort((a, b) => b.count - a.count);
+}
+
+function CategoryTile({ cat, onSelect }: { cat: CategoryBucket; onSelect: (section: string) => void }) {
+  const initial = cat.name.slice(0, 1).toUpperCase();
   return (
-    <Link
-      to="/product/$id"
-      params={{ id: p.id }}
-      search={{ qty: 1 }}
-      className="group block w-[240px] shrink-0 overflow-hidden rounded-2xl border border-slate-200 bg-white transition-all duration-300 hover:-translate-y-2 hover:border-emerald-300 hover:shadow-[0_18px_40px_-16px_rgba(15,23,42,0.35)]"
+    <button
+      type="button"
+      onClick={() => onSelect("Marketplace")}
+      className="group relative flex aspect-square w-full flex-col overflow-hidden rounded-2xl text-left transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_40px_-16px_rgba(15,23,42,0.35)] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
     >
-      <div className="h-40 w-full overflow-hidden bg-slate-100">
-        {cover ? (
+      {/* Background */}
+      <div className="absolute inset-0 overflow-hidden bg-slate-900">
+        {cat.cover ? (
           <img
-            src={cover}
-            alt={p.name}
+            src={cat.cover}
+            alt=""
+            aria-hidden
             loading="lazy"
-            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover opacity-50 transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
-          <span className="flex h-full w-full items-center justify-center text-slate-400">
-            <ShoppingCart className="h-7 w-7" />
-          </span>
+          <div className="h-full w-full bg-gradient-to-br from-slate-800 to-slate-950" />
         )}
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-900/20" />
       </div>
-      <div className="p-3.5">
-        <div className="truncate text-[10px] font-bold uppercase tracking-widest text-emerald-600">
-          {p.category}
-          {p.subcategory ? ` · ${p.subcategory}` : ""}
-        </div>
-        <div className="mt-1 line-clamp-2 h-[36px] text-sm font-semibold leading-[18px] text-slate-900">{p.name}</div>
-        <div className="mt-2 flex items-center justify-between">
-          <span className="text-sm font-black text-slate-900">
-            {safeFormatDisplayPrice(
-              {
-                price_usd: p.priceUSD,
-                original_currency: p.originalCurrency,
-                original_amount: p.originalAmount,
-                fx_snapshot: p.fxSnapshot,
-              },
-              currency,
-            )}
-          </span>
-          <span className="truncate text-[11px] text-slate-400">by {p.vendor}</span>
+
+      {/* Offers badge */}
+      <div className="relative z-10 self-end rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-bold text-white shadow-sm">
+        {cat.count} Offers
+      </div>
+
+      {/* Center mark */}
+      <div className="relative z-10 flex flex-1 items-center justify-center">
+        <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
+          <span className="text-4xl font-black text-white/95">{initial}</span>
         </div>
       </div>
-    </Link>
+
+      {/* Title only */}
+      <div className="relative z-10">
+        <div className="flex items-center gap-2">
+          <Package className="h-4 w-4 text-emerald-400" strokeWidth={2.5} />
+          <span className="truncate text-base font-bold text-white">{cat.name}</span>
+        </div>
+      </div>
+    </button>
   );
 }
 
-function Rail({
-  title,
-  subtitle,
-  items,
-  currency,
-}: {
-  title: string;
-  subtitle: string;
-  items: ProductDTO[];
-  currency: Currency;
-}) {
-  if (items.length === 0) return null;
-  return (
-    <div>
-      <div className="flex items-end justify-between">
-        <div>
-          <h3 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h3>
-          <p className="mt-1 text-sm text-slate-500">{subtitle}</p>
-        </div>
-      </div>
-      <div className="scrollbar-none mt-5 flex snap-x gap-5 overflow-x-auto pb-4">
-        {items.map((p) => (
-          <div key={p.id} className="snap-start">
-            <ProductCard p={p} currency={currency} />
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
-
-export function ProductRails({ currency }: { currency: Currency }) {
+export function ProductRails({ onSelect }: { onSelect: (section: string) => void }) {
   const load = useServerFn(listProducts);
   const [rows, setRows] = useState<ProductDTO[]>([]);
 
@@ -168,22 +159,26 @@ export function ProductRails({ currency }: { currency: Currency }) {
     };
   }, [load]);
 
-  const { ai, others } = useMemo(() => {
-    const active = rows.filter((r) => r.status === "active");
-    const aiRows = active.filter(isAiCategory).slice(0, 12);
-    const aiIds = new Set(aiRows.map((r) => r.id));
-    return { ai: aiRows, others: active.filter((r) => !aiIds.has(r.id)).slice(0, 12) };
-  }, [rows]);
-
-  if (ai.length === 0 && others.length === 0) return null;
+  const categories = useMemo(() => groupByCategory(rows.filter((r) => r.status === "active")), [rows]);
+  if (categories.length === 0) return null;
 
   return (
-    <section className="mx-auto w-full max-w-[1200px] space-y-12 px-8 pt-16">
-      <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
-        <Sparkles className="h-3.5 w-3.5" strokeWidth={2.6} /> Trending on the marketplace
+    <section className="mx-auto w-full max-w-[1200px] px-8 pt-16">
+      <div className="flex items-end justify-between">
+        <div>
+          <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
+            <Sparkles className="h-3.5 w-3.5" strokeWidth={2.6} /> Trending on the marketplace
+          </div>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">Browse by category</h2>
+          <p className="mt-1 text-sm text-slate-500">Explore active listings grouped by what you need.</p>
+        </div>
       </div>
-      <Rail title="AI tools & assets" subtitle="Prompt packs, models and AI-powered products" items={ai} currency={currency} />
-      <Rail title="More from the marketplace" subtitle="Fresh listings across every other category" items={others} currency={currency} />
+
+      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+        {categories.map((cat) => (
+          <CategoryTile key={cat.normalized} cat={cat} onSelect={onSelect} />
+        ))}
+      </div>
     </section>
   );
 }
