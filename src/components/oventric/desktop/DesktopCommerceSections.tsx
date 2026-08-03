@@ -182,15 +182,15 @@ export function ProductRails({ currency }: { currency: Currency }) {
 /* Secured payments                                                    */
 /* ------------------------------------------------------------------ */
 
-const METHODS: Array<{ name: string; className: string; label: string }> = [
-  { name: "Visa", className: "text-[#1A1F71]", label: "VISA" },
-  { name: "Mastercard", className: "text-[#EB001B]", label: "mastercard" },
-  { name: "Verve", className: "text-[#00425F]", label: "verve" },
-  { name: "Paystack", className: "text-[#011B33]", label: "paystack" },
-  { name: "Flutterwave", className: "text-[#F5A623]", label: "flutterwave" },
-  { name: "MiniPay", className: "text-[#00D26B]", label: "MiniPay" },
-  { name: "MTN MoMo", className: "text-[#FFCC00]", label: "MTN MoMo" },
-  { name: "Bank transfer", className: "text-slate-700", label: "Bank Transfer" },
+const METHODS = [
+  { name: "Visa", Mark: VisaMark },
+  { name: "Mastercard", Mark: MastercardMark },
+  { name: "Verve", Mark: VerveMark },
+  { name: "Paystack", Mark: PaystackMark },
+  { name: "Flutterwave", Mark: FlutterwaveMark },
+  { name: "MiniPay", Mark: MiniPayMark },
+  { name: "MTN MoMo", Mark: MtnMomoMark },
+  { name: "Bank transfer", Mark: BankTransferMark },
 ];
 
 export function SecuredPayments() {
@@ -205,18 +205,19 @@ export function SecuredPayments() {
           Every checkout is encrypted and held in escrow until delivery is confirmed. Pay with cards, mobile money or
           your Oventric wallet.
         </p>
-        <div className="mt-9 flex flex-wrap items-center justify-center gap-4">
-          {METHODS.map((m) => (
-            <div
-              key={m.name}
-              title={m.name}
-              className="flex h-14 min-w-[132px] items-center justify-center rounded-2xl border border-slate-200 bg-white px-5 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_14px_30px_-14px_rgba(15,23,42,0.35)]"
-            >
-              <span className={`text-base font-black tracking-tight ${m.className}`}>{m.label}</span>
-            </div>
+      </div>
+
+      {/* Solid tinted band — logos only, not interactive */}
+      <div aria-hidden={false} className="w-full bg-[#EFEDF4] py-8">
+        <ul className="mx-auto flex w-full max-w-[1400px] list-none flex-wrap items-center justify-center gap-x-14 gap-y-7 px-8">
+          {METHODS.map(({ name, Mark }) => (
+            <li key={name} title={name} className="pointer-events-none flex items-center">
+              <Mark />
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
     </section>
   );
 }
+
