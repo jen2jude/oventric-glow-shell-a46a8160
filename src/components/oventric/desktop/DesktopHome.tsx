@@ -408,6 +408,82 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      {/* Trust strip */}
+      <section className="border-b border-white/10 bg-[#121214]">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
+          {[
+            { Icon: ShieldCheck, title: "Escrow protection", body: "Funds held until delivery is confirmed" },
+            { Icon: Clock, title: "Fast delivery", body: "In-app handover with 48h auto-release" },
+            { Icon: Star, title: "2% cashback", body: "Earned on every completed purchase" },
+            { Icon: Headphones, title: "Support & disputes", body: "Live chat and mediated resolution" },
+          ].map((t) => (
+            <div key={t.title} className="flex items-start gap-3">
+              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-300">
+                <t.Icon className="h-4.5 w-4.5" strokeWidth={2.4} />
+              </span>
+              <div className="min-w-0">
+                <div className="text-sm font-bold text-white">{t.title}</div>
+                <div className="mt-0.5 text-xs leading-relaxed text-slate-500">{t.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Explore categories */}
+      {catList.length > 0 && (
+        <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
+          <div className="flex items-end justify-between">
+            <h2 className="text-4xl font-bold tracking-tight text-white">Explore categories</h2>
+            <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-[#1E1E24] p-1">
+              {(["digital", "physical"] as const).map((k) => (
+                <button
+                  key={k}
+                  type="button"
+                  onClick={() => setCatTab(k)}
+                  className={`h-9 rounded-xl px-4 text-sm font-semibold capitalize transition-colors ${
+                    catTab === k ? "bg-emerald-500 text-[#08130f]" : "text-slate-400 hover:text-white"
+                  }`}
+                >
+                  {k}
+                </button>
+              ))}
+            </div>
+          </div>
+          <div className="mt-8 grid grid-cols-3 gap-5">
+            {catList.slice(0, 6).map((c) => (
+              <div key={c.id} className="rounded-3xl border border-white/10 bg-[#1E1E24] p-6">
+                <button
+                  type="button"
+                  onClick={() => onSelect("Marketplace")}
+                  className="flex w-full items-center justify-between text-left"
+                >
+                  <span className="text-base font-bold text-white">{c.name}</span>
+                  <ChevronRight className="h-4 w-4 text-slate-500" />
+                </button>
+                {c.description && <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-500">{c.description}</p>}
+                {c.children.length > 0 && (
+                  <div className="mt-4 flex flex-wrap gap-2">
+                    {c.children.slice(0, 5).map((s) => (
+                      <button
+                        key={s.id}
+                        type="button"
+                        onClick={() => onSelect("Marketplace")}
+                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-emerald-500/40 hover:text-white"
+                      >
+                        {s.name}
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+
+
       {/* Feature blocks */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
         <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-white">
