@@ -199,6 +199,7 @@ function Index() {
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
             hubMode={(active === "Home" || active === "Marketplace") && !isDesktop}
+            desktopNav={isDesktop && active === "Marketplace"}
             light={isDesktop}
           />
         )}

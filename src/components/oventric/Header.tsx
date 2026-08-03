@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users, Store, GraduationCap, Target, Newspaper, Headphones, type LucideIcon } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -20,8 +20,17 @@ import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
+const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string }[] = [
+  { label: "Market", icon: Store, section: "Marketplace" },
+  { label: "Academy", icon: GraduationCap, section: "Academy" },
+  { label: "Bounties", icon: Target, section: "Bounties" },
+  { label: "Circles", icon: Users, section: "Circles" },
+  { label: "Blog", icon: Newspaper, to: "/blog" },
+  { label: "Help", icon: Headphones, to: "/help-board" },
+];
 
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false, light = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean; light?: boolean }) {
+
+export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false, light = false, desktopNav = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean; light?: boolean; desktopNav?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -204,7 +213,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       )}
 
       {/* Main row */}
-      <div className="h-11 md:h-[4.5rem] grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6">
+      <div className={`h-11 md:h-[4.5rem] grid ${desktopNav ? "md:grid-cols-[minmax(0,1fr)_auto_auto]" : ""} grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6`}>
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {onMenuClick && (
             <button
@@ -219,6 +228,13 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             {LogoMark}
           </Link>
 
+          {/* Desktop search sits right beside the logo when nav mode is on */}
+          {desktopNav && (
+            <div className="hidden md:block flex-1 min-w-0 max-w-sm">
+              <GlobalSearch variant="inline" light={light} />
+            </div>
+          )}
+
           {/* Wallet chip - mobile only on the left */}
           <div className="md:hidden shrink-0">
             <HeaderWalletChip align="left" compact />
@@ -226,9 +242,39 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         {/* Desktop search input */}
-        <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
+        <div className={`flex-1 max-w-xl mx-auto min-w-0 hidden ${desktopNav ? "sm:block md:hidden" : "sm:block"}`}>
           <GlobalSearch variant="inline" light={light} />
         </div>
+
+        {desktopNav && (
+          <nav className="hidden md:flex items-center gap-1 justify-center shrink-0">
+            {HUB_NAV.map((item) => {
+              const cls = `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
+                light ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100" : "text-slate-300 hover:text-white hover:bg-white/5"
+              }`;
+              return item.to ? (
+                <Link key={item.label} to={item.to} className={cls}>
+                  <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                  <span>{item.label}</span>
+                </Link>
+              ) : (
+                <button
+                  key={item.label}
+                  onClick={() =>
+                    window.dispatchEvent(
+                      new CustomEvent("oventric:navigate", { detail: { section: item.section } }),
+                    )
+                  }
+                  className={cls}
+                >
+                  <item.icon className="w-5 h-5" strokeWidth={2.2} />
+                  <span>{item.label}</span>
+                </button>
+              );
+            })}
+          </nav>
+        )}
+
 
         <div className="flex items-center justify-between md:justify-start gap-1 md:gap-2.5 w-full md:w-auto shrink-0 min-w-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
