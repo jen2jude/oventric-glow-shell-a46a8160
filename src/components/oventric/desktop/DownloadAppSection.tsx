@@ -125,7 +125,8 @@ export function DownloadAppSection() {
             <div className="absolute left-1/2 top-0 z-20 h-6 w-28 -translate-x-1/2 rounded-b-2xl bg-slate-900" />
 
             {/* Screen */}
-            <div className="h-[520px] w-full overflow-hidden rounded-[2rem] bg-[#121214] p-3 pt-10 text-slate-200 lg:h-[540px]">
+            <div className="relative h-[520px] w-full overflow-hidden rounded-[2rem] bg-[#121214] p-3 pt-10 text-slate-200 lg:h-[540px]">
+              <div className="app-sheen pointer-events-none absolute inset-0 z-10 rounded-[2rem]" />
               {/* Identity row */}
               <div className="flex items-center gap-2">
                 <span className="flex h-8 w-8 items-center justify-center rounded-full bg-[#1E1E24] border border-white/10">
