@@ -10,7 +10,7 @@ export type SiteFooterProps = {
 export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
   const year = 2026;
   return (
-    <footer className="border-t border-white/10 bg-[#0F0F11]">
+    <footer className="border-t border-slate-200 bg-[#F7F8FA]">
       <div className="mx-auto grid w-full max-w-[1200px] grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 px-8 py-14">
         <div>
           <img src={logo.url} alt="Oventric" className="h-8 w-auto object-contain" />
@@ -18,7 +18,7 @@ export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
             One platform for African builders — buy and sell, learn and earn, post bounties, and move money in your own
             currency.
           </p>
-          <span className="mt-5 inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-[#1E1E24] px-3 text-xs font-semibold text-slate-200">
+          <span className="mt-5 inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700">
             {flag && <span aria-hidden>{flag}</span>}
             {currency}
           </span>
@@ -51,7 +51,7 @@ export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
         </FooterCol>
       </div>
 
-      <div className="border-t border-white/10">
+      <div className="border-t border-slate-200">
         <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-8 py-5 text-xs text-slate-500">
           <span>&copy; {year} Oventric. All rights reserved.</span>
           <span>Built for Africa&apos;s builders.</span>
@@ -64,7 +64,7 @@ export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
 function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="text-xs font-bold uppercase tracking-wide text-white">{title}</h3>
+      <h3 className="text-xs font-bold uppercase tracking-wide text-slate-900">{title}</h3>
       <ul className="mt-4 space-y-2.5">{children}</ul>
     </div>
   );
@@ -73,7 +73,7 @@ function FooterCol({ title, children }: { title: string; children: React.ReactNo
 function FooterLink({ to, label }: { to: string; label: string }) {
   return (
     <li>
-      <Link to={to} className="text-sm text-slate-400 transition-colors hover:text-white">
+      <Link to={to} className="text-sm text-slate-400 transition-colors hover:text-slate-900">
         {label}
       </Link>
     </li>
@@ -83,7 +83,7 @@ function FooterLink({ to, label }: { to: string; label: string }) {
 function FooterAction({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <li>
-      <button type="button" onClick={onClick} className="text-sm text-slate-400 transition-colors hover:text-white">
+      <button type="button" onClick={onClick} className="text-sm text-slate-400 transition-colors hover:text-slate-900">
         {label}
       </button>
     </li>

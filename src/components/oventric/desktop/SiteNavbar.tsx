@@ -39,7 +39,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
   return (
     <header
       className={`sticky top-0 z-40 transition-colors ${
-        solid ? "bg-[#121214]/95 border-b border-white/10" : "bg-transparent border-b border-transparent"
+        solid ? "bg-white/95 border-b border-slate-200" : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center gap-8 px-8">
@@ -53,7 +53,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
               <Link
                 key={l.label}
                 to={l.to}
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-300 transition-colors hover:text-white"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900"
               >
                 {l.label}
               </Link>
@@ -62,7 +62,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
                 key={l.label}
                 type="button"
                 onClick={() => onSelect(l.section!)}
-                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-300 transition-colors hover:text-white"
+                className="rounded-xl px-3 py-2 text-sm font-semibold text-slate-600 transition-colors hover:text-slate-900"
               >
                 {l.label}
               </button>
@@ -76,14 +76,14 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
               <button
                 type="button"
                 onClick={() => onSelect("Feed")}
-                className="inline-flex h-10 items-center gap-1.5 rounded-2xl bg-emerald-500 px-4 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+                className="inline-flex h-10 items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition-transform active:scale-95"
               >
                 Open app <ChevronRight className="h-4 w-4" strokeWidth={3} />
               </button>
               <Link
                 to="/dashboard"
                 aria-label="Open your dashboard"
-                className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-white/15"
+                className="h-10 w-10 shrink-0 overflow-hidden rounded-full border border-slate-200"
               >
                 <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
               </Link>
@@ -93,14 +93,14 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
               <button
                 type="button"
                 onClick={() => openGate("generic")}
-                className="h-10 rounded-2xl px-4 text-sm font-semibold text-slate-200 transition-colors hover:text-white"
+                className="h-10 rounded-2xl px-4 text-sm font-semibold text-slate-700 transition-colors hover:text-slate-900"
               >
                 Log in
               </button>
               <button
                 type="button"
                 onClick={() => openGate("generic")}
-                className="inline-flex h-10 items-center gap-1.5 rounded-2xl bg-emerald-500 px-4 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+                className="inline-flex h-10 items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition-transform active:scale-95"
               >
                 Get started <ChevronRight className="h-4 w-4" strokeWidth={3} />
               </button>
