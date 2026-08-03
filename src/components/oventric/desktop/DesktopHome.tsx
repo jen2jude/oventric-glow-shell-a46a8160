@@ -140,7 +140,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   useEffect(() => {
     if (!searchOpen) return;
     const onDoc = (e: MouseEvent) => {
-      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
+      const el = searchRefs.current[searchOpen];
+      if (el && !el.contains(e.target as Node)) setSearchOpen(null);
     };
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
