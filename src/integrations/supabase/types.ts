@@ -876,6 +876,50 @@ export type Database = {
         }
         Relationships: []
       }
+      bounty_submissions: {
+        Row: {
+          bounty_id: string
+          created_at: string
+          files: Json
+          id: string
+          solver_id: string
+          submitted_at: string | null
+          summary: string
+          timeline: string
+          updated_at: string
+        }
+        Insert: {
+          bounty_id: string
+          created_at?: string
+          files?: Json
+          id?: string
+          solver_id: string
+          submitted_at?: string | null
+          summary?: string
+          timeline?: string
+          updated_at?: string
+        }
+        Update: {
+          bounty_id?: string
+          created_at?: string
+          files?: Json
+          id?: string
+          solver_id?: string
+          submitted_at?: string | null
+          summary?: string
+          timeline?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bounty_submissions_bounty_id_fkey"
+            columns: ["bounty_id"]
+            isOneToOne: false
+            referencedRelation: "bounties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       circle_categories: {
         Row: {
           created_at: string
