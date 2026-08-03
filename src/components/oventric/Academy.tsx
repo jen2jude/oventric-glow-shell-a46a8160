@@ -106,9 +106,8 @@ export function Academy() {
       });
   }, [fetchList, refreshKey]);
 
-  if (view === "landing") {
-    return <AcademyLanding onExplore={() => setView("catalog")} />;
-  }
+
+
 
   if (view === "course" && selectedId) {
     return (
