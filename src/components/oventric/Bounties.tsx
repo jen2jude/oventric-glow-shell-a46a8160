@@ -835,7 +835,7 @@ function ContractWorkspace({
   return (
     <div className="relative max-w-6xl mx-auto w-full px-4 py-6">
       {releaseFlash && (
-        <div className="fixed inset-0 z-40 pointer-events-none">
+        <div className="modal-light fixed inset-0 z-40 pointer-events-none">
           <div className="absolute inset-0 rgb-neon-bg opacity-60 animate-pulse" />
           <div className="absolute inset-0 flex items-center justify-center">
             <div className="bg-black/70 backdrop-blur border border-white/20 rounded-2xl px-8 py-6 text-center">

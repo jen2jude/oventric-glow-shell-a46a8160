@@ -395,7 +395,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
 
       {confirm && (
         <div
-          className="fixed inset-0 z-[120] bg-black/70 flex items-center justify-center p-4"
+          className="modal-light fixed inset-0 z-[120] bg-black/70 flex items-center justify-center p-4"
           onClick={() => setConfirm(false)}
         >
           <div

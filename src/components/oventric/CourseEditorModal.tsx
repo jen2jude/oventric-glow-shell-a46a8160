@@ -330,7 +330,7 @@ export function CourseEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
+    <div className="modal-light fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">

@@ -81,7 +81,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[200] flex items-stretch justify-end"
+      className="modal-light fixed inset-0 z-[200] flex items-stretch justify-end"
       role="dialog"
       aria-modal="true"
       aria-labelledby="follow-requests-title"

@@ -134,7 +134,7 @@ function LeadFormModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+    <div className="modal-light fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div
         className="w-full max-w-md bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl p-5"
         onClick={(e) => e.stopPropagation()}

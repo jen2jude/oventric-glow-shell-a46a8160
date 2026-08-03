@@ -106,7 +106,7 @@ export function ReactivationModal({ open, daysRemaining, onReactivated, onSignOu
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="modal-light fixed inset-0 z-[110] bg-black/90 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-3xl bg-[#0f0d10] border border-amber-400/30 overflow-hidden max-h-[92vh] flex flex-col">
         <div className="p-5 border-b border-white/10 flex items-center gap-3">
           <HeartHandshake className="w-6 h-6 text-amber-300" />

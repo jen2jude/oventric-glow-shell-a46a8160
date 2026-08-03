@@ -290,7 +290,7 @@ export function NotificationsDrawer({
     <>
       {open && (
         <div
-          className="fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
+          className="modal-light fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
           onClick={onClose}
           aria-hidden
         />
@@ -425,7 +425,7 @@ export function NotificationsDrawer({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
+            className="modal-light fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
             onClick={() => setViewing(null)}
             role="dialog"
             aria-modal="true"

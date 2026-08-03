@@ -113,7 +113,7 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
+    <div className="modal-light fixed inset-0 z-[100] bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
       <div className="w-full max-w-md rounded-3xl bg-[#0f0d10] border border-red-500/30 overflow-hidden max-h-[92vh] flex flex-col">
         <div className="flex items-center justify-between p-4 border-b border-white/10">
           <div className="flex items-center gap-2">

@@ -791,7 +791,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
     };
   }, []);
   return (
-    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
+    <div className="modal-light fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
       <div
         className="w-full sm:max-w-lg bg-[#141418] md:bg-white md:shadow-sm border border-[#222226] md:border-slate-200 rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
@@ -1047,7 +1047,7 @@ function PayoutSuccessSplash({
     return () => { document.body.style.overflow = ""; };
   }, []);
   return (
-    <div className="fixed inset-0 z-[10000] overflow-hidden">
+    <div className="modal-light fixed inset-0 z-[10000] overflow-hidden">
       <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
       <div
         className="absolute inset-0 pointer-events-none opacity-70"
@@ -1913,7 +1913,7 @@ function BountyWalletModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
+    <div className="modal-light fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
       <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] md:bg-white md:shadow-sm p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

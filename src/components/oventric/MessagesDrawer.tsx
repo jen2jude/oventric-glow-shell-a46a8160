@@ -30,7 +30,7 @@ export function MessagesDrawer({ open, onClose, initialThreadId, onOpenEscrow }:
       <div
         onClick={onClose}
         aria-hidden={!open}
-        className={`fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity ${
+        className={`modal-light fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity ${
           open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
         }`}
       />

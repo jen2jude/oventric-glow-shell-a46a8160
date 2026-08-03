@@ -50,7 +50,7 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
   return (
     <>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
+        <div className="modal-light fixed inset-0 z-50 flex items-end justify-center sm:items-center">
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
           <div className="slide-up relative w-full max-w-2xl bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">

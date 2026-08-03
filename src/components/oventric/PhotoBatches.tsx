@@ -106,7 +106,7 @@ function BatchTileOverlay({
 }) {
   return (
     <div
-      className="fixed inset-0 z-[95] bg-black/95 flex flex-col"
+      className="modal-light fixed inset-0 z-[95] bg-black/95 flex flex-col"
       role="dialog"
       aria-modal="true"
       onClick={onClose}

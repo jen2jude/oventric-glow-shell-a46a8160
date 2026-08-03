@@ -58,7 +58,7 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
 
   return (
     <div
-      className="fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
+      className="modal-light fixed inset-0 z-[100] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center p-0 sm:p-4"
       onClick={onClose}
     >
       <div

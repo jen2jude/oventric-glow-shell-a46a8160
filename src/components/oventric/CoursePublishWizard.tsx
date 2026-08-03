@@ -208,7 +208,7 @@ export function CoursePublishWizard({
   if (!open) return null;
 
   const body = (
-    <div className="fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
+    <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
       <div className="relative w-full max-w-5xl max-h-[95vh] bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}

@@ -285,7 +285,7 @@ export function BountyEditorModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
       <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
@@ -485,7 +485,7 @@ function BountyPublishedSplash({
   }, [onDone]);
   return (
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center p-4 overflow-hidden"
+      className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 overflow-hidden"
       style={{
         background:
           "radial-gradient(circle at 50% 40%, rgba(16,185,129,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
