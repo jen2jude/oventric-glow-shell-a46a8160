@@ -64,7 +64,8 @@ export function MarketplaceBanner() {
       target.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, []);
+  }, [isWide]);
+
 
 
   return (
