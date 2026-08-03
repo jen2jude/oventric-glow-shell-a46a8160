@@ -21,7 +21,7 @@ const LINKS: Array<{ label: string; section?: string; to?: string }> = [
   { label: "Help", to: "/help" },
 ];
 
-export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
+export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
 
