@@ -7,13 +7,14 @@ import { searchGlobal, type SearchResults } from "@/lib/search.functions";
 
 interface GlobalSearchProps {
   variant?: "inline" | "sheet";
+  light?: boolean;
   onClose?: () => void;
   autoFocus?: boolean;
 }
 
 const EMPTY: SearchResults = { peers: [], bounties: [], products: [] };
 
-export function GlobalSearch({ variant = "inline", onClose, autoFocus }: GlobalSearchProps) {
+export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = false }: GlobalSearchProps) {
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
@@ -132,7 +133,7 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus }: GlobalS
             if (e.key === "Enter" && flat[0]) handleSelect(flat[0].onSelect);
           }}
           placeholder="Search creators, bounties, assets…"
-          className="w-full h-10 pl-10 pr-9 bg-[#1E1E24] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+          className={`w-full h-10 pl-10 pr-9 rounded-lg text-sm ${light ? "bg-slate-100 border border-slate-200 text-slate-900 placeholder:text-slate-500" : "bg-[#1E1E24] border border-white/10 text-slate-200 placeholder:text-slate-500"} focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all`}
         />
         {q && (
           <button

@@ -195,10 +195,15 @@ function Index() {
 
       <div className="flex h-full flex-col">
         {!desktopLanding && (
-          <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home" && !isDesktop} />
+          <Header
+            onOpenMessages={() => setMessagesOpen(true)}
+            showMobileTopRow
+            hubMode={(active === "Home" || active === "Marketplace") && !isDesktop}
+            light={isDesktop}
+          />
         )}
 
-        <div className={`flex flex-1 min-h-0 ${active === "Home" && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
+        <div className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
           {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
           {isDesktop && !desktopLanding && <DesktopAppSidebar onSelect={setActive} />}
 

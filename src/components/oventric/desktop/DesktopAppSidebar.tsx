@@ -8,6 +8,7 @@ import {
   Wallet as WalletIcon,
   Store,
   ChevronDown,
+  ChevronLeft,
   Plus,
   Compass,
 } from "lucide-react";
@@ -38,15 +39,22 @@ const LEGAL = [
 function Row({
   children,
   onClick,
+  title,
+  collapsed,
 }: {
   children: React.ReactNode;
   onClick?: () => void;
+  title?: string;
+  collapsed?: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
+      title={title}
+      className={`flex w-full items-center gap-3 rounded-xl py-2 text-left text-sm font-semibold text-slate-700 transition-colors hover:bg-slate-100 ${
+        collapsed ? "justify-center px-0" : "px-3"
+      }`}
     >
       {children}
     </button>
@@ -58,9 +66,9 @@ function MoreToggle({ open, onToggle, label }: { open: boolean; onToggle: () => 
     <button
       type="button"
       onClick={onToggle}
-      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-400 transition-colors hover:bg-white/10 hover:text-white"
+      className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
     >
-      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
+      <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100">
         <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
       </span>
       {open ? "Show less" : label}
@@ -68,19 +76,19 @@ function MoreToggle({ open, onToggle, label }: { open: boolean; onToggle: () => 
   );
 }
 
-function CircleRow({ c, onOpen }: { c: CircleSummary; onOpen: (slug: string) => void }) {
+function CircleRow({ c, onOpen, collapsed }: { c: CircleSummary; onOpen: (slug: string) => void; collapsed?: boolean }) {
   return (
-    <Row onClick={() => onOpen(c.slug)}>
+    <Row onClick={() => onOpen(c.slug)} title={c.name} collapsed={collapsed}>
       <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg">
         {c.avatarUrl ? (
           <AvatarImage src={c.avatarUrl} alt={c.name} className="rounded-lg" />
         ) : (
-          <span className="flex h-full w-full items-center justify-center rounded-lg bg-white/10 text-sm">
+          <span className="flex h-full w-full items-center justify-center rounded-lg bg-slate-100 text-sm">
             {c.emoji || "◎"}
           </span>
         )}
       </span>
-      <span className="truncate">{c.name}</span>
+      {!collapsed && <span className="truncate">{c.name}</span>}
     </Row>
   );
 }
@@ -95,6 +103,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
   const [moreMine, setMoreMine] = useState(false);
   const [moreRecs, setMoreRecs] = useState(false);
+  const [collapsed, setCollapsed] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -139,89 +148,116 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
   };
 
   return (
-    <aside className="hidden md:flex w-[280px] shrink-0 flex-col overflow-y-auto border-r border-white/10 bg-[#17171B] px-3 py-4">
+    <aside
+      className={`hidden md:flex shrink-0 flex-col overflow-y-auto border-r border-slate-200 bg-white py-4 transition-[width] duration-300 ${
+        collapsed ? "w-[76px] px-2" : "w-[280px] px-3"
+      }`}
+    >
+      {/* Collapse toggle */}
+      <button
+        type="button"
+        onClick={() => setCollapsed((v) => !v)}
+        aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
+        className="mb-2 flex h-8 w-8 shrink-0 items-center justify-center self-end rounded-lg text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
+      >
+        <ChevronLeft className={`h-4 w-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />
+      </button>
+
       {/* Identity */}
       <Link
         to="/profile/$id"
         params={{ id: me?.slug ?? "me" }}
-        className="flex items-center gap-3 rounded-xl px-3 py-2 transition-colors hover:bg-white/10"
+        title={me?.name || "Your profile"}
+        className={`flex items-center gap-3 rounded-xl py-2 transition-colors hover:bg-slate-100 ${
+          collapsed ? "justify-center px-0" : "px-3"
+        }`}
       >
         <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full">
           <AvatarImage src={me?.avatarUrl ?? null} alt={me?.name || "You"} loading="eager" />
         </span>
-        <span className="truncate text-sm font-bold text-white">{me?.name || "Your profile"}</span>
+        {!collapsed && (
+          <span className="truncate text-sm font-bold text-slate-900">{me?.name || "Your profile"}</span>
+        )}
       </Link>
 
-      <div className="my-3 h-px bg-white/10" />
+      <div className="my-3 h-px bg-slate-200" />
 
       {/* Main sections */}
-      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Explore</p>
+      {!collapsed && (
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Explore</p>
+      )}
       <nav className="flex flex-col">
         {DASH_ITEMS.map((it) => (
-          <Row key={it.section} onClick={() => onSelect(it.section)}>
-            <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
+          <Row key={it.section} onClick={() => onSelect(it.section)} title={it.label} collapsed={collapsed}>
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
               <it.icon className="h-4 w-4" strokeWidth={2.5} />
             </span>
-            <span className="truncate">{it.label}</span>
+            {!collapsed && <span className="truncate">{it.label}</span>}
           </Row>
         ))}
       </nav>
 
-
-      <div className="my-3 h-px bg-white/10" />
+      <div className="my-3 h-px bg-slate-200" />
 
       {/* My circles */}
-      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Your circles</p>
+      {!collapsed && (
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Your circles</p>
+      )}
       <nav className="flex flex-col">
         {mineVisible.map((c) => (
-          <CircleRow key={c.id} c={c} onOpen={openCircle} />
+          <CircleRow key={c.id} c={c} onOpen={openCircle} collapsed={collapsed} />
         ))}
-        {mine.length === 0 && (
+        {mine.length === 0 && !collapsed && (
           <p className="px-3 py-2 text-xs text-slate-500">You haven't joined a circle yet.</p>
         )}
-        {mine.length > 3 && (
+        {mine.length > 3 && !collapsed && (
           <MoreToggle open={moreMine} onToggle={() => setMoreMine((v) => !v)} label={`See all ${mine.length}`} />
         )}
-        <Row onClick={() => onSelect("Circles")}>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
+        <Row onClick={() => onSelect("Circles")} title="Browse circles" collapsed={collapsed}>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
             <Plus className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          Browse circles
+          {!collapsed && "Browse circles"}
         </Row>
       </nav>
 
-      <div className="my-3 h-px bg-white/10" />
+      <div className="my-3 h-px bg-slate-200" />
 
       {/* Recommended circles */}
-      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Discover circles</p>
+      {!collapsed && (
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Discover circles</p>
+      )}
       <nav className="flex flex-col">
         {recsVisible.map((c) => (
-          <CircleRow key={c.id} c={c} onOpen={openCircle} />
+          <CircleRow key={c.id} c={c} onOpen={openCircle} collapsed={collapsed} />
         ))}
-        {recs.length === 0 && (
+        {recs.length === 0 && !collapsed && (
           <p className="px-3 py-2 text-xs text-slate-500">No recommendations right now.</p>
         )}
-        {recs.length > 3 && (
+        {recs.length > 3 && !collapsed && (
           <MoreToggle open={moreRecs} onToggle={() => setMoreRecs((v) => !v)} label={`See all ${recs.length}`} />
         )}
-        <Row onClick={() => onSelect("Circles")}>
-          <span className="flex h-7 w-7 items-center justify-center rounded-full bg-white/10">
+        <Row onClick={() => onSelect("Circles")} title="Explore all circles" collapsed={collapsed}>
+          <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
             <Compass className="h-4 w-4" strokeWidth={2.5} />
           </span>
-          Explore all
+          {!collapsed && "Explore all"}
         </Row>
       </nav>
 
-      <div className="my-3 h-px bg-white/10" />
-
-      <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 pb-4">
-        {LEGAL.map((l) => (
-          <Link key={l.to} to={l.to} className="text-[11px] font-medium text-slate-500 hover:text-slate-300">
-            {l.label}
-          </Link>
-        ))}
-        <span className="w-full pt-1 text-[11px] text-slate-600">© {new Date().getFullYear()} Oventric</span>
-      </div>
+      {!collapsed && (
+        <>
+          <div className="my-3 h-px bg-slate-200" />
+          <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 pb-4">
+            {LEGAL.map((l) => (
+              <Link key={l.to} to={l.to} className="text-[11px] font-medium text-slate-500 hover:text-slate-900">
+                {l.label}
+              </Link>
+            ))}
+            <span className="w-full pt-1 text-[11px] text-slate-400">© {new Date().getFullYear()} Oventric</span>
+          </div>
+        </>
+      )}
     </aside>
   );
 }
