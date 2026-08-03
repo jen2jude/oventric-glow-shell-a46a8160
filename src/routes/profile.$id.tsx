@@ -859,18 +859,18 @@ function ProfilePage() {
             <div className="profile-standard-actions flex items-center justify-between gap-3 mb-4">
               <button
                 onClick={() => navigate({ to: "/" })}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 md:text-slate-500 hover:text-emerald-400"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 md:text-slate-500 hover:text-emerald-400 md:text-emerald-600"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
               </button>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
                   aria-label="Copy profile link"
                 >
                   {copied ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400" />
+                    <Check className="w-3.5 h-3.5 text-emerald-400 md:text-emerald-600" />
                   ) : (
                     <Link2 className="w-3.5 h-3.5 text-slate-400 md:text-slate-500" />
                   )}
@@ -882,7 +882,7 @@ function ProfilePage() {
                     className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
                     aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
-                    <UserPlus className="w-3.5 h-3.5 text-sky-300" />
+                    <UserPlus className="w-3.5 h-3.5 text-sky-300 md:text-sky-700" />
                     Follow Requests
                     {pendingFollowReqCount > 0 && (
                       <span
@@ -1008,7 +1008,7 @@ function ProfilePage() {
 
                 <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
                   <h1 className="text-white md:text-slate-900 text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
-                  <ShieldCheck className="w-5 h-5 text-emerald-400" aria-label={displayTierLabel} />
+                  <ShieldCheck className="w-5 h-5 text-emerald-400 md:text-emerald-600" aria-label={displayTierLabel} />
                 </div>
 
                 <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
@@ -1019,7 +1019,7 @@ function ProfilePage() {
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         isViewedUserOnline
-                          ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300"
+                          ? "border-emerald-400/40 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700"
                           : "border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-400 md:text-slate-500"
                       }`}
                     >
@@ -1033,11 +1033,11 @@ function ProfilePage() {
                 </div>
 
                 <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 md:text-emerald-700">
                     <ShieldCheck className="w-3 h-3" /> {displayTierLabel}
                   </span>
                   <span className="inline-flex items-center gap-1 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 md:text-slate-600">
-                    <Star className="w-3 h-3 text-amber-300" /> {displayStars.toFixed(1)}
+                    <Star className="w-3 h-3 text-amber-300 md:text-amber-600" /> {displayStars.toFixed(1)}
                   </span>
                   <span className="inline-flex items-center rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
                     Joined {displayJoined}
@@ -1049,7 +1049,7 @@ function ProfilePage() {
                     type="button"
                     onClick={() => openRelationships("followers")}
                     aria-controls="relationships"
-                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                   >
                     <span className="font-bold text-white md:text-slate-900">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
                     <span className="text-slate-500 md:text-slate-500">followers</span>
@@ -1058,7 +1058,7 @@ function ProfilePage() {
                     type="button"
                     onClick={() => openRelationships("following")}
                     aria-controls="relationships"
-                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                   >
                     <span className="font-bold text-white md:text-slate-900">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
                     <span className="text-slate-500 md:text-slate-500">following</span>
@@ -1077,12 +1077,12 @@ function ProfilePage() {
                     value={liveRep ? liveRep.metrics.postsTotal.toLocaleString() : "…"}
                   />
                   <HeaderStat
-                    icon={<Target className="w-4 h-4 text-emerald-300" />}
+                    icon={<Target className="w-4 h-4 text-emerald-300 md:text-emerald-700" />}
                     label="Bounties"
                     value={liveRep ? liveRep.metrics.bountiesSolved.toLocaleString() : "…"}
                   />
                   <HeaderStat
-                    icon={<Award className="w-4 h-4 text-amber-300" />}
+                    icon={<Award className="w-4 h-4 text-amber-300 md:text-amber-600" />}
                     label="Earnings"
                     value={
                       isOwnProfile
@@ -1111,7 +1111,7 @@ function ProfilePage() {
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                         aria-label={key}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-300 md:text-slate-600 hover:text-emerald-300 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       >
                         <SocialIcon kind={key} />
                       </a>
@@ -1154,7 +1154,7 @@ function ProfilePage() {
                     <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                       <button
                         onClick={() => setJoinCircleOpen(true)}
-                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 hover:bg-emerald-500/20 md:bg-emerald-100 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                         aria-label="Request to join one of this user's circles"
                       >
                         <Users className="w-4 h-4" /> Join Circle
@@ -1176,7 +1176,7 @@ function ProfilePage() {
                     >
                       <Pencil className="w-4 h-4" strokeWidth={2.5} /> Edit profile
                     </button>
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
+                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 text-xs font-semibold">
                       This is your profile
                     </span>
                     <button
@@ -1349,7 +1349,7 @@ function ProfilePage() {
                     onClick={() => { setPhotosMode(false); changeTab(key); }}
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key && !photosMode
-                        ? "text-emerald-400 border-emerald-400"
+                        ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
                         : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
                     }`}
                   >
@@ -1370,7 +1370,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
-                    ? "text-emerald-400 border-emerald-400"
+                    ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
                 }`}
               >
@@ -1428,13 +1428,13 @@ function ProfilePage() {
                     }`}
                     aria-hidden
                   />
-                  <span className="font-semibold text-emerald-300">Live prices</span>
+                  <span className="font-semibold text-emerald-300 md:text-emerald-700">Live prices</span>
                   <span className="text-slate-500 md:text-slate-500">· Last updated {mpAgoLabel}</span>
                 </div>
                 <button
                   onClick={refreshMarketplace}
                   disabled={mpRefreshing}
-                  className="text-slate-400 md:text-slate-500 hover:text-emerald-400 disabled:opacity-50 font-semibold"
+                  className="text-slate-400 md:text-slate-500 hover:text-emerald-400 md:text-emerald-600 disabled:opacity-50 font-semibold"
                   aria-label="Refresh marketplace prices"
                 >
                   {mpRefreshing ? "Refreshing…" : "Refresh"}
@@ -1513,7 +1513,7 @@ function ProfilePage() {
                           key: p.id,
                           kind: "post" as const,
                           itemId: p.id,
-                          placeholderIcon: <MessageCircle className="w-8 h-8 text-emerald-300/70" />,
+                          placeholderIcon: <MessageCircle className="w-8 h-8 text-emerald-300 md:text-emerald-700/70" />,
                           title: p.content,
                           subtitle: `${p.timeAgo} · ❤ ${p.likes} · 💬 ${p.comments}`,
                         }));
@@ -1522,7 +1522,7 @@ function ProfilePage() {
                           key: g.id,
                           kind: "group" as const,
                           itemId: g.id,
-                          placeholderIcon: <Users className="w-8 h-8 text-emerald-300/70" />,
+                          placeholderIcon: <Users className="w-8 h-8 text-emerald-300 md:text-emerald-700/70" />,
                           title: g.name,
                           subtitle: `${g.tag} · ${g.members.toLocaleString()} member${g.members === 1 ? "" : "s"}`,
                         }));
@@ -1544,7 +1544,7 @@ function ProfilePage() {
                           kind: "bounty" as const,
                           itemId: b.id,
                           coverUrl: b.coverUrl ?? null,
-                          placeholderIcon: <Target className="w-8 h-8 text-emerald-300/70" />,
+                          placeholderIcon: <Target className="w-8 h-8 text-emerald-300 md:text-emerald-700/70" />,
                           badge: {
                             label: b.status === "open" ? "Awaiting solve" : "In progress",
                             tone: b.status === "open" ? ("emerald" as const) : ("amber" as const),
@@ -1560,7 +1560,7 @@ function ProfilePage() {
                           itemId: a.id,
                           blogSlug: a.slug,
                           coverUrl: a.coverUrl ?? null,
-                          placeholderIcon: <FileText className="w-8 h-8 text-sky-300/70" />,
+                          placeholderIcon: <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />,
                           badge: a.category ? { label: a.category, tone: "sky" as const } : undefined,
                           title: a.title,
                           subtitle: `${a.timeAgo} · ❤ ${a.reactions} · 💬 ${a.comments}`,
@@ -1580,10 +1580,10 @@ function ProfilePage() {
                       }
 
                       const toneRing: Record<string, string> = {
-                        emerald: "border-emerald-500/30 text-emerald-300 bg-emerald-500/10",
+                        emerald: "border-emerald-500/30 text-emerald-300 md:text-emerald-700 bg-emerald-500/10 md:bg-emerald-50",
                         purple: "border-purple-500/30 text-purple-300 bg-purple-500/10",
-                        sky: "border-sky-500/30 text-sky-300 bg-sky-500/10",
-                        amber: "border-amber-500/30 text-amber-300 bg-amber-500/10",
+                        sky: "border-sky-500/30 text-sky-300 md:text-sky-700 bg-sky-500/10",
+                        amber: "border-amber-500/30 text-amber-300 md:text-amber-600 bg-amber-500/10",
                       };
 
                       return (
@@ -1598,7 +1598,7 @@ function ProfilePage() {
                                     params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                     search: itemSearch,
                                   } as any))}
-                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
+                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:border-emerald-300 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
                                 {t.coverUrl ? (
@@ -1668,7 +1668,7 @@ function ProfilePage() {
                         <span>{st.error}</span>
                         <button
                           onClick={() => retryTab(tab)}
-                          className="inline-flex items-center gap-1 font-semibold text-emerald-400 hover:text-emerald-300"
+                          className="inline-flex items-center gap-1 font-semibold text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:text-emerald-700"
                         >
                           <RefreshCw className="w-3 h-3" /> Try again
                         </button>
@@ -1821,7 +1821,7 @@ function CircleStatusNote({
 
   if (status === "accepted") {
     return (
-      <div className="text-[11px] text-emerald-300/90 sm:text-center leading-snug px-1 space-y-0.5">
+      <div className="text-[11px] text-emerald-300 md:text-emerald-700/90 sm:text-center leading-snug px-1 space-y-0.5">
         {accepted && (
           <div>
             <span title={absTime(meta.acceptedAt)}>Accepted {accepted}</span>
@@ -1914,7 +1914,7 @@ function TabFilters({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={SEARCH_PLACEHOLDER[tab]}
-          className="w-full bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 md:text-slate-700 placeholder:text-slate-500 md:text-slate-500 focus:outline-none focus:border-emerald-500/40"
+          className="w-full bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 md:text-slate-700 placeholder:text-slate-500 md:text-slate-500 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
           aria-label={SEARCH_PLACEHOLDER[tab]}
         />
         {draft && (
@@ -1933,7 +1933,7 @@ function TabFilters({
         <select
           value={sort}
           onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
-          className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40"
+          className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -1971,7 +1971,7 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
     <button
       key={v}
       onClick={() => setFilter(v)}
-      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 md:hover:text-slate-900"}`}
+      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 md:bg-emerald-100 border-emerald-500/40 md:border-emerald-300 text-emerald-300 md:text-emerald-700" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 md:hover:text-slate-900"}`}
     >{label}</button>
   );
   return (
@@ -1984,7 +1984,7 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
       </div>
       {filtered.length === 0 ? (
         <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl py-16 px-6 text-center">
-          <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
+          <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 md:bg-emerald-50 border border-emerald-500/30 text-emerald-300 md:text-emerald-700 flex items-center justify-center">
             <Images className="w-4 h-4" />
           </div>
           <div className="text-sm text-slate-200 md:text-slate-700 font-semibold">No photos yet</div>
@@ -2016,7 +2016,7 @@ function EmptyState({
 }) {
   return (
     <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
-      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
+      <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 md:bg-emerald-50 border border-emerald-500/30 text-emerald-300 md:text-emerald-700 flex items-center justify-center">
         <Sparkles className="w-4 h-4" />
       </div>
       <div className="text-sm text-slate-200 md:text-slate-700 font-semibold">{title}</div>
