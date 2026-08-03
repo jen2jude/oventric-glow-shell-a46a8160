@@ -15,7 +15,7 @@ import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
-import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
@@ -192,14 +192,10 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
 
       <div className="flex h-full flex-col">
-        {!isDesktop && (
-          <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home"} />
+        {!desktopLanding && (
+          <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home" && !isDesktop} />
         )}
-        {isDesktop && !desktopLanding && (
-          <div className="bg-white">
-            <SiteNavbar onSelect={setActive} />
-          </div>
-        )}
+
         <div className={`flex flex-1 min-h-0 ${active === "Home" && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
           {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
           <main
