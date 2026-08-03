@@ -13,6 +13,7 @@ import { CreatePanel } from "@/components/oventric/CreatePanel";
 import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
+import { HomeHub } from "@/components/oventric/HomeHub";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
 
@@ -34,7 +35,7 @@ function Index() {
   const [createOpen, setCreateOpen] = useState(false);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
-  const [active, setActive] = useState("Feed");
+  const [active, setActive] = useState("Home");
 
   const { require } = useOnboarding();
 
@@ -122,7 +123,7 @@ function Index() {
     const section = params.get("section");
     const bountyId = params.get("bounty");
     const dmPeer = params.get("dm");
-    const allowed = ["Feed", "Marketplace", "Academy", "Bounties", "Wallet", "Circles", "Messages"];
+    const allowed = ["Home", "Feed", "Marketplace", "Academy", "Bounties", "Wallet", "Circles", "Messages"];
     if (section && allowed.includes(section)) setActive(section);
     if (bountyId) {
       setActive("Bounties");
@@ -146,7 +147,21 @@ function Index() {
   }, []);
 
   const view =
-    active === "Wallet" ? <Wallet />
+    active === "Home" ? (
+      <HomeHub
+        onSelect={setActive}
+        onCreate={handleCreate}
+        onOpenMessages={() => setMessagesOpen(true)}
+        counts={{
+          Feed: feedCount.count,
+          Market: marketCount.count,
+          Academy: academyCount.count,
+          Bounties: bountiesCount.count,
+          Wallet: walletCount.count,
+        }}
+      />
+    )
+    : active === "Wallet" ? <Wallet />
     : active === "Marketplace" ? <Marketplace />
     : active === "Academy" ? <Academy />
     : active === "Bounties" ? <Bounties />
