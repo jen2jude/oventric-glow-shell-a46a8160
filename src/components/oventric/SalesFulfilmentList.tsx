@@ -54,6 +54,7 @@ export function SalesFulfilmentList({
   const [q, setQ] = useState("");
   const [openId, setOpenId] = useState<string | null>(null);
   const [deliveringId, setDeliveringId] = useState<string | null>(null);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const deliverFn = useServerFn(markOrderDelivered);
 
   const counts = useMemo(() => {
@@ -76,6 +77,7 @@ export function SalesFulfilmentList({
   }, [rows, filter, q]);
 
   const openSale = useMemo(() => rows.find((s) => s.orderId === openId) ?? null, [rows, openId]);
+  const confirmSale = useMemo(() => rows.find((s) => s.orderId === confirmId) ?? null, [rows, confirmId]);
 
   const markDelivered = async (s: SaleDTO) => {
     setDeliveringId(s.orderId);
@@ -175,6 +177,11 @@ export function SalesFulfilmentList({
                     <div className="text-xs text-slate-400 md:text-slate-500 truncate">
                       {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
                     </div>
+                    {s.deliveredAt && (
+                      <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 md:text-emerald-700">
+                        <PackageCheck className="w-3 h-3" /> Delivered {new Date(s.deliveredAt).toLocaleString()}
+                      </div>
+                    )}
                   </button>
                   <span className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}>
                     {b.label}
@@ -187,7 +194,7 @@ export function SalesFulfilmentList({
                   <div className="flex items-center gap-2">
                     {canDeliver && (
                       <button
-                        onClick={() => void markDelivered(s)}
+                        onClick={() => setConfirmId(s.orderId)}
                         disabled={deliveringId === s.orderId}
                         className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
                       >
@@ -272,6 +279,56 @@ export function SalesFulfilmentList({
           )}
         </SheetContent>
       </Sheet>
+
+      {/* Mark delivered confirmation */}
+      {confirmSale && (
+        <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
+          <div className="absolute inset-0 bg-black/70" onClick={() => deliveringId === null && setConfirmId(null)} />
+          <div className="slide-up relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-5 shadow-2xl">
+            <div className="flex items-start justify-between gap-3 mb-3">
+              <div className="flex items-center gap-2">
+                <span className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
+                  <PackageCheck className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
+                </span>
+                <h3 className="text-base font-bold text-white md:text-slate-900">Mark as delivered?</h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => deliveringId === null && setConfirmId(null)}
+                aria-label="Close"
+                className="p-1 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <p className="text-xs leading-relaxed text-slate-400 md:text-slate-600 mb-3">
+              Confirm you have delivered <span className="font-semibold text-white md:text-slate-900">{confirmSale.productName}</span> to {confirmSale.buyerName} inside Oventric chat. The buyer has 48 hours to confirm before escrow auto-releases.
+            </p>
+            <div className="rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-2 text-[11px] text-slate-400 md:text-slate-600 mb-4">
+              Delivery will be timestamped <span className="font-semibold text-white md:text-slate-900">{new Date().toLocaleString()}</span>
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setConfirmId(null)}
+                disabled={deliveringId !== null}
+                className="py-2.5 rounded-lg text-xs font-bold border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-200 md:text-slate-700 hover:bg-white/10 md:hover:bg-slate-50 disabled:opacity-60"
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                onClick={() => void markDelivered(confirmSale)}
+                disabled={deliveringId !== null}
+                className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
+              >
+                {deliveringId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PackageCheck className="w-3.5 h-3.5" />}
+                Yes, delivered
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
