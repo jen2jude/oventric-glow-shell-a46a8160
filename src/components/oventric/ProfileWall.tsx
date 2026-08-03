@@ -136,7 +136,7 @@ export function ProfileWall({
   return (
     <section className="mt-8">
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-lg font-bold text-white">
+        <h3 className="text-lg font-bold text-white md:text-slate-900">
           {isSelf ? "Your wall" : `${wallOwnerName}'s wall`}
         </h3>
       </div>
@@ -146,12 +146,12 @@ export function ProfileWall({
         type="button"
         onClick={() => !cta.disabled && setComposerOpen(true)}
         disabled={cta.disabled}
-        className="w-full mb-4 flex items-center gap-3 bg-[#141418] border border-white/10 rounded-2xl p-3 text-left hover:border-white/20 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full mb-4 flex items-center gap-3 bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-3 text-left hover:border-white/20 md:border-slate-300 disabled:opacity-60 disabled:cursor-not-allowed"
       >
-        <div className="w-10 h-10 rounded-full bg-white/5 flex items-center justify-center text-slate-300 text-sm font-semibold">
+        <div className="w-10 h-10 rounded-full bg-white/5 md:bg-slate-100 flex items-center justify-center text-slate-300 md:text-slate-600 text-sm font-semibold">
           {viewerInitials || "You"}
         </div>
-        <span className="flex-1 text-slate-400 text-sm">
+        <span className="flex-1 text-slate-400 md:text-slate-500 text-sm">
           {cta.disabled ? cta.label : isSelf ? "What's on your mind today?" : `Post on ${wallOwnerName}'s wall…`}
         </span>
         {cta.disabled ? (
@@ -172,7 +172,7 @@ export function ProfileWall({
             return (
               <li
                 key={p.id}
-                className="bg-[#141418] border border-white/10 rounded-2xl p-4"
+                className="bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-4"
               >
                 <div className="flex items-start gap-3">
                   <Link
@@ -192,7 +192,7 @@ export function ProfileWall({
                       <Link
                         to="/profile/$id"
                         params={{ id: p.author_slug || p.author_id }}
-                        className="font-semibold text-white hover:text-emerald-400 truncate"
+                        className="font-semibold text-white md:text-slate-900 hover:text-emerald-400 truncate"
                       >
                         {p.author_name}
                       </Link>
@@ -245,7 +245,7 @@ export function ProfileWall({
                         ))}
                       </div>
                     )}
-                    <div className="mt-3 flex items-center gap-4 text-slate-400 text-xs">
+                    <div className="mt-3 flex items-center gap-4 text-slate-400 md:text-slate-500 text-xs">
                       <div className="relative flex items-center gap-2">
                         {pickerFor === p.id && (
                           <ReactionPicker
@@ -271,7 +271,7 @@ export function ProfileWall({
                       </div>
                       <button
                         onClick={() => setCommentsFor(p)}
-                        className="inline-flex items-center gap-1.5 hover:text-white"
+                        className="inline-flex items-center gap-1.5 hover:text-white md:text-slate-900"
                       >
                         <MessageCircle className="w-4 h-4" />
                         <span>{p.comments_count}</span>
@@ -284,8 +284,8 @@ export function ProfileWall({
           })}
         </ul>
       ) : (
-        <div className="bg-[#141418] border border-dashed border-white/10 rounded-2xl p-8 text-center">
-          <div className="text-slate-400 text-sm">
+        <div className="bg-[#141418] md:bg-white border border-dashed border-white/10 md:border-slate-200 rounded-2xl p-8 text-center">
+          <div className="text-slate-400 md:text-slate-500 text-sm">
             {isSelf
               ? "Your wall is empty. Drop the first post."
               : `${wallOwnerName}'s wall is empty.`}
