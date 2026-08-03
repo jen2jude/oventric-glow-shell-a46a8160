@@ -11,7 +11,6 @@ import {
   Newspaper,
   Search,
   ShieldCheck,
-  Smartphone,
   Sparkles,
   Star,
   Store,
