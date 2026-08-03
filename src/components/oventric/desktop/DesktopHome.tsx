@@ -313,63 +313,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
               own currency, wherever you are on the continent.
             </p>
-            {/* Search-first entry */}
-            <div ref={searchRef} className="relative mt-9 max-w-xl">
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (results[0]) {
-                    setSearchOpen(false);
-                    if (results[0].kind === "product") navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
-                    else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
-                  } else onSelect("Marketplace");
-                }}
-                className="flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white pl-5 pr-2"
-              >
-                <Search className="h-5 w-5 shrink-0 text-slate-500" />
-                <input
-                  value={q}
-                  onChange={(e) => {
-                    setQ(e.target.value);
-                    setSearchOpen(true);
-                  }}
-                  onFocus={() => setSearchOpen(true)}
-                  placeholder="Search products, courses and bounties"
-                  aria-label="Search Oventric"
-                  className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
-                />
-                <button
-                  type="submit"
-                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition-transform active:scale-95"
-                >
-                  Search
-                </button>
-              </form>
-              {searchOpen && results.length > 0 && (
-                <div className="absolute left-0 right-0 top-16 z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-                  {results.map((r) => (
-                    <button
-                      key={`${r.kind}-${r.id}`}
-                      type="button"
-                      onClick={() => {
-                        setSearchOpen(false);
-                        if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
-                        else onSelect(r.kind === "course" ? "Academy" : "Bounties");
-                      }}
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
-                    >
-                      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                        {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
-                      </span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{r.title}</span>
-                      <span className="shrink-0 text-xs font-semibold text-emerald-600">{r.meta}</span>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
-
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-9 flex items-center gap-3">
               <button
                 type="button"
                 onClick={primary}
