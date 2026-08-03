@@ -1,0 +1,440 @@
+import { useEffect, useState } from "react";
+import { Link } from "@tanstack/react-router";
+import { useServerFn } from "@tanstack/react-start";
+import {
+  ArrowRight,
+  ChevronRight,
+  Eye,
+  EyeOff,
+  Newspaper,
+  ShieldCheck,
+  Sparkles,
+  Store,
+  GraduationCap,
+  Target,
+  Wallet as WalletIcon,
+  Users,
+} from "lucide-react";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import { getWalletBalances } from "@/lib/wallet.functions";
+import { getMyFullProfile } from "@/lib/profiles.functions";
+import { getDiscoveryFeed } from "@/lib/discovery.functions";
+import { listCourses } from "@/lib/academy.functions";
+import { formatMoney, safeFormatDisplayPrice } from "@/lib/fx-display";
+import { COUNTRY_META } from "@/lib/currency/africa";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { SiteFooter } from "@/components/oventric/desktop/SiteFooter";
+
+import walletIcon from "@/assets/wallet-3d.webp.asset.json";
+import marketIcon from "@/assets/marketplace-3d.png.asset.json";
+import academyIcon from "@/assets/academy-3d.png.asset.json";
+import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
+import circlesIcon from "@/assets/circles-3d.png.asset.json";
+
+export type DesktopHomeProps = {
+  onSelect: (section: string) => void;
+  onCreate: () => void;
+};
+
+type Card = { id: string; title: string; coverUrl: string | null; meta: string };
+
+const FEATURES = [
+  {
+    label: "Marketplace",
+    section: "Marketplace",
+    icon: Store,
+    img: marketIcon.url,
+    title: "Sell digital and physical products, safely",
+    body: "List once and reach buyers across Africa. Escrow holds every payment until delivery is confirmed, and buyers earn 2% cashback on each order.",
+    tint: "from-emerald-500/20",
+  },
+  {
+    label: "Academy",
+    section: "Academy",
+    icon: GraduationCap,
+    img: academyIcon.url,
+    title: "Learn a skill, or teach one and get paid",
+    body: "Structured courses from practitioners, priced in your own currency. Publish your own course and keep the majority of every enrolment.",
+    tint: "from-violet-500/20",
+  },
+  {
+    label: "Bounties",
+    section: "Bounties",
+    icon: Target,
+    img: bountiesIcon.url,
+    title: "Post work. Fund it. Release on delivery.",
+    body: "Bounties are funded up front and held in escrow, so solvers know the money is real and posters only release when the work lands.",
+    tint: "from-amber-500/20",
+  },
+  {
+    label: "Wallet",
+    section: "Wallet",
+    icon: WalletIcon,
+    img: walletIcon.url,
+    title: "One wallet, your home currency",
+    body: "Fund with card, bank or mobile money through Flutterwave, Paystack and MiniPay. Main, cashback, bounty and escrow balances in one place.",
+    tint: "from-teal-500/20",
+  },
+  {
+    label: "Circles",
+    section: "Circles",
+    icon: Users,
+    img: circlesIcon.url,
+    title: "Communities that actually ship",
+    body: "Join or forge a circle around a craft, a city or a product. Share posts to your circle, the main feed, or both.",
+    tint: "from-pink-500/20",
+  },
+] as const;
+
+const STEPS = [
+  { title: "Create your account", body: "Pick your country and currency once — everything you see is priced for you." },
+  { title: "Buy, learn or post work", body: "Shop the marketplace, enrol in a course, or fund a bounty in minutes." },
+  { title: "Get paid and withdraw", body: "Escrow releases to your wallet, then cash out to your bank or mobile money." },
+];
+
+export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
+  const { isAuthenticated, openGate } = useAuthGate();
+  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
+  const currency: Currency = country ? baseCurrency : "USD";
+  const flag = country ? COUNTRY_META[country]?.flag ?? "" : "";
+
+  const loadBalances = useServerFn(getWalletBalances);
+  const loadProfile = useServerFn(getMyFullProfile);
+  const loadDiscovery = useServerFn(getDiscoveryFeed);
+  const loadCourses = useServerFn(listCourses);
+
+  const [main, setMain] = useState(0);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [name, setName] = useState<string>(fullName || storeName || "");
+  const [products, setProducts] = useState<Card[]>([]);
+  const [courses, setCourses] = useState<Card[]>([]);
+  const [bounties, setBounties] = useState<Card[]>([]);
+  const [counts, setCounts] = useState({ products: 0, courses: 0, bounties: 0 });
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setMain(0);
+      setAvatarUrl(null);
+      return;
+    }
+    let cancelled = false;
+    loadBalances()
+      .then((r) => {
+        if (cancelled) return;
+        setMain(r.balances[baseCurrency] ?? 0);
+      })
+      .catch(() => {});
+    loadProfile()
+      .then((r) => {
+        if (cancelled || !r?.profile) return;
+        setAvatarUrl(r.profile.avatarUrl ?? null);
+        if (r.profile.displayName) setName(r.profile.displayName);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, baseCurrency, loadBalances, loadProfile]);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadDiscovery()
+      .then((r) => {
+        if (cancelled) return;
+        const p = r?.products ?? [];
+        const b = r?.bounties ?? [];
+        setProducts(
+          p.slice(0, 8).map((x) => ({
+            id: x.id,
+            title: x.title,
+            coverUrl: x.coverUrl,
+            meta: safeFormatDisplayPrice({ price_usd: x.priceUsd }, currency),
+          })),
+        );
+        setBounties(
+          b.slice(0, 8).map((x) => ({
+            id: x.id,
+            title: x.title,
+            coverUrl: x.coverUrl,
+            meta: safeFormatDisplayPrice({ price_usd: x.amountUsd }, currency),
+          })),
+        );
+        setCounts((c) => ({ ...c, products: p.length, bounties: b.length }));
+      })
+      .catch(() => {});
+    loadCourses()
+      .then((rows) => {
+        if (cancelled) return;
+        const list = rows ?? [];
+        setCourses(
+          list.slice(0, 8).map((c) => ({
+            id: c.id,
+            title: c.title,
+            coverUrl: c.coverUrl,
+            meta: c.isFree ? "Free" : safeFormatDisplayPrice({ price_usd: c.priceUSD }, currency),
+          })),
+        );
+        setCounts((c) => ({ ...c, courses: list.length }));
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [loadDiscovery, loadCourses, currency]);
+
+  const primary = () => (isAuthenticated ? onSelect("Feed") : openGate("generic"));
+
+  return (
+    <div className="min-h-full bg-[#121214] text-slate-200">
+      <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} />
+
+      {/* Hero */}
+      <section className="relative overflow-hidden">
+        <div
+          className="pointer-events-none absolute inset-0"
+          style={{
+            backgroundImage:
+              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.18), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.14), transparent 70%)",
+          }}
+        />
+        <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[1.05fr_0.95fr] items-center gap-16 px-8 pb-24 pt-20">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+              <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
+            </span>
+            <h1 className="mt-6 text-[56px] font-bold leading-[1.05] tracking-tight text-white">
+              The platform where Africa&apos;s builders
+              <span className="text-emerald-400"> sell, learn and get paid.</span>
+            </h1>
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-400">
+              Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
+              own currency, wherever you are on the continent.
+            </p>
+            <div className="mt-9 flex items-center gap-3">
+              <button
+                type="button"
+                onClick={primary}
+                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-emerald-500 px-6 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+              >
+                {isAuthenticated ? "Open the app" : "Get started free"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+              </button>
+              <button
+                type="button"
+                onClick={() => onSelect("Marketplace")}
+                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-white/15 bg-[#1E1E24] px-6 text-sm font-bold text-white transition-transform active:scale-95"
+              >
+                Explore marketplace
+              </button>
+            </div>
+            <div className="mt-8 flex items-center gap-6 text-xs text-slate-500">
+              <span className="inline-flex items-center gap-1.5">
+                <ShieldCheck className="h-4 w-4 text-emerald-400" /> Escrow on every order
+              </span>
+              <span>54 African countries</span>
+              <span>Card, bank &amp; mobile money</span>
+            </div>
+          </div>
+
+          {/* Hero visual */}
+          <div className="relative">
+            <div
+              className="rounded-[28px] border border-emerald-500/25 p-6"
+              style={{
+                backgroundImage:
+                  "linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+              }}
+            >
+              <div className="flex items-start justify-between">
+                <div>
+                  <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
+                  <div className="mt-1 flex items-center gap-2">
+                    <span className="text-4xl font-bold tabular-nums text-white">
+                      {isAuthenticated && !balancesHidden ? formatMoney(main, currency) : isAuthenticated ? "••••" : formatMoney(0, currency)}
+                    </span>
+                    {isAuthenticated && (
+                      <button
+                        type="button"
+                        onClick={toggleBalancesHidden}
+                        aria-label={balancesHidden ? "Show balance" : "Hide balance"}
+                        className="rounded-full p-1.5 text-slate-400 transition-colors hover:text-white"
+                      >
+                        {balancesHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </button>
+                    )}
+                  </div>
+                </div>
+                <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 text-xs font-semibold text-slate-200">
+                  {flag && <span aria-hidden>{flag}</span>}
+                  {currency}
+                </span>
+              </div>
+
+              <div className="mt-6 grid grid-cols-4 gap-3">
+                {FEATURES.slice(0, 4).map((f) => (
+                  <button
+                    key={f.label}
+                    type="button"
+                    onClick={() => onSelect(f.section)}
+                    className={`rounded-2xl border border-white/10 bg-gradient-to-b ${f.tint} to-transparent p-3 text-center transition-transform hover:-translate-y-0.5`}
+                  >
+                    <img src={f.img} alt="" aria-hidden className="mx-auto h-9 w-9 object-contain" />
+                    <span className="mt-2 block text-[11px] font-semibold text-white">{f.label}</span>
+                  </button>
+                ))}
+              </div>
+
+              <button
+                type="button"
+                onClick={onCreate}
+                className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-[#1E1E24] text-sm font-bold text-white transition-transform active:scale-95"
+              >
+                Start selling on Oventric
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Stats */}
+      <section className="border-y border-white/10 bg-[#0F0F11]">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-10">
+          <Stat value={counts.products} label="Live products" />
+          <Stat value={counts.courses} label="Courses to learn" />
+          <Stat value={counts.bounties} label="Open bounties" />
+          <Stat value={54} label="Countries covered" />
+        </div>
+      </section>
+
+      {/* Feature blocks */}
+      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
+        <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-white">
+          Everything you need to build an income online.
+        </h2>
+        <div className="mt-16 space-y-20">
+          {FEATURES.map((f, i) => (
+            <div
+              key={f.label}
+              className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
+            >
+              <div>
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-300">
+                  <f.icon className="h-4 w-4" strokeWidth={2.5} /> {f.label}
+                </span>
+                <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-white">{f.title}</h3>
+                <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-400">{f.body}</p>
+                <button
+                  type="button"
+                  onClick={() => onSelect(f.section)}
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
+                >
+                  Open {f.label} <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+              <div
+                className={`flex h-64 items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br ${f.tint} to-transparent`}
+              >
+                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* Live rails */}
+      <section className="border-t border-white/10 bg-[#0F0F11]">
+        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
+          <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
+          <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
+          <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
+        </div>
+      </section>
+
+      {/* How it works */}
+      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
+        <h2 className="text-4xl font-bold tracking-tight text-white">How it works</h2>
+        <div className="mt-12 grid grid-cols-3 gap-6">
+          {STEPS.map((s, i) => (
+            <div key={s.title} className="rounded-3xl border border-white/10 bg-[#1E1E24] p-7">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15 text-sm font-bold text-emerald-300">
+                {i + 1}
+              </span>
+              <h3 className="mt-5 text-lg font-bold text-white">{s.title}</h3>
+              <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.body}</p>
+            </div>
+          ))}
+        </div>
+
+        <div className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+          <div>
+            <h3 className="text-2xl font-bold text-white">Ready to start earning on Oventric?</h3>
+            <p className="mt-2 max-w-xl text-sm text-slate-300">
+              Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
+              your own currency.
+            </p>
+          </div>
+          <button
+            type="button"
+            onClick={primary}
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-500 px-6 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+          >
+            {isAuthenticated ? "Open the app" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+          </button>
+        </div>
+      </section>
+
+      <SiteFooter onSelect={onSelect} currency={currency} flag={flag} />
+    </div>
+  );
+}
+
+function Stat({ value, label }: { value: number; label: string }) {
+  return (
+    <div>
+      <div className="text-3xl font-bold tabular-nums text-white">{value > 0 ? `${value}+` : "—"}</div>
+      <div className="mt-1 text-sm text-slate-500">{label}</div>
+    </div>
+  );
+}
+
+function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; onSeeAll: () => void }) {
+  if (items.length === 0) return null;
+  return (
+    <div>
+      <div className="mb-6 flex items-end justify-between">
+        <h2 className="text-2xl font-bold tracking-tight text-white">{title}</h2>
+        <button
+          type="button"
+          onClick={onSeeAll}
+          className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
+        >
+          See all <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="grid grid-cols-4 gap-5">
+        {items.map((it) => (
+          <button
+            key={it.id}
+            type="button"
+            onClick={onSeeAll}
+            className="group text-left transition-transform hover:-translate-y-1"
+          >
+            <span className="block h-40 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1E1E24]">
+              {it.coverUrl ? (
+                <img src={it.coverUrl} alt={it.title} className="h-full w-full object-cover" loading="lazy" />
+              ) : (
+                <span className="flex h-full w-full items-center justify-center text-slate-600">
+                  <Newspaper className="h-7 w-7" />
+                </span>
+              )}
+            </span>
+            <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-white">
+              {it.title}
+            </span>
+            <span className="mt-1 block truncate text-sm font-bold text-emerald-300">{it.meta}</span>
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
