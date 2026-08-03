@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -6,11 +6,7 @@ import {
   Target,
   GraduationCap,
   Wallet as WalletIcon,
-  Download,
   Store,
-  Truck,
-  Package,
-  Users,
   ChevronDown,
   Plus,
   Compass,
@@ -20,18 +16,14 @@ import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { getProfileByIdOrSlug } from "@/lib/profiles.functions";
 import { getCircleCatalog, type CircleSummary } from "@/lib/circles-groups.functions";
 
-type DashItem = { label: string; tab: string; icon: typeof Target };
+type DashItem = { label: string; section: string; icon: typeof Target };
 
 const DASH_ITEMS: DashItem[] = [
-  { label: "Overview", tab: "overview", icon: LayoutDashboard },
-  { label: "Bounties", tab: "bounties", icon: Target },
-  { label: "Courses", tab: "courses", icon: GraduationCap },
-  { label: "Wallet", tab: "wallet", icon: WalletIcon },
-  { label: "Purchases", tab: "digital", icon: Download },
-  { label: "Sales", tab: "sales", icon: Store },
-  { label: "Physical orders", tab: "physical", icon: Truck },
-  { label: "My listings", tab: "listings", icon: Package },
-  { label: "Social", tab: "social", icon: Users },
+  { label: "Home", section: "Home", icon: LayoutDashboard },
+  { label: "Marketplace", section: "Marketplace", icon: Store },
+  { label: "Bounties", section: "Bounties", icon: Target },
+  { label: "Academy", section: "Academy", icon: GraduationCap },
+  { label: "Wallet", section: "Wallet", icon: WalletIcon },
 ];
 
 const LEGAL = [
@@ -101,7 +93,6 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
   const [mine, setMine] = useState<CircleSummary[]>([]);
   const [recs, setRecs] = useState<CircleSummary[]>([]);
 
-  const [moreDash, setMoreDash] = useState(false);
   const [moreMine, setMoreMine] = useState(false);
   const [moreRecs, setMoreRecs] = useState(false);
 
@@ -137,7 +128,6 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
     };
   }, [profileFn, catalogFn]);
 
-  const dashVisible = useMemo(() => (moreDash ? DASH_ITEMS : DASH_ITEMS.slice(0, 5)), [moreDash]);
   const mineVisible = moreMine ? mine : mine.slice(0, 3);
   const recsVisible = moreRecs ? recs : recs.slice(0, 3);
 
@@ -164,24 +154,19 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
       <div className="my-3 h-px bg-white/10" />
 
-      {/* Dashboard shortcuts */}
-      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">My dashboard</p>
+      {/* Main sections */}
+      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Explore</p>
       <nav className="flex flex-col">
-        {dashVisible.map((it) => (
-          <Link
-            key={it.tab}
-            to="/dashboard"
-            search={{ tab: it.tab }}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
-          >
+        {DASH_ITEMS.map((it) => (
+          <Row key={it.section} onClick={() => onSelect(it.section)}>
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
               <it.icon className="h-4 w-4" strokeWidth={2.5} />
             </span>
             <span className="truncate">{it.label}</span>
-          </Link>
+          </Row>
         ))}
-        <MoreToggle open={moreDash} onToggle={() => setMoreDash((v) => !v)} label="See more" />
       </nav>
+
 
       <div className="my-3 h-px bg-white/10" />
 
