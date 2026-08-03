@@ -31,6 +31,16 @@ async function loadUsdRates(sb: any): Promise<Record<HomeCurrency, number>> {
   }
 }
 
+export interface DashboardActivityItem {
+  id: string;
+  kind: string;
+  title: string;
+  body: string | null;
+  link: string | null;
+  createdAt: string;
+  unread: boolean;
+}
+
 export interface DashboardOverview {
   homeCurrency: HomeCurrency;
   wallet: { currency: HomeCurrency; available: number; escrow: number } | null;
@@ -41,7 +51,14 @@ export interface DashboardOverview {
   courses: { enrolled: number; completed: number; published: number };
   social: { followers: number; following: number; circles: number };
   unread: { messages: number; notifications: number };
+  /** Buyer + seller order pipeline for the key overview cards. */
+  orders: { placed: number; awaitingBuyer: number; toFulfil: number; last30: number };
+  /** Seller revenue released to the user, in USD and home currency. */
+  revenue: { grossUSD: number; gross: number; last30USD: number; last30: number; currency: HomeCurrency };
+  /** Recent notifications, newest first. */
+  activity: DashboardActivityItem[];
 }
+
 
 export const getDashboardOverview = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
