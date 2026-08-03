@@ -56,10 +56,9 @@ export function MarketplaceBanner() {
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
-
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
-        <div className="flex items-stretch gap-3 sm:gap-6 overflow-x-auto scrollbar-none py-2.5">
-
+        {/* Mobile: stacked rows. Tablet+: horizontal rail. */}
+        <div className="flex flex-col gap-2 py-2.5 md:flex-row md:items-stretch md:gap-3 md:overflow-x-auto md:scrollbar-none lg:gap-6">
           <Item
             Icon={BadgePercent}
             title="Get up to 10% cashback on purchase"
@@ -71,7 +70,7 @@ export function MarketplaceBanner() {
             title="Buy from real verified vendors"
             sub="Escrow-protected on every order"
           />
-          <div className="hidden md:flex items-stretch gap-3 sm:gap-6">
+          <div className="hidden md:flex items-stretch gap-3 lg:gap-6">
             <Divider />
             <Item Icon={Smartphone} title="Get the Oventric App" sub="iOS & Android" />
           </div>
@@ -82,7 +81,14 @@ export function MarketplaceBanner() {
 }
 
 function Divider() {
-  return <div className="w-px shrink-0 bg-white/15 self-stretch" />;
+  return (
+    <>
+      {/* Horizontal divider between stacked rows on small screens */}
+      <div className="h-px bg-white/10 md:hidden" />
+      {/* Vertical divider on desktop */}
+      <div className="hidden md:block w-px shrink-0 bg-white/15 self-stretch" />
+    </>
+  );
 }
 
 function Item({
@@ -95,13 +101,13 @@ function Item({
   sub: string;
 }) {
   return (
-    <div className="flex flex-1 min-w-max items-center justify-center gap-2.5 px-1">
-      <Icon className="w-6 h-6 shrink-0 text-emerald-400" />
+    <div className="flex min-w-0 items-center justify-start gap-2.5 px-1 md:flex-1 md:min-w-max md:justify-center">
+      <Icon className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-emerald-400" />
       <div className="min-w-0">
-        <div className="text-[13px] sm:text-sm font-extrabold leading-tight text-emerald-300 whitespace-nowrap">
+        <div className="text-xs sm:text-[13px] md:text-sm font-extrabold leading-tight text-emerald-300">
           {title}
         </div>
-        <div className="text-[11px] sm:text-xs text-emerald-100/70 leading-tight whitespace-nowrap">
+        <div className="text-[11px] md:text-xs text-emerald-100/70 leading-tight">
           {sub}
         </div>
       </div>
