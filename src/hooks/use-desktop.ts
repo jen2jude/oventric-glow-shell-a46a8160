@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const DESKTOP_BREAKPOINT = 1024;
+const DESKTOP_BREAKPOINT = 768;
 
 /**
  * True only after hydration on viewports >= 1024px.
