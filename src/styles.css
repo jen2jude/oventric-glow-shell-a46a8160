@@ -1593,3 +1593,18 @@ html.light input::placeholder, html.light textarea::placeholder {
   .hub-enter,
   .hub-tile { animation: none; }
 }
+
+/* Blog: white desktop theme (mobile stays dark) */
+@media (min-width: 768px) {
+  .blog-article h1,
+  .blog-article h2,
+  .blog-article h3,
+  .blog-article h4,
+  .blog-article strong { color: #0f172a; }
+  .blog-article { color: #334155; }
+  .blog-article a { color: oklch(0.5 0.16 160); }
+  .blog-article blockquote { color: #475569; border-left-color: #e2e8f0; }
+  .blog-article pre,
+  .blog-article code { background: #f1f5f9; color: #0f172a; }
+  .blog-article hr { border-color: #e2e8f0; }
+}
