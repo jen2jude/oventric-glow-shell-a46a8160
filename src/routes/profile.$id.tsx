@@ -170,6 +170,17 @@ function ProfilePage() {
     ? (search.sort as ProfileSortKey)
     : "newest";
   const [photosMode, setPhotosMode] = useState(false);
+  const [relTab, setRelTab] = useState<RelationshipTab>("followers");
+  const onlineUsers = useOnlineUsers();
+  const isViewedUserOnline = !!realProfileOnlineId && onlineUsers.has(realProfileOnlineId);
+  const openRelationships = (which: RelationshipTab) => {
+    setRelTab(which);
+    requestAnimationFrame(() => {
+      const el = document.getElementById("relationships");
+      el?.scrollIntoView({ behavior: "smooth", block: "start" });
+      el?.querySelector<HTMLButtonElement>(`#rel-tab-${which}`)?.focus({ preventScroll: true });
+    });
+  };
 
   // Search state to hand off to item detail pages so their back link returns
   // to the exact tab, pagination depth, and scroll position we're in.
@@ -1000,9 +1011,26 @@ function ProfilePage() {
                   <ShieldCheck className="w-5 h-5 text-emerald-400" aria-label={displayTierLabel} />
                 </div>
 
-                {realProfile?.username && (
-                  <div className="mt-1 text-sm font-semibold text-slate-400">@{realProfile.username}</div>
-                )}
+                <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
+                  {realProfile?.username && (
+                    <span className="text-sm font-semibold text-slate-400">@{realProfile.username}</span>
+                  )}
+                  {realProfile?.userId && (
+                    <span
+                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
+                        isViewedUserOnline
+                          ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300"
+                          : "border-white/15 bg-white/5 text-slate-400"
+                      }`}
+                    >
+                      <span
+                        className={`h-2 w-2 rounded-full ${isViewedUserOnline ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`}
+                        aria-hidden
+                      />
+                      {isViewedUserOnline ? "Online now" : "Offline"}
+                    </span>
+                  )}
+                </div>
 
                 <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
                   <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
@@ -1017,14 +1045,24 @@ function ProfilePage() {
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs">
-                  <span className="text-slate-300">
+                  <button
+                    type="button"
+                    onClick={() => openRelationships("followers")}
+                    aria-controls="relationships"
+                    className="rounded text-slate-300 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  >
                     <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
                     <span className="text-slate-500">followers</span>
-                  </span>
-                  <span className="text-slate-300">
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openRelationships("following")}
+                    aria-controls="relationships"
+                    className="rounded text-slate-300 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  >
                     <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
                     <span className="text-slate-500">following</span>
-                  </span>
+                  </button>
                   <span className="text-slate-300">
                     <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
                     <span className="text-slate-500">in circle</span>
@@ -1615,6 +1653,20 @@ function ProfilePage() {
                 );
               })()}
             </section>
+
+            {realProfile?.userId && (
+              <RelationshipsSection
+                userId={realProfile.userId}
+                name={displayName}
+                viewerId={meId ?? null}
+                tab={relTab}
+                onTabChange={setRelTab}
+                counts={{
+                  followers: socialCounts?.followers ?? 0,
+                  following: socialCounts?.following ?? 0,
+                }}
+              />
+            )}
 
             {/* Member wall — followers can drop posts, owner is notified */}
             {realProfile?.userId && (
