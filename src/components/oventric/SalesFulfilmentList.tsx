@@ -1,7 +1,7 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, Truck, MessageCircle, Loader2, PackageCheck, X } from "lucide-react";
+import { Search, Truck, MessageCircle, Loader2, PackageCheck, X, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
@@ -43,6 +43,24 @@ export function saleBadge(s: SaleDTO): { label: string; cls: string } {
   return { label: "In escrow", cls: "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700" };
 }
 
+export type SaleSort = "newest" | "oldest" | "value" | "urgency";
+
+const SORTS: Array<{ id: SaleSort; label: string }> = [
+  { id: "newest", label: "Newest first" },
+  { id: "oldest", label: "Oldest first" },
+  { id: "value", label: "Highest value" },
+  { id: "urgency", label: "Most urgent" },
+];
+
+const PAGE_SIZE = 10;
+
+function urgencyScore(s: SaleDTO) {
+  if (s.disputeStatus === "open") return 3;
+  if (!s.deliveredAt && s.escrowStatus === "held") return overdue(s) ? 4 : 2;
+  if (s.deliveredAt && s.escrowStatus === "held") return 1;
+  return 0;
+}
+
 export function SalesFulfilmentList({
   rows,
   onChanged,
@@ -55,6 +73,8 @@ export function SalesFulfilmentList({
   const [openId, setOpenId] = useState<string | null>(null);
   const [deliveringId, setDeliveringId] = useState<string | null>(null);
   const [confirmId, setConfirmId] = useState<string | null>(null);
+  const [sort, setSort] = useState<SaleSort>("newest");
+  const [page, setPage] = useState(1);
   const deliverFn = useServerFn(markOrderDelivered);
 
   const counts = useMemo(() => {
@@ -75,6 +95,33 @@ export function SalesFulfilmentList({
       );
     });
   }, [rows, filter, q]);
+
+  const sorted = useMemo(() => {
+    const list = [...filtered];
+    list.sort((a, b) => {
+      if (sort === "value") return b.sellerShareUSD - a.sellerShareUSD;
+      if (sort === "urgency") {
+        const d = urgencyScore(b) - urgencyScore(a);
+        if (d !== 0) return d;
+        return new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime();
+      }
+      const ta = new Date(a.createdAt).getTime();
+      const tb = new Date(b.createdAt).getTime();
+      return sort === "oldest" ? ta - tb : tb - ta;
+    });
+    return list;
+  }, [filtered, sort]);
+
+  const totalPages = Math.max(1, Math.ceil(sorted.length / PAGE_SIZE));
+  const safePage = Math.min(page, totalPages);
+  const paged = useMemo(
+    () => sorted.slice((safePage - 1) * PAGE_SIZE, safePage * PAGE_SIZE),
+    [sorted, safePage],
+  );
+
+  // Filters/search/sort change the result set — go back to the first page,
+  // but keep the active filter and query intact.
+  useEffect(() => { setPage(1); }, [filter, q, sort]);
 
   const openSale = useMemo(() => rows.find((s) => s.orderId === openId) ?? null, [rows, openId]);
   const confirmSale = useMemo(() => rows.find((s) => s.orderId === confirmId) ?? null, [rows, confirmId]);
@@ -129,7 +176,8 @@ export function SalesFulfilmentList({
             );
           })}
         </div>
-        <div className="relative sm:w-64">
+        <div className="flex items-center gap-2">
+        <div className="relative flex-1 sm:w-64">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
           <input
             value={q}
@@ -149,9 +197,23 @@ export function SalesFulfilmentList({
             </button>
           )}
         </div>
+        <div className="relative shrink-0">
+          <ArrowUpDown className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+          <select
+            value={sort}
+            onChange={(e) => setSort(e.target.value as SaleSort)}
+            aria-label="Sort orders"
+            className="appearance-none pl-8 pr-7 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-xs font-semibold text-white md:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+          >
+            {SORTS.map((o) => (
+              <option key={o.id} value={o.id} className="text-slate-900">{o.label}</option>
+            ))}
+          </select>
+        </div>
+        </div>
       </div>
 
-      {filtered.length === 0 ? (
+      {sorted.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-white/15 md:border-slate-300 p-6 text-center">
           <Truck className="w-6 h-6 mx-auto text-slate-500 mb-2" />
           <p className="text-sm font-semibold text-white md:text-slate-900">No orders match</p>
@@ -159,7 +221,7 @@ export function SalesFulfilmentList({
         </div>
       ) : (
         <div className="space-y-2">
-          {filtered.map((s) => {
+          {paged.map((s) => {
             const b = saleBadge(s);
             const canDeliver = !s.deliveredAt && s.escrowStatus === "held" && s.disputeStatus !== "open";
             return (
@@ -223,6 +285,39 @@ export function SalesFulfilmentList({
               </div>
             );
           })}
+        </div>
+      )}
+
+      {sorted.length > 0 && (
+        <div className="flex items-center justify-between gap-3 pt-1">
+          <div className="text-[11px] text-slate-400 md:text-slate-500">
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sorted.length)} of {sorted.length}
+          </div>
+          {totalPages > 1 && (
+            <div className="flex items-center gap-1.5">
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={safePage <= 1}
+                aria-label="Previous page"
+                className="p-1.5 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
+              >
+                <ChevronLeft className="w-4 h-4" />
+              </button>
+              <span className="text-[11px] font-semibold text-white md:text-slate-900 px-1">
+                {safePage} / {totalPages}
+              </span>
+              <button
+                type="button"
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={safePage >= totalPages}
+                aria-label="Next page"
+                className="p-1.5 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-white text-slate-300 md:text-slate-600 disabled:opacity-40 hover:bg-white/10 md:hover:bg-slate-50"
+              >
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
+          )}
         </div>
       )}
 
