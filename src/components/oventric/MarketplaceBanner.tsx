@@ -94,13 +94,13 @@ function Item({
   sub: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center justify-start gap-2.5 px-1 md:flex-1 md:min-w-max md:justify-center">
-      <Icon className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-emerald-400" />
+    <div className="flex flex-1 min-w-0 items-center justify-start gap-2 px-0.5 md:gap-2.5 md:px-1 md:min-w-max md:justify-center">
+      <Icon className="w-4 h-4 md:w-6 md:h-6 shrink-0 text-emerald-400" />
       <div className="min-w-0">
-        <div className="text-xs sm:text-[13px] md:text-sm font-extrabold leading-tight text-emerald-300">
+        <div className="text-[10px] sm:text-[11px] md:text-sm font-extrabold leading-tight text-emerald-300 break-words">
           {title}
         </div>
-        <div className="text-[11px] md:text-xs text-emerald-100/70 leading-tight">
+        <div className="text-[9px] sm:text-[10px] md:text-xs text-emerald-100/70 leading-tight break-words">
           {sub}
         </div>
       </div>
