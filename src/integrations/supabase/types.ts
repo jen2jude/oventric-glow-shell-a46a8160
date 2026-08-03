@@ -2503,6 +2503,7 @@ export type Database = {
           profile_completed_at: string | null
           reputation_stars: number
           slug: string
+          social_links: Json
           updated_at: string
           user_id: string
           username: string | null
@@ -2534,6 +2535,7 @@ export type Database = {
           profile_completed_at?: string | null
           reputation_stars?: number
           slug: string
+          social_links?: Json
           updated_at?: string
           user_id: string
           username?: string | null
@@ -2565,6 +2567,7 @@ export type Database = {
           profile_completed_at?: string | null
           reputation_stars?: number
           slug?: string
+          social_links?: Json
           updated_at?: string
           user_id?: string
           username?: string | null
