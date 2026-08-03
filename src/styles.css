@@ -1660,6 +1660,10 @@ html.light input::placeholder, html.light textarea::placeholder {
   :is(.admin-light, .page-light) .bg-white\/10  { background-color: rgba(15, 23, 42, 0.06) !important; }
   :is(.admin-light, .page-light) .bg-white\/15  { background-color: rgba(15, 23, 42, 0.08) !important; }
   :is(.admin-light, .page-light) .bg-white\/20  { background-color: rgba(15, 23, 42, 0.10) !important; }
+  :is(.admin-light, .page-light) .bg-black\/10,
+  :is(.admin-light, .page-light) .bg-black\/20,
+  :is(.admin-light, .page-light) .bg-black\/30,
+  :is(.admin-light, .page-light) .bg-black\/40 { background-color: rgba(15, 23, 42, 0.04) !important; }
   :is(.admin-light, .page-light) .hover\:bg-white\/5:hover  { background-color: rgba(15, 23, 42, 0.05) !important; }
   :is(.admin-light, .page-light) .hover\:bg-white\/10:hover { background-color: rgba(15, 23, 42, 0.07) !important; }
 
