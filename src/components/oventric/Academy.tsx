@@ -135,85 +135,88 @@ export function Academy() {
     }) ?? [];
 
   return (
-    <div className="max-w-5xl mx-auto w-full">
-      <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5">
-        <div className="flex items-center gap-2 mb-3 flex-wrap">
-          <button onClick={() => setView("landing")} className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5">
-            <ArrowLeft className="w-4 h-4" /> Overview
-          </button>
-          {userId && (
-            <button
-              onClick={() => { setEditingId(undefined); setEditorOpen(true); }}
-              className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
-            >
-              <GraduationCap className="w-4 h-4" /> Publish a Course
-            </button>
-          )}
-        </div>
-        <div className="flex gap-2 overflow-x-auto scrollbar-none">
-          {CATEGORIES.map((c) => {
-            const active = category === c.key;
-            return (
-              <button
-                key={c.key}
-                onClick={() => setCategory(c.key)}
-                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                  active
-                    ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                    : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
-                }`}
-              >
-                {c.label}
-              </button>
-            );
-          })}
-        </div>
-      </div>
+    <div className="w-full md:bg-white md:min-h-screen">
+      <AcademyHero />
 
-      <div className="px-4 py-6 space-y-4">
-        <AdSlot placement="academy" variant="banner" />
-        {courses === null && (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {Array.from({ length: 6 }).map((_, i) => (
-              <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse">
-                <div className="aspect-video bg-white/5" />
-                <div className="p-4 space-y-2">
-                  <div className="h-4 bg-white/10 rounded w-3/4" />
-                  <div className="h-3 bg-white/5 rounded w-1/2" />
-                  <div className="h-3 bg-white/5 rounded w-2/3 mt-3" />
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-
-        {courses !== null && filtered.length === 0 && (
-          <div className="text-center py-16 border border-dashed border-white/10 rounded-xl">
-            <GraduationCap className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-            <div className="text-white font-bold">No courses yet</div>
-            <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
+      <div className="max-w-6xl mx-auto w-full">
+        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 md:bg-white/95 md:border-slate-200">
+          <div className="flex items-center gap-3 mb-3 flex-wrap">
+            <h2 className="text-white md:text-slate-900 font-black text-lg">Browse courses</h2>
             {userId && (
-              <button onClick={() => { setEditingId(undefined); setEditorOpen(true); }} className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm">
-                Publish a Course
+              <button
+                onClick={() => { setEditingId(undefined); setEditorOpen(true); }}
+                className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
+              >
+                <GraduationCap className="w-4 h-4" /> Publish a Course
               </button>
             )}
           </div>
-        )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filtered.map((course) => (
-            <CourseCard
-              key={course.id}
-              course={course}
-              currency={baseCurrency}
-              onOpen={() => { setSelectedId(course.id); setView("course"); }}
-            />
-          ))}
+          <div className="flex gap-2 overflow-x-auto scrollbar-none">
+            {CATEGORIES.map((c) => {
+              const active = category === c.key;
+              return (
+                <button
+                  key={c.key}
+                  onClick={() => setCategory(c.key)}
+                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                    active
+                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
+                  }`}
+                >
+                  {c.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
 
-        <AcademyRecommendations
-          onOpenCourse={(id) => { setSelectedId(id); setView("course"); }}
-        />
+        <div className="px-4 py-6 space-y-4">
+          <AdSlot placement="academy" variant="banner" />
+          {courses === null && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {Array.from({ length: 6 }).map((_, i) => (
+                <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse md:bg-white md:border-slate-200">
+                  <div className="aspect-video bg-white/5 md:bg-slate-100" />
+                  <div className="p-4 space-y-2">
+                    <div className="h-4 bg-white/10 md:bg-slate-200 rounded w-3/4" />
+                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-1/2" />
+                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-2/3 mt-3" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {courses !== null && filtered.length === 0 && (
+            <div className="text-center py-16 border border-dashed border-white/10 md:border-slate-300 rounded-xl">
+              <GraduationCap className="w-10 h-10 text-slate-600 md:text-slate-400 mx-auto mb-3" />
+              <div className="text-white md:text-slate-900 font-bold">No courses yet</div>
+              <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
+              {userId && (
+                <button onClick={() => { setEditingId(undefined); setEditorOpen(true); }} className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm">
+                  Publish a Course
+                </button>
+              )}
+            </div>
+          )}
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+            {filtered.map((course) => (
+              <CourseCard
+                key={course.id}
+                course={course}
+                currency={baseCurrency}
+                onOpen={() => { setSelectedId(course.id); setView("course"); }}
+              />
+            ))}
+          </div>
+
+          <AcademyRecommendations
+            onOpenCourse={(id) => { setSelectedId(id); setView("course"); }}
+          />
+        </div>
       </div>
+
 
       {editingId ? (
         <CourseEditorModal
