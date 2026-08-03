@@ -64,6 +64,7 @@ import { EditListingModal } from "@/components/oventric/EditListingModal";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
+import { PhotoBatchManager } from "@/components/oventric/PhotoBatchManager";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { Images } from "lucide-react";
 import {
