@@ -240,10 +240,10 @@ export function Marketplace() {
   if (error) {
     return (
       <div className="max-w-3xl mx-auto w-full px-4 py-10 text-center">
-        <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-8">
-          <div className="text-red-300 font-bold mb-1">Couldn't load marketplace</div>
-          <div className="text-sm text-slate-400 mb-4">{error}</div>
-          <button onClick={refresh} className="px-4 py-2 bg-emerald-500 text-black font-semibold text-sm rounded-lg">Try again</button>
+        <div className="bg-white border border-red-200 rounded-2xl p-8 shadow-sm">
+          <div className="text-red-600 font-bold mb-1">Couldn't load marketplace</div>
+          <div className="text-sm text-slate-500 mb-4">{error}</div>
+          <button onClick={refresh} className="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-full">Try again</button>
         </div>
       </div>
     );
@@ -252,7 +252,8 @@ export function Marketplace() {
   if (!products) return <MarketplaceSkeleton />;
 
   return (
-    <div className="max-w-7xl mx-auto w-full marketplace-render-safe px-4 py-5">
+    <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
+      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
       {/* ── Mode cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <ModeCard
@@ -279,11 +280,11 @@ export function Marketplace() {
       <Collapse open={!!mode && categories.length > 0}>
         <div className="pt-5">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
               {mode === "physical" ? "Physical" : "Digital"} categories
             </h2>
             {activeCat && (
-              <button onClick={() => { setActiveCat(null); setActiveSub(null); }} className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">
+              <button onClick={() => { setActiveCat(null); setActiveSub(null); }} className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold">
                 Clear category
               </button>
             )}
@@ -297,10 +298,10 @@ export function Marketplace() {
                   key={c.slug}
                   onClick={() => selectCat(c.slug)}
                   className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
-                    active ? "border-emerald-500/70 bg-emerald-500/10" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+                    active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
                   }`}
                 >
-                  <div className="relative h-20 sm:h-24 bg-white/5">
+                  <div className="relative h-20 sm:h-24 bg-slate-100">
                     {c.cover ? (
                       <ResponsiveImage
                         sizes="200px"
@@ -311,14 +312,14 @@ export function Marketplace() {
                         decoding="async"
                       />
                     ) : null}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
                     <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
-                    <span className="absolute right-2 top-2 text-[10px] font-bold bg-black/60 text-slate-200 rounded px-1.5 py-0.5">
+                    <span className="absolute right-2 top-2 text-[10px] font-bold bg-white/90 text-slate-700 rounded-full px-1.5 py-0.5 shadow-sm">
                       {c.count}
                     </span>
                   </div>
                   <div className="px-3 py-2">
-                    <div className="text-white text-sm font-bold leading-snug line-clamp-2">{c.name}</div>
+                    <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{c.name}</div>
                     {c.subs.length > 0 && (
                       <div className="text-[11px] text-slate-500 mt-0.5 inline-flex items-center gap-1">
                         {c.subs.length} subcategories <ChevronDown className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`} />
@@ -352,7 +353,7 @@ export function Marketplace() {
         <div className="pt-5">
           <div className="flex items-center gap-2 mb-3">
             <Flame className="w-4 h-4 text-orange-400" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
               Hot {mode === "physical" ? "physical" : "digital"} products
             </h2>
           </div>
@@ -368,17 +369,17 @@ export function Marketplace() {
 
       {/* ── Toolbar + grid with side filter ──────────────────────── */}
       <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="text-sm text-slate-400">
-          <span className="text-white font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
-          {activeCatNode ? <> in <span className="text-emerald-400">{activeCatNode.name}</span></> : null}
+        <div className="text-sm text-slate-500">
+          <span className="text-slate-900 font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
+          {activeCatNode ? <> in <span className="text-emerald-600">{activeCatNode.name}</span></> : null}
         </div>
         <button
           onClick={() => setFiltersOpen((v) => !v)}
-          className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-sm text-slate-200"
+          className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
         >
           <SlidersHorizontal className="w-4 h-4" /> Filters
           {activeFilterCount > 0 && (
-            <span className="text-[10px] font-bold bg-emerald-500 text-black rounded-full px-1.5">{activeFilterCount}</span>
+            <span className="text-[10px] font-bold bg-emerald-600 text-white rounded-full px-1.5">{activeFilterCount}</span>
           )}
         </button>
       </div>
@@ -413,16 +414,16 @@ export function Marketplace() {
           </Collapse>
 
           {!mode ? (
-            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
-              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <div className="text-white font-semibold mb-1">Pick a section</div>
-              <div className="text-sm text-slate-400">Choose Digital or Physical products above to browse.</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+              <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
+              <div className="text-sm text-slate-500">Choose Digital or Physical products above to browse.</div>
             </div>
           ) : filtered.length === 0 ? (
-            <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-10 text-center">
-              <PackageOpen className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-              <div className="text-white font-semibold mb-1">Nothing matches</div>
-              <div className="text-sm text-slate-400">Try clearing the category or price filters.</div>
+            <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+              <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+              <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
+              <div className="text-sm text-slate-500">Try clearing the category or price filters.</div>
             </div>
           ) : (
             <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
@@ -443,7 +444,7 @@ export function Marketplace() {
         <section className="mt-10">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-amber-300 fill-current" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-slate-400">Recommended for you</h2>
+            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">Recommended for you</h2>
           </div>
           <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
             {recommended.map((p, i) => (
@@ -452,6 +453,7 @@ export function Marketplace() {
           </div>
         </section>
       )}
+      </div>
     </div>
 
   );
@@ -486,29 +488,29 @@ function ModeCard({
       onClick={onClick}
       aria-expanded={active}
       className={`text-left rounded-2xl overflow-hidden border transition-colors ${
-        active ? "border-emerald-500/70 bg-emerald-500/10" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+        active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
-      <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-white/5">
+      <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-slate-100">
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="relative overflow-hidden bg-white/5">
+          <div key={i} className="relative overflow-hidden bg-slate-100">
             {covers[i] ? (
               <img src={covers[i]} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
             ) : null}
           </div>
         ))}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
         <Icon className="absolute left-3 top-3 w-6 h-6 text-white" />
-        <span className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-slate-200 rounded px-2 py-0.5">
+        <span className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wider bg-white/90 text-slate-700 rounded-full px-2 py-0.5 shadow-sm">
           {count} items
         </span>
       </div>
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-white font-black text-sm sm:text-lg leading-tight">{label}</h2>
-          <ChevronDown className={`w-4 h-4 shrink-0 text-slate-300 transition-transform ${active ? "rotate-180" : ""}`} />
+          <h2 className="text-slate-900 font-extrabold text-sm sm:text-lg leading-tight">{label}</h2>
+          <ChevronDown className={`w-4 h-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180" : ""}`} />
         </div>
-        <p className="text-[11px] sm:text-xs text-slate-400 mt-1 leading-snug">{sub}</p>
+        <p className="text-[11px] sm:text-xs text-slate-500 mt-1 leading-snug">{sub}</p>
       </div>
     </button>
   );
@@ -527,10 +529,10 @@ function MiniProductCard({
     <button
       onClick={onClick}
       className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
-        p.promoted ? "border-emerald-500/60 bg-emerald-500/5" : "border-white/10 bg-[#1E1E24] hover:border-white/25"
+        p.promoted ? "border-emerald-400 bg-emerald-50/60" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
-      <div className="relative h-20 sm:h-24 bg-white/5">
+      <div className="relative h-20 sm:h-24 bg-slate-100">
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="200px"
@@ -542,22 +544,22 @@ function MiniProductCard({
             decoding="async"
           />
         ) : null}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
         <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
         {p.promoted && (
-          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-full px-1.5 py-0.5 shadow-sm">
             Promoted
           </span>
         )}
-        <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-black/60 text-amber-300 rounded px-1.5 py-0.5">
+        <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 text-amber-600 rounded-full px-1.5 py-0.5 shadow-sm">
           <Star className="w-2.5 h-2.5 fill-current" />
           {p.rating.toFixed(1)}
         </span>
       </div>
       <div className="px-3 py-2">
-        <div className="text-white text-sm font-bold leading-snug line-clamp-2">{p.name}</div>
+        <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{p.name}</div>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <span className="text-white font-black text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
+          <span className="text-slate-900 font-extrabold text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
           <span className="text-[10px] text-slate-500 shrink-0">{p.reviews} sold</span>
         </div>
       </div>
@@ -572,8 +574,8 @@ function SubPill({ label, active, onClick }: { label: string; active: boolean; o
       onClick={onClick}
       className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap ${
         active
-          ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-          : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/25"
+          ? "bg-emerald-600 border-emerald-600 text-white"
+          : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
       }`}
     >
       {label}
@@ -594,29 +596,29 @@ function FilterPanel({
   onReset: () => void;
   onClose?: () => void;
 }) {
-  const input = "w-full bg-[#121214] border border-white/10 rounded-lg px-2.5 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50";
+  const input = "w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+    <div className="bg-white border border-slate-200 rounded-2xl p-4">
       <div className="flex items-center justify-between mb-4">
-        <div className="inline-flex items-center gap-2 text-white font-bold text-sm">
+        <div className="inline-flex items-center gap-2 text-slate-900 font-bold text-sm">
           <SlidersHorizontal className="w-4 h-4" /> Filters
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onReset} className="text-xs text-emerald-400 hover:text-emerald-300 font-semibold">Reset</button>
+          <button onClick={onReset} className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold">Reset</button>
           {onClose && (
-            <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-white"><X className="w-4 h-4" /></button>
+            <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-slate-900"><X className="w-4 h-4" /></button>
           )}
         </div>
       </div>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Price ({currency})</label>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Price ({currency})</label>
       <div className="flex items-center gap-2 mb-4">
         <input inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Min" className={input} />
-        <span className="text-slate-600">–</span>
+        <span className="text-slate-400">–</span>
         <input inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Max" className={input} />
       </div>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Sort by</label>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Sort by</label>
       <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={`${input} mb-4`}>
         <option value="featured">Featured</option>
         <option value="price-asc">Price: low to high</option>
@@ -624,14 +626,14 @@ function FilterPanel({
         <option value="rating">Top rated</option>
       </select>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1.5">Minimum rating</label>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Minimum rating</label>
       <div className="flex gap-2 mb-4">
         {[0, 3, 4, 4.5].map((r) => (
           <button
             key={r}
             onClick={() => setMinRating(r)}
             className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-              minRating === r ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#121214] border-white/10 text-slate-300"
+              minRating === r ? "bg-emerald-600 border-emerald-600 text-white" : "bg-slate-50 border-slate-200 text-slate-600"
             }`}
           >
             {r === 0 ? "Any" : `${r}+`}
@@ -642,7 +644,7 @@ function FilterPanel({
       <button
         onClick={() => setPromotedOnly(!promotedOnly)}
         className={`w-full inline-flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
-          promotedOnly ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#121214] border-white/10 text-slate-300"
+          promotedOnly ? "bg-emerald-600 border-emerald-600 text-white" : "bg-slate-50 border-slate-200 text-slate-600"
         }`}
       >
         <Flame className="w-3.5 h-3.5" /> Promoted only
@@ -665,8 +667,8 @@ function ProductCard({
   const Icon = categoryIcon(p.category);
   const eager = index < 4;
   const cardInner = (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-2xl p-3 flex flex-col h-full">
-      <div className="relative aspect-[4/3] rounded-xl bg-white/5 mb-3 overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
+      <div className="relative aspect-[4/3] rounded-xl bg-slate-100 mb-3 overflow-hidden">
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="(min-width: 1280px) 300px, (min-width: 640px) 40vw, 50vw"
@@ -682,21 +684,21 @@ function ProductCard({
             backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
           }} />
         )}
-        <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white/70" />
+        <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white drop-shadow" />
         {p.promoted && (
-          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-1.5 py-0.5">
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-full px-1.5 py-0.5 shadow-sm">
             <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" />
             Promoted
           </span>
         )}
-        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider bg-black/60 rounded px-1.5 py-0.5 border ${
-          p.kind === "physical" ? "text-sky-300 border-sky-400/50" : "text-emerald-300 border-emerald-400/50"
+        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-0.5 ${
+          p.kind === "physical" ? "bg-sky-600 text-white" : "bg-slate-900/80 text-white"
         }`}>
           {p.kind === "physical" ? "Physical" : "Digital"}
         </span>
       </div>
       <div className="flex-1 min-w-0">
-        <h3 className="text-white text-sm sm:text-base font-bold leading-snug line-clamp-2">{p.name}</h3>
+        <h3 className="text-slate-900 text-sm sm:text-base font-semibold leading-snug line-clamp-2">{p.name}</h3>
         <div className="text-[11px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         {p.kind === "physical" && p.location && (
           <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
@@ -709,11 +711,11 @@ function ProductCard({
           <span className="text-slate-500">({p.reviews})</span>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-white/5">
-        <div className="text-white font-black text-sm sm:text-base truncate">{displayPriceForProduct(p, currency).formatted}</div>
+      <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
+        <div className="text-slate-900 font-extrabold text-sm sm:text-base truncate">{displayPriceForProduct(p, currency).formatted}</div>
         <button
           onClick={onClick}
-          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-xs rounded-lg transition-colors"
+          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-full transition-colors"
         >
           <ShoppingCart className="w-3.5 h-3.5" /> {p.kind === "physical" ? "View" : "Buy"}
         </button>
@@ -729,13 +731,13 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-2xl p-3 animate-pulse">
-      <div className="aspect-[4/3] rounded-xl bg-white/5 mb-3" />
-      <div className="h-4 w-3/4 bg-white/5 rounded mb-2" />
-      <div className="h-3 w-1/2 bg-white/5 rounded mb-4" />
-      <div className="flex items-center justify-between pt-3 mt-2 border-t border-white/5">
-        <div className="h-4 w-16 bg-white/5 rounded" />
-        <div className="h-6 w-12 bg-white/5 rounded" />
+    <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
+      <div className="aspect-[4/3] rounded-xl bg-slate-100 mb-3" />
+      <div className="h-4 w-3/4 bg-slate-100 rounded mb-2" />
+      <div className="h-3 w-1/2 bg-slate-100 rounded mb-4" />
+      <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
+        <div className="h-4 w-16 bg-slate-100 rounded" />
+        <div className="h-6 w-12 bg-slate-100 rounded" />
       </div>
     </div>
   );
@@ -743,14 +745,14 @@ function SkeletonCard() {
 
 function MarketplaceSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto w-full px-4 py-5">
+    <div className="bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
       <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="h-44 rounded-2xl bg-white/5 animate-pulse" />
-        <div className="h-44 rounded-2xl bg-white/5 animate-pulse" />
+        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
+        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
       </div>
       <div className="flex gap-3 mb-6 overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-xl bg-white/5 animate-pulse" />
+          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-xl bg-slate-100 animate-pulse" />
         ))}
       </div>
       <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
@@ -758,6 +760,6 @@ function MarketplaceSkeleton() {
           <SkeletonCard key={i} />
         ))}
       </div>
-    </div>
+    </div></div>
   );
 }
