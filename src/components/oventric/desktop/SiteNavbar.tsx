@@ -43,10 +43,12 @@ export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProp
         solid ? "bg-white border-b border-slate-200" : "bg-transparent border-b border-transparent"
       }`}
     >
-      <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center gap-8 px-8">
+      <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center gap-6 px-8">
         <button type="button" onClick={() => onSelect("Home")} className="shrink-0" aria-label="Oventric home">
           <span className="inline-flex items-center rounded-xl bg-slate-900 px-2.5 py-1.5"><img src={logo.url} alt="Oventric" className="h-6 w-auto object-contain" /></span>
         </button>
+
+        {search && <div className="hidden shrink-0 md:block">{search}</div>}
 
         <nav className="flex items-center gap-1">
           {LINKS.map((l) =>
