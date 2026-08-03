@@ -20,18 +20,14 @@ import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { getProfileByIdOrSlug } from "@/lib/profiles.functions";
 import { getCircleCatalog, type CircleSummary } from "@/lib/circles-groups.functions";
 
-type DashItem = { label: string; tab: string; icon: typeof Target };
+type DashItem = { label: string; section: string; icon: typeof Target };
 
 const DASH_ITEMS: DashItem[] = [
-  { label: "Overview", tab: "overview", icon: LayoutDashboard },
-  { label: "Bounties", tab: "bounties", icon: Target },
-  { label: "Courses", tab: "courses", icon: GraduationCap },
-  { label: "Wallet", tab: "wallet", icon: WalletIcon },
-  { label: "Purchases", tab: "digital", icon: Download },
-  { label: "Sales", tab: "sales", icon: Store },
-  { label: "Physical orders", tab: "physical", icon: Truck },
-  { label: "My listings", tab: "listings", icon: Package },
-  { label: "Social", tab: "social", icon: Users },
+  { label: "Home", section: "Home", icon: LayoutDashboard },
+  { label: "Marketplace", section: "Marketplace", icon: Store },
+  { label: "Bounties", section: "Bounties", icon: Target },
+  { label: "Academy", section: "Academy", icon: GraduationCap },
+  { label: "Wallet", section: "Wallet", icon: WalletIcon },
 ];
 
 const LEGAL = [
