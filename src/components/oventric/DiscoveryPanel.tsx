@@ -481,10 +481,11 @@ export function DiscoveryPanel() {
       {/* 6. Online users — click to open a quick chat popover */}
       <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
-            <Circle className="w-2.5 h-2.5 fill-emerald-400 text-emerald-400 md:text-emerald-600" /> Online now
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
+          <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
+            <Circle className="w-2.5 h-2.5 shrink-0 fill-emerald-400 text-emerald-400 md:fill-emerald-500 md:text-emerald-500" /> <span className="truncate">Online now</span>
           </h3>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700">
+          <span className="shrink-0 rounded-full bg-emerald-400/10 md:bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700">
             {onlineUsers.length} online
           </span>
         </div>
@@ -493,9 +494,10 @@ export function DiscoveryPanel() {
         ) : onlineUsers.length === 0 ? (
           <EmptyState icon={Users} title="Nobody else online" hint="When members come online, they'll appear here for a quick chat." />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {onlineUsers.slice(0, 10).map((u) => (
-              <li key={u.userId} className="flex items-center gap-2.5 min-w-0">
+              <li key={u.userId} className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50">
+
                 <button
                   onClick={() => openChat(u.userId, u.name)}
                   className="relative w-9 h-9 shrink-0 rounded-full overflow-hidden block"
