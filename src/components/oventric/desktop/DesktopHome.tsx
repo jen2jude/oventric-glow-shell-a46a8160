@@ -30,6 +30,7 @@ import { formatMoney, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 import { SiteFooter } from "@/components/oventric/desktop/SiteFooter";
+import { DownloadAppSection } from "@/components/oventric/desktop/DownloadAppSection";
 
 import walletIcon from "@/assets/wallet-3d.webp.asset.json";
 import marketIcon from "@/assets/marketplace-3d.png.asset.json";
