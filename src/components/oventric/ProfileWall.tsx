@@ -146,7 +146,7 @@ export function ProfileWall({
         type="button"
         onClick={() => !cta.disabled && setComposerOpen(true)}
         disabled={cta.disabled}
-        className="w-full mb-4 flex items-center gap-3 bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-3 text-left hover:border-white/20 md:border-slate-300 disabled:opacity-60 disabled:cursor-not-allowed"
+        className="w-full mb-4 flex items-center gap-3 bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl p-3 text-left hover:border-white/20 md:border-slate-300 disabled:opacity-60 disabled:cursor-not-allowed"
       >
         <div className="w-10 h-10 rounded-full bg-white/5 md:bg-slate-100 flex items-center justify-center text-slate-300 md:text-slate-600 text-sm font-semibold">
           {viewerInitials || "You"}
@@ -172,7 +172,7 @@ export function ProfileWall({
             return (
               <li
                 key={p.id}
-                className="bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-4"
+                className="bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl p-4"
               >
                 <div className="flex items-start gap-3">
                   <Link
@@ -284,7 +284,7 @@ export function ProfileWall({
           })}
         </ul>
       ) : (
-        <div className="bg-[#141418] md:bg-white border border-dashed border-white/10 md:border-slate-200 rounded-2xl p-8 text-center">
+        <div className="bg-[#141418] md:bg-white md:shadow-sm border border-dashed border-white/10 md:border-slate-200 rounded-2xl p-8 text-center">
           <div className="text-slate-400 md:text-slate-500 text-sm">
             {isSelf
               ? "Your wall is empty. Drop the first post."

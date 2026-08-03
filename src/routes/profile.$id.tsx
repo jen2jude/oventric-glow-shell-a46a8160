@@ -866,7 +866,7 @@ function ProfilePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:hover:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:hover:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
                   aria-label="Copy profile link"
                 >
                   {copied ? (
@@ -879,7 +879,7 @@ function ProfilePage() {
                 {isOwnProfile && (
                   <button
                     onClick={() => setFollowRequestsOpen(true)}
-                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
+                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
                     aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
                     <UserPlus className="w-3.5 h-3.5 text-sky-300 md:text-sky-700" />
@@ -1192,8 +1192,8 @@ function ProfilePage() {
 
 
               {/* Reputation block */}
-              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white">
-                <div className="sm:hidden rounded-lg border border-[#2A2A30] md:border-slate-200 bg-[#17171C] md:bg-white">
+              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white md:shadow-sm">
+                <div className="sm:hidden rounded-lg border border-[#2A2A30] md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm">
                   <MobileRepLine
                     icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
@@ -1284,7 +1284,7 @@ function ProfilePage() {
               </div>
 
               {/* Member details: country, address & birthday — centred */}
-              <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white p-4 text-center">
+              <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm p-4 text-center">
                 <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 mb-3">
                   Member details
                 </h3>
@@ -1598,7 +1598,7 @@ function ProfilePage() {
                                     params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                     search: itemSearch,
                                   } as any))}
-                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
+                              className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
                                 {t.coverUrl ? (
@@ -1748,7 +1748,7 @@ function ProfilePage() {
 
 function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
-    <div className="profile-card-safe bg-[#17171C] md:bg-white border border-white/5  md:border-slate-200 rounded-lg px-3 py-2.5">
+    <div className="profile-card-safe bg-[#17171C] md:bg-white md:shadow-sm border border-white/5  md:border-slate-200 rounded-lg px-3 py-2.5">
       <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
         {icon}
         {label}
@@ -1933,7 +1933,7 @@ function TabFilters({
         <select
           value={sort}
           onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
-          className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
+          className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40 md:border-emerald-300"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -1983,7 +1983,7 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
         {chip("cover", "Cover")}
       </div>
       {filtered.length === 0 ? (
-        <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl py-16 px-6 text-center">
+        <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl py-16 px-6 text-center">
           <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 md:bg-emerald-50 border border-emerald-500/30 text-emerald-300 md:text-emerald-700 flex items-center justify-center">
             <Images className="w-4 h-4" />
           </div>
@@ -2015,7 +2015,7 @@ function EmptyState({
   secondary?: StateAction;
 }) {
   return (
-    <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
+    <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
       <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 md:bg-emerald-50 border border-emerald-500/30 text-emerald-300 md:text-emerald-700 flex items-center justify-center">
         <Sparkles className="w-4 h-4" />
       </div>
@@ -2055,7 +2055,7 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="bg-[#1E1E24] md:bg-white border border-red-500/30 rounded-xl p-6 text-center">
+    <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-red-500/30 rounded-xl p-6 text-center">
       <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 flex items-center justify-center">
         <AlertTriangle className="w-4 h-4" />
       </div>
@@ -2081,7 +2081,7 @@ function TabSkeleton({ variant: _variant }: { variant: Tab }) {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden animate-pulse"
+          className="bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden animate-pulse"
         >
           <div className="aspect-[4/3] bg-white/[0.04]" />
           <div className="p-3">
