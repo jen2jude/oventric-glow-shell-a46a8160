@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { BadgePercent, ShieldCheck, Smartphone } from "lucide-react";
-import { useIsDesktop } from "@/hooks/use-desktop";
 
 /** Nearest scrollable ancestor, falling back to the window. */
 function scrollParent(el: HTMLElement | null): HTMLElement | Window {
