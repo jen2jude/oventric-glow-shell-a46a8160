@@ -20,7 +20,7 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
 
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
+export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
