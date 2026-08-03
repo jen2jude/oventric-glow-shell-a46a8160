@@ -81,7 +81,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProp
                 onClick={() => onSelect("Feed")}
                 className="inline-flex h-10 items-center gap-1.5 rounded-2xl bg-emerald-600 px-4 text-sm font-bold text-white transition-transform active:scale-95"
               >
-                Open app <ChevronRight className="h-4 w-4" strokeWidth={3} />
+                Visit feed <ChevronRight className="h-4 w-4" strokeWidth={3} />
               </button>
               <Link
                 to="/dashboard"
