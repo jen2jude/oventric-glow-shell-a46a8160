@@ -133,7 +133,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           </Link>
 
           <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
-            <GlobalSearch variant="inline" />
+            <GlobalSearch variant="inline" light={light} />
           </div>
 
           <div className="ml-auto sm:ml-0 flex items-center gap-0.5 md:gap-1 shrink-0">
@@ -227,7 +227,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
 
         {/* Desktop search input */}
         <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
-          <GlobalSearch variant="inline" />
+          <GlobalSearch variant="inline" light={light} />
         </div>
 
         <div className="flex items-center justify-between md:justify-start gap-1 md:gap-2.5 w-full md:w-auto shrink-0 min-w-0">
