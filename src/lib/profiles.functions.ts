@@ -375,7 +375,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       address_public?: boolean;
       date_of_birth?: string | null;
       dob_public?: boolean;
-      social_links?: SocialLinks;
+      social_links?: Record<string, string>;
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -390,7 +390,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.addressPublic !== undefined) patch.address_public = data.addressPublic;
     if (data.dateOfBirth !== undefined) patch.date_of_birth = data.dateOfBirth;
     if (data.dobPublic !== undefined) patch.dob_public = data.dobPublic;
-    if (data.socialLinks !== undefined) patch.social_links = normaliseSocialLinks(data.socialLinks);
+    if (data.socialLinks !== undefined) patch.social_links = normaliseSocialLinks(data.socialLinks) as Record<string, string>;
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
 
 
