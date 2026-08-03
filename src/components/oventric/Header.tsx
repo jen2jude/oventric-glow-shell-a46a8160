@@ -20,6 +20,15 @@ import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
+const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string }[] = [
+  { label: "Market", icon: Store, section: "Marketplace" },
+  { label: "Academy", icon: GraduationCap, section: "Academy" },
+  { label: "Bounties", icon: Target, section: "Bounties" },
+  { label: "Circles", icon: Users, section: "Circles" },
+  { label: "Blog", icon: Newspaper, to: "/blog" },
+  { label: "Help", icon: Headphones, to: "/help-board" },
+];
+
 
 export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false, light = false, desktopNav = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean; light?: boolean; desktopNav?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
