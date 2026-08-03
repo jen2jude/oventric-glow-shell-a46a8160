@@ -1608,3 +1608,115 @@ html.light input::placeholder, html.light textarea::placeholder {
   .blog-article code { background: #f1f5f9; color: #0f172a; }
   .blog-article hr { border-color: #e2e8f0; }
 }
+
+/* -------------------------------------------------------------------------
+   ADMIN CONSOLE — white desktop theme.
+   The admin CRM was authored on the hardcoded dark palette. On desktop
+   (>=768px) we remap those concrete surfaces/inks to a light console,
+   scoped to `.admin-light` so mobile admin + the rest of the app are
+   untouched. Mirrors the `html.light` remap rules.
+   ------------------------------------------------------------------------- */
+@media (min-width: 768px) {
+  .admin-light {
+    color-scheme: light;
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.18 0.01 260);
+    --card: oklch(0.985 0.003 260);
+    --card-foreground: oklch(0.18 0.01 260);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.18 0.01 260);
+    --secondary: oklch(0.96 0.005 260);
+    --secondary-foreground: oklch(0.18 0.01 260);
+    --muted: oklch(0.96 0.005 260);
+    --muted-foreground: oklch(0.45 0.01 260);
+    --accent: oklch(0.96 0.005 260);
+    --accent-foreground: oklch(0.18 0.01 260);
+    --border: oklch(0.18 0.01 260 / 12%);
+    --input: oklch(0.18 0.01 260 / 14%);
+    background-color: #f8fafc !important;
+    color: #0f172a;
+  }
+
+  /* Page canvases */
+  .admin-light .bg-\[\#0b0b0d\],
+  .admin-light .bg-\[\#0b0b0d\]\/95,
+  .admin-light .bg-\[\#101014\],
+  .admin-light .bg-\[\#121214\],
+  .admin-light .bg-\[\#121214\]\/90 {
+    background-color: #f8fafc !important;
+  }
+
+  /* Cards, panels, rows, inputs */
+  .admin-light .bg-\[\#141418\],
+  .admin-light .bg-\[\#17171B\],
+  .admin-light .bg-\[\#17171c\],
+  .admin-light .bg-\[\#0f0f13\],
+  .admin-light .bg-\[\#1E1E24\],
+  .admin-light .bg-\[\#1e1e24\] {
+    background-color: #ffffff !important;
+  }
+
+  .admin-light .bg-white\/5   { background-color: rgba(15, 23, 42, 0.04) !important; }
+  .admin-light .bg-white\/10  { background-color: rgba(15, 23, 42, 0.06) !important; }
+  .admin-light .bg-white\/15  { background-color: rgba(15, 23, 42, 0.08) !important; }
+  .admin-light .bg-white\/20  { background-color: rgba(15, 23, 42, 0.10) !important; }
+  .admin-light .hover\:bg-white\/5:hover  { background-color: rgba(15, 23, 42, 0.05) !important; }
+  .admin-light .hover\:bg-white\/10:hover { background-color: rgba(15, 23, 42, 0.07) !important; }
+
+  .admin-light .border-white\/5   { border-color: rgba(15, 23, 42, 0.07) !important; }
+  .admin-light .border-white\/10  { border-color: rgba(15, 23, 42, 0.11) !important; }
+  .admin-light .border-white\/15  { border-color: rgba(15, 23, 42, 0.13) !important; }
+  .admin-light .border-white\/20  { border-color: rgba(15, 23, 42, 0.16) !important; }
+  .admin-light .divide-white\/5 > * + *,
+  .admin-light .divide-white\/10 > * + * { border-color: rgba(15, 23, 42, 0.10) !important; }
+
+  /* Ink */
+  .admin-light .text-white:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-teal"]):not([class*="bg-cyan"]):not([class*="bg-sky"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-purple"]):not([class*="bg-fuchsia"]):not([class*="bg-pink"]):not([class*="bg-gradient"]):not([class*="from-"]):not([class*="bg-black"]):not([class*="bg-destructive"]) { color: #0f172a !important; }
+  .admin-light .text-slate-100 { color: #0f172a !important; }
+  .admin-light .text-slate-200 { color: #1e293b !important; }
+  .admin-light .text-slate-300 { color: #334155 !important; }
+  .admin-light .text-slate-400 { color: #475569 !important; }
+  .admin-light .text-slate-500 { color: #64748b !important; }
+  .admin-light .text-slate-600 { color: #64748b !important; }
+  .admin-light [class*="bg-emerald-5"] .text-white,
+  .admin-light [class*="bg-red-5"] .text-white,
+  .admin-light [class*="bg-gradient"] .text-white { color: #ffffff !important; }
+  .admin-light .hover\:text-white:not([class*="bg-emerald"]):not([class*="bg-gradient"]):hover { color: #0f172a !important; }
+
+  /* Pale accent inks need contrast on white */
+  .admin-light .text-emerald-100,
+  .admin-light .text-emerald-200 { color: #047857 !important; }
+  .admin-light .text-emerald-300 { color: #059669 !important; }
+  .admin-light .text-amber-200,
+  .admin-light .text-amber-300 { color: #b45309 !important; }
+  .admin-light .text-red-200,
+  .admin-light .text-red-300 { color: #b91c1c !important; }
+  .admin-light .text-cyan-200,
+  .admin-light .text-cyan-300 { color: #0e7490 !important; }
+  .admin-light .text-sky-200,
+  .admin-light .text-sky-300 { color: #0369a1 !important; }
+  .admin-light .text-purple-200,
+  .admin-light .text-purple-300 { color: #6d28d9 !important; }
+
+  /* Tables */
+  .admin-light thead,
+  .admin-light th { background-color: #f1f5f9 !important; color: #334155 !important; }
+  .admin-light tbody tr { border-color: rgba(15, 23, 42, 0.08) !important; }
+  .admin-light tbody tr:hover { background-color: rgba(15, 23, 42, 0.03) !important; }
+
+  /* Form controls */
+  .admin-light input,
+  .admin-light textarea,
+  .admin-light select { color: #0f172a; }
+  .admin-light input::placeholder,
+  .admin-light textarea::placeholder { color: #94a3b8 !important; }
+  .admin-light .placeholder\:text-slate-500::placeholder { color: #94a3b8 !important; }
+
+  /* Sidebar + panel elevation */
+  .admin-light aside {
+    background-color: #ffffff !important;
+    box-shadow: 1px 0 0 rgba(15, 23, 42, 0.08);
+  }
+  .admin-light .rounded-2xl,
+  .admin-light .rounded-xl { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+}
