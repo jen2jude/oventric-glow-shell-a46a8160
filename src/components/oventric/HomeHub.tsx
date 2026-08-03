@@ -86,6 +86,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
+  const loadCourses = useServerFn(listCourses);
 
   const [main, setMain] = useState(0);
   const [cashback, setCashback] = useState(0);
@@ -96,6 +97,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const [products, setProducts] = useState<
     Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number }>
   >([]);
+  const [courses, setCourses] = useState<
+    Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number; isFree: boolean }>
+  >([]);
+  const [bounties, setBounties] = useState<
+    Array<{ id: string; title: string; coverUrl: string | null; amountUsd: number }>
+  >([]);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
