@@ -898,7 +898,7 @@ function ProfilePage() {
               className="profile-card-safe profile-standard-header mb-6"
             >
               {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-xl border border-white/10 bg-[#18181d] overflow-hidden">
+              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 bg-[#18181d] overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -909,6 +909,7 @@ function ProfilePage() {
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-fuchsia-500/25" />
                 )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/50 to-transparent" />
                 {isOwnProfile && (
                   <button
                     type="button"
@@ -932,7 +933,7 @@ function ProfilePage() {
               {/* Centered identity — avatar overlaps cover from the top */}
               <div className="-mt-14 sm:-mt-16 flex flex-col items-center px-4">
                 <div className="relative">
-                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
+                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] shadow-[0_0_0_1px_rgba(52,211,153,0.45),0_18px_40px_-18px_rgba(16,185,129,0.7)] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
                     {displayAvatar ? (
                       <ResponsiveImage
                         src={displayAvatar}
