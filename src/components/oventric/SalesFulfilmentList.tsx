@@ -81,7 +81,12 @@ export function SalesFulfilmentList({
     setDeliveringId(s.orderId);
     try {
       const r = await deliverFn({ data: { orderId: s.orderId } });
-      toast.success(r.alreadyDelivered ? "Already marked delivered" : "Marked delivered — buyer notified");
+      const when = new Date().toLocaleString();
+      toast.success(
+        r.alreadyDelivered ? "Already marked delivered" : "Marked delivered — buyer notified",
+        { description: `Delivered at ${when}` },
+      );
+      setConfirmId(null);
       onChanged();
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Could not update this order");
@@ -89,6 +94,7 @@ export function SalesFulfilmentList({
       setDeliveringId(null);
     }
   };
+
 
   const messageBuyer = (buyerId: string) => {
     if (typeof window === "undefined") return;
