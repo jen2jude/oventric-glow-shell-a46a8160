@@ -59,7 +59,7 @@ export function PhotoBatches({ photos, dense = false }: { photos: UserPhoto[]; d
               type="button"
               onClick={() => setOpenBatch(b)}
               aria-label={`${b.label}, ${b.photos.length} photo${b.photos.length === 1 ? "" : "s"}`}
-              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
+              className="group relative aspect-square overflow-hidden rounded-2xl border border-white/10 md:border-slate-200 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
             >
               <img
                 src={cover.url}
@@ -112,13 +112,13 @@ function BatchTileOverlay({
       onClick={onClose}
     >
       <div
-        className="flex items-center justify-between px-4 py-3 border-b border-white/10"
+        className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:border-slate-200"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="inline-flex items-center gap-2 text-sm text-white font-semibold">
+        <div className="inline-flex items-center gap-2 text-sm text-white md:text-slate-900 font-semibold">
           <ImagesIcon className="w-4 h-4 text-emerald-300" />
           <span>{batch.label}</span>
-          <span className="text-slate-400 font-normal">· {batch.photos.length}</span>
+          <span className="text-slate-400 md:text-slate-500 font-normal">· {batch.photos.length}</span>
         </div>
         <button
           type="button"
@@ -140,7 +140,7 @@ function BatchTileOverlay({
               type="button"
               onClick={() => onPick(i)}
               aria-label={`Open photo ${i + 1} of ${batch.photos.length}`}
-              className="relative aspect-square overflow-hidden rounded-xl border border-white/10 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
+              className="relative aspect-square overflow-hidden rounded-xl border border-white/10 md:border-slate-200 bg-neutral-900 hover:border-emerald-500/40 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 transition-colors"
             >
               <img
                 src={p.url}
