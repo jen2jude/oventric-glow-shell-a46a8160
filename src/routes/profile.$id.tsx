@@ -42,6 +42,7 @@ import {
 
 } from "lucide-react";
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
+import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
@@ -202,6 +203,7 @@ function ProfilePage() {
   const [realProfileLoaded, setRealProfileLoaded] = useState(false);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
+  const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [meId, setMeId] = useState<string | null>(null);
   useEffect(() => {
     let alive = true;
@@ -373,6 +375,23 @@ function ProfilePage() {
 
   const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
+
+  const fetchOverview = useServerFn(getDashboardOverview);
+  useEffect(() => {
+    if (!isOwnProfile) { setOverview(null); return; }
+    let alive = true;
+    void (async () => {
+      try {
+        const res = await fetchOverview();
+        if (alive) setOverview(res);
+      } catch {
+        if (alive) setOverview(null);
+      }
+    })();
+    return () => { alive = false; };
+  }, [isOwnProfile, fetchOverview]);
+
+
 
 
 
@@ -879,7 +898,7 @@ function ProfilePage() {
               className="profile-card-safe profile-standard-header mb-6"
             >
               {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-xl border border-white/10 bg-[#18181d] overflow-hidden">
+              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 bg-[#18181d] overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -890,6 +909,7 @@ function ProfilePage() {
                 ) : (
                   <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-fuchsia-500/25" />
                 )}
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/50 to-transparent" />
                 {isOwnProfile && (
                   <button
                     type="button"
@@ -913,7 +933,7 @@ function ProfilePage() {
               {/* Centered identity — avatar overlaps cover from the top */}
               <div className="-mt-14 sm:-mt-16 flex flex-col items-center px-4">
                 <div className="relative">
-                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
+                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] shadow-[0_0_0_1px_rgba(52,211,153,0.45),0_18px_40px_-18px_rgba(16,185,129,0.7)] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
                     {displayAvatar ? (
                       <ResponsiveImage
                         src={displayAvatar}
@@ -944,15 +964,23 @@ function ProfilePage() {
 
                 <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
                   <h1 className="text-white text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
-                  <ShieldCheck className="w-5 h-5 text-white" aria-label={displayTierLabel} />
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" aria-label={displayTierLabel} />
                 </div>
-                <span className="mt-1.5 inline-flex text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
-                  {displayTierLabel}
-                </span>
 
-                <div className="text-sm text-slate-400 mt-2 text-center">{displayRole}</div>
-                <div className="text-xs text-slate-500 mt-1 text-center">
-                  Joined {displayJoined} · ★ {displayStars.toFixed(1)}
+                {realProfile?.username && (
+                  <div className="mt-1 text-sm font-semibold text-slate-400">@{realProfile.username}</div>
+                )}
+
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                    <ShieldCheck className="w-3 h-3" /> {displayTierLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                    <Star className="w-3 h-3 text-amber-300" /> {displayStars.toFixed(1)}
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Joined {displayJoined}
+                  </span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs">
@@ -969,6 +997,33 @@ function ProfilePage() {
                     <span className="text-slate-500">in circle</span>
                   </span>
                 </div>
+
+                {/* Key stats */}
+                <div className="mt-4 grid w-full max-w-md grid-cols-3 gap-2">
+                  <HeaderStat
+                    icon={<Sparkles className="w-4 h-4 text-cyan-300" />}
+                    label="Posts"
+                    value={liveRep ? liveRep.metrics.postsTotal.toLocaleString() : "…"}
+                  />
+                  <HeaderStat
+                    icon={<Target className="w-4 h-4 text-emerald-300" />}
+                    label="Bounties"
+                    value={liveRep ? liveRep.metrics.bountiesSolved.toLocaleString() : "…"}
+                  />
+                  <HeaderStat
+                    icon={<Award className="w-4 h-4 text-amber-300" />}
+                    label="Earnings"
+                    value={
+                      isOwnProfile
+                        ? overview
+                          ? `${overview.bounties.earnedCurrency} ${overview.bounties.earned.toLocaleString()}`
+                          : "…"
+                        : "Private"
+                    }
+                    muted={!isOwnProfile}
+                  />
+                </div>
+
 
                 {displayBio && (
                   <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed text-center max-w-md">
@@ -1942,3 +1997,26 @@ function tabNoun(tab: Tab): string {
   }
 }
 
+
+
+function HeaderStat({
+  icon,
+  label,
+  value,
+  muted,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: React.ReactNode;
+  muted?: boolean;
+}) {
+  return (
+    <div className="rounded-xl border border-white/10 bg-white/[0.04] px-2 py-2.5 text-center">
+      <div className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+        <span className="shrink-0">{icon}</span>
+        <span className="truncate">{label}</span>
+      </div>
+      <div className={`mt-1 truncate text-sm font-black ${muted ? "text-slate-500" : "text-white"}`}>{value}</div>
+    </div>
+  );
+}
