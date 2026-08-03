@@ -65,7 +65,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#121214] text-slate-200">
+    <div className="min-h-screen overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700">
       <Header onOpenMessages={() => {}} />
       <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
         <button
@@ -80,15 +80,15 @@ function ProductPage() {
               setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40);
             }
           }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </button>
 
         {error && (
-          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-8 text-center">
+          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-8 text-center">
             <div className="text-red-300 font-bold mb-1">Couldn't load product</div>
-            <div className="text-sm text-slate-400 mb-4">{error}</div>
+            <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link to="/" className="inline-flex items-center gap-2 px-4 py-2 bg-emerald-500 text-black font-semibold text-sm rounded-lg">
               Browse marketplace
             </Link>
@@ -96,7 +96,7 @@ function ProductPage() {
         )}
 
         {!product && !error && (
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
+          <div className="flex items-center gap-2 text-slate-400 md:text-slate-500 text-sm">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading product…
           </div>
         )}
@@ -111,7 +111,7 @@ function ProductPage() {
                 const cur = gallery[activeImage] ?? gallery[0];
                 return (
                   <>
-                    <div className="relative aspect-[4/3] rounded-2xl bg-white/5 overflow-hidden flex items-center justify-center">
+                    <div className="relative aspect-[4/3] rounded-2xl bg-white/5 md:bg-slate-100 overflow-hidden flex items-center justify-center">
                       {cur ? (
                         <ResponsiveImage sizes="(min-width: 1024px) 640px, 100vw" src={cur} alt={product.name} className="absolute inset-0 w-full h-full object-cover" loading="eager" fetchPriority="high" decoding="async" />
                       ) : (
@@ -145,8 +145,8 @@ function ProductPage() {
               <div className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">
                 {product.category}{product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-white mb-2">{product.name}</h1>
-              <div className="text-sm text-slate-500 mb-3">
+              <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-2">{product.name}</h1>
+              <div className="text-sm text-slate-500 md:text-slate-500 mb-3">
                 by{" "}
                 <Link
                   to="/profile/$id"
@@ -157,32 +157,32 @@ function ProductPage() {
                 </Link>
               </div>
               {product.kind === "physical" && (
-                <div className="flex flex-wrap gap-2 text-xs text-slate-300 mb-4">
-                  {product.location && <span className="inline-flex items-center gap-1 bg-[#1E1E24] border border-white/10 rounded px-2 py-1"><MapPin className="w-3 h-3" /> {product.location}</span>}
-                  {product.condition && <span className="bg-[#1E1E24] border border-white/10 rounded px-2 py-1">{product.condition}</span>}
-                  {product.brand && <span className="bg-[#1E1E24] border border-white/10 rounded px-2 py-1">{product.brand}</span>}
-                  {product.negotiable && <span className="bg-[#1E1E24] border border-white/10 rounded px-2 py-1">Negotiable: {product.negotiable}</span>}
-                  {product.delivery && <span className="bg-[#1E1E24] border border-white/10 rounded px-2 py-1">Delivery: {product.delivery}</span>}
+                <div className="flex flex-wrap gap-2 text-xs text-slate-300 md:text-slate-600 mb-4">
+                  {product.location && <span className="inline-flex items-center gap-1 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1"><MapPin className="w-3 h-3" /> {product.location}</span>}
+                  {product.condition && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">{product.condition}</span>}
+                  {product.brand && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">{product.brand}</span>}
+                  {product.negotiable && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">Negotiable: {product.negotiable}</span>}
+                  {product.delivery && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">Delivery: {product.delivery}</span>}
                 </div>
               )}
               <div className="flex items-center gap-1 text-sm text-amber-300 mb-5">
                 <Star className="w-4 h-4 fill-current" />
                 <span className="font-semibold">{product.rating.toFixed(1)}</span>
-                <span className="text-slate-500">({product.reviews} reviews)</span>
+                <span className="text-slate-500 md:text-slate-500">({product.reviews} reviews)</span>
               </div>
 
-              <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap mb-6">{product.description || "No description provided."}</p>
+              <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6">{product.description || "No description provided."}</p>
 
-              <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-4">
+              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 mb-4">
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
                       const dp = productDisplay(product, baseCurrency);
                       return (
                         <>
-                          <div className="text-white font-black text-3xl">{dp.formatted}</div>
+                          <div className="text-white md:text-slate-900 font-black text-3xl">{dp.formatted}</div>
                           {dp.originalFormatted && (
-                            <div className="text-xs text-slate-500 mt-1">
+                            <div className="text-xs text-slate-500 md:text-slate-500 mt-1">
                               Locked at {dp.originalFormatted} {dp.originalCurrency}
                             </div>
                           )}
@@ -192,17 +192,17 @@ function ProductPage() {
                   </div>
                   {product.kind !== "physical" && (
                     <div className="flex items-center gap-2">
-                      <label className="text-xs text-slate-400 uppercase tracking-wide">Qty</label>
+                      <label className="text-xs text-slate-400 md:text-slate-500 uppercase tracking-wide">Qty</label>
                       <input type="number" min={1} max={20} value={qty}
                         onChange={(e) => setQty(Math.max(1, Math.min(20, Number(e.target.value) || 1)))}
-                        className="w-16 bg-[#121214] border border-white/10 rounded-lg px-2 py-1.5 text-sm text-white text-center" />
+                        className="w-16 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-white md:text-slate-900 text-center" />
                     </div>
                   )}
                 </div>
                 {product.kind !== "physical" && (
-                  <div className="flex items-center justify-between text-xs text-slate-500 mb-4">
+                  <div className="flex items-center justify-between text-xs text-slate-500 md:text-slate-500 mb-4">
                     <span>Line total</span>
-                    <span className="text-white font-mono">
+                    <span className="text-white md:text-slate-900 font-mono">
                       {formatMoney(productDisplay(product, baseCurrency).value * qty, baseCurrency)}
                     </span>
                   </div>
@@ -215,7 +215,7 @@ function ProductPage() {
                 </button>
               </div>
 
-              <div className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+              <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-emerald-400" />
                 {product.kind === "physical"
                   ? "Deal directly with the seller — Oventric does not mediate."
@@ -268,19 +268,19 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <h3 className="text-lg font-bold text-white">Contact the seller</h3>
+            <h3 className="text-lg font-bold text-white md:text-slate-900">Contact the seller</h3>
           </div>
-          <button onClick={onClose} className="p-1 rounded hover:bg-white/5 text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="p-1 rounded hover:bg-white/5 md:hover:bg-slate-100 text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900"><X className="w-5 h-5" /></button>
         </div>
 
         {/* Live preview card — mirrors what the seller will see */}
-        <div className="mb-4 rounded-xl border border-white/10 bg-[#121214] overflow-hidden">
+        <div className="mb-4 rounded-xl border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 overflow-hidden">
           <div className="flex gap-3 p-3">
-            <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+            <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
               {cover ? (
                 <img src={cover} alt={product.name} loading="eager" decoding="async" className="w-full h-full object-cover" />
               ) : <ShoppingCart className="w-6 h-6 text-white/30" />}
@@ -289,21 +289,21 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
               <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 truncate">
                 {product.category}{product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
-              <div className="text-sm font-bold text-white truncate">{product.name}</div>
-              <div className="text-xs text-slate-400 truncate">by {product.vendor}</div>
+              <div className="text-sm font-bold text-white md:text-slate-900 truncate">{product.name}</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 truncate">by {product.vendor}</div>
               <div className="mt-1 flex items-center justify-between gap-2">
                 <div className="text-emerald-300 font-black text-sm">{dp.formatted}</div>
                 {product.location && (
-                  <span className="text-[10px] text-slate-400 inline-flex items-center gap-1 truncate">
+                  <span className="text-[10px] text-slate-400 md:text-slate-500 inline-flex items-center gap-1 truncate">
                     <MapPin className="w-3 h-3" /> {product.location}
                   </span>
                 )}
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 bg-[#0f1012] px-3 py-2">
+          <div className="border-t border-white/10 md:border-slate-200 bg-[#0f1012] md:bg-slate-100 px-3 py-2">
             <div className="flex items-center justify-between gap-2 mb-1">
-              <div className="text-[10px] uppercase tracking-widest text-slate-500">WhatsApp message preview</div>
+              <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">WhatsApp message preview</div>
               <button
                 onClick={async () => {
                   try {
@@ -318,20 +318,20 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
                 <Copy className="w-3 h-3" /> Copy message
               </button>
             </div>
-            <pre className="text-xs text-slate-200 whitespace-pre-wrap font-sans leading-relaxed break-words">{message}</pre>
+            <pre className="text-xs text-slate-200 md:text-slate-700 whitespace-pre-wrap font-sans leading-relaxed break-words">{message}</pre>
           </div>
         </div>
 
-        <label className="block text-[11px] uppercase tracking-widest text-slate-400 mb-1">Add a note (optional)</label>
+        <label className="block text-[11px] uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">Add a note (optional)</label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value.slice(0, 240))}
           rows={2}
           placeholder="e.g. Is this still available? Can I pick up today?"
-          className="w-full mb-4 bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50"
+          className="w-full mb-4 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
         />
 
-        <p className="text-xs text-slate-400 leading-relaxed mb-4">
+        <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed mb-4">
           You will deal with the seller directly. Take precaution — Oventric does not monitor or mediate physical-goods transactions.
         </p>
         <div className="grid grid-cols-2 gap-3">

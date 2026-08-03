@@ -331,7 +331,7 @@ function CheckoutPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
       <Header onOpenMessages={() => {}} />
       <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
 
@@ -339,33 +339,33 @@ function CheckoutPage() {
           to="/product/$id"
           params={{ id }}
           search={{ qty }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 mb-6"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </Link>
 
-        <h1 className="text-2xl md:text-3xl font-black text-white mb-6">Checkout</h1>
+        <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">Checkout</h1>
 
         {loadErr && (
-          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-6 text-sm text-red-300">
+          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-6 text-sm text-red-300">
             {loadErr}
           </div>
         )}
 
         {!product && !loadErr && (
-          <div className="flex items-center gap-2 text-slate-400 text-sm">
+          <div className="flex items-center gap-2 text-slate-400 md:text-slate-500 text-sm">
             <Loader2 className="w-4 h-4 animate-spin" /> Loading order…
           </div>
         )}
 
         {product && (product.originalCurrency as Currency) !== baseCurrency && (
-          <div className="bg-[#1E1E24] border border-amber-500/40 rounded-xl p-6 text-sm text-amber-200">
-            <div className="text-white font-bold mb-1">Not available in your region</div>
+          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-amber-500/40 rounded-xl p-6 text-sm text-amber-200">
+            <div className="text-white md:text-slate-900 font-bold mb-1">Not available in your region</div>
             <p className="text-amber-200/80">
               This item is priced in {String(product.originalCurrency).toUpperCase()} and can only be purchased by
               accounts based in that currency’s region. Your account transacts in {baseCurrency}.
             </p>
-            <Link to="/" className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
+            <Link to="/" className="mt-4 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 md:bg-slate-100 hover:bg-white/20 md:hover:bg-slate-200 text-white md:text-slate-900 text-xs font-bold">
               Back to marketplace
             </Link>
           </div>
@@ -377,7 +377,7 @@ function CheckoutPage() {
             <div className="lg:col-span-2 space-y-3 min-w-0">
 
 
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-2">Payment Method</h2>
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-2">Payment Method</h2>
               {methods.map((m) => {
                 const active = method === m.id;
                 const Icon = m.Icon;
@@ -415,18 +415,18 @@ function CheckoutPage() {
                         <Icon className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`} />
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-sm text-white font-semibold">
+                        <span className="block text-sm text-white md:text-slate-900 font-semibold">
                           {m.label}
-                          {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500">Unavailable here</span>}
+                          {m.disabled && <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500">Unavailable here</span>}
                         </span>
-                        <span className="block text-xs text-slate-500">
+                        <span className="block text-xs text-slate-500 md:text-slate-500">
                           {hasGateways && active
                             ? `via ${gateways.find((g) => g.id === gateway)?.label ?? m.hint}`
                             : m.hint}
                         </span>
                       </span>
                       {walletTag && (
-                        <span className="text-[11px] font-mono text-slate-400">
+                        <span className="text-[11px] font-mono text-slate-400 md:text-slate-500">
                           {fmtLocal(balanceUSD ?? 0, baseCurrency)}
                         </span>
                       )}
@@ -436,8 +436,8 @@ function CheckoutPage() {
                     </button>
 
                     {expanded && (
-                      <div className="mt-2 ml-4 pl-4 border-l border-white/10 space-y-2">
-                        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Choose payment provider</div>
+                      <div className="mt-2 ml-4 pl-4 border-l border-white/10 md:border-slate-200 space-y-2">
+                        <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 md:text-slate-500">Choose payment provider</div>
                         {gateways.map((g) => {
                           const on = gateway === g.id;
                           return (
@@ -450,13 +450,13 @@ function CheckoutPage() {
                             >
                               <g.Icon className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`} />
                               <span className="flex-1 min-w-0">
-                                <span className="block text-sm text-white font-semibold">
+                                <span className="block text-sm text-white md:text-slate-900 font-semibold">
                                   {g.label}
                                   {g.id === recommended && (
                                     <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-emerald-300">Recommended</span>
                                   )}
                                 </span>
-                                <span className="block text-[11px] text-slate-500">{g.hint}</span>
+                                <span className="block text-[11px] text-slate-500 md:text-slate-500">{g.hint}</span>
                               </span>
                               {on && <Check className="w-4 h-4 text-emerald-300 shrink-0" />}
                             </button>
@@ -496,21 +496,21 @@ function CheckoutPage() {
               )}
 
               {needsDelivery && (
-                <div className="mt-2 rounded-xl border border-white/10 bg-[#1E1E24] p-4">
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-1">Delivery details</div>
-                  <p className="text-[11px] text-slate-500 mb-3">
+                <div className="mt-2 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white p-4">
+                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">Delivery details</div>
+                  <p className="text-[11px] text-slate-500 md:text-slate-500 mb-3">
                     {product.requiresManualDelivery
                       ? "This product requires manual deployment. After payment is verified, the seller delivers it to you in your Oventric chat."
                       : "We’ll send the receipt and download link here after payment is verified."}
                   </p>
                   <label className="block mb-2">
-                    <span className="text-xs text-slate-300">Email</span>
+                    <span className="text-xs text-slate-300 md:text-slate-600">Email</span>
                     <input
                       type="email"
                       value={deliveryEmail}
                       onChange={(e) => setDeliveryEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="mt-1 w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white outline-none focus:border-emerald-500/60"
+                      className="mt-1 w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 outline-none focus:border-emerald-500/60"
                     />
                   </label>
                   {!deliveryValid && deliveryEmail && (
@@ -524,27 +524,27 @@ function CheckoutPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 h-max min-w-0">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 mb-3">Order Summary</h2>
+            <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 h-max min-w-0">
+              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">Order Summary</h2>
               {product.coverUrl ? (
                 <ResponsiveImage
                   src={product.coverUrl}
                   alt={product.name}
                   sizes="(min-width: 1024px) 384px, 100vw"
-                  className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5 bg-white/5"
+                  className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100"
                   loading="eager"
                   fetchPriority="high"
                 />
 
               ) : (
-                <div className="h-20 rounded-lg bg-white/5 mb-3" />
+                <div className="h-20 rounded-lg bg-white/5 md:bg-slate-100 mb-3" />
               )}
-              <div className="text-white font-semibold text-sm mb-1">{product.name}</div>
-              <div className="text-xs text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
+              <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">{product.name}</div>
+              <div className="text-xs text-slate-500 md:text-slate-500 mb-3">by {product.vendor} · Qty {qty}</div>
 
               {/* Cashback Wallet — spend-only. Toggle always visible; disabled when empty. */}
-              <div className="border-t border-white/5 pt-3 mb-3">
-                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-1.5">Cashback Wallet</div>
+              <div className="border-t border-white/5 md:border-slate-200 pt-3 mb-3">
+                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 md:text-slate-500 mb-1.5">Cashback Wallet</div>
                 <label
                   className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border ${
                     cashbackUSD > 0
@@ -560,24 +560,24 @@ function CheckoutPage() {
                     className="mt-0.5 w-4 h-4 accent-emerald-500"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-white">Use Cashback</div>
+                    <div className="text-xs font-semibold text-white md:text-slate-900">Use Cashback</div>
                     <div className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}>
                       Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                     </div>
-                    <div className="text-[11px] text-slate-400 mt-0.5">
+                    <div className="text-[11px] text-slate-400 md:text-slate-500 mt-0.5">
                       You earn back: + {fmt(cashbackEarnUSD, baseCurrency)} (Oventric Bonus)
                     </div>
                   </div>
                 </label>
               </div>
 
-              <div className="border-t border-white/5 pt-3 space-y-1 text-sm">
-                <div className="flex justify-between text-slate-400"><span>Subtotal</span><span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span></div>
+              <div className="border-t border-white/5 md:border-slate-200 pt-3 space-y-1 text-sm">
+                <div className="flex justify-between text-slate-400 md:text-slate-500"><span>Subtotal</span><span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span></div>
                 {cashbackApplyUSD > 0 && (
                   <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}</span></div>
                 )}
-                <div className="flex justify-between text-slate-400"><span>Processing</span><span>Free</span></div>
-                <div className="flex justify-between text-white font-black text-base pt-2 border-t border-white/5"><span>Total</span><span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span></div>
+                <div className="flex justify-between text-slate-400 md:text-slate-500"><span>Processing</span><span>Free</span></div>
+                <div className="flex justify-between text-white md:text-slate-900 font-black text-base pt-2 border-t border-white/5 md:border-slate-200"><span>Total</span><span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span></div>
               </div>
 
 
@@ -595,7 +595,7 @@ function CheckoutPage() {
                       : `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`}
 
               </button>
-              <div className="mt-3 text-[11px] text-slate-500 inline-flex items-center gap-1">
+              <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
                 <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer protection
               </div>
             </div>
@@ -606,20 +606,20 @@ function CheckoutPage() {
 
       {topUpOpen && (
         <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => !topUpBusy && setTopUpOpen(false)}>
-          <div className="w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
-            <h3 className="text-white font-black text-lg mb-1">Fund your wallet</h3>
-            <p className="text-xs text-slate-400 mb-4">
+          <div className="w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
+            <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">Fund your wallet</h3>
+            <p className="text-xs text-slate-400 md:text-slate-500 mb-4">
               Add {shortfallUSD ? fmt(shortfallUSD, baseCurrency) : "credit"} or more to complete this purchase.
             </p>
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Amount ({baseCurrency})</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">Amount ({baseCurrency})</label>
             <input
               type="number"
               min={1}
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
-              className="w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white mb-4"
+              className="w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 mb-4"
             />
-            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Fund via</label>
+            <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">Fund via</label>
             <div className="space-y-2 mb-5">
               {methodsForCountry(country).filter((m) => m.id !== "wallet").map((m) => {
                 const Icon = m.Icon;
@@ -628,13 +628,13 @@ function CheckoutPage() {
                   <button key={m.id} onClick={() => setTopUpMethod(m.id)}
                     className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 ${active ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] border-white/10"}`}>
                     <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`} />
-                    <span className="text-sm text-white">{m.label}</span>
+                    <span className="text-sm text-white md:text-slate-900">{m.label}</span>
                   </button>
                 );
               })}
             </div>
             <div className="flex gap-2">
-              <button onClick={() => setTopUpOpen(false)} disabled={topUpBusy} className="flex-1 py-2 rounded-lg bg-white/5 hover:bg-white/10 text-slate-200 text-sm font-semibold">Cancel</button>
+              <button onClick={() => setTopUpOpen(false)} disabled={topUpBusy} className="flex-1 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 text-slate-200 md:text-slate-700 text-sm font-semibold">Cancel</button>
               <button onClick={runTopUp} disabled={topUpBusy} className="flex-1 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black inline-flex items-center justify-center gap-2">
                 {topUpBusy ? <><Loader2 className="w-4 h-4 animate-spin" /> Charging…</> : "Fund Wallet"}
               </button>
