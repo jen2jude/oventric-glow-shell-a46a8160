@@ -28,6 +28,17 @@ export interface ProfileBounty {
   status: "open" | "solved";
   coverUrl?: string | null;
 }
+export interface ProfileArticle {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  category: string | null;
+  timeAgo: string;
+  reactions: number;
+  comments: number;
+  coverUrl?: string | null;
+}
 export interface Profile {
   id: string;
   name: string;
