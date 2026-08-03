@@ -27,6 +27,8 @@ import {
   Trophy,
   Bell,
   Plus,
+  TrendingUp,
+  Activity as ActivityIcon,
 } from "lucide-react";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
@@ -1031,6 +1033,149 @@ function ListingsList({
 /* -------------------------------------------------------------------------- */
 /*  Overview                                                                   */
 /* -------------------------------------------------------------------------- */
+
+function timeAgo(iso: string): string {
+  const diff = Date.now() - new Date(iso).getTime();
+  const mins = Math.round(diff / 60000);
+  if (!Number.isFinite(mins) || mins < 1) return "just now";
+  if (mins < 60) return `${mins}m ago`;
+  const hrs = Math.round(mins / 60);
+  if (hrs < 24) return `${hrs}h ago`;
+  const days = Math.round(hrs / 24);
+  if (days < 30) return `${days}d ago`;
+  return new Date(iso).toLocaleDateString();
+}
+
+function KeyCard({
+  icon: Icon,
+  label,
+  value,
+  sub,
+  empty,
+  onClick,
+  href,
+}: {
+  icon: typeof Package;
+  label: string;
+  value: string | number;
+  sub: string;
+  empty?: boolean;
+  onClick?: () => void;
+  href?: string;
+}) {
+  const inner = (
+    <>
+      <div className="flex items-center gap-2 min-w-0">
+        <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50">
+          <Icon className="h-4 w-4 text-white md:text-slate-900" aria-hidden="true" />
+        </span>
+        <span className="truncate text-[10px] font-bold uppercase tracking-widest text-slate-500">{label}</span>
+      </div>
+      <div className={`mt-3 text-2xl font-black tabular-nums ${empty ? "text-slate-500" : "text-white md:text-slate-900"}`}>
+        {value}
+      </div>
+      <div className="mt-1 truncate text-xs text-slate-400 md:text-slate-500">{sub}</div>
+    </>
+  );
+  const cls =
+    "block w-full text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 transition hover:border-white/20 md:hover:border-slate-300 active:scale-[0.99]";
+  if (href) return <Link to={href} className={cls}>{inner}</Link>;
+  return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
+}
+
+function KeyOverviewCards({ overview, onGoto }: { overview: DashboardOverview; onGoto: (t: Tab) => void }) {
+  const cur = overview.homeCurrency;
+  const orders = overview.orders;
+  const revenue = overview.revenue;
+  const unreadMsgs = overview.unread.messages;
+  const activity = overview.activity;
+
+  return (
+    <section className="space-y-3" aria-label="Key dashboard metrics">
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+        <KeyCard
+          icon={ShoppingBag}
+          label="Orders"
+          value={orders.placed + orders.toFulfil}
+          sub={
+            orders.placed + orders.toFulfil === 0
+              ? "No orders yet"
+              : `${orders.awaitingBuyer} to confirm · ${orders.toFulfil} to fulfil`
+          }
+          empty={orders.placed + orders.toFulfil === 0}
+          onClick={() => onGoto(orders.toFulfil > 0 ? "sales" : "digital")}
+        />
+        <KeyCard
+          icon={MessageCircle}
+          label="Messages"
+          value={unreadMsgs}
+          sub={unreadMsgs === 0 ? "Inbox is all caught up" : "Unread in your inbox"}
+          empty={unreadMsgs === 0}
+          href="/messages"
+        />
+        <KeyCard
+          icon={TrendingUp}
+          label="Revenue"
+          value={formatHomeCurrency(revenue.gross, cur)}
+          sub={
+            revenue.grossUSD === 0
+              ? "No released sales yet"
+              : `${formatHomeCurrency(revenue.last30, cur)} in the last 30 days`
+          }
+          empty={revenue.grossUSD === 0}
+          onClick={() => onGoto("wallet")}
+        />
+        <KeyCard
+          icon={ActivityIcon}
+          label="Activity"
+          value={orders.last30}
+          sub={orders.last30 === 0 ? "Nothing in the last 30 days" : "Order events · last 30 days"}
+          empty={orders.last30 === 0}
+          onClick={() => onGoto("social")}
+        />
+      </div>
+
+      <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4">
+        <div className="flex items-center justify-between gap-3">
+          <h2 className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Recent activity</h2>
+          {overview.unread.notifications > 0 ? (
+            <span className="rounded-full border border-emerald-500/30 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-400 md:text-emerald-600">
+              {overview.unread.notifications} new
+            </span>
+          ) : null}
+        </div>
+
+        {activity.length === 0 ? (
+          <div className="py-6 text-center">
+            <Bell className="mx-auto h-5 w-5 text-slate-500" aria-hidden="true" />
+            <p className="mt-2 text-sm font-semibold text-white md:text-slate-900">No activity yet</p>
+            <p className="mt-0.5 text-xs text-slate-400 md:text-slate-500">
+              Orders, messages and payouts will show up here.
+            </p>
+          </div>
+        ) : (
+          <ul className="mt-3 divide-y divide-white/5 md:divide-slate-100">
+            {activity.map((a) => (
+              <li key={a.id} className="flex items-start gap-3 py-2.5 first:pt-0 last:pb-0">
+                <span
+                  className={`mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full ${a.unread ? "bg-emerald-400" : "bg-slate-600 md:bg-slate-300"}`}
+                  aria-hidden="true"
+                />
+                <div className="min-w-0 flex-1">
+                  <div className="truncate text-sm font-semibold text-white md:text-slate-900">{a.title}</div>
+                  {a.body ? (
+                    <div className="truncate text-xs text-slate-400 md:text-slate-500">{a.body}</div>
+                  ) : null}
+                </div>
+                <span className="shrink-0 text-[11px] text-slate-500">{timeAgo(a.createdAt)}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+    </section>
+  );
+}
 
 function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null; onGoto: (t: Tab) => void }) {
   // Lazy init so the first paint already picks the safe layout on mobile —
