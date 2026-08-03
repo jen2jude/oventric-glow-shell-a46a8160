@@ -51,6 +51,7 @@ import { Header } from "@/components/oventric/Header";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { getProfile, computeStarBreakdown, getCircleMembersPreview } from "@/lib/profiles/mockProfiles";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { EditProfileModal } from "@/components/oventric/EditProfileModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
@@ -156,6 +157,7 @@ function ProfilePage() {
   }>({ sentAt: null, acceptedAt: null, canceledAt: null });
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [joinCircleOpen, setJoinCircleOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
   const [followRequestsOpen, setFollowRequestsOpen] = useState(false);
@@ -1031,6 +1033,23 @@ function ProfilePage() {
                   </p>
                 )}
 
+                {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                    {Object.entries(realProfile.socialLinks).map(([key, url]) => (
+                      <a
+                        key={key}
+                        href={url}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        aria-label={key}
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 bg-white/5 text-slate-300 hover:text-emerald-300 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                      >
+                        <SocialIcon kind={key} />
+                      </a>
+                    ))}
+                  </div>
+                )}
+
                 {!isOwnProfile && !identityMissing && realProfile?.userId && (
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2 w-full max-w-md">
                     <FollowButton targetId={realProfile.userId} className="flex-1 min-w-[120px]" />
@@ -1057,6 +1076,12 @@ function ProfilePage() {
                 )}
                 {isOwnProfile && (
                   <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                    <button
+                      onClick={() => setEditProfileOpen(true)}
+                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
+                    >
+                      <Pencil className="w-4 h-4" strokeWidth={2.5} /> Edit profile
+                    </button>
                     <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 text-xs font-semibold">
                       This is your profile
                     </span>
@@ -1561,6 +1586,20 @@ function ProfilePage() {
       />
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <FollowRequestsDrawer open={followRequestsOpen} onClose={() => setFollowRequestsOpen(false)} />
+      {isOwnProfile && realProfile && (
+        <EditProfileModal
+          open={editProfileOpen}
+          onClose={() => setEditProfileOpen(false)}
+          userId={realProfile.userId}
+          initial={{
+            displayName: realProfile.displayName,
+            bio: realProfile.bio,
+            avatarUrl: realProfile.avatarUrl,
+            socialLinks: realProfile.socialLinks,
+          }}
+          onSaved={reloadRealProfile}
+        />
+      )}
       <ReportModal
         open={reportOpen}
         onClose={() => setReportOpen(false)}
