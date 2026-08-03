@@ -80,6 +80,7 @@ import {
 import { formatMoney } from "@/lib/fx-display";
 import { listMySales, type SaleDTO } from "@/lib/fulfilment.functions";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
+import { SalesFulfilmentList } from "@/components/oventric/SalesFulfilmentList";
 import { Truck } from "lucide-react";
 
 function formatHomeCurrency(n: number, c: string): string {
