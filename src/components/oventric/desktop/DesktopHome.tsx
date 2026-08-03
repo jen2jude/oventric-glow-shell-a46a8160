@@ -594,6 +594,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <DownloadAppSection />
+
       <SecuredPayments />
 
       {/* Social connect */}
