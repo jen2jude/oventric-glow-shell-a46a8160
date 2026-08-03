@@ -595,7 +595,10 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <SecuredPayments />
+
       <SiteFooter onSelect={onSelect} currency={currency} flag={flag} />
+
     </div>
   );
 }
