@@ -9,6 +9,7 @@ export type SiteNavbarProps = {
   onSelect: (section: string) => void;
   avatarUrl?: string | null;
   name?: string;
+  search?: React.ReactNode;
 };
 
 const LINKS: Array<{ label: string; section?: string; to?: string }> = [
