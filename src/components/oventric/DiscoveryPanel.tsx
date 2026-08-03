@@ -372,7 +372,7 @@ export function DiscoveryPanel() {
   );
 
   return (
-    <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable]">
+    <aside className="hidden lg:flex lg:basis-[38%] lg:shrink-0 lg:grow-0 min-w-0 flex-col gap-4 self-start sticky top-20 max-h-[calc(100vh-100px)] overflow-y-auto pr-2 scrollbar-none pb-6 [scrollbar-gutter:stable] [&>section]:transition-shadow md:[&>section]:hover:shadow-md">
       {/* 1. Primary sponsored slot — blank when there is no active campaign */}
       <AdSlot placement="feed" variant="rail" index={0} />
 
