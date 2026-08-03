@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users, LifeBuoy } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
