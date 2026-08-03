@@ -183,7 +183,7 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
 
   return (
     <div
-      className="fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center"
+      className="modal-light fixed inset-0 z-[110] bg-black/70 backdrop-blur-sm flex items-end sm:items-center justify-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"

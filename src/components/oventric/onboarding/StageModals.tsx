@@ -9,7 +9,7 @@ import { completeProfile as completeProfileFn } from "@/lib/onboarding.functions
 
 function ModalShell({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: React.ReactNode }) {
   return (
-    <div className="fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-0 sm:px-4">
+    <div className="modal-light fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-0 sm:px-4">
       <div className="absolute inset-0 bg-black/75 backdrop-blur-md" onClick={onClose} />
       <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
         <div className="flex items-start justify-between mb-4">
@@ -325,8 +325,8 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
       {step === "flash" && (
         <>
-          <div className="fixed inset-0 z-[70] pointer-events-none rgb-neon-bg opacity-70" />
-          <div className="fixed inset-0 z-[71] pointer-events-none flex items-center justify-center">
+          <div className="modal-light fixed inset-0 z-[70] pointer-events-none rgb-neon-bg opacity-70" />
+          <div className="modal-light fixed inset-0 z-[71] pointer-events-none flex items-center justify-center">
             <div className="bg-black/70 backdrop-blur-md rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
                 <Check className="w-6 h-6 text-black" strokeWidth={3} />

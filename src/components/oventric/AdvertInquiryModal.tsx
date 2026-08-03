@@ -194,7 +194,7 @@ export function AdvertInquiryModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[2147483000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="modal-light fixed inset-0 z-[2147483000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
       <div className="relative w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto bg-[#141418] border border-white/10 sm:rounded-2xl rounded-t-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 bg-[#141418]/95 border-b border-white/10">
           <div>

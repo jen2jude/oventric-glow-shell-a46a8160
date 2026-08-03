@@ -272,7 +272,7 @@ export function PostComposerModal({
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center">
+    <div className="modal-light fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center">
       <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
       <div
         ref={shellRef}
@@ -492,7 +492,7 @@ export function PostComposerModal({
 
       {/* Mention picker overlay */}
       {mentionPickerOpen && (
-        <div className="fixed inset-0 z-[70] flex items-center justify-center px-4">
+        <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center px-4">
           <div className="absolute inset-0 bg-black/80" onClick={() => setMentionPickerOpen(false)} />
           <div className="relative w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-white/10">

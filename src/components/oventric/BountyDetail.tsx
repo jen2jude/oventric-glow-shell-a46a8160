@@ -744,7 +744,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {acceptTarget && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          className="modal-light fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
           role="dialog"
           aria-modal="true"
           onClick={() => setAcceptTarget(null)}
@@ -790,7 +790,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {confirmSolved && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          className="modal-light fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
           role="dialog"
           aria-modal="true"
           onClick={() => setConfirmSolved(false)}
@@ -831,7 +831,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {awaitingPop && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          className="modal-light fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
           role="dialog"
           aria-modal="true"
           onClick={() => setAwaitingPop(false)}
@@ -874,7 +874,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {confirmRelease && (
         <div
-          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          className="modal-light fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
           role="dialog"
           aria-modal="true"
           onClick={() => setConfirmRelease(false)}

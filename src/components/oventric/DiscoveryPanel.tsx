@@ -144,7 +144,7 @@ function BirthdayModal({
 }) {
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
+    <div className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
       <div
         className="w-full max-w-md rounded-2xl bg-[#16161B] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 max-h-[80vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}

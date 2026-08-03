@@ -200,7 +200,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4"
+      className="modal-light fixed inset-0 z-[120] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4"
       role="presentation"
       onMouseDown={(e) => {
         if (e.target === e.currentTarget) onClose();

@@ -86,7 +86,7 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
   };
 
   return (
-    <div className="fixed inset-0 z-[120] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
+    <div className="modal-light fixed inset-0 z-[120] bg-black/80 flex items-end sm:items-center justify-center p-0 sm:p-4">
       <div className="w-full sm:max-w-md bg-[#141418] border border-white/10 rounded-t-2xl sm:rounded-2xl overflow-hidden max-h-[92vh] flex flex-col">
         <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
           <div className="flex items-center gap-2">

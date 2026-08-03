@@ -78,7 +78,7 @@ export function PreviewModal({
   const styles = ACCENT_MAP[accent];
 
   return (
-    <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+    <div className="modal-light fixed inset-0 z-[100] flex items-center justify-center p-4">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={isSubmitting ? undefined : onClose} />
       <div
         role="dialog"

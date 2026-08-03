@@ -139,7 +139,7 @@ export function CircleRequestsDrawer({
   const count = requests.length;
 
   return (
-    <div className="fixed inset-0 z-[60] flex justify-end">
+    <div className="modal-light fixed inset-0 z-[60] flex justify-end">
       <button
         aria-label="Close circle requests"
         onClick={onClose}

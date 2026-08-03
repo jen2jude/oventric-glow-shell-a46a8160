@@ -1433,7 +1433,7 @@ export function Feed() {
       />
       {mentionsSheet && (
         <div
-          className="fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="modal-light fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
           onClick={() => setMentionsSheet(null)}
         >
           <div

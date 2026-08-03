@@ -315,7 +315,7 @@ function ConfirmModal({
   children?: ReactNode;
 }) {
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70">
+    <div className="modal-light fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70">
       <div className="w-full max-w-sm rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-5">
         <h3 className="text-white md:text-slate-900 font-bold text-base mb-2">{title}</h3>
         <p className="text-xs text-slate-400 md:text-slate-500 mb-4">{body}</p>
@@ -392,7 +392,7 @@ function DisputeModal({
   };
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
+    <div className="modal-light fixed inset-0 z-[80] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
       <div className="w-full sm:max-w-lg max-h-[92vh] overflow-y-auto rounded-t-2xl sm:rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-5">
         <div className="flex items-start justify-between gap-3 mb-3">
           <div>

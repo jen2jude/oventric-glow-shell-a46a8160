@@ -377,7 +377,7 @@ export function SalesFulfilmentList({
 
       {/* Mark delivered confirmation */}
       {confirmSale && (
-        <div className="fixed inset-0 z-[90] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
+        <div className="modal-light fixed inset-0 z-[90] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
           <div className="absolute inset-0 bg-black/70" onClick={() => deliveringId === null && setConfirmId(null)} />
           <div className="slide-up relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-3 mb-3">
