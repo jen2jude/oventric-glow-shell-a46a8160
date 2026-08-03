@@ -53,7 +53,7 @@ const FEATURES = [
     img: marketIcon.url,
     title: "Sell digital and physical products, safely",
     body: "List once and reach buyers across Africa. Escrow holds every payment until delivery is confirmed, and buyers earn 2% cashback on each order.",
-    tint: "from-emerald-500/20",
+    tint: "from-emerald-500/10",
   },
   {
     label: "Academy",
@@ -62,7 +62,7 @@ const FEATURES = [
     img: academyIcon.url,
     title: "Learn a skill, or teach one and get paid",
     body: "Structured courses from practitioners, priced in your own currency. Publish your own course and keep the majority of every enrolment.",
-    tint: "from-violet-500/20",
+    tint: "from-violet-500/10",
   },
   {
     label: "Bounties",
@@ -71,7 +71,7 @@ const FEATURES = [
     img: bountiesIcon.url,
     title: "Post work. Fund it. Release on delivery.",
     body: "Bounties are funded up front and held in escrow, so solvers know the money is real and posters only release when the work lands.",
-    tint: "from-amber-500/20",
+    tint: "from-amber-500/10",
   },
   {
     label: "Wallet",
@@ -80,7 +80,7 @@ const FEATURES = [
     img: walletIcon.url,
     title: "One wallet, your home currency",
     body: "Fund with card, bank or mobile money through Flutterwave, Paystack and MiniPay. Main, cashback, bounty and escrow balances in one place.",
-    tint: "from-teal-500/20",
+    tint: "from-teal-500/10",
   },
   {
     label: "Circles",
@@ -89,7 +89,7 @@ const FEATURES = [
     img: circlesIcon.url,
     title: "Communities that actually ship",
     body: "Join or forge a circle around a craft, a city or a product. Share posts to your circle, the main feed, or both.",
-    tint: "from-pink-500/20",
+    tint: "from-pink-500/10",
   },
 ] as const;
 
@@ -231,7 +231,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const primary = () => (isAuthenticated ? onSelect("Feed") : openGate("generic"));
 
   return (
-    <div className="min-h-full bg-[#121214] text-slate-200">
+    <div className="min-h-full bg-white text-slate-700">
       <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} />
 
       {/* Hero */}
@@ -240,17 +240,17 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.18), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.14), transparent 70%)",
+              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.14), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.10), transparent 70%)",
           }}
         />
         <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[1.05fr_0.95fr] items-center gap-16 px-8 pb-24 pt-20">
           <div>
-            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-500/25 bg-emerald-500/10 px-3 py-1.5 text-xs font-semibold text-emerald-300">
+            <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
               <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
             </span>
-            <h1 className="mt-6 text-[56px] font-bold leading-[1.05] tracking-tight text-white">
+            <h1 className="mt-6 text-[56px] font-bold leading-[1.05] tracking-tight text-slate-900">
               The platform where Africa&apos;s builders
-              <span className="text-emerald-400"> sell, learn and get paid.</span>
+              <span className="text-emerald-600"> sell, learn and get paid.</span>
             </h1>
             <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-400">
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
@@ -267,7 +267,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                     else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
                   } else onSelect("Marketplace");
                 }}
-                className="flex h-14 items-center gap-3 rounded-2xl border border-white/15 bg-[#1E1E24] pl-5 pr-2"
+                className="flex h-14 items-center gap-3 rounded-2xl border border-slate-200 bg-white pl-5 pr-2"
               >
                 <Search className="h-5 w-5 shrink-0 text-slate-500" />
                 <input
@@ -279,17 +279,17 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                   onFocus={() => setSearchOpen(true)}
                   placeholder="Search products, courses and bounties"
                   aria-label="Search Oventric"
-                  className="h-full flex-1 bg-transparent text-sm text-white outline-none placeholder:text-slate-500"
+                  className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-500"
                 />
                 <button
                   type="submit"
-                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-500 px-5 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+                  className="inline-flex h-10 items-center gap-2 rounded-xl bg-emerald-600 px-5 text-sm font-bold text-white transition-transform active:scale-95"
                 >
                   Search
                 </button>
               </form>
               {searchOpen && results.length > 0 && (
-                <div className="absolute left-0 right-0 top-16 z-30 overflow-hidden rounded-2xl border border-white/10 bg-[#17171B] shadow-2xl">
+                <div className="absolute left-0 right-0 top-16 z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
                   {results.map((r) => (
                     <button
                       key={`${r.kind}-${r.id}`}
@@ -299,13 +299,13 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                         if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
                         else onSelect(r.kind === "course" ? "Academy" : "Bounties");
                       }}
-                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-white/5"
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
                     >
-                      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-white/5">
+                      <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
                         {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
                       </span>
-                      <span className="min-w-0 flex-1 truncate text-sm text-white">{r.title}</span>
-                      <span className="shrink-0 text-xs font-semibold text-emerald-300">{r.meta}</span>
+                      <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{r.title}</span>
+                      <span className="shrink-0 text-xs font-semibold text-emerald-600">{r.meta}</span>
                     </button>
                   ))}
                 </div>
@@ -316,14 +316,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <button
                 type="button"
                 onClick={primary}
-                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-emerald-500 px-6 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform active:scale-95"
               >
                 {isAuthenticated ? "Open the app" : "Get started free"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
               </button>
               <button
                 type="button"
                 onClick={() => onSelect("Marketplace")}
-                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-white/15 bg-[#1E1E24] px-6 text-sm font-bold text-white transition-transform active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-900 transition-transform active:scale-95"
               >
                 Explore marketplace
               </button>
@@ -331,7 +331,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
             <div className="mt-8 flex items-center gap-6 text-xs text-slate-500">
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="h-4 w-4 text-emerald-400" /> Escrow on every order
+                <ShieldCheck className="h-4 w-4 text-emerald-600" /> Escrow on every order
               </span>
               <span>54 African countries</span>
               <span>Card, bank &amp; mobile money</span>
@@ -341,17 +341,17 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           {/* Hero visual */}
           <div className="relative">
             <div
-              className="rounded-[28px] border border-emerald-500/25 p-6"
+              className="rounded-[28px] border border-emerald-200 p-6"
               style={{
                 backgroundImage:
-                  "linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+                  "linear-gradient(135deg, rgba(16,185,129,0.16) 0%, rgba(255,255,255,1) 60%, rgba(255,255,255,1) 100%)",
               }}
             >
               <div className="flex items-start justify-between">
                 <div>
-                  <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
+                  <div className="text-[11px] uppercase tracking-wide text-emerald-700">Main balance</div>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="text-4xl font-bold tabular-nums text-white">
+                    <span className="text-4xl font-bold tabular-nums text-slate-900">
                       {isAuthenticated && !balancesHidden ? formatMoney(main, currency) : isAuthenticated ? "••••" : formatMoney(0, currency)}
                     </span>
                     {isAuthenticated && (
@@ -359,14 +359,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                         type="button"
                         onClick={toggleBalancesHidden}
                         aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                        className="rounded-full p-1.5 text-slate-400 transition-colors hover:text-white"
+                        className="rounded-full p-1.5 text-slate-400 transition-colors hover:text-slate-900"
                       >
                         {balancesHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                       </button>
                     )}
                   </div>
                 </div>
-                <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-black/30 px-3 text-xs font-semibold text-slate-200">
+                <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-semibold text-slate-700">
                   {flag && <span aria-hidden>{flag}</span>}
                   {currency}
                 </span>
@@ -378,10 +378,10 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                     key={f.label}
                     type="button"
                     onClick={() => onSelect(f.section)}
-                    className={`rounded-2xl border border-white/10 bg-gradient-to-b ${f.tint} to-transparent p-3 text-center transition-transform hover:-translate-y-0.5`}
+                    className={`rounded-2xl border border-slate-200 bg-gradient-to-b ${f.tint} to-transparent p-3 text-center transition-transform hover:-translate-y-0.5`}
                   >
                     <img src={f.img} alt="" aria-hidden className="mx-auto h-9 w-9 object-contain" />
-                    <span className="mt-2 block text-[11px] font-semibold text-white">{f.label}</span>
+                    <span className="mt-2 block text-[11px] font-semibold text-slate-900">{f.label}</span>
                   </button>
                 ))}
               </div>
@@ -389,7 +389,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <button
                 type="button"
                 onClick={onCreate}
-                className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-white/15 bg-[#1E1E24] text-sm font-bold text-white transition-transform active:scale-95"
+                className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-900 transition-transform active:scale-95"
               >
                 Start selling on Oventric
               </button>
@@ -399,7 +399,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-white/10 bg-[#0F0F11]">
+      <section className="border-y border-slate-200 bg-[#F7F8FA]">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-10">
           <Stat value={counts.products} label="Live products" />
           <Stat value={counts.courses} label="Courses to learn" />
@@ -409,7 +409,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       {/* Trust strip */}
-      <section className="border-b border-white/10 bg-[#121214]">
+      <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
           {[
             { Icon: ShieldCheck, title: "Escrow protection", body: "Funds held until delivery is confirmed" },
@@ -418,11 +418,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             { Icon: Headphones, title: "Support & disputes", body: "Live chat and mediated resolution" },
           ].map((t) => (
             <div key={t.title} className="flex items-start gap-3">
-              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-300">
+              <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
                 <t.Icon className="h-4 w-4" strokeWidth={2.4} />
               </span>
               <div className="min-w-0">
-                <div className="text-sm font-bold text-white">{t.title}</div>
+                <div className="text-sm font-bold text-slate-900">{t.title}</div>
                 <div className="mt-0.5 text-xs leading-relaxed text-slate-500">{t.body}</div>
               </div>
             </div>
@@ -434,15 +434,15 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       {catList.length > 0 && (
         <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
           <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold tracking-tight text-white">Explore categories</h2>
-            <div className="flex items-center gap-1 rounded-2xl border border-white/10 bg-[#1E1E24] p-1">
+            <h2 className="text-4xl font-bold tracking-tight text-slate-900">Explore categories</h2>
+            <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1">
               {(["digital", "physical"] as const).map((k) => (
                 <button
                   key={k}
                   type="button"
                   onClick={() => setCatTab(k)}
                   className={`h-9 rounded-xl px-4 text-sm font-semibold capitalize transition-colors ${
-                    catTab === k ? "bg-emerald-500 text-[#08130f]" : "text-slate-400 hover:text-white"
+                    catTab === k ? "bg-emerald-600 text-white" : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {k}
@@ -452,13 +452,13 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           </div>
           <div className="mt-8 grid grid-cols-3 gap-5">
             {catList.slice(0, 6).map((c) => (
-              <div key={c.id} className="rounded-3xl border border-white/10 bg-[#1E1E24] p-6">
+              <div key={c.id} className="rounded-3xl border border-slate-200 bg-white p-6">
                 <button
                   type="button"
                   onClick={() => onSelect("Marketplace")}
                   className="flex w-full items-center justify-between text-left"
                 >
-                  <span className="text-base font-bold text-white">{c.name}</span>
+                  <span className="text-base font-bold text-slate-900">{c.name}</span>
                   <ChevronRight className="h-4 w-4 text-slate-500" />
                 </button>
                 {c.description && <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-500">{c.description}</p>}
@@ -469,7 +469,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                         key={s.id}
                         type="button"
                         onClick={() => onSelect("Marketplace")}
-                        className="rounded-full border border-white/10 bg-white/5 px-3 py-1.5 text-xs font-medium text-slate-300 transition-colors hover:border-emerald-500/40 hover:text-white"
+                        className="rounded-full border border-slate-200 bg-slate-100 px-3 py-1.5 text-xs font-medium text-slate-600 transition-colors hover:border-emerald-400 hover:text-slate-900"
                       >
                         {s.name}
                       </button>
@@ -486,7 +486,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Feature blocks */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-white">
+        <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-slate-900">
           Everything you need to build an income online.
         </h2>
         <div className="mt-16 space-y-20">
@@ -496,21 +496,21 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
             >
               <div>
-                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-300">
+                <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-600">
                   <f.icon className="h-4 w-4" strokeWidth={2.5} /> {f.label}
                 </span>
-                <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-white">{f.title}</h3>
+                <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-slate-900">{f.title}</h3>
                 <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-400">{f.body}</p>
                 <button
                   type="button"
                   onClick={() => onSelect(f.section)}
-                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
+                  className="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
                 >
                   Open {f.label} <ChevronRight className="h-4 w-4" />
                 </button>
               </div>
               <div
-                className={`flex h-64 items-center justify-center rounded-3xl border border-white/10 bg-gradient-to-br ${f.tint} to-transparent`}
+                className={`flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
               >
                 <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain" />
               </div>
@@ -520,7 +520,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       {/* Live rails */}
-      <section className="border-t border-white/10 bg-[#0F0F11]">
+      <section className="border-t border-slate-200 bg-[#F7F8FA]">
         <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
           <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
           <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
@@ -530,23 +530,23 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* How it works */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="text-4xl font-bold tracking-tight text-white">How it works</h2>
+        <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
         <div className="mt-12 grid grid-cols-3 gap-6">
           {STEPS.map((s, i) => (
-            <div key={s.title} className="rounded-3xl border border-white/10 bg-[#1E1E24] p-7">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-500/15 text-sm font-bold text-emerald-300">
+            <div key={s.title} className="rounded-3xl border border-slate-200 bg-white p-7">
+              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
                 {i + 1}
               </span>
-              <h3 className="mt-5 text-lg font-bold text-white">{s.title}</h3>
+              <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
               <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.body}</p>
             </div>
           ))}
         </div>
 
-        <div className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/25 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+        <div className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-10">
           <div>
-            <h3 className="text-2xl font-bold text-white">Ready to start earning on Oventric?</h3>
-            <p className="mt-2 max-w-xl text-sm text-slate-300">
+            <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
+            <p className="mt-2 max-w-xl text-sm text-slate-600">
               Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
               your own currency.
             </p>
@@ -554,7 +554,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           <button
             type="button"
             onClick={primary}
-            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-500 px-6 text-sm font-bold text-[#08130f] transition-transform active:scale-95"
+            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform active:scale-95"
           >
             {isAuthenticated ? "Open the app" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
           </button>
@@ -569,7 +569,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className="text-3xl font-bold tabular-nums text-white">{value > 0 ? `${value}+` : "—"}</div>
+      <div className="text-3xl font-bold tabular-nums text-slate-900">{value > 0 ? `${value}+` : "—"}</div>
       <div className="mt-1 text-sm text-slate-500">{label}</div>
     </div>
   );
@@ -580,11 +580,11 @@ function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; on
   return (
     <div>
       <div className="mb-6 flex items-end justify-between">
-        <h2 className="text-2xl font-bold tracking-tight text-white">{title}</h2>
+        <h2 className="text-2xl font-bold tracking-tight text-slate-900">{title}</h2>
         <button
           type="button"
           onClick={onSeeAll}
-          className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-300 transition-colors hover:text-emerald-200"
+          className="inline-flex items-center gap-1 text-sm font-semibold text-emerald-600 transition-colors hover:text-emerald-700"
         >
           See all <ChevronRight className="h-4 w-4" />
         </button>
@@ -597,19 +597,19 @@ function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; on
             onClick={onSeeAll}
             className="group text-left transition-transform hover:-translate-y-1"
           >
-            <span className="block h-40 w-full overflow-hidden rounded-2xl border border-white/10 bg-[#1E1E24]">
+            <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
               {it.coverUrl ? (
                 <img src={it.coverUrl} alt={it.title} className="h-full w-full object-cover" loading="lazy" />
               ) : (
-                <span className="flex h-full w-full items-center justify-center text-slate-600">
+                <span className="flex h-full w-full items-center justify-center text-slate-400">
                   <Newspaper className="h-7 w-7" />
                 </span>
               )}
             </span>
-            <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-white">
+            <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
               {it.title}
             </span>
-            <span className="mt-1 block truncate text-sm font-bold text-emerald-300">{it.meta}</span>
+            <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
           </button>
         ))}
       </div>
