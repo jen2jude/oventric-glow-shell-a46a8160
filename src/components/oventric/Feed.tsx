@@ -1,4 +1,4 @@
-import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen, User, Users } from "lucide-react";
+import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, AtSign, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen, User, Users } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -947,17 +947,34 @@ export function Feed() {
           id="oventric-composer"
           type="button"
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className="w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a] md:hover:bg-slate-50"
+          className="group w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 flex items-center gap-3 transition-all duration-200 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white"
         >
-          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 flex items-center justify-center">
+          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 md:ring-1 md:ring-slate-200 flex items-center justify-center">
             <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
           </span>
-          <span className="flex-1 text-sm text-slate-400 md:text-slate-600 truncate">
-            {placeholderIdx === 0
-              ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
-              : "What's on your mind today, update us!"}
+          <span className="flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors">
+            <span className="block text-sm text-slate-400 md:text-slate-500 md:font-normal truncate">
+              {placeholderIdx === 0
+                ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
+                : "What's on your mind today, update us!"}
+            </span>
           </span>
-          <span className="hidden sm:inline text-[11px] text-slate-500 md:text-slate-500">Photo · Video · @Mention</span>
+          <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">Photo · Video · @Mention</span>
+          <span className="hidden md:flex items-center gap-1 shrink-0">
+            {[
+              { Icon: ImageIcon, label: "Photo", tone: "text-emerald-600 group-hover:bg-emerald-50" },
+              { Icon: VideoIcon, label: "Video", tone: "text-rose-600 group-hover:bg-rose-50" },
+              { Icon: AtSign, label: "Mention", tone: "text-sky-600 group-hover:bg-sky-50" },
+            ].map(({ Icon, label, tone }) => (
+              <span
+                key={label}
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-[12px] font-medium text-slate-600 transition-colors ${tone}`}
+              >
+                <Icon className={`w-4 h-4 ${tone.split(" ")[0]}`} strokeWidth={2.2} />
+                <span className="hidden lg:inline">{label}</span>
+              </span>
+            ))}
+          </span>
         </button>
 
 
