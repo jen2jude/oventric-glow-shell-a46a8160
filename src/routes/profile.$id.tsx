@@ -944,15 +944,23 @@ function ProfilePage() {
 
                 <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
                   <h1 className="text-white text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
-                  <ShieldCheck className="w-5 h-5 text-white" aria-label={displayTierLabel} />
+                  <ShieldCheck className="w-5 h-5 text-emerald-400" aria-label={displayTierLabel} />
                 </div>
-                <span className="mt-1.5 inline-flex text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border border-white/40 text-white bg-transparent">
-                  {displayTierLabel}
-                </span>
 
-                <div className="text-sm text-slate-400 mt-2 text-center">{displayRole}</div>
-                <div className="text-xs text-slate-500 mt-1 text-center">
-                  Joined {displayJoined} · ★ {displayStars.toFixed(1)}
+                {realProfile?.username && (
+                  <div className="mt-1 text-sm font-semibold text-slate-400">@{realProfile.username}</div>
+                )}
+
+                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
+                    <ShieldCheck className="w-3 h-3" /> {displayTierLabel}
+                  </span>
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                    <Star className="w-3 h-3 text-amber-300" /> {displayStars.toFixed(1)}
+                  </span>
+                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                    Joined {displayJoined}
+                  </span>
                 </div>
 
                 <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs">
@@ -969,6 +977,33 @@ function ProfilePage() {
                     <span className="text-slate-500">in circle</span>
                   </span>
                 </div>
+
+                {/* Key stats */}
+                <div className="mt-4 grid w-full max-w-md grid-cols-3 gap-2">
+                  <HeaderStat
+                    icon={<Sparkles className="w-4 h-4 text-cyan-300" />}
+                    label="Posts"
+                    value={liveRep ? liveRep.metrics.postsTotal.toLocaleString() : "…"}
+                  />
+                  <HeaderStat
+                    icon={<Target className="w-4 h-4 text-emerald-300" />}
+                    label="Bounties"
+                    value={liveRep ? liveRep.metrics.bountiesSolved.toLocaleString() : "…"}
+                  />
+                  <HeaderStat
+                    icon={<Award className="w-4 h-4 text-amber-300" />}
+                    label="Earnings"
+                    value={
+                      isOwnProfile
+                        ? overview
+                          ? `${overview.bounties.earnedCurrency} ${overview.bounties.earned.toLocaleString()}`
+                          : "…"
+                        : "Private"
+                    }
+                    muted={!isOwnProfile}
+                  />
+                </div>
+
 
                 {displayBio && (
                   <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed text-center max-w-md">
