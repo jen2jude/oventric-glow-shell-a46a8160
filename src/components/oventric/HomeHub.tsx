@@ -25,6 +25,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
+import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
