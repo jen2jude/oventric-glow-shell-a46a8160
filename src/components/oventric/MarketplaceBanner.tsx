@@ -15,8 +15,8 @@ function scrollParent(el: HTMLElement | null): HTMLElement | Window {
 /**
  * Temu-style full-width trust strip across the top of the marketplace.
  * The "Get the Oventric App" item is desktop-only.
- * On desktop the strip sticks to the top and smoothly hides on scroll-down,
- * reappearing on scroll-up. On mobile it stays inline in the flow.
+ * The strip is sticky on every viewport and smoothly hides on scroll-down,
+ * reappearing on scroll-up.
  */
 export function MarketplaceBanner() {
   const ref = useRef<HTMLDivElement>(null);
@@ -56,9 +56,9 @@ export function MarketplaceBanner() {
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
-      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
-        {/* Mobile: stacked rows. Tablet+: horizontal rail. */}
-        <div className="flex flex-col gap-2 py-2.5 md:flex-row md:items-stretch md:gap-3 md:overflow-x-auto md:scrollbar-none lg:gap-6">
+      <div className="max-w-7xl mx-auto w-full px-2 sm:px-4">
+        {/* Single horizontal rail on all viewports. */}
+        <div className="flex flex-row items-stretch gap-2 py-2 md:gap-3 lg:gap-6">
           <Item
             Icon={BadgePercent}
             title="Get up to 10% cashback on purchase"
@@ -81,14 +81,7 @@ export function MarketplaceBanner() {
 }
 
 function Divider() {
-  return (
-    <>
-      {/* Horizontal divider between stacked rows on small screens */}
-      <div className="h-px bg-white/10 md:hidden" />
-      {/* Vertical divider on desktop */}
-      <div className="hidden md:block w-px shrink-0 bg-white/15 self-stretch" />
-    </>
-  );
+  return <div className="w-px shrink-0 bg-white/15 self-stretch" />;
 }
 
 function Item({
@@ -101,13 +94,13 @@ function Item({
   sub: string;
 }) {
   return (
-    <div className="flex min-w-0 items-center justify-start gap-2.5 px-1 md:flex-1 md:min-w-max md:justify-center">
-      <Icon className="w-5 h-5 md:w-6 md:h-6 shrink-0 text-emerald-400" />
+    <div className="flex flex-1 min-w-0 items-center justify-start gap-2 px-0.5 md:gap-2.5 md:px-1 md:min-w-max md:justify-center">
+      <Icon className="w-4 h-4 md:w-6 md:h-6 shrink-0 text-emerald-400" />
       <div className="min-w-0">
-        <div className="text-xs sm:text-[13px] md:text-sm font-extrabold leading-tight text-emerald-300">
+        <div className="text-[10px] sm:text-[11px] md:text-sm font-extrabold leading-tight text-emerald-300 break-words">
           {title}
         </div>
-        <div className="text-[11px] md:text-xs text-emerald-100/70 leading-tight">
+        <div className="text-[9px] sm:text-[10px] md:text-xs text-emerald-100/70 leading-tight break-words">
           {sub}
         </div>
       </div>
