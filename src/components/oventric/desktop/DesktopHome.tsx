@@ -597,6 +597,23 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       <SecuredPayments />
 
+      {/* Social connect */}
+      <section className="border-t border-slate-200 bg-white">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-8 py-10 md:flex-row">
+          <div>
+            <h3 className="text-lg font-bold text-slate-900">Follow Oventric</h3>
+            <p className="mt-1 text-sm text-slate-500">Get updates, tips and community highlights.</p>
+          </div>
+          <div className="flex items-center gap-3">
+            <SocialLink href="https://facebook.com/oventric" label="Facebook" icon={<FacebookIcon />} />
+            <SocialLink href="https://instagram.com/oventric" label="Instagram" icon={<InstagramIcon />} />
+            <SocialLink href="https://x.com/oventric" label="X" icon={<XIcon />} />
+            <SocialLink href="https://tiktok.com/@oventric" label="TikTok" icon={<TikTokIcon />} />
+            <SocialLink href="https://whatsapp.com/channel/oventric" label="WhatsApp Channel" icon={<WhatsAppIcon />} />
+          </div>
+        </div>
+      </section>
+
       <SiteFooter onSelect={onSelect} currency={currency} flag={flag} />
 
     </div>
