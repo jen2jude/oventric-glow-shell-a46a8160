@@ -11,6 +11,7 @@ import { RequestsInboxDrawer } from "@/components/oventric/RequestsInboxDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoFull from "@/assets/oventric-full.asset.json";
+import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
@@ -131,23 +132,12 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               aria-label="Help board"
               className="inline-flex p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors shrink-0"
             >
-              <svg
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                className="w-5 h-5 md:w-6 md:h-6 headset-fluid"
-                aria-hidden="true"
-              >
-                <circle cx="12" cy="9.5" r="3.5" />
-                <path d="M7.5 9.5v2a1 1 0 0 0 1 1h1" />
-                <path d="M16.5 9.5v2a1 1 0 0 1-1 1h-1" />
-                <path d="M8 7a4 4 0 0 1 8 0" />
-                <path d="M12 13v2" />
-                <path d="M9 21h6" />
-              </svg>
+              <img
+                src={supportHeadset.url}
+                alt="Help board"
+                className="w-5 h-5 md:w-6 md:h-6 headset-fluid object-contain"
+                draggable={false}
+              />
             </Link>
 
             <button
