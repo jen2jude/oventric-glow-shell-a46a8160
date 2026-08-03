@@ -191,11 +191,16 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
 
       <div className="flex h-full flex-col">
-        {!desktopLanding && (
+        {!isDesktop && (
           <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home"} />
         )}
-        <div className={`flex flex-1 min-h-0 ${active === "Home" && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""}`}>
-          {!desktopLanding && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
+        {isDesktop && !desktopLanding && (
+          <div className="bg-white">
+            <SiteNavbar onSelect={setActive} />
+          </div>
+        )}
+        <div className={`flex flex-1 min-h-0 ${active === "Home" && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
+          {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
           <main
             id={desktopLanding ? "desktop-home-scroll" : undefined}
             className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"}`}
