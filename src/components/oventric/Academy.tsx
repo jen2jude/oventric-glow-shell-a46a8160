@@ -276,14 +276,15 @@ function CourseCard({ course, currency, onOpen }: { course: CourseDTO; currency:
         </div>
       </button>
       <div className="p-5">
-        <h3 className="text-white font-black text-lg leading-snug">{course.title}</h3>
+        <h3 className="text-white md:text-slate-900 font-black text-lg leading-snug">{course.title}</h3>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
           {course.instructorName && <span>By {course.instructorName}</span>}
           <span className="inline-flex items-center gap-1"><Users className="w-3 h-3" /> {course.level}</span>
         </div>
         {course.description && (
-          <p className="mt-3 text-sm text-slate-400 leading-relaxed line-clamp-2">{course.description}</p>
+          <p className="mt-3 text-sm text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">{course.description}</p>
         )}
+
         <button onClick={onOpen} className="mt-4 w-full py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center justify-center gap-2">
           {course.isFree ? "Start learning" : "View course"} <ArrowRight className="w-4 h-4" />
         </button>
