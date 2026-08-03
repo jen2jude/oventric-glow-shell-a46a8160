@@ -172,7 +172,6 @@ function ProfilePage() {
   const [photosMode, setPhotosMode] = useState(false);
   const [relTab, setRelTab] = useState<RelationshipTab>("followers");
   const onlineUsers = useOnlineUsers();
-  const isViewedUserOnline = !!realProfileOnlineId && onlineUsers.has(realProfileOnlineId);
   const openRelationships = (which: RelationshipTab) => {
     setRelTab(which);
     requestAnimationFrame(() => {
@@ -243,6 +242,7 @@ function ProfilePage() {
   const fetchSocialCounts = useServerFn(getProfileSocialCounts);
 
   const [realProfile, setRealProfile] = useState<RealProfileView | null>(null);
+  const isViewedUserOnline = !!realProfile?.userId && onlineUsers.has(realProfile.userId);
   const [realProfileLoaded, setRealProfileLoaded] = useState(false);
   const [liveRep, setLiveRep] = useState<LiveReputation | null>(null);
   const [socialCounts, setSocialCounts] = useState<ProfileSocialCounts | null>(null);
