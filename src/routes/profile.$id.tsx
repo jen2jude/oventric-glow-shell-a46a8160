@@ -845,7 +845,7 @@ function ProfilePage() {
 
 
   return (
-    <div className="profile-render-safe relative min-h-screen overflow-x-hidden bg-[#121214] text-slate-200 md:h-screen md:overflow-hidden">
+    <div className="profile-render-safe relative min-h-screen overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 md:h-screen md:overflow-hidden">
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
       <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
@@ -859,27 +859,27 @@ function ProfilePage() {
             <div className="profile-standard-actions flex items-center justify-between gap-3 mb-4">
               <button
                 onClick={() => navigate({ to: "/" })}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 md:text-slate-500 hover:text-emerald-400"
               >
                 <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
               </button>
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
                   aria-label="Copy profile link"
                 >
                   {copied ? (
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
                   ) : (
-                    <Link2 className="w-3.5 h-3.5 text-slate-400" />
+                    <Link2 className="w-3.5 h-3.5 text-slate-400 md:text-slate-500" />
                   )}
                   {copied ? "Copied!" : "Copy Link"}
                 </button>
                 {isOwnProfile && (
                   <button
                     onClick={() => setFollowRequestsOpen(true)}
-                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-sky-500/40 text-xs font-semibold text-slate-200 hover:text-white transition-colors"
+                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
                     aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
                     <UserPlus className="w-3.5 h-3.5 text-sky-300" />
@@ -942,7 +942,7 @@ function ProfilePage() {
               className="profile-card-safe profile-standard-header mb-6"
             >
               {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 bg-[#18181d] overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
+              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -1007,20 +1007,20 @@ function ProfilePage() {
                 </div>
 
                 <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
-                  <h1 className="text-white text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
+                  <h1 className="text-white md:text-slate-900 text-2xl sm:text-3xl font-black text-center leading-tight">{displayName}</h1>
                   <ShieldCheck className="w-5 h-5 text-emerald-400" aria-label={displayTierLabel} />
                 </div>
 
                 <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
                   {realProfile?.username && (
-                    <span className="text-sm font-semibold text-slate-400">@{realProfile.username}</span>
+                    <span className="text-sm font-semibold text-slate-400 md:text-slate-500">@{realProfile.username}</span>
                   )}
                   {realProfile?.userId && (
                     <span
                       className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
                         isViewedUserOnline
                           ? "border-emerald-400/40 bg-emerald-500/10 text-emerald-300"
-                          : "border-white/15 bg-white/5 text-slate-400"
+                          : "border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-400 md:text-slate-500"
                       }`}
                     >
                       <span
@@ -1036,10 +1036,10 @@ function ProfilePage() {
                   <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300">
                     <ShieldCheck className="w-3 h-3" /> {displayTierLabel}
                   </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300">
+                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 md:text-slate-600">
                     <Star className="w-3 h-3 text-amber-300" /> {displayStars.toFixed(1)}
                   </span>
-                  <span className="inline-flex items-center rounded-full border border-white/15 bg-white/5 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+                  <span className="inline-flex items-center rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
                     Joined {displayJoined}
                   </span>
                 </div>
@@ -1049,23 +1049,23 @@ function ProfilePage() {
                     type="button"
                     onClick={() => openRelationships("followers")}
                     aria-controls="relationships"
-                    className="rounded text-slate-300 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                   >
-                    <span className="font-bold text-white">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
-                    <span className="text-slate-500">followers</span>
+                    <span className="font-bold text-white md:text-slate-900">{(socialCounts?.followers ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500 md:text-slate-500">followers</span>
                   </button>
                   <button
                     type="button"
                     onClick={() => openRelationships("following")}
                     aria-controls="relationships"
-                    className="rounded text-slate-300 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                   >
-                    <span className="font-bold text-white">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
-                    <span className="text-slate-500">following</span>
+                    <span className="font-bold text-white md:text-slate-900">{(socialCounts?.following ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500 md:text-slate-500">following</span>
                   </button>
-                  <span className="text-slate-300">
-                    <span className="font-bold text-white">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
-                    <span className="text-slate-500">in circle</span>
+                  <span className="text-slate-300 md:text-slate-600">
+                    <span className="font-bold text-white md:text-slate-900">{(socialCounts?.circleMembers ?? 0).toLocaleString()}</span>{" "}
+                    <span className="text-slate-500 md:text-slate-500">in circle</span>
                   </span>
                 </div>
 
@@ -1097,7 +1097,7 @@ function ProfilePage() {
 
 
                 {displayBio && (
-                  <p className="profile-mid-safe text-sm text-slate-300 mt-3 leading-relaxed text-center max-w-md">
+                  <p className="profile-mid-safe text-sm text-slate-300 md:text-slate-600 mt-3 leading-relaxed text-center max-w-md">
                     {displayBio}
                   </p>
                 )}
@@ -1111,7 +1111,7 @@ function ProfilePage() {
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                         aria-label={key}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 bg-white/5 text-slate-300 hover:text-emerald-300 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-300 md:text-slate-600 hover:text-emerald-300 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
                       >
                         <SocialIcon kind={key} />
                       </a>
@@ -1144,7 +1144,7 @@ function ProfilePage() {
                         />
                       </button>
                     </div>
-                    <p className="mt-1.5 text-center text-[11px] text-slate-500">
+                    <p className="mt-1.5 text-center text-[11px] text-slate-500 md:text-slate-500">
                       {isViewedUserOnline
                         ? "Online now · usually replies in minutes"
                         : "Send a direct message — replies land in your inbox"}
@@ -1161,7 +1161,7 @@ function ProfilePage() {
                       </button>
                       <button
                         onClick={() => setReportOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-400 hover:bg-white/5 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
+                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-red-400 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
                       >
                         <Flag className="w-3.5 h-3.5" /> Report
                       </button>
@@ -1181,7 +1181,7 @@ function ProfilePage() {
                     </span>
                     <button
                       onClick={() => navigate({ to: "/" })}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-300 text-white md:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-sm font-semibold"
                     >
                       Back to feed
                     </button>
@@ -1192,8 +1192,8 @@ function ProfilePage() {
 
 
               {/* Reputation block */}
-              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 bg-[#1E1E24]">
-                <div className="sm:hidden rounded-lg border border-[#2A2A30] bg-[#17171C]">
+              <div data-testid="profile-reputation" className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white">
+                <div className="sm:hidden rounded-lg border border-[#2A2A30] md:border-slate-200 bg-[#17171C] md:bg-white">
                   <MobileRepLine
                     icon={<Star className="w-4 h-4 text-white" />}
                     label="Star Rating"
@@ -1235,7 +1235,7 @@ function ProfilePage() {
                     label="Star Rating"
                     value={
                       <div className="flex items-center gap-1">
-                        <span className="text-white font-black">{displayStars.toFixed(1)}</span>
+                        <span className="text-white md:text-slate-900 font-black">{displayStars.toFixed(1)}</span>
                         <StarRow value={displayStars} />
                       </div>
                     }
@@ -1244,7 +1244,7 @@ function ProfilePage() {
                     icon={<Target className="w-4 h-4 text-white" />}
                     label="Bounties Solved"
                     value={
-                      <span className="text-white font-black">
+                      <span className="text-white md:text-slate-900 font-black">
                         {liveRep ? liveRep.metrics.bountiesSolved : "…"}
                       </span>
                     }
@@ -1253,7 +1253,7 @@ function ProfilePage() {
                     icon={<Award className="w-4 h-4 text-white" />}
                     label="Product Rating"
                     value={
-                      <span className="text-white font-black">
+                      <span className="text-white md:text-slate-900 font-black">
                         {liveRep
                           ? liveRep.metrics.productReviewCount > 0
                             ? liveRep.metrics.avgProductRating.toFixed(1)
@@ -1266,7 +1266,7 @@ function ProfilePage() {
                     icon={<ShoppingBag className="w-4 h-4 text-white" />}
                     label="Listings"
                     value={
-                      <span className="text-white font-black">
+                      <span className="text-white md:text-slate-900 font-black">
                         {liveRep ? liveRep.metrics.productsListed : "…"}
                       </span>
                     }
@@ -1275,7 +1275,7 @@ function ProfilePage() {
                     icon={<ShieldCheck className="w-4 h-4 text-white" />}
                     label="Posts (30d)"
                     value={
-                      <span className="text-white font-black">
+                      <span className="text-white md:text-slate-900 font-black">
                         {liveRep ? liveRep.metrics.postsLast30d : "…"}
                       </span>
                     }
@@ -1284,32 +1284,32 @@ function ProfilePage() {
               </div>
 
               {/* Member details: country, address & birthday — centred */}
-              <div className="profile-card-safe mt-4 rounded-lg border border-white/5 bg-[#17171C] p-4 text-center">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 mb-3">
+              <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white p-4 text-center">
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 mb-3">
                   Member details
                 </h3>
                 <dl className="mx-auto max-w-xl grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm justify-items-center">
                   <div className="text-center">
-                    <dt className="text-[11px] uppercase tracking-wider text-slate-500">Country</dt>
-                    <dd className="mt-0.5 text-white font-semibold">
-                      {realProfile?.country?.trim() || <span className="text-slate-500 font-normal">Not provided</span>}
+                    <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">Country</dt>
+                    <dd className="mt-0.5 text-white md:text-slate-900 font-semibold">
+                      {realProfile?.country?.trim() || <span className="text-slate-500 md:text-slate-500 font-normal">Not provided</span>}
                     </dd>
                   </div>
                   <div className="text-center">
-                    <dt className="text-[11px] uppercase tracking-wider text-slate-500">Address</dt>
-                    <dd className="mt-0.5 text-white font-semibold break-words">
+                    <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">Address</dt>
+                    <dd className="mt-0.5 text-white md:text-slate-900 font-semibold break-words">
                       {realProfile?.address?.trim() ? (
                         realProfile.address
                       ) : isOwnProfile ? (
-                        <span className="text-slate-500 font-normal">Private</span>
+                        <span className="text-slate-500 md:text-slate-500 font-normal">Private</span>
                       ) : (
-                        <span className="text-slate-500 font-normal">Not shared</span>
+                        <span className="text-slate-500 md:text-slate-500 font-normal">Not shared</span>
                       )}
                     </dd>
                   </div>
                   <div className="text-center">
-                    <dt className="text-[11px] uppercase tracking-wider text-slate-500">Date of birth</dt>
-                    <dd className="mt-0.5 text-white font-semibold">
+                    <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">Date of birth</dt>
+                    <dd className="mt-0.5 text-white md:text-slate-900 font-semibold">
                       {realProfile?.dateOfBirth ? (
                         new Date(realProfile.dateOfBirth).toLocaleDateString(undefined, {
                           day: "numeric",
@@ -1317,9 +1317,9 @@ function ProfilePage() {
                           year: "numeric",
                         })
                       ) : isOwnProfile ? (
-                        <span className="text-slate-500 font-normal">Private</span>
+                        <span className="text-slate-500 md:text-slate-500 font-normal">Private</span>
                       ) : (
-                        <span className="text-slate-500 font-normal">Not shared</span>
+                        <span className="text-slate-500 md:text-slate-500 font-normal">Not shared</span>
                       )}
                     </dd>
                   </div>
@@ -1331,7 +1331,7 @@ function ProfilePage() {
 
 
             {/* Tabs */}
-            <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
+            <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10 md:border-slate-200">
               {(
                 [
                   ["posts", "Posts"],
@@ -1350,11 +1350,11 @@ function ProfilePage() {
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key && !photosMode
                         ? "text-emerald-400 border-emerald-400"
-                        : "text-slate-400 border-transparent hover:text-white"
+                        : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
                     }`}
                   >
                     {label}
-                    <span className="text-xs text-slate-500 ml-1">
+                    <span className="text-xs text-slate-500 md:text-slate-500 ml-1">
                       ({count === null ? "…" : count})
                     </span>
                   </button>
@@ -1371,7 +1371,7 @@ function ProfilePage() {
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
                     ? "text-emerald-400 border-emerald-400"
-                    : "text-slate-400 border-transparent hover:text-white"
+                    : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
                 }`}
               >
                 Photos
@@ -1421,7 +1421,7 @@ function ProfilePage() {
             {/* Live refresh indicator for the marketplace tab */}
             {tab === "marketplace" && (
               <div className="mt-3 flex items-center justify-between text-[11px]">
-                <div className="inline-flex items-center gap-1.5 text-slate-400">
+                <div className="inline-flex items-center gap-1.5 text-slate-400 md:text-slate-500">
                   <span
                     className={`w-1.5 h-1.5 rounded-full ${
                       mpRefreshing ? "bg-emerald-400 animate-pulse" : "bg-emerald-500"
@@ -1429,12 +1429,12 @@ function ProfilePage() {
                     aria-hidden
                   />
                   <span className="font-semibold text-emerald-300">Live prices</span>
-                  <span className="text-slate-500">· Last updated {mpAgoLabel}</span>
+                  <span className="text-slate-500 md:text-slate-500">· Last updated {mpAgoLabel}</span>
                 </div>
                 <button
                   onClick={refreshMarketplace}
                   disabled={mpRefreshing}
-                  className="text-slate-400 hover:text-emerald-400 disabled:opacity-50 font-semibold"
+                  className="text-slate-400 md:text-slate-500 hover:text-emerald-400 disabled:opacity-50 font-semibold"
                   aria-label="Refresh marketplace prices"
                 >
                   {mpRefreshing ? "Refreshing…" : "Refresh"}
@@ -1598,7 +1598,7 @@ function ProfilePage() {
                                     params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                     search: itemSearch,
                                   } as any))}
-                              className="group block bg-[#141418] border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
+                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
                                 {t.coverUrl ? (
@@ -1629,11 +1629,11 @@ function ProfilePage() {
                                 )}
                               </div>
                               <div className="p-3">
-                                <div className="text-white font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
+                                <div className="text-white md:text-slate-900 font-semibold text-sm line-clamp-2 min-h-[2.5rem]">
                                   {t.title}
                                 </div>
                                 {t.subtitle && (
-                                  <div className="mt-1 text-[11px] text-slate-500 line-clamp-1">
+                                  <div className="mt-1 text-[11px] text-slate-500 md:text-slate-500 line-clamp-1">
                                     {t.subtitle}
                                   </div>
                                 )}
@@ -1653,12 +1653,12 @@ function ProfilePage() {
                         <button
                           onClick={() => loadMore()}
                           disabled={st.loading}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 text-sm text-slate-300 hover:text-white hover:bg-white/5 disabled:opacity-50"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 md:border-slate-200 text-sm text-slate-300 md:text-slate-600 hover:text-white md:text-slate-900 md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 disabled:opacity-50"
                         >
                           {st.loading ? "Loading…" : `Load more (${(st.total ?? 0) - st.items.length} left)`}
                         </button>
                       ) : (
-                        <div className="text-[11px] text-slate-500">
+                        <div className="text-[11px] text-slate-500 md:text-slate-500">
                           You've reached the end · {st.items.length} of {st.total}
                         </div>
                       )}
@@ -1748,8 +1748,8 @@ function ProfilePage() {
 
 function RepStat({ icon, label, value }: { icon: React.ReactNode; label: string; value: React.ReactNode }) {
   return (
-    <div className="profile-card-safe bg-[#17171C] border border-white/5 rounded-lg px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500">
+    <div className="profile-card-safe bg-[#17171C] md:bg-white border border-white/5  md:border-slate-200 rounded-lg px-3 py-2.5">
+      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
         {icon}
         {label}
       </div>
@@ -1770,12 +1770,12 @@ function MobileRepLine({
   last?: boolean;
 }) {
   return (
-    <div className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30]"}`}>
+    <div className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30] md:border-slate-200"}`}>
       <div className="flex min-w-0 items-center gap-2">
         {icon ? <span className="shrink-0 inline-flex">{icon}</span> : null}
-        <div className="min-w-0 text-xs font-semibold text-slate-300">{label}</div>
+        <div className="min-w-0 text-xs font-semibold text-slate-300 md:text-slate-600">{label}</div>
       </div>
-      <div className="shrink-0 text-sm font-black text-white">{value}</div>
+      <div className="shrink-0 text-sm font-black text-white md:text-slate-900">{value}</div>
     </div>
   );
 }
@@ -1828,7 +1828,7 @@ function CircleStatusNote({
           </div>
         )}
         {sent && (
-          <div className="text-slate-500">
+          <div className="text-slate-500 md:text-slate-500">
             <span title={absTime(meta.sentAt)}>Request sent {sent}</span>
           </div>
         )}
@@ -1838,13 +1838,13 @@ function CircleStatusNote({
 
   if (status === "pending") {
     return (
-      <div className="text-[11px] text-slate-400 sm:text-center leading-snug px-1 space-y-0.5">
+      <div className="text-[11px] text-slate-400 md:text-slate-500 sm:text-center leading-snug px-1 space-y-0.5">
         {sent && (
           <div>
             <span title={absTime(meta.sentAt)}>Sent {sent}</span>
           </div>
         )}
-        <div className="text-slate-500">Waiting on {firstName} to accept from their inbox.</div>
+        <div className="text-slate-500 md:text-slate-500">Waiting on {firstName} to accept from their inbox.</div>
       </div>
     );
   }
@@ -1852,7 +1852,7 @@ function CircleStatusNote({
   // status === "none"
   if (canceled) {
     return (
-      <div className="text-[11px] text-slate-500 sm:text-center leading-snug px-1">
+      <div className="text-[11px] text-slate-500 md:text-slate-500 sm:text-center leading-snug px-1">
         <span title={absTime(meta.canceledAt)}>Request canceled {canceled}</span>
       </div>
     );
@@ -1914,7 +1914,7 @@ function TabFilters({
           value={draft}
           onChange={(e) => setDraft(e.target.value)}
           placeholder={SEARCH_PLACEHOLDER[tab]}
-          className="w-full bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/40"
+          className="w-full bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 pr-8 text-sm text-slate-200 md:text-slate-700 placeholder:text-slate-500 md:text-slate-500 focus:outline-none focus:border-emerald-500/40"
           aria-label={SEARCH_PLACEHOLDER[tab]}
         />
         {draft && (
@@ -1922,18 +1922,18 @@ function TabFilters({
             type="button"
             onClick={() => setDraft("")}
             aria-label="Clear search"
-            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-200"
+            className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-500 md:text-slate-500 hover:text-slate-200 md:text-slate-700"
           >
             <X className="w-3.5 h-3.5" />
           </button>
         )}
       </div>
       <label className="flex items-center gap-2 shrink-0">
-        <span className="text-[11px] uppercase tracking-wider text-slate-500">Sort</span>
+        <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">Sort</span>
         <select
           value={sort}
           onChange={(e) => onChangeSort(e.target.value as ProfileSortKey)}
-          className="bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 focus:outline-none focus:border-emerald-500/40"
+          className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/40"
         >
           {options.map((o) => (
             <option key={o.value} value={o.value}>
@@ -1964,14 +1964,14 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
   }, [fetchPhotos, slug]);
 
   if (photos === null) {
-    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>;
+    return <div className="py-16 flex justify-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500 md:text-slate-500" /></div>;
   }
   const filtered = filter === "all" ? photos : photos.filter((p) => p.source === filter);
   const chip = (v: typeof filter, label: string) => (
     <button
       key={v}
       onClick={() => setFilter(v)}
-      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300" : "border-white/10 text-slate-400 hover:text-white"}`}
+      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 border-emerald-500/40 text-emerald-300" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 md:hover:text-slate-900"}`}
     >{label}</button>
   );
   return (
@@ -1983,12 +1983,12 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
         {chip("cover", "Cover")}
       </div>
       {filtered.length === 0 ? (
-        <div className="bg-[#1E1E24] border border-white/10 rounded-2xl py-16 px-6 text-center">
+        <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl py-16 px-6 text-center">
           <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
             <Images className="w-4 h-4" />
           </div>
-          <div className="text-sm text-slate-200 font-semibold">No photos yet</div>
-          <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">
+          <div className="text-sm text-slate-200 md:text-slate-700 font-semibold">No photos yet</div>
+          <p className="mt-1 text-xs text-slate-500 md:text-slate-500 max-w-sm mx-auto">
             Photos from posts, profile picture and cover image will show up here.
           </p>
         </div>
@@ -2015,12 +2015,12 @@ function EmptyState({
   secondary?: StateAction;
 }) {
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+    <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
       <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 flex items-center justify-center">
         <Sparkles className="w-4 h-4" />
       </div>
-      <div className="text-sm text-slate-200 font-semibold">{title}</div>
-      {hint && <p className="mt-1 text-xs text-slate-500 max-w-sm mx-auto">{hint}</p>}
+      <div className="text-sm text-slate-200 md:text-slate-700 font-semibold">{title}</div>
+      {hint && <p className="mt-1 text-xs text-slate-500 md:text-slate-500 max-w-sm mx-auto">{hint}</p>}
       {(primary || secondary) && (
         <div className="mt-4 flex items-center justify-center gap-2">
           {primary && (
@@ -2034,7 +2034,7 @@ function EmptyState({
           {secondary && (
             <button
               onClick={secondary.onClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:bg-white/5 text-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:text-white md:text-slate-900 md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs transition-colors"
             >
               {secondary.label}
             </button>
@@ -2055,12 +2055,12 @@ function ErrorState({
   onRetry: () => void;
 }) {
   return (
-    <div className="bg-[#1E1E24] border border-red-500/30 rounded-xl p-6 text-center">
+    <div className="bg-[#1E1E24] md:bg-white border border-red-500/30 rounded-xl p-6 text-center">
       <div className="mx-auto mb-3 w-10 h-10 rounded-full bg-red-500/10 border border-red-500/30 text-red-300 flex items-center justify-center">
         <AlertTriangle className="w-4 h-4" />
       </div>
       <div className="text-sm text-red-200 font-semibold">{label}</div>
-      {hint && <p className="mt-1 text-xs text-slate-500">{hint}</p>}
+      {hint && <p className="mt-1 text-xs text-slate-500 md:text-slate-500">{hint}</p>}
       <div className="mt-4 flex items-center justify-center">
         <button
           onClick={onRetry}
@@ -2081,13 +2081,13 @@ function TabSkeleton({ variant: _variant }: { variant: Tab }) {
       {Array.from({ length: 6 }).map((_, i) => (
         <div
           key={i}
-          className="bg-[#141418] border border-white/10 rounded-2xl overflow-hidden animate-pulse"
+          className="bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden animate-pulse"
         >
           <div className="aspect-[4/3] bg-white/[0.04]" />
           <div className="p-3">
-            <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
-            <div className="h-3 w-7/12 bg-white/5 rounded mb-2" />
-            <div className="h-2.5 w-1/2 bg-white/5 rounded" />
+            <div className="h-3 w-11/12 bg-white/5 md:bg-slate-100 rounded mb-2" />
+            <div className="h-3 w-7/12 bg-white/5 md:bg-slate-100 rounded mb-2" />
+            <div className="h-2.5 w-1/2 bg-white/5 md:bg-slate-100 rounded" />
           </div>
         </div>
       ))}
@@ -2176,12 +2176,12 @@ function HeaderStat({
   muted?: boolean;
 }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-white/[0.04] px-2 py-2.5 text-center">
-      <div className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400">
+    <div className="rounded-xl border border-white/10 md:border-slate-200 bg-white/[0.04] px-2 py-2.5 text-center">
+      <div className="flex items-center justify-center gap-1 text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
         <span className="shrink-0">{icon}</span>
         <span className="truncate">{label}</span>
       </div>
-      <div className={`mt-1 truncate text-sm font-black ${muted ? "text-slate-500" : "text-white"}`}>{value}</div>
+      <div className={`mt-1 truncate text-sm font-black ${muted ? "text-slate-500 md:text-slate-500" : "text-white md:text-slate-900"}`}>{value}</div>
     </div>
   );
 }
