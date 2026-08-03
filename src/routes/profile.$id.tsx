@@ -579,6 +579,7 @@ function ProfilePage() {
       marketplace: { ...emptyTabState },
       posted: { ...emptyTabState },
       solved: { ...emptyTabState },
+      blog: { ...emptyTabState },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
@@ -1526,12 +1527,12 @@ function ProfilePage() {
                             <Link
                               key={t.key}
                               {...(t.blogSlug
-                                ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as never)
+                                ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as any)
                                 : ({
                                     to: "/profile/$id/item/$kind/$itemId",
                                     params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                     search: itemSearch,
-                                  } as never))}
+                                  } as any))}
                               className="group block bg-[#141418] border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
