@@ -1,86 +1,35 @@
-## Goal
+# Oventric Home Hub
 
-Widen payment coverage now that the platform serves all African countries:
+A fintech-style home screen (OPay energy, Oventric identity) that becomes the first thing users see on every app open, right after the welcome slides. Nothing about existing features changes — the hub is a launchpad into them.
 
-1. **Flutterwave** becomes the primary gateway (test mode until your account clears validation).
-2. **Paystack** stays wired as a fallback, chosen automatically per currency.
-3. **MiniPay** is added as a manual transfer option on **direct payments only** — product purchases, Academy courses, and bounty posting. It is **not** offered in the wallet funding flow.
+## What the user sees
 
-## Why this helps
+Top to bottom, on a dark premium surface:
 
-Paystack can only charge in NGN, GHS, ZAR, KES, USD — everyone else is currently forced into a USD cross-border charge with a ~3.9% + $0.30 fee. Flutterwave settles natively in NGN, GHS, KES, ZAR, UGX, TZS, RWF, XAF, XOF, ZMW, MWK, EGP, MAD (plus USD/GBP/EUR), so most African users get charged in their own currency with local cards, bank transfer, and mobile money.
+1. **Identity row** — avatar (tap opens profile menu), greeting with the user's name, country flag/currency chip, notifications and messages bells with their live unread badges. Logged-out visitors see a "Connect Account" pill instead.
+2. **Wallet card** — hero card with the main balance in the user's home currency, a hidden/show eye toggle, sub-balance chips (Main, Cashback, Bounty escrow), and two primary actions: Add Money and Withdraw. Tapping the card opens the existing Wallet view.
+3. **Quick actions strip** — 4 circular actions: Sell, Post, Fund, Bounty. Each opens the flow that already exists.
+4. **Feature grid** — the core launchpad. Large rounded tiles, each with its own fluid 3D icon and a one-line label, arranged 4-per-row on mobile and wider on desktop:
+   Feed · Marketplace · Academy · Bounties · Wallet · Circles · Messages · Dashboard · Advertise · Affiliate · Blog · Help.
+   Tiles carry the same live counters the mobile footer already uses (new posts, new products, etc.).
+5. **Promo rail** — horizontally scrollable cards for cashback, featured campaigns and the referral program, reusing existing ad/campaign data.
+6. **Live strip** — a compact "what's happening" row: newest marketplace items and trending bounties, tappable straight into the relevant section.
 
-## 1. Gateway router
+Motion: staggered tile fade-in on load, springy tap scale, subtle sheen on the wallet card. All motion respects reduced-motion and the existing low-GPU safeguards.
 
-A single decision point picks the provider for a given currency and amount:
+## Navigation behaviour
 
-- Currency natively supported by Flutterwave and Flutterwave is enabled → **Flutterwave**
-- Otherwise, currency is NGN/GHS/ZAR/KES → **Paystack**
-- Otherwise → Flutterwave in USD (widest reach) with the home currency recorded in metadata, so settlement still lands in the user's own currency
-- MiniPay is never auto-selected — it is an explicit user choice, and only on the direct-payment screens
-
-The existing FX layer, cashback logic, 80/20 seller split, and wallet settlement stay untouched. Only the "who charges the card" layer changes.
-
-## 2. Flutterwave integration
-
-New server-only module mirroring the current Paystack one, so the rest of the app doesn't care which gateway ran:
-
-- Initialize a payment (Standard hosted checkout) → returns a redirect URL
-- Verify by transaction ID / tx_ref on return
-- Signed webhook endpoint (`verif-hash` header) with the same duplicate-event table pattern already used for Paystack, so retries can never double-credit a wallet
-- Fee model file for Flutterwave's local/international card and mobile-money rates, used by both the "you'll be charged X" preview and the server charge, exactly like today
-
-**Payouts:** Flutterwave Transfers becomes the default withdrawal rail — bank list, account name resolution, recipient creation, transfer initiation, and transfer webhook status handling (success / failed / reversed → escrow refund). This unlocks withdrawals to far more countries and to mobile-money wallets (M-Pesa, MTN MoMo, Airtel). Paystack transfers remain available for existing NGN/GHS recipients.
-
-**Test mode:** everything runs on your test keys. A single config flag flips live when validation completes — no code change needed.
-
-## 3. MiniPay manual transfer (direct payments only)
-
-MiniPay has no charge API, so this is a proof-of-payment flow. It appears as a payment option **only** on:
-
-- Marketplace product checkout
-- Academy course checkout
-- Bounty posting (escrow funding)
-
-It does **not** appear in the Fund Wallet flow.
-
-How it works:
-
-- User picks "Pay with MiniPay"
-- Screen shows your MiniPay number/handle, the exact amount in their currency, and a unique reference code to include in the transfer note
-- User uploads a screenshot of the transfer
-- The order / enrolment / bounty is created in a **"Payment pending confirmation"** state — nothing is delivered, escrowed, or published yet
-- Admin sees it in a review queue with the proof, reference, and amount
-- **Approve** → the exact same settlement path the card gateways use runs (order paid, course unlocked, bounty escrowed and published, cashback credited)
-- **Reject** → the pending record is cancelled with a reason
-- Buyer and seller both get notifications at each step; the buyer sees a clear "Awaiting confirmation" state meanwhile
-
-Because delivery is gated on admin approval, digital products bought via MiniPay are held until confirmed rather than released instantly — the UI states this upfront so buyers who want instant access pick a card option.
-
-## 4. Admin controls
-
-New section in admin settings:
-
-- Toggle each gateway on/off (Flutterwave, Paystack, MiniPay)
-- Set MiniPay receiving details and which currencies it accepts
-- MiniPay review queue with proof image, reference, amount, buyer, target item, and approve/reject
+- The hub is the landing view at `/` on every open — after the first-launch welcome slides, and on every subsequent visit.
+- Tapping a tile switches to that section in place, exactly as the sidebar and mobile nav do today. No page reload, no route change for in-shell sections; tiles for standalone pages (Dashboard, Advertise, Affiliate, Blog, Help) link to their existing routes.
+- A Home entry is added to the sidebar and the mobile footer nav so users can return to the hub from anywhere.
+- Existing deep links (`?section=`, `?bounty=`, `?dm=`, `?resume=bounty`) keep working and still bypass the hub straight to their target.
 
 ## Technical notes
 
-- New tables: `manual_payments` (user, purpose, target id, currency, amount, reference, proof path, status, reviewer, reason) and `flutterwave_webhook_events` (dedupe). New `payment-proofs` storage bucket with owner-scoped RLS; admins read via the service role.
-- `payout_recipients` / `payout_requests` gain a `provider` column so existing Paystack recipients keep working while new ones go to Flutterwave.
-- `src/lib/currency/africa.ts` gains a `FLUTTERWAVE_CURRENCIES` list; the router replaces the current `gatewayCurrency()` helper.
-- The settlement logic currently inside the Paystack verify path is extracted into a provider-agnostic function so card payments and approved MiniPay payments run identical fulfilment.
-- New files: `src/lib/flutterwave.functions.ts`, `src/lib/flutterwave-transfers.server.ts`, `src/lib/flutterwave-fees.ts`, `src/lib/payments/router.ts`, `src/lib/manual-payments.functions.ts`, `src/routes/api/public/flutterwave-webhook.ts`, `src/routes/admin.manual-payments.tsx`, plus a MiniPay payment modal component.
-- Existing Paystack files stay in place and are still reachable through the router; the payment return page handles both providers.
-- Secrets needed: `FLUTTERWAVE_SECRET_KEY`, `FLUTTERWAVE_PUBLIC_KEY`, `FLUTTERWAVE_ENCRYPTION_KEY`, `FLUTTERWAVE_WEBHOOK_HASH`. I'll request these when we start; test keys are fine.
-- Webhook URL to register in your Flutterwave dashboard: `https://oventric.com/api/public/flutterwave-webhook`.
+- New component `src/components/oventric/HomeHub.tsx`, rendered from `src/routes/index.tsx` as the new default `active` state (`"Home"`), alongside the existing Feed/Marketplace/Academy/Bounties/Wallet/Circles/Messages views. The section switch and deep-link effects already in `index.tsx` are extended, not replaced.
+- Wallet numbers come from the existing wallet functions and `HeaderWalletChip` currency logic; badges reuse `useSectionLiveCounter`, notifications and message-count hooks already in `Header.tsx`.
+- Tile icons reuse the existing 3D asset pointers in `src/assets` (home, wallet, marketplace, academy, bounties, circles, message) via `Icon3D`, with bold Lucide fallbacks for tiles that have no 3D art yet.
+- Styling uses existing semantic tokens and the project's dark surface treatment; new keyframes go into `src/styles.css` behind the established reduced-motion / low-GPU guards.
+- `src/routes/index.tsx` head metadata is updated to describe the hub.
 
-## Order of work
-
-1. Database migration (tables, columns, bucket)
-2. Currency registry + gateway router + shared settlement extraction
-3. Flutterwave charge + verify + webhook
-4. Flutterwave payouts and bank/momo resolution
-5. MiniPay manual flow on the three direct-payment screens + admin queue
-6. Admin gateway toggles, then end-to-end test in Flutterwave test mode
+No database, payment, or business-logic changes.
