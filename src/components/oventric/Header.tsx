@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users, LifeBuoy } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -117,11 +117,11 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <GlobalSearch variant="inline" />
           </div>
 
-          <div className="ml-auto sm:ml-0 flex items-center gap-1 md:gap-2.5 shrink-0">
+          <div className="ml-auto sm:ml-0 flex items-center gap-0.5 md:gap-1 shrink-0">
             <button
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open search"
-              className="sm:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white"
+              className="sm:hidden p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors"
             >
               <Search className="w-5 h-5" strokeWidth={2.5} />
             </button>
@@ -129,36 +129,35 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <Link
               to="/help-board"
               aria-label="Help board"
-              className="inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 shrink-0"
+              className="inline-flex p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors shrink-0"
             >
-              <LifeBuoy className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+              <svg
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-5 h-5 md:w-6 md:h-6 headset-fluid"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="9.5" r="3.5" />
+                <path d="M7.5 9.5v2a1 1 0 0 0 1 1h1" />
+                <path d="M16.5 9.5v2a1 1 0 0 1-1 1h-1" />
+                <path d="M8 7a4 4 0 0 1 8 0" />
+                <path d="M12 13v2" />
+                <path d="M9 21h6" />
+              </svg>
             </Link>
 
             <button
               onClick={() => setMegaOpen(true)}
               aria-label="Open menu"
-              className="inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white shrink-0"
+              className="inline-flex p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors shrink-0"
             >
               <Menu className="w-5 h-5 md:hidden" strokeWidth={2.5} />
               <Grip className="w-6 h-6 hidden md:block" strokeWidth={2.5} />
             </button>
-
-            {isAuthenticated ? (
-              <div className="shrink-0"><ProfileDropdown /></div>
-            ) : (
-              <button
-                type="button"
-                onClick={() => openGate("generic")}
-                className="inline-flex items-center justify-center h-9 md:h-10 rounded-full rgb-static-border p-[2px] shrink-0"
-                aria-label="Connect account"
-              >
-                <span className="inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
-                  <KeyRound className="w-4 h-4 text-white" strokeWidth={2.5} />
-                  <span className="hidden sm:inline">Connect Account</span>
-                  <span className="sm:hidden">Connect</span>
-                </span>
-              </button>
-            )}
           </div>
         </div>
 

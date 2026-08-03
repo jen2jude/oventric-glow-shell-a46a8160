@@ -88,6 +88,19 @@
   to   { transform: translateY(0); opacity: 1; }
 }
 
+@keyframes headset-fluid {
+  0%, 25% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
+  35% { transform: scale(1.15) rotate(-5deg); filter: drop-shadow(0 0 8px currentColor); }
+  45% { transform: scale(1.08) rotate(0deg); filter: drop-shadow(0 0 12px currentColor); }
+  55% { transform: scale(1.15) rotate(5deg); filter: drop-shadow(0 0 8px currentColor); }
+  65%, 100% { transform: scale(1) rotate(0deg); filter: drop-shadow(0 0 0 transparent); }
+}
+
+.headset-fluid {
+  animation: headset-fluid 4s ease-in-out infinite;
+  transform-origin: center;
+}
+
 @utility neon-chase-border {
   animation: rgb-neon-chase 6s linear infinite;
   border-width: 1px;
