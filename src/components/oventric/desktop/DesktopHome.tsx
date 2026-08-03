@@ -31,6 +31,11 @@ import { COUNTRY_META } from "@/lib/currency/africa";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 import { SiteFooter } from "@/components/oventric/desktop/SiteFooter";
 import { DownloadAppSection } from "@/components/oventric/desktop/DownloadAppSection";
+import {
+  TradeSecurelyBanner,
+  ProductRails,
+  SecuredPayments,
+} from "@/components/oventric/desktop/DesktopCommerceSections";
 
 import walletIcon from "@/assets/wallet-3d.webp.asset.json";
 import marketIcon from "@/assets/marketplace-3d.png.asset.json";
@@ -552,6 +557,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
+      <ProductRails currency={currency} />
+
+
+
       {/* How it works */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
         <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
@@ -585,7 +595,10 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <SecuredPayments />
+
       <SiteFooter onSelect={onSelect} currency={currency} flag={flag} />
+
     </div>
   );
 }
