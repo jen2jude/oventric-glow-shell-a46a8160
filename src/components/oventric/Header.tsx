@@ -21,7 +21,7 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
 
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean }) {
+export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false, light = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean; light?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -65,9 +65,20 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     return () => window.removeEventListener("oventric:open-messages", handler);
   }, [onOpenMessages]);
 
-  const bg = safeMobile ? "bg-[#121214] md:bg-[#121214]/90 md:backdrop-blur-md" : "bg-[#121214]/90 backdrop-blur-md";
+  const bg = light
+    ? "bg-white"
+    : safeMobile
+      ? "bg-[#121214] md:bg-[#121214]/90 md:backdrop-blur-md"
+      : "bg-[#121214]/90 backdrop-blur-md";
+  const edge = light ? "border-slate-200" : "border-white/10";
+  // Round icon buttons in the right cluster.
+  const chip = light
+    ? "bg-slate-100 border border-slate-200 text-slate-700 hover:bg-slate-200"
+    : "bg-[#1E1E24] border border-white/10 text-white";
+  // Flat (no pill) icon buttons.
+  const flat = light ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/5";
 
-  const LogoMark = (
+  const LogoImg = (
     <ResponsiveImage
       src={logoFull.url}
       alt="Oventric"
@@ -81,6 +92,12 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       }}
       draggable={false}
     />
+  );
+
+  const LogoMark = light ? (
+    <span className="inline-flex items-center rounded-xl bg-slate-900 px-2 py-1">{LogoImg}</span>
+  ) : (
+    LogoImg
   );
 
   const searchOverlay = mobileSearchOpen ? (
@@ -109,7 +126,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   // Fixed positioning keeps it pinned for the full Home hub scroll.
   if (hubMode) {
     return (
-      <header className={`fixed top-0 left-0 right-0 z-40 w-full ${bg} border-b border-white/10`}>
+      <header className={`fixed top-0 left-0 right-0 z-40 w-full ${bg} border-b ${edge}`}>
         <div className="h-12 md:h-[4.5rem] flex items-center gap-2 md:gap-4 px-3 md:px-6">
           <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
             {LogoMark}
@@ -123,7 +140,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <button
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open search"
-              className="sm:hidden p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors"
+              className={`sm:hidden p-2 md:p-2.5 rounded-xl transition-colors ${flat}`}
             >
               <Search className="w-5 h-5" strokeWidth={2.5} />
             </button>
@@ -131,7 +148,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <Link
               to="/help-board"
               aria-label="Help board"
-              className="inline-flex p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors shrink-0"
+              className={`inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
             >
               <img
                 src={supportHeadset.url}
@@ -144,7 +161,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
             <button
               onClick={() => setMegaOpen(true)}
               aria-label="Open menu"
-              className="inline-flex p-2 md:p-2.5 rounded-xl text-white hover:bg-white/5 transition-colors shrink-0"
+              className={`inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
             >
               <Menu className="w-5 h-5 md:hidden" strokeWidth={2.5} />
               <Grip className="w-6 h-6 hidden md:block" strokeWidth={2.5} />
@@ -159,7 +176,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   }
 
   return (
-    <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
+    <header className={`sticky top-0 z-40 w-full ${bg} border-b ${edge}`}>
       {/* Mobile top row: logo + search + hamburger (home only) */}
       {showMobileTopRow && (
         <div className="md:hidden grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 h-11 px-3 border-b border-white/5">
@@ -192,7 +209,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           {onMenuClick && (
             <button
               onClick={onMenuClick}
-              className="hidden md:flex p-2.5 rounded-lg hover:bg-white/5 text-white transition-colors shrink-0"
+              className={`hidden md:flex p-2.5 rounded-lg transition-colors shrink-0 ${flat}`}
             >
               <Menu className="w-6 h-6" strokeWidth={2.5} />
             </button>
@@ -223,7 +240,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setMegaOpen(true)}
             aria-label="Open menu"
-            className="hidden md:inline-flex p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white hover:text-white transition-colors shrink-0"
+            className={`hidden md:inline-flex p-2.5 rounded-full transition-colors shrink-0 ${chip}`}
           >
             <Grip className="w-6 h-6" strokeWidth={2.5} />
           </button>
@@ -232,7 +249,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
             aria-label="Circles & Guilds"
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className={`relative inline-flex p-2 md:p-2.5 rounded-full ${chip} transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0`}
           >
             <Users className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
           </button>
@@ -241,7 +258,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setNotifOpen(true)}
             aria-label="Open notifications"
-            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className={`relative p-2 md:p-2.5 rounded-full ${chip} transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0`}
           >
             <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
@@ -251,7 +268,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={() => setFollowReqOpen(true)}
             aria-label={`Requests (${pendingFollow + pendingCircles} pending)`}
-            className="relative inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className={`relative inline-flex p-2 md:p-2.5 rounded-full ${chip} transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0`}
           >
             <UserPlus className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge
@@ -264,7 +281,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <button
             onClick={onOpenMessages}
             aria-label="Open messages"
-            className="relative p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0"
+            className={`relative p-2 md:p-2.5 rounded-full ${chip} transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0`}
           >
             <MessageSquare className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
@@ -282,8 +299,8 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               className="inline-flex items-center justify-center h-9 md:h-10 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity shrink-0"
               aria-label="Connect account"
             >
-              <span className="inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
-                <KeyRound className="w-4 h-4 text-white" strokeWidth={2.5} />
+              <span className={`inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full font-bold text-xs sm:text-sm ${light ? "bg-white text-slate-900" : "bg-[#1E1E24] text-white"}`}>
+                <KeyRound className="w-4 h-4" strokeWidth={2.5} />
                 <span className="hidden sm:inline">Connect Account</span>
                 <span className="sm:hidden">Connect</span>
               </span>
