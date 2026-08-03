@@ -121,7 +121,7 @@ function BirthdayCard({
       <div className="flex items-center gap-3">
         <div className="flex -space-x-2">
           {people.slice(0, 4).map((p) => (
-            <span key={p.userId} className="w-9 h-9 rounded-full ring-2 ring-[#1E1E24] overflow-hidden inline-block">
+            <span key={p.userId} className="w-9 h-9 rounded-full ring-2 ring-[#1E1E24] md:ring-white overflow-hidden inline-block">
               <AvatarImage src={p.avatarUrl} alt={p.name} />
             </span>
           ))}
@@ -504,7 +504,7 @@ export function DiscoveryPanel() {
                   aria-label={`Chat with ${u.name}`}
                 >
                   <AvatarImage src={u.avatarUrl} alt={u.name} />
-                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[#1E1E24]" />
+                  <span className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 ring-2 ring-[#1E1E24] md:ring-white" />
                 </button>
                 <button
                   onClick={() => openChat(u.userId, u.name)}
