@@ -21,15 +21,24 @@ function scrollParent(el: HTMLElement | null): HTMLElement | Window {
 export function MarketplaceBanner() {
   const ref = useRef<HTMLDivElement>(null);
   const [hidden, setHidden] = useState(false);
+  const [isWide, setIsWide] = useState(false);
+
+  useEffect(() => {
+    const mq = window.matchMedia("(min-width: 768px)");
+    const sync = () => setIsWide(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
 
   useEffect(() => {
     // Hide-on-scroll is a desktop-only affordance. On mobile the strip stays
     // pinned to the top of the marketplace scroller at all times.
-    const mq = window.matchMedia("(min-width: 768px)");
-    if (!mq.matches) {
+    if (!isWide) {
       setHidden(false);
       return;
     }
+
 
     const target = scrollParent(ref.current);
     const readTop = () =>
