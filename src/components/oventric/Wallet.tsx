@@ -105,7 +105,7 @@ const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
       label: CURRENCY_META[key]?.name ?? key,
       glow: "",
       ring: "border-slate-500/40",
-      text: "text-slate-300 md:text-slate-600 md:text-slate-400",
+      text: "text-slate-300 md:text-slate-600",
       dot: "bg-slate-400",
     },
 });
@@ -278,20 +278,20 @@ export function Wallet() {
   const mask = "••••••";
 
   return (
-    <div className="wallet-mobile-safe max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] md:bg-white min-h-full">
+    <div className="wallet-mobile-safe max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] md:bg-slate-50 min-h-full">
       {/* Header */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
           <h1 className="truncate text-2xl sm:text-3xl font-black text-white md:text-slate-900 tracking-tight">
             Sovereign Wallet
           </h1>
-          <p className="text-sm text-slate-400 md:text-slate-500 md:text-slate-500 mt-1">
+          <p className="text-sm text-slate-400 md:text-slate-500 mt-1">
             Multi-currency ledger · cashback engine · payout controls
           </p>
         </div>
         <button
           onClick={toggleBalancesHidden}
-          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
         >
           {hide ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="hidden sm:inline">{hide ? "Show Balances" : "Hide Balances"}</span>
@@ -380,7 +380,7 @@ export function Wallet() {
                       {m.symbol}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold">{baseCurrency} · Main Balance</div>
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold">{baseCurrency} · Main Balance</div>
                       <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
                     </div>
                   </div>
@@ -417,7 +417,7 @@ export function Wallet() {
               <button
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
               >
                 <span>{moreOpen ? "Hide" : "Show"} sub-wallets</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`} />
@@ -441,7 +441,7 @@ export function Wallet() {
                             <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
                               {t.icon}
                             </div>
-                            <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold truncate">{t.label}</div>
+                            <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold truncate">{t.label}</div>
                           </div>
                           <div className={`text-lg sm:text-xl font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
                             {hide ? "•••" : fmt(t.value, t.currency)}
@@ -475,7 +475,7 @@ export function Wallet() {
             <span className="text-[11px] text-slate-500 md:text-slate-500 normal-case tracking-normal">
               ({total})
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 md:text-slate-500 md:text-slate-500 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-400 md:text-slate-500 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
           </button>
           {ledgerOpen && (
             <div className="flex items-center gap-2 flex-wrap">
@@ -501,7 +501,7 @@ export function Wallet() {
               <button
                 onClick={() => query.refetch()}
                 disabled={query.isFetching}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/40 disabled:opacity-50"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40 disabled:opacity-50"
                 title="Refresh ledger"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
@@ -526,9 +526,9 @@ export function Wallet() {
                 <tbody>
                   {items.map((t) => (
                     <tr key={t.id} className="border-t border-[#1c1c20] md:border-slate-200 hover:bg-white/[0.02]">
-                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 whitespace-nowrap">{t.txHash}</td>
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 md:text-slate-500 whitespace-nowrap">{t.txHash}</td>
                       <td className="px-4 py-3 text-slate-200 md:text-slate-700 whitespace-nowrap">{t.type}</td>
-                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300 md:text-slate-600 md:text-slate-400"}`}>
+                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300 md:text-slate-600"}`}>
                         {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
                       </td>
                       <td className="px-4 py-3 text-xs text-slate-500 md:text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
@@ -556,7 +556,7 @@ export function Wallet() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between p-3 border-t border-[#222226] md:border-slate-200 text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
+            <div className="flex items-center justify-between p-3 border-t border-[#222226] md:border-slate-200 text-xs text-slate-400 md:text-slate-500">
               <div>
                 Page <span className="text-slate-200 md:text-slate-700 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
               </div>
@@ -595,7 +595,7 @@ export function Wallet() {
                 <div className="font-bold text-white md:text-slate-900 truncate">Affiliate Program</div>
                 <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">Coming soon</span>
               </div>
-              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
             </div>
           </div>
           <Link
@@ -624,7 +624,7 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white md:text-slate-900">➕ Fund Wallet</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5">For bounties & ad campaigns</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">For bounties & ad campaigns</div>
             </div>
           </div>
         </button>
@@ -638,7 +638,7 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white md:text-slate-900">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5">Direct to your bank · fee auto-deducted</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">Direct to your bank · fee auto-deducted</div>
             </div>
           </div>
         </button>
@@ -653,7 +653,7 @@ export function Wallet() {
           </h2>
         </div>
 
-        <p className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 leading-relaxed">
+        <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed">
           A planning tool. Drag the slider to the amount you expect to spend
           or earn through Oventric each month — marketplace purchases, gig
           bounties funded, ad injections, course sales. The estimator shows
@@ -671,7 +671,7 @@ export function Wallet() {
           const annualLocal = annualSavings * fx;
           return (
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
+              <div className="flex items-center justify-between text-xs text-slate-400 md:text-slate-500">
                 <span>Projected Monthly Spend / Gig Volume</span>
                 <span className="tabular-nums text-slate-200 md:text-slate-700 font-semibold">
                   {fmt(spendLocal, baseCurrency)}{spend >= 10000 ? "+" : ""}
@@ -699,7 +699,7 @@ export function Wallet() {
                 <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300">
                   {fmt(annualLocal, baseCurrency)}
                 </div>
-                <div className="mt-1 text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
+                <div className="mt-1 text-xs text-slate-400 md:text-slate-500">
                   at <span className="text-emerald-300 font-semibold">{tier.pct}%</span> {tier.label} multiplier
                 </div>
               </div>
@@ -770,7 +770,7 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
       className={`rounded-lg border px-2.5 py-2 text-center transition-all ${
         active
           ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
-          : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"
+          : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"
       }`}
     >
       <div className="font-bold text-[11px] uppercase tracking-wider">{label}</div>
@@ -798,7 +798,7 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
       >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] md:border-slate-200">
           <h3 className="truncate text-base font-bold text-white md:text-slate-900">{title}</h3>
-          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500 md:text-slate-500">
+          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -885,7 +885,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
             Suggested top-up · bounty escrow
           </div>
-          <div className="mt-1 text-xs text-slate-300 md:text-slate-600 md:text-slate-400 leading-relaxed">
+          <div className="mt-1 text-xs text-slate-300 md:text-slate-600 leading-relaxed">
             Your saved bounty draft needs{" "}
             <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>{" "}
             to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
@@ -895,11 +895,11 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
 
 
       <div>
-        <label className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold">
+        <label className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold">
           Amount ({baseCurrency})
         </label>
         <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white focus-within:border-emerald-500/60 transition-colors">
-          <span className="px-3 text-slate-400 md:text-slate-500 md:text-slate-500 text-sm">{symbol}</span>
+          <span className="px-3 text-slate-400 md:text-slate-500 text-sm">{symbol}</span>
           <input
             type="number"
             min={0}
@@ -918,14 +918,14 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
               {symbol}{formattedCharge}
             </span>{" "}
             via Paystack — that&apos;s your{" "}
-            <span className="text-slate-300 md:text-slate-600 md:text-slate-400">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
+            <span className="text-slate-300 md:text-slate-600">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
             <span className="text-amber-300">{symbol}{formattedFee}</span> Paystack transaction fee.
             Your wallet is credited with the full {symbol}{fmt(numericAmount)}.
           </div>
         )}
       </div>
 
-      <p className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500">Select a payment channel — Paystack will handle the secure checkout.</p>
+      <p className="text-xs text-slate-400 md:text-slate-500">Select a payment channel — Paystack will handle the secure checkout.</p>
       <div className="space-y-2">
         {options.map((o) => {
           const Icon = o.icon;
@@ -944,11 +944,11 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
               }`}
             >
               <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}>
-                <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500 md:text-slate-500"}`} />
+                <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500"}`} />
               </div>
               <div className="min-w-0">
                 <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{o.title}</div>
-                <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 truncate">{o.sub}</div>
+                <div className="text-xs text-slate-400 md:text-slate-500 truncate">{o.sub}</div>
               </div>
               {o.disabled ? (
                 <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500 shrink-0">N/A</span>
@@ -970,7 +970,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           borderColor: "rgba(255,255,255,0.35)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
         }}
-        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 md:text-slate-500 md:text-slate-500 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
+        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 md:text-slate-500 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
@@ -1065,7 +1065,7 @@ function PayoutSuccessSplash({
           <div className="text-3xl font-black text-white md:text-slate-900 tabular-nums mb-1">
             {sym}{amount.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}
           </div>
-          <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mb-4 truncate">to {destinationLabel}</div>
+          <div className="text-xs text-slate-400 md:text-slate-500 mb-4 truncate">to {destinationLabel}</div>
           <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3 text-left text-xs text-emerald-100/90 mb-4">
             <div className="font-bold text-emerald-200 mb-1 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> You're all set
@@ -1161,7 +1161,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
             </div>
             <div className="min-w-0">
               <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{rail.label}</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 truncate">{rail.hint} · {rail.eta}</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 truncate">{rail.hint} · {rail.eta}</div>
             </div>
             <div className="shrink-0 text-right">
               <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">Available</div>
@@ -1187,12 +1187,12 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-slate-300 md:text-slate-600 md:text-slate-400 text-sm truncate">{r.label}</div>
+                  <div className="font-semibold text-slate-300 md:text-slate-600 text-sm truncate">{r.label}</div>
                   <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">Reference equivalent · not withdrawable</div>
                 </div>
                 <div className="shrink-0 text-right">
                   <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">≈</div>
-                  <div className="text-xs font-bold text-slate-400 md:text-slate-500 md:text-slate-500 tabular-nums">
+                  <div className="text-xs font-bold text-slate-400 md:text-slate-500 tabular-nums">
                     {currencyMeta[c].symbol}
                     {equiv.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(c), maximumFractionDigits: 2 })}
                   </div>
@@ -1325,7 +1325,7 @@ function DestinationPicker({
 
   return (
     <ModalShell title={`${currency} payout destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change currency
       </button>
       <div className="space-y-2">
@@ -1348,7 +1348,7 @@ function DestinationPicker({
               <div className="text-sm font-semibold text-white md:text-slate-900 truncate">
                 {r.account_name}
               </div>
-              <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 truncate">
+              <div className="text-[11px] text-slate-400 md:text-slate-500 truncate">
                 {r.method === "bank"
                   ? `${r.bank_name} · ${r.account_number}`
                   : `${r.momo_network} · ${r.phone}`}
@@ -1468,7 +1468,7 @@ function AddRecipientForm({
 
   return (
     <ModalShell title={`Add ${currency} destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Back
       </button>
 
@@ -1477,14 +1477,14 @@ function AddRecipientForm({
           <button
             type="button"
             onClick={() => setMethod("momo")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"}`}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Mobile Money
           </button>
           <button
             type="button"
             onClick={() => setMethod("bank")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"}`}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500"}`}
           >
             Bank Transfer
           </button>
@@ -1663,7 +1663,7 @@ function AmountStep({
 
   return (
     <ModalShell title="Confirm payout" onClose={onBack}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change destination
       </button>
 
@@ -1671,7 +1671,7 @@ function AmountStep({
         <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
           <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Sending to</div>
           <div className="text-sm font-semibold text-white md:text-slate-900 truncate">{rec.account_name}</div>
-          <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 truncate">
+          <div className="text-[11px] text-slate-400 md:text-slate-500 truncate">
             {rec.method === "bank" ? `${rec.bank_name} · ${rec.account_number}` : `${rec.momo_network} · ${rec.phone}`}
           </div>
         </div>
@@ -1689,7 +1689,7 @@ function AmountStep({
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-slate-400 md:text-slate-500 md:text-slate-500">{sym}</span>
+          <span className="text-lg font-bold text-slate-400 md:text-slate-500">{sym}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -1705,11 +1705,11 @@ function AmountStep({
 
       {amt > 0 && (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1 text-xs">
-          <div className="flex items-center justify-between text-slate-300 md:text-slate-600 md:text-slate-400">
+          <div className="flex items-center justify-between text-slate-300 md:text-slate-600">
             <span>You requested</span>
             <span className="tabular-nums">{sym}{amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="flex items-center justify-between text-slate-400 md:text-slate-500 md:text-slate-500">
+          <div className="flex items-center justify-between text-slate-400 md:text-slate-500">
             <span>Paystack transfer fee</span>
             <span className="tabular-nums">− {sym}{fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
@@ -1797,13 +1797,13 @@ function WireForm({
 
   return (
     <ModalShell title="USD International Wire · Payout" onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change currency
       </button>
       <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
         <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Amount (USD)</div>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-slate-400 md:text-slate-500 md:text-slate-500">$</span>
+          <span className="text-lg font-bold text-slate-400 md:text-slate-500">$</span>
           <input
             type="number"
             inputMode="decimal"
@@ -1922,15 +1922,15 @@ function BountyWalletModal({
             </div>
             <div>
               <div className="text-white md:text-slate-900 font-black">Bounty Wallet</div>
-              <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500">Earnings from solved gigs</div>
+              <div className="text-[11px] text-slate-400 md:text-slate-500">Earnings from solved gigs</div>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="rounded-xl bg-black/40 border border-white/10 p-4">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">Available</div>
-          <div className="text-white md:text-slate-900 text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 font-normal">USD</span></div>
+          <div className="text-white md:text-slate-900 text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 md:text-slate-500 font-normal">USD</span></div>
         </div>
 
         <div>
