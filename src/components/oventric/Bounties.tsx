@@ -462,23 +462,24 @@ function BountyRow({
   const remaining = bounty.expiresAt - Date.now();
   return (
     <div className={`bg-[#1E1E24] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)]' : 'border border-white/5'}`}>
+    <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)] md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
       <div className="flex-1 min-w-0">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
           ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
-        <h3 className="mt-2 text-white font-bold text-base md:text-lg leading-snug">
+        <h3 className="mt-2 text-white md:text-slate-900 font-bold text-base md:text-lg leading-snug">
           {bounty.title}
         </h3>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-600">
           <span className="inline-flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <Clock className="w-3.5 h-3.5 text-amber-400 md:text-amber-500" />
             Expires in {formatCountdown(remaining)}
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
           </span>
-          <span className="inline-flex items-center gap-1 text-emerald-300/90">
+          <span className="inline-flex items-center gap-1 text-emerald-300/90 md:text-emerald-700">
             Solver {formatMoney(bounty.rewardValue * 0.8, bounty.rewardCurrency)} · Fee {formatMoney(bounty.rewardValue * 0.2, bounty.rewardCurrency)}
           </span>
         </div>
@@ -487,10 +488,11 @@ function BountyRow({
         onClick={onOpen}
         className={`shrink-0 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
           alreadyApplied
-            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40"
-            : "bg-emerald-500 hover:bg-emerald-400 text-black"
+            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40 md:bg-emerald-50 md:hover:bg-emerald-100 md:text-emerald-700 md:border-emerald-200"
+            : "bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white"
         }`}
       >
+
         {alreadyApplied ? (
           <>
             <CheckCircle2 className="w-4 h-4" />
