@@ -1,8 +1,9 @@
-import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users, ShoppingBag, GraduationCap } from "lucide-react";
+import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
 import { useState } from "react";
 
 const items = [
-  { icon: Home, label: "Feed" },
+  { icon: Home, label: "Home" },
+  { icon: Newspaper, label: "Feed" },
   { icon: MessageSquare, label: "Messages" },
   { icon: Users, label: "Circles" },
   { icon: ShoppingBag, label: "Marketplace" },

@@ -366,7 +366,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 </span>
                 <span className="mt-1.5 block text-[11px] font-semibold text-white line-clamp-2 leading-tight">{p.title}</span>
                 <span className="block text-[11px] text-emerald-300 font-bold">
-                  {safeFormatDisplayPrice({ price_usd: p.priceUsd } as never, currency)}
+                  {safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency)}
                 </span>
               </button>
             ))}

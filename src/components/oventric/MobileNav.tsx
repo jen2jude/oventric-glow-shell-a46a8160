@@ -1,8 +1,9 @@
-import { Home, Target, Wallet, Plus, ShoppingBag, GraduationCap } from "lucide-react";
+import { Home, Target, Wallet, Plus, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
 
 const left = [
-  { icon: Home, label: "Feed" },
+  { icon: Home, label: "Home" },
+  { icon: Newspaper, label: "Feed" },
   { icon: ShoppingBag, label: "Market" },
 ];
 const right = [
@@ -11,7 +12,7 @@ const right = [
   { icon: Wallet, label: "Wallet" },
 ];
 
-export type MobileNavCounts = Partial<Record<"Feed" | "Market" | "Academy" | "Bounties" | "Wallet", number>>;
+export type MobileNavCounts = Partial<Record<"Home" | "Feed" | "Market" | "Academy" | "Bounties" | "Wallet", number>>;
 
 export function MobileNav({
   onCreate,
@@ -31,15 +32,15 @@ export function MobileNav({
       <button
         key={it.label}
         onClick={() => onSelect(it.label)}
-        className={`relative flex flex-col items-center justify-center gap-1 flex-1 py-1 ${
+        className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 min-w-0 ${
           isActive ? "text-emerald-400" : "text-white"
         }`}
       >
         <span className="relative">
-          <it.icon className="w-6 h-6" strokeWidth={2.5} />
+          <it.icon className="w-5 h-5" strokeWidth={2.5} />
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
-        <span className="text-[10px] font-medium">{it.label}</span>
+        <span className="text-[9px] font-medium">{it.label}</span>
       </button>
     );
   };
@@ -56,7 +57,7 @@ export function MobileNav({
       {left.map(Item)}
       <button
         onClick={onCreate}
-        className="relative -mt-8 mx-2 w-14 h-14 rounded-full rgb-static-border shrink-0 flex items-center justify-center p-[2px]"
+        className="relative -mt-8 mx-1 w-12 h-12 rounded-full rgb-static-border shrink-0 flex items-center justify-center p-[2px]"
         aria-label="Create"
       >
         <span className="w-full h-full rounded-full bg-[#1E1E24] flex items-center justify-center">
