@@ -210,7 +210,7 @@ function Index() {
 
           <main
             id={desktopLanding ? "desktop-home-scroll" : undefined}
-            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${isDesktop && (active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed") ? "bg-white" : ""}`}
+            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${isDesktop && (active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed" || active === "Messages") ? "bg-white" : ""}`}
           >
             {view}
           </main>

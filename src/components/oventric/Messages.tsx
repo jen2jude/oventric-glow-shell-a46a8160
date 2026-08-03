@@ -73,15 +73,15 @@ function EmptyChat({ hasThreads }: { hasThreads: boolean }) {
     <div className="flex flex-1 items-center justify-center p-8 text-center">
       <div className="max-w-sm">
         <div className="mx-auto mb-5 relative w-24 h-24">
-          <div className="absolute inset-0 rounded-full rgb-pulse-glow bg-[#1E1E24] border border-white/10" />
+          <div className="absolute inset-0 rounded-full rgb-pulse-glow bg-[#1E1E24] md:bg-emerald-50 border border-white/10 md:border-emerald-200" />
           <div className="absolute inset-0 flex items-center justify-center">
             <MessageSquare className="w-10 h-10 text-emerald-400" />
           </div>
         </div>
-        <div className="text-white font-black text-lg">
+        <div className="text-white md:text-slate-900 font-black text-lg">
           {hasThreads ? "Select a conversation" : "No conversations yet"}
         </div>
-        <p className="text-sm text-slate-400 mt-2 leading-relaxed">
+        <p className="text-sm text-slate-400 md:text-slate-500 mt-2 leading-relaxed">
           {hasThreads
             ? "Pick a peer on the left to open the encrypted stream."
             : "Message a peer from their profile or a bounty thread to start."}
@@ -108,15 +108,15 @@ function ThreadRow({
       onClick={onClick}
       className={`w-full text-left rounded-lg transition-colors ${
         active
-          ? "bg-emerald-500/10 border border-emerald-500/40"
+          ? "bg-emerald-500/10 md:bg-emerald-50 border border-emerald-500/40 md:border-emerald-300"
           : unread
             ? "rgb-static-border p-[2px]"
-            : "bg-[#1E1E24] border border-white/10"
+            : "bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:hover:shadow-sm"
       }`}
     >
       <div
         className={`flex items-start gap-3 px-3 py-3 rounded-md ${
-          active ? "" : unread ? "bg-[#1E1E24] hover:bg-white/5" : "hover:bg-white/5"
+          active ? "" : unread ? "bg-[#1E1E24] md:bg-white hover:bg-white/5 md:hover:bg-slate-50" : "hover:bg-white/5 md:hover:bg-slate-50"
         }`}
       >
         <div className="relative shrink-0">
@@ -125,21 +125,21 @@ function ThreadRow({
           </div>
           {online && (
             <span
-              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-[0_0_6px_rgba(52,211,153,0.9)]"
               title="Online"
             />
           )}
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-white truncate">{thread.peerName}</span>
-            <span className="ml-auto shrink-0 text-[10px] text-slate-500">{formatTime(thread.lastAt)}</span>
+            <span className="text-sm font-semibold text-white md:text-slate-900 truncate">{thread.peerName}</span>
+            <span className="ml-auto shrink-0 text-[10px] text-slate-500 md:text-slate-400">{formatTime(thread.lastAt)}</span>
           </div>
 
           <div className="flex items-center gap-2 mt-0.5">
-            <div className="text-xs text-slate-400 truncate flex-1">{thread.preview}</div>
+            <div className="text-xs text-slate-400 md:text-slate-500 truncate flex-1">{thread.preview}</div>
             {unread && (
-              <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-emerald-500 text-black text-[10px] font-black">
+              <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-emerald-500 md:bg-emerald-600 text-black md:text-white text-[10px] font-black">
                 {thread.unread}
               </span>
             )}
@@ -154,17 +154,17 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
   return (
     <div className={`flex ${mine ? "justify-end" : "justify-start"}`}>
       <div
-        className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm text-white ${
+        className={`max-w-[80%] rounded-xl px-3.5 py-2.5 text-sm text-white ${mine ? "" : "md:text-slate-800"} ${
           mine
             ? "bg-gradient-to-br from-emerald-500 to-emerald-600 border border-emerald-400/60"
-            : "bg-[#2A2A32] border border-white/5"
+            : "bg-[#2A2A32] md:bg-slate-100 border border-white/5 md:border-slate-200"
         }`}
       >
         {msg.body && <div className="leading-relaxed whitespace-pre-wrap break-words">{msg.body}</div>}
         {msg.media_path && (
           <div className="mt-1 text-[11px] italic opacity-80">📎 attachment</div>
         )}
-        <div className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-emerald-100/80 justify-end" : "text-slate-500"}`}>
+        <div className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-emerald-100/80 justify-end" : "text-slate-500 md:text-slate-400"}`}>
           <span>{formatTime(msg.created_at)}</span>
           {mine && !msg.id.startsWith("tmp-") && (
             <span
@@ -617,18 +617,18 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     }
   };
 
-  const wrapperClasses = "flex h-full bg-[#121214] text-slate-200";
+  const wrapperClasses = "flex h-full bg-[#121214] md:bg-white text-slate-200 md:text-slate-700";
 
   if (!me) {
     return (
       <div className={wrapperClasses}>
         <div className="flex flex-1 items-center justify-center p-8 text-center">
           <div className="max-w-sm">
-            <div className="mx-auto mb-5 w-20 h-20 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center">
+            <div className="mx-auto mb-5 w-20 h-20 rounded-full bg-[#1E1E24] md:bg-emerald-50 border border-white/10 md:border-emerald-200 flex items-center justify-center">
               <MessageSquare className="w-8 h-8 text-emerald-400" />
             </div>
-            <div className="text-white font-black text-lg">Sign in to open Messages</div>
-            <p className="text-sm text-slate-400 mt-2">
+            <div className="text-white md:text-slate-900 font-black text-lg">Sign in to open Messages</div>
+            <p className="text-sm text-slate-400 md:text-slate-500 mt-2">
               Direct messages are encrypted between verified peers. Connect your account to start chatting.
             </p>
             <button
@@ -649,25 +649,25 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       <aside
         className={`${
           showListOnMobile ? "flex" : "hidden"
-        } md:flex flex-col w-full md:w-[30%] md:min-w-[280px] md:max-w-[380px] border-r border-white/10 bg-[#16161B]`}
+        } md:flex flex-col w-full md:w-[30%] md:min-w-[280px] md:max-w-[380px] border-r border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white`}
       >
-        <div className="sticky top-0 z-10 bg-[#16161B] border-b border-white/10 px-3 py-3 space-y-2.5">
+        <div className="sticky top-0 z-10 bg-[#16161B] md:bg-white border-b border-white/10 md:border-slate-200 px-3 py-3 space-y-2.5">
           <div className="flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 md:text-slate-400" />
               <input
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 type="text"
                 placeholder="Search peers…"
-                className="w-full h-9 pl-9 pr-3 bg-[#1E1E24] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
+                className="w-full h-9 pl-9 pr-3 bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-lg text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/60 md:focus:bg-white md:focus:border-emerald-500/60"
               />
             </div>
             {variant === "compact" && onClose && (
               <button
                 onClick={onClose}
                 aria-label="Close messages"
-                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5"
+                className="p-2 rounded-lg text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -694,8 +694,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           const rail = [...online, ...offline];
           if (rail.length === 0) return null;
           return (
-            <div className="border-b border-white/10 px-3 py-2.5">
-              <div className="text-[10px] uppercase tracking-widest font-black text-emerald-400 mb-2">
+            <div className="border-b border-white/10 md:border-slate-200 px-3 py-2.5">
+              <div className="text-[10px] uppercase tracking-widest font-black text-emerald-400 md:text-emerald-600 mb-2">
                 {online.length > 0 ? `Online now · ${online.length}` : "Recent peers"}
               </div>
               <div className="flex gap-2.5 overflow-x-auto pb-1 -mx-0.5 px-0.5 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
@@ -711,20 +711,20 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                         className={`w-11 h-11 rounded-full overflow-hidden ring-2 transition ${
                           p.online
                             ? "ring-emerald-400/70"
-                            : "ring-white/10 group-hover:ring-emerald-400/40 opacity-80"
+                            : "ring-white/10 md:ring-slate-200 group-hover:ring-emerald-400/40 opacity-80 md:opacity-100"
                         }`}
                       >
                         <AvatarImage src={p.avatarUrl} alt={p.name} className="rounded-full" />
                       </div>
                       <span
-                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] ${
+                        className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] md:border-white ${
                           p.online
                             ? "bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.9)]"
-                            : "bg-slate-600"
+                            : "bg-slate-600 md:bg-slate-300"
                         }`}
                       />
                     </div>
-                    <span className="text-[10px] text-slate-300 truncate max-w-full">
+                    <span className="text-[10px] text-slate-300 md:text-slate-600 truncate max-w-full">
                       {p.name.split(/\s+/)[0]}
                     </span>
                   </button>
@@ -735,11 +735,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         })()}
         <div className="flex-1 overflow-y-auto p-2 space-y-1.5">
           {loadingThreads && threads.length === 0 ? (
-            <div className="text-xs text-slate-500 text-center py-8 flex items-center justify-center gap-2">
+            <div className="text-xs text-slate-500 md:text-slate-400 text-center py-8 flex items-center justify-center gap-2">
               <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading conversations…
             </div>
           ) : visibleThreads.length === 0 ? (
-            <div className="text-xs text-slate-500 text-center py-8">
+            <div className="text-xs text-slate-500 md:text-slate-400 text-center py-8">
               {threads.length === 0 ? "No conversations yet." : "No conversations match."}
             </div>
           ) : (
@@ -759,13 +759,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
 
       {/* RIGHT — Active Chat */}
       <section
-        className={`${showListOnMobile ? "hidden" : "flex"} md:flex flex-1 min-w-0 flex-col bg-[#121214]`}
+        className={`${showListOnMobile ? "hidden" : "flex"} md:flex flex-1 min-w-0 flex-col bg-[#121214] md:bg-slate-50`}
       >
         {!activeThread ? (
           <EmptyChat hasThreads={threads.length > 0} />
         ) : (
           <>
-            <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10 bg-[#16161B]">
+            <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white">
               <button
                 onClick={() => setShowListOnMobile(true)}
                 className="md:hidden text-slate-400 hover:text-white text-xs font-semibold"
@@ -783,24 +783,24 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 </div>
                 {onlinePeers.has(activeThread.peerId) && (
                   <span
-                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] shadow-[0_0_6px_rgba(52,211,153,0.9)]"
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-[0_0_6px_rgba(52,211,153,0.9)]"
                     title="Online"
                   />
                 )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-white font-semibold text-sm truncate">{activeThread.peerName}</span>
-                  <span className="inline-flex items-center gap-0.5 text-[11px] text-slate-500 ml-1">
+                  <span className="text-white md:text-slate-900 font-semibold text-sm truncate">{activeThread.peerName}</span>
+                  <span className="inline-flex items-center gap-0.5 text-[11px] text-slate-500 md:text-slate-400 ml-1">
                     <Star className="w-3 h-3" />
                     peer
                   </span>
                 </div>
-                <div className="text-[11px] text-slate-500">
+                <div className="text-[11px] text-slate-500 md:text-slate-400">
                   {peerTyping ? (
-                    <span className="text-emerald-400 font-semibold">typing…</span>
+                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">typing…</span>
                   ) : onlinePeers.has(activeThread.peerId) ? (
-                    <span className="text-emerald-400 font-semibold">● Online now</span>
+                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">● Online now</span>
                   ) : (
                     <>last active {relative(activeThread.lastAt)}</>
                   )}
@@ -811,7 +811,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               <Link
                 to="/profile/$id"
                 params={{ id: activeThread.peerSlug }}
-                className="hidden sm:inline-flex items-center gap-1 text-[11px] text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 rounded-md px-2 py-1"
+                className="hidden sm:inline-flex items-center gap-1 text-[11px] text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700 border border-emerald-500/30 md:border-emerald-200 md:hover:bg-emerald-50 rounded-md px-2 py-1"
               >
                 <ExternalLink className="w-3 h-3" /> Profile
               </Link>
@@ -821,11 +821,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
 
             <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {loadingMessages ? (
-                <div className="text-xs text-slate-500 text-center py-8 flex items-center justify-center gap-2">
+                <div className="text-xs text-slate-500 md:text-slate-400 text-center py-8 flex items-center justify-center gap-2">
                   <Loader2 className="w-3.5 h-3.5 animate-spin" /> Loading messages…
                 </div>
               ) : messages.length === 0 ? (
-                <div className="text-xs text-slate-500 text-center py-8">
+                <div className="text-xs text-slate-500 md:text-slate-400 text-center py-8">
                   No messages yet — say hello.
                 </div>
               ) : (
@@ -835,7 +835,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                       <button
                         onClick={() => void loadOlder()}
                         disabled={loadingOlder}
-                        className="inline-flex items-center gap-2 text-[11px] font-semibold text-emerald-400 hover:text-emerald-300 border border-emerald-500/30 hover:border-emerald-400/60 rounded-full px-3 py-1 disabled:opacity-50"
+                        className="inline-flex items-center gap-2 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:text-emerald-300 border border-emerald-500/30 md:border-emerald-200 hover:border-emerald-400/60 md:hover:bg-emerald-50 rounded-full px-3 py-1 disabled:opacity-50"
                       >
                         {loadingOlder ? (
                           <>
@@ -852,8 +852,8 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               )}
               {peerTyping && activeThread && (
                 <div className="flex justify-start">
-                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-[#2A2A32] border border-white/5">
-                    <span className="text-[11px] text-slate-400">
+                  <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 bg-[#2A2A32] md:bg-white border border-white/5 md:border-slate-200">
+                    <span className="text-[11px] text-slate-400 md:text-slate-500">
                       {activeThread.peerName.split(/\s+/)[0]} is typing
                     </span>
                     <span className="flex items-end gap-0.5" aria-hidden="true">
@@ -867,9 +867,9 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
             </div>
 
 
-            <div className="border-t border-white/10 bg-[#16161B] p-3">
+            <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3">
               {OFF_PLATFORM_RE.test(draft) && (
-                <div className="mb-2 flex items-start gap-2 rounded-md border border-amber-500/40 bg-amber-500/5 px-3 py-2 text-[11px] text-amber-100">
+                <div className="mb-2 flex items-start gap-2 rounded-md border border-amber-500/40 md:border-amber-300 bg-amber-500/5 md:bg-amber-50 px-3 py-2 text-[11px] text-amber-100 md:text-amber-800">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   <span>
                     Heads up — trades finished off Oventric aren't covered by escrow, refunds or dispute mediation. Keep the
@@ -895,12 +895,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   }}
                   rows={1}
                   placeholder="Type a message…"
-                  className="flex-1 resize-none max-h-32 min-h-[40px] bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60"
+                  className="flex-1 resize-none max-h-32 min-h-[40px] bg-[#1E1E24] md:bg-slate-100 border border-white/10 md:border-transparent rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-800 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/60 md:focus:bg-white md:focus:border-emerald-500/60"
                 />
                 <button
                   onClick={() => void send()}
                   disabled={!draft.trim() || sending}
-                  className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 text-black md:text-white disabled:opacity-40 disabled:cursor-not-allowed"
                   aria-label="Send message"
                 >
                   {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
@@ -945,14 +945,14 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
   };
 
   return (
-    <div className="border-b border-white/10 bg-[#1A1A20] px-4 py-3">
+    <div className="border-b border-white/10 md:border-slate-200 bg-[#1A1A20] md:bg-emerald-50/60 px-4 py-3">
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
+          <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 md:text-emerald-700 mb-0.5">
             {disputed ? "Disputed trade" : ctx.deliveredAt ? "Delivered — awaiting confirmation" : "Active trade in escrow"}
           </div>
-          <div className="text-sm text-white font-semibold truncate">{ctx.productName}</div>
-          <div className="text-[11px] text-slate-500">
+          <div className="text-sm text-white md:text-slate-900 font-semibold truncate">{ctx.productName}</div>
+          <div className="text-[11px] text-slate-500 md:text-slate-600">
             {ctx.displayCurrency} {ctx.displayTotal.toLocaleString()} held in escrow · Order {ctx.orderId.slice(0, 8)}
           </div>
         </div>
@@ -961,7 +961,7 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
             <button
               onClick={() => void run("deliver")}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black md:text-white bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 disabled:opacity-60"
             >
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Truck className="w-3.5 h-3.5" />} Mark delivered
             </button>
@@ -970,7 +970,7 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
             <button
               onClick={() => void run("confirm")}
               disabled={busy}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black md:text-white bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 disabled:opacity-60"
             >
               {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />} Confirm receipt
             </button>
@@ -978,13 +978,13 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
           <Link
             to="/order/$id"
             params={{ id: ctx.orderId }}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-200 bg-[#2A2A31] border border-white/10"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-200 md:text-slate-700 bg-[#2A2A31] md:bg-white border border-white/10 md:border-slate-200 md:hover:bg-slate-50"
           >
             <ShieldAlert className="w-3.5 h-3.5" /> {ctx.role === "buyer" ? "Order & disputes" : "Order details"}
           </Link>
         </div>
       </div>
-      <div className="mt-2 text-[11px] text-emerald-100/80">
+      <div className="mt-2 text-[11px] text-emerald-100/80 md:text-emerald-800/80">
         Deliver and confirm here. Escrow, refunds and dispute mediation only cover trades completed on Oventric.
       </div>
     </div>
