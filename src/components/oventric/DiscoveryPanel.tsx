@@ -393,9 +393,10 @@ export function DiscoveryPanel() {
         </div>
 
         {isLoading && topPeers5.length === 0 ? (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {Array.from({ length: 5 }).map((_, i) => (
-              <li key={i} className="flex items-center gap-2.5">
+              <li key={i} className="flex items-center gap-2.5 py-1.5">
+
                 <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] md:bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-1.5">
                   <SkeletonBar className="h-3 w-3/5" />
