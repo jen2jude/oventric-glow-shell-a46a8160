@@ -197,7 +197,7 @@ function FeedPostImage({
       {!loaded && (
         <span
           aria-hidden
-          className="absolute inset-0 bg-white/5 animate-pulse"
+          className="absolute inset-0 bg-white/5 md:bg-slate-100 animate-pulse"
         />
       )}
       <ResponsiveImage
@@ -940,24 +940,24 @@ export function Feed() {
   const isLoggedIn = tier >= 1;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6 lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
+    <div className="w-full max-w-7xl mx-auto px-4 py-6 md:bg-white md:min-h-screen lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
       <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
         {/* Composer */}
         <button
           id="oventric-composer"
           type="button"
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className="w-full text-left bg-[#1E1E24] border border-white/10 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a]"
+          className="w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 flex items-center gap-3 transition-colors hover:bg-[#22222a] md:hover:bg-slate-50"
         >
-          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 flex items-center justify-center">
+          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 flex items-center justify-center">
             <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
           </span>
-          <span className="flex-1 text-sm text-slate-400 truncate">
+          <span className="flex-1 text-sm text-slate-400 md:text-slate-600 truncate">
             {placeholderIdx === 0
               ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
               : "What's on your mind today, update us!"}
           </span>
-          <span className="hidden sm:inline text-[11px] text-slate-500">Photo · Video · @Mention</span>
+          <span className="hidden sm:inline text-[11px] text-slate-500 md:text-slate-500">Photo · Video · @Mention</span>
         </button>
 
 
@@ -970,42 +970,42 @@ export function Feed() {
             {[0, 1, 2].map((i) => (
               <div
                 key={i}
-                className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse"
+                className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-5 animate-pulse"
               >
                 <div className="flex items-center gap-3 mb-4">
-                  <div className="w-9 h-9 rounded-full bg-white/[0.06]" />
+                  <div className="w-9 h-9 rounded-full bg-white/[0.06] md:bg-slate-200" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-3 w-1/3 bg-white/[0.06] rounded" />
-                    <div className="h-2 w-1/5 bg-white/[0.05] rounded" />
+                    <div className="h-3 w-1/3 bg-white/[0.06] md:bg-slate-200 rounded" />
+                    <div className="h-2 w-1/5 bg-white/[0.05] md:bg-slate-200 rounded" />
                   </div>
                 </div>
                 <div className="space-y-2 mb-4">
-                  <div className="h-3 w-11/12 bg-white/[0.06] rounded" />
-                  <div className="h-3 w-4/5 bg-white/[0.06] rounded" />
-                  <div className="h-3 w-2/3 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-11/12 bg-white/[0.06] md:bg-slate-200 rounded" />
+                  <div className="h-3 w-4/5 bg-white/[0.06] md:bg-slate-200 rounded" />
+                  <div className="h-3 w-2/3 bg-white/[0.05] md:bg-slate-200 rounded" />
                 </div>
-                <div className="h-40 w-full bg-white/[0.04] rounded-lg mb-4" />
+                <div className="h-40 w-full bg-white/[0.04] md:bg-slate-100 rounded-lg mb-4" />
                 <div className="flex gap-6">
-                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
-                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
-                  <div className="h-3 w-10 bg-white/[0.05] rounded" />
+                  <div className="h-3 w-10 bg-white/[0.05] md:bg-slate-200 rounded" />
+                  <div className="h-3 w-10 bg-white/[0.05] md:bg-slate-200 rounded" />
+                  <div className="h-3 w-10 bg-white/[0.05] md:bg-slate-200 rounded" />
                 </div>
               </div>
             ))}
           </div>
         ) : postsError ? (
-          <div className="bg-[#1E1E24] border border-red-500/40 rounded-xl p-6 text-center">
-            <AlertCircle className="w-6 h-6 text-red-400 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-red-300">Couldn’t load the feed</p>
+          <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-red-500/40 rounded-xl p-6 text-center">
+            <AlertCircle className="w-6 h-6 text-red-400 md:text-red-600 mx-auto mb-2" />
+            <p className="text-sm font-semibold text-red-300 md:text-red-600">Couldn’t load the feed</p>
             <p className="mt-1 text-xs text-red-300/80">{postsError}</p>
           </div>
         ) : posts.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-8 text-center">
+          <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-emerald-400" />
+              <MessageSquare className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
             </div>
-            <p className="text-sm font-semibold text-white">The feed is quiet right now</p>
-            <p className="mt-1 text-xs text-slate-400 max-w-sm mx-auto">
+            <p className="text-sm font-semibold text-white md:text-slate-900">The feed is quiet right now</p>
+            <p className="mt-1 text-xs text-slate-400 md:text-slate-600 max-w-sm mx-auto">
               No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question.
             </p>
           </div>
@@ -1033,15 +1033,15 @@ export function Feed() {
 
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1">
-                          <BookOpen className="w-3.5 h-3.5 text-emerald-400" />
-                          <span className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold">
+                          <BookOpen className="w-3.5 h-3.5 text-emerald-400 md:text-emerald-600" />
+                          <span className="text-[10px] uppercase tracking-wider text-emerald-400 md:text-emerald-600 font-bold">
                             Blog{b.category_name ? ` · ${b.category_name}` : ""}
                           </span>
                         </div>
-                        <h3 className="text-white text-lg font-black leading-tight">{b.title}</h3>
-                        <p className="mt-1.5 text-sm text-slate-400 line-clamp-3">{b.excerpt}</p>
+                        <h3 className="text-white md:text-slate-900 text-lg font-black leading-tight">{b.title}</h3>
+                        <p className="mt-1.5 text-sm text-slate-400 md:text-slate-600 line-clamp-3">{b.excerpt}</p>
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="text-[11px] text-slate-500">By {b.author_name}</span>
+                          <span className="text-[11px] text-slate-500 md:text-slate-500">By {b.author_name}</span>
                           <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
                             Read article →
                           </span>
@@ -1069,14 +1069,14 @@ export function Feed() {
               return (
               <article
                 key={post.id}
-                className={`bg-[#1E1E24] border border-white/10 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
+                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
                 style={{ contentVisibility: "auto", containIntrinsicSize: "1px 600px" }}
               >
                 <header className="flex items-center gap-3 mb-3">
                   <Link
                     to="/profile/$id"
                     params={{ id: profileSlug }}
-                    className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
+                    className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
                   >
                     <AvatarImage
                       src={post.author_avatar_url}
@@ -1089,27 +1089,27 @@ export function Feed() {
                       <Link
                         to="/profile/$id"
                         params={{ id: profileSlug }}
-                        className="font-semibold text-white text-sm hover:text-emerald-400 transition-colors"
+                        className="font-semibold text-white md:text-slate-900 text-sm hover:text-emerald-400 md:hover:text-emerald-600 transition-colors"
                       >
                         {post.author_name}
                       </Link>
                       {post.mentions.length > 0 && (
-                        <span className="text-xs text-slate-400">
-                          <span className="text-slate-500">is with </span>
+                        <span className="text-xs text-slate-400 md:text-slate-600">
+                          <span className="text-slate-500 md:text-slate-500">is with </span>
                           <Link
                             to="/profile/$id"
                             params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
-                            className="text-emerald-400 hover:underline font-medium"
+                            className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
                           >
                             {post.mentions[0].name}
                           </Link>
                           {post.mentions.length > 1 && (
                             <>
-                              <span className="text-slate-500"> and </span>
+                              <span className="text-slate-500 md:text-slate-500"> and </span>
                               <button
                                 type="button"
                                 onClick={() => setMentionsSheet(post.mentions)}
-                                className="text-emerald-400 hover:underline font-medium"
+                                className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
                               >
                                 {Math.min(post.mentions.length - 1, 99)}
                                 {post.mentions.length - 1 >= 99 ? "+" : ""} other
@@ -1120,13 +1120,13 @@ export function Feed() {
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-slate-500">{timeAgo(post.created_at)}</div>
+                    <div className="text-xs text-slate-500 md:text-slate-500">{timeAgo(post.created_at)}</div>
                     {post.circle && (
                       <div className="mt-1.5 flex items-center gap-2 text-[11px]">
-                        <span className="text-slate-500">Posted in</span>
+                        <span className="text-slate-500 md:text-slate-500">Posted in</span>
                         <a
                           href={`/?section=Circles&circle=${encodeURIComponent(post.circle.slug)}`}
-                          className="inline-flex items-center gap-1.5 text-emerald-300 font-semibold hover:underline"
+                          className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
                         >
                           {post.circle.avatarUrl ? (
                             <img
@@ -1145,7 +1145,7 @@ export function Feed() {
                           <button
                             type="button"
                             onClick={() => handleJoinCircleFromFeed(post.circle!.id, post.circle!.slug)}
-                            className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold hover:bg-emerald-500/25"
+                            className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold hover:bg-emerald-500/25"
                           >
                             Join
                           </button>
@@ -1169,7 +1169,7 @@ export function Feed() {
                   )}
                 </header>
                 {isReported && (
-                  <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300">
+                  <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600">
                     <Flag className="w-3 h-3" />
                     You reported this post. It's hidden from your feed pending review.
                   </div>
@@ -1177,7 +1177,7 @@ export function Feed() {
                 <TruncatedText
                   text={post.text || ""}
                   lines={3}
-                  className="text-slate-300 text-sm leading-relaxed"
+                  className="text-slate-300 md:text-slate-700 text-sm leading-relaxed"
                 />
                 {post.media_type === "image" && post.media.length > 0 && (() => {
                   const imgs = post.media.filter((m) => m.type === "image").map((m) => m.url);
@@ -1187,7 +1187,7 @@ export function Feed() {
                   const layout = pickFeedMosaicLayout(post.id, count);
                   const displayed = imgs.slice(0, layout.displayedCount);
                   return (
-                    <div className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10`}>
+                    <div className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10 md:border-slate-200`}>
                       {displayed.map((url, i) => {
                         const isLastTile = count > 4 && i === displayed.length - 1;
                         return (
@@ -1225,7 +1225,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setVideoStartId(post.id)}
-                      className="relative block w-full aspect-video rounded-lg border border-white/10 bg-black overflow-hidden group"
+                      className="relative block w-full aspect-video rounded-lg border border-white/10 md:border-slate-200 bg-black overflow-hidden group"
                       aria-label="Play video"
                     >
                       <video
@@ -1242,7 +1242,7 @@ export function Feed() {
 
                       <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
                         <div className="p-4 rounded-full bg-black/70 border border-white/25 backdrop-blur">
-                          <Play className="w-8 h-8 text-white fill-white" />
+                          <Play className="w-8 h-8 text-white md:text-slate-900 fill-white" />
                         </div>
                       </div>
                     </button>
@@ -1256,7 +1256,7 @@ export function Feed() {
                 )}
 
                 {/* Action bar */}
-                <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 text-slate-400 text-xs">
+                <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 md:border-slate-200 text-slate-400 md:text-slate-600 text-xs">
                   <div className="relative flex items-center gap-2">
                     <ReactionButton
                       reaction={post.viewer_reaction ?? "love"}
@@ -1291,14 +1291,14 @@ export function Feed() {
                   <button
                     type="button"
                     onClick={() => setCommentsSheetPostId(post.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors"
                     aria-label="Open comments"
                   >
                     <MessageSquare className="w-4 h-4" /> {post.comments_count}
                   </button>
                   <button
                     onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 hover:text-white transition-colors ml-auto"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors ml-auto"
                   >
                     <Share2 className="w-4 h-4" /> Share
                   </button>
@@ -1310,7 +1310,7 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="w-full rounded-lg border border-dashed border-white/10 bg-black/20 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 hover:border-white/20 transition-colors"
+                      className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
                     >
                       No comments yet — be the first to reply.
                     </button>
@@ -1320,14 +1320,14 @@ export function Feed() {
                         const latest = comments[comments.length - 1];
                         return (
                           <div className="flex items-start gap-2">
-                            <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center text-white/85">
+                            <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center text-white/85 md:text-slate-700">
                               <User className="w-4 h-4" strokeWidth={1.75} />
                             </div>
-                            <div className="flex-1 min-w-0 bg-black/30 border border-white/5 rounded-lg px-3 py-2">
-                              <div className="text-xs font-semibold text-white truncate">
+                            <div className="flex-1 min-w-0 bg-black/30 md:bg-slate-100 border border-white/5 md:border-slate-200 rounded-lg px-3 py-2">
+                              <div className="text-xs font-semibold text-white md:text-slate-900 truncate">
                                 {latest.author}
                               </div>
-                              <div className="text-xs text-slate-300 mt-0.5 line-clamp-2 whitespace-pre-wrap break-words">
+                              <div className="text-xs text-slate-300 md:text-slate-700 mt-0.5 line-clamp-2 whitespace-pre-wrap break-words">
                                 {latest.text}
                               </div>
                             </div>
@@ -1337,7 +1337,7 @@ export function Feed() {
                       <button
                         type="button"
                         onClick={() => setCommentsSheetPostId(post.id)}
-                        className="text-[11px] font-medium text-emerald-400 hover:text-emerald-300 ml-9"
+                        className="text-[11px] font-medium text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
                       >
                         {post.comments_count > 1
                           ? `View all ${post.comments_count} comments`
@@ -1352,7 +1352,7 @@ export function Feed() {
           })()
         )}
         {commentError && (
-          <div className="text-[11px] text-red-400 -mt-2">{commentError}</div>
+          <div className="text-[11px] text-red-400 md:text-red-600 -mt-2">{commentError}</div>
         )}
 
         {/* Mock marketplace, sponsored, and bounty cards removed — live data lives in the DiscoveryPanel and dedicated routes. */}
@@ -1421,32 +1421,32 @@ export function Feed() {
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            className="w-full max-w-sm bg-[#1E1E24] border border-white/10 rounded-2xl overflow-hidden shadow-2xl"
+            className="w-full max-w-sm bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden shadow-2xl"
           >
-            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
-              <h3 className="text-white font-semibold text-sm">Mentioned in this post</h3>
+            <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:border-slate-200">
+              <h3 className="text-white md:text-slate-900 font-semibold text-sm">Mentioned in this post</h3>
               <button
                 type="button"
                 onClick={() => setMentionsSheet(null)}
-                className="text-slate-400 hover:text-white text-sm"
+                className="text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 text-sm"
                 aria-label="Close"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
-            <div className="max-h-[60vh] overflow-y-auto divide-y divide-white/5">
+            <div className="max-h-[60vh] overflow-y-auto divide-y divide-white/5 md:divide-slate-200">
               {mentionsSheet.map((m) => (
                 <Link
                   key={m.user_id}
                   to="/profile/$id"
                   params={{ id: m.slug ?? m.user_id }}
                   onClick={() => setMentionsSheet(null)}
-                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors"
+                  className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 md:hover:bg-slate-100 transition-colors"
                 >
-                  <span className="w-9 h-9 rounded-full overflow-hidden bg-neutral-800 flex items-center justify-center text-white/85 shrink-0">
+                  <span className="w-9 h-9 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center text-white/85 md:text-slate-700 shrink-0">
                     <User className="w-5 h-5" strokeWidth={1.75} />
                   </span>
-                  <span className="text-white text-sm truncate">{m.name}</span>
+                  <span className="text-white md:text-slate-900 text-sm truncate">{m.name}</span>
                 </Link>
               ))}
             </div>

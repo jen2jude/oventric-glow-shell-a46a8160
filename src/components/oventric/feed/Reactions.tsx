@@ -149,7 +149,7 @@ export function ReactionPicker({
   return (
     <div
       ref={ref}
-      className={`absolute bottom-full ${alignCls} mb-3 z-30 flex items-center gap-2 rounded-full bg-[#141418] border border-white/10 px-2.5 py-2 shadow-xl shadow-black/60 animate-in fade-in slide-in-from-bottom-2 duration-150`}
+      className={`absolute bottom-full ${alignCls} mb-3 z-30 flex items-center gap-2 rounded-full bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 px-2.5 py-2 shadow-xl shadow-black/60 animate-in fade-in slide-in-from-bottom-2 duration-150`}
     >
       {REACTION_ORDER.map((r) => (
         <ReactionButton
@@ -177,7 +177,7 @@ export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; ke
       className="pointer-events-none absolute inset-0 flex items-center justify-center z-20"
     >
       <div
-        className="rounded-2xl p-4 text-white"
+        className="rounded-2xl p-4 text-white md:text-slate-900"
         style={{
           backgroundColor: isImg ? "transparent" : m.color,
           animation: "reaction-splash 900ms cubic-bezier(0.16,1,0.3,1) forwards",
@@ -196,7 +196,7 @@ export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
   return (
     <div className="absolute bottom-3 right-3 z-10 pointer-events-none">
       <div
-        className="rounded-2xl w-10 h-10 flex items-center justify-center text-white"
+        className="rounded-2xl w-10 h-10 flex items-center justify-center text-white md:text-slate-900"
         style={{ backgroundColor: isImg ? "transparent" : m.color }}
       >
         <ReactionGlyph reaction={reaction} className={isImg ? "w-8 h-8" : "w-5 h-5"} />

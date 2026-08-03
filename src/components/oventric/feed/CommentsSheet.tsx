@@ -32,13 +32,13 @@ function Comment({
   const viewer = c.viewer_reaction;
   return (
     <div className="flex gap-2.5 py-2">
-      <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 text-[11px] font-semibold">
+      <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 md:text-emerald-700 text-[11px] font-semibold">
         {c.initials}
       </div>
       <div className="flex-1 min-w-0">
-        <div className="rounded-2xl bg-white/5 border border-white/10 px-3 py-2">
-          <div className="text-[12px] font-semibold text-slate-200 truncate">{c.author_name}</div>
-          <div className="text-[13px] text-slate-100 whitespace-pre-wrap break-words">{c.text}</div>
+        <div className="rounded-2xl bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 px-3 py-2">
+          <div className="text-[12px] font-semibold text-slate-200 md:text-slate-700 truncate">{c.author_name}</div>
+          <div className="text-[13px] text-slate-100 md:text-slate-800 whitespace-pre-wrap break-words">{c.text}</div>
         </div>
         <div className="flex items-center gap-3 mt-1 pl-1 relative">
           <div className="flex items-center gap-1.5">
@@ -60,18 +60,18 @@ function Comment({
             )}
           </div>
           {total > 0 && (
-            <span className="text-[11px] text-slate-500">
+            <span className="text-[11px] text-slate-500 md:text-slate-500">
               {total} {total === 1 ? "reaction" : "reactions"}
             </span>
           )}
           <button
             type="button"
             onClick={() => onReply(c)}
-            className="text-[11px] text-slate-400 hover:text-emerald-300 inline-flex items-center gap-1"
+            className="text-[11px] text-slate-400 md:text-slate-600 hover:text-emerald-300 md:hover:text-emerald-700 inline-flex items-center gap-1"
           >
             <CornerDownRight className="w-3.5 h-3.5" /> Reply
           </button>
-          <span className="text-[11px] text-slate-500 ml-auto">
+          <span className="text-[11px] text-slate-500 md:text-slate-500 ml-auto">
             {new Date(c.created_at).toLocaleString()}
           </span>
           {pickerOpen && (
@@ -85,7 +85,7 @@ function Comment({
           )}
         </div>
         {replies.length > 0 && (
-          <div className="mt-1 pl-3 border-l border-white/10">
+          <div className="mt-1 pl-3 border-l border-white/10 md:border-slate-200">
             {replies.map((r) => (
               <Comment key={r.id} c={r} replies={[]} onReply={onReply} onReact={onReact} />
             ))}
@@ -190,28 +190,28 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="w-full sm:max-w-lg h-[85vh] sm:h-[75vh] bg-[#141416] border border-white/10 rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden slide-up"
+        className="w-full sm:max-w-lg h-[85vh] sm:h-[75vh] bg-[#141416] md:bg-white border border-white/10 md:border-slate-200 rounded-t-2xl sm:rounded-2xl flex flex-col overflow-hidden slide-up"
       >
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:border-slate-200 shrink-0">
           <div>
-            <div className="text-sm font-semibold text-slate-100">Comments</div>
-            <div className="text-[11px] text-slate-500">on {postAuthorName}'s post</div>
+            <div className="text-sm font-semibold text-slate-100 md:text-slate-800">Comments</div>
+            <div className="text-[11px] text-slate-500 md:text-slate-500">on {postAuthorName}'s post</div>
           </div>
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 rounded-full hover:bg-white/10 text-slate-300"
+            className="p-1.5 rounded-full hover:bg-white/10 md:hover:bg-slate-100 text-slate-300 md:text-slate-700"
             aria-label="Close"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="px-3 py-3 border-b border-white/10 bg-white/5 shrink-0">
+        <div className="px-3 py-3 border-b border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-100 shrink-0">
           {replyTo && (
-            <div className="flex items-center justify-between mb-1.5 text-[11px] text-slate-400">
+            <div className="flex items-center justify-between mb-1.5 text-[11px] text-slate-400 md:text-slate-600">
               <span>Replying to {replyTo.author_name}</span>
-              <button className="hover:text-slate-200" onClick={() => setReplyTo(null)}>Cancel</button>
+              <button className="hover:text-slate-200 md:hover:text-slate-800" onClick={() => setReplyTo(null)}>Cancel</button>
             </div>
           )}
           <div className="flex gap-2 items-end">
@@ -221,7 +221,7 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? "Write a reply…" : "Write a comment…"}
               rows={1}
-              className="flex-1 resize-none rounded-2xl bg-[#0f0f11] border border-white/10 px-3 py-2 text-[13px] text-slate-100 outline-none focus:border-emerald-500/60 max-h-32"
+              className="flex-1 resize-none rounded-2xl bg-[#0f0f11] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-[13px] text-slate-100 md:text-slate-800 outline-none focus:border-emerald-500/60 max-h-32"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -243,7 +243,7 @@ export function CommentsSheet({ postId, postAuthorName, onClose, viewerName, vie
 
         <div className="flex-1 overflow-y-auto px-3 pb-3">
           {topLevel.length === 0 ? (
-            <div className="text-center text-slate-500 text-sm py-10">No comments yet — be first.</div>
+            <div className="text-center text-slate-500 md:text-slate-500 text-sm py-10">No comments yet — be first.</div>
           ) : (
             topLevel.map((c) => (
               <Comment

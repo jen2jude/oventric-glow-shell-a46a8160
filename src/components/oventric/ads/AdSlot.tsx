@@ -136,24 +136,24 @@ function LeadFormModal({
   return (
     <div className="fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
       <div
-        className="w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-2xl p-5"
+        className="w-full max-w-md bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl p-5"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-start justify-between mb-3">
           <div>
-            <div className="text-[10px] font-black uppercase tracking-widest text-fuchsia-300 flex items-center gap-1">
+            <div className="text-[10px] font-black uppercase tracking-widest text-fuchsia-300 md:text-fuchsia-600 flex items-center gap-1">
               <Megaphone className="w-3 h-3" /> Sponsored
             </div>
-            <h3 className="mt-1 text-lg font-bold text-white">{ad.header || "Get in touch"}</h3>
-            {ad.description && <p className="text-xs text-slate-400 mt-0.5">{ad.description}</p>}
+            <h3 className="mt-1 text-lg font-bold text-white md:text-slate-900">{ad.header || "Get in touch"}</h3>
+            {ad.description && <p className="text-xs text-slate-400 md:text-slate-600 mt-0.5">{ad.description}</p>}
           </div>
-          <button onClick={onClose} className="text-slate-500 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-slate-500 md:text-slate-500 hover:text-white md:hover:text-slate-900"><X className="w-5 h-5" /></button>
         </div>
         <div className="space-y-2">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500" />
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message (optional)" className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 resize-none" />
+          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
+          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
+          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
+          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message (optional)" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 resize-none" />
         </div>
         <button
           onClick={submit}
@@ -224,7 +224,7 @@ function CreativeMedia({ ad, aspect = "video" }: { ad: ServingAd; aspect?: "squa
         />
       )}
       {ad.tier === "video" && active.kind !== "video" && (
-        <PlayCircle className="absolute inset-0 m-auto w-12 h-12 text-white/90" />
+        <PlayCircle className="absolute inset-0 m-auto w-12 h-12 text-white/90 md:text-slate-700" />
       )}
       {creatives.length > 1 && (
         <>
@@ -271,13 +271,13 @@ function BannerAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) 
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="bg-[#1E1E24] border border-fuchsia-500/30 rounded-xl overflow-hidden">
+      <div ref={ref} className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden">
         {hasMedia && <CreativeMedia ad={ad} aspect="video" />}
         <div className="p-4 flex flex-col gap-2">
           <SponsoredBadge />
-          <div className="text-white font-bold text-sm leading-snug">{ad.header || "Sponsored placement"}</div>
-          {ad.description && <div className="text-xs text-slate-400 line-clamp-2">{ad.description}</div>}
-          {ad.body && <div className="text-xs text-slate-500 line-clamp-3">{ad.body}</div>}
+          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug">{ad.header || "Sponsored placement"}</div>
+          {ad.description && <div className="text-xs text-slate-400 md:text-slate-600 line-clamp-2">{ad.description}</div>}
+          {ad.body && <div className="text-xs text-slate-500 md:text-slate-500 line-clamp-3">{ad.body}</div>}
           <button
             type="button"
             onClick={onClick}
@@ -299,12 +299,12 @@ function GridCardAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="w-[220px] sm:w-[260px] snap-start row-span-2 flex flex-col bg-[#1E1E24] border border-fuchsia-500/30 rounded-xl overflow-hidden">
+      <div ref={ref} className="w-[220px] sm:w-[260px] snap-start row-span-2 flex flex-col bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden">
         {hasMedia && <CreativeMedia ad={ad} aspect="square" />}
         <div className="p-3 flex flex-col gap-2 flex-1">
           <SponsoredBadge />
-          <div className="text-white font-bold text-sm leading-snug line-clamp-2">{ad.header || "Sponsored"}</div>
-          {ad.description && <div className="text-[11px] text-slate-500 line-clamp-2 flex-1">{ad.description}</div>}
+          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug line-clamp-2">{ad.header || "Sponsored"}</div>
+          {ad.description && <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">{ad.description}</div>}
           <button
             type="button"
             onClick={onClick}
@@ -326,12 +326,12 @@ function RailAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) {
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="relative bg-[#1E1E24] border border-fuchsia-500/30 rounded-2xl overflow-hidden">
+      <div ref={ref} className="relative bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-2xl overflow-hidden">
         {hasMedia && <CreativeMedia ad={ad} aspect="video" />}
         <div className="p-4 text-center">
           <SponsoredBadge />
-          <div className="mt-2 text-sm font-bold text-white leading-snug line-clamp-2">{ad.header || "Sponsored placement"}</div>
-          {ad.description && <p className="mt-1 text-[11px] text-slate-400 leading-relaxed line-clamp-2">{ad.description}</p>}
+          <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">{ad.header || "Sponsored placement"}</div>
+          {ad.description && <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">{ad.description}</p>}
           <button
             type="button"
             onClick={onClick}
