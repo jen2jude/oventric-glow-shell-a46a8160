@@ -45,12 +45,12 @@ function TopupHistoryPage() {
   }, [rows]);
 
   return (
-    <div className="min-h-screen bg-[#0b0b0e] text-white">
+    <div className="min-h-screen bg-[#0b0b0e] text-white md:text-slate-900">
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Link
             to="/dashboard"
-            className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white"
+            className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white md:text-slate-900"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -72,7 +72,7 @@ function TopupHistoryPage() {
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap border ${
                 filter === k
                   ? "bg-white text-black border-white"
-                  : "border-white/15 text-white/70 hover:text-white hover:border-white/30"
+                  : "border-white/15 text-white/70 hover:text-white md:text-slate-900 hover:border-white/30"
               }`}
             >
               {label} <span className="opacity-60">({counts[k]})</span>

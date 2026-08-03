@@ -105,7 +105,7 @@ const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
       label: CURRENCY_META[key]?.name ?? key,
       glow: "",
       ring: "border-slate-500/40",
-      text: "text-slate-300",
+      text: "text-slate-300 md:text-slate-600 md:text-slate-400",
       dot: "bg-slate-400",
     },
 });
@@ -278,20 +278,20 @@ export function Wallet() {
   const mask = "••••••";
 
   return (
-    <div className="wallet-mobile-safe max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] min-h-full">
+    <div className="wallet-mobile-safe max-w-6xl mx-auto w-full px-4 py-6 space-y-6 bg-[#0A0A0C] md:bg-white min-h-full">
       {/* Header */}
       <header className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
         <div className="min-w-0">
-          <h1 className="truncate text-2xl sm:text-3xl font-black text-white tracking-tight">
+          <h1 className="truncate text-2xl sm:text-3xl font-black text-white md:text-slate-900 tracking-tight">
             Sovereign Wallet
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 md:text-slate-500 md:text-slate-500 mt-1">
             Multi-currency ledger · cashback engine · payout controls
           </p>
         </div>
         <button
           onClick={toggleBalancesHidden}
-          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] bg-[#141418] px-3 py-2 text-xs font-semibold text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
+          className="shrink-0 inline-flex items-center gap-2 rounded-lg border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-3 py-2 text-xs font-semibold text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors"
         >
           {hide ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
           <span className="hidden sm:inline">{hide ? "Show Balances" : "Hide Balances"}</span>
@@ -372,7 +372,7 @@ export function Wallet() {
           return (
             <>
               {/* Big main card with USD equivalent inline (bottom-right snippet). */}
-              <div className={`relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-6 sm:p-7 ${m.glow}`}>
+              <div className={`relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 sm:p-7 ${m.glow}`}>
                 <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5 min-w-0">
@@ -380,8 +380,8 @@ export function Wallet() {
                       {m.symbol}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">{baseCurrency} · Main Balance</div>
-                      <div className="text-[11px] text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold">{baseCurrency} · Main Balance</div>
+                      <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
                     </div>
                   </div>
                   <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
@@ -391,7 +391,7 @@ export function Wallet() {
                     <div className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
                       {hide ? mask : fmt(bal, baseCurrency)}
                     </div>
-                    <div className="mt-3 text-[11px] text-slate-500 uppercase tracking-wider">
+                    <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 uppercase tracking-wider">
                       Available balance
                     </div>
                   </div>
@@ -399,13 +399,13 @@ export function Wallet() {
                     className="shrink-0 text-right leading-tight"
                     title="Reference only — not a withdrawable balance"
                   >
-                    <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+                    <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 font-semibold">
                       ≈ USD Equivalent
                     </div>
                     <div className={`text-base sm:text-lg font-bold tabular-nums text-sky-300/90 ${hide ? "blur-sm select-none" : ""}`}>
                       {hide ? "•••" : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     </div>
-                    <div className="text-[9px] text-slate-600 uppercase tracking-wider">
+                    <div className="text-[9px] text-slate-600 md:text-slate-400 uppercase tracking-wider">
                       Preview · not spendable
                     </div>
                   </div>
@@ -417,7 +417,7 @@ export function Wallet() {
               <button
                 onClick={() => setMoreOpen((v) => !v)}
                 aria-expanded={moreOpen}
-                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] bg-[#141418] px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
+                className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
               >
                 <span>{moreOpen ? "Hide" : "Show"} sub-wallets</span>
                 <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`} />
@@ -435,18 +435,18 @@ export function Wallet() {
                         <TileEl
                           key={t.key}
                           onClick={t.onClick}
-                          className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] p-4 text-left ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
+                          className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] md:bg-white md:shadow-sm p-4 text-left ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
                         >
                           <div className="flex items-center gap-2 mb-2.5">
                             <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
                               {t.icon}
                             </div>
-                            <div className="text-[10px] uppercase tracking-wider text-slate-400 font-semibold truncate">{t.label}</div>
+                            <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold truncate">{t.label}</div>
                           </div>
                           <div className={`text-lg sm:text-xl font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
                             {hide ? "•••" : fmt(t.value, t.currency)}
                           </div>
-                          <div className="mt-1 text-[10px] text-slate-500 truncate">{t.sub}</div>
+                          <div className="mt-1 text-[10px] text-slate-500 md:text-slate-500 truncate">{t.sub}</div>
                         </TileEl>
                       );
                     })}
@@ -460,8 +460,8 @@ export function Wallet() {
 
 
       {/* 3. Transaction Ledger (collapsible) */}
-      <section className="rounded-2xl border border-[#222226] bg-[#141418] overflow-hidden">
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] sm:flex sm:flex-wrap sm:justify-between">
+      <section className="rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] md:border-slate-200 sm:flex sm:flex-wrap sm:justify-between">
           <button
             type="button"
             onClick={() => setLedgerOpen((v) => !v)}
@@ -469,29 +469,29 @@ export function Wallet() {
             className="flex items-center gap-2 min-w-0 text-left"
           >
             <WalletIcon className="w-4 h-4 text-emerald-400 shrink-0" />
-            <h2 className="truncate text-sm font-bold text-white uppercase tracking-wide">
+            <h2 className="truncate text-sm font-bold text-white md:text-slate-900 uppercase tracking-wide">
               Transaction Ledger
             </h2>
-            <span className="text-[11px] text-slate-500 normal-case tracking-normal">
+            <span className="text-[11px] text-slate-500 md:text-slate-500 normal-case tracking-normal">
               ({total})
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
+            <ChevronDown className={`w-4 h-4 text-slate-400 md:text-slate-500 md:text-slate-500 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
           </button>
           {ledgerOpen && (
             <div className="flex items-center gap-2 flex-wrap">
               <div className="relative">
-                <Search className="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
+                <Search className="w-3.5 h-3.5 text-slate-500 md:text-slate-500 absolute left-2.5 top-1/2 -translate-y-1/2" />
                 <input
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
                   placeholder="Search hash, type…"
-                  className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
+                  className="pl-8 pr-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-emerald-500/50 w-40 sm:w-56"
                 />
               </div>
               <select
                 value={curFilter}
                 onChange={(e) => setCurFilter(e.target.value as "ALL" | Currency)}
-                className="px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-200 focus:outline-none focus:border-emerald-500/50"
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-200 md:text-slate-700 focus:outline-none focus:border-emerald-500/50"
               >
                 <option value="ALL">All currencies</option>
                 {CURRENCY_CODES.map((c) => (
@@ -501,7 +501,7 @@ export function Wallet() {
               <button
                 onClick={() => query.refetch()}
                 disabled={query.isFetching}
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] text-xs text-slate-300 hover:border-emerald-500/40 disabled:opacity-50"
+                className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 md:text-slate-400 hover:border-emerald-500/40 disabled:opacity-50"
                 title="Refresh ledger"
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
@@ -515,7 +515,7 @@ export function Wallet() {
             <div className="overflow-x-auto">
               <table className="w-full text-sm min-w-[720px]">
                 <thead>
-                  <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 bg-[#0F0F12]">
+                  <tr className="text-left text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 bg-[#0F0F12] md:bg-slate-50">
                     <th className="px-4 py-2.5 font-semibold">Tx ID</th>
                     <th className="px-4 py-2.5 font-semibold">Type</th>
                     <th className="px-4 py-2.5 font-semibold text-right">Impact</th>
@@ -525,19 +525,19 @@ export function Wallet() {
                 </thead>
                 <tbody>
                   {items.map((t) => (
-                    <tr key={t.id} className="border-t border-[#1c1c20] hover:bg-white/[0.02]">
-                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 whitespace-nowrap">{t.txHash}</td>
-                      <td className="px-4 py-3 text-slate-200 whitespace-nowrap">{t.type}</td>
-                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300"}`}>
+                    <tr key={t.id} className="border-t border-[#1c1c20] md:border-slate-200 hover:bg-white/[0.02]">
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 whitespace-nowrap">{t.txHash}</td>
+                      <td className="px-4 py-3 text-slate-200 md:text-slate-700 whitespace-nowrap">{t.type}</td>
+                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300 md:text-slate-600 md:text-slate-400"}`}>
                         {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
+                      <td className="px-4 py-3 text-xs text-slate-500 md:text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
                       <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
                     </tr>
                   ))}
                   {items.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500">
+                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500 md:text-slate-500">
                         {!authReady ? (
                           <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
                         ) : !userId ? (
@@ -556,22 +556,22 @@ export function Wallet() {
               </table>
             </div>
 
-            <div className="flex items-center justify-between p-3 border-t border-[#222226] text-xs text-slate-400">
+            <div className="flex items-center justify-between p-3 border-t border-[#222226] md:border-slate-200 text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
               <div>
-                Page <span className="text-slate-200 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
+                Page <span className="text-slate-200 md:text-slate-700 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
               </div>
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={pageSafe === 1}
-                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Prev
                 </button>
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={pageSafe === totalPages}
-                  className="px-3 py-1.5 rounded-lg border border-[#222226] bg-[#0A0A0C] hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
+                  className="px-3 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-emerald-500/40 disabled:opacity-40 disabled:cursor-not-allowed"
                 >
                   Next
                 </button>
@@ -583,7 +583,7 @@ export function Wallet() {
 
 
       {/* Affiliate — single card (coming soon / reserve) */}
-      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] p-5">
+      <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] md:bg-white md:shadow-sm p-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-fuchsia-500/60" />
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-4">
           <div className="min-w-0 flex items-center gap-3">
@@ -592,10 +592,10 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <div className="font-bold text-white truncate">Affiliate Program</div>
+                <div className="font-bold text-white md:text-slate-900 truncate">Affiliate Program</div>
                 <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">Coming soon</span>
               </div>
-              <div className="text-xs text-slate-400 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
             </div>
           </div>
           <Link
@@ -616,44 +616,44 @@ export function Wallet() {
       <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <button
           onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
-          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-emerald-500/50 transition-all"
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl border border-emerald-500/40 bg-emerald-500/10 flex items-center justify-center shrink-0">
               <ArrowDownToLine className="w-5 h-5 text-emerald-300" />
             </div>
             <div className="min-w-0">
-              <div className="font-bold text-white">➕ Fund Wallet</div>
-              <div className="text-xs text-slate-400 mt-0.5">For bounties & ad campaigns</div>
+              <div className="font-bold text-white md:text-slate-900">➕ Fund Wallet</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5">For bounties & ad campaigns</div>
             </div>
           </div>
         </button>
         <button
           onClick={() => require(2, () => verifyLiveness(() => setPayoutOpen(true)), "withdraw")}
-          className="group relative overflow-hidden rounded-2xl border border-[#222226] bg-[#141418] p-5 text-left hover:border-sky-500/50 transition-all"
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-sky-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-xl border border-sky-500/40 bg-sky-500/10 flex items-center justify-center shrink-0">
               <ArrowUpFromLine className="w-5 h-5 text-sky-300" />
             </div>
             <div className="min-w-0">
-              <div className="font-bold text-white">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 mt-0.5">Direct to your bank · fee auto-deducted</div>
+              <div className="font-bold text-white md:text-slate-900">📤 Request Payout</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mt-0.5">Direct to your bank · fee auto-deducted</div>
             </div>
           </div>
         </button>
       </section>
 
       {/* Cashback Estimator */}
-      <section className="rounded-2xl border border-[#222226] bg-[#141418] p-5 space-y-4">
+      <section className="rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 space-y-4">
         <div className="flex items-center gap-2">
           <TrendingUp className="w-4 h-4 text-emerald-400" />
-          <h2 className="text-sm font-bold text-white uppercase tracking-wide">
+          <h2 className="text-sm font-bold text-white md:text-slate-900 uppercase tracking-wide">
             Cashback Optimization Estimator
           </h2>
         </div>
 
-        <p className="text-xs text-slate-400 leading-relaxed">
+        <p className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 leading-relaxed">
           A planning tool. Drag the slider to the amount you expect to spend
           or earn through Oventric each month — marketplace purchases, gig
           bounties funded, ad injections, course sales. The estimator shows
@@ -671,9 +671,9 @@ export function Wallet() {
           const annualLocal = annualSavings * fx;
           return (
             <div className="space-y-3">
-              <div className="flex items-center justify-between text-xs text-slate-400">
+              <div className="flex items-center justify-between text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
                 <span>Projected Monthly Spend / Gig Volume</span>
-                <span className="tabular-nums text-slate-200 font-semibold">
+                <span className="tabular-nums text-slate-200 md:text-slate-700 font-semibold">
                   {fmt(spendLocal, baseCurrency)}{spend >= 10000 ? "+" : ""}
                 </span>
               </div>
@@ -699,7 +699,7 @@ export function Wallet() {
                 <div className="mt-2 text-3xl sm:text-4xl font-black tabular-nums text-emerald-300">
                   {fmt(annualLocal, baseCurrency)}
                 </div>
-                <div className="mt-1 text-xs text-slate-400">
+                <div className="mt-1 text-xs text-slate-400 md:text-slate-500 md:text-slate-500">
                   at <span className="text-emerald-300 font-semibold">{tier.pct}%</span> {tier.label} multiplier
                 </div>
               </div>
@@ -770,7 +770,7 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
       className={`rounded-lg border px-2.5 py-2 text-center transition-all ${
         active
           ? "border-emerald-500/60 bg-emerald-500/10 text-emerald-200"
-          : "border-[#222226] bg-[#0A0A0C] text-slate-400"
+          : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"
       }`}
     >
       <div className="font-bold text-[11px] uppercase tracking-wider">{label}</div>
@@ -793,12 +793,12 @@ function ModalShell({ title, onClose, children }: { title: string; onClose: () =
   return (
     <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
       <div
-        className="w-full sm:max-w-lg bg-[#141418] border border-[#222226] rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
+        className="w-full sm:max-w-lg bg-[#141418] md:bg-white md:shadow-sm border border-[#222226] md:border-slate-200 rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226]">
-          <h3 className="truncate text-base font-bold text-white">{title}</h3>
-          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400">
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] md:border-slate-200">
+          <h3 className="truncate text-base font-bold text-white md:text-slate-900">{title}</h3>
+          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500 md:text-slate-500">
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -885,7 +885,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
             Suggested top-up · bounty escrow
           </div>
-          <div className="mt-1 text-xs text-slate-300 leading-relaxed">
+          <div className="mt-1 text-xs text-slate-300 md:text-slate-600 md:text-slate-400 leading-relaxed">
             Your saved bounty draft needs{" "}
             <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>{" "}
             to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
@@ -895,11 +895,11 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
 
 
       <div>
-        <label className="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">
+        <label className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 md:text-slate-500 font-semibold">
           Amount ({baseCurrency})
         </label>
-        <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-xl border border-[#222226] bg-[#0A0A0C] focus-within:border-emerald-500/60 transition-colors">
-          <span className="px-3 text-slate-400 text-sm">{symbol}</span>
+        <div className="mt-1 grid grid-cols-[auto_minmax(0,1fr)] items-center rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white focus-within:border-emerald-500/60 transition-colors">
+          <span className="px-3 text-slate-400 md:text-slate-500 md:text-slate-500 text-sm">{symbol}</span>
           <input
             type="number"
             min={0}
@@ -908,24 +908,24 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder={baseCurrency === "USD" ? "0.00" : "0"}
-            className="w-full bg-transparent py-2.5 pr-3 text-sm text-white placeholder:text-slate-600 outline-none tabular-nums"
+            className="w-full bg-transparent py-2.5 pr-3 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 outline-none tabular-nums"
           />
         </div>
         {numericAmount > 0 && (
-          <div className="mt-1 text-[11px] text-slate-500 leading-relaxed">
+          <div className="mt-1 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed">
             You&apos;ll be charged{" "}
-            <span className="text-slate-200 font-semibold">
+            <span className="text-slate-200 md:text-slate-700 font-semibold">
               {symbol}{formattedCharge}
             </span>{" "}
             via Paystack — that&apos;s your{" "}
-            <span className="text-slate-300">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
+            <span className="text-slate-300 md:text-slate-600 md:text-slate-400">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
             <span className="text-amber-300">{symbol}{formattedFee}</span> Paystack transaction fee.
             Your wallet is credited with the full {symbol}{fmt(numericAmount)}.
           </div>
         )}
       </div>
 
-      <p className="text-xs text-slate-400">Select a payment channel — Paystack will handle the secure checkout.</p>
+      <p className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500">Select a payment channel — Paystack will handle the secure checkout.</p>
       <div className="space-y-2">
         {options.map((o) => {
           const Icon = o.icon;
@@ -937,21 +937,21 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
               disabled={o.disabled}
               className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all ${
                 o.disabled
-                  ? "border-[#1c1c20] bg-[#08080a] opacity-50 cursor-not-allowed"
+                  ? "border-[#1c1c20] md:border-slate-200 bg-[#08080a] md:bg-slate-100 opacity-50 cursor-not-allowed"
                   : active
                     ? "border-emerald-500/60 bg-emerald-500/5"
-                    : "border-[#222226] bg-[#0A0A0C] hover:border-white/20"
+                    : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-white/20"
               }`}
             >
-              <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] bg-black/40"}`}>
-                <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`} />
+              <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}>
+                <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500 md:text-slate-500"}`} />
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-white text-sm truncate">{o.title}</div>
-                <div className="text-xs text-slate-400 truncate">{o.sub}</div>
+                <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{o.title}</div>
+                <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 truncate">{o.sub}</div>
               </div>
               {o.disabled ? (
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 shrink-0">N/A</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500 shrink-0">N/A</span>
               ) : active ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" aria-label="Selected" />
               ) : (
@@ -970,7 +970,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
           borderColor: "rgba(255,255,255,0.35)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
         }}
-        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
+        className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 md:text-slate-500 md:text-slate-500 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
           <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
@@ -979,7 +979,7 @@ function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, 
         )}
       </button>
 
-      <div className="mt-1 text-[10px] text-slate-500 inline-flex items-center gap-1">
+      <div className="mt-1 text-[10px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
         <ShieldCheck className="w-3 h-3 text-emerald-400" /> Payments processed securely by Paystack
       </div>
     </ModalShell>
@@ -1062,10 +1062,10 @@ function PayoutSuccessSplash({
             <CheckCircle2 className="w-10 h-10 text-black" strokeWidth={3} />
           </div>
           <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">Withdrawal Requested</div>
-          <div className="text-3xl font-black text-white tabular-nums mb-1">
+          <div className="text-3xl font-black text-white md:text-slate-900 tabular-nums mb-1">
             {sym}{amount.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}
           </div>
-          <div className="text-xs text-slate-400 mb-4 truncate">to {destinationLabel}</div>
+          <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 mb-4 truncate">to {destinationLabel}</div>
           <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3 text-left text-xs text-emerald-100/90 mb-4">
             <div className="font-bold text-emerald-200 mb-1 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> You're all set
@@ -1145,7 +1145,7 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
           {/* Active rail — user's base currency */}
           <div
             className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left ${
-              baseBal > 0 ? "border-sky-500/60 bg-sky-500/5" : "border-[#222226] bg-[#0A0A0C] opacity-70"
+              baseBal > 0 ? "border-sky-500/60 bg-sky-500/5" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white opacity-70"
             }`}
           >
             <div
@@ -1160,12 +1160,12 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
               <Zap className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <div className="font-semibold text-white text-sm truncate">{rail.label}</div>
-              <div className="text-xs text-slate-400 truncate">{rail.hint} · {rail.eta}</div>
+              <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{rail.label}</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 truncate">{rail.hint} · {rail.eta}</div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">Available</div>
-              <div className="text-xs font-bold text-slate-200 tabular-nums">
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">Available</div>
+              <div className="text-xs font-bold text-slate-200 md:text-slate-700 tabular-nums">
                 {currencyMeta[rail.c].symbol}
                 {baseBal.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(rail.c), maximumFractionDigits: 2 })}
               </div>
@@ -1180,19 +1180,19 @@ function PayoutModal({ onClose }: { onClose: () => void }) {
             return (
               <div
                 key={c}
-                className="w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-[#1a1a1e] bg-[#0A0A0C] opacity-50 p-3 text-left cursor-not-allowed"
+                className="w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border border-[#1a1a1e] md:border-slate-200 bg-[#0A0A0C] md:bg-white opacity-50 p-3 text-left cursor-not-allowed"
                 title={`Payouts are locked to your home currency (${baseCurrency})`}
               >
-                <div className="w-10 h-10 rounded-lg border border-[#222226] flex items-center justify-center shrink-0 text-slate-500">
+                <div className="w-10 h-10 rounded-lg border border-[#222226] md:border-slate-200 flex items-center justify-center shrink-0 text-slate-500 md:text-slate-500">
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-slate-300 text-sm truncate">{r.label}</div>
-                  <div className="text-[11px] text-slate-500 truncate">Reference equivalent · not withdrawable</div>
+                  <div className="font-semibold text-slate-300 md:text-slate-600 md:text-slate-400 text-sm truncate">{r.label}</div>
+                  <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">Reference equivalent · not withdrawable</div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500">≈</div>
-                  <div className="text-xs font-bold text-slate-400 tabular-nums">
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">≈</div>
+                  <div className="text-xs font-bold text-slate-400 md:text-slate-500 md:text-slate-500 tabular-nums">
                     {currencyMeta[c].symbol}
                     {equiv.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(c), maximumFractionDigits: 2 })}
                   </div>
@@ -1325,30 +1325,30 @@ function DestinationPicker({
 
   return (
     <ModalShell title={`${currency} payout destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change currency
       </button>
       <div className="space-y-2">
-        {items === null && <div className="text-xs text-slate-500">Loading saved destinations…</div>}
+        {items === null && <div className="text-xs text-slate-500 md:text-slate-500">Loading saved destinations…</div>}
         {items !== null && items.length === 0 && (
-          <div className="text-xs text-slate-500">
+          <div className="text-xs text-slate-500 md:text-slate-500">
             No saved {currency} destinations yet — add one to continue.
           </div>
         )}
         {(items ?? []).map((r) => (
           <div
             key={r.id}
-            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-[#222226] bg-[#0A0A0C] p-3"
+            className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3"
           >
             <button
               type="button"
               onClick={() => onPick(r.id)}
               className="text-left min-w-0"
             >
-              <div className="text-sm font-semibold text-white truncate">
+              <div className="text-sm font-semibold text-white md:text-slate-900 truncate">
                 {r.account_name}
               </div>
-              <div className="text-[11px] text-slate-400 truncate">
+              <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 truncate">
                 {r.method === "bank"
                   ? `${r.bank_name} · ${r.account_number}`
                   : `${r.momo_network} · ${r.phone}`}
@@ -1468,7 +1468,7 @@ function AddRecipientForm({
 
   return (
     <ModalShell title={`Add ${currency} destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Back
       </button>
 
@@ -1477,14 +1477,14 @@ function AddRecipientForm({
           <button
             type="button"
             onClick={() => setMethod("momo")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"}`}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "momo" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"}`}
           >
             Mobile Money
           </button>
           <button
             type="button"
             onClick={() => setMethod("bank")}
-            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] bg-[#0A0A0C] text-slate-400"}`}
+            className={`rounded-lg border px-3 py-2 text-xs font-bold uppercase tracking-wider transition-colors ${method === "bank" ? "border-amber-500/60 bg-amber-500/10 text-amber-200" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-slate-400 md:text-slate-500 md:text-slate-500"}`}
           >
             Bank Transfer
           </button>
@@ -1497,7 +1497,7 @@ function AddRecipientForm({
             <select
               value={bankCode}
               onChange={(e) => setBankCode(e.target.value)}
-              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/50"
+              className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="">{banks.length ? "Select bank…" : "Loading banks…"}</option>
               {banks.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
@@ -1525,7 +1525,7 @@ function AddRecipientForm({
             <select
               value={network}
               onChange={(e) => setNetwork(e.target.value as never)}
-              className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white focus:outline-none focus:border-amber-500/50"
+              className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-amber-500/50"
             >
               <option value="MTN">MTN Mobile Money</option>
               <option value="Vodafone">Vodafone Cash</option>
@@ -1663,22 +1663,22 @@ function AmountStep({
 
   return (
     <ModalShell title="Confirm payout" onClose={onBack}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change destination
       </button>
 
       {rec && (
-        <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Sending to</div>
-          <div className="text-sm font-semibold text-white truncate">{rec.account_name}</div>
-          <div className="text-[11px] text-slate-400 truncate">
+        <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Sending to</div>
+          <div className="text-sm font-semibold text-white md:text-slate-900 truncate">{rec.account_name}</div>
+          <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 truncate">
             {rec.method === "bank" ? `${rec.bank_name} · ${rec.account_number}` : `${rec.momo_network} · ${rec.phone}`}
           </div>
         </div>
       )}
 
-      <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
-        <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-slate-500 mb-1">
+      <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
+        <div className="flex items-center justify-between text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">
           <span>Amount to withdraw ({currency})</span>
           <button
             type="button"
@@ -1689,7 +1689,7 @@ function AmountStep({
           </button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-slate-400">{sym}</span>
+          <span className="text-lg font-bold text-slate-400 md:text-slate-500 md:text-slate-500">{sym}</span>
           <input
             type="number"
             inputMode="decimal"
@@ -1698,18 +1698,18 @@ function AmountStep({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
-            className="w-full bg-transparent text-2xl font-black text-white tabular-nums focus:outline-none"
+            className="w-full bg-transparent text-2xl font-black text-white md:text-slate-900 tabular-nums focus:outline-none"
           />
         </div>
       </div>
 
       {amt > 0 && (
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1 text-xs">
-          <div className="flex items-center justify-between text-slate-300">
+          <div className="flex items-center justify-between text-slate-300 md:text-slate-600 md:text-slate-400">
             <span>You requested</span>
             <span className="tabular-nums">{sym}{amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
-          <div className="flex items-center justify-between text-slate-400">
+          <div className="flex items-center justify-between text-slate-400 md:text-slate-500 md:text-slate-500">
             <span>Paystack transfer fee</span>
             <span className="tabular-nums">− {sym}{fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
           </div>
@@ -1728,7 +1728,7 @@ function AmountStep({
         {busy && <Loader2 className="w-4 h-4 animate-spin" />}
         {busy ? "Sending…" : `Send ${sym}${net > 0 ? net.toLocaleString() : "0"} to bank`}
       </button>
-      <p className="text-[11px] text-slate-500 text-center">
+      <p className="text-[11px] text-slate-500 md:text-slate-500 text-center">
         {sym}{amt > 0 ? amt.toLocaleString() : "0"} is debited from your wallet. Paystack's fee is deducted before the bank receives.
       </p>
     </ModalShell>
@@ -1797,13 +1797,13 @@ function WireForm({
 
   return (
     <ModalShell title="USD International Wire · Payout" onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 hover:text-white uppercase tracking-wider">
+      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
         ← Change currency
       </button>
-      <div className="rounded-xl border border-[#222226] bg-[#0A0A0C] p-3">
-        <div className="text-[11px] uppercase tracking-wider text-slate-500 mb-1">Amount (USD)</div>
+      <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Amount (USD)</div>
         <div className="flex items-center gap-2">
-          <span className="text-lg font-bold text-slate-400">$</span>
+          <span className="text-lg font-bold text-slate-400 md:text-slate-500 md:text-slate-500">$</span>
           <input
             type="number"
             inputMode="decimal"
@@ -1812,10 +1812,10 @@ function WireForm({
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             placeholder="0.00"
-            className="w-full bg-transparent text-2xl font-black text-white tabular-nums focus:outline-none"
+            className="w-full bg-transparent text-2xl font-black text-white md:text-slate-900 tabular-nums focus:outline-none"
           />
         </div>
-        <div className="text-[11px] text-slate-500 mt-1">Available: ${max.toLocaleString()}</div>
+        <div className="text-[11px] text-slate-500 md:text-slate-500 mt-1">Available: ${max.toLocaleString()}</div>
       </div>
       <Field label="Beneficiary name"><TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" /></Field>
       <Field label="Beneficiary address"><TxtInput value={wireAddress} onChange={setWireAddress} placeholder="Street, city, country" /></Field>
@@ -1834,7 +1834,7 @@ function WireForm({
         {busy && <Loader2 className="w-4 h-4 animate-spin" />}
         {busy ? "Submitting…" : `Request $${amount || "0"} wire`}
       </button>
-      <p className="text-[11px] text-slate-500 text-center">
+      <p className="text-[11px] text-slate-500 md:text-slate-500 text-center">
         USD wires are processed manually — admin sends via Wise / correspondent bank within 24–48 hours.
       </p>
     </ModalShell>
@@ -1845,7 +1845,7 @@ function WireForm({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 font-semibold mb-1">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 font-semibold mb-1">{label}</div>
       {children}
     </label>
   );
@@ -1868,7 +1868,7 @@ function TxtInput({
       onChange={(e) => onChange(e.target.value)}
       placeholder={placeholder}
       maxLength={maxLength}
-      className="w-full rounded-lg border border-[#222226] bg-[#0A0A0C] px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-sky-500/50"
+      className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:text-slate-400 focus:outline-none focus:border-sky-500/50"
     />
   );
 }
@@ -1914,27 +1914,27 @@ function BountyWalletModal({
 
   return (
     <div className="fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] md:bg-white md:shadow-sm p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
               <Zap className="w-4 h-4 text-amber-300" />
             </div>
             <div>
-              <div className="text-white font-black">Bounty Wallet</div>
-              <div className="text-[11px] text-slate-400">Earnings from solved gigs</div>
+              <div className="text-white md:text-slate-900 font-black">Bounty Wallet</div>
+              <div className="text-[11px] text-slate-400 md:text-slate-500 md:text-slate-500">Earnings from solved gigs</div>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white"><X className="w-5 h-5" /></button>
+          <button onClick={onClose} className="text-slate-400 md:text-slate-500 md:text-slate-500 hover:text-white md:text-slate-900"><X className="w-5 h-5" /></button>
         </div>
 
         <div className="rounded-xl bg-black/40 border border-white/10 p-4">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500">Available</div>
-          <div className="text-white text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 font-normal">USD</span></div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">Available</div>
+          <div className="text-white md:text-slate-900 text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 md:text-slate-500 md:text-slate-500 font-normal">USD</span></div>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase text-slate-500 tracking-wider">Amount to move (USD)</label>
+          <label className="text-[10px] uppercase text-slate-500 md:text-slate-500 tracking-wider">Amount to move (USD)</label>
           <input
             type="number" min={0} step="0.01" max={balanceUSD}
             value={amount} onChange={(e) => setAmount(e.target.value)}
@@ -1963,7 +1963,7 @@ function BountyWalletModal({
             Withdraw
           </button>
         </div>
-        <div className="text-[11px] text-slate-500">
+        <div className="text-[11px] text-slate-500 md:text-slate-500">
           Withdraw moves your full bounty balance to Main Wallet, then opens the payout flow (KYC + liveness required).
         </div>
       </div>
