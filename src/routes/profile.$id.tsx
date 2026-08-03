@@ -866,7 +866,7 @@ function ProfilePage() {
               <div className="flex items-center gap-2">
                 <button
                   onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:hover:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
                   aria-label="Copy profile link"
                 >
                   {copied ? (
@@ -879,7 +879,7 @@ function ProfilePage() {
                 {isOwnProfile && (
                   <button
                     onClick={() => setFollowRequestsOpen(true)}
-                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:text-slate-900 md:hover:text-slate-900 transition-colors"
+                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
                     aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
                   >
                     <UserPlus className="w-3.5 h-3.5 text-sky-300 md:text-sky-700" />
@@ -1154,7 +1154,7 @@ function ProfilePage() {
                     <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
                       <button
                         onClick={() => setJoinCircleOpen(true)}
-                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 hover:bg-emerald-500/20 md:bg-emerald-100 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 hover:bg-emerald-500/20 md:hover:bg-emerald-100 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
                         aria-label="Request to join one of this user's circles"
                       >
                         <Users className="w-4 h-4" /> Join Circle
@@ -1350,7 +1350,7 @@ function ProfilePage() {
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key && !photosMode
                         ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
-                        : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
+                        : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                     }`}
                   >
                     {label}
@@ -1371,7 +1371,7 @@ function ProfilePage() {
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
                     ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
-                    : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:text-slate-900 md:hover:text-slate-900"
+                    : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
                 Photos
@@ -1598,7 +1598,7 @@ function ProfilePage() {
                                     params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                     search: itemSearch,
                                   } as any))}
-                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:border-emerald-300 transition-colors"
+                              className="group block bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
                                 {t.coverUrl ? (
@@ -1653,7 +1653,7 @@ function ProfilePage() {
                         <button
                           onClick={() => loadMore()}
                           disabled={st.loading}
-                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 md:border-slate-200 text-sm text-slate-300 md:text-slate-600 hover:text-white md:text-slate-900 md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 disabled:opacity-50"
+                          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/10 md:border-slate-200 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 disabled:opacity-50"
                         >
                           {st.loading ? "Loading…" : `Load more (${(st.total ?? 0) - st.items.length} left)`}
                         </button>
@@ -1971,7 +1971,7 @@ function ProfilePhotosGallery({ slug }: { slug: string }) {
     <button
       key={v}
       onClick={() => setFilter(v)}
-      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 md:bg-emerald-100 border-emerald-500/40 md:border-emerald-300 text-emerald-300 md:text-emerald-700" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 md:hover:text-slate-900"}`}
+      className={`px-3 py-1 rounded-full text-xs border ${filter === v ? "bg-emerald-500/20 md:bg-emerald-100 border-emerald-500/40 md:border-emerald-300 text-emerald-300 md:text-emerald-700" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900"}`}
     >{label}</button>
   );
   return (
@@ -2034,7 +2034,7 @@ function EmptyState({
           {secondary && (
             <button
               onClick={secondary.onClick}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:text-white md:text-slate-900 md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs transition-colors"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs transition-colors"
             >
               {secondary.label}
             </button>
