@@ -62,84 +62,58 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
 }
 
 /* ------------------------------------------------------------------ */
-/* Trending category tiles (G2G-style)                                   */
+/* Trending product rails (scrollable)                                  */
 /* ------------------------------------------------------------------ */
 
-type CategoryBucket = {
-  name: string;
-  normalized: string;
-  count: number;
-  cover: string | null;
-};
-
-function norm(s: string) {
-  return s.toLowerCase().trim();
+function isAi(p: ProductDTO) {
+  const hay = `${p.category ?? ""} ${p.subcategory ?? ""}`.toLowerCase();
+  return hay.includes("ai");
 }
 
-function groupByCategory(rows: ProductDTO[]): CategoryBucket[] {
-  const map = new Map<string, CategoryBucket>();
-  rows.forEach((p) => {
-    const key = norm(p.category) || "other";
-    const existing = map.get(key);
-    if (existing) {
-      existing.count += 1;
-      if (!existing.cover && p.coverUrl) existing.cover = p.coverUrl;
-    } else {
-      map.set(key, {
-        name: p.category || "Other",
-        normalized: key,
-        count: 1,
-        cover: p.coverUrl ?? null,
-      });
-    }
-  });
-  return Array.from(map.values()).sort((a, b) => b.count - a.count);
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
 }
 
-function CategoryTile({ cat, onSelect }: { cat: CategoryBucket; onSelect: (section: string) => void }) {
-  const initial = cat.name.slice(0, 1).toUpperCase();
+function ProductCard({ p }: { p: ProductDTO }) {
   return (
-    <button
-      type="button"
-      onClick={() => onSelect("Marketplace")}
-      className="group relative flex aspect-square w-full flex-col overflow-hidden rounded-2xl text-left transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_40px_-16px_rgba(15,23,42,0.35)] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
+    <a
+      href={`/product/${p.id}`}
+      className="group relative flex w-[220px] shrink-0 flex-col overflow-hidden rounded-2xl bg-slate-900 text-left transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_18px_40px_-16px_rgba(15,23,42,0.45)] focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:ring-offset-2"
     >
-      {/* Background */}
-      <div className="absolute inset-0 overflow-hidden bg-slate-900">
-        {cat.cover ? (
+      <div className="relative aspect-square w-full overflow-hidden">
+        {p.coverUrl ? (
           <img
-            src={cat.cover}
-            alt=""
-            aria-hidden
+            src={p.coverUrl}
+            alt={p.name}
             loading="lazy"
-            className="h-full w-full object-cover opacity-50 transition-transform duration-500 group-hover:scale-105"
+            className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-slate-800 to-slate-950" />
         )}
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/95 via-slate-950/50 to-slate-900/20" />
+        <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-transparent" />
       </div>
+      <div className="flex items-start gap-2 p-3">
+        <Package className="mt-0.5 h-4 w-4 shrink-0 text-emerald-400" strokeWidth={2.5} />
+        <span className="line-clamp-2 text-sm font-bold leading-snug text-white">{p.name}</span>
+      </div>
+    </a>
+  );
+}
 
-      {/* Offers badge */}
-      <div className="relative z-10 self-end rounded-lg bg-emerald-500 px-2.5 py-1.5 text-xs font-bold text-white shadow-sm">
-        {cat.count} Offers
-      </div>
-
-      {/* Center mark */}
-      <div className="relative z-10 flex flex-1 items-center justify-center">
-        <div className="grid h-20 w-20 place-items-center rounded-full border-2 border-white/20 bg-white/10 backdrop-blur-sm transition-transform duration-300 group-hover:scale-110">
-          <span className="text-4xl font-black text-white/95">{initial}</span>
-        </div>
-      </div>
-
-      {/* Title only */}
-      <div className="relative z-10">
-        <div className="flex items-center gap-2">
-          <Package className="h-4 w-4 text-emerald-400" strokeWidth={2.5} />
-          <span className="truncate text-base font-bold text-white">{cat.name}</span>
-        </div>
-      </div>
-    </button>
+function Rail({ items }: { items: ProductDTO[] }) {
+  if (items.length === 0) return null;
+  return (
+    <div className="-mx-2 mt-6 flex gap-4 overflow-x-auto scroll-smooth px-2 pb-3 [scrollbar-width:thin]">
+      {items.map((p) => (
+        <ProductCard key={p.id} p={p} />
+      ))}
+    </div>
   );
 }
 
@@ -159,8 +133,11 @@ export function ProductRails({ onSelect }: { onSelect: (section: string) => void
     };
   }, [load]);
 
-  const categories = useMemo(() => groupByCategory(rows.filter((r) => r.status === "active")), [rows]);
-  if (categories.length === 0) return null;
+  const active = useMemo(() => rows.filter((r) => r.status === "active"), [rows]);
+  const aiRow = useMemo(() => active.filter(isAi).slice(0, 20), [active]);
+  const otherRow = useMemo(() => shuffle(active.filter((p) => !isAi(p))).slice(0, 20), [active]);
+
+  if (aiRow.length === 0 && otherRow.length === 0) return null;
 
   return (
     <section className="mx-auto w-full max-w-[1200px] px-8 pt-16">
@@ -169,19 +146,24 @@ export function ProductRails({ onSelect }: { onSelect: (section: string) => void
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
             <Sparkles className="h-3.5 w-3.5" strokeWidth={2.6} /> Trending on the marketplace
           </div>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">Browse by category</h2>
-          <p className="mt-1 text-sm text-slate-500">Explore active listings grouped by what you need.</p>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">AI platforms online</h2>
+          <p className="mt-1 text-sm text-slate-500">Live AI tools and assets, plus fresh picks from every category.</p>
         </div>
+        <button
+          type="button"
+          onClick={() => onSelect("Marketplace")}
+          className="inline-flex items-center gap-1.5 text-sm font-bold text-emerald-700 hover:text-emerald-800"
+        >
+          See all <ArrowRight className="h-4 w-4" strokeWidth={3} />
+        </button>
       </div>
 
-      <div className="mt-8 grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
-        {categories.map((cat) => (
-          <CategoryTile key={cat.normalized} cat={cat} onSelect={onSelect} />
-        ))}
-      </div>
+      <Rail items={aiRow} />
+      <Rail items={otherRow} />
     </section>
   );
 }
+
 
 /* ------------------------------------------------------------------ */
 /* Secured payments                                                    */
