@@ -25,7 +25,11 @@ export function PublicChrome({
         lightDesktop ? "md:bg-white md:text-slate-700" : ""
       }`}
     >
-      <Header onOpenMessages={() => setMessagesOpen(true)} light={lightDesktop && isDesktop} />
+      <Header
+        onOpenMessages={() => setMessagesOpen(true)}
+        light={lightDesktop && isDesktop}
+        desktopNav={isDesktop}
+      />
       <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">{children}</main>
       <MessagesDrawer open={messagesOpen} onClose={() => setMessagesOpen(false)} />
     </div>
