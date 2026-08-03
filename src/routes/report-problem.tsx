@@ -66,7 +66,7 @@ function ReportPage() {
                   active ? "border-emerald-400 bg-emerald-500/10" : "border-white/10 bg-[#141418] hover:border-white/25"
                 }`}
               >
-                <span className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] text-slate-300"}`}>
+                <span className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] md:bg-slate-100 text-slate-300 md:text-slate-600"}`}>
                   <it.icon className="w-4 h-4" />
                 </span>
                 <span className="flex-1 text-sm font-semibold text-white md:text-slate-900">{it.title}</span>

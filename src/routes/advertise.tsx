@@ -195,7 +195,7 @@ function LiveDashboardPreview() {
           <div className="md:col-span-2 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {stats.map((s) => (
-                <div key={s.label} className={`p-3 rounded-xl bg-[#141418] border ${s.ring}`}>
+                <div key={s.label} className={`p-3 rounded-xl bg-[#141418] md:bg-white border ${s.ring}`}>
                   <div className="flex items-center justify-between">
                     <s.icon className={`w-4 h-4 ${s.tint}`} />
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
@@ -375,7 +375,7 @@ function AdvertisePage() {
             {TIERS.map((t) => (
               <div
                 key={t.id}
-                className={`relative p-6 rounded-2xl ${simple ? "bg-[#141418]" : `bg-gradient-to-b ${t.color}`} border ${t.ring} flex flex-col`}
+                className={`relative p-6 rounded-2xl ${simple ? "bg-[#141418] md:bg-white" : `bg-gradient-to-b ${t.color}`} border ${t.ring} flex flex-col`}
               >
                 {t.highlight && (
                   <span className="absolute -top-3 left-6 px-2.5 py-0.5 rounded-full bg-emerald-500 text-black text-[10px] font-black uppercase tracking-wider">
@@ -491,7 +491,7 @@ function AdvertisePage() {
         </section>
 
         {/* CTA */}
-        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] border-white/10" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
+        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] md:bg-white border-white/10 md:border-slate-200" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
           <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Ready to launch your first campaign?</h2>
           <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto md:text-slate-600">
             Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
