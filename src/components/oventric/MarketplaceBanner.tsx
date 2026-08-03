@@ -15,8 +15,8 @@ function scrollParent(el: HTMLElement | null): HTMLElement | Window {
 /**
  * Temu-style full-width trust strip across the top of the marketplace.
  * The "Get the Oventric App" item is desktop-only.
- * On desktop the strip sticks to the top and smoothly hides on scroll-down,
- * reappearing on scroll-up. On mobile it stays inline in the flow.
+ * The strip is sticky on every viewport and smoothly hides on scroll-down,
+ * reappearing on scroll-up.
  */
 export function MarketplaceBanner() {
   const ref = useRef<HTMLDivElement>(null);
