@@ -158,12 +158,35 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       .then((r) => {
         if (cancelled) return;
         setProducts((r?.products ?? []).slice(0, 10));
+        setBounties(
+          (r?.bounties ?? []).slice(0, 10).map((b) => ({
+            id: b.id,
+            title: b.title,
+            coverUrl: b.coverUrl,
+            amountUsd: b.amountUsd,
+          })),
+        );
+      })
+      .catch(() => {});
+    loadCourses()
+      .then((rows) => {
+        if (cancelled) return;
+        setCourses(
+          (rows ?? []).slice(0, 10).map((c) => ({
+            id: c.id,
+            title: c.title,
+            coverUrl: c.coverUrl,
+            priceUsd: c.priceUSD,
+            isFree: c.isFree,
+          })),
+        );
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [loadDiscovery]);
+  }, [loadDiscovery, loadCourses]);
+
 
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
   const greeting = (() => {
