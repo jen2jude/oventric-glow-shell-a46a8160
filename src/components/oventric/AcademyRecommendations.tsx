@@ -38,10 +38,10 @@ function SectionHeader({ icon: Icon, title, hint }: { icon: any; title: string; 
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
-        <Icon className="w-5 h-5 text-emerald-400" strokeWidth={2.5} />
-        <h3 className="text-white font-black text-lg tracking-tight">{title}</h3>
+        <Icon className="w-5 h-5 text-emerald-400 md:text-emerald-600" strokeWidth={2.5} />
+        <h3 className="text-white md:text-slate-900 font-black text-lg tracking-tight">{title}</h3>
       </div>
-      {hint && <span className="text-[11px] uppercase tracking-wider text-slate-500">{hint}</span>}
+      {hint && <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">{hint}</span>}
     </div>
   );
 }
