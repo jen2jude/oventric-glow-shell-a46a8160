@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as HelpBoardRouteImport } from './routes/help-board'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
 import { Route as DashboardRouteImport } from './routes/dashboard'
@@ -33,6 +34,7 @@ import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdsManagerIdRouteImport } from './routes/ads-manager.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
 import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
+import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
 import { Route as AdminReportsRouteImport } from './routes/admin.reports'
 import { Route as AdminProductsRouteImport } from './routes/admin.products'
@@ -78,6 +80,11 @@ const ReportProblemRoute = ReportProblemRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HelpBoardRoute = HelpBoardRouteImport.update({
+  id: '/help-board',
+  path: '/help-board',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpRoute = HelpRouteImport.update({
@@ -183,6 +190,11 @@ const AdminUsersRoute = AdminUsersRouteImport.update({
 const AdminSystemWalletsRoute = AdminSystemWalletsRouteImport.update({
   id: '/system-wallets',
   path: '/system-wallets',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminSupportRoute = AdminSupportRouteImport.update({
+  id: '/support',
+  path: '/support',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSettingsRoute = AdminSettingsRouteImport.update({
@@ -357,6 +369,7 @@ export interface FileRoutesByFullPath {
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/help-board': typeof HelpBoardRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -379,6 +392,7 @@ export interface FileRoutesByFullPath {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
@@ -413,6 +427,7 @@ export interface FileRoutesByTo {
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/help-board': typeof HelpBoardRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -434,6 +449,7 @@ export interface FileRoutesByTo {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
@@ -470,6 +486,7 @@ export interface FileRoutesById {
   '/dashboard': typeof DashboardRoute
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
+  '/help-board': typeof HelpBoardRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -492,6 +509,7 @@ export interface FileRoutesById {
   '/admin/products': typeof AdminProductsRoute
   '/admin/reports': typeof AdminReportsRoute
   '/admin/settings': typeof AdminSettingsRoute
+  '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
@@ -529,6 +547,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/faq'
     | '/help'
+    | '/help-board'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -551,6 +570,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/support'
     | '/admin/system-wallets'
     | '/admin/users'
     | '/ads-manager/$id'
@@ -585,6 +605,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/faq'
     | '/help'
+    | '/help-board'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -606,6 +627,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/support'
     | '/admin/system-wallets'
     | '/admin/users'
     | '/ads-manager/$id'
@@ -641,6 +663,7 @@ export interface FileRouteTypes {
     | '/dashboard'
     | '/faq'
     | '/help'
+    | '/help-board'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -663,6 +686,7 @@ export interface FileRouteTypes {
     | '/admin/products'
     | '/admin/reports'
     | '/admin/settings'
+    | '/admin/support'
     | '/admin/system-wallets'
     | '/admin/users'
     | '/ads-manager/$id'
@@ -699,6 +723,7 @@ export interface RootRouteChildren {
   DashboardRoute: typeof DashboardRoute
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
+  HelpBoardRoute: typeof HelpBoardRoute
   PrivacyRoute: typeof PrivacyRoute
   ReportProblemRoute: typeof ReportProblemRoute
   TermsRoute: typeof TermsRoute
@@ -742,6 +767,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/help-board': {
+      id: '/help-board'
+      path: '/help-board'
+      fullPath: '/help-board'
+      preLoaderRoute: typeof HelpBoardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help': {
@@ -889,6 +921,13 @@ declare module '@tanstack/react-router' {
       path: '/system-wallets'
       fullPath: '/admin/system-wallets'
       preLoaderRoute: typeof AdminSystemWalletsRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/support': {
+      id: '/admin/support'
+      path: '/support'
+      fullPath: '/admin/support'
+      preLoaderRoute: typeof AdminSupportRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/settings': {
@@ -1145,6 +1184,7 @@ interface AdminRouteChildren {
   AdminProductsRoute: typeof AdminProductsRoute
   AdminReportsRoute: typeof AdminReportsRoute
   AdminSettingsRoute: typeof AdminSettingsRoute
+  AdminSupportRoute: typeof AdminSupportRoute
   AdminSystemWalletsRoute: typeof AdminSystemWalletsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
@@ -1170,6 +1210,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminProductsRoute: AdminProductsRoute,
   AdminReportsRoute: AdminReportsRoute,
   AdminSettingsRoute: AdminSettingsRoute,
+  AdminSupportRoute: AdminSupportRoute,
   AdminSystemWalletsRoute: AdminSystemWalletsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
@@ -1211,6 +1252,7 @@ const rootRouteChildren: RootRouteChildren = {
   DashboardRoute: DashboardRoute,
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
+  HelpBoardRoute: HelpBoardRoute,
   PrivacyRoute: PrivacyRoute,
   ReportProblemRoute: ReportProblemRoute,
   TermsRoute: TermsRoute,

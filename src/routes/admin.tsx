@@ -22,6 +22,7 @@ import {
   ShieldAlert,
   BookOpen,
   UserCog,
+  LifeBuoy,
 } from "lucide-react";
 
 import { canAccessSection, type ManagementRole } from "@/lib/admin-roles";
@@ -86,6 +87,7 @@ const NAV: NavItem[] = [
   { to: "/admin/settings", label: "Settings", icon: Settings },
   { to: "/admin/reports", label: "Reports", icon: ShieldCheck },
   { to: "/admin/management-users", label: "Management Users", icon: UserCog },
+  { to: "/admin/support", label: "Support Desk", icon: LifeBuoy },
 ];
 
 function AdminLayout() {

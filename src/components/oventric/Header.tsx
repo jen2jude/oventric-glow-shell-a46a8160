@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users } from "lucide-react";
+import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users, LifeBuoy } from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -20,7 +20,7 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 
 
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean }) {
+export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean }) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -81,6 +81,92 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       draggable={false}
     />
   );
+
+  const searchOverlay = mobileSearchOpen ? (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-label="Search"
+      className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+    >
+      <div className="flex items-center gap-2 p-3 border-b border-white/10">
+        <div className="flex-1 min-w-0">
+          <GlobalSearch variant="sheet" autoFocus onClose={() => setMobileSearchOpen(false)} />
+        </div>
+        <button
+          onClick={() => setMobileSearchOpen(false)}
+          aria-label="Close search"
+          className="p-2 rounded-lg text-slate-300 hover:bg-white/5"
+        >
+          <X className="w-5 h-5" />
+        </button>
+      </div>
+    </div>
+  ) : null;
+
+  // Home hub gets a stripped-back header: logo, search, help and menu only.
+  if (hubMode) {
+    return (
+      <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
+        <div className="h-12 md:h-[4.5rem] flex items-center gap-2 md:gap-4 px-3 md:px-6">
+          <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
+            {LogoMark}
+          </Link>
+
+          <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
+            <GlobalSearch variant="inline" />
+          </div>
+
+          <div className="ml-auto sm:ml-0 flex items-center gap-1 md:gap-2.5 shrink-0">
+            <button
+              onClick={() => setMobileSearchOpen(true)}
+              aria-label="Open search"
+              className="sm:hidden p-2 rounded-full bg-[#1E1E24] border border-white/10 text-white"
+            >
+              <Search className="w-5 h-5" strokeWidth={2.5} />
+            </button>
+
+            <Link
+              to="/help-board"
+              aria-label="Help board"
+              className="inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 shrink-0"
+            >
+              <LifeBuoy className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+            </Link>
+
+            <button
+              onClick={() => setMegaOpen(true)}
+              aria-label="Open menu"
+              className="inline-flex p-2 md:p-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-white shrink-0"
+            >
+              <Menu className="w-5 h-5 md:hidden" strokeWidth={2.5} />
+              <Grip className="w-6 h-6 hidden md:block" strokeWidth={2.5} />
+            </button>
+
+            {isAuthenticated ? (
+              <div className="shrink-0"><ProfileDropdown /></div>
+            ) : (
+              <button
+                type="button"
+                onClick={() => openGate("generic")}
+                className="inline-flex items-center justify-center h-9 md:h-10 rounded-full rgb-static-border p-[2px] shrink-0"
+                aria-label="Connect account"
+              >
+                <span className="inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full bg-[#1E1E24] text-white font-bold text-xs sm:text-sm">
+                  <KeyRound className="w-4 h-4 text-white" strokeWidth={2.5} />
+                  <span className="hidden sm:inline">Connect Account</span>
+                  <span className="sm:hidden">Connect</span>
+                </span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
+        {searchOverlay}
+      </header>
+    );
+  }
 
   return (
     <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
