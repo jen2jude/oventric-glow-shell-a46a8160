@@ -412,9 +412,9 @@ function CourseDetail({
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-4">
+    <div className="max-w-6xl mx-auto w-full px-4 py-4 md:bg-white md:min-h-screen">
       <div className="flex items-center gap-2 mb-4 flex-wrap">
-        <button onClick={onBack} className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5">
+        <button onClick={onBack} className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200">
           <ArrowLeft className="w-4 h-4" /> Catalog
         </button>
         {isOwner && (
@@ -426,7 +426,7 @@ function CourseDetail({
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <div className="min-w-0">
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden">
+          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
             <div className="aspect-video bg-black relative">
               {activeModule && canWatch ? (
                 <iframe
@@ -449,7 +449,7 @@ function CourseDetail({
               )}
             </div>
             <div className="p-5">
-              <h1 className="text-white font-black text-2xl leading-tight">{course.title}</h1>
+              <h1 className="text-white md:text-slate-900 font-black text-2xl leading-tight">{course.title}</h1>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 flex-wrap">
                 {course.instructorName && <span>By {course.instructorName}</span>}
                 <span>{course.category}</span>
@@ -457,17 +457,17 @@ function CourseDetail({
                 <span className="inline-flex items-center gap-1"><Clock className="w-3 h-3" /> {totalModules} modules</span>
               </div>
               {course.description && (
-                <p className="mt-4 text-sm text-slate-300 leading-relaxed whitespace-pre-wrap">{course.description}</p>
+                <p className="mt-4 text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap">{course.description}</p>
               )}
 
               {activeModule && (
-                <div className="mt-6 p-4 rounded-lg bg-[#121214] border border-white/10">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 mb-1">
+                <div className="mt-6 p-4 rounded-lg bg-[#121214] border border-white/10 md:bg-slate-50 md:border-slate-200">
+                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-600 mb-1">
                     Module {activeIdx + 1} of {totalModules}
                   </div>
-                  <div className="text-white font-bold">{activeModule.title}</div>
+                  <div className="text-white md:text-slate-900 font-bold">{activeModule.title}</div>
                   {activeModule.description && (
-                    <p className="text-sm text-slate-400 mt-2">{activeModule.description}</p>
+                    <p className="text-sm text-slate-400 md:text-slate-600 mt-2">{activeModule.description}</p>
                   )}
                   {enrollment && (
                     <button
@@ -510,12 +510,12 @@ function CourseDetail({
           )}
 
           {enrollment && (
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-white/10">
+            <div className="p-4 rounded-lg bg-[#1E1E24] border border-white/10 md:bg-white md:border-slate-200 md:shadow-sm">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400">Your Progress</span>
-                <span className="text-xs text-emerald-300 font-bold">{progressPct}%</span>
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">Your Progress</span>
+                <span className="text-xs text-emerald-300 md:text-emerald-600 font-bold">{progressPct}%</span>
               </div>
-              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-white/5 md:bg-slate-200 rounded-full overflow-hidden">
                 <div className="h-full bg-emerald-500 transition-all" style={{ width: `${progressPct}%` }} />
               </div>
               <div className="text-[11px] text-slate-500 mt-2">
@@ -524,8 +524,8 @@ function CourseDetail({
             </div>
           )}
 
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden">
-            <div className="px-4 py-3 border-b border-white/10 text-xs font-bold uppercase tracking-wider text-slate-400">
+          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
+            <div className="px-4 py-3 border-b border-white/10 md:border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
               Curriculum
             </div>
             <div className="max-h-[60vh] overflow-y-auto">
@@ -536,8 +536,8 @@ function CourseDetail({
                   <button
                     key={m.id}
                     onClick={() => setActiveIdx(i)}
-                    className={`w-full text-left px-4 py-3 border-b border-white/5 flex items-start gap-3 transition-colors ${
-                      i === activeIdx ? "bg-emerald-500/10" : "hover:bg-white/5"
+                    className={`w-full text-left px-4 py-3 border-b border-white/5 md:border-slate-100 flex items-start gap-3 transition-colors ${
+                      i === activeIdx ? "bg-emerald-500/10 md:bg-emerald-50" : "hover:bg-white/5 md:hover:bg-slate-50"
                     }`}
                   >
                     {done ? (
@@ -548,7 +548,7 @@ function CourseDetail({
                       <Circle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white font-semibold truncate">{m.title}</div>
+                      <div className="text-sm text-white md:text-slate-900 font-semibold truncate">{m.title}</div>
                       <div className="text-[11px] text-slate-500 mt-0.5">
                         {m.durationMin > 0 ? `${m.durationMin} min · ` : ""}{m.videoProvider}
                         {m.isPreview && !enrollment && " · preview"}
