@@ -146,20 +146,27 @@ function Index() {
     window.history.replaceState({}, "", next);
   }, []);
 
+  const isDesktop = useIsDesktop();
+  const desktopLanding = isDesktop && active === "Home";
+
   const view =
     active === "Home" ? (
-      <HomeHub
-        onSelect={setActive}
-        onCreate={handleCreate}
-        onOpenMessages={() => setMessagesOpen(true)}
-        counts={{
-          Feed: feedCount.count,
-          Market: marketCount.count,
-          Academy: academyCount.count,
-          Bounties: bountiesCount.count,
-          Wallet: walletCount.count,
-        }}
-      />
+      desktopLanding ? (
+        <DesktopHome onSelect={setActive} onCreate={handleCreate} />
+      ) : (
+        <HomeHub
+          onSelect={setActive}
+          onCreate={handleCreate}
+          onOpenMessages={() => setMessagesOpen(true)}
+          counts={{
+            Feed: feedCount.count,
+            Market: marketCount.count,
+            Academy: academyCount.count,
+            Bounties: bountiesCount.count,
+            Wallet: walletCount.count,
+          }}
+        />
+      )
     )
     : active === "Wallet" ? <Wallet />
     : active === "Marketplace" ? <Marketplace />
@@ -180,10 +187,15 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
 
       <div className="flex h-full flex-col">
-        <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home"} />
-        <div className={`flex flex-1 min-h-0 ${active === "Home" ? "pt-12 md:pt-[4.5rem]" : ""}`}>
-          <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
-          <main className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} pb-20 md:pb-0`}>
+        {!desktopLanding && (
+          <Header onOpenMessages={() => setMessagesOpen(true)} showMobileTopRow hubMode={active === "Home"} />
+        )}
+        <div className={`flex flex-1 min-h-0 ${active === "Home" && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""}`}>
+          {!desktopLanding && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
+          <main
+            id={desktopLanding ? "desktop-home-scroll" : undefined}
+            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"}`}
+          >
             {view}
           </main>
         </div>
