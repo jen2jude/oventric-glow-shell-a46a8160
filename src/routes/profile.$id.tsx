@@ -75,6 +75,8 @@ import { EditProfileModal } from "@/components/oventric/EditProfileModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { RelationshipsSection, type RelationshipTab } from "@/components/oventric/RelationshipsSection";
+import { useOnlineUsers } from "@/hooks/use-presence";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
