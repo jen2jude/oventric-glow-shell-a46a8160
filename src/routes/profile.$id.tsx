@@ -16,6 +16,7 @@ import type {
   ProfileGroup,
   ProfileListing,
   ProfileBounty,
+  ProfileArticle,
 } from "@/lib/profiles/mockProfiles";
 import {
   ArrowLeft,
@@ -46,6 +47,7 @@ import {
   Linkedin,
   Github,
   Youtube,
+  FileText,
 } from "lucide-react";
 
 /** Renders the matching brand glyph for a social-link key. */
@@ -1992,28 +1994,21 @@ function ErrorState({
 }
 
 
-function TabSkeleton({ variant }: { variant: Tab }) {
-  const rows = 3;
-  if (variant === "groups" || variant === "marketplace" || variant === "blog") {
-    return (
-      <div className="grid sm:grid-cols-2 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 animate-pulse">
-            <div className="h-10 w-10 rounded-lg bg-white/5 mb-3" />
-            <div className="h-3 w-2/3 bg-white/5 rounded mb-2" />
+function TabSkeleton({ variant: _variant }: { variant: Tab }) {
+  // One shared tile skeleton so every tab loads with the same rhythm as the grid.
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-[#141418] border border-white/10 rounded-2xl overflow-hidden animate-pulse"
+        >
+          <div className="aspect-[4/3] bg-white/[0.04]" />
+          <div className="p-3">
+            <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
+            <div className="h-3 w-7/12 bg-white/5 rounded mb-2" />
             <div className="h-2.5 w-1/2 bg-white/5 rounded" />
           </div>
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse">
-          <div className="h-2.5 w-24 bg-white/5 rounded mb-3" />
-          <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
-          <div className="h-3 w-8/12 bg-white/5 rounded" />
         </div>
       ))}
     </div>
