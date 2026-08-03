@@ -213,7 +213,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       )}
 
       {/* Main row */}
-      <div className={`h-11 md:h-[4.5rem] grid ${desktopNav ? "md:grid-cols-[minmax(0,1fr)_auto_auto]" : ""} grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6`}>
+      <div className={`h-11 md:h-[4.5rem] grid ${desktopNav ? "md:grid-cols-[auto_1fr_auto]" : ""} grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6`}>
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {onMenuClick && (
             <button
@@ -230,7 +230,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
 
           {/* Desktop search sits right beside the logo when nav mode is on */}
           {desktopNav && (
-            <div className="hidden md:block flex-1 min-w-0 max-w-sm">
+            <div className="hidden md:block flex-1 min-w-[12rem] lg:min-w-[18rem] max-w-[14rem] lg:max-w-xs xl:max-w-sm">
               <GlobalSearch variant="inline" light={light} />
             </div>
           )}
@@ -247,15 +247,15 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         {desktopNav && (
-          <nav className="hidden md:flex items-center gap-1 justify-center shrink-0">
+          <nav className="hidden md:flex items-center gap-0.5 xl:gap-1 justify-self-center w-full justify-center shrink-0">
             {HUB_NAV.map((item) => {
-              const cls = `flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
+              const cls = `flex flex-col items-center gap-0.5 px-2 xl:px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
                 light ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100" : "text-slate-300 hover:text-white hover:bg-white/5"
               }`;
               return item.to ? (
                 <Link key={item.label} to={item.to} className={cls}>
-                  <item.icon className="w-5 h-5" strokeWidth={2.2} />
-                  <span>{item.label}</span>
+                  <item.icon className="w-[18px] h-[18px] xl:w-5 xl:h-5" strokeWidth={2.2} />
+                  <span className="hidden xl:inline">{item.label}</span>
                 </Link>
               ) : (
                 <button
@@ -267,8 +267,8 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
                   }
                   className={cls}
                 >
-                  <item.icon className="w-5 h-5" strokeWidth={2.2} />
-                  <span>{item.label}</span>
+                  <item.icon className="w-[18px] h-[18px] xl:w-5 xl:h-5" strokeWidth={2.2} />
+                  <span className="hidden xl:inline">{item.label}</span>
                 </button>
               );
             })}
