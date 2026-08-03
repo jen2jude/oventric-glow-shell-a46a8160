@@ -431,16 +431,17 @@ export function Bounties() {
 
 function BountySkeleton() {
   return (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse">
+    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse md:bg-white md:border-slate-200">
       <div className="flex-1 min-w-0 space-y-3">
-        <div className="h-5 w-28 rounded bg-slate-700" />
-        <div className="h-5 w-3/4 rounded bg-slate-700" />
+        <div className="h-5 w-28 rounded bg-slate-700 md:bg-slate-200" />
+        <div className="h-5 w-3/4 rounded bg-slate-700 md:bg-slate-200" />
         <div className="flex items-center gap-4">
-          <div className="h-3.5 w-28 rounded bg-slate-700" />
-          <div className="h-3.5 w-24 rounded bg-slate-700" />
+          <div className="h-3.5 w-28 rounded bg-slate-700 md:bg-slate-200" />
+          <div className="h-3.5 w-24 rounded bg-slate-700 md:bg-slate-200" />
         </div>
       </div>
-      <div className="h-10 w-32 rounded-lg bg-slate-700 shrink-0" />
+      <div className="h-10 w-32 rounded-lg bg-slate-700 md:bg-slate-200 shrink-0" />
+
     </div>
   );
 }
