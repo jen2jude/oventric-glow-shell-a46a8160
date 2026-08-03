@@ -1,0 +1,91 @@
+import { Link } from "@tanstack/react-router";
+import logo from "@/assets/oventric-full.asset.json";
+
+export type SiteFooterProps = {
+  onSelect: (section: string) => void;
+  currency: string;
+  flag?: string;
+};
+
+export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
+  const year = 2026;
+  return (
+    <footer className="border-t border-white/10 bg-[#0F0F11]">
+      <div className="mx-auto grid w-full max-w-[1200px] grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 px-8 py-14">
+        <div>
+          <img src={logo.url} alt="Oventric" className="h-8 w-auto object-contain" />
+          <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
+            One platform for African builders — buy and sell, learn and earn, post bounties, and move money in your own
+            currency.
+          </p>
+          <span className="mt-5 inline-flex h-8 items-center gap-1.5 rounded-full border border-white/10 bg-[#1E1E24] px-3 text-xs font-semibold text-slate-200">
+            {flag && <span aria-hidden>{flag}</span>}
+            {currency}
+          </span>
+        </div>
+
+        <FooterCol title="Product">
+          <FooterAction label="Marketplace" onClick={() => onSelect("Marketplace")} />
+          <FooterAction label="Academy" onClick={() => onSelect("Academy")} />
+          <FooterAction label="Bounties" onClick={() => onSelect("Bounties")} />
+          <FooterAction label="Circles" onClick={() => onSelect("Circles")} />
+          <FooterAction label="Wallet" onClick={() => onSelect("Wallet")} />
+        </FooterCol>
+
+        <FooterCol title="Company">
+          <FooterLink to="/about" label="About" />
+          <FooterLink to="/blog" label="Blog" />
+          <FooterLink to="/advertise" label="Advertise" />
+          <FooterLink to="/affiliate" label="Affiliate" />
+        </FooterCol>
+
+        <FooterCol title="Support">
+          <FooterLink to="/help" label="Help centre" />
+          <FooterLink to="/faq" label="FAQ" />
+          <FooterLink to="/report-problem" label="Report a problem" />
+        </FooterCol>
+
+        <FooterCol title="Legal">
+          <FooterLink to="/terms" label="Terms" />
+          <FooterLink to="/privacy" label="Privacy" />
+        </FooterCol>
+      </div>
+
+      <div className="border-t border-white/10">
+        <div className="mx-auto flex w-full max-w-[1200px] items-center justify-between px-8 py-5 text-xs text-slate-500">
+          <span>&copy; {year} Oventric. All rights reserved.</span>
+          <span>Built for Africa&apos;s builders.</span>
+        </div>
+      </div>
+    </footer>
+  );
+}
+
+function FooterCol({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="text-xs font-bold uppercase tracking-wide text-white">{title}</h3>
+      <ul className="mt-4 space-y-2.5">{children}</ul>
+    </div>
+  );
+}
+
+function FooterLink({ to, label }: { to: string; label: string }) {
+  return (
+    <li>
+      <Link to={to} className="text-sm text-slate-400 transition-colors hover:text-white">
+        {label}
+      </Link>
+    </li>
+  );
+}
+
+function FooterAction({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <li>
+      <button type="button" onClick={onClick} className="text-sm text-slate-400 transition-colors hover:text-white">
+        {label}
+      </button>
+    </li>
+  );
+}

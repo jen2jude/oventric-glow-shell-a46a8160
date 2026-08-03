@@ -189,10 +189,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
 
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
-  const greeting = (() => {
+  const [greeting, setGreeting] = useState("Welcome");
+  useEffect(() => {
     const h = new Date().getHours();
-    return h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening";
-  })();
+    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
+  }, []);
   const flag = country ? COUNTRY_META[country]?.flag ?? "" : "";
 
   return (
