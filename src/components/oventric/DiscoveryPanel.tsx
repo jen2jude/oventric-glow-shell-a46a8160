@@ -409,9 +409,10 @@ export function DiscoveryPanel() {
         ) : topPeers5.length === 0 ? (
           <EmptyState icon={Users} title="No rated peers yet" hint="Peers appear here as they earn their first star." />
         ) : (
-          <ul className="space-y-2">
+          <ul className="space-y-1">
             {topPeers5.map((p: DiscoveryPeer) => (
-              <li key={p.id} className="flex items-center gap-2.5 min-w-0">
+              <li key={p.id} className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50">
+
                 <Link to="/profile/$id" params={{ id: p.slug }} className="w-9 h-9 shrink-0 rounded-full overflow-hidden block" aria-label={`View ${p.name}`}>
                   <AvatarImage src={p.avatarUrl} alt={p.name} />
                 </Link>
