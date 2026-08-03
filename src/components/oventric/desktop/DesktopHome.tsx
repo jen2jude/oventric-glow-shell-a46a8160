@@ -240,7 +240,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.18), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.14), transparent 70%)",
+              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.14), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.10), transparent 70%)",
           }}
         />
         <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[1.05fr_0.95fr] items-center gap-16 px-8 pb-24 pt-20">
@@ -344,7 +344,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               className="rounded-[28px] border border-emerald-200 p-6"
               style={{
                 backgroundImage:
-                  "linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+                  "linear-gradient(135deg, rgba(16,185,129,0.16) 0%, rgba(255,255,255,1) 60%, rgba(255,255,255,1) 100%)",
               }}
             >
               <div className="flex items-start justify-between">
