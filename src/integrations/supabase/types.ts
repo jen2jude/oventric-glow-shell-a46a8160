@@ -2128,6 +2128,86 @@ export type Database = {
         }
         Relationships: []
       }
+      photo_batch_items: {
+        Row: {
+          batch_id: string
+          created_at: string
+          error: string | null
+          file_name: string | null
+          id: string
+          path: string
+          size_bytes: number | null
+          status: Database["public"]["Enums"]["photo_batch_status"]
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          batch_id: string
+          created_at?: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          path: string
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["photo_batch_status"]
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          batch_id?: string
+          created_at?: string
+          error?: string | null
+          file_name?: string | null
+          id?: string
+          path?: string
+          size_bytes?: number | null
+          status?: Database["public"]["Enums"]["photo_batch_status"]
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "photo_batch_items_batch_id_fkey"
+            columns: ["batch_id"]
+            isOneToOne: false
+            referencedRelation: "photo_batches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      photo_batches: {
+        Row: {
+          created_at: string
+          expected_count: number
+          id: string
+          note: string | null
+          status: Database["public"]["Enums"]["photo_batch_status"]
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expected_count?: number
+          id?: string
+          note?: string | null
+          status?: Database["public"]["Enums"]["photo_batch_status"]
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expected_count?: number
+          id?: string
+          note?: string | null
+          status?: Database["public"]["Enums"]["photo_batch_status"]
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       platform_settings: {
         Row: {
           base_currency: string
@@ -3121,6 +3201,7 @@ export type Database = {
         | "support"
       blog_status: "draft" | "published" | "scheduled"
       circle_status: "pending" | "accepted"
+      photo_batch_status: "queued" | "uploading" | "ready" | "failed"
       report_reason: "spam" | "harassment" | "ip" | "scam"
       report_status: "pending" | "approved" | "hidden"
       wallet_currency:
@@ -3312,6 +3393,7 @@ export const Constants = {
       app_role: ["admin", "moderator", "user", "finance", "content", "support"],
       blog_status: ["draft", "published", "scheduled"],
       circle_status: ["pending", "accepted"],
+      photo_batch_status: ["queued", "uploading", "ready", "failed"],
       report_reason: ["spam", "harassment", "ip", "scam"],
       report_status: ["pending", "approved", "hidden"],
       wallet_currency: [
