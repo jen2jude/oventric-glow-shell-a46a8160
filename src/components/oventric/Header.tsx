@@ -11,6 +11,7 @@ import { RequestsInboxDrawer } from "@/components/oventric/RequestsInboxDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
 import logoFull from "@/assets/oventric-full.asset.json";
+import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
