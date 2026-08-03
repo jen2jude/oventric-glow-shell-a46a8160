@@ -423,6 +423,8 @@ export function Bounties() {
         }}
       />
     </div>
+    </div>
+
   );
 }
 
