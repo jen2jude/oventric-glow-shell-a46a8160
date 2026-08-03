@@ -198,7 +198,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, social_links, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
       )
       .limit(1);
 
@@ -230,6 +230,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         bio: row.bio,
         avatarUrl,
         coverUrl,
+        socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: (row as { country?: string | null }).country ?? null,
@@ -342,6 +343,16 @@ const UpdateInput = z.object({
     .optional()
     .nullable(),
   dobPublic: z.boolean().optional(),
+  socialLinks: z
+    .object({
+      website: z.string().trim().max(200).optional(),
+      x: z.string().trim().max(200).optional(),
+      instagram: z.string().trim().max(200).optional(),
+      linkedin: z.string().trim().max(200).optional(),
+      github: z.string().trim().max(200).optional(),
+      youtube: z.string().trim().max(200).optional(),
+    })
+    .optional(),
   notificationPreferences: NotificationPrefsInput.optional(),
 
 });
@@ -364,6 +375,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       address_public?: boolean;
       date_of_birth?: string | null;
       dob_public?: boolean;
+      social_links?: SocialLinks;
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -378,6 +390,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.addressPublic !== undefined) patch.address_public = data.addressPublic;
     if (data.dateOfBirth !== undefined) patch.date_of_birth = data.dateOfBirth;
     if (data.dobPublic !== undefined) patch.dob_public = data.dobPublic;
+    if (data.socialLinks !== undefined) patch.social_links = normaliseSocialLinks(data.socialLinks);
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
 
 
@@ -414,6 +427,7 @@ export interface MyFullProfile {
   addressPublic: boolean;
   dateOfBirth: string | null;
   dobPublic: boolean;
+  socialLinks: SocialLinks;
 
   avatarUrl: string | null;
   verificationTier: string;
@@ -438,7 +452,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, social_links, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
       .eq("user_id", userId)
       .maybeSingle();
@@ -470,6 +484,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         addressPublic: !!(row as { address_public?: boolean }).address_public,
         dateOfBirth: (row as { date_of_birth?: string | null }).date_of_birth ?? null,
         dobPublic: !!(row as { dob_public?: boolean }).dob_public,
+        socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
         avatarUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
