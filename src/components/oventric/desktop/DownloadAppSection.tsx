@@ -178,18 +178,21 @@ export function DownloadAppSection() {
 
               {/* Feature grid */}
               <div className="mt-3 grid grid-cols-4 gap-1.5">
-                {TILES.map((t) => (
-                  <div key={t.label} className="flex flex-col items-center gap-1">
-                    <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500/25 to-emerald-500/5 border border-white/10">
-                      {"img" in t && t.img ? (
-                        <img src={t.img} alt="" className="h-5 w-5 object-contain" loading="lazy" />
-                      ) : (
-                        <t.icon className="h-4 w-4 text-white" strokeWidth={2.5} />
-                      )}
-                    </span>
-                    <span className="text-[7px] font-semibold text-slate-300 text-center leading-none">{t.label}</span>
-                  </div>
-                ))}
+                {TILES.map((t) => {
+                  const Icon = t.icon;
+                  return (
+                    <div key={t.label} className="flex flex-col items-center gap-1">
+                      <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500/25 to-emerald-500/5 border border-white/10">
+                        {t.img ? (
+                          <img src={t.img} alt="" className="h-5 w-5 object-contain" loading="lazy" />
+                        ) : Icon ? (
+                          <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
+                        ) : null}
+                      </span>
+                      <span className="text-[7px] font-semibold text-slate-300 text-center leading-none">{t.label}</span>
+                    </div>
+                  );
+                })}
               </div>
 
               {/* Mini rail teaser */}
