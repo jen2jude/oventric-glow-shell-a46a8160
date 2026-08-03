@@ -572,47 +572,62 @@ function CourseDetail({
   );
 }
 
-function AcademyLanding({ onExplore }: { onExplore: () => void }) {
+function AcademyHero() {
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
-      <div className="text-center max-w-4xl mx-auto">
-        <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200 text-xs font-semibold tracking-wide mb-6">
-          <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
-        </div>
-        <h1 className="text-3xl sm:text-5xl md:text-6xl font-black text-white leading-[1.05] tracking-tight">
-          Master High-End Digital Skills.
-          <br />
-          <span className="text-slate-400">Learn From Real Builders.</span>{" "}
-          <span className="text-white">Earn Certificates.</span>
-        </h1>
-        <p className="mt-6 text-slate-400 text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
-          Video-first courses from working practitioners. Track your progress across sessions, resume any time, and earn a certificate when you complete a course.
-        </p>
-        <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3">
-          <button onClick={onExplore} className="rgb-static-border rounded-2xl p-[2px] group">
-            <span className="flex items-center gap-3 bg-[#121214] group-hover:bg-[#1a1a20] transition-colors rounded-[14px] px-8 py-4 text-white font-black text-lg">
-              Explore Courses <ArrowRight className="w-5 h-5" />
-            </span>
-          </button>
+    <div className="relative overflow-hidden border-b border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white">
+      <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
+        <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200 text-xs font-semibold tracking-wide mb-6 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700">
+              <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
+            </div>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white md:text-slate-900 leading-[1.08] tracking-tight">
+              Master High-End Digital Skills.
+              <br />
+              <span className="text-slate-400 md:text-slate-500">Learn From Real Builders.</span>{" "}
+              <span className="text-white md:text-emerald-600">Earn Certificates.</span>
+            </h1>
+            <p className="mt-5 text-slate-400 md:text-slate-600 text-base md:text-lg leading-relaxed max-w-xl">
+              Video-first courses from working practitioners. Track your progress across sessions,
+              resume any time, and earn a certificate when you complete a course.
+            </p>
+            <div className="mt-7 flex flex-wrap gap-6">
+              <HeroStat value="100%" label="Online & self-paced" />
+              <HeroStat value="Free" label="Courses available" />
+              <HeroStat value="Certificate" label="On completion" />
+            </div>
+          </div>
+          <div className="grid gap-3">
+            <ValueCard Icon={Video} title="Video-First Delivery" body="Every module is a hosted video. Press play and learn — no downloads, no plugins." />
+            <ValueCard Icon={RotateCcw} title="Auto-Resume" body="Your progress is saved per module. Pick up exactly where you left off." />
+            <ValueCard Icon={ScrollText} title="Certificate on Completion" body="Finish every module and generate a signed digital certificate." />
+          </div>
         </div>
       </div>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-14">
-        <ValueCard Icon={Video} title="Video-First Delivery" body="Every module is a hosted video — YouTube or Vimeo. Press play and learn. No downloads, no plugins." />
-        <ValueCard Icon={RotateCcw} title="Auto-Resume" body="Log out, come back next week — your progress is saved per module. Pick up exactly where you left off." />
-        <ValueCard Icon={ScrollText} title="Certificate on Completion" body="Finish every module and generate a signed digital certificate with your name and completion date." />
-      </div>
+    </div>
+  );
+}
+
+function HeroStat({ value, label }: { value: string; label: string }) {
+  return (
+    <div>
+      <div className="text-xl font-black text-white md:text-slate-900">{value}</div>
+      <div className="text-xs text-slate-500 md:text-slate-500">{label}</div>
     </div>
   );
 }
 
 function ValueCard({ Icon, title, body }: { Icon: React.ComponentType<{ className?: string }>; title: string; body: string }) {
   return (
-    <div className="bg-[#141418] border border-white/10 rounded-xl p-5">
-      <div className="w-11 h-11 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center mb-4">
-        <Icon className="w-5 h-5 text-white" />
+    <div className="bg-[#141418] border border-white/10 rounded-xl p-5 md:bg-white md:border-slate-200 md:shadow-sm flex gap-4">
+      <div className="w-11 h-11 shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center md:bg-emerald-50 md:border-emerald-100">
+        <Icon className="w-5 h-5 text-white md:text-emerald-600" />
       </div>
-      <h3 className="text-white font-bold text-base mb-1.5">{title}</h3>
-      <p className="text-sm text-slate-400 leading-relaxed">{body}</p>
+      <div className="min-w-0">
+        <h3 className="text-white md:text-slate-900 font-bold text-base mb-1">{title}</h3>
+        <p className="text-sm text-slate-400 md:text-slate-600 leading-relaxed">{body}</p>
+      </div>
     </div>
   );
 }
+
