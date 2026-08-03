@@ -45,12 +45,12 @@ function TopupHistoryPage() {
   }, [rows]);
 
   return (
-    <div className="min-h-screen bg-[#0b0b0e] text-white md:text-slate-900">
+    <div className="min-h-screen bg-[#0b0b0e] md:bg-slate-50 text-white md:text-slate-900">
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Link
             to="/dashboard"
-            className="p-2 rounded-lg hover:bg-white/10 text-white/70 hover:text-white md:text-slate-900"
+            className="p-2 rounded-lg hover:bg-white/10 md:hover:bg-slate-100 text-white/70 md:text-slate-600 hover:text-white md:hover:text-slate-900"
             aria-label="Back to dashboard"
           >
             <ArrowLeft className="w-5 h-5" />
@@ -71,8 +71,8 @@ function TopupHistoryPage() {
               onClick={() => setFilter(k)}
               className={`px-3 py-1.5 rounded-full text-sm whitespace-nowrap border ${
                 filter === k
-                  ? "bg-white text-black border-white"
-                  : "border-white/15 text-white/70 hover:text-white md:text-slate-900 hover:border-white/30"
+                  ? "bg-white text-black border-white md:bg-slate-900 md:text-white md:border-slate-900"
+                  : "border-white/15 md:border-slate-200 md:bg-white text-white/70 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:border-white/30"
               }`}
             >
               {label} <span className="opacity-60">({counts[k]})</span>
@@ -87,11 +87,11 @@ function TopupHistoryPage() {
         ) : rows === null ? (
           <div className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
-              <div key={i} className="h-16 rounded-lg bg-white/5 animate-pulse" />
+              <div key={i} className="h-16 rounded-lg bg-white/5 md:bg-slate-200 animate-pulse" />
             ))}
           </div>
         ) : filtered.length === 0 ? (
-          <div className="rounded-lg border border-white/10 bg-white/[0.03] p-8 text-center text-sm text-white/60">
+          <div className="rounded-lg border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white p-8 text-center text-sm text-white/60 md:text-slate-500">
             No transactions yet.
           </div>
         ) : (
@@ -116,7 +116,7 @@ function TopupRow({ row }: { row: PaystackTopupRow }) {
   const Icon = badge.icon;
   const dt = new Date(row.occurredAt || row.createdAt);
   return (
-    <li className="rounded-lg border border-white/10 bg-white/[0.03] p-3 flex items-center gap-3">
+    <li className="rounded-lg border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-white md:shadow-sm p-3 flex items-center gap-3">
       <div className={`p-2 rounded-lg border ${badge.cls}`}>
         <Icon className="w-4 h-4" />
       </div>
@@ -127,21 +127,21 @@ function TopupRow({ row }: { row: PaystackTopupRow }) {
           </div>
           <span className={`text-[11px] px-1.5 py-0.5 rounded border ${badge.cls}`}>{badge.label}</span>
         </div>
-        <div className="text-xs text-white/50 flex items-center gap-2 mt-0.5">
+        <div className="text-xs text-white/50 md:text-slate-500 flex items-center gap-2 mt-0.5">
           <span className="truncate">{row.reference}</span>
           <button
             type="button"
             onClick={() => {
               navigator.clipboard.writeText(row.reference).then(() => toast.success("Reference copied"));
             }}
-            className="p-1 rounded hover:bg-white/10"
+            className="p-1 rounded hover:bg-white/10 md:hover:bg-slate-100"
             aria-label="Copy reference"
           >
             <Copy className="w-3 h-3" />
           </button>
         </div>
       </div>
-      <div className="text-xs text-white/50 whitespace-nowrap">
+      <div className="text-xs text-white/50 md:text-slate-500 whitespace-nowrap">
         {dt.toLocaleDateString()} · {dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </div>
     </li>
