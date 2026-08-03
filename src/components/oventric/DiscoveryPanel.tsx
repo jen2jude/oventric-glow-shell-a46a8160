@@ -480,8 +480,8 @@ export function DiscoveryPanel() {
 
       {/* 6. Online users — click to open a quick chat popover */}
       <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4">
-        <div className="flex items-center justify-between mb-3">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
+
           <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
             <Circle className="w-2.5 h-2.5 shrink-0 fill-emerald-400 text-emerald-400 md:fill-emerald-500 md:text-emerald-500" /> <span className="truncate">Online now</span>
           </h3>
