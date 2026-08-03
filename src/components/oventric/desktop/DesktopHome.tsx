@@ -231,62 +231,78 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
   const primary = () => (isAuthenticated ? onSelect("Feed") : openGate("generic"));
 
-  const searchBar = (
-    <div ref={searchRef} className="relative w-[260px] lg:w-[320px]">
-      <form
-        onSubmit={(e) => {
-          e.preventDefault();
-          if (results[0]) {
-            setSearchOpen(false);
-            if (results[0].kind === "product") navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
-            else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
-          } else onSelect("Marketplace");
+  const renderSearch = (place: "nav" | "hero") => {
+    const compact = place === "nav";
+    return (
+      <div
+        ref={(el) => {
+          searchRefs.current[place] = el;
         }}
-        className="flex h-10 items-center gap-2 rounded-xl border border-slate-200 bg-white pl-3 pr-1 shadow-sm"
+        className={compact ? "relative w-[240px] lg:w-[300px]" : "relative w-full"}
       >
-        <Search className="h-4 w-4 shrink-0 text-slate-400" />
-        <input
-          value={q}
-          onChange={(e) => {
-            setQ(e.target.value);
-            setSearchOpen(true);
+        <form
+          onSubmit={(e) => {
+            e.preventDefault();
+            if (results[0]) {
+              setSearchOpen(null);
+              if (results[0].kind === "product") navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
+              else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
+            } else onSelect("Marketplace");
           }}
-          onFocus={() => setSearchOpen(true)}
-          placeholder="Search Oventric"
-          aria-label="Search Oventric"
-          className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
-        />
-        <button
-          type="submit"
-          className="inline-flex h-7 items-center rounded-lg bg-emerald-600 px-3 text-xs font-bold text-white transition-transform active:scale-95"
+          className={`flex items-center rounded-2xl border border-slate-200 bg-white ${
+            compact ? "h-10 gap-2 rounded-xl pl-3 pr-1 shadow-sm" : "h-14 gap-3 pl-5 pr-2"
+          }`}
         >
-          Search
-        </button>
-      </form>
-      {searchOpen && results.length > 0 && (
-        <div className="absolute left-0 right-0 top-11 z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl">
-          {results.map((r) => (
-            <button
-              key={`${r.kind}-${r.id}`}
-              type="button"
-              onClick={() => {
-                setSearchOpen(false);
-                if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
-                else onSelect(r.kind === "course" ? "Academy" : "Bounties");
-              }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
-            >
-              <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
-              </span>
-              <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{r.title}</span>
-              <span className="shrink-0 text-xs font-semibold text-emerald-600">{r.meta}</span>
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  );
+          <Search className={`shrink-0 text-slate-400 ${compact ? "h-4 w-4" : "h-5 w-5"}`} />
+          <input
+            value={q}
+            onChange={(e) => {
+              setQ(e.target.value);
+              setSearchOpen(place);
+            }}
+            onFocus={() => setSearchOpen(place)}
+            placeholder={compact ? "Search Oventric" : "Search products, courses and bounties"}
+            aria-label="Search Oventric"
+            className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+          />
+          <button
+            type="submit"
+            className={`inline-flex items-center bg-emerald-600 font-bold text-white transition-transform active:scale-95 ${
+              compact ? "h-7 rounded-lg px-3 text-xs" : "h-10 rounded-xl px-5 text-sm"
+            }`}
+          >
+            Search
+          </button>
+        </form>
+        {searchOpen === place && results.length > 0 && (
+          <div
+            className={`absolute left-0 right-0 z-30 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-2xl ${
+              compact ? "top-11" : "top-16"
+            }`}
+          >
+            {results.map((r) => (
+              <button
+                key={`${r.kind}-${r.id}`}
+                type="button"
+                onClick={() => {
+                  setSearchOpen(null);
+                  if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
+                  else onSelect(r.kind === "course" ? "Academy" : "Bounties");
+                }}
+                className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
+              >
+                <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
+                  {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
+                </span>
+                <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{r.title}</span>
+                <span className="shrink-0 text-xs font-semibold text-emerald-600">{r.meta}</span>
+              </button>
+            ))}
+          </div>
+        )}
+      </div>
+    );
+  };
 
   return (
     <div className="min-h-full bg-white text-slate-700">
