@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -6,11 +6,7 @@ import {
   Target,
   GraduationCap,
   Wallet as WalletIcon,
-  Download,
   Store,
-  Truck,
-  Package,
-  Users,
   ChevronDown,
   Plus,
   Compass,
@@ -97,7 +93,6 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
   const [mine, setMine] = useState<CircleSummary[]>([]);
   const [recs, setRecs] = useState<CircleSummary[]>([]);
 
-  const [moreDash, setMoreDash] = useState(false);
   const [moreMine, setMoreMine] = useState(false);
   const [moreRecs, setMoreRecs] = useState(false);
 
@@ -133,7 +128,6 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
     };
   }, [profileFn, catalogFn]);
 
-  const dashVisible = useMemo(() => (moreDash ? DASH_ITEMS : DASH_ITEMS.slice(0, 5)), [moreDash]);
   const mineVisible = moreMine ? mine : mine.slice(0, 3);
   const recsVisible = moreRecs ? recs : recs.slice(0, 3);
 
