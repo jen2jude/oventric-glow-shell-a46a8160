@@ -1,14 +1,18 @@
-import { useEffect, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowRight,
   ChevronRight,
+  Clock,
   Eye,
   EyeOff,
+  Headphones,
   Newspaper,
+  Search,
   ShieldCheck,
   Sparkles,
+  Star,
   Store,
   GraduationCap,
   Target,
@@ -21,6 +25,7 @@ import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
+import { listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.functions";
 import { formatMoney, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -31,6 +36,7 @@ import marketIcon from "@/assets/marketplace-3d.png.asset.json";
 import academyIcon from "@/assets/academy-3d.png.asset.json";
 import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
 import circlesIcon from "@/assets/circles-3d.png.asset.json";
+
 
 export type DesktopHomeProps = {
   onSelect: (section: string) => void;
