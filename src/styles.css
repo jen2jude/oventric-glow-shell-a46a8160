@@ -201,7 +201,45 @@ html.low-gpu .reaction-laugh-wobble,
 html.low-gpu .reaction-crown-float,
 html.low-gpu .reaction-thumb-down-bob { animation: none; }
 
-
+/* App download section animations */
+@keyframes app-mockup-float {
+  0%, 100% { transform: translateY(0) rotate(0deg); }
+  50% { transform: translateY(-16px) rotate(0.5deg); }
+}
+@keyframes app-float-card {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+@keyframes app-sheen {
+  0% { background-position: -160% 0; }
+  100% { background-position: 160% 0; }
+}
+.app-mockup-float {
+  animation: app-mockup-float 5s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.app-float-card {
+  animation: app-float-card 4s ease-in-out infinite;
+  transform-origin: center;
+  will-change: transform;
+}
+.app-float-card-delayed {
+  animation-delay: 1.5s;
+}
+.app-sheen {
+  background: linear-gradient(105deg, transparent 30%, rgba(255,255,255,0.18) 50%, transparent 70%);
+  background-size: 200% 100%;
+  animation: app-sheen 3.5s linear infinite;
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-mockup-float,
+  .app-float-card,
+  .app-sheen { animation: none; }
+}
+html.low-gpu .app-mockup-float,
+html.low-gpu .app-float-card,
+html.low-gpu .app-sheen { animation: none !important; }
 
 @keyframes rgb-spectrum-shift {
   0% { background-position: 0% 50%; }
