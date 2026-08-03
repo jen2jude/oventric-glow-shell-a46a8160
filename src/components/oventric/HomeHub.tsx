@@ -25,6 +25,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
+import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
@@ -85,6 +86,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
+  const loadCourses = useServerFn(listCourses);
 
   const [main, setMain] = useState(0);
   const [cashback, setCashback] = useState(0);
@@ -95,6 +97,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const [products, setProducts] = useState<
     Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number }>
   >([]);
+  const [courses, setCourses] = useState<
+    Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number; isFree: boolean }>
+  >([]);
+  const [bounties, setBounties] = useState<
+    Array<{ id: string; title: string; coverUrl: string | null; amountUsd: number }>
+  >([]);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -149,12 +158,35 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       .then((r) => {
         if (cancelled) return;
         setProducts((r?.products ?? []).slice(0, 10));
+        setBounties(
+          (r?.bounties ?? []).slice(0, 10).map((b) => ({
+            id: b.id,
+            title: b.title,
+            coverUrl: b.coverUrl,
+            amountUsd: b.amountUsd,
+          })),
+        );
+      })
+      .catch(() => {});
+    loadCourses()
+      .then((rows) => {
+        if (cancelled) return;
+        setCourses(
+          (rows ?? []).slice(0, 10).map((c) => ({
+            id: c.id,
+            title: c.title,
+            coverUrl: c.coverUrl,
+            priceUsd: c.priceUSD,
+            isFree: c.isFree,
+          })),
+        );
       })
       .catch(() => {});
     return () => {
       cancelled = true;
     };
-  }, [loadDiscovery]);
+  }, [loadDiscovery, loadCourses]);
+
 
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
   const greeting = (() => {
@@ -334,45 +366,43 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         />
       </section>
 
-      {/* Live strip */}
-      {products.length > 0 && (
-        <section>
-          <div className="flex items-center justify-between mb-2">
-            <h2 className="text-sm font-bold text-white">Fresh in the market</h2>
-            <button
-              type="button"
-              onClick={() => onSelect("Marketplace")}
-              className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
-            >
-              See all <ChevronRight className="w-3.5 h-3.5" />
-            </button>
-          </div>
-          <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
-            {products.map((p) => (
-              <button
-                key={p.id}
-                type="button"
-                onClick={() => onSelect("Marketplace")}
-                className="shrink-0 w-32 text-left active:scale-95 transition-transform"
-              >
-                <span className="block w-32 h-24 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10">
-                  {p.coverUrl ? (
-                    <img src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" />
-                  ) : (
-                    <span className="w-full h-full flex items-center justify-center text-slate-600">
-                      <Newspaper className="w-6 h-6" />
-                    </span>
-                  )}
-                </span>
-                <span className="mt-1.5 block text-[11px] font-semibold text-white line-clamp-2 leading-tight">{p.title}</span>
-                <span className="block text-[11px] text-emerald-300 font-bold">
-                  {safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency)}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      )}
+      {/* Live strips */}
+      <MiniRail
+        title="Fresh in the market"
+        onSeeAll={() => onSelect("Marketplace")}
+        items={products.map((p) => ({
+          id: p.id,
+          title: p.title,
+          coverUrl: p.coverUrl,
+          meta: safeFormatDisplayPrice({ price_usd: p.priceUsd }, currency),
+          onClick: () => onSelect("Marketplace"),
+        }))}
+      />
+
+      <MiniRail
+        title="Learn on Academy"
+        onSeeAll={() => onSelect("Academy")}
+        items={courses.map((c) => ({
+          id: c.id,
+          title: c.title,
+          coverUrl: c.coverUrl,
+          meta: c.isFree ? "Free" : safeFormatDisplayPrice({ price_usd: c.priceUsd }, currency),
+          onClick: () => onSelect("Academy"),
+        }))}
+      />
+
+      <MiniRail
+        title="Open bounties"
+        onSeeAll={() => onSelect("Bounties")}
+        items={bounties.map((b) => ({
+          id: b.id,
+          title: b.title,
+          coverUrl: b.coverUrl,
+          meta: safeFormatDisplayPrice({ price_usd: b.amountUsd }, currency),
+          onClick: () => onSelect("Bounties"),
+        }))}
+      />
+
 
       {!isAuthenticated && (
         <button
@@ -388,6 +418,65 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
     </div>
   );
 }
+
+type MiniRailItem = {
+  id: string;
+  title: string;
+  coverUrl: string | null;
+  meta: string;
+  onClick: () => void;
+};
+
+function MiniRail({
+  title,
+  items,
+  onSeeAll,
+}: {
+  title: string;
+  items: MiniRailItem[];
+  onSeeAll: () => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-bold text-white">{title}</h2>
+        <button
+          type="button"
+          onClick={onSeeAll}
+          className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
+        >
+          See all <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+        {items.map((it) => (
+          <button
+            key={it.id}
+            type="button"
+            onClick={it.onClick}
+            className="shrink-0 w-32 text-left active:scale-95 transition-transform"
+          >
+            <span className="block w-32 h-24 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10">
+              {it.coverUrl ? (
+                <img src={it.coverUrl} alt={it.title} className="w-full h-full object-cover" loading="lazy" />
+              ) : (
+                <span className="w-full h-full flex items-center justify-center text-slate-600">
+                  <Newspaper className="w-6 h-6" />
+                </span>
+              )}
+            </span>
+            <span className="mt-1.5 block h-[28px] text-[11px] font-semibold text-white line-clamp-2 leading-[14px] overflow-hidden">
+              {it.title}
+            </span>
+            <span className="block text-[11px] text-emerald-300 font-bold truncate">{it.meta}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
 
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
