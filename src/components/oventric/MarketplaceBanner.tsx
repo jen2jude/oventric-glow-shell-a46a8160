@@ -45,7 +45,7 @@ function Item({
 }) {
   return (
     <div className="flex flex-1 min-w-max items-center justify-center gap-2.5 px-1">
-      <Icon className="w-6 h-6 shrink-0 text-emerald-400" strokeWidth={2} />
+      <Icon className="w-6 h-6 shrink-0 text-emerald-400" />
       <div className="min-w-0">
         <div className="text-[13px] sm:text-sm font-extrabold leading-tight text-emerald-300 whitespace-nowrap">
           {title}
