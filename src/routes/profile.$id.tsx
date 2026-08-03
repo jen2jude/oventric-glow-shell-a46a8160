@@ -1120,27 +1120,52 @@ function ProfilePage() {
                 )}
 
                 {!isOwnProfile && !identityMissing && realProfile?.userId && (
-                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2 w-full max-w-md">
-                    <FollowButton targetId={realProfile.userId} className="flex-1 min-w-[120px]" />
-                    <button
-                      onClick={() => setJoinCircleOpen(true)}
-                      className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold"
-                      aria-label="Request to join one of this user's circles"
-                    >
-                      <Users className="w-4 h-4" /> Join Circle
-                    </button>
-                    <button
-                      onClick={handleChat}
-                      className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold"
-                    >
-                      <MessageCircle className="w-4 h-4" /> Chat
-                    </button>
-                    <button
-                      onClick={() => setReportOpen(true)}
-                      className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-400 hover:bg-white/5 text-xs"
-                    >
-                      <Flag className="w-3.5 h-3.5" /> Report
-                    </button>
+                  <div className="mt-4 w-full max-w-md">
+                    {/* Primary duo: follow + premium message CTA */}
+                    <div className="flex flex-wrap items-start justify-center gap-2">
+                      <FollowButton targetId={realProfile.userId} className="flex-1 min-w-[140px]" />
+                      <button
+                        onClick={handleChat}
+                        aria-label={`Message ${displayName}`}
+                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-[0_8px_24px_-10px_rgba(16,185,129,0.9)] transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
+                      >
+                        {/* Sheen sweep */}
+                        <span
+                          aria-hidden
+                          className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/40 opacity-0 transition-all duration-700 group-hover:left-[110%] group-hover:opacity-100"
+                        />
+                        <MessageCircle className="relative w-4 h-4" strokeWidth={2.6} />
+                        <span className="relative">Message</span>
+                        <span
+                          aria-hidden
+                          className={`relative h-1.5 w-1.5 rounded-full ${
+                            isViewedUserOnline ? "bg-black/70 animate-pulse" : "bg-black/25"
+                          }`}
+                        />
+                      </button>
+                    </div>
+                    <p className="mt-1.5 text-center text-[11px] text-slate-500">
+                      {isViewedUserOnline
+                        ? "Online now · usually replies in minutes"
+                        : "Send a direct message — replies land in your inbox"}
+                    </p>
+
+                    {/* Secondary actions */}
+                    <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
+                      <button
+                        onClick={() => setJoinCircleOpen(true)}
+                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-300 hover:bg-emerald-500/20 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                        aria-label="Request to join one of this user's circles"
+                      >
+                        <Users className="w-4 h-4" /> Join Circle
+                      </button>
+                      <button
+                        onClick={() => setReportOpen(true)}
+                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 text-slate-400 hover:text-red-400 hover:bg-white/5 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
+                      >
+                        <Flag className="w-3.5 h-3.5" /> Report
+                      </button>
+                    </div>
                   </div>
                 )}
                 {isOwnProfile && (
