@@ -86,8 +86,15 @@ function formatHomeCurrency(n: number, c: string): string {
 
 
 
+const TAB_VALUES = ["overview", "bounties", "courses", "wallet", "social", "digital", "sales", "physical", "listings"] as const;
+type Tab = (typeof TAB_VALUES)[number];
+
 export const Route = createFileRoute("/dashboard")({
   ssr: false,
+  validateSearch: (search: Record<string, unknown>): { tab?: Tab } => {
+    const t = typeof search.tab === "string" ? search.tab : undefined;
+    return t && (TAB_VALUES as readonly string[]).includes(t) ? { tab: t as Tab } : {};
+  },
   head: () => ({
     meta: [
       { title: "My Dashboard — Oventric" },
@@ -97,10 +104,9 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "overview" | "bounties" | "courses" | "wallet" | "social" | "digital" | "sales" | "physical" | "listings";
-
 function DashboardPage() {
   const navigate = useNavigate();
+  const { tab: tabParam } = Route.useSearch();
   const purchasesFn = useServerFn(listMyPurchases);
   const contactsFn = useServerFn(listMyContactedSellers);
   const listingsFn = useServerFn(listMyProducts);
@@ -114,7 +120,11 @@ function DashboardPage() {
   const socialFn = useServerFn(getMySocial);
 
   const [authChecked, setAuthChecked] = useState(false);
-  const [tab, setTab] = useState<Tab>("overview");
+  const [tab, setTab] = useState<Tab>(tabParam ?? "overview");
+  useEffect(() => {
+    if (tabParam) setTab(tabParam);
+  }, [tabParam]);
+
   const [overview, setOverview] = useState<DashboardOverview | null>(null);
   const [purchases, setPurchases] = useState<PurchaseDTO[] | null>(null);
   const [contacts, setContacts] = useState<ContactedSellerDTO[] | null>(null);

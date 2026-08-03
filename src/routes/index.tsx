@@ -15,6 +15,8 @@ import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
+import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
+
 
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -198,6 +200,8 @@ function Index() {
 
         <div className={`flex flex-1 min-h-0 ${active === "Home" && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
           {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
+          {isDesktop && !desktopLanding && <DesktopAppSidebar onSelect={setActive} />}
+
           <main
             id={desktopLanding ? "desktop-home-scroll" : undefined}
             className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"}`}
