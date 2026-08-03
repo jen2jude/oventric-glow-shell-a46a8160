@@ -419,7 +419,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           ].map((t) => (
             <div key={t.title} className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/12 text-emerald-300">
-                <t.Icon className="h-4.5 w-4.5" strokeWidth={2.4} />
+                <t.Icon className="h-4 w-4" strokeWidth={2.4} />
               </span>
               <div className="min-w-0">
                 <div className="text-sm font-bold text-white">{t.title}</div>
