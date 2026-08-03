@@ -19,7 +19,9 @@ import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
 import circlesIcon from "@/assets/circles-3d.png.asset.json";
 import messageIcon from "@/assets/message-3d.webp.asset.json";
 
-const TILES = [
+type Tile = { label: string; img?: string; icon?: typeof LayoutDashboard };
+
+const TILES: Tile[] = [
   { label: "Feed", img: homeIcon.url },
   { label: "Market", img: marketIcon.url },
   { label: "Academy", img: academyIcon.url },
@@ -32,7 +34,7 @@ const TILES = [
   { label: "Affiliate", icon: Gift },
   { label: "Blog", icon: BookOpen },
   { label: "Help", icon: LifeBuoy },
-] as const;
+];
 
 const QUICK = [
   { label: "Sell", icon: Store },
