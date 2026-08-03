@@ -141,13 +141,19 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
   }, [phase, onComplete]);
 
   const handleComplete = useCallback(() => {
-    // Fire-and-forget server sync for signed-in users; localStorage is the
-    // source of truth on the device.
-    try {
-      void markSeenServer();
-    } catch {
-      // ignore
-    }
+    // Fire-and-forget server sync, signed-in users only; localStorage is the
+    // source of truth on the device. Guests have no bearer token, so calling
+    // the protected fn would throw "Unauthorized".
+    void (async () => {
+      try {
+        const { supabase } = await import("@/integrations/supabase/client");
+        const { data } = await supabase.auth.getSession();
+        if (!data.session) return;
+        await markSeenServer();
+      } catch {
+        // ignore — local flag already persisted
+      }
+    })();
     setPhase("congrats");
   }, [markSeenServer]);
 
