@@ -629,6 +629,62 @@ function Stat({ value, label }: { value: number; label: string }) {
   );
 }
 
+function SocialLink({ href, label, icon }: { href: string; label: string; icon: React.ReactNode }) {
+  return (
+    <a
+      href={href}
+      target="_blank"
+      rel="noopener noreferrer"
+      aria-label={label}
+      className="inline-flex h-11 w-11 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-700 transition-all hover:-translate-y-0.5 hover:border-emerald-400 hover:text-emerald-600 hover:shadow-md"
+    >
+      {icon}
+    </a>
+  );
+}
+
+function FacebookIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+      <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43 edge cases: c0-3.37 2.063-5.5 5.5-5.5 1.463 0 2.727.108 3.094.157v3.59h-2.125c-1.67 0-2.235.992-2.235 1.992v2.399h3.787l-.532 3.47h-3.255v8.385C19.612 23.027 24 18.062 24 12.073z" />
+    </svg>
+  );
+}
+
+function InstagramIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" strokeWidth="2" />
+      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" strokeWidth="2" />
+      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    </svg>
+  );
+}
+
+function XIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+      <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+    </svg>
+  );
+}
+
+function TikTokIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+      <path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.53V2h-3.45v13.67a2.89 2.89 0 0 1-5.2 1.74 2.89 2.89 0 0 1 2.31-4.64 2.93 2.93 0 0 1 .88.13V9.4a6.84 6.84 0 0 0-1-.05A6.33 6.33 0 0 0 5 20.1a6.34 6.34 0 0 0 10.86-4.43v-7a8.16 8.16 0 0 0 4.77 1.52v-3.4a4.85 4.85 0 0 1-1.04-.1z" />
+    </svg>
+  );
+}
+
+function WhatsAppIcon() {
+  return (
+    <svg viewBox="0 0 24 24" className="h-5 w-5 fill-current" aria-hidden>
+      <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.124-1.43l-.365-.218-3.78.992.1-.392.007-.027.99-3.82-.235-.374a9.86 9.86 0 0 1-1.525-5.327C1.633 3.697 6.03.5 11.228.5c2.58 0 5.007 1.006 6.83 2.832 1.821 1.823 2.827 4.25 2.827 6.83 0 5.198-4.197 9.595-9.413 9.623M11.2 0C5.022 0 0 5.022 0 11.2c0 2.062.556 4.033 1.595 5.765L.547 23.55l6.766-1.778A11.154 11.154 0 0 0 22.4 11.2C22.4 5.022 17.378 0 11.2 0" />
+    </svg>
+  );
+}
+
 function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; onSeeAll: () => void }) {
   if (items.length === 0) return null;
   return (
