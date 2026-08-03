@@ -39,8 +39,26 @@ import {
   Loader2,
   Camera,
   Images,
-
+  Pencil,
+  Globe,
+  Twitter,
+  Instagram,
+  Linkedin,
+  Github,
+  Youtube,
 } from "lucide-react";
+
+/** Renders the matching brand glyph for a social-link key. */
+function SocialIcon({ kind }: { kind: string }) {
+  const cls = "w-4 h-4";
+  if (kind === "x") return <Twitter className={cls} />;
+  if (kind === "instagram") return <Instagram className={cls} />;
+  if (kind === "linkedin") return <Linkedin className={cls} />;
+  if (kind === "github") return <Github className={cls} />;
+  if (kind === "youtube") return <Youtube className={cls} />;
+  return <Globe className={cls} />;
+}
+
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
