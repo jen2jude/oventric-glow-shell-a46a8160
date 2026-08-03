@@ -457,8 +457,15 @@ export function Marketplace() {
           </div>
         </section>
       )}
+      {/* Clears the floating bottom nav + device safe area on mobile. */}
+      <div
+        className="md:hidden"
+        style={{ height: "calc(5rem + max(env(safe-area-inset-bottom), 0.5rem))" }}
+        aria-hidden
+      />
       </div>
     </div>
+
 
   );
 }
