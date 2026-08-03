@@ -23,6 +23,8 @@ import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { MarketplaceBanner } from "@/components/oventric/MarketplaceBanner";
+
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
