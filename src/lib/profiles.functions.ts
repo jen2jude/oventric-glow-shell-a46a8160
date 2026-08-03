@@ -143,6 +143,27 @@ async function resolveProfileImageUrl(
   return data.publicUrl || null;
 }
 
+export interface SocialLinks {
+  website?: string;
+  x?: string;
+  instagram?: string;
+  linkedin?: string;
+  github?: string;
+  youtube?: string;
+}
+
+/** Normalises an unknown jsonb blob into a safe SocialLinks object. */
+export function normaliseSocialLinks(raw: unknown): SocialLinks {
+  const out: SocialLinks = {};
+  if (!raw || typeof raw !== "object") return out;
+  const keys: Array<keyof SocialLinks> = ["website", "x", "instagram", "linkedin", "github", "youtube"];
+  for (const k of keys) {
+    const v = (raw as Record<string, unknown>)[k];
+    if (typeof v === "string" && v.trim()) out[k] = v.trim().slice(0, 200);
+  }
+  return out;
+}
+
 export interface RealProfileView {
   userId: string;
   slug: string;
@@ -151,6 +172,7 @@ export interface RealProfileView {
   bio: string | null;
   avatarUrl: string | null;
   coverUrl: string | null;
+  socialLinks: SocialLinks;
 
   verificationTier: string;
   reputationStars: number;
@@ -161,6 +183,7 @@ export interface RealProfileView {
   dobPublic: boolean;
   joined: string; // ISO
 }
+
 
 const ViewInput = z.object({ idOrSlug: z.string().trim().min(1).max(120) });
 
