@@ -212,7 +212,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
       <div className="max-w-4xl mx-auto px-4 py-10">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white mb-4"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 mb-4"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
@@ -341,16 +341,16 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const autoReleaseIn = bounty.solved_at && bounty.status === "solved" ? Math.max(0, 48 - solvedAgeH) : null;
 
   return (
-    <div className="max-w-4xl mx-auto w-full px-4 py-6">
+    <div className="max-w-4xl mx-auto w-full px-4 py-6 md:text-slate-700">
       <button
         onClick={onBack}
-        className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 mb-4"
+        className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-lg px-3 py-1.5 mb-4"
       >
         <ArrowLeft className="w-4 h-4" /> Back to Bounty Board
       </button>
 
       {/* Header card */}
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden mb-5">
+      <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl overflow-hidden mb-5">
         {imgUrls[0] && (
           <ResponsiveImage
             src={imgUrls[0]}
@@ -362,7 +362,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         )}
         <div className="p-5">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+            <span className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider">
               <Target className="w-3 h-3" /> {dp.formatted}
             </span>
             <span
@@ -371,15 +371,15 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               {statusPill.label}
             </span>
             {bounty.admin_hold && (
-              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/15 border border-red-500/40 text-red-300 text-[10px] font-bold tracking-wider">
+              <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-red-500/15 border border-red-500/40 text-red-300 md:text-red-700 text-[10px] font-bold tracking-wider">
                 <Lock className="w-3 h-3" /> Admin hold
               </span>
             )}
           </div>
-          <h1 className="mt-2 text-white text-xl md:text-2xl font-black leading-tight">
+          <h1 className="mt-2 text-white md:text-slate-900 text-xl md:text-2xl font-black leading-tight">
             {bounty.title}
           </h1>
-          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+          <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
             {remaining && (
               <span className="inline-flex items-center gap-1">
                 <Clock className="w-3.5 h-3.5 text-amber-400" /> {remaining} left
@@ -397,12 +397,12 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           </div>
 
           {/* Poster */}
-          <div className="mt-4 flex items-center gap-3 pt-4 border-t border-white/5">
-            <div className="w-9 h-9 rounded-full overflow-hidden border border-white/10 shrink-0">
+          <div className="mt-4 flex items-center gap-3 pt-4 border-t border-white/5 md:border-slate-200">
+            <div className="w-9 h-9 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
               <AvatarImage src={posterProfile?.avatar_path ?? null} alt={posterProfile?.display_name ?? "Poster"} className="w-full h-full" />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-white text-sm font-semibold truncate">
+              <div className="text-white md:text-slate-900 text-sm font-semibold truncate">
                 {posterProfile?.display_name || posterProfile?.username || "Poster"}
               </div>
               <div className="text-xs text-slate-500 truncate">
@@ -412,7 +412,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             {me && !isPoster && (
               <button
                 onClick={() => openDM(bounty.poster_id)}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
               >
                 <MessageCircle className="w-3.5 h-3.5" /> Message
               </button>
@@ -420,7 +420,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           </div>
 
           {bounty.description && (
-            <div className="mt-4 pt-4 border-t border-white/5 text-sm text-slate-300 whitespace-pre-wrap leading-relaxed">
+            <div className="mt-4 pt-4 border-t border-white/5 md:border-slate-200 text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap leading-relaxed">
               {bounty.description}
             </div>
           )}
@@ -432,7 +432,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                   key={i}
                   src={u}
                   alt={`${bounty.title} ${i + 2}`}
-                  className="w-full h-32 object-cover rounded-lg border border-white/10"
+                  className="w-full h-32 object-cover rounded-lg border border-white/10 md:border-slate-200"
                   sizes="240px"
                   loading="lazy"
                 />
@@ -444,13 +444,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
-        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
-          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider mb-3">
+        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
+          <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
             <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
           </div>
 
           <div className="flex items-center gap-3 mb-4">
-            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+            <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
               <AvatarImage
                 src={acceptedProfile?.avatar_path ?? null}
                 alt={acceptedProfile?.display_name ?? "Solver"}
@@ -458,7 +458,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-white text-sm font-semibold truncate">
+              <div className="text-white md:text-slate-900 text-sm font-semibold truncate">
                 {isPoster ? "Solver: " : "Poster: "}
                 {isPoster
                   ? acceptedProfile?.display_name || acceptedProfile?.username || "Solver"
@@ -511,7 +511,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             {isSolver && bounty.status === "solved" && !bounty.released_at && (
               <button
                 onClick={() => setAwaitingPop(true)}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-sky-500/40 text-sky-200 text-sm font-bold"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-sky-50 hover:bg-white/10 md:hover:bg-sky-100 border border-sky-500/40 text-sky-200 md:text-sky-700 text-sm font-bold"
               >
                 <Clock className="w-4 h-4" /> Awaiting confirmation
               </button>
@@ -529,7 +529,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <button
                 onClick={doDispute}
                 disabled={busy === "dispute"}
-                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold disabled:opacity-50"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
               >
                 <AlertTriangle className="w-4 h-4" /> Open dispute
               </button>
@@ -545,11 +545,11 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Apply form (non-poster, no accepted solver yet) */}
       {!isPoster && !bounty.accepted_applicant_id && !bounty.released_at && (
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 mb-5">
-          <div className="text-white font-bold text-sm mb-1 inline-flex items-center gap-2">
+        <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl p-5 mb-5">
+          <div className="text-white md:text-slate-900 font-bold text-sm mb-1 inline-flex items-center gap-2">
             <Star className="w-4 h-4 text-emerald-400" /> Apply for this bounty
           </div>
-          <p className="text-xs text-slate-400 mb-3">
+          <p className="text-xs text-slate-400 md:text-slate-500 mb-3">
             Tell the poster why you're the right solver. Your pitch will be sent as a direct
             message so they can chat with you immediately.
           </p>
@@ -562,10 +562,10 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               ) : (
                 <>Your application is pending review. The poster has been notified.</>
               )}
-              <div className="mt-2 text-xs text-slate-300 whitespace-pre-wrap">{myApp.pitch}</div>
+              <div className="mt-2 text-xs text-slate-300 md:text-slate-600 whitespace-pre-wrap">{myApp.pitch}</div>
               <button
                 onClick={() => openDM(bounty.poster_id)}
-                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+                className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
               >
                 <MessageCircle className="w-3.5 h-3.5" /> Message poster
               </button>
@@ -577,7 +577,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 onChange={(e) => setPitch(e.target.value.slice(0, 2000))}
                 rows={5}
                 placeholder="Your pitch — experience, timeline, approach…"
-                className="w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 resize-none"
+                className="w-full bg-[#121214] md:bg-white border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50 resize-none"
               />
               <div className="mt-2 flex items-center justify-between gap-3">
                 <div className="text-[11px] text-slate-500">{pitch.length}/2000</div>
@@ -601,8 +601,8 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Applicants list — poster only */}
       {isPoster && (
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-5">
-          <div className="text-white font-bold text-sm mb-3 inline-flex items-center gap-2">
+        <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl p-5">
+          <div className="text-white md:text-slate-900 font-bold text-sm mb-3 inline-flex items-center gap-2">
             <Users className="w-4 h-4 text-emerald-400" /> Applicants ({apps.length})
           </div>
           {apps.length === 0 ? (
@@ -619,9 +619,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 return (
                   <div
                     key={a.id}
-                    className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5" : rejected ? "border-white/5 bg-white/5 opacity-60" : "border-white/10 bg-[#121214]"}`}
+                    className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5 md:bg-emerald-50" : rejected ? "border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100 opacity-60" : "border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50"}`}
                   >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 shrink-0">
+                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
                       <AvatarImage
                         src={p?.avatar_path ?? null}
                         alt={p?.display_name ?? "Applicant"}
@@ -630,7 +630,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-white text-sm font-semibold">
+                        <span className="text-white md:text-slate-900 text-sm font-semibold">
                           {p?.display_name || p?.username || "Applicant"}
                         </span>
                         <span className="text-xs text-slate-500">
@@ -648,7 +648,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                         )}
                       </div>
                       {a.pitch && (
-                        <div className="mt-1 text-sm text-slate-300 whitespace-pre-wrap">
+                        <div className="mt-1 text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap">
                           {a.pitch}
                         </div>
                       )}
@@ -656,7 +656,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                     <div className="flex gap-2 shrink-0">
                       <button
                         onClick={() => openDM(a.applicant_id)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-xs font-semibold"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
                       >
                         <MessageCircle className="w-3.5 h-3.5" /> Chat
                       </button>
@@ -690,23 +690,23 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           onClick={() => setConfirmSolved(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm shadow-2xl p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
                 <Send className="w-4 h-4 text-sky-300" />
               </div>
-              <div className="text-white font-bold text-base">Mark work delivered?</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">Mark work delivered?</div>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed mb-4">
+            <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
               The poster will be notified to review your delivery. If they don't confirm within
-              <span className="text-white font-semibold"> 48 hours</span>, funds will auto-release to your wallet.
+              <span className="text-white md:text-slate-900 font-semibold"> 48 hours</span>, funds will auto-release to your wallet.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmSolved(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
@@ -731,16 +731,16 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           onClick={() => setAwaitingPop(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm shadow-2xl p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-sky-300" />
               </div>
-              <div className="text-white font-bold text-base">Awaiting poster confirmation</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">Awaiting poster confirmation</div>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed mb-4">
+            <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
               Your delivery is submitted. Waiting for the poster to confirm and approve.
               You can contact the poster via chat to nudge them to approve.
               {autoReleaseIn !== null ? ` Funds auto-release in ~${Math.ceil(autoReleaseIn)}h if no response.` : ""}
@@ -748,7 +748,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setAwaitingPop(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Close
               </button>
@@ -774,22 +774,22 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           onClick={() => setConfirmRelease(false)}
         >
           <div
-            className="w-full max-w-md rounded-2xl bg-[#1E1E24] border border-white/10 shadow-2xl p-5"
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm shadow-2xl p-5"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center gap-2 mb-2">
               <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4 text-emerald-300" />
               </div>
-              <div className="text-white font-bold text-base">Release {dp.formatted} to the solver?</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">Release {dp.formatted} to the solver?</div>
             </div>
-            <p className="text-white/70 text-sm leading-relaxed mb-4">
+            <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
               This confirms the work was delivered okay and releases escrow to the solver's wallet. This action cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button
                 onClick={() => setConfirmRelease(false)}
-                className="px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-semibold"
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
               >
                 Cancel
               </button>
