@@ -557,6 +557,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
+      <ProductRails currency={currency} />
+
+
+
       {/* How it works */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
         <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
