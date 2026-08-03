@@ -376,6 +376,23 @@ function ProfilePage() {
   const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
 
+  const fetchOverview = useServerFn(getDashboardOverview);
+  useEffect(() => {
+    if (!isOwnProfile) { setOverview(null); return; }
+    let alive = true;
+    void (async () => {
+      try {
+        const res = await fetchOverview();
+        if (alive) setOverview(res);
+      } catch {
+        if (alive) setOverview(null);
+      }
+    })();
+    return () => { alive = false; };
+  }, [isOwnProfile, fetchOverview]);
+
+
+
 
 
   const {
