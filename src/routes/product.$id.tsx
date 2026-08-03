@@ -129,7 +129,7 @@ function ProductPage() {
                           <button
                             key={url}
                             onClick={() => setActiveImage(i)}
-                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10"}`}
+                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10 md:border-slate-200"}`}
                           >
                             <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
                           </button>
@@ -339,7 +339,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
             href={canCall ? `tel:+${phone}` : undefined}
             aria-disabled={!canCall}
             onClick={() => canCall && handleContact("call")}
-            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? "bg-white/10 text-white hover:bg-white/15" : "bg-white/5 text-slate-500 pointer-events-none"}`}
+            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? "bg-white/10 md:bg-slate-100 text-white md:text-slate-900 hover:bg-white/15 md:hover:bg-slate-200" : "bg-white/5 md:bg-slate-100 text-slate-500 pointer-events-none"}`}
           >
             <Phone className="w-4 h-4" /> Call Seller
           </a>

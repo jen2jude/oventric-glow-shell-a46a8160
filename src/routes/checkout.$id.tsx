@@ -408,7 +408,7 @@ function CheckoutPage() {
                           ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
                           : active
                             ? "bg-emerald-500/10 border-emerald-500/50"
-                            : "bg-[#1E1E24] border-white/10 hover:border-white/20"
+                            : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                       }`}
                     >
                       <span className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}>
@@ -445,7 +445,7 @@ function CheckoutPage() {
                               key={g.id}
                               onClick={() => setGateway(g.id)}
                               className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-colors ${
-                                on ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] border-white/10 hover:border-white/20"
+                                on ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                               }`}
                             >
                               <g.Icon className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`} />
@@ -549,7 +549,7 @@ function CheckoutPage() {
                   className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border ${
                     cashbackUSD > 0
                       ? "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
-                      : "bg-[#121214] border-white/10 opacity-70 cursor-not-allowed"
+                      : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
                   <input
@@ -626,7 +626,7 @@ function CheckoutPage() {
                 const active = topUpMethod === m.id;
                 return (
                   <button key={m.id} onClick={() => setTopUpMethod(m.id)}
-                    className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 ${active ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] border-white/10"}`}>
+                    className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 ${active ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"}`}>
                     <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`} />
                     <span className="text-sm text-white md:text-slate-900">{m.label}</span>
                   </button>
