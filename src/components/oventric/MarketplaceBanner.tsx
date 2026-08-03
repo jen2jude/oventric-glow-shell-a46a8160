@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { BadgePercent, ShieldCheck, Smartphone } from "lucide-react";
-import { useIsDesktop } from "@/hooks/use-desktop";
 
 /** Nearest scrollable ancestor, falling back to the window. */
 function scrollParent(el: HTMLElement | null): HTMLElement | Window {
@@ -20,15 +19,10 @@ function scrollParent(el: HTMLElement | null): HTMLElement | Window {
  * reappearing on scroll-up. On mobile it stays inline in the flow.
  */
 export function MarketplaceBanner() {
-  const isDesktop = useIsDesktop();
   const ref = useRef<HTMLDivElement>(null);
   const [hidden, setHidden] = useState(false);
 
   useEffect(() => {
-    if (!isDesktop) {
-      setHidden(false);
-      return;
-    }
     const target = scrollParent(ref.current);
     const readTop = () =>
       target === window ? window.scrollY : (target as HTMLElement).scrollTop;
@@ -53,15 +47,16 @@ export function MarketplaceBanner() {
       target.removeEventListener("scroll", onScroll);
       if (raf) cancelAnimationFrame(raf);
     };
-  }, [isDesktop]);
+  }, []);
 
   return (
     <div
       ref={ref}
-      className={`w-full bg-slate-950 text-emerald-300 will-change-transform transition-transform duration-300 ease-out ${
-        isDesktop ? "sticky top-0 z-30" : ""
-      } ${hidden ? "-translate-y-full" : "translate-y-0"}`}
+      className={`w-full bg-slate-950 text-emerald-300 will-change-transform transition-transform duration-300 ease-out sticky top-0 z-30 ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
     >
+
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
         <div className="flex items-stretch gap-3 sm:gap-6 overflow-x-auto scrollbar-none py-2.5">
 
