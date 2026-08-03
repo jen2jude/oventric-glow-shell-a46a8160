@@ -137,8 +137,8 @@ export function CirclesHub() {
     return (
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
         <div className="text-4xl mb-3">🛡️</div>
-        <h1 className="text-2xl font-black text-white">Circles & Guilds</h1>
-        <p className="text-slate-400 mt-2">Sign in to discover and join real builder guilds.</p>
+        <h1 className="text-2xl font-black text-white md:text-slate-900">Circles & Guilds</h1>
+        <p className="text-slate-400 mt-2 md:text-slate-600">Sign in to discover and join real builder guilds.</p>
         <button
           onClick={() => openGate("generic")}
           className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 text-black font-bold text-sm"
@@ -154,10 +154,10 @@ export function CirclesHub() {
       {/* Header row */}
       <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 mb-6">
         <div className="min-w-0">
-          <h1 className="text-2xl md:text-3xl font-black text-white truncate">
+          <h1 className="text-2xl md:text-3xl font-black text-white truncate md:text-slate-900">
             🛡️ Circles & Guilds
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 mt-1 md:text-slate-600">
             Find your crew. Build together. Split the bag.
           </p>
         </div>
@@ -213,7 +213,7 @@ export function CirclesHub() {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search guilds…"
-            className="w-full bg-[#1E1E24] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+            className="w-full bg-[#1E1E24] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-900"
           />
         </div>
         <div className="flex gap-2 overflow-x-auto scrollbar-none min-w-0">
@@ -226,7 +226,7 @@ export function CirclesHub() {
                 className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap ${
                   active
                     ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                    : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
+                    : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:shadow-sm md:border-slate-200 md:hover:border-slate-300 md:hover:text-slate-900 md:text-slate-600"
                 }`}
               >
                 {cat}
@@ -238,9 +238,9 @@ export function CirclesHub() {
 
       {/* Grid */}
       {catalogQ.isLoading ? (
-        <div className="text-center text-slate-500 py-8 text-sm">Loading circles…</div>
+        <div className="text-center text-slate-500 py-8 text-sm md:text-slate-500">Loading circles…</div>
       ) : filtered.length === 0 ? (
-        <div className="text-center text-slate-500 py-12 text-sm">
+        <div className="text-center text-slate-500 py-12 text-sm md:text-slate-500">
           No circles yet. Be the first to forge one for your niche.
         </div>
       ) : (
@@ -282,14 +282,14 @@ function Rail({
     <section className="mb-8">
       <div className="flex items-center gap-2 mb-3">
         {icon}
-        <h2 className="text-lg font-black text-white">{title}</h2>
+        <h2 className="text-lg font-black text-white md:text-slate-900">{title}</h2>
       </div>
       <div className="flex gap-4 overflow-x-auto snap-x scrollbar-none pb-3 -mx-1 px-1">
         {items.map((c) => (
           <button
             key={c.id}
             onClick={() => onOpen(c)}
-            className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
+            className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors md:bg-white md:shadow-sm md:border-slate-200"
           >
             <div className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}>
               {c.coverUrl && (
@@ -309,11 +309,11 @@ function Rail({
               )}
             </div>
             <div className="pt-6 pb-3 px-3">
-              <div className="text-white font-bold text-sm truncate">{c.name}</div>
-              <div className="text-[10px] text-slate-500 uppercase tracking-wider">
+              <div className="text-white font-bold text-sm truncate md:text-slate-900">{c.name}</div>
+              <div className="text-[10px] text-slate-500 uppercase tracking-wider md:text-slate-500">
                 {c.category}
               </div>
-              <div className="flex items-center gap-1 mt-2 text-xs text-slate-400">
+              <div className="flex items-center gap-1 mt-2 text-xs text-slate-400 md:text-slate-600">
                 <Users className="w-3 h-3" /> {fmtPeers(c.memberCount)} members
               </div>
             </div>
@@ -328,7 +328,7 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
   return (
     <button
       onClick={onOpen}
-      className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors"
+      className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors md:bg-white md:shadow-sm md:border-slate-200"
     >
       <div className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
         {circle.coverUrl && (
@@ -348,15 +348,15 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         )}
       </div>
       <div className="pt-7 pb-4 px-4">
-        <div className="text-white font-bold text-base truncate">{circle.name}</div>
-        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2">
+        <div className="text-white font-bold text-base truncate md:text-slate-900">{circle.name}</div>
+        <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 md:text-slate-500">
           {circle.category}
         </div>
-        <p className="text-xs text-slate-400 line-clamp-2 min-h-[32px]">
+        <p className="text-xs text-slate-400 line-clamp-2 min-h-[32px] md:text-slate-600">
           {circle.description || "A guild forged by builders."}
         </p>
-        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5">
-          <div className="flex items-center gap-1 text-xs text-slate-400">
+        <div className="flex items-center justify-between mt-3 pt-3 border-t border-white/5 md:border-slate-200">
+          <div className="flex items-center gap-1 text-xs text-slate-400 md:text-slate-600">
             <Users className="w-3 h-3" /> {fmtPeers(circle.memberCount)}
           </div>
           <div className="text-[11px] font-semibold text-emerald-300">
@@ -412,7 +412,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   });
 
   if (circleQ.isLoading) {
-    return <div className="p-8 text-center text-slate-500 text-sm">Loading circle…</div>;
+    return <div className="p-8 text-center text-slate-500 text-sm md:text-slate-500">Loading circle…</div>;
   }
   if (!circle) {
     return (
@@ -420,7 +420,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
         <button onClick={onBack} className="text-emerald-400 text-sm">
           ← Back
         </button>
-        <p className="text-slate-400 mt-4">This circle no longer exists.</p>
+        <p className="text-slate-400 mt-4 md:text-slate-600">This circle no longer exists.</p>
       </div>
     );
   }
@@ -463,8 +463,8 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
             )}
           </div>
           <div className="flex-1 min-w-0 pb-2">
-            <h1 className="text-xl md:text-2xl font-black text-white truncate">{circle.name}</h1>
-            <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap">
+            <h1 className="text-xl md:text-2xl font-black text-white truncate md:text-slate-900">{circle.name}</h1>
+            <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap md:text-slate-600">
               <span className="uppercase tracking-wider font-bold">{circle.category}</span>
               <span className="inline-flex items-center gap-1">
                 <Users className="w-3 h-3" /> {fmtPeers(circle.memberCount)} members
@@ -482,7 +482,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
           </div>
         </div>
 
-        <p className="text-sm text-slate-300 mt-4">{circle.description || "A guild for builders."}</p>
+        <p className="text-sm text-slate-300 mt-4 md:text-slate-600">{circle.description || "A guild for builders."}</p>
 
         {/* Join / status / leave */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -502,7 +502,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
               </span>
               <button
                 onClick={() => cancelM.mutate(circle.id)}
-                className="px-3 py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs"
+                className="px-3 py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-600"
               >
                 Cancel request
               </button>
@@ -524,7 +524,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
               {circle.myRole !== "owner" && (
                 <button
                   onClick={() => leaveM.mutate(circle.id)}
-                  className="px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs"
+                  className="px-3 py-1.5 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 text-xs md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-600"
                 >
                   Leave
                 </button>
@@ -534,7 +534,7 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
         </div>
 
         {/* Tabs */}
-        <div className="mt-6 border-b border-white/10 flex gap-4 overflow-x-auto">
+        <div className="mt-6 border-b border-white/10 flex gap-4 overflow-x-auto md:border-slate-200">
           {(
             [
               ["watercooler", "Water Cooler"],
@@ -548,8 +548,8 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
               onClick={() => setTab(id)}
               className={`shrink-0 pb-2 -mb-px text-sm font-bold border-b-2 ${
                 tab === id
-                  ? "border-emerald-500 text-white"
-                  : "border-transparent text-slate-400 hover:text-white"
+                  ? "border-emerald-500 text-white md:text-slate-900"
+                  : "border-transparent text-slate-400 hover:text-white md:hover:text-slate-900 md:text-slate-600"
               }`}
             >
               {label}
@@ -604,10 +604,10 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
 
   if (!isMember) {
     return (
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center">
-        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2" />
-        <p className="text-sm text-slate-300 font-semibold">Members-only conversation</p>
-        <p className="text-xs text-slate-500 mt-1">
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center md:bg-white md:shadow-sm md:border-slate-200">
+        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2 md:text-slate-500" />
+        <p className="text-sm text-slate-300 font-semibold md:text-slate-600">Members-only conversation</p>
+        <p className="text-xs text-slate-500 mt-1 md:text-slate-500">
           Request to join. Once an admin approves, accept the code of conduct to unlock posting.
         </p>
       </div>
@@ -616,16 +616,16 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
 
   return (
     <div className="space-y-4">
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 md:bg-white md:shadow-sm md:border-slate-200">
         <textarea
           value={text}
           onChange={(e) => setText(e.target.value)}
           maxLength={4000}
           placeholder="Share with the circle…"
-          className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none min-h-[60px]"
+          className="w-full bg-transparent text-sm text-white placeholder:text-slate-500 focus:outline-none resize-none min-h-[60px] md:text-slate-900"
         />
-        <div className="flex items-center justify-between pt-2 border-t border-white/5">
-          <span className="text-[11px] text-slate-500">
+        <div className="flex items-center justify-between pt-2 border-t border-white/5 md:border-slate-200">
+          <span className="text-[11px] text-slate-500 md:text-slate-500">
             Every 5th post here also appears in the public news feed as a taster for non‑members.
           </span>
           <button
@@ -637,7 +637,7 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
           </button>
         </div>
         {lastShared !== null && (
-          <div className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500"}`}>
+          <div className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500 md:text-slate-500"}`}>
             {lastShared
               ? "🎉 This post was also shared to the main news feed."
               : "Posted to the circle. Only members can see it."}
@@ -646,9 +646,9 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
       </div>
 
       {postsQ.isLoading ? (
-        <div className="text-center text-slate-500 text-sm py-6">Loading…</div>
+        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading…</div>
       ) : (postsQ.data ?? []).length === 0 ? (
-        <div className="text-center text-slate-500 text-sm py-8">
+        <div className="text-center text-slate-500 text-sm py-8 md:text-slate-500">
           Be the first to say hi to the circle.
         </div>
       ) : (
@@ -708,7 +708,7 @@ function WatercoolerPost({
   const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
 
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3">
+    <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 md:bg-white md:shadow-sm md:border-slate-200">
       <div className="flex items-center gap-2 mb-2">
         {p.authorAvatar ? (
           <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
@@ -723,18 +723,18 @@ function WatercoolerPost({
               ? `/profile/${p.authorSlug}`
               : `/profile/${p.authorId}`)
           }
-          className="text-sm font-semibold text-white hover:text-emerald-300"
+          className="text-sm font-semibold text-white hover:text-emerald-300 md:text-slate-900"
         >
           {p.authorName}
         </button>
-        <span className="text-xs text-slate-500">· {timeAgo(p.createdAt)}</span>
+        <span className="text-xs text-slate-500 md:text-slate-500">· {timeAgo(p.createdAt)}</span>
       </div>
       <p className="text-sm text-slate-200 whitespace-pre-wrap">{p.text}</p>
-      <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/5 relative">
+      <div className="mt-3 flex items-center gap-2 pt-2 border-t border-white/5 relative md:border-slate-200">
         <button
           type="button"
           onClick={() => (viewerReaction ? react(null) : setPickerOpen((v) => !v))}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300 md:hover:bg-slate-100 md:bg-slate-50 md:text-slate-600"
           style={activeColor ? { color: activeColor } : undefined}
         >
           {viewerReaction ? (
@@ -748,7 +748,7 @@ function WatercoolerPost({
         <button
           type="button"
           onClick={onOpenComments}
-          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300"
+          className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-white/5 hover:bg-white/10 text-xs text-slate-300 md:hover:bg-slate-100 md:bg-slate-50 md:text-slate-600"
         >
           <MessageCircle className="w-3.5 h-3.5" /> Comment
         </button>
@@ -768,13 +768,13 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
     queryKey: ["circle-members", circle.id],
     queryFn: () => listFn({ data: { circleId: circle.id } }),
   });
-  if (q.isLoading) return <div className="text-center text-slate-500 text-sm py-6">Loading members…</div>;
+  if (q.isLoading) return <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading members…</div>;
   const rows = q.data ?? [];
-  if (rows.length === 0) return <div className="text-center text-slate-500 text-sm py-6">No members yet.</div>;
+  if (rows.length === 0) return <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">No members yet.</div>;
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {rows.map((m) => (
-        <div key={m.userId} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3">
+        <div key={m.userId} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3 md:bg-white md:shadow-sm md:border-slate-200">
           {m.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
             <ResponsiveImage sizes="40px" src={m.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0"  loading="lazy" decoding="async" />
@@ -789,8 +789,8 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
             }
             className="min-w-0 flex-1 text-left"
           >
-            <div className="text-sm font-semibold text-white truncate">{m.name}</div>
-            <div className="text-[10px] uppercase tracking-wider text-slate-500">{m.role}</div>
+            <div className="text-sm font-semibold text-white truncate md:text-slate-900">{m.name}</div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">{m.role}</div>
           </button>
           <FollowButton targetId={m.userId} compact />
         </div>
@@ -808,32 +808,32 @@ function BountiesTab({ circle }: { circle: CircleSummary }) {
   });
   return (
     <div className="max-w-4xl space-y-3">
-      <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4">
+      <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 md:bg-white md:shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="w-4 h-4 text-emerald-300" />
-          <div className="text-sm font-bold text-white">Bounties posted by circle members</div>
+          <div className="text-sm font-bold text-white md:text-slate-900">Bounties posted by circle members</div>
         </div>
-        <p className="text-xs text-slate-400">
+        <p className="text-xs text-slate-400 md:text-slate-600">
           Discuss and coordinate here; each member still applies individually via their profile.
         </p>
       </div>
       {q.isLoading ? (
-        <div className="text-center text-slate-500 text-sm py-6">Loading bounties…</div>
+        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading bounties…</div>
       ) : (q.data ?? []).length === 0 ? (
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center text-slate-500 text-sm">
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center text-slate-500 text-sm md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-500">
           No open bounties from members yet.
         </div>
       ) : (
         q.data!.map((b) => (
-          <div key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+          <div key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:shadow-sm md:border-slate-200">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wide mb-2">
                   <Target className="w-3 h-3" />
                   {b.status.toUpperCase()} · ${b.priceUsd.toLocaleString()}
                 </div>
-                <h3 className="text-white font-bold text-sm leading-snug">{b.title}</h3>
-                <div className="text-xs text-slate-500 mt-1">
+                <h3 className="text-white font-bold text-sm leading-snug md:text-slate-900">{b.title}</h3>
+                <div className="text-xs text-slate-500 mt-1 md:text-slate-500">
                   by {b.posterName}
                   {b.category ? ` · ${b.category}` : ""}
                 </div>
@@ -874,27 +874,27 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
 
   if (!isMember) {
     return (
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center">
-        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2" />
-        <p className="text-sm text-slate-300 font-semibold">Members only.</p>
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center md:bg-white md:shadow-sm md:border-slate-200">
+        <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2 md:text-slate-500" />
+        <p className="text-sm text-slate-300 font-semibold md:text-slate-600">Members only.</p>
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_auto] gap-2">
+      <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 grid grid-cols-1 sm:grid-cols-[1fr_1.5fr_auto] gap-2 md:bg-white md:shadow-sm md:border-slate-200">
         <input
           value={title}
           onChange={(e) => setTitle(e.target.value)}
           placeholder="Title"
-          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
         />
         <input
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           placeholder="https://…"
-          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50"
+          className="bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
         />
         <button
           onClick={() => addM.mutate()}
@@ -906,15 +906,15 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
       </div>
 
       {q.isLoading ? (
-        <div className="text-center text-slate-500 text-sm py-6">Loading resources…</div>
+        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading resources…</div>
       ) : (q.data ?? []).length === 0 ? (
-        <div className="text-center text-slate-500 text-sm py-8">
+        <div className="text-center text-slate-500 text-sm py-8 md:text-slate-500">
           No resources shared yet. Drop a link, template, or repo above.
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {q.data!.map((r) => (
-            <div key={r.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-start gap-3">
+            <div key={r.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-start gap-3 md:bg-white md:shadow-sm md:border-slate-200">
               <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
                 {r.pinned ? (
                   <Pin className="w-4 h-4 text-emerald-300" />
@@ -927,15 +927,15 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
                   href={r.url}
                   target="_blank"
                   rel="noreferrer noopener"
-                  className="text-sm font-semibold text-white hover:text-emerald-300 break-words"
+                  className="text-sm font-semibold text-white hover:text-emerald-300 break-words md:text-slate-900"
                 >
                   {r.title}
                 </a>
-                <div className="text-[10px] text-slate-500 truncate">{r.url}</div>
+                <div className="text-[10px] text-slate-500 truncate md:text-slate-500">{r.url}</div>
               </div>
               <button
                 onClick={() => rmM.mutate(r.id)}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-red-400 hover:bg-white/5 md:text-slate-600"
                 aria-label="Remove"
               >
                 <Trash2 className="w-4 h-4" />
