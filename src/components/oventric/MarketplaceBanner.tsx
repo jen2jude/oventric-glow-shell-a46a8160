@@ -81,14 +81,7 @@ export function MarketplaceBanner() {
 }
 
 function Divider() {
-  return (
-    <>
-      {/* Horizontal divider between stacked rows on small screens */}
-      <div className="h-px bg-white/10 md:hidden" />
-      {/* Vertical divider on desktop */}
-      <div className="hidden md:block w-px shrink-0 bg-white/15 self-stretch" />
-    </>
-  );
+  return <div className="w-px shrink-0 bg-white/15 self-stretch" />;
 }
 
 function Item({
