@@ -313,7 +313,10 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
               own currency, wherever you are on the continent.
             </p>
-            <div className="mt-9 flex items-center gap-3">
+            {/* Search-first entry */}
+            <div className="mt-9 max-w-xl">{heroSearch}</div>
+
+            <div className="mt-6 flex items-center gap-3">
               <button
                 type="button"
                 onClick={primary}
