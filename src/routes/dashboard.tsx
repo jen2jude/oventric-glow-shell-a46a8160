@@ -1063,7 +1063,10 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const bountyEarned = fmtHome(overview.bounties.earned);
   return (
     <div className="space-y-5">
+      <KeyOverviewCards overview={overview} onGoto={onGoto} />
+
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
+
       <div className="block md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2" aria-label="Dashboard overview">
         <SimpleRowCard
           icon={WalletIcon}
