@@ -109,6 +109,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
+  const loadCats = useServerFn(listMarketplaceCategories);
+  const navigate = useNavigate();
 
   const [main, setMain] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
@@ -117,6 +119,43 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const [courses, setCourses] = useState<Card[]>([]);
   const [bounties, setBounties] = useState<Card[]>([]);
   const [counts, setCounts] = useState({ products: 0, courses: 0, bounties: 0 });
+  const [cats, setCats] = useState<CategoryNode[]>([]);
+  const [catTab, setCatTab] = useState<"digital" | "physical">("digital");
+  const [q, setQ] = useState("");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const searchRef = useRef<HTMLDivElement | null>(null);
+
+  useEffect(() => {
+    let cancelled = false;
+    loadCats()
+      .then((rows) => {
+        if (!cancelled) setCats(rows ?? []);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [loadCats]);
+
+  useEffect(() => {
+    if (!searchOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(e.target as Node)) setSearchOpen(false);
+    };
+    document.addEventListener("mousedown", onDoc);
+    return () => document.removeEventListener("mousedown", onDoc);
+  }, [searchOpen]);
+
+  const results = useMemo(() => {
+    const term = q.trim().toLowerCase();
+    if (term.length < 2) return [] as Array<Card & { kind: "product" | "course" | "bounty" }>;
+    const tag = (list: Card[], kind: "product" | "course" | "bounty") =>
+      list.filter((c) => c.title.toLowerCase().includes(term)).map((c) => ({ ...c, kind }));
+    return [...tag(products, "product"), ...tag(courses, "course"), ...tag(bounties, "bounty")].slice(0, 8);
+  }, [q, products, courses, bounties]);
+
+  const catList = useMemo(() => cats.filter((c) => c.kind === catTab), [cats, catTab]);
+
 
   useEffect(() => {
     if (!isAuthenticated) {
