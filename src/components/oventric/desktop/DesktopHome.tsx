@@ -122,8 +122,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const [cats, setCats] = useState<CategoryNode[]>([]);
   const [catTab, setCatTab] = useState<"digital" | "physical">("digital");
   const [q, setQ] = useState("");
-  const [searchOpen, setSearchOpen] = useState(false);
-  const searchRef = useRef<HTMLDivElement | null>(null);
+  const [searchOpen, setSearchOpen] = useState<"nav" | "hero" | null>(null);
+  const searchRefs = useRef<Record<string, HTMLDivElement | null>>({});
 
   useEffect(() => {
     let cancelled = false;
