@@ -51,9 +51,9 @@ function ReportPage() {
 
   return (
     <PublicChrome>
-      <div className="max-w-2xl mx-auto px-4 py-10 text-slate-200">
-        <h1 className="text-3xl md:text-4xl font-black text-white">Report a problem</h1>
-        <p className="mt-2 text-slate-400">Bugs, abuse, or anything that feels wrong. Reports go straight to the admin dashboard.</p>
+      <div className="max-w-2xl mx-auto px-4 py-10 text-slate-200 md:text-slate-800">
+        <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">Report a problem</h1>
+        <p className="mt-2 text-slate-400 md:text-slate-500">Bugs, abuse, or anything that feels wrong. Reports go straight to the admin dashboard.</p>
 
         <div className="mt-8 grid gap-2">
           {issues.map((it) => {
@@ -66,22 +66,22 @@ function ReportPage() {
                   active ? "border-emerald-400 bg-emerald-500/10" : "border-white/10 bg-[#141418] hover:border-white/25"
                 }`}
               >
-                <span className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] text-slate-300"}`}>
+                <span className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] md:bg-slate-100 text-slate-300 md:text-slate-600"}`}>
                   <it.icon className="w-4 h-4" />
                 </span>
-                <span className="flex-1 text-sm font-semibold text-white">{it.title}</span>
+                <span className="flex-1 text-sm font-semibold text-white md:text-slate-900">{it.title}</span>
               </button>
             );
           })}
         </div>
 
-        <label className="block mt-6 text-xs font-bold text-slate-400 uppercase tracking-wide">What happened?</label>
+        <label className="block mt-6 text-xs font-bold text-slate-400 uppercase tracking-wide md:text-slate-500">What happened?</label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value.slice(0, 280))}
           placeholder="Please describe the issue — what you were doing, what you expected, what happened instead."
           rows={5}
-          className="mt-2 w-full rounded-2xl bg-[#141418] border border-white/10 focus:border-emerald-400 outline-none p-3 text-sm text-white placeholder:text-slate-500"
+          className="mt-2 w-full rounded-2xl bg-[#141418] border border-white/10 focus:border-emerald-400 outline-none p-3 text-sm text-white placeholder:text-slate-500 md:bg-white md:border-slate-200 md:text-slate-900"
         />
         <div className="mt-1 text-right text-[11px] text-slate-500">{note.length} / 280</div>
 

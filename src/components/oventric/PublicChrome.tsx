@@ -21,7 +21,7 @@ export function PublicChrome({
 
   return (
     <div
-      className={`relative min-h-screen w-full max-w-full overflow-x-hidden bg-[#121214] text-slate-200 flex flex-col ${
+      className={`relative min-h-screen w-full max-w-full overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 flex flex-col ${
         lightDesktop ? "md:bg-white md:text-slate-700" : ""
       }`}
     >

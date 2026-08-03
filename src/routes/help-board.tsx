@@ -99,9 +99,9 @@ function HelpBoardPage() {
 
   return (
     <PublicChrome>
-      <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 text-slate-200">
+      <div className="max-w-3xl mx-auto px-4 py-8 md:py-12 text-slate-200 md:text-slate-800">
         <header className="text-center">
-          <h1 className="text-3xl md:text-4xl font-black text-white">Oventric Help Board</h1>
+          <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">Oventric Help Board</h1>
           <p className="mt-2 inline-flex items-center gap-2 text-sm font-semibold text-emerald-300">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
             24/7 Service for you
@@ -110,18 +110,18 @@ function HelpBoardPage() {
 
         {/* Dispute grid */}
         <section className="mt-8">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">Open a case</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400 md:text-slate-500">Open a case</h2>
           <div className="mt-3 grid grid-cols-2 sm:grid-cols-3 gap-3">
             {DISPUTES.map((d) => (
               <button
                 key={d.key}
                 onClick={() => startDispute(d.key)}
-                className="p-3 rounded-2xl bg-[#141418] border border-white/10 text-left hover:border-emerald-500/40 transition-colors"
+                className="p-3 rounded-2xl bg-[#141418] border border-white/10 text-left hover:border-emerald-500/40 transition-colors md:bg-white md:border-slate-200"
               >
                 <span className={`w-9 h-9 grid place-items-center rounded-full ${d.tint}`}>
                   <d.icon className="w-4 h-4" />
                 </span>
-                <span className="mt-2 block text-sm font-semibold text-white leading-snug">{d.label}</span>
+                <span className="mt-2 block text-sm font-semibold text-white leading-snug md:text-slate-900">{d.label}</span>
               </button>
             ))}
           </div>
@@ -136,16 +136,16 @@ function HelpBoardPage() {
         <section className="mt-8">
           <button
             onClick={() => setFeedbackOpen((v) => !v)}
-            className="w-full flex items-center gap-3 p-4 rounded-2xl bg-[#141418] border border-white/10"
+            className="w-full flex items-center gap-3 p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200"
             aria-expanded={feedbackOpen}
           >
             <Star className="w-4 h-4 text-amber-300" />
-            <span className="font-bold text-white">My Feedback</span>
+            <span className="font-bold text-white md:text-slate-900">My Feedback</span>
             <ChevronDown className={`ml-auto w-4 h-4 text-slate-400 transition-transform ${feedbackOpen ? "rotate-180" : ""}`} />
           </button>
           {feedbackOpen && (
-            <div className="mt-2 p-4 rounded-2xl bg-[#141418] border border-white/10">
-              <p className="text-sm text-slate-400">Rate your experience with an issue we resolved.</p>
+            <div className="mt-2 p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
+              <p className="text-sm text-slate-400 md:text-slate-500">Rate your experience with an issue we resolved.</p>
               <div className="mt-3 flex items-center gap-1.5">
                 {[1, 2, 3, 4, 5].map((n) => (
                   <button key={n} onClick={() => setRating(n)} aria-label={`${n} star`}>
@@ -158,7 +158,7 @@ function HelpBoardPage() {
                 onChange={(e) => setFeedbackText(e.target.value)}
                 rows={4}
                 placeholder="Tell us about your experience…"
-                className="mt-3 w-full resize-none rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
+                className="mt-3 w-full resize-none rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
               />
               <div className="mt-3 flex items-center gap-3">
                 <button
@@ -176,23 +176,23 @@ function HelpBoardPage() {
 
         {/* FAQs */}
         <section className="mt-8">
-          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400">Relevant FAQs</h2>
+          <h2 className="text-sm font-bold uppercase tracking-wide text-slate-400 md:text-slate-500">Relevant FAQs</h2>
           <div className="mt-3 grid gap-2">
             {FAQS.map((f, i) => (
-              <div key={f.q} className="rounded-2xl bg-[#141418] border border-white/10 overflow-hidden">
+              <div key={f.q} className="rounded-2xl bg-[#141418] border border-white/10 overflow-hidden md:bg-white md:border-slate-200">
                 <button
                   onClick={() => setFaqOpen(faqOpen === i ? null : i)}
                   className="w-full flex items-center gap-3 p-4 text-left"
                   aria-expanded={faqOpen === i}
                 >
-                  <span className="text-sm font-semibold text-white">{f.q}</span>
+                  <span className="text-sm font-semibold text-white md:text-slate-900">{f.q}</span>
                   <ChevronDown className={`ml-auto w-4 h-4 shrink-0 text-slate-400 transition-transform ${faqOpen === i ? "rotate-180" : ""}`} />
                 </button>
-                {faqOpen === i && <p className="px-4 pb-4 text-sm text-slate-300 leading-relaxed">{f.a}</p>}
+                {faqOpen === i && <p className="px-4 pb-4 text-sm text-slate-300 leading-relaxed md:text-slate-600">{f.a}</p>}
               </div>
             ))}
           </div>
-          <p className="mt-4 text-sm text-slate-400">
+          <p className="mt-4 text-sm text-slate-400 md:text-slate-500">
             More answers in the <Link to="/faq" className="text-emerald-300 underline">FAQ</Link> and{" "}
             <Link to="/help" className="text-emerald-300 underline">Help center</Link>.
           </p>
@@ -203,13 +203,13 @@ function HelpBoardPage() {
       {activeDispute && (
         <div className="fixed inset-0 z-[65] flex items-end sm:items-center justify-center">
           <div className="absolute inset-0 bg-black/70" onClick={() => setOpenDispute(null)} aria-hidden />
-          <div role="dialog" aria-modal="true" aria-label={activeDispute.label} className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-[#141418] border border-white/10 p-4">
+          <div role="dialog" aria-modal="true" aria-label={activeDispute.label} className="relative w-full sm:max-w-md rounded-t-3xl sm:rounded-3xl bg-[#141418] border border-white/10 p-4 md:bg-white md:border-slate-200">
             <div className="flex items-center gap-3">
               <span className={`w-9 h-9 grid place-items-center rounded-full ${activeDispute.tint}`}>
                 <activeDispute.icon className="w-4 h-4" />
               </span>
-              <h3 className="font-bold text-white">{activeDispute.label}</h3>
-              <button onClick={() => setOpenDispute(null)} aria-label="Close" className="ml-auto p-2 rounded-lg text-slate-300 hover:bg-white/5">
+              <h3 className="font-bold text-white md:text-slate-900">{activeDispute.label}</h3>
+              <button onClick={() => setOpenDispute(null)} aria-label="Close" className="ml-auto p-2 rounded-lg text-slate-300 hover:bg-white/5 md:text-slate-600 md:hover:bg-slate-100">
                 <X className="w-5 h-5" />
               </button>
             </div>
@@ -217,14 +217,14 @@ function HelpBoardPage() {
               value={subject}
               onChange={(e) => setSubject(e.target.value)}
               placeholder="Subject (e.g. order #, bounty title)"
-              className="mt-4 w-full rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
+              className="mt-4 w-full rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
             />
             <textarea
               value={details}
               onChange={(e) => setDetails(e.target.value)}
               rows={5}
               placeholder="What happened? Add as much detail as you can."
-              className="mt-2 w-full resize-none rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
+              className="mt-2 w-full resize-none rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50 md:bg-white md:border-slate-200 md:text-slate-900"
             />
             <button
               onClick={() => void sendTicket()}

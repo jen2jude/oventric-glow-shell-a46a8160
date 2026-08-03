@@ -106,11 +106,11 @@ function AffiliatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <div className="min-h-screen bg-[#0b0b0d] text-slate-200 md:bg-slate-50 md:text-slate-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={goBack}
-          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-6"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white mb-6 md:text-slate-500"
         >
           <ArrowLeft className="w-4 h-4" /> Back
         </button>
@@ -121,10 +121,10 @@ function AffiliatePage() {
           <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/40 text-[10px] uppercase tracking-widest font-bold text-fuchsia-200 mb-4">
             <Sparkles className="w-3 h-3" /> Coming Soon
           </div>
-          <h1 className="text-white text-3xl sm:text-4xl font-black tracking-tight leading-tight">
+          <h1 className="text-white text-3xl sm:text-4xl font-black tracking-tight leading-tight md:text-slate-900">
             Oventric Affiliate Program
           </h1>
-          <p className="text-slate-300 mt-3 max-w-2xl text-sm sm:text-base leading-relaxed">
+          <p className="text-slate-300 mt-3 max-w-2xl text-sm sm:text-base leading-relaxed md:text-slate-600">
             Refer creators, sellers and learners to Oventric — and earn recurring
             rewards on every transaction they make. Reserve your spot now to be
             first in line when we launch.
@@ -155,7 +155,7 @@ function AffiliatePage() {
                   value={note}
                   onChange={(e) => setNote(e.target.value)}
                   placeholder="Optional: how do you plan to promote Oventric?"
-                  className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-fuchsia-400/60"
+                  className="flex-1 bg-black/40 border border-white/10 rounded-xl px-3 py-2.5 text-sm text-white placeholder:text-slate-500 focus:outline-none focus:border-fuchsia-400/60 md:border-slate-200"
                 />
                 <button
                   onClick={onReserve}
@@ -200,13 +200,13 @@ function AffiliatePage() {
           ].map((f) => (
             <div
               key={f.title}
-              className="rounded-2xl border border-white/10 bg-[#141418] p-4"
+              className="rounded-2xl border border-white/10 bg-[#141418] p-4 md:border-slate-200 md:bg-white"
             >
               <div className="w-9 h-9 rounded-lg bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center text-fuchsia-300 mb-3">
                 <f.icon className="w-4 h-4" />
               </div>
-              <div className="text-white text-sm font-bold">{f.title}</div>
-              <div className="text-xs text-slate-400 mt-1 leading-relaxed">
+              <div className="text-white text-sm font-bold md:text-slate-900">{f.title}</div>
+              <div className="text-xs text-slate-400 mt-1 leading-relaxed md:text-slate-500">
                 {f.body}
               </div>
             </div>
@@ -214,8 +214,8 @@ function AffiliatePage() {
         </div>
 
         {/* How it works */}
-        <div className="rounded-2xl border border-white/10 bg-[#141418] p-5 sm:p-6 mb-8">
-          <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-3">
+        <div className="rounded-2xl border border-white/10 bg-[#141418] p-5 sm:p-6 mb-8 md:border-slate-200 md:bg-white">
+          <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 mb-3 md:text-slate-500">
             How it will work
           </div>
           <ol className="space-y-3">
@@ -225,7 +225,7 @@ function AffiliatePage() {
               "Share it anywhere. When someone signs up and transacts, you earn.",
               "Commissions land automatically in your Oventric wallet, ready to withdraw.",
             ].map((s, i) => (
-              <li key={i} className="flex gap-3 text-sm text-slate-300">
+              <li key={i} className="flex gap-3 text-sm text-slate-300 md:text-slate-600">
                 <span className="w-6 h-6 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/40 text-fuchsia-200 text-xs font-black flex items-center justify-center shrink-0">
                   {i + 1}
                 </span>
@@ -237,25 +237,25 @@ function AffiliatePage() {
 
         {/* Trust row */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-start gap-3">
+          <div className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-start gap-3 md:border-slate-200 md:bg-white">
             <ShieldCheck className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
             <div>
-              <div className="text-white text-sm font-bold">
+              <div className="text-white text-sm font-bold md:text-slate-900">
                 No spam, ever
               </div>
-              <div className="text-xs text-slate-400 mt-0.5">
+              <div className="text-xs text-slate-400 mt-0.5 md:text-slate-500">
                 We'll only email you when the program is live and about your
                 affiliate account.
               </div>
             </div>
           </div>
-          <div className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-start gap-3">
+          <div className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-start gap-3 md:border-slate-200 md:bg-white">
             <Globe2 className="w-5 h-5 text-sky-300 shrink-0 mt-0.5" />
             <div>
-              <div className="text-white text-sm font-bold">
+              <div className="text-white text-sm font-bold md:text-slate-900">
                 Built for NG, GH & global creators
               </div>
-              <div className="text-xs text-slate-400 mt-0.5">
+              <div className="text-xs text-slate-400 mt-0.5 md:text-slate-500">
                 Payouts localized in NGN, GHS and USD — the same as your wallet.
               </div>
             </div>

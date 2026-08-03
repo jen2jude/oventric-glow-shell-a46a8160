@@ -34,10 +34,10 @@ function FaqPage() {
   const [openIdx, setOpenIdx] = useState<number | null>(0);
   return (
     <PublicChrome>
-      <div className="max-w-3xl mx-auto px-4 py-10 text-slate-200">
-        <h1 className="text-3xl md:text-4xl font-black text-white">Frequently asked questions</h1>
-        <p className="mt-2 text-slate-400">Everything from accounts to escrow to payouts.</p>
-        <div className="mt-8 divide-y divide-white/5 rounded-2xl bg-[#141418] border border-white/10">
+      <div className="max-w-3xl mx-auto px-4 py-10 text-slate-200 md:text-slate-800">
+        <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">Frequently asked questions</h1>
+        <p className="mt-2 text-slate-400 md:text-slate-500">Everything from accounts to escrow to payouts.</p>
+        <div className="mt-8 divide-y divide-white/5 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
           {items.map((it, i) => {
             const open = openIdx === i;
             return (
@@ -48,10 +48,10 @@ function FaqPage() {
                 aria-expanded={open}
               >
                 <div className="flex items-center gap-3">
-                  <span className="flex-1 text-sm font-bold text-white">{it.q}</span>
+                  <span className="flex-1 text-sm font-bold text-white md:text-slate-900">{it.q}</span>
                   <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform ${open ? "rotate-180" : ""}`} />
                 </div>
-                {open && <p className="mt-2 text-sm text-slate-300 leading-relaxed">{it.a}</p>}
+                {open && <p className="mt-2 text-sm text-slate-300 leading-relaxed md:text-slate-600">{it.a}</p>}
               </button>
             );
           })}
