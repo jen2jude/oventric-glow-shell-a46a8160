@@ -82,7 +82,7 @@ function embedUrl(m: ModuleDTO): string {
 export function Academy() {
   const { baseCurrency } = useOnboarding();
   const fetchList = useServerFn(listCourses);
-  const [view, setView] = useState<"landing" | "catalog" | "course">("landing");
+  const [view, setView] = useState<"catalog" | "course">("catalog");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [courses, setCourses] = useState<CourseDTO[] | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
