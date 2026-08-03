@@ -509,7 +509,18 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </section>
       )}
 
+      <ProductRails onSelect={onSelect} />
 
+      {/* Live rails */}
+      <section className="border-t border-slate-200 bg-[#F7F8FA]">
+        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
+          <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
+          <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
+          <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
+        </div>
+      </section>
+
+      <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
       {/* Feature blocks */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
