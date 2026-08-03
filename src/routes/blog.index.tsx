@@ -28,13 +28,13 @@ function BlogIndex() {
   const origin = typeof window !== "undefined" ? window.location.origin : "";
 
   return (
-    <PublicChrome>
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <PublicChrome lightDesktop>
+    <div className="min-h-screen bg-[#0b0b0d] md:bg-white text-slate-200 md:text-slate-700">
       <div className="max-w-6xl mx-auto px-4 py-10">
 
         <header className="mb-8">
-          <h1 className="text-white text-4xl font-black">The Oventric Blog</h1>
-          <p className="text-slate-400 mt-2">Deep dives, playbooks, and lessons from the network.</p>
+          <h1 className="text-white md:text-slate-900 text-4xl font-black">The Oventric Blog</h1>
+          <p className="text-slate-400 md:text-slate-600 mt-2">Deep dives, playbooks, and lessons from the network.</p>
         </header>
         {!rows ? (
           <div className="flex justify-center p-10"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
@@ -43,25 +43,25 @@ function BlogIndex() {
         ) : (
           <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             {rows.map((p) => (
-              <div key={p.id} className="relative group bg-[#141418] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition">
+              <div key={p.id} className="relative group bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-500/40 md:hover:shadow-md transition">
                 <Link
                   to="/blog/$slug"
                   params={{ slug: p.slug }}
                   className="block"
                 >
-                  <div className="aspect-video bg-black/50 overflow-hidden">
+                  <div className="aspect-video bg-black/50 md:bg-slate-100 overflow-hidden">
                     {p.cover_url ? (
                       <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={p.cover_url} alt={p.title} className="w-full h-full object-cover group-hover:scale-[1.02] transition-transform" />
                     ) : null}
                   </div>
                   <div className="p-4">
                     {p.category_name && (
-                      <div className="text-[10px] uppercase tracking-wider text-emerald-400 font-bold mb-1">
+                      <div className="text-[10px] uppercase tracking-wider text-emerald-400 md:text-emerald-600 font-bold mb-1">
                         Blog · {p.category_name}
                       </div>
                     )}
-                    <h2 className="text-white font-bold leading-tight line-clamp-2">{p.title}</h2>
-                    <p className="mt-2 text-sm text-slate-400 line-clamp-3">{p.excerpt}</p>
+                    <h2 className="text-white md:text-slate-900 font-bold leading-tight line-clamp-2">{p.title}</h2>
+                    <p className="mt-2 text-sm text-slate-400 md:text-slate-600 line-clamp-3">{p.excerpt}</p>
                     <div className="mt-3 text-[11px] text-slate-500">
                       {p.author_name} · {p.published_at ? new Date(p.published_at).toLocaleDateString() : ""}
                     </div>
@@ -69,7 +69,7 @@ function BlogIndex() {
                 </Link>
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShareItem(p); }}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-black/60 backdrop-blur border border-white/10 text-slate-200 hover:text-white hover:bg-black/80"
+                  className="absolute top-2 right-2 p-2 rounded-full bg-black/60 md:bg-white/90 backdrop-blur border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 hover:bg-black/80 md:hover:bg-white"
                   aria-label="Share article"
                 >
                   <Share2 className="w-4 h-4" />
@@ -79,6 +79,7 @@ function BlogIndex() {
           </div>
         )}
       </div>
+
       <ShareSheet
         open={!!shareItem}
         onClose={() => setShareItem(null)}
