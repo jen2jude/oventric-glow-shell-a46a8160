@@ -332,7 +332,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               The platform where Africa&apos;s builders
               <span className="text-emerald-600"> sell, learn and get paid.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-400">
+            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
               own currency, wherever you are on the continent.
             </p>
@@ -457,8 +457,6 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
-      <DownloadAppSection />
-
       {/* Explore categories */}
       {catList.length > 0 && (
         <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
@@ -511,7 +509,18 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </section>
       )}
 
+      <ProductRails onSelect={onSelect} />
 
+      {/* Live rails */}
+      <section className="border-t border-slate-200 bg-[#F7F8FA]">
+        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
+          <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
+          <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
+          <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
+        </div>
+      </section>
+
+      <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
       {/* Feature blocks */}
       <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
@@ -529,7 +538,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                   <f.icon className="h-4 w-4" strokeWidth={2.5} /> {f.label}
                 </span>
                 <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-slate-900">{f.title}</h3>
-                <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-400">{f.body}</p>
+                <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600">{f.body}</p>
                 <button
                   type="button"
                   onClick={() => onSelect(f.section)}
@@ -548,17 +557,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
-      {/* Live rails */}
-      <section className="border-t border-slate-200 bg-[#F7F8FA]">
-        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
-          <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
-          <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
-          <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
-        </div>
-      </section>
 
-      <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
-      <ProductRails onSelect={onSelect} />
 
 
 
@@ -572,7 +571,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 {i + 1}
               </span>
               <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-400">{s.body}</p>
+              <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
             </div>
           ))}
         </div>
@@ -594,6 +593,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           </button>
         </div>
       </section>
+
+      <DownloadAppSection />
 
       <SecuredPayments />
 
