@@ -63,32 +63,32 @@ function PaymentReturnPage() {
   }, [state, cashbackUSD, redirectTo, navigate]);
 
   return (
-    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden">
+    <div className="min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden md:bg-white md:text-slate-800">
 
       <Header onOpenMessages={() => {}} />
       <main className="max-w-md mx-auto w-full px-4 py-24 text-center">
         {state === "verifying" && (
           <>
             <Loader2 className="w-10 h-10 text-emerald-400 animate-spin mx-auto mb-4" />
-            <h1 className="text-lg font-black text-white mb-1">Confirming your payment…</h1>
+            <h1 className="text-lg font-black text-white mb-1 md:text-slate-900">Confirming your payment…</h1>
             <p className="text-xs text-slate-500 font-mono break-all">{reference}</p>
           </>
         )}
         {state === "ok" && !showSplash && (
           <>
             <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-4" />
-            <h1 className="text-lg font-black text-white mb-1">Payment confirmed</h1>
-            <p className="text-sm text-slate-400">Redirecting…</p>
+            <h1 className="text-lg font-black text-white mb-1 md:text-slate-900">Payment confirmed</h1>
+            <p className="text-sm text-slate-400 md:text-slate-500">Redirecting…</p>
           </>
         )}
         {state === "failed" && (
           <>
             <XCircle className="w-10 h-10 text-red-400 mx-auto mb-4" />
-            <h1 className="text-lg font-black text-white mb-1">Payment not completed</h1>
-            <p className="text-sm text-slate-400 mb-4">{msg || "You can try again from the checkout."}</p>
+            <h1 className="text-lg font-black text-white mb-1 md:text-slate-900">Payment not completed</h1>
+            <p className="text-sm text-slate-400 mb-4 md:text-slate-500">{msg || "You can try again from the checkout."}</p>
             <button
               onClick={() => navigate({ to: "/", replace: true })}
-              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-bold"
+              className="px-4 py-2 rounded-lg bg-white/10 hover:bg-white/20 text-white text-sm font-bold md:bg-slate-100 md:text-slate-900"
             >
               Back to Home
             </button>
@@ -198,21 +198,21 @@ function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: 
             boxShadow: "0 10px 40px -6px rgba(16,185,129,0.7)",
           }}
         >
-          <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={2.5} />
+          <CheckCircle2 className="w-9 h-9 text-white md:text-slate-900" strokeWidth={2.5} />
         </div>
 
         <div className="inline-flex items-center gap-1.5 text-[11px] font-black uppercase tracking-widest text-emerald-200 mb-2">
           <Sparkles className="w-3.5 h-3.5" /> Cashback Earned
         </div>
 
-        <h2 className="text-xl font-black text-white mb-1">Payment successful 🎉</h2>
+        <h2 className="text-xl font-black text-white mb-1 md:text-slate-900">Payment successful 🎉</h2>
         <p className="text-xs text-slate-200/80 mb-5">
           You just earned Oventric cashback on this purchase.
         </p>
 
         <div
           ref={amountRef}
-          className="mx-auto inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-white text-xl sm:text-2xl font-black tracking-tight max-w-full"
+          className="mx-auto inline-flex items-center gap-2 rounded-2xl px-4 py-2.5 text-white text-xl sm:text-2xl font-black tracking-tight max-w-full md:text-slate-900"
           style={{
             background: "linear-gradient(135deg, rgba(52,211,153,0.35), rgba(96,165,250,0.35))",
             border: "1px solid rgba(255,255,255,0.25)",

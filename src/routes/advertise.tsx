@@ -172,15 +172,15 @@ function LiveDashboardPreview() {
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
           <Activity className="w-3.5 h-3.5" /> Live dashboard preview
         </span>
-        <h2 className="mt-3 text-2xl md:text-3xl font-black text-white">See the algorithm work in real time</h2>
-        <p className="text-sm text-slate-400 mt-2 max-w-2xl mx-auto">
+        <h2 className="mt-3 text-2xl md:text-3xl font-black text-white md:text-slate-900">See the algorithm work in real time</h2>
+        <p className="text-sm text-slate-400 mt-2 max-w-2xl mx-auto md:text-slate-500">
           A peek at the ranker that powers your ads — targeting, pacing, frequency capping and event tracking, all running live.
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(16,185,129,0.06)]">
+      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(16,185,129,0.06)] md:border-slate-200 md:bg-slate-50">
         {/* fake window chrome */}
-        <div className="flex items-center gap-2 px-4 h-9 border-b border-white/10 bg-[#141418]">
+        <div className="flex items-center gap-2 px-4 h-9 border-b border-white/10 bg-[#141418] md:border-slate-200 md:bg-white">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
           <span className="w-2.5 h-2.5 rounded-full bg-amber-400/70" />
           <span className="w-2.5 h-2.5 rounded-full bg-emerald-500/70" />
@@ -207,8 +207,8 @@ function LiveDashboardPreview() {
             </div>
 
             {/* funnel bars */}
-            <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+            <div className="p-4 rounded-xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-300 md:text-slate-600">
                 <Layers className="w-4 h-4 text-emerald-400" /> Delivery funnel
                 <span className="ml-auto text-[10px] text-slate-500">CTR {ctr}% · CPM ${cpm}</span>
               </div>
@@ -221,10 +221,10 @@ function LiveDashboardPreview() {
                   { k: "Engaged (clicks)", v: 12, c: "bg-white/60" },
                 ].map((r) => (
                   <div key={r.k}>
-                    <div className="flex items-center justify-between text-[11px] text-slate-400">
+                    <div className="flex items-center justify-between text-[11px] text-slate-400 md:text-slate-500">
                       <span>{r.k}</span><span className="tabular-nums">{r.v}%</span>
                     </div>
-                    <div className="mt-1 h-2 rounded-full bg-white/5 overflow-hidden">
+                    <div className="mt-1 h-2 rounded-full bg-white/5 overflow-hidden md:bg-slate-100">
                       <div className={`h-full ${r.c} transition-all duration-700`} style={{ width: `${r.v}%` }} />
                     </div>
                   </div>
@@ -233,8 +233,8 @@ function LiveDashboardPreview() {
             </div>
 
             {/* Sparkline placeholder */}
-            <div className="p-4 rounded-xl bg-[#141418] border border-white/10">
-              <div className="flex items-center gap-2 text-xs font-bold text-slate-300">
+            <div className="p-4 rounded-xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
+              <div className="flex items-center gap-2 text-xs font-bold text-slate-300 md:text-slate-600">
                 <Radio className="w-4 h-4 text-emerald-400" /> Impressions / minute
                 <span className="ml-auto text-[10px] text-emerald-300">+{Math.floor(60 + Math.random() * 40)} last min</span>
               </div>
@@ -326,10 +326,10 @@ function AdvertisePage() {
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Advertise on Oventric
           </span>
-          <h1 className="mt-4 text-3xl md:text-5xl font-black text-white leading-tight">
+          <h1 className="mt-4 text-3xl md:text-5xl font-black text-white leading-tight md:text-slate-900">
             Put your brand in front of<br className="hidden md:block" /> builders across Africa
           </h1>
-          <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-slate-400">
+          <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-slate-400 md:text-slate-500">
             From <span className="text-emerald-300 font-bold">$0.50/day</span>. Three simple ad tiers, transparent pricing,
             state-level targeting in Nigeria & Ghana plus the rest of Africa — wallet-funded budgets, no auctions.
           </p>
@@ -342,7 +342,7 @@ function AdvertisePage() {
             </button>
             <a
               href="#tiers"
-              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold rounded-full"
+              className="px-6 py-3 bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold rounded-full md:bg-slate-100 md:hover:bg-slate-200 md:border-slate-200 md:text-slate-900"
             >
               See ad tiers
             </a>
@@ -357,9 +357,9 @@ function AdvertisePage() {
             { icon: BarChart3, k: "3", v: "Placements: Feed, Market, Academy" },
             { icon: ShieldCheck, k: "24h", v: "Avg admin review" },
           ].map((s) => (
-            <div key={s.v} className="p-4 rounded-2xl bg-[#141418] border border-white/10 text-center">
+            <div key={s.v} className="p-4 rounded-2xl bg-[#141418] border border-white/10 text-center md:bg-white md:border-slate-200">
               <s.icon className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
-              <div className="text-lg font-black text-white">{s.k}</div>
+              <div className="text-lg font-black text-white md:text-slate-900">{s.k}</div>
               <div className="text-[11px] text-slate-500 uppercase tracking-wider">{s.v}</div>
             </div>
           ))}
@@ -368,8 +368,8 @@ function AdvertisePage() {
         {/* Tiers */}
         <section id="tiers" className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white">Three tiers. One goal.</h2>
-            <p className="text-sm text-slate-400 mt-2">Choose the format that fits your budget and message.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Three tiers. One goal.</h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Choose the format that fits your budget and message.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {TIERS.map((t) => (
@@ -382,16 +382,16 @@ function AdvertisePage() {
                     Popular
                   </span>
                 )}
-                <t.icon className="w-8 h-8 text-white" />
-                <div className="mt-4 text-xs uppercase tracking-wider text-slate-400 font-bold">{t.tagline}</div>
-                <div className="text-2xl font-black text-white mt-1">{t.name} ads</div>
+                <t.icon className="w-8 h-8 text-white md:text-slate-900" />
+                <div className="mt-4 text-xs uppercase tracking-wider text-slate-400 font-bold md:text-slate-500">{t.tagline}</div>
+                <div className="text-2xl font-black text-white mt-1 md:text-slate-900">{t.name} ads</div>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white">{t.price}</span>
-                  <span className="text-xs text-slate-400">{t.per}</span>
+                  <span className="text-3xl font-black text-white md:text-slate-900">{t.price}</span>
+                  <span className="text-xs text-slate-400 md:text-slate-500">{t.per}</span>
                 </div>
                 <ul className="mt-4 space-y-2 flex-1">
                   {t.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs text-slate-300">
+                    <li key={f} className="flex items-start gap-2 text-xs text-slate-300 md:text-slate-600">
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>{f}</span>
                     </li>
@@ -399,7 +399,7 @@ function AdvertisePage() {
                 </ul>
                 <button
                   onClick={() => start(t.id as "text" | "image" | "video")}
-                  className="mt-5 w-full h-11 rounded-full bg-white/5 hover:bg-emerald-500 hover:text-black border border-white/10 text-white text-xs font-black transition-colors"
+                  className="mt-5 w-full h-11 rounded-full bg-white/5 hover:bg-emerald-500 hover:text-black border border-white/10 text-white text-xs font-black transition-colors md:bg-slate-100 md:border-slate-200"
                 >
                   Start with {t.name}
                 </button>
@@ -417,13 +417,13 @@ function AdvertisePage() {
         {/* Coverage */}
         <section className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white">Where your ads run</h2>
-            <p className="text-sm text-slate-400 mt-2">Every state in Nigeria, every region in Ghana, plus the rest of Africa.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Where your ads run</h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Every state in Nigeria, every region in Ghana, plus the rest of Africa.</p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {COVERAGE.map((c) => (
-              <div key={c.country} className="p-5 rounded-2xl bg-black border border-white/10">
-                <div className="text-lg font-black text-white">{c.country}</div>
+              <div key={c.country} className="p-5 rounded-2xl bg-black border border-white/10 md:border-slate-200">
+                <div className="text-lg font-black text-white md:text-slate-900">{c.country}</div>
                 <div className="mt-3 flex flex-wrap gap-2 max-h-64 overflow-y-auto pr-1">
                   {c.cities.map((city) => (
                     <span key={city} className="px-2.5 py-1 rounded-full bg-black border border-white/20 text-white text-[11px] font-medium">
@@ -439,28 +439,28 @@ function AdvertisePage() {
         {/* How it works */}
         <section className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white">How it works</h2>
-            <p className="text-sm text-slate-400 mt-2">Simple, transparent, and fully human-reviewed.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">How it works</h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Simple, transparent, and fully human-reviewed.</p>
           </div>
           <div className="grid md:grid-cols-5 gap-3">
             {STEPS.map((s, i) => (
-              <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10">
+              <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
                 <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-300 text-xs font-black">{i + 1}</div>
-                <s.icon className="w-5 h-5 text-white mt-3" />
-                <div className="mt-2 text-sm font-bold text-white">{s.title}</div>
-                <div className="text-xs text-slate-400 mt-1 leading-relaxed">{s.body}</div>
+                <s.icon className="w-5 h-5 text-white mt-3 md:text-slate-900" />
+                <div className="mt-2 text-sm font-bold text-white md:text-slate-900">{s.title}</div>
+                <div className="text-xs text-slate-400 mt-1 leading-relaxed md:text-slate-500">{s.body}</div>
               </div>
             ))}
           </div>
         </section>
 
         {/* Specs */}
-        <section className="mt-14 p-6 rounded-2xl bg-[#141418] border border-white/10">
-          <h2 className="text-xl font-black text-white">Creative specs</h2>
-          <div className="mt-4 grid md:grid-cols-3 gap-4 text-xs text-slate-300">
+        <section className="mt-14 p-6 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
+          <h2 className="text-xl font-black text-white md:text-slate-900">Creative specs</h2>
+          <div className="mt-4 grid md:grid-cols-3 gap-4 text-xs text-slate-300 md:text-slate-600">
             <div>
               <div className="text-sm font-bold text-emerald-300">Image</div>
-              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
+              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400 md:text-slate-500">
                 <li>Aspect ratio: 1:1 (square)</li>
                 <li>Recommended: 1080 × 1080 px</li>
                 <li>Formats: JPG, PNG, WEBP</li>
@@ -470,7 +470,7 @@ function AdvertisePage() {
             </div>
             <div>
               <div className="text-sm font-bold text-emerald-300">Video</div>
-              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
+              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400 md:text-slate-500">
                 <li>Duration: up to 5 minutes</li>
                 <li>Max size: 100 MB (MP4 / WEBM)</li>
                 <li>Aspect ratio: 1:1 or 9:16</li>
@@ -480,7 +480,7 @@ function AdvertisePage() {
             </div>
             <div>
               <div className="text-sm font-bold text-emerald-300">Copy</div>
-              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400">
+              <ul className="mt-2 space-y-1 list-disc list-inside text-slate-400 md:text-slate-500">
                 <li>Header: up to 60 characters</li>
                 <li>Description: up to 140 characters</li>
                 <li>Body (video/text): up to 500 characters</li>
@@ -492,8 +492,8 @@ function AdvertisePage() {
 
         {/* CTA */}
         <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] border-white/10" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
-          <h2 className="text-2xl md:text-3xl font-black text-white">Ready to launch your first campaign?</h2>
-          <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto">
+          <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Ready to launch your first campaign?</h2>
+          <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto md:text-slate-600">
             Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
           </p>
           <button

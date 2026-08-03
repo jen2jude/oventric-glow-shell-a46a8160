@@ -26,17 +26,17 @@ const sections = [
 function HelpPage() {
   return (
     <PublicChrome>
-      <div className="max-w-3xl mx-auto px-4 py-10 text-slate-200">
-        <h1 className="text-3xl md:text-4xl font-black text-white">Help center</h1>
-        <p className="mt-3 text-slate-400">Quick answers to get you unstuck. If you can't find what you need, <Link to="/report-problem" className="text-emerald-300 underline">report a problem</Link>.</p>
+      <div className="max-w-3xl mx-auto px-4 py-10 text-slate-200 md:text-slate-800">
+        <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">Help center</h1>
+        <p className="mt-3 text-slate-400 md:text-slate-500">Quick answers to get you unstuck. If you can't find what you need, <Link to="/report-problem" className="text-emerald-300 underline">report a problem</Link>.</p>
         <div className="mt-8 grid gap-3">
           {sections.map((s) => (
-            <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10">
+            <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
               <div className="flex items-center gap-3">
                 <span className="w-9 h-9 grid place-items-center rounded-full bg-emerald-500/15 text-emerald-300"><s.icon className="w-4 h-4" /></span>
-                <h2 className="font-bold text-white">{s.title}</h2>
+                <h2 className="font-bold text-white md:text-slate-900">{s.title}</h2>
               </div>
-              <p className="mt-2 text-sm text-slate-300 leading-relaxed">{s.body}</p>
+              <p className="mt-2 text-sm text-slate-300 leading-relaxed md:text-slate-600">{s.body}</p>
             </div>
           ))}
         </div>
