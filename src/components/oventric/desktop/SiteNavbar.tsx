@@ -39,7 +39,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name }: SiteNavbarProps) {
   return (
     <header
       className={`sticky top-0 z-40 transition-colors ${
-        solid ? "bg-white/95 border-b border-slate-200" : "bg-transparent border-b border-transparent"
+        solid ? "bg-white border-b border-slate-200" : "bg-transparent border-b border-transparent"
       }`}
     >
       <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center gap-8 px-8">
