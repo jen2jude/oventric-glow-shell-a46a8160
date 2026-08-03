@@ -106,6 +106,10 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         const saved = (await uploadFn({
           data: { bounty_id: bountyId, name: f.name, type: f.type, data_base64: b64 },
         })) as SubmissionFile;
+        if (f.type.startsWith("image/")) {
+          const objUrl = URL.createObjectURL(f);
+          setPreviews((prev) => ({ ...prev, [saved.path]: objUrl }));
+        }
         setFiles((prev) => [...prev, saved]);
       }
     } catch (e) {
