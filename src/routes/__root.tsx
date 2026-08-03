@@ -324,6 +324,17 @@ function RootShell({ children }: { children: ReactNode }) {
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
   const { show, markSeen, hydrated } = useFirstLaunch();
+  // Welcome slides are a mobile-first onboarding experience; skip them on PC.
+  const [isPc, setIsPc] = useState(() =>
+    typeof window !== "undefined" ? window.innerWidth >= 1024 : false,
+  );
+  useEffect(() => {
+    const mql = window.matchMedia("(min-width: 1024px)");
+    const onChange = () => setIsPc(mql.matches);
+    onChange();
+    mql.addEventListener("change", onChange);
+    return () => mql.removeEventListener("change", onChange);
+  }, []);
   // Keeps live FX rates fresh for every price conversion in the app.
   useLiveFx();
 
@@ -344,7 +355,7 @@ function RootComponent() {
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
               <BootSplash />
-              {show && hydrated && <FeatureCarousel onComplete={markSeen} />}
+              {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
             </KycGateProvider>
 
           </OnboardingProvider>
