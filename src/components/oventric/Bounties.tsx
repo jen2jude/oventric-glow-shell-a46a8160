@@ -461,8 +461,8 @@ function BountyRow({
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
-    <div className={`bg-[#1E1E24] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)]' : 'border border-white/5'}`}>
     <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)] md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
+
       <div className="flex-1 min-w-0">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
