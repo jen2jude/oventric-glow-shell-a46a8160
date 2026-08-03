@@ -452,6 +452,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
+      <DownloadAppSection />
+
       {/* Explore categories */}
       {catList.length > 0 && (
         <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
