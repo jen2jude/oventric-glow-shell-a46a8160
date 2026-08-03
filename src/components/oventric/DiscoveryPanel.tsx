@@ -28,7 +28,7 @@ function useMoney() {
 }
 
 function SkeletonBar({ className = "" }: { className?: string }) {
-  return <div className={`animate-pulse rounded bg-white/[0.06] ${className}`} />;
+  return <div className={`animate-pulse rounded bg-white/[0.06] md:bg-slate-200 ${className}`} />;
 }
 
 function EmptyState({
@@ -42,11 +42,11 @@ function EmptyState({
 }) {
   return (
     <div className="flex flex-col items-center justify-center text-center py-4 px-2">
-      <div className="w-10 h-10 rounded-full bg-white/[0.04] border border-white/5 flex items-center justify-center mb-2">
-        <Icon className="w-4 h-4 text-slate-400" />
+      <div className="w-10 h-10 rounded-full bg-white/[0.04] md:bg-slate-100 border border-white/5 md:border-slate-200 flex items-center justify-center mb-2">
+        <Icon className="w-4 h-4 text-slate-400 md:text-slate-600" />
       </div>
-      <p className="text-xs font-semibold text-slate-200">{title}</p>
-      <p className="mt-0.5 text-[11px] text-slate-500 leading-relaxed max-w-[220px]">{hint}</p>
+      <p className="text-xs font-semibold text-slate-200 md:text-slate-700">{title}</p>
+      <p className="mt-0.5 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed max-w-[220px]">{hint}</p>
     </div>
   );
 }
@@ -58,10 +58,10 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
       href={ad.ctaUrl || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="relative block bg-[#1E1E24] border border-fuchsia-500/30 rounded-2xl overflow-hidden hover:border-fuchsia-400/60 transition-colors"
+      className="relative block bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-2xl overflow-hidden hover:border-fuchsia-400/60 transition-colors"
     >
       {hasMedia && (
-        <div className="relative h-28 w-full overflow-hidden bg-white/5">
+        <div className="relative h-28 w-full overflow-hidden bg-white/5 md:bg-slate-100">
           <ResponsiveImage
             src={ad.coverUrl as string}
             alt={ad.advertiser}
@@ -71,7 +71,7 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
             decoding="async"
           />
           {ad.tier === "video" && (
-            <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 drop-shadow" />
+            <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 md:text-slate-700 drop-shadow" />
           )}
         </div>
       )}
@@ -79,14 +79,14 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
         <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
           <Megaphone className="w-3 h-3" /> Sponsored
         </span>
-        <div className="mt-2 text-sm font-bold text-white leading-snug line-clamp-2">{ad.title}</div>
-        {ad.body && <p className="mt-1 text-[11px] text-slate-400 leading-relaxed line-clamp-2">{ad.body}</p>}
+        <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">{ad.title}</div>
+        {ad.body && <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">{ad.body}</p>}
         <div className="mt-3">
           <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg">
             {ad.ctaLabel}
           </span>
         </div>
-        <div className="mt-2 text-[10px] text-slate-500 truncate">by {ad.advertiser}</div>
+        <div className="mt-2 text-[10px] text-slate-500 md:text-slate-500 truncate">by {ad.advertiser}</div>
       </div>
     </a>
   );
@@ -110,10 +110,10 @@ function BirthdayCard({
   return (
     <button
       onClick={onOpen}
-      className="w-full text-left bg-[#1E1E24] border border-white/5 rounded-2xl p-4 hover:border-pink-400/40 transition-colors"
+      className="w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4 hover:border-pink-400/40 transition-colors"
     >
       <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+        <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
           <Cake className="w-4 h-4 text-pink-400" /> Birthdays
         </h3>
         <span className="text-[10px] font-bold uppercase tracking-wider text-pink-300">Today</span>
@@ -126,7 +126,7 @@ function BirthdayCard({
             </span>
           ))}
         </div>
-        <div className="min-w-0 flex-1 text-xs text-slate-200 leading-snug">{label}</div>
+        <div className="min-w-0 flex-1 text-xs text-slate-200 md:text-slate-700 leading-snug">{label}</div>
       </div>
       <div className="mt-3 text-[11px] font-bold text-pink-300">Send wishes →</div>
     </button>
@@ -146,19 +146,19 @@ function BirthdayModal({
   return createPortal(
     <div className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
       <div
-        className="w-full max-w-md rounded-2xl bg-[#16161B] border border-white/10 max-h-[80vh] overflow-hidden flex flex-col"
+        className="w-full max-w-md rounded-2xl bg-[#16161B] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 max-h-[80vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <header className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:border-slate-200">
           <div className="flex items-center gap-2">
             <Cake className="w-4 h-4 text-pink-400" />
-            <h4 className="text-sm font-bold text-white">Birthdays today</h4>
+            <h4 className="text-sm font-bold text-white md:text-slate-900">Birthdays today</h4>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5">
+          <button onClick={onClose} className="p-1.5 rounded-md text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100">
             <X className="w-4 h-4" />
           </button>
         </header>
-        <ul className="flex-1 overflow-y-auto divide-y divide-white/5">
+        <ul className="flex-1 overflow-y-auto divide-y divide-white/5 md:divide-slate-200">
           {people.map((p) => (
             <BirthdayRow key={p.userId} person={p} onSend={(body) => onSendWish(p.userId, p.name, body)} />
           ))}
@@ -196,10 +196,10 @@ function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body
           <AvatarImage src={person.avatarUrl} alt={person.name} />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link to="/profile/$id" params={{ id: person.slug }} className="block truncate text-sm font-semibold text-white hover:text-pink-300">
+          <Link to="/profile/$id" params={{ id: person.slug }} className="block truncate text-sm font-semibold text-white md:text-slate-900 hover:text-pink-300">
             {person.name}
           </Link>
-          <div className="text-[10px] text-slate-500">Turning another year today</div>
+          <div className="text-[10px] text-slate-500 md:text-slate-500">Turning another year today</div>
         </div>
       </div>
       <div className="mt-2 flex items-center gap-2">
@@ -208,7 +208,7 @@ function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body
           onChange={(e) => setBody(e.target.value)}
           disabled={sent}
           placeholder="Write a wish…"
-          className="flex-1 min-w-0 bg-black/40 border border-white/10 rounded-md px-2.5 py-1.5 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-pink-400/50"
+          className="flex-1 min-w-0 bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-md px-2.5 py-1.5 text-xs text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-pink-400/50"
         />
         <button
           onClick={submit}
@@ -232,24 +232,24 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
       aria-label={`Open ${p.title}`}
       className="flex items-center gap-3 min-w-0 text-left rounded-lg -mx-1 px-1 py-1 hover:bg-white/[0.03] transition-colors"
     >
-      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+      <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
         {p.coverUrl ? (
           <ResponsiveImage sizes="88px" src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
         ) : (
-          <ShoppingBag className="w-4 h-4 text-white/70" />
+          <ShoppingBag className="w-4 h-4 text-white/70 md:text-slate-600" />
         )}
       </div>
       <div className="min-w-0 flex-1">
-        <div className="truncate text-xs font-semibold text-white">{p.title}</div>
+        <div className="truncate text-xs font-semibold text-white md:text-slate-900">{p.title}</div>
         <div className="mt-1 flex items-center gap-1.5">
-          <span className="inline-flex items-center rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-300">
+          <span className="inline-flex items-center rounded-full border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-300 md:text-slate-700">
             {p.category}
           </span>
-          <span className="text-[10px] text-slate-500 truncate">{p.vendor || "Trending"}</span>
+          <span className="text-[10px] text-slate-500 md:text-slate-500 truncate">{p.vendor || "Trending"}</span>
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <div className="text-sm font-black text-white">{priceFmt(p.priceUsd)}</div>
+        <div className="text-sm font-black text-white md:text-slate-900">{priceFmt(p.priceUsd)}</div>
       </div>
     </Link>
   );
@@ -382,12 +382,12 @@ export function DiscoveryPanel() {
       )}
 
       {/* 3. Top Peers in Your Circle — top 5 across any star tier */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
+      <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+          <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
             <span>👑</span> Top Peers in Your Circle
           </h3>
-          <button onClick={() => navigateSection("Circles")} className="text-[11px] text-emerald-400 hover:text-emerald-300">
+          <button onClick={() => navigateSection("Circles")} className="text-[11px] text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700">
             See all
           </button>
         </div>
@@ -395,7 +395,7 @@ export function DiscoveryPanel() {
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
               <li key={i} className="flex items-center gap-2.5">
-                <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] animate-pulse" />
+                <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] md:bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-1.5">
                   <SkeletonBar className="h-3 w-3/5" />
                   <SkeletonBar className="h-2 w-1/4" />
@@ -414,10 +414,10 @@ export function DiscoveryPanel() {
                   <AvatarImage src={p.avatarUrl} alt={p.name} />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <Link to="/profile/$id" params={{ id: p.slug }} className="block truncate text-xs font-semibold text-white hover:text-emerald-400">
+                  <Link to="/profile/$id" params={{ id: p.slug }} className="block truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600">
                     {p.name}
                   </Link>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 md:text-slate-600">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     <span>{p.stars.toFixed(1)}</span>
                   </div>
@@ -425,7 +425,7 @@ export function DiscoveryPanel() {
                 <button
                   onClick={() => openChat(p.id, p.name)}
                   aria-label={`Chat with ${p.name}`}
-                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
                 >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>
@@ -439,12 +439,12 @@ export function DiscoveryPanel() {
       <AdSlot placement="feed" variant="rail" index={1} />
 
       {/* 5. Trending Marketplace items */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4" aria-busy={isLoading}>
+      <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4" aria-busy={isLoading}>
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
+          <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
             <span>🛍️</span> Trending Marketplace items
           </h3>
-          <button onClick={() => navigateSection("Marketplace")} className="text-[11px] text-emerald-400 hover:text-emerald-300">
+          <button onClick={() => navigateSection("Marketplace")} className="text-[11px] text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700">
             Browse
           </button>
         </div>
@@ -452,7 +452,7 @@ export function DiscoveryPanel() {
           <ul className="space-y-2.5">
             {Array.from({ length: 4 }).map((_, i) => (
               <li key={i} className="flex items-center gap-3">
-                <div className="w-11 h-11 shrink-0 rounded-lg bg-white/[0.06] animate-pulse" />
+                <div className="w-11 h-11 shrink-0 rounded-lg bg-white/[0.06] md:bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-1.5">
                   <SkeletonBar className="h-3 w-3/4" />
                   <SkeletonBar className="h-2 w-1/3" />
@@ -475,12 +475,12 @@ export function DiscoveryPanel() {
       </section>
 
       {/* 6. Online users — click to open a quick chat popover */}
-      <section className="bg-[#1E1E24] border border-white/5 rounded-2xl p-4">
+      <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white flex items-center gap-1.5">
-            <Circle className="w-2.5 h-2.5 fill-emerald-400 text-emerald-400" /> Online now
+          <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
+            <Circle className="w-2.5 h-2.5 fill-emerald-400 text-emerald-400 md:text-emerald-600" /> Online now
           </h3>
-          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300">
+          <span className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700">
             {onlineUsers.length} online
           </span>
         </div>
@@ -504,15 +504,15 @@ export function DiscoveryPanel() {
                   onClick={() => openChat(u.userId, u.name)}
                   className="min-w-0 flex-1 text-left"
                 >
-                  <div className="truncate text-xs font-semibold text-white hover:text-emerald-400">{u.name}</div>
-                  <div className="flex items-center gap-1 text-[10px] text-slate-400">
+                  <div className="truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600">{u.name}</div>
+                  <div className="flex items-center gap-1 text-[10px] text-slate-400 md:text-slate-600">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     <span>{u.stars.toFixed(1)}</span>
                   </div>
                 </button>
                 <button
                   onClick={() => openChat(u.userId, u.name)}
-                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 text-slate-300 hover:bg-white/5 text-[11px] font-semibold"
+                  className="shrink-0 inline-flex items-center gap-1 px-2.5 py-1 rounded-md border border-white/10 md:border-slate-200 text-slate-300 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 text-[11px] font-semibold"
                 >
                   <MessageCircle className="w-3 h-3" /> Chat
                 </button>
