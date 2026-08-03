@@ -24,10 +24,12 @@ import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "Oventric — The multi-vendor tech platform" },
-      { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
-      { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
-      { property: "og:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
+      { title: "Oventric — Sell, learn and get paid across Africa" },
+      { name: "description", content: "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency." },
+      { property: "og:title", content: "Oventric — Sell, learn and get paid across Africa" },
+      { property: "og:description", content: "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency." },
+      { property: "og:type", content: "website" },
+      { name: "twitter:card", content: "summary_large_image" },
     ],
   }),
   component: Index,
