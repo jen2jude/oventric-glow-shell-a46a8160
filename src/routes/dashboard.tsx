@@ -293,14 +293,14 @@ function DashboardPage() {
 
   if (!authChecked) {
     return (
-      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center">
+      <div className="min-h-screen bg-[#0b0b0d] md:bg-slate-50 flex items-center justify-center">
         <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <div className="min-h-screen bg-[#0b0b0d] md:bg-slate-50 text-slate-200 md:text-slate-700">
       <div
         className="max-w-5xl mx-auto px-4 py-8"
         style={{
@@ -312,34 +312,34 @@ function DashboardPage() {
       >
         <button
           onClick={() => navigate({ to: "/" })}
-          className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-6"
+          className="inline-flex items-center gap-2 text-sm text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 mb-6"
         >
           <ArrowLeft className="w-4 h-4" /> Back home
         </button>
 
         <header className="mb-6">
-          <h1 className="text-white text-3xl font-black">My Dashboard</h1>
-          <p className="text-slate-400 mt-1 text-sm">Your full Oventric hub — wallet, bounties, courses, marketplace and social.</p>
+          <h1 className="text-white md:text-slate-900 text-3xl font-black">My Dashboard</h1>
+          <p className="text-slate-400 md:text-slate-500 mt-1 text-sm">Your full Oventric hub — wallet, bounties, courses, marketplace and social.</p>
         </header>
 
         <Link
           to="/ads-manager"
-          className="group mb-5 flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141418] p-3 active:bg-white/[0.03]"
+          className="group mb-5 flex items-center justify-between gap-3 rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 active:bg-white/[0.03]"
         >
           <div className="flex items-center gap-3 min-w-0">
-            <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-              <Bell className="w-4 h-4 text-white" />
+            <div className="w-9 h-9 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+              <Bell className="w-4 h-4 text-white md:text-slate-900" />
             </div>
             <div className="min-w-0">
-              <div className="text-white text-sm font-semibold">Ads Manager</div>
-              <div className="text-slate-400 text-xs">Manage and track your ad campaigns.</div>
+              <div className="text-white md:text-slate-900 text-sm font-semibold">Ads Manager</div>
+              <div className="text-slate-400 md:text-slate-500 text-xs">Manage and track your ad campaigns.</div>
             </div>
           </div>
-          <ArrowUpRight className="w-4 h-4 text-slate-400 shrink-0" />
+          <ArrowUpRight className="w-4 h-4 text-slate-400 md:text-slate-500 shrink-0" />
         </Link>
 
 
-        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 rounded-2xl bg-[#141418] border border-white/10 p-2.5 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-4 gap-2 rounded-2xl bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-2.5 mb-6">
           <TabButton active={tab === "overview"} onClick={() => setTab("overview")}>
             <LayoutDashboard className="w-5 h-5 shrink-0" /> <span className="truncate">Overview</span>
           </TabButton>
@@ -369,7 +369,7 @@ function DashboardPage() {
           <TabButton active={tab === "listings"} onClick={() => setTab("listings")}>
             <Store className="w-5 h-5 shrink-0" /> <span className="truncate">Listings</span>
             {stats.listingsRejected > 0 && (
-              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white text-[11px] font-bold">
+              <span className="ml-auto inline-flex items-center justify-center min-w-[20px] h-5 px-1 rounded-full bg-red-500 text-white md:text-slate-900 text-[11px] font-bold">
                 {stats.listingsRejected}
               </span>
             )}
@@ -413,15 +413,15 @@ function DashboardPage() {
 
 function StatCard({ icon: Icon, label, value, accent }: { icon: typeof Package; label: string; value: number; accent: string }) {
   return (
-    <div className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3 md:block">
+    <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex items-center justify-between gap-3 md:block">
       {/* Mobile: single row — icon + label left, number in white right */}
       <div className="flex items-center gap-2 min-w-0 md:text-[10px] md:uppercase md:tracking-widest md:text-slate-500 md:font-bold">
         <Icon className={`w-4 h-4 shrink-0 ${accent} md:w-3.5 md:h-3.5`} />
-        <span className="truncate text-sm text-slate-300 font-medium md:text-[10px] md:uppercase md:tracking-widest md:text-slate-500 md:font-bold">
+        <span className="truncate text-sm text-slate-300 md:text-slate-600 font-medium md:text-[10px] md:uppercase md:tracking-widest md:text-slate-500 md:font-bold">
           {label}
         </span>
       </div>
-      <div className="shrink-0 text-lg font-black text-white md:mt-1 md:text-2xl">{value}</div>
+      <div className="shrink-0 text-lg font-black text-white md:text-slate-900 md:mt-1 md:text-2xl">{value}</div>
     </div>
   );
 }
@@ -444,21 +444,21 @@ function SimpleRowCard({
   const inner = (
     <>
       <div className="flex items-center gap-3 min-w-0">
-        <div className="w-9 h-9 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center shrink-0">
-          <Icon className="w-4 h-4 text-white" />
+        <div className="w-9 h-9 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+          <Icon className="w-4 h-4 text-white md:text-slate-900" />
         </div>
         <div className="min-w-0">
-          <div className="text-white text-sm font-semibold truncate">{title}</div>
-          {subtitle ? <div className="text-slate-400 text-xs truncate">{subtitle}</div> : null}
+          <div className="text-white md:text-slate-900 text-sm font-semibold truncate">{title}</div>
+          {subtitle ? <div className="text-slate-400 md:text-slate-500 text-xs truncate">{subtitle}</div> : null}
         </div>
       </div>
       <div className="flex items-center gap-2 shrink-0">
-        {value !== undefined ? <span className="text-sm font-black text-white">{value}</span> : null}
-        <ArrowUpRight className="w-4 h-4 text-slate-400" />
+        {value !== undefined ? <span className="text-sm font-black text-white md:text-slate-900">{value}</span> : null}
+        <ArrowUpRight className="w-4 h-4 text-slate-400 md:text-slate-500" />
       </div>
     </>
   );
-  const cls = "group flex items-center justify-between gap-3 rounded-xl border border-white/10 bg-[#141418] p-3 active:bg-white/[0.03] w-full text-left";
+  const cls = "group flex items-center justify-between gap-3 rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 active:bg-white/[0.03] w-full text-left";
   if (href) {
     return (
       <Link to={href} className={cls}>
@@ -494,16 +494,16 @@ function PremiumStatCard({
     <button
       type="button"
       onClick={onClick}
-      className={`group rounded-2xl border border-white/10 bg-[#141418] p-4 text-left transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
+      className={`group rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 text-left transition active:scale-[0.98] ${hero ? "col-span-2" : ""}`}
     >
       <div className="flex items-start gap-3">
-        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 text-white">
+        <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-white/5 md:bg-slate-50 text-white md:text-slate-900">
           <Icon className="h-4 w-4" aria-hidden="true" />
         </div>
         <div className="min-w-0 flex-1">
-          <div className="text-[10px] uppercase tracking-wider text-slate-400 font-bold leading-tight line-clamp-2 min-h-[1.6em]">{label}</div>
-          <div className={`mt-1 font-black text-white ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
-          {sub ? <div className="mt-0.5 text-[11px] text-slate-400 leading-tight line-clamp-2">{sub}</div> : null}
+          <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-bold leading-tight line-clamp-2 min-h-[1.6em]">{label}</div>
+          <div className={`mt-1 font-black text-white md:text-slate-900 ${hero ? "text-2xl" : "text-xl"} truncate`}>{value}</div>
+          {sub ? <div className="mt-0.5 text-[11px] text-slate-400 md:text-slate-500 leading-tight line-clamp-2">{sub}</div> : null}
         </div>
       </div>
     </button>
@@ -515,7 +515,7 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
     <button
       onClick={onClick}
       className={`flex items-center justify-start gap-3 px-3.5 py-3 rounded-xl text-sm sm:text-base font-semibold transition min-w-0 ${
-        active ? "bg-white text-black shadow-sm" : "text-slate-300 hover:text-white hover:bg-white/5"
+        active ? "bg-white text-black shadow-sm" : "text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
       }`}
     >
       {children}
@@ -525,9 +525,9 @@ function TabButton({ active, onClick, children }: { active: boolean; onClick: ()
 
 function EmptyState({ icon: Icon, title, hint, cta }: { icon: typeof Package; title: string; hint: string; cta?: React.ReactNode }) {
   return (
-    <div className="rounded-2xl border border-dashed border-white/10 bg-[#111114] p-10 text-center">
+    <div className="rounded-2xl border border-dashed border-white/10 md:border-slate-200 bg-[#111114] md:bg-slate-50 p-10 text-center">
       <Icon className="w-8 h-8 text-slate-600 mx-auto mb-3" />
-      <div className="text-white font-bold">{title}</div>
+      <div className="text-white md:text-slate-900 font-bold">{title}</div>
       <div className="text-sm text-slate-500 mt-1">{hint}</div>
       {cta ? <div className="mt-4">{cta}</div> : null}
     </div>
@@ -543,7 +543,7 @@ function StatusBadge({ status }: { status: PurchaseDTO["status"] }) {
   }[status];
   const Icon = meta.icon;
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 text-[10px] font-bold text-slate-300 md:text-slate-600">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
@@ -578,23 +578,23 @@ function DigitalList({
     <div className="space-y-3">
       {rows.map((r) => (
         <div key={r.orderId} className="space-y-2">
-        <div className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-          <Link to="/order/$id" params={{ id: r.orderId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+        <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex gap-3">
+          <Link to="/order/$id" params={{ id: r.orderId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center">
             {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
           </Link>
           <div className="min-w-0 flex-1">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
-                <Link to="/order/$id" params={{ id: r.orderId }} className="text-sm font-bold text-white hover:text-white truncate block">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 truncate">{r.category}</div>
+                <Link to="/order/$id" params={{ id: r.orderId }} className="text-sm font-bold text-white md:text-slate-900 hover:text-white md:hover:text-slate-900 truncate block">
                   {r.productName}
                 </Link>
-                <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
+                <div className="text-xs text-slate-400 md:text-slate-500 truncate">by {r.vendor}</div>
               </div>
               <StatusBadge status={r.status} />
             </div>
             <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-              <div className="text-xs text-slate-400">
+              <div className="text-xs text-slate-400 md:text-slate-500">
                 {r.displayCurrency} {r.displayTotal.toLocaleString(undefined, { maximumFractionDigits: 2 })} · {new Date(r.paidAt ?? r.createdAt).toLocaleDateString()}
               </div>
               <div className="flex items-center gap-2">
@@ -617,7 +617,7 @@ function DigitalList({
                 {r.status === "paid" && r.escrowStatus === "held" && (
                   <button
                     onClick={() => onConfirm(r.orderId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
                     title="Confirm you've received this product to release the seller's funds"
                   >
                     Confirm received
@@ -626,13 +626,13 @@ function DigitalList({
                 <Link
                   to="/order/$id"
                   params={{ id: r.orderId }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                 >
                   View details
                 </Link>
                 <button
                   onClick={() => setTracking((t) => (t === r.orderId ? null : r.orderId))}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                 >
                   <Truck className="w-3.5 h-3.5" /> {tracking === r.orderId ? "Hide tracking" : "Track order"}
                 </button>
@@ -671,11 +671,11 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
 
   const badge = (s: SaleDTO) => {
     if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300" };
-    if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300" };
+    if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700" };
     if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300" };
-    if (overdue(s)) return { label: "Overdue 24h+", cls: "bg-red-500 text-white" };
+    if (overdue(s)) return { label: "Overdue 24h+", cls: "bg-red-500 text-white md:text-slate-900" };
     if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black" };
-    return { label: "In escrow", cls: "bg-white/10 text-slate-200" };
+    return { label: "In escrow", cls: "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700" };
   };
 
   const messageBuyer = (buyerId: string) => {
@@ -689,11 +689,11 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
         const b = badge(s);
         return (
           <div key={s.orderId} className="space-y-2">
-            <div className="rounded-xl border border-white/10 bg-[#141418] p-3">
+            <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-sm font-bold text-white truncate">{s.productName}</div>
-                  <div className="text-xs text-slate-400 truncate">
+                  <div className="text-sm font-bold text-white md:text-slate-900 truncate">{s.productName}</div>
+                  <div className="text-xs text-slate-400 md:text-slate-500 truncate">
                     {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
                   </div>
                 </div>
@@ -702,26 +702,26 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
                 </span>
               </div>
               <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                <div className="text-xs text-slate-400">
+                <div className="text-xs text-slate-400 md:text-slate-500">
                   {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
                 </div>
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => messageBuyer(s.buyerId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     <MessageCircle className="w-3.5 h-3.5" /> Message buyer
                   </button>
                   <Link
                     to="/order/$id"
                     params={{ id: s.orderId }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                   >
                     View order
                   </Link>
                   <button
                     onClick={() => setTracking((t) => (t === s.orderId ? null : s.orderId))}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-bold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
                   >
                     <Truck className="w-3.5 h-3.5" /> {tracking === s.orderId ? "Hide" : "Manage"}
                   </button>
@@ -766,24 +766,24 @@ function PhysicalList({
         const message = `Hi! I'm still interested in your product "${r.productName}" on Oventric.\n\n${productUrl}`;
         const waUrl = wa ? `https://wa.me/${wa}?text=${encodeURIComponent(message)}` : "";
         return (
-          <div key={r.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-            <Link to="/product/$id" params={{ id: r.productId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+          <div key={r.id} className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex gap-3">
+            <Link to="/product/$id" params={{ id: r.productId }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center">
               {r.coverUrl ? <img src={r.coverUrl} alt={r.productName} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
             </Link>
             <div className="min-w-0 flex-1">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">{r.category}</div>
-                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white hover:text-white truncate block">
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 truncate">{r.category}</div>
+                  <Link to="/product/$id" params={{ id: r.productId }} className="text-sm font-bold text-white md:text-slate-900 hover:text-white md:hover:text-slate-900 truncate block">
                     {r.productName}
                   </Link>
-                  <div className="text-xs text-slate-400 truncate">by {r.vendor}</div>
+                  <div className="text-xs text-slate-400 md:text-slate-500 truncate">by {r.vendor}</div>
                 </div>
                 <span className="text-[10px] text-slate-500 whitespace-nowrap">
                   {new Date(r.createdAt).toLocaleDateString()}
                 </span>
               </div>
-              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400">
+              <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-slate-400 md:text-slate-500">
                 <span>{r.originalCurrency} {r.originalAmount.toLocaleString(undefined, { maximumFractionDigits: 2 })}</span>
                 {r.location ? <span className="inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {r.location}</span> : null}
                 <span className="inline-flex items-center gap-1">
@@ -796,7 +796,7 @@ function PhysicalList({
                   <a
                     href={`tel:+${phone}`}
                     onClick={() => onRelog(r.productId, "call")}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
                   >
                     <Phone className="w-3.5 h-3.5" /> Call
                   </a>
@@ -815,7 +815,7 @@ function PhysicalList({
                 <Link
                   to="/product/$id"
                   params={{ id: r.productId }}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-semibold"
+                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
                 >
                   View listing
                 </Link>
@@ -836,7 +836,7 @@ function ListingStatusBadge({ status }: { status: ProductDTO["status"] }) {
   }[status] ?? { label: status, icon: AlertTriangle };
   const Icon = meta.icon;
   return (
-    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 bg-white/5 text-[10px] font-bold text-slate-300">
+    <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 text-[10px] font-bold text-slate-300 md:text-slate-600">
       <Icon className="w-3 h-3" /> {meta.label}
     </span>
   );
@@ -877,7 +877,7 @@ function ListingsList({
               <Link
                 to="/"
                 onClick={() => setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40)}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-sm font-semibold"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-sm font-semibold"
               >
                 Go to marketplace
               </Link>
@@ -908,18 +908,18 @@ function ListingsList({
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-3">
-        <div className="inline-flex items-center gap-1 rounded-full bg-white/5 border border-white/10 p-1">
+        <div className="inline-flex items-center gap-1 rounded-full bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 p-1">
           {kindChips.map((k) => (
             <button
               key={k.key}
               onClick={() => setKind(k.key)}
               className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold transition ${
-                kind === k.key ? "bg-white text-black" : "text-slate-300 hover:text-white"
+                kind === k.key ? "bg-white text-black" : "text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900"
               }`}
             >
               {k.label}
               <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
-                kind === k.key ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"
+                kind === k.key ? "bg-black/20 text-black" : "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700"
               }`}>{k.count}</span>
             </button>
           ))}
@@ -935,7 +935,7 @@ function ListingsList({
           <Link
             to="/"
             onClick={() => setTimeout(() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } })), 40)}
-            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 border border-white/10 text-white text-xs font-semibold"
+            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-semibold"
           >
             Marketplace
           </Link>
@@ -948,13 +948,13 @@ function ListingsList({
             onClick={() => setFilter(c.key)}
             className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold border transition ${
               filter === c.key
-                ? "bg-white border-white/20 text-black"
-                : "bg-white/5 border-white/10 text-slate-300 hover:bg-white/10"
+                ? "bg-white border-white/20 md:border-slate-300 text-black"
+                : "bg-white/5 md:bg-slate-50 border-white/10 md:border-slate-200 text-slate-300 md:text-slate-600 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100"
             }`}
           >
             {c.label}
             <span className={`inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full text-[10px] font-bold ${
-              filter === c.key ? "bg-black/20 text-black" : "bg-white/10 text-slate-200"
+              filter === c.key ? "bg-black/20 text-black" : "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700"
             }`}>{c.count}</span>
           </button>
         ))}
@@ -962,26 +962,26 @@ function ListingsList({
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
 
       {filtered.length === 0 ? (
-        <div className="rounded-2xl border border-dashed border-white/10 bg-[#111114] p-8 text-center text-sm text-slate-500">
+        <div className="rounded-2xl border border-dashed border-white/10 md:border-slate-200 bg-[#111114] md:bg-slate-50 p-8 text-center text-sm text-slate-500">
           No listings in this bucket.
         </div>
       ) : (
         <div className="space-y-3">
           {filtered.map((p) => (
-            <div key={p.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex gap-3">
-              <Link to="/product/$id" params={{ id: p.id }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 flex items-center justify-center">
+            <div key={p.id} className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex gap-3">
+              <Link to="/product/$id" params={{ id: p.id }} className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-50 flex items-center justify-center">
                 {p.coverUrl ? <img src={p.coverUrl} alt={p.name} loading="lazy" decoding="async" className="w-full h-full object-cover" /> : <ShoppingBag className="w-6 h-6 text-white/30" />}
               </Link>
               <div className="min-w-0 flex-1">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 truncate">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 truncate">
                       {p.kind === "physical" ? "Physical" : "Digital"} · {p.category}
                     </div>
-                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white hover:text-white truncate block">
+                    <Link to="/product/$id" params={{ id: p.id }} className="text-sm font-bold text-white md:text-slate-900 hover:text-white md:hover:text-slate-900 truncate block">
                       {p.name}
                     </Link>
-                    <div className="text-xs text-slate-400">
+                    <div className="text-xs text-slate-400 md:text-slate-500">
                       ${p.priceUSD.toLocaleString(undefined, { maximumFractionDigits: 2 })}
                       {p.location ? <span className="ml-2 inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {p.location}</span> : null}
                     </div>
@@ -990,9 +990,9 @@ function ListingsList({
                 </div>
 
                 {p.status === "rejected" && p.rejectReason && (
-                  <div className="mt-2 rounded-md border border-white/10 bg-white/5 p-2">
-                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-300 mb-0.5">Moderator note</div>
-                    <div className="text-xs text-slate-200 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
+                  <div className="mt-2 rounded-md border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 p-2">
+                    <div className="text-[10px] font-bold uppercase tracking-widest text-slate-300 md:text-slate-600 mb-0.5">Moderator note</div>
+                    <div className="text-xs text-slate-200 md:text-slate-700 whitespace-pre-wrap break-words line-clamp-4">{p.rejectReason}</div>
                   </div>
                 )}
 
@@ -1010,7 +1010,7 @@ function ListingsList({
                     <Link
                       to="/product/$id"
                       params={{ id: p.id }}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 text-white md:text-slate-900 text-xs font-semibold"
                     >
                       <Eye className="w-3.5 h-3.5" /> View live
                     </Link>
@@ -1087,45 +1087,45 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
           onClick={() => onGoto("social")}
         />
         <div className="grid grid-cols-2 gap-2">
-          <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
-          <StatCard icon={Clock} label="Pending" value={overview.purchases.pending} accent="text-white" />
-          <StatCard icon={MessageCircle} label="Contacted" value={overview.contacts} accent="text-white" />
-          <StatCard icon={Store} label="Listings" value={overview.listings.total} accent="text-white" />
-          <StatCard icon={GraduationCap} label="Enrolled" value={overview.courses.enrolled} accent="text-white" />
-          <StatCard icon={CheckCircle2} label="Completed" value={overview.courses.completed} accent="text-white" />
-          <StatCard icon={Target} label="Active" value={overview.bounties.active} accent="text-white" />
-          <StatCard icon={Bell} label="Alerts" value={overview.unread.notifications} accent="text-white" />
+          <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white md:text-slate-900" />
+          <StatCard icon={Clock} label="Pending" value={overview.purchases.pending} accent="text-white md:text-slate-900" />
+          <StatCard icon={MessageCircle} label="Contacted" value={overview.contacts} accent="text-white md:text-slate-900" />
+          <StatCard icon={Store} label="Listings" value={overview.listings.total} accent="text-white md:text-slate-900" />
+          <StatCard icon={GraduationCap} label="Enrolled" value={overview.courses.enrolled} accent="text-white md:text-slate-900" />
+          <StatCard icon={CheckCircle2} label="Completed" value={overview.courses.completed} accent="text-white md:text-slate-900" />
+          <StatCard icon={Target} label="Active" value={overview.bounties.active} accent="text-white md:text-slate-900" />
+          <StatCard icon={Bell} label="Alerts" value={overview.unread.notifications} accent="text-white md:text-slate-900" />
         </div>
       </div>
 
 
       <div className="hidden grid-cols-1 gap-3 md:grid md:grid-cols-3">
-        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+        <button onClick={() => onGoto("wallet")} className="text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 hover:border-white/20 md:border-slate-300 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance</div>
-          <div className="mt-2 text-3xl font-black text-white">{walletAvail}</div>
-          <div className="text-xs text-slate-400 mt-1">{walletEscrow}</div>
+          <div className="mt-2 text-3xl font-black text-white md:text-slate-900">{walletAvail}</div>
+          <div className="text-xs text-slate-400 md:text-slate-500 mt-1">{walletEscrow}</div>
         </button>
-        <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-white" /> Bounties earned</div>
-          <div className="mt-2 text-3xl font-black text-white">{bountyEarned}</div>
-          <div className="text-xs text-slate-400 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
+        <button onClick={() => onGoto("bounties")} className="text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 hover:border-white/20 md:border-slate-300 transition">
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold flex items-center gap-1"><Trophy className="w-3 h-3 text-white md:text-slate-900" /> Bounties earned</div>
+          <div className="mt-2 text-3xl font-black text-white md:text-slate-900">{bountyEarned}</div>
+          <div className="text-xs text-slate-400 md:text-slate-500 mt-1">{overview.bounties.solved} solved · {overview.bounties.posted} posted</div>
         </button>
-        <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 bg-[#141418] p-5 hover:border-white/20 transition">
+        <button onClick={() => onGoto("social")} className="text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 hover:border-white/20 md:border-slate-300 transition">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Network</div>
-          <div className="mt-2 text-3xl font-black text-white">{overview.social.followers}</div>
-          <div className="text-xs text-slate-400 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
+          <div className="mt-2 text-3xl font-black text-white md:text-slate-900">{overview.social.followers}</div>
+          <div className="text-xs text-slate-400 md:text-slate-500 mt-1">Followers · {overview.social.following} following · {overview.social.circles} circles</div>
         </button>
       </div>
 
       <div className="hidden grid-cols-1 gap-2 md:grid md:grid-cols-4 md:gap-3">
-        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white" />
-        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-white" />
-        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-white" />
-        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-white" />
-        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-white" />
-        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-white" />
-        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-white" />
-        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-white" />
+        <StatCard icon={Download} label="Downloads" value={overview.purchases.total} accent="text-white md:text-slate-900" />
+        <StatCard icon={Clock} label="Pending orders" value={overview.purchases.pending} accent="text-white md:text-slate-900" />
+        <StatCard icon={MessageCircle} label="Sellers contacted" value={overview.contacts} accent="text-white md:text-slate-900" />
+        <StatCard icon={Store} label="My listings" value={overview.listings.total} accent="text-white md:text-slate-900" />
+        <StatCard icon={GraduationCap} label="Enrolled courses" value={overview.courses.enrolled} accent="text-white md:text-slate-900" />
+        <StatCard icon={CheckCircle2} label="Completed courses" value={overview.courses.completed} accent="text-white md:text-slate-900" />
+        <StatCard icon={Target} label="Active bounties" value={overview.bounties.active} accent="text-white md:text-slate-900" />
+        <StatCard icon={Bell} label="Unread notifications" value={overview.unread.notifications} accent="text-white md:text-slate-900" />
       </div>
     </div>
   );
@@ -1184,7 +1184,7 @@ function shouldUseSafeDashboardOverview() {
 
 function BountyCoverThumb({ url, title, className = "" }: { url: string | null; title: string; className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-lg bg-white/5 border border-white/10 ${className}`}>
+    <div className={`relative overflow-hidden rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}>
       {url ? (
         <img src={url} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
@@ -1198,15 +1198,15 @@ function BountyCoverThumb({ url, title, className = "" }: { url: string | null; 
 
 function bountyStatusBadge(status: string): { label: string; className: string } {
   const s = status.toLowerCase();
-  if (s === "active") return { label: "Active", className: "bg-emerald-500/15 text-emerald-300 border-emerald-500/30" };
+  if (s === "active") return { label: "Active", className: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border-emerald-500/30" };
   if (s === "pending_review") return { label: "Pending review", className: "bg-amber-500/15 text-amber-300 border-amber-500/30" };
   if (s === "rejected") return { label: "Rejected", className: "bg-rose-500/15 text-rose-300 border-rose-500/30" };
-  if (s === "paused") return { label: "Paused", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
-  if (s === "closed") return { label: "Closed", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+  if (s === "paused") return { label: "Paused", className: "bg-slate-500/15 text-slate-300 md:text-slate-600 border-slate-500/30" };
+  if (s === "closed") return { label: "Closed", className: "bg-slate-500/15 text-slate-300 md:text-slate-600 border-slate-500/30" };
   if (s === "solved" || s === "released") return { label: "Solved", className: "bg-sky-500/15 text-sky-300 border-sky-500/30" };
   if (s === "disputed") return { label: "Disputed", className: "bg-rose-500/15 text-rose-300 border-rose-500/30" };
-  if (s === "draft") return { label: "Draft", className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
-  return { label: status, className: "bg-slate-500/15 text-slate-300 border-slate-500/30" };
+  if (s === "draft") return { label: "Draft", className: "bg-slate-500/15 text-slate-300 md:text-slate-600 border-slate-500/30" };
+  return { label: status, className: "bg-slate-500/15 text-slate-300 md:text-slate-600 border-slate-500/30" };
 }
 
 function isExpiredBounty(b: DashboardBountyPosted): boolean {
@@ -1244,18 +1244,18 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
           <button
             key={b.id}
             onClick={() => setDetailsFor(b)}
-            className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition"
+            className="text-left rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden hover:border-white/20 md:border-slate-300 transition"
           >
             <BountyCoverThumb url={b.coverUrl} title={b.title} className="aspect-video w-full" />
             <div className="p-3">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="text-white font-semibold truncate">{b.title}</div>
+                  <div className="text-white md:text-slate-900 font-semibold truncate">{b.title}</div>
                   <div className="text-[11px] text-slate-500 mt-1 truncate">{b.category}</div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-white font-black text-sm">${b.priceUSD.toFixed(2)}</div>
-                  <div className="text-[10px] text-slate-400 mt-0.5">{b.applicantsCount} applicant{b.applicantsCount === 1 ? "" : "s"}</div>
+                  <div className="text-white md:text-slate-900 font-black text-sm">${b.priceUSD.toFixed(2)}</div>
+                  <div className="text-[10px] text-slate-400 md:text-slate-500 mt-0.5">{b.applicantsCount} applicant{b.applicantsCount === 1 ? "" : "s"}</div>
                 </div>
               </div>
               <div className="mt-2 flex items-center justify-between gap-2">
@@ -1278,7 +1278,7 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
 
   return (
     <div>
-      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
+      <div className="inline-flex rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
         <TabButton active={sub === "posted"} onClick={() => setSub("posted")}>Posted by me ({data.posted.length})</TabButton>
         <TabButton active={sub === "solved"} onClick={() => setSub("solved")}>Solved by me ({data.solved.length})</TabButton>
       </div>
@@ -1298,15 +1298,15 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
           </div>
 
           {data.posted.length === 0 ? (
-            <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+            <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 text-center">
               <Target className="w-8 h-8 mx-auto text-slate-500" />
-              <div className="mt-3 text-white font-semibold">No bounties posted yet</div>
-              <div className="text-sm text-slate-400 mt-1">Post a task and let experts apply to solve it.</div>
+              <div className="mt-3 text-white md:text-slate-900 font-semibold">No bounties posted yet</div>
+              <div className="text-sm text-slate-400 md:text-slate-500 mt-1">Post a task and let experts apply to solve it.</div>
               <div className="mt-4 flex flex-wrap gap-2 justify-center">
                 <button onClick={() => setPostOpen(true)} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
                   <Plus className="w-4 h-4" /> Post your first bounty
                 </button>
-                <button onClick={openBountiesFeed} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 text-slate-200 font-semibold text-sm hover:bg-white/5">
+                <button onClick={openBountiesFeed} className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-200 text-slate-200 md:text-slate-700 font-semibold text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100">
                   Browse bounties <ArrowUpRight className="w-4 h-4" />
                 </button>
               </div>
@@ -1350,10 +1350,10 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
 
       {sub === "solved" && (
         data.solved.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+          <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 text-center">
             <Trophy className="w-8 h-8 mx-auto text-slate-500" />
-            <div className="mt-3 text-white font-semibold">No bounties solved yet</div>
-            <div className="text-sm text-slate-400 mt-1">Apply to open bounties and start earning payouts.</div>
+            <div className="mt-3 text-white md:text-slate-900 font-semibold">No bounties solved yet</div>
+            <div className="text-sm text-slate-400 md:text-slate-500 mt-1">Apply to open bounties and start earning payouts.</div>
             <button onClick={openBountiesFeed} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
               Browse bounties <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -1361,17 +1361,17 @@ function BountiesPane({ data }: { data: { posted: DashboardBountyPosted[]; solve
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.solved.map((s) => (
-              <div key={s.id} className="rounded-xl border border-emerald-500/30 bg-[#141418] overflow-hidden">
+              <div key={s.id} className="rounded-xl border border-emerald-500/30 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden">
                 <BountyCoverThumb url={s.coverUrl} title={s.title} className="aspect-video w-full" />
                 <div className="p-3">
                   <div className="flex items-start justify-between gap-2">
                     <div className="min-w-0">
-                      <div className="text-white font-semibold truncate">{s.title}</div>
-                      <div className="text-[11px] text-emerald-300 mt-1 inline-flex items-center gap-1">
+                      <div className="text-white md:text-slate-900 font-semibold truncate">{s.title}</div>
+                      <div className="text-[11px] text-emerald-300 md:text-emerald-700 mt-1 inline-flex items-center gap-1">
                         <CheckCircle2 className="w-3 h-3" /> Paid {new Date(s.solvedAt).toLocaleDateString()}
                       </div>
                     </div>
-                    <div className="text-white font-black text-sm shrink-0">+${s.payoutUSD.toFixed(2)}</div>
+                    <div className="text-white md:text-slate-900 font-black text-sm shrink-0">+${s.payoutUSD.toFixed(2)}</div>
                   </div>
                 </div>
               </div>
@@ -1402,13 +1402,13 @@ function BountyDetailsModal({ bounty, onClose }: { bounty: DashboardBountyPosted
   const deadline = bounty.deadlineAt ? new Date(bounty.deadlineAt) : null;
   return (
     <div className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-[#141418] border border-white/10 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-2xl bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 overflow-hidden max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
         <BountyCoverThumb url={bounty.coverUrl} title={bounty.title} className="aspect-video w-full rounded-none border-0" />
         <div className="p-5 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h3 className="text-white font-black text-lg truncate">{bounty.title}</h3>
-              <div className="text-xs text-slate-400 mt-1 truncate">{bounty.category}</div>
+              <h3 className="text-white md:text-slate-900 font-black text-lg truncate">{bounty.title}</h3>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-1 truncate">{bounty.category}</div>
               <div className="mt-2">
                 <span className={`inline-flex items-center px-2 py-0.5 rounded-full border text-[10px] font-bold ${badge.className}`}>
                   {isExpiredBounty(bounty) ? "Expired" : badge.label}
@@ -1416,22 +1416,22 @@ function BountyDetailsModal({ bounty, onClose }: { bounty: DashboardBountyPosted
               </div>
             </div>
             <div className="text-right shrink-0">
-              <div className="text-white font-black">${bounty.priceUSD.toFixed(2)}</div>
-              <div className="text-[10px] text-slate-400 mt-1">{bounty.applicantsCount} / {bounty.applicantLimit ?? "∞"} applicants</div>
+              <div className="text-white md:text-slate-900 font-black">${bounty.priceUSD.toFixed(2)}</div>
+              <div className="text-[10px] text-slate-400 md:text-slate-500 mt-1">{bounty.applicantsCount} / {bounty.applicantLimit ?? "∞"} applicants</div>
             </div>
           </div>
 
           {bounty.description && (
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap line-clamp-8">{bounty.description}</p>
+            <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-8">{bounty.description}</p>
           )}
 
-          <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 pt-1">
-            <div><span className="text-slate-500">Posted</span><div className="text-slate-200">{new Date(bounty.createdAt).toLocaleDateString()}</div></div>
-            {deadline && <div><span className="text-slate-500">Deadline</span><div className="text-slate-200">{deadline.toLocaleDateString()}</div></div>}
+          <div className="grid grid-cols-2 gap-2 text-xs text-slate-400 md:text-slate-500 pt-1">
+            <div><span className="text-slate-500">Posted</span><div className="text-slate-200 md:text-slate-700">{new Date(bounty.createdAt).toLocaleDateString()}</div></div>
+            {deadline && <div><span className="text-slate-500">Deadline</span><div className="text-slate-200 md:text-slate-700">{deadline.toLocaleDateString()}</div></div>}
           </div>
 
           <div className="pt-2">
-            <button onClick={onClose} className="w-full px-3 py-2 rounded-lg border border-white/10 text-slate-200 text-sm hover:bg-white/5">Close</button>
+            <button onClick={onClose} className="w-full px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100">Close</button>
           </div>
         </div>
       </div>
@@ -1442,7 +1442,7 @@ function BountyDetailsModal({ bounty, onClose }: { bounty: DashboardBountyPosted
 
 function CourseCoverThumb({ url, title, className = "" }: { url: string | null; title: string; className?: string }) {
   return (
-    <div className={`relative overflow-hidden rounded-lg bg-white/5 border border-white/10 ${className}`}>
+    <div className={`relative overflow-hidden rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 ${className}`}>
       {url ? (
         <img src={url} alt={title} loading="lazy" decoding="async" className="absolute inset-0 w-full h-full object-cover" />
       ) : (
@@ -1476,17 +1476,17 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
 
   return (
     <div>
-      <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-1 mb-4 gap-1">
+      <div className="inline-flex rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 mb-4 gap-1">
         <TabButton active={sub === "enrolled"} onClick={() => setSub("enrolled")}>Enrolled ({data.enrolled.length})</TabButton>
         <TabButton active={sub === "published"} onClick={() => setSub("published")}>Published ({data.published.length})</TabButton>
       </div>
 
       {sub === "enrolled" && (
         data.enrolled.length === 0 ? (
-          <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+          <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 text-center">
             <GraduationCap className="w-8 h-8 mx-auto text-slate-500" />
-            <div className="mt-3 text-white font-semibold">No courses yet</div>
-            <div className="text-sm text-slate-400 mt-1">Start learning by browsing our top courses.</div>
+            <div className="mt-3 text-white md:text-slate-900 font-semibold">No courses yet</div>
+            <div className="text-sm text-slate-400 md:text-slate-500 mt-1">Start learning by browsing our top courses.</div>
             <button onClick={openAcademy} className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200">
               Browse top courses <ArrowUpRight className="w-4 h-4" />
             </button>
@@ -1500,15 +1500,15 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                   {inProgress.map((c) => {
                     const pct = c.totalModules > 0 ? Math.round((c.completedModules / c.totalModules) * 100) : 0;
                     return (
-                      <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
+                      <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden hover:border-white/20 md:border-slate-300 transition">
                         <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
                         <div className="p-3">
-                          <div className="text-white font-semibold truncate">{c.title}</div>
+                          <div className="text-white md:text-slate-900 font-semibold truncate">{c.title}</div>
                           <div className="text-[11px] text-slate-500 mt-1">{c.completedModules}/{c.totalModules} modules · {pct}%</div>
-                          <div className="mt-2 h-1.5 rounded-full bg-white/5 overflow-hidden">
+                          <div className="mt-2 h-1.5 rounded-full bg-white/5 md:bg-slate-50 overflow-hidden">
                             <div className="h-full bg-white transition-all" style={{ width: `${pct}%` }} />
                           </div>
-                          <div className="mt-3 text-xs text-white font-bold inline-flex items-center gap-1">Continue learning <ArrowUpRight className="w-3 h-3" /></div>
+                          <div className="mt-3 text-xs text-white md:text-slate-900 font-bold inline-flex items-center gap-1">Continue learning <ArrowUpRight className="w-3 h-3" /></div>
                         </div>
                       </button>
                     );
@@ -1522,12 +1522,12 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
                 <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2 flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed ({completed.length})</div>
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
                   {completed.map((c) => (
-                    <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-emerald-500/30 bg-[#141418] overflow-hidden hover:border-emerald-500/60 transition">
+                    <button key={c.id} onClick={openAcademy} className="text-left rounded-xl border border-emerald-500/30 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden hover:border-emerald-500/60 transition">
                       <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
                       <div className="p-3">
-                        <div className="text-white font-semibold truncate">{c.title}</div>
-                        <div className="text-[11px] text-emerald-300 mt-1 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed {c.completedAt ? new Date(c.completedAt).toLocaleDateString() : ""}</div>
-                        <div className="mt-3 text-xs text-white font-bold inline-flex items-center gap-1">Review course <ArrowUpRight className="w-3 h-3" /></div>
+                        <div className="text-white md:text-slate-900 font-semibold truncate">{c.title}</div>
+                        <div className="text-[11px] text-emerald-300 md:text-emerald-700 mt-1 inline-flex items-center gap-1"><CheckCircle2 className="w-3 h-3" /> Completed {c.completedAt ? new Date(c.completedAt).toLocaleDateString() : ""}</div>
+                        <div className="mt-3 text-xs text-white md:text-slate-900 font-bold inline-flex items-center gap-1">Review course <ArrowUpRight className="w-3 h-3" /></div>
                       </div>
                     </button>
                   ))}
@@ -1552,10 +1552,10 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
             </button>
           </div>
           {data.published.length === 0 ? (
-            <div className="rounded-xl border border-white/10 bg-[#141418] p-6 text-center">
+            <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 text-center">
               <GraduationCap className="w-8 h-8 mx-auto text-slate-500" />
-              <div className="mt-3 text-white font-semibold">No courses published</div>
-              <div className="text-sm text-slate-400 mt-1">Teach what you know and start earning.</div>
+              <div className="mt-3 text-white md:text-slate-900 font-semibold">No courses published</div>
+              <div className="text-sm text-slate-400 md:text-slate-500 mt-1">Teach what you know and start earning.</div>
               <button
                 onClick={() => setPublishOpen(true)}
                 className="mt-4 inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white text-black font-bold text-sm hover:bg-slate-200"
@@ -1566,19 +1566,19 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {data.published.map((c) => (
-                <button key={c.id} onClick={() => setDetailsFor(c)} className="text-left rounded-xl border border-white/10 bg-[#141418] overflow-hidden hover:border-white/20 transition">
+                <button key={c.id} onClick={() => setDetailsFor(c)} className="text-left rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden hover:border-white/20 md:border-slate-300 transition">
                   <CourseCoverThumb url={c.coverUrl} title={c.title} className="aspect-video w-full" />
                   <div className="p-3">
                     <div className="flex items-start justify-between gap-2">
                       <div className="min-w-0">
-                        <div className="text-white font-semibold truncate">{c.title}</div>
+                        <div className="text-white md:text-slate-900 font-semibold truncate">{c.title}</div>
                         <div className="text-[11px] text-slate-500 mt-1">
                           {c.isPublished ? "Published" : "Draft"} · {c.enrollments} enrolled
                         </div>
                       </div>
                       <div className="text-right shrink-0">
-                        <div className="text-white font-black text-sm">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
-                        {c.revenueUSD > 0 && <div className="text-[10px] text-slate-400 mt-0.5">${c.revenueUSD.toFixed(2)}</div>}
+                        <div className="text-white md:text-slate-900 font-black text-sm">{c.isFree ? "Free" : `$${c.priceUSD.toFixed(2)}`}</div>
+                        {c.revenueUSD > 0 && <div className="text-[10px] text-slate-400 md:text-slate-500 mt-0.5">${c.revenueUSD.toFixed(2)}</div>}
                       </div>
                     </div>
                   </div>
@@ -1617,26 +1617,26 @@ function CoursesPane({ data }: { data: { enrolled: DashboardEnrolledCourse[]; pu
 function CourseDetailsModal({ course, onClose, onEdit }: { course: DashboardPublishedCourse; onClose: () => void; onEdit: () => void }) {
   return (
     <div className="fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-lg rounded-2xl bg-[#141418] border border-white/10 overflow-hidden" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-lg rounded-2xl bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 overflow-hidden" onClick={(e) => e.stopPropagation()}>
         <CourseCoverThumb url={course.coverUrl} title={course.title} className="aspect-video w-full rounded-none border-0" />
         <div className="p-5 space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div>
-              <h3 className="text-white font-black text-lg">{course.title}</h3>
-              <div className="text-xs text-slate-400 mt-1">
+              <h3 className="text-white md:text-slate-900 font-black text-lg">{course.title}</h3>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-1">
                 {course.category ?? "—"} · {course.level ?? "—"} · {course.isPublished ? "Published" : "Draft"}
               </div>
             </div>
             <div className="text-right">
-              <div className="text-white font-black">{course.isFree ? "Free" : `$${course.priceUSD.toFixed(2)}`}</div>
-              <div className="text-[10px] text-slate-400 mt-1">{course.enrollments} enrolled</div>
+              <div className="text-white md:text-slate-900 font-black">{course.isFree ? "Free" : `$${course.priceUSD.toFixed(2)}`}</div>
+              <div className="text-[10px] text-slate-400 md:text-slate-500 mt-1">{course.enrollments} enrolled</div>
             </div>
           </div>
           {course.description && (
-            <p className="text-sm text-slate-300 leading-relaxed whitespace-pre-wrap line-clamp-6">{course.description}</p>
+            <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap line-clamp-6">{course.description}</p>
           )}
           <div className="grid grid-cols-2 gap-2 pt-2">
-            <button onClick={onClose} className="px-3 py-2 rounded-lg border border-white/10 text-slate-200 text-sm hover:bg-white/5">Close</button>
+            <button onClick={onClose} className="px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-sm hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100">Close</button>
             <button onClick={onEdit} className="px-3 py-2 rounded-lg bg-white text-black font-bold text-sm inline-flex items-center justify-center gap-1">
               <Pencil className="w-4 h-4" /> Edit course
             </button>
@@ -1650,13 +1650,13 @@ function CourseDetailsModal({ course, onClose, onEdit }: { course: DashboardPubl
 function EditBlockedModal({ course, onClose }: { course: DashboardPublishedCourse; onClose: () => void }) {
   return (
     <div className="fixed inset-0 z-[90] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl bg-[#141418] border border-amber-500/40 p-5" onClick={(e) => e.stopPropagation()}>
+      <div className="w-full max-w-md rounded-2xl bg-[#141418] md:bg-white md:shadow-sm border border-amber-500/40 p-5" onClick={(e) => e.stopPropagation()}>
         <div className="flex items-start gap-3">
           <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0" />
           <div>
-            <h3 className="text-white font-black text-lg">Editing locked</h3>
-            <p className="text-sm text-slate-300 mt-2">
-              <span className="text-white font-semibold">{course.enrollments} student{course.enrollments === 1 ? " is" : "s are"}</span> currently studying <span className="text-white font-semibold">{course.title}</span>. To protect their progress, you can't make changes while enrollments are active.
+            <h3 className="text-white md:text-slate-900 font-black text-lg">Editing locked</h3>
+            <p className="text-sm text-slate-300 md:text-slate-600 mt-2">
+              <span className="text-white md:text-slate-900 font-semibold">{course.enrollments} student{course.enrollments === 1 ? " is" : "s are"}</span> currently studying <span className="text-white font-semibold">{course.title}</span>. To protect their progress, you can't make changes while enrollments are active.
             </p>
             <p className="text-xs text-slate-500 mt-3">Tip: publish an updated edition as a new course, or wait until active students complete their modules.</p>
           </div>
@@ -1680,23 +1680,23 @@ function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | nul
   return (
     <div className="space-y-5">
       {/* Main balance card */}
-      <div className="rounded-2xl border border-white/10 bg-[#141418] p-5">
+      <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5">
         <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Wallet balance ({home})</div>
-        <div className="mt-2 text-3xl md:text-4xl font-black text-white">{fmtHomeAmt(data.mainBalance, home)}</div>
-        <div className="text-xs text-slate-400 mt-1">
+        <div className="mt-2 text-3xl md:text-4xl font-black text-white md:text-slate-900">{fmtHomeAmt(data.mainBalance, home)}</div>
+        <div className="text-xs text-slate-400 md:text-slate-500 mt-1">
           {home === "USD" ? "USD account" : <>≈ {fmtHomeAmt(data.mainBalanceUSD, "USD")} USD equivalent</>}
         </div>
       </div>
 
       {/* Cashback & Escrow grid */}
       <div className="grid grid-cols-2 gap-3">
-        <div className="rounded-2xl border border-white/10 bg-[#141418] p-4">
+        <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Cashback earned</div>
-          <div className="mt-1.5 text-xl font-black text-white">{fmtHomeAmt(data.cashback, home)}</div>
+          <div className="mt-1.5 text-xl font-black text-white md:text-slate-900">{fmtHomeAmt(data.cashback, home)}</div>
         </div>
-        <div className="rounded-2xl border border-white/10 bg-[#141418] p-4">
+        <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4">
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold">Escrow balance</div>
-          <div className="mt-1.5 text-xl font-black text-white">{fmtHomeAmt(data.escrow, home)}</div>
+          <div className="mt-1.5 text-xl font-black text-white md:text-slate-900">{fmtHomeAmt(data.escrow, home)}</div>
         </div>
       </div>
 
@@ -1705,12 +1705,12 @@ function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | nul
           <div className="text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-2">Pending payouts</div>
           <div className="space-y-2">
             {data.pendingPayouts.map((p) => (
-              <div key={p.id} className="rounded-xl border border-white/10 bg-white/5 p-3 flex items-center justify-between">
+              <div key={p.id} className="rounded-xl border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 p-3 flex items-center justify-between">
                 <div>
-                  <div className="text-white font-semibold">{p.currency} {p.amount.toFixed(2)}</div>
-                  <div className="text-xs text-slate-400 mt-0.5">{p.method.toUpperCase()} · Requested {new Date(p.createdAt).toLocaleDateString()}</div>
+                  <div className="text-white md:text-slate-900 font-semibold">{p.currency} {p.amount.toFixed(2)}</div>
+                  <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">{p.method.toUpperCase()} · Requested {new Date(p.createdAt).toLocaleDateString()}</div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-slate-300">{p.status}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300 md:text-slate-600">{p.status}</span>
               </div>
             ))}
           </div>
@@ -1728,20 +1728,20 @@ function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | nul
           <EmptyState icon={WalletIcon} title="No transactions yet" hint="Sales, purchases and payouts will show here." />
         ) : (
           <>
-            <div className="rounded-xl border border-white/10 bg-[#141418] overflow-hidden divide-y divide-white/5">
+            <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden divide-y divide-white/5">
               {data.recent.map((r) => (
                 <div key={r.id} className="p-3 flex items-center justify-between gap-3">
                   <div className="flex items-center gap-3 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-white/5 flex items-center justify-center text-white">
+                    <div className="w-8 h-8 rounded-lg bg-white/5 md:bg-slate-50 flex items-center justify-center text-white md:text-slate-900">
                       {r.inflow ? <ArrowDownRight className="w-4 h-4" /> : <ArrowUpRight className="w-4 h-4" />}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-white font-semibold text-sm truncate">{r.type}</div>
+                      <div className="text-white md:text-slate-900 font-semibold text-sm truncate">{r.type}</div>
                       <div className="text-[11px] text-slate-500 mt-0.5">{new Date(r.occurredAt).toLocaleString()} · {r.status}</div>
                     </div>
                   </div>
                   <div className="text-right shrink-0">
-                    <div className="font-black text-sm text-white">{r.inflow ? "+" : "-"}{fmtHomeAmt(r.amountHome, home)}</div>
+                    <div className="font-black text-sm text-white md:text-slate-900">{r.inflow ? "+" : "-"}{fmtHomeAmt(r.amountHome, home)}</div>
                     {r.currency !== home && (
                       <div className="text-[10px] text-slate-500 mt-0.5">{r.currency} {r.amount.toFixed(2)}</div>
                     )}
@@ -1755,7 +1755,7 @@ function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | nul
                   type="button"
                   disabled={page <= 1}
                   onClick={() => onPage(page - 1)}
-                  className="px-3 py-1.5 rounded-lg border border-white/15 text-white text-sm disabled:opacity-40 hover:border-white/30"
+                  className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
                 >
                   Prev
                 </button>
@@ -1763,7 +1763,7 @@ function WalletPane({ data, page, onPage }: { data: DashboardWalletSummary | nul
                   type="button"
                   disabled={page >= totalPages}
                   onClick={() => onPage(page + 1)}
-                  className="px-3 py-1.5 rounded-lg border border-white/15 text-white text-sm disabled:opacity-40 hover:border-white/30"
+                  className="px-3 py-1.5 rounded-lg border border-white/15 md:border-slate-200 text-white md:text-slate-900 text-sm disabled:opacity-40 hover:border-white/30 md:border-slate-300"
                 >
                   Next
                 </button>
@@ -1783,7 +1783,7 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
   return (
     <div>
       <div className="-mx-1 mb-4 overflow-x-auto no-scrollbar">
-        <div className="inline-flex min-w-max rounded-lg bg-[#141418] border border-white/10 p-1 gap-1 mx-1">
+        <div className="inline-flex min-w-max rounded-lg bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 p-1 gap-1 mx-1">
           <TabButton active={sub === "followers"} onClick={() => setSub("followers")}>Followers ({data.followers.length})</TabButton>
           <TabButton active={sub === "following"} onClick={() => setSub("following")}>Following ({data.following.length})</TabButton>
           <TabButton active={sub === "circles"} onClick={() => setSub("circles")}>Circles ({data.circles.length})</TabButton>
@@ -1797,12 +1797,12 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {rows.map((u) => (
-              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center gap-3 hover:border-white/20 transition min-w-0">
-                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/15">
+              <Link key={u.userId + u.at} to="/profile/$id" params={{ id: u.slug }} className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex items-center gap-3 hover:border-white/20 md:border-slate-300 transition min-w-0">
+                <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 border border-white/15 md:border-slate-200">
                   <AvatarImage src={u.avatarUrl} alt={u.name} />
                 </div>
                 <div className="min-w-0">
-                  <div className="text-white font-semibold text-sm truncate">{u.name}</div>
+                  <div className="text-white md:text-slate-900 font-semibold text-sm truncate">{u.name}</div>
                   <div className="text-[11px] text-slate-500 truncate">@{u.slug}</div>
                 </div>
               </Link>
@@ -1816,15 +1816,15 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
             {data.circles.map((c) => (
-              <div key={c.id} className="rounded-xl border border-white/10 bg-[#141418] p-3 flex items-center justify-between gap-3">
+              <div key={c.id} className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 flex items-center justify-between gap-3">
                 <div className="flex items-center gap-3 min-w-0">
-                  <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
+                  <div className="w-10 h-10 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 flex items-center justify-center text-lg">{c.emoji ?? "◎"}</div>
                   <div className="min-w-0">
-                    <div className="text-white font-semibold text-sm truncate">{c.name}</div>
+                    <div className="text-white md:text-slate-900 font-semibold text-sm truncate">{c.name}</div>
                     <div className="text-[11px] text-slate-500">Joined {new Date(c.joinedAt).toLocaleDateString()}</div>
                   </div>
                 </div>
-                <span className="text-[10px] font-bold uppercase text-slate-300">{c.role}</span>
+                <span className="text-[10px] font-bold uppercase text-slate-300 md:text-slate-600">{c.role}</span>
               </div>
             ))}
           </div>
