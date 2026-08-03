@@ -288,19 +288,20 @@ export function Bounties() {
 
   // ------- Public board -------
   return (
+    <div className="md:bg-white md:min-h-screen">
     <div className="max-w-5xl mx-auto w-full px-4 py-6">
       <div className="flex items-end justify-between mb-5 gap-3 flex-wrap">
         <div>
-          <h1 className="text-white text-2xl md:text-3xl font-black inline-flex items-center gap-2">
-            <Target className="w-6 h-6 text-emerald-400" /> Bounty & Escrow Board
+          <h1 className="text-white md:text-slate-900 text-2xl md:text-3xl font-black inline-flex items-center gap-2">
+            <Target className="w-6 h-6 text-emerald-400 md:text-emerald-600" /> Bounty & Escrow Board
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 md:text-slate-600 mt-1">
             Post work, evaluate applicants, run escrow-protected contracts end-to-end.
           </p>
         </div>
         <button
           onClick={() => require(1, () => setPostOpen(true), "issuer")}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)]"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)] md:shadow-sm"
         >
           <Plus className="w-4 h-4" /> Post a bounty
         </button>
@@ -308,21 +309,21 @@ export function Bounties() {
 
       {/* Metric grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 inline-flex items-center gap-1.5">
+        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)] md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
             <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
           </div>
-          <div className="mt-2 text-white text-2xl md:text-3xl font-black">
+          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
             {formatMoney(totalLocked, baseCurrency)}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
+          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
         </div>
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 inline-flex items-center gap-1.5">
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:border-slate-200 md:shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 inline-flex items-center gap-1.5">
             <Target className="w-3 h-3" /> Active Tasks Seeking Solvers
           </div>
-          <div className="mt-2 text-white text-2xl md:text-3xl font-black">{activeCount}</div>
-          <div className="text-xs text-slate-500 mt-1">Filtered live from open bounties</div>
+          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">{activeCount}</div>
+          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Filtered live from open bounties</div>
         </div>
       </div>
 
@@ -336,8 +337,8 @@ export function Bounties() {
               onClick={() => setFilter(f.key)}
               className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                 active
-                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                  : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
+                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                  : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
               }`}
             >
               {f.label}
@@ -345,6 +346,7 @@ export function Bounties() {
           );
         })}
       </div>
+
 
       {/* Bounty stream */}
       <div className="space-y-3">
