@@ -383,14 +383,15 @@ export function DiscoveryPanel() {
 
       {/* 3. Top Peers in Your Circle — top 5 across any star tier */}
       <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4" aria-busy={isLoading}>
-        <div className="flex items-center justify-between mb-3">
-          <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
-            <span>👑</span> Top Peers in Your Circle
+        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
+          <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
+            <span className="shrink-0">👑</span> <span className="truncate">Top Peers in Your Circle</span>
           </h3>
-          <button onClick={() => navigateSection("Circles")} className="text-[11px] text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700">
+          <button onClick={() => navigateSection("Circles")} className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors">
             See all
           </button>
         </div>
+
         {isLoading && topPeers5.length === 0 ? (
           <ul className="space-y-2">
             {Array.from({ length: 5 }).map((_, i) => (
