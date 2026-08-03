@@ -23,6 +23,8 @@ import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { MarketplaceBanner } from "@/components/oventric/MarketplaceBanner";
+
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -253,7 +255,9 @@ export function Marketplace() {
 
   return (
     <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
+      <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+
       {/* ── Mode cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <ModeCard
