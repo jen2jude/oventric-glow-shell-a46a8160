@@ -363,7 +363,7 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
   };
 
   return (
-    <div className="modal-light fixed inset-0 z-[105] bg-black">
+    <div className="fixed inset-0 z-[105] bg-black">
       <button
         type="button"
         onClick={onClose}

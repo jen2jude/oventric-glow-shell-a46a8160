@@ -179,7 +179,7 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
 
   return (
     <div
-      className="modal-light fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
+      className="fixed inset-0 z-[100] bg-black/95 flex items-center justify-center"
       onClick={onClose}
       role="dialog"
       aria-modal="true"
