@@ -160,24 +160,19 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
       <div className="my-3 h-px bg-white/10" />
 
-      {/* Dashboard shortcuts */}
-      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">My dashboard</p>
+      {/* Main sections */}
+      <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Explore</p>
       <nav className="flex flex-col">
-        {dashVisible.map((it) => (
-          <Link
-            key={it.tab}
-            to="/dashboard"
-            search={{ tab: it.tab }}
-            className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-sm font-semibold text-slate-200 transition-colors hover:bg-white/10"
-          >
+        {DASH_ITEMS.map((it) => (
+          <Row key={it.section} onClick={() => onSelect(it.section)}>
             <span className="flex h-7 w-7 items-center justify-center rounded-full bg-emerald-500/15 text-emerald-400">
               <it.icon className="h-4 w-4" strokeWidth={2.5} />
             </span>
             <span className="truncate">{it.label}</span>
-          </Link>
+          </Row>
         ))}
-        <MoreToggle open={moreDash} onToggle={() => setMoreDash((v) => !v)} label="See more" />
       </nav>
+
 
       <div className="my-3 h-px bg-white/10" />
 
