@@ -553,12 +553,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Solve submission form / submitted solution */}
       {bounty.accepted_applicant_id && (isSolver || isPoster) && (
+        <div id="bounty-solve-form">
         <BountySolveForm
           bountyId={bountyId}
           canSubmit={isSolver}
           delivered={bounty.status === "solved" || !!bounty.solved_at}
           onDelivered={doMarkSolved}
         />
+        </div>
       )}
 
       {/* Apply form (non-poster, no accepted solver yet) */}
