@@ -288,19 +288,20 @@ export function Bounties() {
 
   // ------- Public board -------
   return (
+    <div className="md:bg-white md:min-h-screen">
     <div className="max-w-5xl mx-auto w-full px-4 py-6">
       <div className="flex items-end justify-between mb-5 gap-3 flex-wrap">
         <div>
-          <h1 className="text-white text-2xl md:text-3xl font-black inline-flex items-center gap-2">
-            <Target className="w-6 h-6 text-emerald-400" /> Bounty & Escrow Board
+          <h1 className="text-white md:text-slate-900 text-2xl md:text-3xl font-black inline-flex items-center gap-2">
+            <Target className="w-6 h-6 text-emerald-400 md:text-emerald-600" /> Bounty & Escrow Board
           </h1>
-          <p className="text-sm text-slate-400 mt-1">
+          <p className="text-sm text-slate-400 md:text-slate-600 mt-1">
             Post work, evaluate applicants, run escrow-protected contracts end-to-end.
           </p>
         </div>
         <button
           onClick={() => require(1, () => setPostOpen(true), "issuer")}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)]"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)] md:shadow-sm"
         >
           <Plus className="w-4 h-4" /> Post a bounty
         </button>
@@ -308,21 +309,21 @@ export function Bounties() {
 
       {/* Metric grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 inline-flex items-center gap-1.5">
+        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)] md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
             <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
           </div>
-          <div className="mt-2 text-white text-2xl md:text-3xl font-black">
+          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
             {formatMoney(totalLocked, baseCurrency)}
           </div>
-          <div className="text-xs text-slate-500 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
+          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
         </div>
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 inline-flex items-center gap-1.5">
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:border-slate-200 md:shadow-sm">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 inline-flex items-center gap-1.5">
             <Target className="w-3 h-3" /> Active Tasks Seeking Solvers
           </div>
-          <div className="mt-2 text-white text-2xl md:text-3xl font-black">{activeCount}</div>
-          <div className="text-xs text-slate-500 mt-1">Filtered live from open bounties</div>
+          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">{activeCount}</div>
+          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Filtered live from open bounties</div>
         </div>
       </div>
 
@@ -336,8 +337,8 @@ export function Bounties() {
               onClick={() => setFilter(f.key)}
               className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                 active
-                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                  : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20"
+                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                  : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
               }`}
             >
               {f.label}
@@ -345,6 +346,7 @@ export function Bounties() {
           );
         })}
       </div>
+
 
       {/* Bounty stream */}
       <div className="space-y-3">
@@ -357,41 +359,42 @@ export function Bounties() {
             <BountySkeleton />
           </div>
         ) : bountiesError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100">
+          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100 md:border-red-200 md:bg-red-50 md:text-red-700">
             {bountiesError}
           </div>
         ) : dbBounties.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center">
-            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
-              <Target className="w-7 h-7 text-emerald-400" />
+          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
+            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 md:bg-emerald-50 flex items-center justify-center mb-4">
+              <Target className="w-7 h-7 text-emerald-400 md:text-emerald-600" />
             </div>
-            <h3 className="text-white text-lg font-bold mb-2">No live bounties yet</h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+            <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">No live bounties yet</h3>
+            <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
               The board is clear right now. Be the first to post a task and start attracting verified solvers.
             </p>
             <button
               onClick={() => require(1, () => setPostOpen(true), "issuer")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold transition-colors"
             >
               <Plus className="w-4 h-4" /> Post the first bounty
             </button>
           </div>
         ) : filtered.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center">
-            <div className="w-14 h-14 mx-auto rounded-full bg-slate-500/10 flex items-center justify-center mb-4">
-              <Clock className="w-7 h-7 text-slate-400" />
+          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
+            <div className="w-14 h-14 mx-auto rounded-full bg-slate-500/10 md:bg-slate-100 flex items-center justify-center mb-4">
+              <Clock className="w-7 h-7 text-slate-400 md:text-slate-500" />
             </div>
-            <h3 className="text-white text-lg font-bold mb-2">No matches for this filter</h3>
-            <p className="text-slate-400 text-sm max-w-md mx-auto mb-6">
+            <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">No matches for this filter</h3>
+            <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
               No active bounties in this category right now. Try another filter or post a new task.
             </p>
             <button
               onClick={() => setFilter("all")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white text-sm font-bold transition-colors"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white md:bg-white md:hover:bg-slate-50 md:border-slate-200 md:text-slate-700 text-sm font-bold transition-colors"
             >
               <ArrowLeft className="w-4 h-4" /> Show all bounties
             </button>
           </div>
+
         ) : (
           filtered.map((b, idx) => {
             const rows: React.ReactNode[] = [
@@ -421,21 +424,24 @@ export function Bounties() {
         }}
       />
     </div>
+    </div>
+
   );
 }
 
 function BountySkeleton() {
   return (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse">
+    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse md:bg-white md:border-slate-200">
       <div className="flex-1 min-w-0 space-y-3">
-        <div className="h-5 w-28 rounded bg-slate-700" />
-        <div className="h-5 w-3/4 rounded bg-slate-700" />
+        <div className="h-5 w-28 rounded bg-slate-700 md:bg-slate-200" />
+        <div className="h-5 w-3/4 rounded bg-slate-700 md:bg-slate-200" />
         <div className="flex items-center gap-4">
-          <div className="h-3.5 w-28 rounded bg-slate-700" />
-          <div className="h-3.5 w-24 rounded bg-slate-700" />
+          <div className="h-3.5 w-28 rounded bg-slate-700 md:bg-slate-200" />
+          <div className="h-3.5 w-24 rounded bg-slate-700 md:bg-slate-200" />
         </div>
       </div>
-      <div className="h-10 w-32 rounded-lg bg-slate-700 shrink-0" />
+      <div className="h-10 w-32 rounded-lg bg-slate-700 md:bg-slate-200 shrink-0" />
+
     </div>
   );
 }
@@ -455,24 +461,25 @@ function BountyRow({
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
-    <div className={`bg-[#1E1E24] rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)]' : 'border border-white/5'}`}>
+    <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)] md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
+
       <div className="flex-1 min-w-0">
-        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wider">
+        <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
           ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
-        <h3 className="mt-2 text-white font-bold text-base md:text-lg leading-snug">
+        <h3 className="mt-2 text-white md:text-slate-900 font-bold text-base md:text-lg leading-snug">
           {bounty.title}
         </h3>
-        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
+        <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-600">
           <span className="inline-flex items-center gap-1">
-            <Clock className="w-3.5 h-3.5 text-amber-400" />
+            <Clock className="w-3.5 h-3.5 text-amber-400 md:text-amber-500" />
             Expires in {formatCountdown(remaining)}
           </span>
           <span className="inline-flex items-center gap-1">
             <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
           </span>
-          <span className="inline-flex items-center gap-1 text-emerald-300/90">
+          <span className="inline-flex items-center gap-1 text-emerald-300/90 md:text-emerald-700">
             Solver {formatMoney(bounty.rewardValue * 0.8, bounty.rewardCurrency)} · Fee {formatMoney(bounty.rewardValue * 0.2, bounty.rewardCurrency)}
           </span>
         </div>
@@ -481,10 +488,11 @@ function BountyRow({
         onClick={onOpen}
         className={`shrink-0 px-4 py-2.5 rounded-lg font-bold text-sm transition-colors whitespace-nowrap inline-flex items-center gap-1.5 ${
           alreadyApplied
-            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40"
-            : "bg-emerald-500 hover:bg-emerald-400 text-black"
+            ? "bg-slate-700 hover:bg-slate-600 text-emerald-300 border border-emerald-500/40 md:bg-emerald-50 md:hover:bg-emerald-100 md:text-emerald-700 md:border-emerald-200"
+            : "bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white"
         }`}
       >
+
         {alreadyApplied ? (
           <>
             <CheckCircle2 className="w-4 h-4" />
@@ -512,7 +520,7 @@ function LiveAdSlot({
   if (loading) {
     if (isEven) {
       return (
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between animate-pulse">
+        <div className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between animate-pulse md:bg-white md:border-slate-200">
           <div className="flex items-center gap-2">
             <div className="w-3.5 h-3.5 rounded bg-slate-700" />
             <div className="h-2.5 w-24 rounded bg-slate-700" />
@@ -523,7 +531,7 @@ function LiveAdSlot({
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black animate-pulse">
+      <div className="rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black animate-pulse md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0 space-y-2">
             <div className="h-2.5 w-20 rounded bg-slate-700" />
@@ -538,7 +546,7 @@ function LiveAdSlot({
   if (ads.length === 0) {
     if (isEven) {
       return (
-        <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-xl px-4 py-3 flex items-center justify-between">
+        <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-xl px-4 py-3 flex items-center justify-between md:bg-white md:border-slate-300">
           <div className="inline-flex items-center gap-2 text-xs text-slate-500">
             <Megaphone className="w-3.5 h-3.5" />
             <span className="text-[10px] font-bold uppercase tracking-wider">Sponsored · Available</span>
@@ -549,15 +557,15 @@ function LiveAdSlot({
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-dashed border-white/10 bg-gradient-to-r from-slate-800/50 via-slate-900/50 to-black/50">
+      <div className="rounded-xl overflow-hidden border border-dashed border-white/10 bg-gradient-to-r from-slate-800/50 via-slate-900/50 to-black/50 md:border-slate-300 md:from-slate-50 md:via-white md:to-slate-50">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sponsored · Available</div>
-            <div className="mt-1 text-slate-400 font-bold text-sm md:text-base">
+            <div className="mt-1 text-slate-400 md:text-slate-700 font-bold text-sm md:text-base">
               Your brand could appear here. Reach builders across Oventric.
             </div>
           </div>
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/5 text-slate-400 text-xs font-semibold border border-white/10">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/5 text-slate-400 text-xs font-semibold border border-white/10 md:bg-slate-50 md:text-slate-600 md:border-slate-200">
             Learn more
           </span>
         </div>
@@ -575,12 +583,12 @@ function LiveAdSlot({
         href={ad.cta_url || "#"}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/20 transition-colors"
+        className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/20 transition-colors md:bg-white md:border-slate-200 md:hover:border-slate-300"
       >
         <div className="inline-flex items-center gap-2 text-xs text-slate-400">
           <Megaphone className="w-3.5 h-3.5" />
           <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sponsored</span>
-          <span className="text-slate-300">{ad.advertiser} · {ad.description || ad.title}</span>
+          <span className="text-slate-300 md:text-slate-700">{ad.advertiser} · {ad.description || ad.title}</span>
         </div>
         <span className="text-xs font-semibold text-emerald-400">{ctaLabel} →</span>
       </a>
@@ -593,12 +601,12 @@ function LiveAdSlot({
       href={ad.cta_url || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="block rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black hover:border-white/20 transition-colors"
+      className="block rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black hover:border-white/20 transition-colors md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white md:hover:border-slate-300"
     >
       <div className="flex items-center justify-between px-5 py-4 gap-4">
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400">Sponsored</div>
-          <div className="mt-1 text-white font-bold text-sm md:text-base">
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">Sponsored</div>
+          <div className="mt-1 text-white md:text-slate-900 font-bold text-sm md:text-base">
             {ad.advertiser} · {ad.title}
           </div>
           {ad.description && (
@@ -615,7 +623,7 @@ function LiveAdSlot({
           />
 
         ) : (
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white text-xs font-semibold">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold">
             {ctaLabel}
           </span>
         )}
