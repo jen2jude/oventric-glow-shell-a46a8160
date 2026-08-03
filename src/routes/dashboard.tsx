@@ -652,8 +652,6 @@ function DigitalList({
 }
 
 function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () => void }) {
-  const [tracking, setTracking] = useState<string | null>(null);
-
   if (rows === null) return <DigitalSkeleton />;
   if (rows.length === 0) {
     return (
@@ -666,78 +664,9 @@ function SalesList({ rows, onChanged }: { rows: SaleDTO[] | null; onChanged: () 
     );
   }
 
-  const overdue = (s: SaleDTO) =>
-    s.requiresManualDelivery &&
-    !s.deliveredAt &&
-    s.escrowStatus === "held" &&
-    Date.now() - new Date(s.createdAt).getTime() > 24 * 3600 * 1000;
-
-  const badge = (s: SaleDTO) => {
-    if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300" };
-    if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700" };
-    if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300" };
-    if (overdue(s)) return { label: "Overdue 24h+", cls: "bg-red-500 text-white md:text-slate-900" };
-    if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black" };
-    return { label: "In escrow", cls: "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700" };
-  };
-
-  const messageBuyer = (buyerId: string) => {
-    if (typeof window === "undefined") return;
-    window.location.href = `/?dm=${buyerId}`;
-  };
-
-  return (
-    <div className="space-y-3">
-      {rows.map((s) => {
-        const b = badge(s);
-        return (
-          <div key={s.orderId} className="space-y-2">
-            <div className="rounded-xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0">
-                  <div className="text-sm font-bold text-white md:text-slate-900 truncate">{s.productName}</div>
-                  <div className="text-xs text-slate-400 md:text-slate-500 truncate">
-                    {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
-                  </div>
-                </div>
-                <span className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}>
-                  {b.label}
-                </span>
-              </div>
-              <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
-                <div className="text-xs text-slate-400 md:text-slate-500">
-                  {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
-                </div>
-                <div className="flex items-center gap-2">
-                  <button
-                    onClick={() => messageBuyer(s.buyerId)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
-                  >
-                    <MessageCircle className="w-3.5 h-3.5" /> Message buyer
-                  </button>
-                  <Link
-                    to="/order/$id"
-                    params={{ id: s.orderId }}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-50 hover:bg-white/10 md:bg-slate-100 md:hover:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 text-xs font-semibold"
-                  >
-                    View order
-                  </Link>
-                  <button
-                    onClick={() => setTracking((t) => (t === s.orderId ? null : s.orderId))}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-900 text-xs font-bold"
-                  >
-                    <Truck className="w-3.5 h-3.5" /> {tracking === s.orderId ? "Hide" : "Manage"}
-                  </button>
-                </div>
-              </div>
-            </div>
-            {tracking === s.orderId && <OrderFulfilmentRoadmap orderId={s.orderId} onChanged={onChanged} />}
-          </div>
-        );
-      })}
-    </div>
-  );
+  return <SalesFulfilmentList rows={rows} onChanged={onChanged} />;
 }
+
 
 
 function PhysicalList({
