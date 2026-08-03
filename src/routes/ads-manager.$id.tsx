@@ -83,7 +83,7 @@ function CampaignDetailPage() {
 
   if (error || !detail) {
     return (
-      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center p-6">
+      <div className="page-light min-h-screen bg-[#0b0b0d] flex items-center justify-center p-6">
         <div className="max-w-md text-center">
           <div className="text-white font-semibold mb-2">Couldn&apos;t load campaign</div>
           <p className="text-slate-400 text-sm mb-4">{error ?? "This campaign is unavailable."}</p>
@@ -94,7 +94,7 @@ function CampaignDetailPage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200 pb-24">
+    <div className="page-light min-h-screen bg-[#0b0b0d] text-slate-200 pb-24">
       <div className="max-w-5xl mx-auto px-4 py-8">
         <button onClick={() => navigate({ to: "/ads-manager" })} className="inline-flex items-center gap-2 text-sm text-slate-400 hover:text-white mb-6">
           <ArrowLeft className="w-4 h-4" /> Ads Manager
