@@ -106,9 +106,10 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   ) : null;
 
   // Home hub gets a stripped-back header: logo, search, help and menu only.
+  // Fixed positioning keeps it pinned for the full Home hub scroll.
   if (hubMode) {
     return (
-      <header className={`sticky top-0 z-40 w-full ${bg} border-b border-white/10`}>
+      <header className={`fixed top-0 left-0 right-0 z-40 w-full ${bg} border-b border-white/10`}>
         <div className="h-12 md:h-[4.5rem] flex items-center gap-2 md:gap-4 px-3 md:px-6">
           <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
             {LogoMark}
