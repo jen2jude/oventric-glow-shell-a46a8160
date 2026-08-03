@@ -5,13 +5,14 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
 import type {
+  ProfileArticle,
   ProfileBounty,
   ProfileGroup,
   ProfileListing,
   ProfilePost,
 } from "./profiles/mockProfiles";
 
-const TabEnum = z.enum(["posts", "groups", "marketplace", "posted", "solved"]);
+const TabEnum = z.enum(["posts", "groups", "marketplace", "posted", "solved", "blog"]);
 const SortEnum = z.enum([
   "newest",
   "most_liked",
@@ -40,7 +41,8 @@ export type ProfileTabItem =
   | ProfilePost
   | ProfileGroup
   | ProfileListing
-  | ProfileBounty;
+  | ProfileBounty
+  | ProfileArticle;
 
 export interface ProfileTabPage {
   items: ProfileTabItem[];
@@ -56,6 +58,9 @@ export const getProfileTab = createServerFn({ method: "GET" })
     const { loadProfileTab } = await import("@/lib/profiles/data.server");
     // Small artificial latency so pagination UX is observable in the demo.
     await new Promise((r) => setTimeout(r, 120));
+    if (data.tab === "blog") {
+      return { items: [], total: 0, page: data.page, pageSize: data.pageSize, hasMore: false };
+    }
     return loadProfileTab(data.profileId, data.tab, data.page, data.pageSize, {
       q: data.q,
       sort: data.sort,
@@ -812,6 +817,65 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
         status: "solved",
         coverUrl: coverUrls[i],
       }));
+      const total = count ?? items.length;
+      return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
+    }
+
+    if (data.tab === "blog") {
+      let q = supabase
+        .from("blog_posts")
+        .select("id, slug, title, excerpt, cover_path, category_id, published_at", { count: "exact" })
+        .eq("author_id", userId)
+        .eq("status", "published");
+      if (data.q) q = q.ilike("title", `%${data.q}%`);
+      if (data.sort === "alpha") q = q.order("title", { ascending: true });
+      else q = q.order("published_at", { ascending: false, nullsFirst: false });
+      const { data: rows, count } = await q.range(from, to);
+
+      const ids = (rows ?? []).map((r: any) => r.id as string);
+      const catIds = Array.from(
+        new Set((rows ?? []).map((r: any) => r.category_id).filter((v: any): v is string => !!v)),
+      );
+      const [catsRes, reactRes, commentRes] = await Promise.all([
+        catIds.length
+          ? supabase.from("blog_categories").select("id, name").in("id", catIds)
+          : Promise.resolve({ data: [] as any[] }),
+        ids.length
+          ? supabase.from("blog_reactions").select("post_id").in("post_id", ids)
+          : Promise.resolve({ data: [] as { post_id: string }[] }),
+        ids.length
+          ? supabase.from("blog_comments").select("post_id").in("post_id", ids)
+          : Promise.resolve({ data: [] as { post_id: string }[] }),
+      ]);
+      const catName = new Map<string, string>();
+      for (const c of (catsRes.data ?? []) as any[]) catName.set(c.id, c.name);
+      const reactMap = new Map<string, number>();
+      for (const r of (reactRes.data ?? []) as { post_id: string }[])
+        reactMap.set(r.post_id, (reactMap.get(r.post_id) ?? 0) + 1);
+      const commentMap = new Map<string, number>();
+      for (const r of (commentRes.data ?? []) as { post_id: string }[])
+        commentMap.set(r.post_id, (commentMap.get(r.post_id) ?? 0) + 1);
+
+      const coverUrls = await signPaths(
+        supabase,
+        "blog-covers",
+        (rows ?? []).map((r: any) => (typeof r.cover_path === "string" && r.cover_path ? r.cover_path : null)),
+      );
+
+      let items: ProfileArticle[] = (rows ?? []).map((r: any, i: number) => ({
+        id: r.id as string,
+        slug: (r.slug as string) ?? "",
+        title: (r.title as string) ?? "Untitled",
+        excerpt: (r.excerpt as string) ?? "",
+        category: r.category_id ? catName.get(r.category_id) ?? null : null,
+        timeAgo: r.published_at ? timeAgo(r.published_at as string) : "Unpublished",
+        reactions: reactMap.get(r.id as string) ?? 0,
+        comments: commentMap.get(r.id as string) ?? 0,
+        coverUrl: coverUrls[i],
+      }));
+      if (data.sort === "most_liked") items = [...items].sort((a, b) => b.reactions - a.reactions);
+      else if (data.sort === "most_commented")
+        items = [...items].sort((a, b) => b.comments - a.comments);
       const total = count ?? items.length;
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
     }

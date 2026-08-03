@@ -16,6 +16,7 @@ import type {
   ProfileGroup,
   ProfileListing,
   ProfileBounty,
+  ProfileArticle,
 } from "@/lib/profiles/mockProfiles";
 import {
   ArrowLeft,
@@ -46,6 +47,7 @@ import {
   Linkedin,
   Github,
   Youtube,
+  FileText,
 } from "lucide-react";
 
 /** Renders the matching brand glyph for a social-link key. */
@@ -99,8 +101,8 @@ export const Route = createFileRoute("/profile/$id")({
   component: ProfilePage,
 });
 
-type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved";
-const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved"];
+type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved" | "blog";
+const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved", "blog"];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
 
@@ -135,6 +137,12 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
     { value: "highest_bounty", label: "Highest bounty" },
     { value: "lowest_bounty", label: "Lowest bounty" },
   ],
+  blog: [
+    { value: "newest", label: "Newest" },
+    { value: "most_liked", label: "Most reactions" },
+    { value: "most_commented", label: "Most commented" },
+    { value: "alpha", label: "A – Z" },
+  ],
 };
 const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   posts: "Search posts…",
@@ -142,6 +150,7 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   marketplace: "Search listings…",
   posted: "Search bounties…",
   solved: "Search solved bounties…",
+  blog: "Search articles…",
 };
 
 function ProfilePage() {
@@ -151,7 +160,7 @@ function ProfilePage() {
   const profile = useMemo(() => getProfile(id), [id]);
   const { require, baseCurrency } = useOnboarding();
 
-  const tab: Tab = isTab(search.tab) && search.tab !== "posts" ? search.tab : "groups";
+  const tab: Tab = isTab(search.tab) ? search.tab : "posts";
   const desiredPages = Math.max(1, Math.min(200, search.pages || 1));
   const restoreY = Math.max(0, search.y || 0);
   const q = (search.q || "").trim();
@@ -208,6 +217,7 @@ function ProfilePage() {
     marketplace: { ...emptyTabState },
     posted: { ...emptyTabState },
     solved: { ...emptyTabState },
+    blog: { ...emptyTabState },
   });
   const PAGE_SIZE = 6;
 
@@ -569,6 +579,7 @@ function ProfilePage() {
       marketplace: { ...emptyTabState },
       posted: { ...emptyTabState },
       solved: { ...emptyTabState },
+      blog: { ...emptyTabState },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
@@ -1258,10 +1269,12 @@ function ProfilePage() {
             <nav data-testid="profile-tabs" className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10">
               {(
                 [
-                  ["groups", "Circles"],
-                  ["marketplace", "Marketplace"],
+                  ["posts", "Posts"],
                   ["posted", "Bounties Posted"],
                   ["solved", "Bounties Solved"],
+                  ["marketplace", "Assets"],
+                  ["blog", "Blog"],
+                  ["groups", "Circles"],
                 ] as [Tab, string][]
               ).map(([key, label]) => {
                 const count = tabData[key].total;
@@ -1421,6 +1434,7 @@ function ProfilePage() {
                         key: string;
                         kind: "post" | "group" | "listing" | "bounty" | "solved";
                         itemId: string;
+                        blogSlug?: string;
                         coverUrl?: string | null;
                         placeholderIcon: React.ReactNode;
                         badge?: { label: string; tone: "emerald" | "purple" | "sky" | "amber" };
@@ -1474,6 +1488,18 @@ function ProfilePage() {
                           subtitle: `${b.applicants ?? 0} applicant${(b.applicants ?? 0) === 1 ? "" : "s"}`,
                           priceLabel: price(b.amountUsd),
                         }));
+                      } else if (tab === "blog") {
+                        tiles = (st.items as ProfileArticle[]).map((a) => ({
+                          key: a.id,
+                          kind: "post" as const,
+                          itemId: a.id,
+                          blogSlug: a.slug,
+                          coverUrl: a.coverUrl ?? null,
+                          placeholderIcon: <FileText className="w-8 h-8 text-sky-300/70" />,
+                          badge: a.category ? { label: a.category, tone: "sky" as const } : undefined,
+                          title: a.title,
+                          subtitle: `${a.timeAgo} · ❤ ${a.reactions} · 💬 ${a.comments}`,
+                        }));
                       } else if (tab === "solved") {
                         tiles = (st.items as ProfileBounty[]).map((b) => ({
                           key: b.id,
@@ -1500,9 +1526,13 @@ function ProfilePage() {
                           {tiles.map((t) => (
                             <Link
                               key={t.key}
-                              to="/profile/$id/item/$kind/$itemId"
-                              params={{ id: profile.id, kind: t.kind, itemId: t.itemId }}
-                              search={itemSearch}
+                              {...(t.blogSlug
+                                ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as any)
+                                : ({
+                                    to: "/profile/$id/item/$kind/$itemId",
+                                    params: { id: profile.id, kind: t.kind, itemId: t.itemId },
+                                    search: itemSearch,
+                                  } as any))}
                               className="group block bg-[#141418] border border-white/10 rounded-2xl overflow-hidden hover:border-emerald-500/40 transition-colors"
                             >
                               <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -1965,28 +1995,21 @@ function ErrorState({
 }
 
 
-function TabSkeleton({ variant }: { variant: Tab }) {
-  const rows = 3;
-  if (variant === "groups" || variant === "marketplace") {
-    return (
-      <div className="grid sm:grid-cols-2 gap-3">
-        {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 animate-pulse">
-            <div className="h-10 w-10 rounded-lg bg-white/5 mb-3" />
-            <div className="h-3 w-2/3 bg-white/5 rounded mb-2" />
+function TabSkeleton({ variant: _variant }: { variant: Tab }) {
+  // One shared tile skeleton so every tab loads with the same rhythm as the grid.
+  return (
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="bg-[#141418] border border-white/10 rounded-2xl overflow-hidden animate-pulse"
+        >
+          <div className="aspect-[4/3] bg-white/[0.04]" />
+          <div className="p-3">
+            <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
+            <div className="h-3 w-7/12 bg-white/5 rounded mb-2" />
             <div className="h-2.5 w-1/2 bg-white/5 rounded" />
           </div>
-        ))}
-      </div>
-    );
-  }
-  return (
-    <div className="space-y-3">
-      {Array.from({ length: rows }).map((_, i) => (
-        <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 animate-pulse">
-          <div className="h-2.5 w-24 bg-white/5 rounded mb-3" />
-          <div className="h-3 w-11/12 bg-white/5 rounded mb-2" />
-          <div className="h-3 w-8/12 bg-white/5 rounded" />
         </div>
       ))}
     </div>
@@ -2034,6 +2057,11 @@ function emptyContentFor(
         title: "No open bounties",
         hint: "Active bounties this creator has posted will show up here.",
       };
+    case "blog":
+      return {
+        title: `${name} hasn't published any articles`,
+        hint: "Published blog articles from this creator will appear here.",
+      };
     case "solved":
       return {
         title: "No solved bounties yet",
@@ -2051,6 +2079,7 @@ function tabNoun(tab: Tab): string {
     case "marketplace": return "listings";
     case "posted": return "bounties";
     case "solved": return "solved bounties";
+    case "blog": return "articles";
   }
 }
 
