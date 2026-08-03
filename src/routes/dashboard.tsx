@@ -1983,8 +1983,21 @@ function SocialPane({ data }: { data: DashboardSocial | null }) {
 }
 
 function MyMemoriesGallery() {
+  return (
+    <div className="space-y-5">
+      <PhotoBatchManager />
+      <div className="space-y-2">
+        <h3 className="text-sm font-semibold text-white md:text-slate-900">Shared photos</h3>
+        <SharedPhotosGrid />
+      </div>
+    </div>
+  );
+}
+
+function SharedPhotosGrid() {
   const fetchPhotos = useServerFn(listUserPhotos);
   const [photos, setPhotos] = useState<UserPhoto[] | null>(null);
+  
   
   useEffect(() => {
     let cancel = false;
