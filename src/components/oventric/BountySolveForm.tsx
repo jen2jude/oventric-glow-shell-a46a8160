@@ -9,6 +9,7 @@ import {
   Clock,
   CheckCircle2,
   Download,
+  Eye,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -60,6 +61,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   const [timeline, setTimeline] = useState("");
   const [customTimeline, setCustomTimeline] = useState("");
   const [files, setFiles] = useState<Array<SubmissionFile & { url?: string | null }>>([]);
+  const [previews, setPreviews] = useState<Record<string, string>>({});
   const [uploading, setUploading] = useState(false);
   const [busy, setBusy] = useState<"save" | "submit" | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
@@ -92,6 +94,28 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   useEffect(() => {
     void load();
   }, [load]);
+
+  const previewsRef = useRef<Record<string, string>>({});
+  useEffect(() => {
+    previewsRef.current = previews;
+  }, [previews]);
+  useEffect(
+    () => () => {
+      Object.values(previewsRef.current).forEach((u) => URL.revokeObjectURL(u));
+    },
+    [],
+  );
+
+  const removeFile = (path: string) => {
+    setFiles((prev) => prev.filter((x) => x.path !== path));
+    setPreviews((prev) => {
+      const u = prev[path];
+      if (u) URL.revokeObjectURL(u);
+      const next = { ...prev };
+      delete next[path];
+      return next;
+    });
+  };
 
   const resolvedTimeline = timeline === "Custom" ? customTimeline.trim() : timeline;
 
@@ -260,24 +284,54 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         Attachments <span className="font-normal text-slate-500">(up to 10 files, 10MB each)</span>
       </label>
       <div className="space-y-2 mb-2">
-        {files.map((f) => (
-          <div
-            key={f.path}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800"
-          >
-            <Paperclip className="w-4 h-4 text-slate-400 shrink-0" />
-            <span className="truncate flex-1">{f.name}</span>
-            <span className="text-[11px] text-slate-400">{prettySize(f.size)}</span>
-            <button
-              type="button"
-              onClick={() => setFiles((prev) => prev.filter((x) => x.path !== f.path))}
-              className="text-slate-400 hover:text-red-400"
-              aria-label={`Remove ${f.name}`}
+        {files.map((f) => {
+          const preview = previews[f.path] ?? (f.type?.startsWith("image/") ? f.url ?? null : null);
+          const openUrl = preview ?? f.url ?? null;
+          return (
+            <div
+              key={f.path}
+              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800"
             >
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-        ))}
+              {preview ? (
+                <img
+                  src={preview}
+                  alt={f.name}
+                  className="w-11 h-11 rounded-md object-cover border border-white/10 md:border-slate-200 shrink-0"
+                />
+              ) : (
+                <div className="w-11 h-11 rounded-md bg-white/5 md:bg-white border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0">
+                  <FileText className="w-5 h-5 text-slate-400" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium">{f.name}</div>
+                <div className="text-[11px] text-slate-400">
+                  {prettySize(f.size)}
+                  {f.type ? ` · ${f.type.split("/").pop()}` : ""}
+                </div>
+              </div>
+              {openUrl && (
+                <a
+                  href={openUrl}
+                  target="_blank"
+                  rel="noreferrer"
+                  className="text-slate-400 hover:text-sky-400 shrink-0"
+                  aria-label={`Preview ${f.name}`}
+                >
+                  <Eye className="w-4 h-4" />
+                </a>
+              )}
+              <button
+                type="button"
+                onClick={() => removeFile(f.path)}
+                className="text-slate-400 hover:text-red-400 shrink-0"
+                aria-label={`Remove ${f.name}`}
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+          );
+        })}
       </div>
       <input
         ref={inputRef}
