@@ -48,7 +48,7 @@ export const Route = createFileRoute("/admin")({
 function AdminError({ error, reset }: { error: Error; reset: () => void }) {
   const router = useRouter();
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex items-center justify-center p-6">
+    <div className="admin-light min-h-screen bg-[#0b0b0d] text-slate-200 flex items-center justify-center p-6">
       <div className="max-w-md text-center">
         <AlertCircle className="w-8 h-8 text-red-400 mx-auto mb-3" />
         <h2 className="text-lg font-bold text-white">Admin error</h2>
@@ -142,7 +142,7 @@ function AdminLayout() {
 
   if (state === "loading") {
     return (
-      <div className="min-h-screen bg-[#0b0b0d] flex items-center justify-center">
+      <div className="admin-light min-h-screen bg-[#0b0b0d] flex items-center justify-center">
         <Loader2 className="w-6 h-6 text-emerald-400 animate-spin" />
       </div>
     );
@@ -150,7 +150,7 @@ function AdminLayout() {
 
   if (state === "unauth" || state === "forbidden") {
     return (
-      <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex items-center justify-center p-6">
+      <div className="admin-light min-h-screen bg-[#0b0b0d] text-slate-200 flex items-center justify-center p-6">
         <div className="max-w-md w-full bg-[#141418] border border-white/10 rounded-2xl p-8 text-center">
           <ShieldCheck className="w-10 h-10 text-emerald-400 mx-auto mb-4" />
           <h1 className="text-xl font-black text-white">Admin Console</h1>
@@ -184,7 +184,7 @@ function AdminLayout() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex">
+    <div className="admin-light min-h-screen bg-[#0b0b0d] text-slate-200 flex">
       <aside className="w-60 shrink-0 bg-[#141418] border-r border-white/10 flex flex-col">
         <div className="px-4 py-5 border-b border-white/10 flex items-center gap-2">
           <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
