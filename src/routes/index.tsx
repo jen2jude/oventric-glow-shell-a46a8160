@@ -15,6 +15,8 @@ import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
+import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
+
 
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
