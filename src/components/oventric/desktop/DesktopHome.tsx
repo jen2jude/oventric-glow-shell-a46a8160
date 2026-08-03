@@ -357,26 +357,6 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span>54 African countries</span>
               <span>Card, bank &amp; mobile money</span>
             </div>
-
-            <div className="mt-6 flex flex-wrap items-center gap-3">
-              <span className="text-xs font-semibold text-slate-500">Get the app:</span>
-              <button
-                type="button"
-                onClick={() => {}}
-                aria-label="Download Oventric for iOS (coming soon)"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-900 transition-transform active:scale-95"
-              >
-                <Smartphone className="h-4 w-4 text-emerald-600" /> iOS
-              </button>
-              <button
-                type="button"
-                onClick={() => {}}
-                aria-label="Download Oventric for Android (coming soon)"
-                className="inline-flex h-9 items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 text-xs font-bold text-slate-900 transition-transform active:scale-95"
-              >
-                <Smartphone className="h-4 w-4 text-emerald-600" /> Android
-              </button>
-            </div>
           </div>
 
           {/* Hero visual */}
