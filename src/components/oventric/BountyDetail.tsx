@@ -103,6 +103,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [confirmSolved, setConfirmSolved] = useState(false);
   const [awaitingPop, setAwaitingPop] = useState(false);
   const [confirmRelease, setConfirmRelease] = useState(false);
+  const [acceptTarget, setAcceptTarget] = useState<string | null>(null);
+  const [appFilter, setAppFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
+
 
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
@@ -265,9 +268,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doAccept = async (applicantId: string) => {
-    if (!confirm("Assign this applicant as the solver? All other applicants will be rejected."))
-      return;
+    setAcceptTarget(null);
     setBusy(`accept:${applicantId}`);
+
     try {
       await acceptFn({ data: { bounty_id: bountyId, applicant_id: applicantId } });
       await load();
@@ -602,20 +605,59 @@ export function BountyDetail({ bountyId, onBack }: Props) {
       {/* Applicants list — poster only */}
       {isPoster && (
         <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl p-5">
-          <div className="text-white md:text-slate-900 font-bold text-sm mb-3 inline-flex items-center gap-2">
-            <Users className="w-4 h-4 text-emerald-400" /> Applicants ({apps.length})
+          <div className="flex flex-wrap items-center justify-between gap-3 mb-3">
+            <div className="text-white md:text-slate-900 font-bold text-sm inline-flex items-center gap-2">
+              <Users className="w-4 h-4 text-emerald-400" /> Proposals ({apps.length})
+            </div>
+            {apps.length > 0 && (
+              <div className="flex flex-wrap gap-1.5">
+                {(["all", "pending", "accepted", "rejected"] as const).map((f) => {
+                  const count =
+                    f === "all" ? apps.length : apps.filter((a) => a.status === f).length;
+                  const on = appFilter === f;
+                  return (
+                    <button
+                      key={f}
+                      onClick={() => setAppFilter(f)}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold capitalize border transition-colors ${
+                        on
+                          ? "bg-emerald-500/20 md:bg-emerald-50 border-emerald-500/50 text-emerald-300 md:text-emerald-700"
+                          : "bg-white/5 md:bg-slate-100 border-white/10 md:border-slate-200 text-slate-400 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
+                      }`}
+                    >
+                      {f} ({count})
+                    </button>
+                  );
+                })}
+              </div>
+            )}
           </div>
           {apps.length === 0 ? (
             <div className="text-sm text-slate-500 text-center py-6">
               No applications yet. Share the bounty link to attract solvers.
             </div>
           ) : (
+            (() => {
+              const shown =
+                appFilter === "all" ? apps : apps.filter((a) => a.status === appFilter);
+              if (shown.length === 0)
+                return (
+                  <div className="text-sm text-slate-500 text-center py-6">
+                    No {appFilter} proposals.
+                  </div>
+                );
+              return (
             <div className="space-y-3">
-              {apps.map((a) => {
+              {shown.map((a) => {
                 const p = profiles[a.applicant_id];
                 const accepted = a.status === "accepted";
                 const rejected = a.status === "rejected";
                 const canAccept = !bounty.accepted_applicant_id && !bounty.released_at;
+                const pill = accepted
+                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 md:text-emerald-700 md:bg-emerald-50"
+                  : rejected
+                    ? "bg-white/5 border-white/10 text-slate-400 md:text-slate-500 md:bg-slate-100 md:border-slate-200"
+                    : "bg-sky-500/15 border-sky-500/40 text-sky-300 md:text-sky-700 md:bg-sky-50";
                 return (
                   <div
                     key={a.id}
@@ -636,16 +678,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                         <span className="text-xs text-slate-500">
                           @{p?.username || p?.slug || "user"}
                         </span>
-                        {accepted && (
-                          <span className="text-[10px] font-bold text-emerald-300 uppercase tracking-wider">
-                            Accepted
-                          </span>
-                        )}
-                        {rejected && (
-                          <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider">
-                            Rejected
-                          </span>
-                        )}
+                        <span
+                          className={`px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${pill}`}
+                        >
+                          {accepted ? "Accepted" : rejected ? "Rejected" : "Pending"}
+                        </span>
+                        <span className="text-[11px] text-slate-500">
+                          {new Date(a.created_at).toLocaleDateString()}
+                        </span>
                       </div>
                       {a.pitch && (
                         <div className="mt-1 text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap">
@@ -662,7 +702,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                       </button>
                       {canAccept && !accepted && !rejected && (
                         <button
-                          onClick={() => doAccept(a.applicant_id)}
+                          onClick={() => setAcceptTarget(a.applicant_id)}
                           disabled={busy === `accept:${a.applicant_id}`}
                           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
                         >
@@ -679,9 +719,58 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 );
               })}
             </div>
+              );
+            })()
           )}
         </div>
       )}
+
+      {acceptTarget && (
+        <div
+          className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+          role="dialog"
+          aria-modal="true"
+          onClick={() => setAcceptTarget(null)}
+        >
+          <div
+            className="w-full max-w-md rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 shadow-2xl p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center gap-2 mb-2">
+              <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
+                <CheckCircle2 className="w-4 h-4 text-emerald-300" />
+              </div>
+              <div className="text-white md:text-slate-900 font-bold text-base">
+                Accept{" "}
+                {profiles[acceptTarget]?.display_name ||
+                  profiles[acceptTarget]?.username ||
+                  "this applicant"}
+                ?
+              </div>
+            </div>
+            <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
+              They become the assigned solver for {dp.formatted} in escrow, a chat opens with
+              them, and all other proposals are rejected.
+            </p>
+            <div className="flex justify-end gap-2">
+              <button
+                onClick={() => setAcceptTarget(null)}
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={() => doAccept(acceptTarget)}
+                disabled={!!busy}
+                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
+              >
+                <CheckCircle2 className="w-4 h-4" /> Yes, assign solver
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {confirmSolved && (
         <div
           className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
