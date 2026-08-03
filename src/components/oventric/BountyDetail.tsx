@@ -19,6 +19,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { BountySolveForm } from "@/components/oventric/BountySolveForm";
 import {
   applyToBounty,
   acceptApplicant,
@@ -502,7 +503,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           )}
 
           <div className="flex flex-wrap gap-2">
-            {isSolver && !bounty.released_at && bounty.status !== "solved" && (
+            {isSolver && !bounty.released_at && bounty.status !== "solved" && false && (
               <button
                 onClick={() => setConfirmSolved(true)}
                 disabled={busy === "solved" || bounty.dispute_status === "open"}
@@ -544,6 +545,16 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             )}
           </div>
         </div>
+      )}
+
+      {/* Solve submission form / submitted solution */}
+      {bounty.accepted_applicant_id && (isSolver || isPoster) && (
+        <BountySolveForm
+          bountyId={bountyId}
+          canSubmit={isSolver}
+          delivered={bounty.status === "solved" || !!bounty.solved_at}
+          onDelivered={doMarkSolved}
+        />
       )}
 
       {/* Apply form (non-poster, no accepted solver yet) */}
