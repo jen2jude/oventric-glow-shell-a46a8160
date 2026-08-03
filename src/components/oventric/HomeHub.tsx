@@ -419,6 +419,65 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   );
 }
 
+type MiniRailItem = {
+  id: string;
+  title: string;
+  coverUrl: string | null;
+  meta: string;
+  onClick: () => void;
+};
+
+function MiniRail({
+  title,
+  items,
+  onSeeAll,
+}: {
+  title: string;
+  items: MiniRailItem[];
+  onSeeAll: () => void;
+}) {
+  if (items.length === 0) return null;
+  return (
+    <section>
+      <div className="flex items-center justify-between mb-2">
+        <h2 className="text-sm font-bold text-white">{title}</h2>
+        <button
+          type="button"
+          onClick={onSeeAll}
+          className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
+        >
+          See all <ChevronRight className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <div className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+        {items.map((it) => (
+          <button
+            key={it.id}
+            type="button"
+            onClick={it.onClick}
+            className="shrink-0 w-32 text-left active:scale-95 transition-transform"
+          >
+            <span className="block w-32 h-24 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10">
+              {it.coverUrl ? (
+                <img src={it.coverUrl} alt={it.title} className="w-full h-full object-cover" loading="lazy" />
+              ) : (
+                <span className="w-full h-full flex items-center justify-center text-slate-600">
+                  <Newspaper className="w-6 h-6" />
+                </span>
+              )}
+            </span>
+            <span className="mt-1.5 block h-[28px] text-[11px] font-semibold text-white line-clamp-2 leading-[14px] overflow-hidden">
+              {it.title}
+            </span>
+            <span className="block text-[11px] text-emerald-300 font-bold truncate">{it.meta}</span>
+          </button>
+        ))}
+      </div>
+    </section>
+  );
+}
+
+
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
     <div className="rounded-2xl bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
