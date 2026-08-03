@@ -97,56 +97,56 @@ function BlogArticle() {
 
   if (post === undefined) {
     return (
-      <PublicChrome>
-        <div className="min-h-screen bg-[#0b0b0d] flex justify-center pt-20"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
+      <PublicChrome lightDesktop>
+        <div className="min-h-screen bg-[#0b0b0d] md:bg-white flex justify-center pt-20"><Loader2 className="w-5 h-5 animate-spin text-slate-500" /></div>
       </PublicChrome>
     );
   }
   if (post === null) {
     return (
-      <PublicChrome>
-        <div className="min-h-screen bg-[#0b0b0d] text-slate-200 flex flex-col items-center justify-center p-6">
-          <p className="text-white text-xl font-black">Article not found.</p>
-          <Link to="/blog" className="mt-3 text-emerald-400 hover:text-emerald-300 text-sm">← Back to blog</Link>
+      <PublicChrome lightDesktop>
+        <div className="min-h-screen bg-[#0b0b0d] md:bg-white text-slate-200 md:text-slate-700 flex flex-col items-center justify-center p-6">
+          <p className="text-white md:text-slate-900 text-xl font-black">Article not found.</p>
+          <Link to="/blog" className="mt-3 text-emerald-400 md:text-emerald-600 hover:text-emerald-300 text-sm">← Back to blog</Link>
         </div>
       </PublicChrome>
     );
   }
 
   return (
-    <PublicChrome>
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200">
+    <PublicChrome lightDesktop>
+    <div className="min-h-screen bg-[#0b0b0d] md:bg-white text-slate-200 md:text-slate-700">
 
       <div className="max-w-3xl mx-auto px-4 py-8">
-        <Link to="/blog" className="inline-flex items-center gap-1 text-slate-400 hover:text-white text-sm mb-6">
+        <Link to="/blog" className="inline-flex items-center gap-1 text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 text-sm mb-6">
           <ArrowLeft className="w-4 h-4" /> Blog
         </Link>
         {post.category_name && (
-          <div className="text-xs uppercase tracking-wider text-emerald-400 font-bold mb-2">{post.category_name}</div>
+          <div className="text-xs uppercase tracking-wider text-emerald-400 md:text-emerald-600 font-bold mb-2">{post.category_name}</div>
         )}
-        <h1 className="text-white text-3xl sm:text-4xl font-black leading-tight">{post.title}</h1>
+        <h1 className="text-white md:text-slate-900 text-3xl sm:text-4xl font-black leading-tight">{post.title}</h1>
         <div className="mt-3 text-sm text-slate-500">
           By {post.author_name} · {post.published_at ? new Date(post.published_at).toLocaleDateString() : ""}
         </div>
         {post.cover_url && (
-          <ResponsiveImage sizes="(min-width: 768px) 768px, 100vw" src={post.cover_url} alt={post.title} className="w-full mt-6 rounded-xl border border-white/10 aspect-video object-cover" />
+          <ResponsiveImage sizes="(min-width: 768px) 768px, 100vw" src={post.cover_url} alt={post.title} className="w-full mt-6 rounded-xl border border-white/10 md:border-slate-200 aspect-video object-cover" />
         )}
 
         <article
-          className="blog-article mt-8 text-slate-200 leading-relaxed"
+          className="blog-article mt-8 text-slate-200 md:text-slate-700 leading-relaxed"
           dangerouslySetInnerHTML={{ __html: post.body_html }}
         />
 
         {post.tags.length > 0 && (
           <div className="mt-8 flex flex-wrap gap-1">
             {post.tags.map((t) => (
-              <span key={t.slug} className="text-[10px] px-2 py-1 rounded-full border border-white/10 text-slate-400">#{t.name}</span>
+              <span key={t.slug} className="text-[10px] px-2 py-1 rounded-full border border-white/10 md:border-slate-200 text-slate-400 md:text-slate-600">#{t.name}</span>
             ))}
           </div>
         )}
 
         {/* Reactions + share */}
-        <div className="mt-8 flex items-center justify-between border-t border-white/10 pt-4">
+        <div className="mt-8 flex items-center justify-between border-t border-white/10 md:border-slate-200 pt-4">
           <div className="flex items-center gap-1">
             {(["love", "like", "laugh", "crown"] as BlogReaction[]).map((r) => {
               const Icon = REACTION_META[r].Icon;
@@ -155,7 +155,7 @@ function BlogArticle() {
                 <button
                   key={r}
                   onClick={() => react(r)}
-                  className={`p-2 rounded-lg hover:bg-white/5 ${on ? "bg-white/5" : ""}`}
+                  className={`p-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 ${on ? "bg-white/5 md:bg-slate-100" : ""}`}
                   style={{ color: on ? REACTION_META[r].color : undefined }}
                   aria-label={r}
                 >
@@ -163,16 +163,16 @@ function BlogArticle() {
                 </button>
               );
             })}
-            <span className="text-sm text-slate-400 ml-2">{post.reactions_count}</span>
+            <span className="text-sm text-slate-400 md:text-slate-600 ml-2">{post.reactions_count}</span>
           </div>
-          <button onClick={openShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white text-sm">
+          <button onClick={openShare} className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 text-sm">
             <Share2 className="w-4 h-4" /> Share
           </button>
         </div>
 
         {/* Comments */}
         <section className="mt-6">
-          <h2 className="text-white text-lg font-bold flex items-center gap-2">
+          <h2 className="text-white md:text-slate-900 text-lg font-bold flex items-center gap-2">
             <MessageSquare className="w-4 h-4" /> Comments ({comments.length})
           </h2>
           <div className="mt-3 flex items-start gap-2">
@@ -181,7 +181,7 @@ function BlogArticle() {
               onChange={(e) => setDraft(e.target.value)}
               rows={2}
               placeholder="Write a comment…"
-              className="flex-1 bg-[#141418] border border-white/10 rounded-lg px-3 py-2 text-sm text-slate-200"
+              className="flex-1 bg-[#141418] md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-slate-200 md:text-slate-800 md:placeholder:text-slate-400"
             />
             <button
               onClick={submit}
@@ -198,19 +198,19 @@ function BlogArticle() {
               return (
               <div key={c.id} className="flex items-start gap-2">
                 <div className="w-8 h-8 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black text-[10px] font-bold">{c.initials}</div>
-                <div className="flex-1 bg-[#141418] border border-white/10 rounded-lg px-3 py-2">
+                <div className="flex-1 bg-[#141418] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2">
                   <div className="flex items-center justify-between gap-2">
-                    <div className="text-xs font-bold text-white">{c.author_name}</div>
+                    <div className="text-xs font-bold text-white md:text-slate-900">{c.author_name}</div>
                     <button
                       onClick={() => require(1, () => setReportTarget({ id: c.id, author: c.author_name }), "interaction")}
                       disabled={reported}
-                      className="text-[10px] inline-flex items-center gap-1 text-slate-500 hover:text-red-300 disabled:opacity-60 disabled:hover:text-slate-500"
+                      className="text-[10px] inline-flex items-center gap-1 text-slate-500 hover:text-red-300 md:hover:text-red-600 disabled:opacity-60 disabled:hover:text-slate-500"
                       title={reported ? "Reported" : "Report comment"}
                     >
                       <Flag className="w-3 h-3" /> {reported ? "Reported" : "Report"}
                     </button>
                   </div>
-                  <div className="text-sm text-slate-300 whitespace-pre-wrap mt-0.5">{c.text}</div>
+                  <div className="text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap mt-0.5">{c.text}</div>
                 </div>
               </div>
               );
@@ -219,6 +219,7 @@ function BlogArticle() {
           </div>
         </section>
       </div>
+
       <ShareSheet
         open={shareOpen}
         onClose={() => setShareOpen(false)}
