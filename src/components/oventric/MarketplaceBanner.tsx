@@ -56,9 +56,9 @@ export function MarketplaceBanner() {
         hidden ? "-translate-y-full" : "translate-y-0"
       }`}
     >
-      <div className="max-w-7xl mx-auto w-full px-3 sm:px-4">
-        {/* Mobile: stacked rows. Tablet+: horizontal rail. */}
-        <div className="flex flex-col gap-2 py-2.5 md:flex-row md:items-stretch md:gap-3 md:overflow-x-auto md:scrollbar-none lg:gap-6">
+      <div className="max-w-7xl mx-auto w-full px-2 sm:px-4">
+        {/* Single horizontal rail on all viewports. */}
+        <div className="flex flex-row items-stretch gap-2 py-2 md:gap-3 lg:gap-6">
           <Item
             Icon={BadgePercent}
             title="Get up to 10% cashback on purchase"
