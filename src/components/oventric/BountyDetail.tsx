@@ -265,9 +265,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   };
 
   const doAccept = async (applicantId: string) => {
-    if (!confirm("Assign this applicant as the solver? All other applicants will be rejected."))
-      return;
+    setAcceptTarget(null);
     setBusy(`accept:${applicantId}`);
+
     try {
       await acceptFn({ data: { bounty_id: bountyId, applicant_id: applicantId } });
       await load();
