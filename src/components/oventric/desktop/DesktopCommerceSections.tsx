@@ -5,6 +5,16 @@ import { ShieldCheck, Store, MessagesSquare, ShoppingCart, Sparkles, ArrowRight,
 import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
 import { safeFormatDisplayPrice } from "@/lib/fx-display";
 import type { Currency } from "@/lib/onboarding/OnboardingContext";
+import {
+  VisaMark,
+  MastercardMark,
+  VerveMark,
+  PaystackMark,
+  FlutterwaveMark,
+  MiniPayMark,
+  MtnMomoMark,
+  BankTransferMark,
+} from "@/components/oventric/desktop/PaymentLogos";
 
 /* ------------------------------------------------------------------ */
 /* Trade securely banner                                               */
