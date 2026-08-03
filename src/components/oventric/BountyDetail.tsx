@@ -503,13 +503,17 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           )}
 
           <div className="flex flex-wrap gap-2">
-            {isSolver && !bounty.released_at && bounty.status !== "solved" && false && (
+            {isSolver && !bounty.released_at && bounty.status !== "solved" && (
               <button
-                onClick={() => setConfirmSolved(true)}
-                disabled={busy === "solved" || bounty.dispute_status === "open"}
+                onClick={() =>
+                  document
+                    .getElementById("bounty-solve-form")
+                    ?.scrollIntoView({ behavior: "smooth", block: "start" })
+                }
+                disabled={bounty.dispute_status === "open"}
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
               >
-                <Send className="w-4 h-4" /> Mark work delivered
+                <Send className="w-4 h-4" /> Submit your solution
               </button>
             )}
             {isSolver && bounty.status === "solved" && !bounty.released_at && (
