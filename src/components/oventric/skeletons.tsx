@@ -58,8 +58,27 @@ function SkeletonLargeCard() {
 export function OverviewSkeleton() {
   return (
     <div className="space-y-5">
+      {/* Key cards skeleton (orders / messages / revenue / activity) */}
+      <div className="grid grid-cols-2 gap-2 md:grid-cols-4 md:gap-3">
+        {Array.from({ length: 4 }).map((_, i) => (
+          <SkeletonStatCard key={`key-${i}`} />
+        ))}
+      </div>
+      <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 space-y-3">
+        {Array.from({ length: 3 }).map((_, i) => (
+          <div key={`act-${i}`} className="flex items-center gap-3">
+            <div className="h-8 w-8 rounded-lg bg-white/10 md:bg-slate-200 animate-pulse" />
+            <div className="flex-1 space-y-2">
+              <div className="h-3 w-1/3 rounded bg-white/10 md:bg-slate-200 animate-pulse" />
+              <div className="h-3 w-2/3 rounded bg-white/5 md:bg-slate-100 animate-pulse" />
+            </div>
+          </div>
+        ))}
+      </div>
+
       {/* Mobile safe overview skeleton */}
       <div className="block md:hidden pb-[calc(5rem+env(safe-area-inset-bottom))] space-y-2">
+
         <SkeletonRow />
         <SkeletonRow />
         <SkeletonRow />
