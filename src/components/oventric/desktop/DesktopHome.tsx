@@ -558,7 +558,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
-      <ProductRails currency={currency} />
+      <ProductRails onSelect={onSelect} />
 
 
 
