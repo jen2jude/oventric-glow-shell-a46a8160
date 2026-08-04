@@ -621,7 +621,7 @@ function KycLivenessModal({
         // Record a server-side attestation before releasing the gated action.
         // Withdrawals are rejected server-side without a recent attestation.
         void recordLiveness({})
-          .catch((e) => console.error("[liveness attestation]", e))
+          .catch((e: unknown) => console.error("[liveness attestation]", e))
           .finally(() => {
             if (!cancelled) onComplete();
           });
