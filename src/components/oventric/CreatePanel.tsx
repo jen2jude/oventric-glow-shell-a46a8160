@@ -21,6 +21,15 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
   const [courseOpen, setCourseOpen] = useState(false);
   const [bountyOpen, setBountyOpen] = useState(false);
 
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
   const handleChoice = (c: Choice) => {
     require(c.tier, () => {
       if (c.key === "sell") {
