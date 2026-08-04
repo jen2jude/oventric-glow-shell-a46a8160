@@ -330,7 +330,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
           {TILES.map((t, i) => {
-            const count = t.countKey ? counts?.[t.countKey] ?? 0 : 0;
+            const sectionUnread =
+              t.label === "Messages"
+                ? unread.messages + (unread.sections["Messages"] ?? 0)
+                : unread.sections[t.label] ?? 0;
+            const count = (t.countKey ? counts?.[t.countKey] ?? 0 : 0) + sectionUnread;
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span
