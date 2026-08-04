@@ -84,7 +84,7 @@ export const getMyEarningsBreakdown = createServerFn({ method: "POST" })
         .from("wallet_transactions")
         .select("amount, currency")
         .eq("user_id", userId)
-        .eq("type", type)
+        .eq("type", type as never)
         .eq("inflow", true)
         .eq("status", "success");
       if (since) q = q.gte("occurred_at", since);
