@@ -555,6 +555,7 @@ function QuickAction({
 }
 
 function PromoCard({
+  id,
   title,
   highlight,
   body,
@@ -564,6 +565,7 @@ function PromoCard({
   onClick,
   to,
 }: {
+  id: string;
   title: string;
   highlight: string;
   body: string;
@@ -573,6 +575,8 @@ function PromoCard({
   onClick?: () => void;
   to?: string;
 }) {
+  const promo = { id, title, surface: "home_promo_rail" };
+  const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
       className="relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
@@ -597,14 +601,23 @@ function PromoCard({
     </span>
   );
   const cls = "shrink-0 w-[19rem] snap-start text-left transition-transform duration-300 active:scale-[0.97] hover:-translate-y-0.5";
-  return to ? (
-    <Link to={to} className={cls}>
-      {content}
-    </Link>
-  ) : (
-    <button type="button" onClick={onClick} className={cls}>
-      {content}
-    </button>
+  const handleClick = () => {
+    void trackPromoEvent("click", promo);
+    onClick?.();
+  };
+  return (
+    <div ref={ref} className="contents">
+      {to ? (
+        <Link to={to} className={cls} onClick={handleClick}>
+          {content}
+        </Link>
+      ) : (
+        <button type="button" onClick={handleClick} className={cls}>
+          {content}
+        </button>
+      )}
+    </div>
   );
 }
+
 
