@@ -427,14 +427,21 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-slate-200 bg-[#F7F8FA]">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-10">
-          <Stat value={counts.products} label="Live products" />
-          <Stat value={counts.courses} label="Courses to learn" />
-          <Stat value={counts.bounties} label="Open bounties" />
-          <Stat value={54} label="Countries covered" />
+      <section className="hp-dark border-y border-slate-200">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-12">
+          {[
+            { v: counts.products, l: "Live products" },
+            { v: counts.courses, l: "Courses to learn" },
+            { v: counts.bounties, l: "Open bounties" },
+            { v: 54, l: "Countries covered" },
+          ].map((s, i) => (
+            <Reveal key={s.l} delay={i * 90}>
+              <Stat value={s.v} label={s.l} />
+            </Reveal>
+          ))}
         </div>
       </section>
+
 
       {/* Trust strip */}
       <section className="border-b border-slate-200 bg-white">
