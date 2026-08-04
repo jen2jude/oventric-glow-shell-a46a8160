@@ -572,37 +572,40 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
 
       {/* How it works */}
-      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
-        <div className="mt-12 grid grid-cols-3 gap-6">
-          {STEPS.map((s, i) => (
-            <div key={s.title} className="rounded-3xl border border-slate-200 bg-white p-7">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
-                {i + 1}
-              </span>
-              <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-10">
-          <div>
-            <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
-            <p className="mt-2 max-w-xl text-sm text-slate-600">
-              Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
-              your own currency.
-            </p>
+      <section className="hp-dark border-y border-slate-200">
+        <div className="mx-auto w-full max-w-[1200px] px-8 py-24">
+          <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
+          <div className="mt-12 grid grid-cols-3 gap-6">
+            {STEPS.map((s, i) => (
+              <Reveal key={s.title} delay={i * 110} className="hp-lift rounded-3xl border border-slate-200 bg-white p-7">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
+                  {i + 1}
+                </span>
+                <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
+              </Reveal>
+            ))}
           </div>
-          <button
-            type="button"
-            onClick={primary}
-            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform active:scale-95"
-          >
-            {isAuthenticated ? "Visit feed" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
-          </button>
+
+          <Reveal className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
+              <p className="mt-2 max-w-xl text-sm text-slate-600">
+                Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
+                your own currency.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={primary}
+              className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform hover:scale-[1.03] active:scale-95"
+            >
+              {isAuthenticated ? "Visit feed" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+            </button>
+          </Reveal>
         </div>
       </section>
+
 
       <DownloadAppSection />
 
