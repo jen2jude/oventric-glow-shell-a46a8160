@@ -27,16 +27,28 @@ function initialsOf(name: string) {
   return ((p[0]?.[0] ?? "") + (p[p.length - 1]?.[0] ?? "")).toUpperCase() || "OV";
 }
 
+export interface OptimisticPostDraft {
+  tempId: string;
+  text: string;
+  media: { url: string; kind: "image" | "video" }[];
+}
+
 export function PostComposerModal({
   open,
   onClose,
   onPosted,
+  onOptimistic,
+  onPostFailed,
   wallUserId,
   wallOwnerName,
 }: {
   open: boolean;
   onClose: () => void;
-  onPosted?: (postId?: string) => void | Promise<void>;
+  onPosted?: (postId?: string, tempId?: string) => void | Promise<void>;
+  /** Fired the instant the user hits Post, before upload/creation runs. */
+  onOptimistic?: (draft: OptimisticPostDraft) => void;
+  /** Fired when the background submission fails, so the placeholder can show the error. */
+  onPostFailed?: (tempId: string, message: string) => void;
   /** When set, the post is written to that member's wall (audience forced to public). */
   wallUserId?: string | null;
   wallOwnerName?: string | null;
@@ -189,85 +201,109 @@ export function PostComposerModal({
 
   const canPost = text.trim().length > 0 && !posting && (audience !== "circle" || !!circleId);
 
-  const doPost = async () => {
+  const doPost = () => {
     if (!canPost) return;
     setPosting(true);
     setError(null);
-    try {
-      let mediaPath: string | undefined;
-      let mediaType: "image" | "video" | undefined;
-      let mediaPaths: string[] | undefined;
-      if (attachments.length > 0) {
-        const { data: userRes } = await supabase.auth.getUser();
-        const uid = userRes.user?.id;
-        if (!uid) throw new Error("Not signed in");
-        const uploaded: string[] = [];
-        for (const a of attachments) {
-          const ext = (a.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
-          const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
-          const { error: upErr } = await supabase.storage
-            .from("post-media")
-            .upload(path, a.file, {
-              contentType: a.file.type,
-              cacheControl: "31536000",
-              upsert: false,
-            });
-          if (upErr) throw upErr;
-          uploaded.push(path);
-          // For videos, also capture and upload a poster JPEG so <video>
-          // can paint instantly without downloading the clip.
-          if (a.kind === "video") {
-            try {
-              const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
-              const poster = await generateVideoPoster(a.file);
-              if (poster) {
-                await supabase.storage
-                  .from("post-media")
-                  .upload(posterPathFor(path), poster, {
-                    contentType: "image/jpeg",
-                    cacheControl: "31536000",
-                    upsert: true,
-                  });
-              }
-            } catch { /* poster is best-effort */ }
+
+    // --- Optimistic hand-off -------------------------------------------
+    // Snapshot everything the feed needs to paint the post immediately, then
+    // close the composer and finish uploading/creating in the background.
+    const tempId = `temp-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+    const snapshot = {
+      text: text.trim(),
+      attachments: attachments.slice(),
+      audience: isWall ? ("public" as Audience) : audience,
+      circleId: isWall ? null : audience === "circle" ? circleId : null,
+      mentionedUserIds: mentions.map((m) => m.userId),
+    };
+    onOptimistic?.({
+      tempId,
+      text: snapshot.text,
+      // Ownership of these object URLs passes to the feed; it revokes them.
+      media: snapshot.attachments.map((a) => ({ url: a.previewUrl, kind: a.kind })),
+    });
+
+    // Reset composer state without revoking the previews the feed now owns.
+    setText("");
+    setMentions([]);
+    setAudience("public");
+    setCircleId(null);
+    setAttachments([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+    setPosting(false);
+    onClose();
+
+    void (async () => {
+      try {
+        let mediaPath: string | undefined;
+        let mediaType: "image" | "video" | undefined;
+        let mediaPaths: string[] | undefined;
+        if (snapshot.attachments.length > 0) {
+          const { data: userRes } = await supabase.auth.getUser();
+          const uid = userRes.user?.id;
+          if (!uid) throw new Error("Not signed in");
+          const uploaded: string[] = [];
+          for (const a of snapshot.attachments) {
+            const ext = (a.file.name.split(".").pop() || "bin").toLowerCase().slice(0, 8);
+            const path = `${uid}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`;
+            const { error: upErr } = await supabase.storage
+              .from("post-media")
+              .upload(path, a.file, {
+                contentType: a.file.type,
+                cacheControl: "31536000",
+                upsert: false,
+              });
+            if (upErr) throw upErr;
+            uploaded.push(path);
+            // For videos, also capture and upload a poster JPEG so <video>
+            // can paint instantly without downloading the clip.
+            if (a.kind === "video") {
+              try {
+                const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+                const poster = await generateVideoPoster(a.file);
+                if (poster) {
+                  await supabase.storage
+                    .from("post-media")
+                    .upload(posterPathFor(path), poster, {
+                      contentType: "image/jpeg",
+                      cacheControl: "31536000",
+                      upsert: true,
+                    });
+                }
+              } catch { /* poster is best-effort */ }
+            }
+          }
+          const isVideo = snapshot.attachments[0].kind === "video";
+          if (isVideo) {
+            mediaPath = uploaded[0];
+            mediaType = "video";
+          } else {
+            mediaPaths = uploaded;
+            mediaType = "image";
           }
         }
-        const isVideo = attachments[0].kind === "video";
-        if (isVideo) {
-          mediaPath = uploaded[0];
-          mediaType = "video";
-        } else {
-          mediaPaths = uploaded;
-          mediaType = "image";
-        }
+        const created = await createPost({
+          data: {
+            text: snapshot.text,
+            mediaPath,
+            mediaType,
+            mediaPaths,
+            audience: snapshot.audience,
+            circleId: snapshot.circleId,
+            mentionedUserIds: snapshot.mentionedUserIds,
+            wallUserId: wallUserId ?? null,
+          },
+        });
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        await onPosted?.((created as any)?.post?.id, tempId);
+      } catch (e: any) {
+        console.error("[PostComposerModal] post failed", e);
+        onPostFailed?.(tempId, e?.message || "Couldn't publish. Try again.");
       }
-      const created = await createPost({
-        data: {
-          text: text.trim(),
-          mediaPath,
-          mediaType,
-          mediaPaths,
-          audience: isWall ? "public" : audience,
-          circleId: isWall ? null : (audience === "circle" ? circleId : null),
-          mentionedUserIds: mentions.map((m) => m.userId),
-          wallUserId: wallUserId ?? null,
-        },
-      });
-      // Reset state
-      setText("");
-      setMentions([]);
-      setAudience("public");
-      setCircleId(null);
-      clearAttachments();
-      onClose();
-      await onPosted?.((created as any)?.post?.id);
-    } catch (e: any) {
-      console.error("[PostComposerModal] post failed", e);
-      setError(e?.message || "Couldn't publish. Try again.");
-    } finally {
-      setPosting(false);
-    }
+    })();
   };
+
 
   if (!open) return null;
 
