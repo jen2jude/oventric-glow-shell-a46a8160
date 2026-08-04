@@ -527,6 +527,49 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           </div>
         </div>
       )}
+
+      {removeConfirm && (
+        <div
+          className="fixed inset-0 z-[130] bg-black/70 flex items-center justify-center p-4"
+          role="presentation"
+          onClick={() => setRemoveConfirm(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-attachment-title"
+            className="w-full max-w-sm rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div id="remove-attachment-title" className="text-white md:text-slate-900 font-bold text-base mb-1">
+              Remove this attachment?
+            </div>
+            <p className="text-sm text-slate-400 md:text-slate-600 mb-4">
+              {files.find((f) => f.path === removeConfirm)?.name ?? "This file"} will be taken off your draft.
+              You can undo for a few seconds afterwards.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setRemoveConfirm(null)}
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => {
+                  const path = removeConfirm;
+                  setRemoveConfirm(null);
+                  doRemoveFile(path);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-black text-sm font-bold"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
