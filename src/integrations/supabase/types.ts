@@ -2622,6 +2622,7 @@ export type Database = {
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
+          last_liveness_verified_at: string | null
           notification_preferences: Json
           phone: string | null
           profile_completed_at: string | null
@@ -2655,6 +2656,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          last_liveness_verified_at?: string | null
           notification_preferences?: Json
           phone?: string | null
           profile_completed_at?: string | null
@@ -2688,6 +2690,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          last_liveness_verified_at?: string | null
           notification_preferences?: Json
           phone?: string | null
           profile_completed_at?: string | null
@@ -2982,6 +2985,7 @@ export type Database = {
         Args: { _currency: string; _user_id: string; _which: string }
         Returns: undefined
       }
+      assert_recent_liveness: { Args: never; Returns: undefined }
       bounty_auto_release_due: { Args: never; Returns: number }
       bounty_publish_lock: {
         Args: { _amount_usd: number; _bounty_id: string }
@@ -3200,6 +3204,7 @@ export type Database = {
           read_ct: number
         }[]
       }
+      record_liveness_attestation: { Args: never; Returns: string }
       submit_ad_lead: {
         Args: {
           _campaign_id: string
