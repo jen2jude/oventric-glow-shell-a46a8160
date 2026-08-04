@@ -296,6 +296,14 @@ export function Feed() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
+  // Like / comment / share tapped on an optimistic card before the server
+  // returns the real post id — replayed against the real post once it lands.
+  const [pendingIntents, setPendingIntents] = useState<
+    Record<string, { react?: ReactionType | null; comment?: boolean; share?: boolean }>
+  >({});
+  const pendingIntentsRef = useRef(pendingIntents);
+  pendingIntentsRef.current = pendingIntents;
+
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [category, setCategory] = useState<FeedCategory>("all");
@@ -412,16 +420,19 @@ export function Feed() {
   const updateComment = useServerFn(updateCommentFn);
   const deleteComment = useServerFn(deleteCommentFn);
 
-  const refreshPosts = useCallback(async () => {
+  const refreshPosts = useCallback(async (): Promise<FeedPost[] | null> => {
     try {
       const res = await listPosts();
       setPosts(res.posts);
       setPostsError(null);
+      return res.posts;
     } catch (e) {
       console.error("[Feed] listPosts failed", e);
       setPostsError("Couldn't load feed.");
+      return null;
     }
   }, [listPosts]);
+
 
   /** Drop a pending placeholder and release its object URLs. */
   const dismissPending = useCallback((tempId: string) => {
@@ -1115,6 +1126,52 @@ export function Feed() {
                     ))}
                   </div>
                 )}
+                {!p.error && (() => {
+                  const intent = pendingIntents[p.tempId] ?? {};
+                  const liked = !!intent.react;
+                  const setIntent = (patch: Partial<{ react: ReactionType | null; comment: boolean; share: boolean }>) =>
+                    setPendingIntents((prev) => ({ ...prev, [p.tempId]: { ...(prev[p.tempId] ?? {}), ...patch } }));
+                  return (
+                    <>
+                      <div className="mt-4 pt-3 border-t border-white/5 md:border-slate-200 flex items-center gap-1 text-sm text-slate-400 md:text-slate-500">
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ react: liked ? null : "love" })}
+                          aria-pressed={liked}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            liked ? "text-rose-400 md:text-rose-500" : ""
+                          }`}
+                        >
+                          <ReactionImageBadge reaction="love" />
+                          <span>{liked ? 1 : 0}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ comment: true })}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            intent.comment ? "text-emerald-400 md:text-emerald-600" : ""
+                          }`}
+                        >
+                          <MessageSquare className="w-4 h-4" /> 0
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ share: true })}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
+                            intent.share ? "text-emerald-400 md:text-emerald-600" : ""
+                          }`}
+                        >
+                          <Share2 className="w-4 h-4" /> Share
+                        </button>
+                      </div>
+                      {(liked || intent.comment || intent.share) && (
+                        <p className="mt-2 text-[11px] text-slate-500">
+                          Saved — applies the moment your post goes live.
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
                 {p.error && (
                   <div className="mt-3 flex justify-end">
                     <button
@@ -1126,6 +1183,7 @@ export function Feed() {
                     </button>
                   </div>
                 )}
+
               </article>
             ))}
           </div>
@@ -1613,8 +1671,16 @@ export function Feed() {
         }}
         onPostFailed={failPending}
         onPosted={async (postId, tempId) => {
-          await refreshPosts();
-          if (tempId) dismissPending(tempId);
+          const fresh = await refreshPosts();
+          const intent = tempId ? pendingIntentsRef.current[tempId] : undefined;
+          if (tempId) {
+            dismissPending(tempId);
+            setPendingIntents((prev) => {
+              const next = { ...prev };
+              delete next[tempId];
+              return next;
+            });
+          }
           const reduceMotion =
             typeof window !== "undefined" &&
             window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -1624,6 +1690,17 @@ export function Feed() {
             return;
           }
           setNewPostId(postId);
+          // Replay any Like / Comment / Share tapped on the optimistic card.
+          if (intent) {
+            const real = fresh?.find((p) => p.id === postId);
+            if (intent.react && real) handleReact(real, intent.react);
+            if (intent.share) {
+              const origin = typeof window !== "undefined" ? window.location.origin : "";
+              shareUrl(`${origin}/#post-${postId}`, "My post on Oventric");
+            }
+            if (intent.comment) setTimeout(() => setCommentsSheetPostId(postId), 350);
+          }
+
           // Wait for the new card to be laid out (two frames) and for its
           // media to settle, so the scroll target doesn't shift mid-animation.
           requestAnimationFrame(() => {
