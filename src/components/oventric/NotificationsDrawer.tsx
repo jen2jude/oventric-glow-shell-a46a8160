@@ -14,7 +14,10 @@ import {
   ArrowRight,
   Volume2,
   VolumeX,
+  BellRing,
+  BellOff,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -23,6 +26,13 @@ import {
   playNotificationSound,
   setSoundMuted,
 } from "@/lib/notification-sound";
+import {
+  disablePush,
+  enablePush,
+  isPushEnabled,
+  pushAllowedHere,
+  pushSupported,
+} from "@/lib/push/client";
 import {
   myNotifications,
   markNotificationRead,
