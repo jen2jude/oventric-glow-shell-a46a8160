@@ -36,7 +36,7 @@ export function CountBadge({
     <span
       key={bump}
       aria-label={ariaLabel ?? `${count} new`}
-      className={`${base} bg-emerald-500 text-black font-black flex items-center justify-center animate-scale-in ${className}`}
+      className={`${base} bg-red-600 text-white ring-2 ring-white/90 dark:ring-black/40 font-black flex items-center justify-center animate-scale-in ${className}`}
     >
       {label}
     </span>
