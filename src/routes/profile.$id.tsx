@@ -74,7 +74,7 @@ import { ReportModal } from "@/components/oventric/ReportModal";
 import { EditProfileModal } from "@/components/oventric/EditProfileModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
-import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
 import { RelationshipsSection, type RelationshipTab } from "@/components/oventric/RelationshipsSection";
 import { useOnlineUsers } from "@/hooks/use-presence";
 import { FollowButton } from "@/components/oventric/FollowButton";
