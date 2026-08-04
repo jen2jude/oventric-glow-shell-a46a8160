@@ -119,7 +119,9 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
     [],
   );
 
-  const removeFile = (path: string) => {
+  const doRemoveFile = (path: string) => {
+    const removed = files.find((x) => x.path === path);
+    const removedIndex = files.findIndex((x) => x.path === path);
     setFiles((prev) => prev.filter((x) => x.path !== path));
     setPreviews((prev) => {
       const u = prev[path];
@@ -128,6 +130,25 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
       delete next[path];
       return next;
     });
+    if (removed) {
+      toast(`Removed ${removed.name}`, {
+        action: {
+          label: "Undo",
+          onClick: () => {
+            setFiles((prev) => {
+              const next = [...prev];
+              next.splice(Math.min(removedIndex, next.length), 0, removed);
+              return next;
+            });
+          },
+        },
+        duration: 6000,
+      });
+    }
+  };
+
+  const requestRemoveFile = (path: string) => {
+    setRemoveConfirm(path);
   };
 
   const resolvedTimeline = timeline === "Custom" ? customTimeline.trim() : timeline;
@@ -135,26 +156,49 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   const pickFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
     setErr(null);
-    setUploading(true);
-    try {
-      for (const f of Array.from(list).slice(0, 10 - files.length)) {
-        if (f.size > 10 * 1024 * 1024) throw new Error(`${f.name} is larger than 10MB`);
-        const b64 = await fileToBase64(f);
-        const saved = (await uploadFn({
-          data: { bounty_id: bountyId, name: f.name, type: f.type, data_base64: b64 },
-        })) as SubmissionFile;
-        if (f.type.startsWith("image/")) {
-          const objUrl = URL.createObjectURL(f);
-          setPreviews((prev) => ({ ...prev, [saved.path]: objUrl }));
-        }
-        setFiles((prev) => [...prev, saved]);
+    setFileErrors([]);
+    const incoming = Array.from(list).slice(0, 10 - files.length);
+    const errors: string[] = [];
+    const valid: File[] = [];
+    for (const f of incoming) {
+      if (f.size > MAX_FILE_BYTES) {
+        errors.push(`${f.name}: file is larger than 10MB`);
+        continue;
       }
-    } catch (e) {
-      setErr((e as Error).message);
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
+      if (!isAllowedType(f.type)) {
+        errors.push(`${f.name}: unsupported file type${f.type ? ` (${f.type})` : ""}`);
+        continue;
+      }
+      valid.push(f);
     }
+    if (errors.length) setFileErrors(errors);
+
+    await Promise.all(
+      valid.map(async (f) => {
+        const key = `${f.name}-${f.size}-${Date.now()}`;
+        setUploadProgress((prev) => ({ ...prev, [key]: "uploading" }));
+        try {
+          const b64 = await fileToBase64(f);
+          const saved = (await uploadFn({
+            data: { bounty_id: bountyId, name: f.name, type: f.type, data_base64: b64 },
+          })) as SubmissionFile;
+          if (f.type.startsWith("image/")) {
+            const objUrl = URL.createObjectURL(f);
+            setPreviews((prev) => ({ ...prev, [saved.path]: objUrl }));
+          }
+          setFiles((prev) => [...prev, saved]);
+        } catch (e) {
+          setFileErrors((prev) => [...prev, `${f.name}: ${(e as Error).message}`]);
+        } finally {
+          setUploadProgress((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        }
+      }),
+    );
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const persist = async (submit: boolean) => {
