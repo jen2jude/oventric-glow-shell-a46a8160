@@ -64,7 +64,7 @@ function AdsManagerPage() {
         title: c.title,
         header: c.header,
         body: c.body,
-        media_url: "",
+        media_url: c.media_url,
         cta_type: c.cta_type,
         cta_url: c.cta_url,
         cta_label: c.cta_label,
