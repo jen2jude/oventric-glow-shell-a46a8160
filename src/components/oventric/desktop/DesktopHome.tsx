@@ -538,7 +538,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </h2>
         <div className="mt-16 space-y-20">
           {FEATURES.map((f, i) => (
-            <div
+            <Reveal
               key={f.label}
               className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
             >
@@ -557,13 +557,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 </button>
               </div>
               <div
-                className={`flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
+                className={`hp-lift flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
               >
-                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain" />
+                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain transition-transform duration-500 hover:scale-110" />
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
+
       </section>
 
 
