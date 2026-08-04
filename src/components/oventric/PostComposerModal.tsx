@@ -610,7 +610,8 @@ export function PostComposerModal({
           )}
 
 
-          {error && <div className="mt-3 text-xs text-red-400">{error}</div>}
+          {mediaError && <FieldError>{mediaError}</FieldError>}
+          {error && <FieldError>{error}</FieldError>}
         </div>
 
       </div>
