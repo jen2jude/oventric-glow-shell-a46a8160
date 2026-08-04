@@ -486,8 +486,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             </div>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-5">
-            {catList.slice(0, 6).map((c) => (
-              <div key={c.id} className="rounded-3xl border border-slate-200 bg-white p-6">
+            {catList.slice(0, 6).map((c, i) => (
+              <Reveal key={c.id} delay={(i % 3) * 90} className="hp-lift rounded-3xl border border-slate-200 bg-white p-6">
                 <button
                   type="button"
                   onClick={() => onSelect("Marketplace")}
@@ -511,7 +511,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                     ))}
                   </div>
                 )}
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -520,13 +520,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       <ProductRails onSelect={onSelect} />
 
       {/* Live rails */}
-      <section className="border-t border-slate-200 bg-[#F7F8FA]">
+      <section className="hp-dark border-t border-slate-200">
         <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
           <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
           <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
           <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
         </div>
       </section>
+
 
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
