@@ -467,9 +467,24 @@ export function PostComposerModal({
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
+            aria-invalid={showTextError}
+            aria-describedby={showTextError ? "composer-text-error" : undefined}
             placeholder="Share an update, ask a question, drop a build log…"
-            className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px]"
+            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px] rounded-lg px-2 -mx-2 ${
+              showTextError ? "ring-1 ring-red-500/60" : ""
+            }`}
           />
+          <div className="flex items-start justify-between gap-3">
+            <div id="composer-text-error" className="min-w-0">
+              {showTextError && <FieldError>{textError}</FieldError>}
+            </div>
+            {trimmed.length > MAX_TEXT * 0.8 && (
+              <span className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}>
+                {trimmed.length.toLocaleString()}/{MAX_TEXT.toLocaleString()}
+              </span>
+            )}
+          </div>
+
 
           {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
           <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
