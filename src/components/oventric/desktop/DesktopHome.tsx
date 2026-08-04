@@ -29,6 +29,7 @@ import { listMarketplaceCategories, type CategoryNode } from "@/lib/marketplace.
 import { formatMoney, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { Reveal } from "@/components/oventric/desktop/Reveal";
 import { SiteFooter } from "@/components/oventric/desktop/SiteFooter";
 import { DownloadAppSection } from "@/components/oventric/desktop/DownloadAppSection";
 import {
@@ -426,14 +427,21 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       </section>
 
       {/* Stats */}
-      <section className="border-y border-slate-200 bg-[#F7F8FA]">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-10">
-          <Stat value={counts.products} label="Live products" />
-          <Stat value={counts.courses} label="Courses to learn" />
-          <Stat value={counts.bounties} label="Open bounties" />
-          <Stat value={54} label="Countries covered" />
+      <section className="hp-dark border-y border-slate-200">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-12">
+          {[
+            { v: counts.products, l: "Live products" },
+            { v: counts.courses, l: "Courses to learn" },
+            { v: counts.bounties, l: "Open bounties" },
+            { v: 54, l: "Countries covered" },
+          ].map((s, i) => (
+            <Reveal key={s.l} delay={i * 90}>
+              <Stat value={s.v} label={s.l} />
+            </Reveal>
+          ))}
         </div>
       </section>
+
 
       {/* Trust strip */}
       <section className="border-b border-slate-200 bg-white">
@@ -478,8 +486,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             </div>
           </div>
           <div className="mt-8 grid grid-cols-3 gap-5">
-            {catList.slice(0, 6).map((c) => (
-              <div key={c.id} className="rounded-3xl border border-slate-200 bg-white p-6">
+            {catList.slice(0, 6).map((c, i) => (
+              <Reveal key={c.id} delay={(i % 3) * 90} className="hp-lift rounded-3xl border border-slate-200 bg-white p-6">
                 <button
                   type="button"
                   onClick={() => onSelect("Marketplace")}
@@ -503,7 +511,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                     ))}
                   </div>
                 )}
-              </div>
+              </Reveal>
             ))}
           </div>
         </section>
@@ -512,13 +520,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       <ProductRails onSelect={onSelect} />
 
       {/* Live rails */}
-      <section className="border-t border-slate-200 bg-[#F7F8FA]">
+      <section className="hp-dark border-t border-slate-200">
         <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
           <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
           <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
           <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
         </div>
       </section>
+
 
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
@@ -529,7 +538,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </h2>
         <div className="mt-16 space-y-20">
           {FEATURES.map((f, i) => (
-            <div
+            <Reveal
               key={f.label}
               className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
             >
@@ -548,13 +557,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 </button>
               </div>
               <div
-                className={`flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
+                className={`hp-lift flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
               >
-                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain" />
+                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain transition-transform duration-500 hover:scale-110" />
               </div>
-            </div>
+            </Reveal>
           ))}
         </div>
+
       </section>
 
 
@@ -562,37 +572,40 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
 
       {/* How it works */}
-      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
-        <div className="mt-12 grid grid-cols-3 gap-6">
-          {STEPS.map((s, i) => (
-            <div key={s.title} className="rounded-3xl border border-slate-200 bg-white p-7">
-              <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
-                {i + 1}
-              </span>
-              <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
-              <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
-            </div>
-          ))}
-        </div>
-
-        <div className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-200 bg-gradient-to-br from-emerald-50 to-transparent p-10">
-          <div>
-            <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
-            <p className="mt-2 max-w-xl text-sm text-slate-600">
-              Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
-              your own currency.
-            </p>
+      <section className="hp-dark border-y border-slate-200">
+        <div className="mx-auto w-full max-w-[1200px] px-8 py-24">
+          <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
+          <div className="mt-12 grid grid-cols-3 gap-6">
+            {STEPS.map((s, i) => (
+              <Reveal key={s.title} delay={i * 110} className="hp-lift rounded-3xl border border-slate-200 bg-white p-7">
+                <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
+                  {i + 1}
+                </span>
+                <h3 className="mt-5 text-lg font-bold text-slate-900">{s.title}</h3>
+                <p className="mt-2 text-sm leading-relaxed text-slate-600">{s.body}</p>
+              </Reveal>
+            ))}
           </div>
-          <button
-            type="button"
-            onClick={primary}
-            className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform active:scale-95"
-          >
-            {isAuthenticated ? "Visit feed" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
-          </button>
+
+          <Reveal className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+            <div>
+              <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
+              <p className="mt-2 max-w-xl text-sm text-slate-600">
+                Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
+                your own currency.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={primary}
+              className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform hover:scale-[1.03] active:scale-95"
+            >
+              {isAuthenticated ? "Visit feed" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+            </button>
+          </Reveal>
         </div>
       </section>
+
 
       <DownloadAppSection />
 
@@ -701,29 +714,32 @@ function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; on
         </button>
       </div>
       <div className="grid grid-cols-4 gap-5">
-        {items.map((it) => (
-          <button
-            key={it.id}
-            type="button"
-            onClick={onSeeAll}
-            className="group text-left transition-transform hover:-translate-y-1"
-          >
-            <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              {it.coverUrl ? (
-                <img src={it.coverUrl} alt={it.title} className="h-full w-full object-cover" loading="lazy" />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center text-slate-400">
-                  <Newspaper className="h-7 w-7" />
-                </span>
-              )}
-            </span>
-            <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
-              {it.title}
-            </span>
-            <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
-          </button>
+        {items.map((it, i) => (
+          <Reveal key={it.id} delay={(i % 4) * 80}>
+            <button type="button" onClick={onSeeAll} className="hp-lift group w-full text-left">
+              <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                {it.coverUrl ? (
+                  <img
+                    src={it.coverUrl}
+                    alt={it.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-slate-400">
+                    <Newspaper className="h-7 w-7" />
+                  </span>
+                )}
+              </span>
+              <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
+                {it.title}
+              </span>
+              <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
+            </button>
+          </Reveal>
         ))}
       </div>
+
     </div>
   );
 }

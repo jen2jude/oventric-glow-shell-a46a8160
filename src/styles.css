@@ -1842,3 +1842,41 @@ html.light input::placeholder, html.light textarea::placeholder {
     box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
   }
 }
+
+/* ── Desktop home: scroll reveal + dark section bands ─────────────────── */
+.hp-reveal {
+  opacity: 0;
+  transform: translateY(22px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+.hp-reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hp-reveal { opacity: 1; transform: none; transition: none; }
+}
+
+/* Fluid hover lift used across home cards */
+.hp-lift { transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.35s ease; }
+.hp-lift:hover { transform: translateY(-6px); box-shadow: 0 22px 46px -24px rgba(15, 23, 42, 0.45); }
+
+/* Dark contrast band — overrides the desktop light theme inside the band */
+.hp-dark {
+  background-image: radial-gradient(900px 420px at 12% -20%, rgba(16, 185, 129, 0.16), transparent 68%),
+    radial-gradient(760px 400px at 92% 0%, rgba(99, 102, 241, 0.14), transparent 70%),
+    linear-gradient(180deg, #0e1014 0%, #121419 55%, #0e1014 100%) !important;
+  color: #cbd5e1 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.hp-dark h1, .hp-dark h2, .hp-dark h3,
+.hp-dark .text-slate-900 { color: #ffffff !important; }
+.hp-dark .text-slate-700 { color: #cbd5e1 !important; }
+.hp-dark .text-slate-600 { color: #a8b3c4 !important; }
+.hp-dark .text-slate-500,
+.hp-dark .text-slate-400 { color: #8b97a8 !important; }
+.hp-dark .bg-white { background-color: rgba(255, 255, 255, 0.045) !important; }
+.hp-dark .bg-slate-100 { background-color: rgba(255, 255, 255, 0.07) !important; }
+.hp-dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.14) !important; }
+.hp-dark .text-emerald-600 { color: #34d399 !important; }
+.hp-dark .border-slate-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
+.hp-dark .hp-lift:hover { box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.85) !important; border-color: rgba(52, 211, 153, 0.4) !important; }
