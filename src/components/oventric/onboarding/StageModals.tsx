@@ -315,7 +315,7 @@ function Stage5({ onClose }: { onClose: () => void }) {
               {/* Spinning scanner arc */}
               <Loader2 className="absolute w-52 h-52 text-emerald-400/70 animate-spin" strokeWidth={1} />
               <ScanFace className="relative w-16 h-16 text-emerald-300/80" strokeWidth={1.2} />
-              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#10b981]" />
+              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6]" />
             </div>
           </div>
           <p className="text-sm text-slate-300">Hold still — capturing biometric</p>

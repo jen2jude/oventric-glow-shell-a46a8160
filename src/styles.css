@@ -32,6 +32,39 @@
   --animate-rgb-pulse: rgb-pulse 3s ease-in-out infinite;
 }
 
+/* Brand accent remap: green/emerald utilities resolve to the sharp hero blue. */
+
+@theme {
+  --color-emerald-50: #eff6ff;
+  --color-emerald-100: #dbeafe;
+  --color-emerald-200: #bfdbfe;
+  --color-emerald-300: #93c5fd;
+  --color-emerald-400: #60a5fa;
+  --color-emerald-500: #3b82f6;
+  --color-emerald-600: #2563eb;
+  --color-emerald-700: #1d4ed8;
+  --color-emerald-800: #1e40af;
+  --color-emerald-900: #1e3a8a;
+  --color-emerald-950: #172554;
+  --color-green-50: #eff6ff;
+  --color-green-100: #dbeafe;
+  --color-green-200: #bfdbfe;
+  --color-green-300: #93c5fd;
+  --color-green-400: #60a5fa;
+  --color-green-500: #3b82f6;
+  --color-green-600: #2563eb;
+  --color-green-700: #1d4ed8;
+  --color-green-800: #1e40af;
+  --color-green-900: #1e3a8a;
+  --color-green-950: #172554;
+  --color-teal-400: #60a5fa;
+  --color-teal-500: #3b82f6;
+  --color-teal-600: #2563eb;
+  --color-lime-400: #60a5fa;
+  --color-lime-500: #3b82f6;
+}
+
+
 :root {
   --radius: 0.5rem;
   /* Premium black & white dark theme (Facebook-style elevation).
@@ -63,7 +96,7 @@
   0%   { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
   16%  { border-color: #ff8800; box-shadow: 0 0 8px #ff8800, inset 0 0 4px #ff8800; }
   33%  { border-color: #ffee00; box-shadow: 0 0 8px #ffee00, inset 0 0 4px #ffee00; }
-  50%  { border-color: #10b981; box-shadow: 0 0 8px #10b981, inset 0 0 4px #10b981; }
+  50%  { border-color: #3b82f6; box-shadow: 0 0 8px #3b82f6, inset 0 0 4px #3b82f6; }
   66%  { border-color: #00aaff; box-shadow: 0 0 8px #00aaff, inset 0 0 4px #00aaff; }
   83%  { border-color: #aa00ff; box-shadow: 0 0 8px #aa00ff, inset 0 0 4px #aa00ff; }
   100% { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
@@ -72,15 +105,15 @@
 @keyframes rgb-neon-chase-bg {
   0%   { background: linear-gradient(135deg, #ff0055, #ff8800); box-shadow: 0 0 20px #ff0055; }
   20%  { background: linear-gradient(135deg, #ff8800, #ffee00); box-shadow: 0 0 20px #ff8800; }
-  40%  { background: linear-gradient(135deg, #ffee00, #10b981); box-shadow: 0 0 20px #ffee00; }
-  60%  { background: linear-gradient(135deg, #10b981, #00aaff); box-shadow: 0 0 20px #10b981; }
+  40%  { background: linear-gradient(135deg, #ffee00, #3b82f6); box-shadow: 0 0 20px #ffee00; }
+  60%  { background: linear-gradient(135deg, #3b82f6, #00aaff); box-shadow: 0 0 20px #3b82f6; }
   80%  { background: linear-gradient(135deg, #00aaff, #aa00ff); box-shadow: 0 0 20px #00aaff; }
   100% { background: linear-gradient(135deg, #aa00ff, #ff0055); box-shadow: 0 0 20px #aa00ff; }
 }
 
 @keyframes rgb-pulse {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.5), 0 0 8px rgba(16, 185, 129, 0.4); }
-  50%      { box-shadow: 0 0 0 6px rgba(16, 185, 129, 0), 0 0 20px rgba(16, 185, 129, 0.8); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5), 0 0 8px rgba(59, 130, 246, 0.4); }
+  50%      { box-shadow: 0 0 0 6px rgba(59, 130, 246, 0), 0 0 20px rgba(59, 130, 246, 0.8); }
 }
 
 @keyframes slide-up-panel {
@@ -352,7 +385,7 @@ html.low-gpu .app-sheen { animation: none !important; }
   }
   .rgb-pulse-glow {
     animation: none !important;
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.6) !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.6) !important;
   }
 
   /* Static fallback for the animated RGB gradient surface. Keeps the
@@ -369,16 +402,16 @@ html.low-gpu .app-sheen { animation: none !important; }
   .neon-chase-border {
     animation: none !important;
     box-shadow: none !important;
-    border-color: rgba(16, 185, 129, 0.55) !important;
+    border-color: rgba(59, 130, 246, 0.55) !important;
   }
   .neon-chase-bg {
     animation: none !important;
     box-shadow: none !important;
-    background: linear-gradient(135deg, #10b981, #22d3ee) !important;
+    background: linear-gradient(135deg, #3b82f6, #22d3ee) !important;
   }
   .neon-pulse {
     animation: none !important;
-    box-shadow: 0 0 0 1px rgba(16, 185, 129, 0.55) !important;
+    box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.55) !important;
   }
 
   /* Big-radius filter:blur() animations (e.g. auth-flash) scramble tiles
@@ -672,7 +705,7 @@ html.low-gpu {
   .megamenu-lowgpu-invite {
     margin-top: 12px;
     background-color: #123126 !important;
-    border-color: rgba(16, 185, 129, 0.35);
+    border-color: rgba(59, 130, 246, 0.35);
   }
 
   .megamenu-lowgpu-grid {
@@ -698,10 +731,10 @@ html.low-gpu {
     width: 40px;
     height: 40px;
     flex: 0 0 40px;
-    border: 1px solid rgba(16, 185, 129, 0.28);
+    border: 1px solid rgba(59, 130, 246, 0.28);
     border-radius: 999px;
     background-color: #1e1e24 !important;
-    color: #6ee7b7;
+    color: #93c5fd;
     font-size: 14px;
     font-weight: 900;
     overflow: hidden;
@@ -980,7 +1013,7 @@ html.low-gpu {
     border-radius: 999px;
     background-color: #1e1e24 !important;
     border: 1px solid rgba(255, 255, 255, 0.14);
-    color: #6ee7b7;
+    color: #93c5fd;
     font-size: 15px;
     font-weight: 900;
   }
@@ -1457,8 +1490,8 @@ html.light .bg-\[\#1E1E24\].border-emerald-500\/30 {
 /* Light emerald text used as accent on pale emerald backgrounds is too pale
    on the white canvas — remap the 100/200/300 tints to a readable emerald. */
 html.light .text-emerald-100,
-html.light .text-emerald-200 { color: #047857 !important; }
-html.light .text-emerald-300 { color: #059669 !important; }
+html.light .text-emerald-200 { color: #1d4ed8 !important; }
+html.light .text-emerald-300 { color: #2563eb !important; }
 html.light .text-cyan-100,
 html.light .text-cyan-200    { color: #0e7490 !important; }
 html.light .text-purple-100,
@@ -1582,7 +1615,7 @@ html.light input::placeholder, html.light textarea::placeholder {
 
 .hub-wallet {
   isolation: isolate;
-  box-shadow: 0 18px 40px -24px rgba(16, 185, 129, 0.55);
+  box-shadow: 0 18px 40px -24px rgba(59, 130, 246, 0.55);
 }
 
 .hub-tile {
@@ -1689,8 +1722,8 @@ html.light input::placeholder, html.light textarea::placeholder {
 
   /* Pale accent inks need contrast on white */
   :is(.admin-light, .page-light) .text-emerald-100,
-  :is(.admin-light, .page-light) .text-emerald-200 { color: #047857 !important; }
-  :is(.admin-light, .page-light) .text-emerald-300 { color: #059669 !important; }
+  :is(.admin-light, .page-light) .text-emerald-200 { color: #1d4ed8 !important; }
+  :is(.admin-light, .page-light) .text-emerald-300 { color: #2563eb !important; }
   :is(.admin-light, .page-light) .text-amber-200,
   :is(.admin-light, .page-light) .text-amber-300 { color: #b45309 !important; }
   :is(.admin-light, .page-light) .text-red-200,
@@ -1798,8 +1831,8 @@ html.light input::placeholder, html.light textarea::placeholder {
   .modal-light .hover\:text-white:not([class*="bg-emerald"]):not([class*="bg-gradient"]):hover { color: #0f172a !important; }
 
   .modal-light .text-emerald-100,
-  .modal-light .text-emerald-200 { color: #047857 !important; }
-  .modal-light .text-emerald-300 { color: #059669 !important; }
+  .modal-light .text-emerald-200 { color: #1d4ed8 !important; }
+  .modal-light .text-emerald-300 { color: #2563eb !important; }
   .modal-light .text-amber-200,
   .modal-light .text-amber-300 { color: #b45309 !important; }
   .modal-light .text-red-200,
@@ -1825,10 +1858,10 @@ html.light input::placeholder, html.light textarea::placeholder {
 
 /* New-post highlight: pure box-shadow glow (no layout impact) that fades out. */
 @keyframes post-highlight-glow {
-  0%   { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
-  18%  { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.35), 0 10px 40px -12px rgba(16, 185, 129, 0.45); }
-  70%  { box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.28), 0 10px 40px -12px rgba(16, 185, 129, 0.3); }
-  100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); }
+  0%   { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
+  18%  { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.35), 0 10px 40px -12px rgba(59, 130, 246, 0.45); }
+  70%  { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.28), 0 10px 40px -12px rgba(59, 130, 246, 0.3); }
+  100% { box-shadow: 0 0 0 0 rgba(59, 130, 246, 0); }
 }
 
 .post-highlight {
@@ -1839,7 +1872,7 @@ html.light input::placeholder, html.light textarea::placeholder {
 @media (prefers-reduced-motion: reduce) {
   .post-highlight {
     animation: none;
-    box-shadow: 0 0 0 2px rgba(16, 185, 129, 0.35);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.35);
   }
 }
 
@@ -1862,7 +1895,7 @@ html.light input::placeholder, html.light textarea::placeholder {
 
 /* Dark contrast band — overrides the desktop light theme inside the band */
 .hp-dark {
-  background-image: radial-gradient(900px 420px at 12% -20%, rgba(16, 185, 129, 0.16), transparent 68%),
+  background-image: radial-gradient(900px 420px at 12% -20%, rgba(59, 130, 246, 0.16), transparent 68%),
     radial-gradient(760px 400px at 92% 0%, rgba(99, 102, 241, 0.14), transparent 70%),
     linear-gradient(180deg, #0e1014 0%, #121419 55%, #0e1014 100%) !important;
   color: #cbd5e1 !important;
@@ -1876,10 +1909,10 @@ html.light input::placeholder, html.light textarea::placeholder {
 .hp-dark .text-slate-400 { color: #8b97a8 !important; }
 .hp-dark .bg-white { background-color: rgba(255, 255, 255, 0.045) !important; }
 .hp-dark .bg-slate-100 { background-color: rgba(255, 255, 255, 0.07) !important; }
-.hp-dark .bg-emerald-50 { background-color: rgba(16, 185, 129, 0.14) !important; }
-.hp-dark .text-emerald-600 { color: #34d399 !important; }
+.hp-dark .bg-emerald-50 { background-color: rgba(59, 130, 246, 0.14) !important; }
+.hp-dark .text-emerald-600 { color: #60a5fa !important; }
 .hp-dark .border-slate-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
-.hp-dark .hp-lift:hover { box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.85) !important; border-color: rgba(52, 211, 153, 0.4) !important; }
+.hp-dark .hp-lift:hover { box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.85) !important; border-color: rgba(96, 165, 250, 0.4) !important; }
 
 /* Desktop hero collage: gentle float */
 @keyframes hp-float-y {

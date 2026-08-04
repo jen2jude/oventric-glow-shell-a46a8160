@@ -243,7 +243,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         className="hub-wallet relative overflow-hidden rounded-3xl border border-emerald-500/25 p-4 md:p-5"
         style={{
           backgroundImage:
-            "linear-gradient(135deg, rgba(16,185,129,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+            "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
         }}
       >
         <div className="flex items-start justify-between gap-3">

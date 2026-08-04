@@ -301,7 +301,7 @@ export function Bounties() {
         </div>
         <button
           onClick={() => require(1, () => setPostOpen(true), "issuer")}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-[0_0_30px_-10px_rgba(16,185,129,0.9)] md:shadow-sm"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-[0_0_30px_-10px_rgba(59, 130, 246,0.9)] md:shadow-sm"
         >
           <Plus className="w-4 h-4" /> Post a bounty
         </button>
@@ -309,7 +309,7 @@ export function Bounties() {
 
       {/* Metric grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)] md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
+        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-[0_0_40px_-18px_rgba(59, 130, 246,0.7)] md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
           <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
             <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
           </div>
@@ -461,7 +461,7 @@ function BountyRow({
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
-    <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(16,185,129,0.45)] md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
+    <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-[0_0_30px_-8px_rgba(59, 130, 246,0.45)] md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
 
       <div className="flex-1 min-w-0">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">

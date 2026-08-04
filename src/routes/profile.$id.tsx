@@ -978,7 +978,7 @@ function ProfilePage() {
               {/* Centered identity — avatar overlaps cover from the top */}
               <div className="-mt-14 sm:-mt-16 flex flex-col items-center px-4">
                 <div className="relative">
-                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] shadow-[0_0_0_1px_rgba(52,211,153,0.45),0_18px_40px_-18px_rgba(16,185,129,0.7)] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
+                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] shadow-[0_0_0_1px_rgba(96, 165, 250,0.45),0_18px_40px_-18px_rgba(59, 130, 246,0.7)] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
                     {displayAvatar ? (
                       <ResponsiveImage
                         src={displayAvatar}
@@ -1141,7 +1141,7 @@ function ProfilePage() {
                       <button
                         onClick={handleChat}
                         aria-label={`Message ${displayName}`}
-                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-[0_8px_24px_-10px_rgba(16,185,129,0.9)] transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
+                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-[0_8px_24px_-10px_rgba(59, 130, 246,0.9)] transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
                       >
                         {/* Sheen sweep */}
                         <span

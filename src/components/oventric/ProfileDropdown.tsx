@@ -359,7 +359,7 @@ export function ProfileDropdown() {
         return (
           <div className={`grid gap-2 ${showUsdTile ? "grid-cols-2" : "grid-cols-1"}`} aria-label="Wallet balance">
             <div
-              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(16,185,129,0.9)]"
+              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(59, 130, 246,0.9)]"
               title={`${baseCurrency} is your locked base currency (from your country)`}
             >
               <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">{baseCurrency} · Base</div>

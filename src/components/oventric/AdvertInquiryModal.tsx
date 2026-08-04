@@ -430,7 +430,7 @@ export function AdvertInquiryModal({
 
       <style>{`
         .input { width: 100%; padding: 10px 12px; border-radius: 10px; background: #0f0f12; border: 1px solid rgba(255,255,255,0.08); color: #e2e8f0; font-size: 13px; }
-        .input:focus { outline: none; border-color: rgba(16,185,129,0.6); }
+        .input:focus { outline: none; border-color: rgba(59, 130, 246,0.6); }
       `}</style>
     </div>
   );

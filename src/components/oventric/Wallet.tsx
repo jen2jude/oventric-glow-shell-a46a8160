@@ -586,7 +586,7 @@ export function Wallet() {
             className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-lg"
             style={
               affiliateReserved
-                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #10b981" }
+                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #3b82f6" }
                 : { backgroundColor: "#d946ef", color: "#000000" }
             }
           >
@@ -920,7 +920,7 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
         onClick={fund}
         disabled={!numericAmount || numericAmount <= 0 || busy}
         style={{
-          background: (!numericAmount || busy) ? undefined : "#10b981",
+          background: (!numericAmount || busy) ? undefined : "#3b82f6",
           color: "#ffffff",
           borderColor: "rgba(255,255,255,0.35)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
@@ -1008,7 +1008,7 @@ function PayoutSuccessSplash({
         className="absolute inset-0 pointer-events-none opacity-70"
         style={{
           background:
-            "radial-gradient(circle at 50% 30%, rgba(16,185,129,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
+            "radial-gradient(circle at 50% 30%, rgba(59, 130, 246,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
         }}
       />
       <div className="relative h-full w-full flex items-center justify-center p-4">

@@ -488,7 +488,7 @@ function BountyPublishedSplash({
       className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 overflow-hidden"
       style={{
         background:
-          "radial-gradient(circle at 50% 40%, rgba(16,185,129,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
+          "radial-gradient(circle at 50% 40%, rgba(59, 130, 246,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
         animation: "bpFadeIn 220ms ease-out both",
       }}
       role="dialog"
@@ -496,18 +496,18 @@ function BountyPublishedSplash({
       aria-label="Bounty published"
     >
       <div
-        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(16,185,129,0.55)]"
+        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(59, 130, 246,0.55)]"
         style={{
           background:
-            "linear-gradient(160deg, rgba(16,185,129,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
+            "linear-gradient(160deg, rgba(59, 130, 246,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
           animation: "bpPop 480ms cubic-bezier(.2,1.4,.4,1) both",
         }}
       >
         <div
           className="mx-auto mb-4 w-16 h-16 rounded-full flex items-center justify-center"
           style={{
-            background: "linear-gradient(135deg, #34d399, #10b981)",
-            boxShadow: "0 10px 40px -6px rgba(16,185,129,0.7)",
+            background: "linear-gradient(135deg, #60a5fa, #3b82f6)",
+            boxShadow: "0 10px 40px -6px rgba(59, 130, 246,0.7)",
           }}
         >
           <CheckCircle2 className="w-9 h-9 text-white" strokeWidth={2.5} />
@@ -521,7 +521,7 @@ function BountyPublishedSplash({
         </p>
         <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-white text-sm font-bold"
           style={{
-            background: "linear-gradient(135deg, rgba(52,211,153,0.35), rgba(96,165,250,0.35))",
+            background: "linear-gradient(135deg, rgba(96, 165, 250,0.35), rgba(96,165,250,0.35))",
             border: "1px solid rgba(255,255,255,0.25)",
           }}
         >

@@ -105,7 +105,7 @@ export function AnalyticsCharts() {
               <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} allowDecimals={false} />
               <Tooltip content={<CustomTooltip />} />
               <Line type="monotone" dataKey="posts" name="Posts" stroke="#38bdf8" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="orders" name="Orders" stroke="#34d399" strokeWidth={2} dot={false} />
+              <Line type="monotone" dataKey="orders" name="Orders" stroke="#60a5fa" strokeWidth={2} dot={false} />
               <Line type="monotone" dataKey="walletVolumeUSD" name="Wallet volume (USD)" stroke="#f59e0b" strokeWidth={2} dot={false} />
             </LineChart>
           </ResponsiveContainer>

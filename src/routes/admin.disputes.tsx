@@ -115,7 +115,7 @@ function AdminDisputesPage() {
                     onClick={() => act(d, "release_seller")}
                     disabled={busy === d.id}
                     className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-xs font-bold text-black disabled:opacity-60"
-                    style={{ backgroundColor: "#10b981" }}
+                    style={{ backgroundColor: "#3b82f6" }}
                   >
                     <CheckCircle2 className="w-3.5 h-3.5" /> Release to seller
                   </button>
