@@ -598,7 +598,7 @@ export function Wallet() {
       {/* Fund Wallet + Request Payout + Send to User */}
       <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <button
-          onClick={() => require(2, () => ensureKyc(() => setTransferOpen(true)), "transfer")}
+          onClick={() => require(2, () => ensureKyc(() => setTransferOpen(true)), "withdraw")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-fuchsia-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
