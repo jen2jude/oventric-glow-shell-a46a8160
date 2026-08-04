@@ -1881,10 +1881,10 @@ html.light input::placeholder, html.light textarea::placeholder {
 .hp-dark .border-slate-200 { border-color: rgba(255, 255, 255, 0.1) !important; }
 .hp-dark .hp-lift:hover { box-shadow: 0 24px 50px -24px rgba(0, 0, 0, 0.85) !important; border-color: rgba(52, 211, 153, 0.4) !important; }
 
-/* Desktop hero collage: subtle float */
+/* Desktop hero collage: gentle float */
 @keyframes hp-float-y {
   0%, 100% { transform: translate3d(0, 0, 0); }
-  50% { transform: translate3d(0, -8px, 0); }
+  50% { transform: translate3d(0, -14px, 0); }
 }
 .hp-float {
   animation: hp-float-y 7s ease-in-out infinite;
