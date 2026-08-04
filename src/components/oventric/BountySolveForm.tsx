@@ -34,6 +34,14 @@ interface Props {
 
 const TIMELINES = ["Within 24 hours", "2-3 days", "Within a week", "2 weeks", "Custom"];
 
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_TYPE_PREFIXES = ["image/", "application/pdf", "text/", "application/zip", "application/msword", "application/vnd."];
+
+function isAllowedType(type: string) {
+  if (!type) return true;
+  return ALLOWED_TYPE_PREFIXES.some((p) => type.startsWith(p));
+}
+
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
     const r = new FileReader();
@@ -64,7 +72,10 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   const [customTimeline, setCustomTimeline] = useState("");
   const [files, setFiles] = useState<Array<SubmissionFile & { url?: string | null }>>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
-  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, "uploading" | "error">>({});
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "submit" | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
