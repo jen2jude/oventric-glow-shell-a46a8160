@@ -1,11 +1,15 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BarChart3, Megaphone, ChevronRight } from "lucide-react";
+import { ArrowLeft, BarChart3, Megaphone, ChevronRight, Plus, Pencil, Eye, EyeOff, Loader2 } from "lucide-react";
+import { toast } from "sonner";
 import { AdsManagerSkeleton } from "@/components/oventric/skeletons";
 
 import { supabase } from "@/integrations/supabase/client";
-import { listMyCampaigns, type MyCampaignSummary } from "@/lib/my-ads.functions";
+import { listMyCampaigns, getMyCampaign, type MyCampaignSummary } from "@/lib/my-ads.functions";
+import { setMyBannerAdVisibility } from "@/lib/my-ads-write.functions";
+import { BannerAdModal, EMPTY_BANNER, type BannerAdDraft } from "@/components/oventric/ads/BannerAdModal";
+
 
 export const Route = createFileRoute("/ads-manager")({
   ssr: false,
