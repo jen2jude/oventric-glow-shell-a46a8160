@@ -215,12 +215,29 @@ export function PostComposerModal({
     return c ? `Circle · ${c.name}` : "Circle";
   }, [audience, circleId, circles]);
 
-  const canPost = text.trim().length > 0 && !posting && (audience !== "circle" || !!circleId);
+  const trimmed = text.trim();
+  const textError = useMemo(() => {
+    if (trimmed.length === 0) return "Write something before posting.";
+    if (trimmed.length > MAX_TEXT)
+      return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
+    return null;
+  }, [trimmed]);
+  const audienceError = !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
+  const hasBlockingError = !!(textError || audienceError);
+  const showTextError = submitAttempted && !!textError;
+  const showAudienceError = submitAttempted && !!audienceError;
 
   const doPost = () => {
-    if (!canPost) return;
+    if (posting) return;
+    setSubmitAttempted(true);
+    if (hasBlockingError) {
+      setError(null);
+      if (textError) textareaRef.current?.focus();
+      return;
+    }
     setPosting(true);
     setError(null);
+    setMediaError(null);
 
     // --- Optimistic hand-off -------------------------------------------
     // Snapshot everything the feed needs to paint the post immediately, then
