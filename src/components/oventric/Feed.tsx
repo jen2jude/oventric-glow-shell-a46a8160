@@ -1028,6 +1028,68 @@ export function Feed() {
         <AdSlot placement="feed" variant="banner" />
 
 
+        {/* Optimistic posts — painted instantly while the server call runs */}
+        {showPostList && pendingPosts.length > 0 && (
+          <div className="space-y-4">
+            {pendingPosts.map((p) => (
+              <article
+                key={p.tempId}
+                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 transition-opacity ${
+                  p.error ? "border-red-500/50" : "border-emerald-400/40 opacity-80"
+                }`}
+                aria-busy={!p.error}
+              >
+                <header className="flex items-center gap-3 mb-3">
+                  <div className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0">
+                    <AvatarImage src={meAvatarUrl} alt="You" initials={meInitials} />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-sm font-semibold text-white md:text-slate-900">You</div>
+                    <div className="text-[11px] text-slate-400 md:text-slate-500 flex items-center gap-1.5">
+                      {p.error ? (
+                        <>
+                          <AlertCircle className="w-3 h-3 text-red-400 md:text-red-600" />
+                          <span className="text-red-400 md:text-red-600">{p.error}</span>
+                        </>
+                      ) : (
+                        <>
+                          <span className="w-3 h-3 rounded-full border-2 border-emerald-400/40 border-t-emerald-400 animate-spin" />
+                          Posting…
+                        </>
+                      )}
+                    </div>
+                  </div>
+                </header>
+                {p.text && (
+                  <p className="text-sm text-slate-200 md:text-slate-800 whitespace-pre-wrap break-words">{p.text}</p>
+                )}
+                {p.media.length > 0 && (
+                  <div className={`mt-3 grid gap-1.5 rounded-lg overflow-hidden ${p.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
+                    {p.media.slice(0, 4).map((m) => (
+                      m.kind === "video" ? (
+                        <video key={m.url} src={m.url} muted playsInline className="w-full max-h-72 object-cover rounded-lg bg-black/40" />
+                      ) : (
+                        <img key={m.url} src={m.url} alt="" className="w-full max-h-72 object-cover rounded-lg bg-black/40" />
+                      )
+                    ))}
+                  </div>
+                )}
+                {p.error && (
+                  <div className="mt-3 flex justify-end">
+                    <button
+                      type="button"
+                      onClick={() => dismissPending(p.tempId)}
+                      className="text-xs font-semibold text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 px-3 py-1.5 rounded-lg border border-white/10 md:border-slate-300"
+                    >
+                      Dismiss
+                    </button>
+                  </div>
+                )}
+              </article>
+            ))}
+          </div>
+        )}
+
         {/* Posts (live) */}
         {!showPostList ? null : postsLoading ? (
           <div className="space-y-4" aria-busy="true" aria-label="Loading feed">
