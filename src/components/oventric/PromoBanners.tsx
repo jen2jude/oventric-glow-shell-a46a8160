@@ -1,5 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { Download, ShoppingBag, GraduationCap, type LucideIcon } from "lucide-react";
+import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
+
 
 type Promo = {
   id: string;
