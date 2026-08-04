@@ -247,8 +247,8 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
               decoding="async"
               loading="eager"
               draggable={false}
-              className="hp-float relative w-full max-w-[420px] mx-auto h-auto select-none"
-              style={{ animation: `${ENTER}, hp-float 6s ease-in-out 0.6s infinite` }}
+              className="relative w-full max-w-[420px] mx-auto h-auto select-none"
+              style={{ animation: `${ENTER}, hp-float-y 6s ease-in-out 0.6s infinite` }}
             />
           </div>
           <p className="text-lg sm:text-xl text-slate-200 leading-relaxed">
