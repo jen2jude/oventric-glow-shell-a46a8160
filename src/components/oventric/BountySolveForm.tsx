@@ -284,6 +284,8 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
     );
   }
 
+  const isUploading = Object.keys(uploadProgress).length > 0;
+
   // Solver form
   return (
     <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl p-5 mb-5">
@@ -341,14 +343,32 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         Attachments <span className="font-normal text-slate-500">(up to 10 files, 10MB each)</span>
       </label>
       <div className="space-y-2 mb-2">
-        {files.map((f) => {
+        {files.map((f, idx) => {
           const preview = previews[f.path] ?? (f.type?.startsWith("image/") ? f.url ?? null : null);
           const openUrl = preview ?? f.url ?? null;
           return (
             <div
               key={f.path}
-              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800"
+              draggable
+              onDragStart={() => setDragIndex(idx)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragIndex === null || dragIndex === idx) return;
+                setFiles((prev) => {
+                  const next = [...prev];
+                  const [moved] = next.splice(dragIndex, 1);
+                  next.splice(idx, 0, moved);
+                  return next;
+                });
+                setDragIndex(null);
+              }}
+              onDragEnd={() => setDragIndex(null)}
+              className={`flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 ${dragIndex === idx ? "opacity-50" : ""}`}
             >
+              <span className="text-slate-500 cursor-grab shrink-0" aria-hidden="true">
+                <GripVertical className="w-4 h-4" />
+              </span>
               {preview ? (
                 <img
                   src={preview}
@@ -380,7 +400,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
               )}
               <button
                 type="button"
-                onClick={() => removeFile(f.path)}
+                onClick={() => requestRemoveFile(f.path)}
                 className="text-slate-400 hover:text-red-400 shrink-0"
                 aria-label={`Remove ${f.name}`}
               >
@@ -389,7 +409,29 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             </div>
           );
         })}
+        {isUploading &&
+          Object.keys(uploadProgress).map((key) => (
+            <div
+              key={key}
+              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-slate-400"
+            >
+              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              <span className="truncate flex-1">Uploading…</span>
+            </div>
+          ))}
       </div>
+      {fileErrors.length > 0 && (
+        <div className="mb-2 space-y-1">
+          {fileErrors.map((m, i) => (
+            <div
+              key={i}
+              className="text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2"
+            >
+              {m}
+            </div>
+          ))}
+        </div>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -399,12 +441,12 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
       />
       <button
         type="button"
-        disabled={uploading || files.length >= 10}
+        disabled={isUploading || files.length >= 10}
         onClick={() => inputRef.current?.click()}
         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
       >
-        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
-        {uploading ? "Uploading…" : "Attach files"}
+        {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+        {isUploading ? "Uploading…" : "Attach files"}
       </button>
 
       {err && (
@@ -422,7 +464,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         <button
           type="button"
           onClick={() => void persist(false)}
-          disabled={busy !== null}
+          disabled={busy !== null || isUploading}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
         >
           {busy === "save" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -432,7 +474,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           <button
             type="button"
             onClick={() => setConfirm(true)}
-            disabled={busy !== null || summary.trim().length < 20}
+            disabled={busy !== null || isUploading || summary.trim().length < 20}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
           >
             <Send className="w-4 h-4" /> Submit &amp; mark delivered
@@ -442,7 +484,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           <button
             type="button"
             onClick={() => void persist(true)}
-            disabled={busy !== null}
+            disabled={busy !== null || isUploading}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-200 md:text-sky-700 md:bg-sky-50 text-sm font-bold disabled:opacity-50"
           >
             <CheckCircle2 className="w-4 h-4" /> Update submission
