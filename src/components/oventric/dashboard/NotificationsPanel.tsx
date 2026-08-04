@@ -71,7 +71,7 @@ export function NotificationsPanel() {
         <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
           <Bell className="w-4 h-4" /> Notifications
           {unreadCount > 0 && (
-            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-emerald-500 text-black text-[10px] font-black">
+            <span className="inline-flex items-center justify-center min-w-[18px] h-[18px] px-1 rounded-full bg-red-600 text-white text-[10px] font-black">
               {unreadCount}
             </span>
           )}

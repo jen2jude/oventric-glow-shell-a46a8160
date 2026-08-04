@@ -140,7 +140,7 @@ function ThreadRow({
           <div className="flex items-center gap-2 mt-0.5">
             <div className="text-xs text-slate-400 md:text-slate-500 truncate flex-1">{thread.preview}</div>
             {unread && (
-              <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-emerald-500 md:bg-emerald-600 text-black md:text-white text-[10px] font-black">
+              <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-black">
                 {thread.unread}
               </span>
             )}
