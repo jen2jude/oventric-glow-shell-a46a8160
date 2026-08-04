@@ -1706,6 +1706,10 @@ function ProfilePage() {
               />
             )}
 
+            <EarningsBreakdown isOwner={isOwnProfile} />
+
+
+
             {/* Member wall — followers can drop posts, owner is notified */}
             {realProfile?.userId && (
               <ProfileWall
