@@ -371,8 +371,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           </div>
         </div>
 
-        {/* Hero visual — oversized, extends to the right edge */}
-        <div className="pointer-events-none absolute right-[-8%] top-1/2 z-0 w-[92vw] max-w-[1300px] -translate-y-1/2">
+        {/* Hero visual — large but contained so the right edge stays visible */}
+        <div className="pointer-events-none absolute right-[-1%] top-1/2 z-0 w-[78vw] max-w-[1080px] -translate-y-1/2">
           <div
             className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
             style={{
