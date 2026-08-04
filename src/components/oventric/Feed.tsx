@@ -1604,8 +1604,17 @@ export function Feed() {
       <PostComposerModal
         open={composerOpen}
         onClose={() => setComposerOpen(false)}
-        onPosted={async (postId) => {
+        onOptimistic={(draft) => {
+          addPending(draft);
+          const reduceMotion =
+            typeof window !== "undefined" &&
+            window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+          window.scrollTo({ top: 0, behavior: reduceMotion ? "auto" : "smooth" });
+        }}
+        onPostFailed={failPending}
+        onPosted={async (postId, tempId) => {
           await refreshPosts();
+          if (tempId) dismissPending(tempId);
           const reduceMotion =
             typeof window !== "undefined" &&
             window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
