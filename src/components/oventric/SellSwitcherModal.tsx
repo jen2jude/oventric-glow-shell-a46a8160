@@ -18,9 +18,9 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
   }
 
   return (
-    <div className="modal-light fixed inset-0 z-[70] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
+    <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
       <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="slide-up relative w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
+      <div className="slide-up relative w-[calc(100%-2rem)] max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
           <h2 className="text-xl font-bold text-white">What are you selling?</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
