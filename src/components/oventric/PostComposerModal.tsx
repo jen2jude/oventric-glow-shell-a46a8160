@@ -364,8 +364,11 @@ export function PostComposerModal({
           </div>
           <button
             onClick={doPost}
-            disabled={!canPost}
-            className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm"
+            disabled={posting}
+            aria-disabled={hasBlockingError}
+            className={`px-4 py-1.5 rounded-lg font-semibold text-sm text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 ${
+              hasBlockingError ? "opacity-50" : ""
+            }`}
           >
             {posting ? (attachments.length > 0 ? "Uploading…" : "Posting…") : "Post"}
           </button>
