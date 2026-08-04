@@ -382,6 +382,7 @@ function KycLivenessModal({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const saveKyc = useServerFn(saveKycFn);
+  const recordLiveness = useServerFn(recordLivenessFn);
   const submitSupport = useServerFn(submitKycSupportFn);
 
   const isIdStep = step === "id-camera" || step === "id-capturing";
