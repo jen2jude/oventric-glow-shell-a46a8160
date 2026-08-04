@@ -280,6 +280,7 @@ export function Feed() {
   const [meInitials, setMeInitials] = useState<string>("Me");
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [newPostId, setNewPostId] = useState<string | null>(null);
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [mentionsSheet, setMentionsSheet] = useState<FeedPost["mentions"] | null>(null);
@@ -1086,7 +1087,12 @@ export function Feed() {
               return (
               <article
                 key={post.id}
-                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-5 transition-opacity ${isReported ? "opacity-70" : ""}`}
+                id={`post-${post.id}`}
+                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 transition-all duration-500 ${isReported ? "opacity-70" : ""} ${
+                  newPostId === post.id
+                    ? "border-emerald-400/70 ring-2 ring-emerald-400/40"
+                    : "border-white/10 md:border-slate-200"
+                }`}
                 style={{ contentVisibility: "auto", containIntrinsicSize: "1px 600px" }}
               >
                 <header className="flex items-center gap-3 mb-3">
@@ -1429,7 +1435,20 @@ export function Feed() {
       <PostComposerModal
         open={composerOpen}
         onClose={() => setComposerOpen(false)}
-        onPosted={() => { refreshPosts(); }}
+        onPosted={async (postId) => {
+          await refreshPosts();
+          if (postId) {
+            setNewPostId(postId);
+            requestAnimationFrame(() => {
+              document
+                .getElementById(`post-${postId}`)
+                ?.scrollIntoView({ behavior: "smooth", block: "center" });
+            });
+            window.setTimeout(() => setNewPostId((cur) => (cur === postId ? null : cur)), 2600);
+          } else {
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }
+        }}
       />
       {mentionsSheet && (
         <div
