@@ -451,12 +451,14 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
+          playNotificationSound("message");
           if (row.sender_id === activePeer) {
             setMessages((prev) => (prev.some((m) => m.id === row.id) ? prev : [...prev, row]));
             markRead({ data: { peerId: row.sender_id } }).catch(() => {});
           }
           void reloadThreads();
         },
+
       )
       .on(
         "postgres_changes",
