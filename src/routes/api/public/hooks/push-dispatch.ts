@@ -82,7 +82,7 @@ export const Route = createFileRoute("/api/public/hooks/push-dispatch")({
             };
             try {
               const payload = await buildPushPayload(message, subscription, vapid);
-              const res = await fetch(row.endpoint, payload);
+              const res = await fetch(row.endpoint, payload as unknown as RequestInit);
               if (res.status === 404 || res.status === 410) {
                 stale.push(row.id);
               } else if (res.ok) {
