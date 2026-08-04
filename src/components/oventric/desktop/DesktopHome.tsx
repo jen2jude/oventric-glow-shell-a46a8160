@@ -714,29 +714,32 @@ function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; on
         </button>
       </div>
       <div className="grid grid-cols-4 gap-5">
-        {items.map((it) => (
-          <button
-            key={it.id}
-            type="button"
-            onClick={onSeeAll}
-            className="group text-left transition-transform hover:-translate-y-1"
-          >
-            <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
-              {it.coverUrl ? (
-                <img src={it.coverUrl} alt={it.title} className="h-full w-full object-cover" loading="lazy" />
-              ) : (
-                <span className="flex h-full w-full items-center justify-center text-slate-400">
-                  <Newspaper className="h-7 w-7" />
-                </span>
-              )}
-            </span>
-            <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
-              {it.title}
-            </span>
-            <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
-          </button>
+        {items.map((it, i) => (
+          <Reveal key={it.id} delay={(i % 4) * 80}>
+            <button type="button" onClick={onSeeAll} className="hp-lift group w-full text-left">
+              <span className="block h-40 w-full overflow-hidden rounded-2xl border border-slate-200 bg-white">
+                {it.coverUrl ? (
+                  <img
+                    src={it.coverUrl}
+                    alt={it.title}
+                    className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    loading="lazy"
+                  />
+                ) : (
+                  <span className="flex h-full w-full items-center justify-center text-slate-400">
+                    <Newspaper className="h-7 w-7" />
+                  </span>
+                )}
+              </span>
+              <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
+                {it.title}
+              </span>
+              <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
+            </button>
+          </Reveal>
         ))}
       </div>
+
     </div>
   );
 }
