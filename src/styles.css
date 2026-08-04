@@ -1759,118 +1759,46 @@ html.light input::placeholder, html.light textarea::placeholder {
 }
 
 /* -------------------------------------------------------------------------
-   MOBILE HOME HUB — greyish-white facelift.
-   The fintech-style home hub flips to a light canvas on small screens while
-   desktop keeps its existing dark or white treatment. All dark utility
-   classes used inside the hub are remapped to slate/white equivalents.
+   PROMO BANNER CARDS — light facelift on mobile.
+   The auto-scrolling promo carousel cards flip to a white/grey canvas so
+   they pop against the dark home hub. Everything else on the page stays
+   in the existing smooth dark theme.
    ------------------------------------------------------------------------- */
 @media (max-width: 767px) {
-  .home-hub-page {
-    color-scheme: light;
-    background-color: #f8fafc !important;
-    color: #0f172a;
+  .promo-banner-card {
+    background: linear-gradient(135deg, rgba(255, 255, 255, 0.95) 0%, rgba(248, 250, 252, 1) 100%) !important;
+    border-color: rgba(15, 23, 42, 0.08) !important;
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
   }
 
-  .home-hub-light {
-    color: #0f172a;
-  }
-
-  /* Page canvases */
-  .home-hub-page .bg-\[\#121214\],
-  .home-hub-page .bg-\[\#0b0b0d\],
-  .home-hub-page .bg-\[\#101014\],
-  .home-hub-page .bg-\[\#0f0f13\] {
-    background-color: #f8fafc !important;
-  }
-
-  /* Cards, panels, rows, inputs */
-  .home-hub-light .bg-\[\#1E1E24\],
-  .home-hub-light .bg-\[\#1e1e24\],
-  .home-hub-page nav[data-testid="mobile-nav"] {
-    background-color: #ffffff !important;
-  }
-
-  .home-hub-light .bg-black\/25,
-  .home-hub-light .bg-black\/20,
-  .home-hub-light .bg-black\/30 {
-    background-color: rgba(15, 23, 42, 0.05) !important;
-  }
-
-  /* Translucent hover / press surfaces */
-  .home-hub-light .hover\:bg-white\/5:hover,
-  .home-hub-light .hover\:bg-white\/10:hover {
-    background-color: rgba(15, 23, 42, 0.05) !important;
-  }
-
-  /* Borders */
-  .home-hub-light .border-white\/5,
-  .home-hub-light .border-white\/10,
-  .home-hub-light .border-white\/15,
-  .home-hub-light .border-white\/20,
-  .home-hub-page nav[data-testid="mobile-nav"] {
-    border-color: rgba(15, 23, 42, 0.1) !important;
-  }
-
-  /* Ink */
-  .home-hub-light .text-white:not([class*="bg-emerald"]):not([class*="bg-primary"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-orange"]):not([class*="bg-amber"]):not([class*="bg-yellow"]):not([class*="bg-teal"]):not([class*="bg-cyan"]):not([class*="bg-sky"]):not([class*="bg-blue"]):not([class*="bg-indigo"]):not([class*="bg-violet"]):not([class*="bg-purple"]):not([class*="bg-fuchsia"]):not([class*="bg-pink"]):not([class*="bg-gradient"]):not([class*="from-"]):not([class*="bg-black"]):not([class*="bg-destructive"]) {
-    color: #0f172a !important;
-  }
-  .home-hub-light .text-slate-100 { color: #0f172a !important; }
-  .home-hub-light .text-slate-200 { color: #1e293b !important; }
-  .home-hub-light .text-slate-300 { color: #334155 !important; }
-  .home-hub-light .text-slate-400 { color: #475569 !important; }
-  .home-hub-light .text-slate-500 { color: #64748b !important; }
-  .home-hub-light .text-slate-600 { color: #64748b !important; }
-
-  /* Keep white text on filled/colored buttons and gradient surfaces */
-  .home-hub-light .bg-emerald-500 .text-white,
-  .home-hub-light .bg-blue-500 .text-white,
-  .home-hub-light [class*="bg-gradient"] .text-white,
-  .home-hub-light .hub-wallet-gradient .text-white {
-    color: #ffffff !important;
-  }
-
-  /* Pale accent inks need contrast on white */
-  .home-hub-light .text-emerald-100,
-  .home-hub-light .text-emerald-200 { color: #1d4ed8 !important; }
-  .home-hub-light .text-emerald-300,
-  .home-hub-light [class*="text-emerald-300/"] { color: #2563eb !important; }
-  .home-hub-light .text-blue-300,
-  .home-hub-light .text-blue-400 { color: #2563eb !important; }
-
-  /* Wallet card gradient — soft blue wash over white/grey */
-  .home-hub-light .hub-wallet-gradient {
-    background-image: linear-gradient(135deg, rgba(59, 130, 246, 0.14) 0%, rgba(248, 250, 252, 0.95) 55%, rgba(255, 255, 255, 1) 100%) !important;
-    border-color: rgba(59, 130, 246, 0.25) !important;
-  }
-
-  /* Promo banner glow — lighter and less saturated on white */
-  .home-hub-light .promo-glow {
+  .promo-banner-card .promo-glow {
     opacity: 0.35 !important;
     background: radial-gradient(circle, rgba(59, 130, 246, 0.22), transparent 70%) !important;
   }
 
-  /* Promo card dots */
-  .home-hub-light .bg-white\/25 {
-    background-color: rgba(15, 23, 42, 0.15) !important;
-  }
+  .promo-banner-card .text-white { color: #0f172a !important; }
+  .promo-banner-card .text-slate-100 { color: #0f172a !important; }
+  .promo-banner-card .text-slate-200 { color: #1e293b !important; }
+  .promo-banner-card .text-slate-300 { color: #334155 !important; }
+  .promo-banner-card .text-slate-400 { color: #475569 !important; }
+  .promo-banner-card .text-slate-500 { color: #64748b !important; }
 
-  /* Mobile bottom nav ink and create button */
-  .home-hub-page nav[data-testid="mobile-nav"] .text-white,
-  .home-hub-page nav[data-testid="mobile-nav"] .text-emerald-400 {
-    color: #0f172a !important;
-  }
-  .home-hub-page nav[data-testid="mobile-nav"] .text-emerald-400 {
-    color: #2563eb !important;
-  }
-  .home-hub-page nav[data-testid="mobile-nav"] .rgb-static-border > span {
-    background-color: #ffffff !important;
-  }
+  .promo-banner-card .text-blue-300,
+  .promo-banner-card .text-blue-400,
+  .promo-banner-card .text-emerald-300,
+  .promo-banner-card [class*="text-emerald-300/"] { color: #2563eb !important; }
 
-  /* Subtle shadow elevation for cards on white */
-  .home-hub-light .rounded-2xl,
-  .home-hub-light .rounded-3xl,
-  .home-hub-light .rounded-xl { box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05); }
+  .promo-banner-card .border-white\/10,
+  .promo-banner-card .border-white\/15 { border-color: rgba(15, 23, 42, 0.08) !important; }
+
+  .promo-banner-card .bg-white\/25 { background-color: rgba(15, 23, 42, 0.15) !important; }
+
+  /* Icon container: soft tinted surface instead of dark panel */
+  .promo-banner-card .bg-\[\#1E1E24\],
+  .promo-banner-card .bg-black\/25,
+  .promo-banner-card .bg-black\/20 {
+    background-color: rgba(59, 130, 246, 0.08) !important;
+  }
 }
 
 /* -------------------------------------------------------------------------
