@@ -20,6 +20,8 @@ import { computeDisplayPrice } from "@/lib/fx-display";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { BountySolveForm } from "@/components/oventric/BountySolveForm";
+import { BountyTimeline } from "@/components/oventric/bounty/BountyTimeline";
+import { ProposalSortDropdown, sortProposals, type ProposalSortKey } from "@/components/oventric/bounty/ProposalSort";
 import {
   applyToBounty,
   acceptApplicant,
@@ -71,6 +73,7 @@ interface AppRow {
   pitch: string;
   status: string;
   created_at: string;
+  updated_at: string;
 }
 
 function timeLeft(iso: string | null) {
@@ -106,6 +109,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [confirmRelease, setConfirmRelease] = useState(false);
   const [acceptTarget, setAcceptTarget] = useState<string | null>(null);
   const [appFilter, setAppFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
+  const [appSort, setAppSort] = useState<ProposalSortKey>("newest");
 
 
   const applyFn = useServerFn(applyToBounty);
@@ -139,7 +143,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     // rows for signed-in viewers.
     const { data: a } = await supabase
       .from("bounty_applications")
-      .select("id, bounty_id, applicant_id, pitch, status, created_at")
+      .select("id, bounty_id, applicant_id, pitch, status, created_at, updated_at")
       .eq("bounty_id", bountyId)
       .order("created_at", { ascending: false });
     setApps((a ?? []) as AppRow[]);
