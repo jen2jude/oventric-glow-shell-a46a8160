@@ -196,7 +196,7 @@ export function OrderFulfilmentRoadmap({
           <button
             onClick={() => setConfirmModal("deliver")}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-bold text-black"
-            style={{ backgroundColor: "#10b981" }}
+            style={{ backgroundColor: "#3b82f6" }}
           >
             <Truck className="w-4 h-4" /> Mark as delivered
           </button>
@@ -205,7 +205,7 @@ export function OrderFulfilmentRoadmap({
           <button
             onClick={() => setConfirmModal("receive")}
             className="inline-flex items-center gap-2 px-3.5 py-2 rounded-md text-sm font-bold text-black"
-            style={{ backgroundColor: "#10b981" }}
+            style={{ backgroundColor: "#3b82f6" }}
           >
             <CheckCircle2 className="w-4 h-4" /> Confirm I received it
           </button>
@@ -328,7 +328,7 @@ function ConfirmModal({
             onClick={onConfirm}
             disabled={busy}
             className="px-4 py-2 rounded-md text-sm font-bold text-black disabled:opacity-60 inline-flex items-center gap-2"
-            style={{ backgroundColor: "#10b981" }}
+            style={{ backgroundColor: "#3b82f6" }}
           >
             {busy && <Loader2 className="w-4 h-4 animate-spin" />} Confirm
           </button>

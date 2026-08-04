@@ -782,7 +782,7 @@ function KycLivenessModal({
                 )}
                 <div className="pointer-events-none absolute inset-4 border-2 border-dashed border-emerald-400/70 rounded-xl" />
                 {step === "id-capturing" && (
-                  <div className="absolute inset-x-4 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#10b981] animate-pulse" />
+                  <div className="absolute inset-x-4 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6] animate-pulse" />
                 )}
                 <IdCard className="absolute w-10 h-10 text-emerald-300/30 pointer-events-none" />
               </div>
@@ -856,7 +856,7 @@ function KycLivenessModal({
                 )}
                 {step === "selfie-capturing" && (
                   <>
-                    <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#10b981] animate-pulse" />
+                    <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6] animate-pulse" />
                     <div className="absolute inset-0 border-8 border-emerald-400/50 rounded-full animate-pulse" />
                   </>
                 )}

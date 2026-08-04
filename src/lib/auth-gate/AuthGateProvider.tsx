@@ -698,7 +698,7 @@ function AuthGateModal({
                   onClick={() => { setMode("new"); setIdentifierError(null); }}
                   className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
                     mode === "new"
-                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
                       : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
@@ -711,7 +711,7 @@ function AuthGateModal({
                   onClick={() => { setMode("returning"); setEmailError(null); setUsernameError(null); }}
                   className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
                     mode === "returning"
-                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                      ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
                       : "text-slate-500 hover:text-slate-300"
                   }`}
                 >
@@ -832,7 +832,7 @@ function AuthGateModal({
                         tabIndex={mode === "returning" ? 0 : -1}
                         className={`flex-1 h-8 rounded-md text-[11px] font-bold uppercase tracking-wide transition-colors ${
                           returningMethod === "password"
-                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
                             : "text-slate-500 hover:text-slate-300"
                         }`}
                       >
@@ -846,7 +846,7 @@ function AuthGateModal({
                         tabIndex={mode === "returning" ? 0 : -1}
                         className={`flex-1 h-8 rounded-md text-[11px] font-bold uppercase tracking-wide transition-colors ${
                           returningMethod === "otp"
-                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(16,185,129,0.35)]"
+                            ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
                             : "text-slate-500 hover:text-slate-300"
                         }`}
                       >
@@ -967,7 +967,7 @@ function AuthGateModal({
                       disabled={verifying || verified}
                       className={`w-11 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-black tabular-nums text-white bg-[#121214] rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border transition-colors ${
                         verified
-                          ? "border-emerald-500/70 shadow-[0_0_0_1px_rgba(16,185,129,0.4)]"
+                          ? "border-emerald-500/70 shadow-[0_0_0_1px_rgba(59, 130, 246,0.4)]"
                           : otpError
                             ? "border-red-500/70"
                             : "border-white/10 focus:border-emerald-500/60"

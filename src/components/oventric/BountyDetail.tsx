@@ -468,7 +468,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
-        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
+        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(59, 130, 246,0.7)]">
           <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
             <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
           </div>

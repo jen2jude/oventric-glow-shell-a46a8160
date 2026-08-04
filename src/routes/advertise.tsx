@@ -178,7 +178,7 @@ function LiveDashboardPreview() {
         </p>
       </div>
 
-      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(16,185,129,0.06)] md:border-slate-200 md:bg-slate-50">
+      <div className="rounded-2xl border border-white/10 bg-[#0d0d10] overflow-hidden shadow-[0_0_0_1px_rgba(59, 130, 246,0.06)] md:border-slate-200 md:bg-slate-50">
         {/* fake window chrome */}
         <div className="flex items-center gap-2 px-4 h-9 border-b border-white/10 bg-[#141418] md:border-slate-200 md:bg-white">
           <span className="w-2.5 h-2.5 rounded-full bg-red-500/70" />
@@ -241,12 +241,12 @@ function LiveDashboardPreview() {
               <svg viewBox="0 0 400 80" className="w-full h-20 mt-3">
                 <defs>
                   <linearGradient id="g1" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="rgb(16,185,129)" stopOpacity="0.5" />
-                    <stop offset="100%" stopColor="rgb(16,185,129)" stopOpacity="0" />
+                    <stop offset="0%" stopColor="rgb(59, 130, 246)" stopOpacity="0.5" />
+                    <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
                   </linearGradient>
                 </defs>
                 <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8 L400,80 L0,80 Z" fill="url(#g1)" />
-                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(16,185,129)" strokeWidth="2" />
+                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(59, 130, 246)" strokeWidth="2" />
               </svg>
             </div>
           </div>

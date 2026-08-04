@@ -184,7 +184,7 @@ export function RichTextEditor({
         .rte-body:empty:before{content:attr(data-placeholder);color:#64748b;pointer-events:none}
         .rte-body img{max-width:100%;border-radius:0.5rem;margin:0.5rem 0}
         .rte-body h2{font-size:1.05rem;font-weight:700;margin:0.5rem 0}
-        .rte-body a{color:#34d399;text-decoration:underline}
+        .rte-body a{color:#60a5fa;text-decoration:underline}
         .rte-body ul{list-style:disc;padding-left:1.25rem;margin:0.25rem 0}
       `}</style>
     </div>
