@@ -704,28 +704,6 @@ export function Wallet() {
   );
 }
 
-function StatusBadge({ status }: { status: TxStatus }) {
-  if (status === "success") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
-        <CheckCircle2 className="w-3 h-3" /> Success
-      </span>
-    );
-  }
-  if (status === "pending") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 animate-pulse">
-        <Clock3 className="w-3 h-3" /> Pending Escrow
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-300">
-      <AlertTriangle className="w-3 h-3" /> Failed
-    </span>
-  );
-}
-
 function TierPill({ active, label, desc }: { active: boolean; label: string; desc: string }) {
   return (
     <div
@@ -737,35 +715,6 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
     >
       <div className="font-bold text-[11px] uppercase tracking-wider">{label}</div>
       <div className="text-[10px] mt-0.5 opacity-80">{desc}</div>
-    </div>
-  );
-}
-
-function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevTouch = document.body.style.touchAction;
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.touchAction = prevTouch;
-    };
-  }, []);
-  return (
-    <div className="modal-light fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
-      <div
-        className="w-full sm:max-w-lg bg-[#141418] md:bg-white md:shadow-sm border border-[#222226] md:border-slate-200 rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] md:border-slate-200">
-          <h3 className="truncate text-base font-bold text-white md:text-slate-900">{title}</h3>
-          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="p-4 space-y-3">{children}</div>
-      </div>
     </div>
   );
 }
