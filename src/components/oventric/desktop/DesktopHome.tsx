@@ -21,6 +21,7 @@ import {
 } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
+import heroCollage from "@/assets/hero-collage.png.asset.json";
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
