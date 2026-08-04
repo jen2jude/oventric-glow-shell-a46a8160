@@ -45,7 +45,7 @@ function TopupHistoryPage() {
   }, [rows]);
 
   return (
-    <div className="min-h-screen bg-[#0b0b0e] md:bg-slate-50 text-white md:text-slate-900">
+    <div className="page-light min-h-screen bg-[#0b0b0e] md:bg-slate-50 text-white md:text-slate-900">
       <div className="max-w-3xl mx-auto px-4 py-6">
         <div className="flex items-center gap-2 mb-6">
           <Link
