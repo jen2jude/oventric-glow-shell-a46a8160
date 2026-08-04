@@ -373,7 +373,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           highlight="on every order"
           body="Money back into your cashback wallet."
           cta="Shop now"
-          to="/wallet/history"
+          onClick={() => onSelect("Marketplace")}
           art={promoCashbackArt}
           gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
@@ -572,6 +572,7 @@ function PromoCard({
   gradient,
   onClick,
   to,
+  search,
 }: {
   id: string;
   title: string;
@@ -582,6 +583,7 @@ function PromoCard({
   gradient: string;
   onClick?: () => void;
   to?: string;
+  search?: Record<string, unknown>;
 }) {
   const promo = { id, title, surface: "home_promo_rail" };
   const ref = usePromoImpression<HTMLDivElement>(promo);
@@ -614,7 +616,13 @@ function PromoCard({
     onClick?.();
   };
   return to ? (
-    <Link ref={ref as unknown as React.Ref<HTMLAnchorElement>} to={to} className={cls} onClick={handleClick}>
+    <Link
+      ref={ref as unknown as React.Ref<HTMLAnchorElement>}
+      to={to}
+      search={search as never}
+      className={cls}
+      onClick={handleClick}
+    >
       {content}
     </Link>
   ) : (
