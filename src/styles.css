@@ -1759,10 +1759,9 @@ html.light input::placeholder, html.light textarea::placeholder {
 }
 
 /* -------------------------------------------------------------------------
-   PROMO BANNER CARDS — light facelift on mobile.
-   The auto-scrolling promo carousel cards flip to a white/grey canvas so
-   they pop against the dark home hub. Everything else on the page stays
-   in the existing smooth dark theme.
+   PROMO BANNER CARDS — translucent glass on mobile.
+   Frosted dark-glass panels that sit naturally inside the dark home hub
+   while still catching the eye with subtle glow and crisp light text.
    ------------------------------------------------------------------------- */
 @media (max-width: 767px) {
   .promo-banner-card {
