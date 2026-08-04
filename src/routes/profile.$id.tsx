@@ -1722,7 +1722,9 @@ function ProfilePage() {
             displayName: realProfile.displayName,
             bio: realProfile.bio,
             avatarUrl: realProfile.avatarUrl,
+            coverUrl: realProfile.coverUrl,
             socialLinks: realProfile.socialLinks,
+            skills: realProfile.skills,
           }}
           onSaved={reloadRealProfile}
         />
