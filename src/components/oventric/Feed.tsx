@@ -1671,8 +1671,16 @@ export function Feed() {
         }}
         onPostFailed={failPending}
         onPosted={async (postId, tempId) => {
-          await refreshPosts();
-          if (tempId) dismissPending(tempId);
+          const fresh = await refreshPosts();
+          const intent = tempId ? pendingIntentsRef.current[tempId] : undefined;
+          if (tempId) {
+            dismissPending(tempId);
+            setPendingIntents((prev) => {
+              const next = { ...prev };
+              delete next[tempId];
+              return next;
+            });
+          }
           const reduceMotion =
             typeof window !== "undefined" &&
             window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
@@ -1682,6 +1690,17 @@ export function Feed() {
             return;
           }
           setNewPostId(postId);
+          // Replay any Like / Comment / Share tapped on the optimistic card.
+          if (intent) {
+            const real = fresh?.find((p) => p.id === postId);
+            if (intent.react && real) handleReact(real, intent.react);
+            if (intent.share) {
+              const origin = typeof window !== "undefined" ? window.location.origin : "";
+              shareUrl(`${origin}/#post-${postId}`, "My post on Oventric");
+            }
+            if (intent.comment) setTimeout(() => setCommentsSheetPostId(postId), 350);
+          }
+
           // Wait for the new card to be laid out (two frames) and for its
           // media to settle, so the scroll target doesn't shift mid-animation.
           requestAnimationFrame(() => {
