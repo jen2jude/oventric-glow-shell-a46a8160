@@ -18,8 +18,8 @@ self.addEventListener("push", (event) => {
   const title = payload.title || "Oventric";
   const options = {
     body: payload.body || "",
-    icon: payload.icon || "/pwa-icon-192.png",
-    badge: "/pwa-icon-192.png",
+    icon: payload.icon || "/__l5e/assets-v1/efd2d190-0a3e-4566-a925-8631c270ad3a/oventric-mark.jpg",
+    badge: "/__l5e/assets-v1/efd2d190-0a3e-4566-a925-8631c270ad3a/oventric-mark.jpg",
     tag: payload.tag || undefined,
     renotify: !!payload.tag,
     vibrate: [80, 40, 80],
