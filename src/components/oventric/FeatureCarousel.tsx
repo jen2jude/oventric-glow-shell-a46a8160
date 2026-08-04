@@ -9,7 +9,7 @@ import mockAcademy from "@/assets/mock-academy.jpg";
 import mockBounties from "@/assets/mock-bounties.jpg";
 import mockWallet from "@/assets/mock-wallet.jpg";
 import oventricFull from "@/assets/oventric-full.asset.json";
-import heroCollageMobile from "@/assets/hero-collage-mobile.webp.asset.json";
+import heroCollageMobile from "@/assets/hero-collage-float.png.asset.json";
 import { markCarouselSeen as markCarouselSeenFn } from "@/lib/carousel.functions";
 
 interface Slide {
@@ -242,13 +242,16 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <img
               src={heroCollageMobile.url}
               alt="Oventric features: social feed, marketplace, academy and rewards"
-              width={900}
-              height={600}
+              width={860}
+              height={1146}
               decoding="async"
               loading="eager"
               draggable={false}
-              className="relative w-full max-w-[420px] mx-auto h-auto select-none"
-              style={{ animation: `${ENTER}, hp-float-y 6s ease-in-out 0.6s infinite` }}
+              className="relative block w-full max-w-[300px] mx-auto h-auto select-none"
+              style={{
+                animation: `${ENTER}, hp-float-y 6s ease-in-out 0.6s infinite`,
+                filter: "drop-shadow(0 24px 40px rgba(0,0,0,0.45))",
+              }}
             />
           </div>
           <p className="text-lg sm:text-xl text-slate-200 leading-relaxed">
