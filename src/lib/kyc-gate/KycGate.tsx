@@ -28,6 +28,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
   getOnboardingStatus as getStatusFn,
   saveKyc as saveKycFn,
+  recordLivenessAttestation as recordLivenessFn,
 } from "@/lib/onboarding.functions";
 import { submitKycSupport as submitKycSupportFn } from "@/lib/kyc-support.functions";
 
@@ -382,6 +383,7 @@ function KycLivenessModal({
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
   const saveKyc = useServerFn(saveKycFn);
+  const recordLiveness = useServerFn(recordLivenessFn);
   const submitSupport = useServerFn(submitKycSupportFn);
 
   const isIdStep = step === "id-camera" || step === "id-capturing";
@@ -614,10 +616,22 @@ function KycLivenessModal({
 
   useEffect(() => {
     if (step === "success" && mode === "match") {
-      const t = window.setTimeout(() => onComplete(), 1000);
-      return () => window.clearTimeout(t);
+      let cancelled = false;
+      const t = window.setTimeout(() => {
+        // Record a server-side attestation before releasing the gated action.
+        // Withdrawals are rejected server-side without a recent attestation.
+        void recordLiveness({})
+          .catch((e: unknown) => console.error("[liveness attestation]", e))
+          .finally(() => {
+            if (!cancelled) onComplete();
+          });
+      }, 1000);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(t);
+      };
     }
-  }, [step, mode, onComplete]);
+  }, [step, mode, onComplete, recordLiveness]);
 
   const beginId = () => {
     setPhoneError(null);
