@@ -34,6 +34,8 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import { PromoBanners } from "@/components/oventric/PromoBanners";
+
 
 import homeIcon from "@/assets/home-3d.png.asset.json";
 import walletIcon from "@/assets/wallet-3d.webp.asset.json";
@@ -311,7 +313,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} />
       </section>
 
+      {/* Promo banners */}
+      <PromoBanners onSelect={onSelect} />
+
       {/* Feature grid */}
+
       <section>
         <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
