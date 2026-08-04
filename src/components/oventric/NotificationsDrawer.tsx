@@ -381,6 +381,20 @@ export function NotificationsDrawer({
             </p>
           </div>
           <div className="flex items-center gap-1">
+            {pushAvailable && (
+              <button
+                onClick={() => void togglePush()}
+                disabled={pushBusy}
+                aria-label={pushOn ? "Turn off background alerts" : "Turn on background alerts"}
+                title={pushOn ? "Background alerts on" : "Background alerts off"}
+                aria-pressed={pushOn}
+                className={`p-2 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 ${
+                  pushOn ? "text-emerald-400" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                {pushOn ? <BellRing className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              </button>
+            )}
             <button
               onClick={toggleSound}
               aria-label={muted ? "Unmute notification sound" : "Mute notification sound"}
