@@ -9,6 +9,7 @@ import {
   ArrowUpFromLine,
   Store,
   Target,
+  GraduationCap,
   Newspaper,
   LayoutDashboard,
   Megaphone,
@@ -30,6 +31,9 @@ import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
+import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
+import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
 
 import homeIcon from "@/assets/home-3d.png.asset.json";
 import walletIcon from "@/assets/wallet-3d.webp.asset.json";
@@ -80,7 +84,10 @@ function fromUSD(usd: number, target: Currency): number {
 
 export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
-  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
+  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName, require: requireTier } = useOnboarding();
+  const [sellOpen, setSellOpen] = useState(false);
+  const [courseOpen, setCourseOpen] = useState(false);
+  const [bountyOpen, setBountyOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
   const loadBalances = useServerFn(getWalletBalances);
@@ -293,10 +300,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={onCreate} />
-        <QuickAction icon={Plus} label="Post" onClick={onCreate} />
-        <QuickAction icon={ArrowDownToLine} label="Fund" onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))} />
-        <QuickAction icon={Target} label="Bounty" onClick={() => onSelect("Bounties")} />
+        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} />
+        <QuickAction icon={Plus} label="Post" onClick={() => requireTier(1, () => {
+          onSelect("Feed");
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
+          }, 80);
+        })} />
+        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} />
+        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} />
       </section>
 
       {/* Feature grid */}
@@ -416,6 +428,21 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </span>
         </button>
       )}
+
+      <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
+      <CoursePublishWizard
+        open={courseOpen}
+        onClose={() => setCourseOpen(false)}
+        onSaved={() => {
+          setCourseOpen(false);
+          onSelect("Academy");
+        }}
+      />
+      <BountyEditorModal
+        open={bountyOpen}
+        onClose={() => setBountyOpen(false)}
+        onPublished={() => onSelect("Bounties")}
+      />
     </div>
   );
 }
