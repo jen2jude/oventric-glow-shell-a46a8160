@@ -1082,18 +1082,23 @@ export function Feed() {
             function renderPost(post: FeedPost) {
               const comments = commentsByPost[post.id] ?? [];
               const isReported = reported.has(post.id);
+              const isNew = newPostId === post.id;
               const profileSlug = post.author_slug ?? post.author_id;
               const shareHref = `${shareOrigin}/#post-${post.id}`;
               return (
               <article
                 key={post.id}
                 id={`post-${post.id}`}
-                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 transition-all duration-500 ${isReported ? "opacity-70" : ""} ${
-                  newPostId === post.id
-                    ? "border-emerald-400/70 ring-2 ring-emerald-400/40"
+                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${isReported ? "opacity-70" : ""} ${
+                  isNew
+                    ? "border-emerald-400/70 post-highlight"
                     : "border-white/10 md:border-slate-200"
                 }`}
-                style={{ contentVisibility: "auto", containIntrinsicSize: "1px 600px" }}
+                style={
+                  isNew
+                    ? undefined
+                    : { contentVisibility: "auto", containIntrinsicSize: "1px 600px" }
+                }
               >
                 <header className="flex items-center gap-3 mb-3">
                   <Link
@@ -1437,17 +1442,48 @@ export function Feed() {
         onClose={() => setComposerOpen(false)}
         onPosted={async (postId) => {
           await refreshPosts();
-          if (postId) {
-            setNewPostId(postId);
-            requestAnimationFrame(() => {
-              document
-                .getElementById(`post-${postId}`)
-                ?.scrollIntoView({ behavior: "smooth", block: "center" });
-            });
-            window.setTimeout(() => setNewPostId((cur) => (cur === postId ? null : cur)), 2600);
-          } else {
-            window.scrollTo({ top: 0, behavior: "smooth" });
+          const reduceMotion =
+            typeof window !== "undefined" &&
+            window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+          const behavior: ScrollBehavior = reduceMotion ? "auto" : "smooth";
+          if (!postId) {
+            window.scrollTo({ top: 0, behavior });
+            return;
           }
+          setNewPostId(postId);
+          // Wait for the new card to be laid out (two frames) and for its
+          // media to settle, so the scroll target doesn't shift mid-animation.
+          requestAnimationFrame(() => {
+            requestAnimationFrame(() => {
+              const el = document.getElementById(`post-${postId}`);
+              if (!el) return;
+              const scroll = () => el.scrollIntoView({ behavior, block: "start" });
+              const imgs = Array.from(el.querySelectorAll("img"));
+              const pending = imgs.filter((img) => !img.complete);
+              if (pending.length === 0) {
+                scroll();
+                return;
+              }
+              let done = false;
+              const go = () => {
+                if (done) return;
+                done = true;
+                scroll();
+              };
+              // Scroll as soon as media resolves, but never wait too long.
+              Promise.all(
+                pending.map(
+                  (img) =>
+                    new Promise<void>((resolve) => {
+                      img.addEventListener("load", () => resolve(), { once: true });
+                      img.addEventListener("error", () => resolve(), { once: true });
+                    }),
+                ),
+              ).then(go);
+              window.setTimeout(go, 600);
+            });
+          });
+          window.setTimeout(() => setNewPostId((cur) => (cur === postId ? null : cur)), 2800);
         }}
       />
       {mentionsSheet && (
