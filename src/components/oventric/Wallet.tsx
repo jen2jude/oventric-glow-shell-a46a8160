@@ -72,7 +72,7 @@ interface Tx {
   status: TxStatus;
 }
 
-function fmt(n: number, c: Currency) {function fmt(n: number, c: Currency) {
+function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
 }
 
