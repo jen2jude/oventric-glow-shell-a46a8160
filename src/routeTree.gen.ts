@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as ReportProblemRouteImport } from './routes/report-problem'
 import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as HelpBoardRouteImport } from './routes/help-board'
 import { Route as HelpRouteImport } from './routes/help'
 import { Route as FaqRouteImport } from './routes/faq'
@@ -81,6 +82,11 @@ const ReportProblemRoute = ReportProblemRouteImport.update({
 const PrivacyRoute = PrivacyRouteImport.update({
   id: '/privacy',
   path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
   getParentRoute: () => rootRouteImport,
 } as any)
 const HelpBoardRoute = HelpBoardRouteImport.update({
@@ -376,6 +382,7 @@ export interface FileRoutesByFullPath {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/help-board': typeof HelpBoardRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -435,6 +442,7 @@ export interface FileRoutesByTo {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/help-board': typeof HelpBoardRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -495,6 +503,7 @@ export interface FileRoutesById {
   '/faq': typeof FaqRoute
   '/help': typeof HelpRoute
   '/help-board': typeof HelpBoardRoute
+  '/messages': typeof MessagesRoute
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
@@ -557,6 +566,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/help-board'
+    | '/messages'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -616,6 +626,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/help-board'
+    | '/messages'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -675,6 +686,7 @@ export interface FileRouteTypes {
     | '/faq'
     | '/help'
     | '/help-board'
+    | '/messages'
     | '/privacy'
     | '/report-problem'
     | '/terms'
@@ -736,6 +748,7 @@ export interface RootRouteChildren {
   FaqRoute: typeof FaqRoute
   HelpRoute: typeof HelpRoute
   HelpBoardRoute: typeof HelpBoardRoute
+  MessagesRoute: typeof MessagesRoute
   PrivacyRoute: typeof PrivacyRoute
   ReportProblemRoute: typeof ReportProblemRoute
   TermsRoute: typeof TermsRoute
@@ -780,6 +793,13 @@ declare module '@tanstack/react-router' {
       path: '/privacy'
       fullPath: '/privacy'
       preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/help-board': {
@@ -1273,6 +1293,7 @@ const rootRouteChildren: RootRouteChildren = {
   FaqRoute: FaqRoute,
   HelpRoute: HelpRoute,
   HelpBoardRoute: HelpBoardRoute,
+  MessagesRoute: MessagesRoute,
   PrivacyRoute: PrivacyRoute,
   ReportProblemRoute: ReportProblemRoute,
   TermsRoute: TermsRoute,
