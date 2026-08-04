@@ -756,7 +756,7 @@ function SkeletonCard() {
 
 function MarketplaceSkeleton() {
   return (
-    <div className="bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
+    <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
       <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
         <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
         <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
