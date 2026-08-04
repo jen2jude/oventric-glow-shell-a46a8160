@@ -304,9 +304,9 @@ export function ProfileWall({
       <PostComposerModal
         open={composerOpen}
         onClose={() => setComposerOpen(false)}
-        onPosted={() => {
+        onPosted={async () => {
           setComposerOpen(false);
-          void load();
+          await load();
         }}
         wallUserId={wallUserId}
         wallOwnerName={wallOwnerName}
