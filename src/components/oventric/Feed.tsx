@@ -1126,6 +1126,52 @@ export function Feed() {
                     ))}
                   </div>
                 )}
+                {!p.error && (() => {
+                  const intent = pendingIntents[p.tempId] ?? {};
+                  const liked = !!intent.react;
+                  const setIntent = (patch: Partial<{ react: ReactionType | null; comment: boolean; share: boolean }>) =>
+                    setPendingIntents((prev) => ({ ...prev, [p.tempId]: { ...(prev[p.tempId] ?? {}), ...patch } }));
+                  return (
+                    <>
+                      <div className="mt-4 pt-3 border-t border-white/5 md:border-slate-200 flex items-center gap-1 text-sm text-slate-400 md:text-slate-500">
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ react: liked ? null : "love" })}
+                          aria-pressed={liked}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            liked ? "text-rose-400 md:text-rose-500" : ""
+                          }`}
+                        >
+                          <ReactionImageBadge reaction="love" />
+                          <span>{liked ? 1 : 0}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ comment: true })}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                            intent.comment ? "text-emerald-400 md:text-emerald-600" : ""
+                          }`}
+                        >
+                          <MessageSquare className="w-4 h-4" /> 0
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => setIntent({ share: true })}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
+                            intent.share ? "text-emerald-400 md:text-emerald-600" : ""
+                          }`}
+                        >
+                          <Share2 className="w-4 h-4" /> Share
+                        </button>
+                      </div>
+                      {(liked || intent.comment || intent.share) && (
+                        <p className="mt-2 text-[11px] text-slate-500">
+                          Saved — applies the moment your post goes live.
+                        </p>
+                      )}
+                    </>
+                  );
+                })()}
                 {p.error && (
                   <div className="mt-3 flex justify-end">
                     <button
@@ -1137,6 +1183,7 @@ export function Feed() {
                     </button>
                   </div>
                 )}
+
               </article>
             ))}
           </div>
