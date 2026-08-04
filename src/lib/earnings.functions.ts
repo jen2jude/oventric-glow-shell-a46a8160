@@ -79,12 +79,12 @@ export const getMyEarningsBreakdown = createServerFn({ method: "POST" })
     );
     const homeRate = rates[homeCurrency] ?? 1;
 
-    const buildQuery = (type: string) => {
+    const buildQuery = (type: Database["public"]["Enums"]["wallet_tx_type"]) => {
       let q = supabase
         .from("wallet_transactions")
         .select("amount, currency")
         .eq("user_id", userId)
-        .eq("type", type as never)
+        .eq("type", type)
         .eq("inflow", true)
         .eq("status", "success");
       if (since) q = q.gte("occurred_at", since);
