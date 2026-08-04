@@ -2,10 +2,10 @@ import { Link } from "@tanstack/react-router";
 import { Rss, Target, Store, BookOpen } from "lucide-react";
 
 const ACTIONS = [
-  { to: "/", label: "Posts", icon: Rss, hint: "Jump to your feed" },
-  { to: "/bounties", label: "Bounties", icon: Target, hint: "Browse & post bounties" },
-  { to: "/marketplace", label: "Assets", icon: Store, hint: "Marketplace & listings" },
-  { to: "/blog", label: "Blog", icon: BookOpen, hint: "Read & publish articles" },
+  { to: "/", search: { section: "Feed" }, label: "Posts", icon: Rss, hint: "Jump to your feed" },
+  { to: "/", search: { section: "Bounties" }, label: "Bounties", icon: Target, hint: "Browse & post bounties" },
+  { to: "/", search: { section: "Marketplace" }, label: "Assets", icon: Store, hint: "Marketplace & listings" },
+  { to: "/blog", search: undefined, label: "Blog", icon: BookOpen, hint: "Read & publish articles" },
 ] as const;
 
 export function QuickActions() {
@@ -18,6 +18,7 @@ export function QuickActions() {
         <Link
           key={a.label}
           to={a.to}
+          search={a.search as never}
           className="group flex flex-col items-start gap-2 rounded-xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 hover:border-white/20 md:hover:border-slate-300 p-3 transition"
         >
           <span className="w-9 h-9 rounded-lg bg-white/5 md:bg-white border border-white/10 md:border-slate-200 flex items-center justify-center shrink-0 group-hover:bg-white/10 md:group-hover:bg-slate-100 transition">
