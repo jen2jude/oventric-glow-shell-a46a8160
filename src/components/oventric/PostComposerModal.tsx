@@ -455,6 +455,7 @@ export function PostComposerModal({
               </div>
             )}
           </div>
+          {showAudienceError && <FieldError>{audienceError}</FieldError>}
         </div>
         )}
 
