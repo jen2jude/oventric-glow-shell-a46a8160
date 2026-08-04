@@ -86,7 +86,7 @@ export function PromoBanners({ onSelect }: { onSelect: (section: string) => void
             onClick={() => onSelect(p.section)}
             className="snap-center shrink-0 w-full text-left"
           >
-            <div className="relative overflow-hidden rounded-3xl bg-[#1E1E24] border border-white/10 px-4 py-4 flex items-center gap-3 active:scale-[0.985] transition-transform duration-300">
+            <div className="promo-banner-card relative overflow-hidden rounded-3xl bg-[#1E1E24] border border-white/10 px-4 py-4 flex items-center gap-3 active:scale-[0.985] transition-transform duration-300">
               <span
                 aria-hidden
                 className="promo-glow absolute -left-6 -top-8 h-28 w-28 rounded-full blur-2xl opacity-70"
