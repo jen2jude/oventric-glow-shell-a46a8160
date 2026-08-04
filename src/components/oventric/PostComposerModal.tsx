@@ -332,7 +332,12 @@ export function PostComposerModal({
         await onPosted?.((created as any)?.post?.id, tempId);
       } catch (e: any) {
         console.error("[PostComposerModal] post failed", e);
-        onPostFailed?.(tempId, e?.message || "Couldn't publish. Try again.");
+        const msg =
+          typeof e?.message === "string" && /storage|upload|payload|size/i.test(e.message)
+            ? `Upload failed: ${e.message}`
+            : e?.message || "Couldn't publish. Try again.";
+        toast.error(msg);
+        onPostFailed?.(tempId, msg);
       }
     })();
   };
