@@ -12,6 +12,7 @@ import {
   Download,
   Eye,
   GripVertical,
+  Trash2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
