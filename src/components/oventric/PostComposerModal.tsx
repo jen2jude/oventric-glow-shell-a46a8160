@@ -189,7 +189,7 @@ export function PostComposerModal({
       nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "image" });
     }
     setAttachments(nextAttachments);
-    setError(err);
+    setMediaError(err);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
