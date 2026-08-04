@@ -22,6 +22,7 @@ import { ThemeProvider } from "@/lib/theme/ThemeProvider";
 import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 import { Toaster } from "@/components/ui/sonner";
+import { LiveNotificationToasts } from "@/components/oventric/LiveNotificationToasts";
 import { BootSplash } from "@/components/oventric/BootSplash";
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
@@ -371,6 +372,8 @@ function RootComponent() {
               <ReactivationGate />
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
+              <LiveNotificationToasts />
+
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
             </KycGateProvider>
