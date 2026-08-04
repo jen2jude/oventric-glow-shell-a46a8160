@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { createPortal } from "react-dom";
 import { X, Package, Cpu } from "lucide-react";
 import { SellAssetModal } from "./SellAssetModal";
 import { SellPhysicalModal } from "./SellPhysicalModal";
@@ -17,12 +18,12 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
     return <SellPhysicalModal open onClose={() => { setMode(null); onClose(); }} />;
   }
 
-  return (
-    <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
-      <div className="slide-up relative w-[calc(100%-2rem)] max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl p-6 shadow-2xl">
+  return createPortal(
+    <div className="modal-light fixed inset-0 z-[100] grid h-[100dvh] w-screen place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-labelledby="sell-switcher-title">
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
+      <div className="slide-up relative my-auto w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
-          <h2 className="text-xl font-bold text-white">What are you selling?</h2>
+          <h2 id="sell-switcher-title" className="text-xl font-bold text-white">What are you selling?</h2>
           <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
             <X className="w-5 h-5" />
           </button>
@@ -51,6 +52,7 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
           </button>
         </div>
       </div>
-    </div>
+    </div>,
+    document.body,
   );
 }
