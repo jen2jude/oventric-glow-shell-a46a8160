@@ -611,19 +611,21 @@ function PromoCard({
     void trackPromoEvent("click", promo);
     onClick?.();
   };
-  return (
-    <div ref={ref} className="contents">
-      {to ? (
-        <Link to={to} className={cls} onClick={handleClick}>
-          {content}
-        </Link>
-      ) : (
-        <button type="button" onClick={handleClick} className={cls}>
-          {content}
-        </button>
-      )}
-    </div>
+  return to ? (
+    <Link ref={ref as unknown as React.Ref<HTMLAnchorElement>} to={to} className={cls} onClick={handleClick}>
+      {content}
+    </Link>
+  ) : (
+    <button
+      ref={ref as unknown as React.Ref<HTMLButtonElement>}
+      type="button"
+      onClick={handleClick}
+      className={cls}
+    >
+      {content}
+    </button>
   );
+
 }
 
 
