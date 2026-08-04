@@ -103,7 +103,17 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
   const [moreMine, setMoreMine] = useState(false);
   const [moreRecs, setMoreRecs] = useState(false);
-  const [collapsed, setCollapsed] = useState(true);
+  const [collapsed, setCollapsed] = useState(() => {
+    if (typeof window === "undefined") return true;
+    const saved = window.localStorage.getItem("oventric:desktop-sidebar:collapsed");
+    // Always default to collapsed on desktop; remember the user's explicit choice.
+    return saved === null ? true : saved === "true";
+  });
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem("oventric:desktop-sidebar:collapsed", String(collapsed));
+  }, [collapsed]);
 
   useEffect(() => {
     let alive = true;
