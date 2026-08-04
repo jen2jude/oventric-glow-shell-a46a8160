@@ -38,6 +38,8 @@ import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
 import { PromoBanners } from "@/components/oventric/PromoBanners";
+import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
+
 
 
 import homeIcon from "@/assets/home-3d.png.asset.json";
@@ -366,6 +368,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       {/* Promo rail */}
       <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 snap-x snap-mandatory [scrollbar-width:none]">
         <PromoCard
+          id="cashback"
           title="Earn 2% cashback"
           highlight="on every order"
           body="Money back into your cashback wallet."
@@ -375,6 +378,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
         <PromoCard
+          id="refer"
           title="Refer & earn"
           highlight="both sides win"
           body="Invite builders and earn from their activity."
@@ -384,6 +388,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
         <PromoCard
+          id="advertise"
           title="Advertise here"
           highlight="reach thousands"
           body="Put your product in front of Africa's builders."
@@ -392,6 +397,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           art={promoAdvertiseArt}
           gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
+
       </section>
 
 
@@ -555,6 +561,7 @@ function QuickAction({
 }
 
 function PromoCard({
+  id,
   title,
   highlight,
   body,
@@ -564,6 +571,7 @@ function PromoCard({
   onClick,
   to,
 }: {
+  id: string;
   title: string;
   highlight: string;
   body: string;
@@ -573,6 +581,8 @@ function PromoCard({
   onClick?: () => void;
   to?: string;
 }) {
+  const promo = { id, title, surface: "home_promo_rail" };
+  const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
       className="relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
@@ -597,14 +607,25 @@ function PromoCard({
     </span>
   );
   const cls = "shrink-0 w-[19rem] snap-start text-left transition-transform duration-300 active:scale-[0.97] hover:-translate-y-0.5";
+  const handleClick = () => {
+    void trackPromoEvent("click", promo);
+    onClick?.();
+  };
   return to ? (
-    <Link to={to} className={cls}>
+    <Link ref={ref as unknown as React.Ref<HTMLAnchorElement>} to={to} className={cls} onClick={handleClick}>
       {content}
     </Link>
   ) : (
-    <button type="button" onClick={onClick} className={cls}>
+    <button
+      ref={ref as unknown as React.Ref<HTMLButtonElement>}
+      type="button"
+      onClick={handleClick}
+      className={cls}
+    >
       {content}
     </button>
   );
+
 }
+
 
