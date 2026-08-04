@@ -15,15 +15,19 @@ export const CURRENCY_STYLES: Record<string, CurMeta> = {
 
 /** Style + symbol for ANY supported currency, falling back to a neutral theme. */
 export const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
-  get: (_t, key: string) =>
-    CURRENCY_STYLES[key] ?? {
-      symbol: currencySymbol(key),
-      label: CURRENCY_META[key]?.name ?? key,
-      glow: "",
-      ring: "border-slate-500/40",
-      text: "text-slate-300 md:text-slate-600",
-      dot: "bg-slate-400",
-    },
+  get: (_t, key: string | symbol) => {
+    if (typeof key !== "string") return undefined;
+    return (
+      CURRENCY_STYLES[key] ?? {
+        symbol: currencySymbol(key),
+        label: CURRENCY_META[key]?.name ?? key,
+        glow: "",
+        ring: "border-slate-500/40",
+        text: "text-slate-300 md:text-slate-600",
+        dot: "bg-slate-400",
+      }
+    );
+  },
 });
 
 export function StatusBadge({ status }: { status: TxStatus }) {

@@ -60,6 +60,7 @@ export function formatMoney(amount: number, currency: Currency): string {
 }
 
 export function currencySymbol(currency: Currency): string {
+  if (typeof currency !== "string") return "";
   return CURRENCY_META[currency]?.symbol ?? `${currency} `;
 }
 
