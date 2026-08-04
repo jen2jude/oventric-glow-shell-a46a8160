@@ -38,6 +38,8 @@ import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
 import { PromoBanners } from "@/components/oventric/PromoBanners";
+import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
+
 
 
 import homeIcon from "@/assets/home-3d.png.asset.json";
@@ -366,6 +368,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       {/* Promo rail */}
       <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 snap-x snap-mandatory [scrollbar-width:none]">
         <PromoCard
+          id="cashback"
           title="Earn 2% cashback"
           highlight="on every order"
           body="Money back into your cashback wallet."
@@ -375,6 +378,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
         <PromoCard
+          id="refer"
           title="Refer & earn"
           highlight="both sides win"
           body="Invite builders and earn from their activity."
@@ -384,6 +388,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
         <PromoCard
+          id="advertise"
           title="Advertise here"
           highlight="reach thousands"
           body="Put your product in front of Africa's builders."
@@ -392,6 +397,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           art={promoAdvertiseArt}
           gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
+
       </section>
 
 
