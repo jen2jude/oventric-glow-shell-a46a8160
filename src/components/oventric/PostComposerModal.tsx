@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { X, Image as ImageIcon, Video as VideoIcon, AtSign, Users, Globe2, UsersRound, ChevronDown, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { X, Image as ImageIcon, Video as VideoIcon, AtSign, Users, Globe2, UsersRound, ChevronDown, Check, Loader2, AlertCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
@@ -21,6 +22,17 @@ type CircleOpt = { id: string; name: string };
 
 const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
 const MAX_IMAGES = 10;
+const MAX_TEXT = 5000;
+
+/** Small inline field error row. */
+function FieldError({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="mt-1.5 flex items-start gap-1.5 text-xs text-red-400">
+      <AlertCircle className="w-3.5 h-3.5 mt-[1px] shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
+}
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
@@ -72,6 +84,8 @@ export function PostComposerModal({
   const [mentionLoading, setMentionLoading] = useState(false);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -82,6 +96,8 @@ export function PostComposerModal({
   useEffect(() => {
     if (!open) return;
     setError(null);
+    setMediaError(null);
+    setSubmitAttempted(false);
     setTimeout(() => textareaRef.current?.focus(), 60);
     // load circles lazily
     listCircles()
@@ -173,7 +189,7 @@ export function PostComposerModal({
       nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "image" });
     }
     setAttachments(nextAttachments);
-    setError(err);
+    setMediaError(err);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
@@ -199,12 +215,29 @@ export function PostComposerModal({
     return c ? `Circle · ${c.name}` : "Circle";
   }, [audience, circleId, circles]);
 
-  const canPost = text.trim().length > 0 && !posting && (audience !== "circle" || !!circleId);
+  const trimmed = text.trim();
+  const textError = useMemo(() => {
+    if (trimmed.length === 0) return "Write something before posting.";
+    if (trimmed.length > MAX_TEXT)
+      return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
+    return null;
+  }, [trimmed]);
+  const audienceError = !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
+  const hasBlockingError = !!(textError || audienceError);
+  const showTextError = submitAttempted && !!textError;
+  const showAudienceError = submitAttempted && !!audienceError;
 
   const doPost = () => {
-    if (!canPost) return;
+    if (posting) return;
+    setSubmitAttempted(true);
+    if (hasBlockingError) {
+      setError(null);
+      if (textError) textareaRef.current?.focus();
+      return;
+    }
     setPosting(true);
     setError(null);
+    setMediaError(null);
 
     // --- Optimistic hand-off -------------------------------------------
     // Snapshot everything the feed needs to paint the post immediately, then
@@ -299,7 +332,12 @@ export function PostComposerModal({
         await onPosted?.((created as any)?.post?.id, tempId);
       } catch (e: any) {
         console.error("[PostComposerModal] post failed", e);
-        onPostFailed?.(tempId, e?.message || "Couldn't publish. Try again.");
+        const msg =
+          typeof e?.message === "string" && /storage|upload|payload|size/i.test(e.message)
+            ? `Upload failed: ${e.message}`
+            : e?.message || "Couldn't publish. Try again.";
+        toast.error(msg);
+        onPostFailed?.(tempId, msg);
       }
     })();
   };
@@ -331,8 +369,11 @@ export function PostComposerModal({
           </div>
           <button
             onClick={doPost}
-            disabled={!canPost}
-            className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black font-semibold text-sm"
+            disabled={posting}
+            aria-disabled={hasBlockingError}
+            className={`px-4 py-1.5 rounded-lg font-semibold text-sm text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 ${
+              hasBlockingError ? "opacity-50" : ""
+            }`}
           >
             {posting ? (attachments.length > 0 ? "Uploading…" : "Posting…") : "Post"}
           </button>
@@ -414,6 +455,7 @@ export function PostComposerModal({
               </div>
             )}
           </div>
+          {showAudienceError && <FieldError>{audienceError}</FieldError>}
         </div>
         )}
 
@@ -425,9 +467,24 @@ export function PostComposerModal({
             ref={textareaRef}
             value={text}
             onChange={(e) => setText(e.target.value)}
+            aria-invalid={showTextError}
+            aria-describedby={showTextError ? "composer-text-error" : undefined}
             placeholder="Share an update, ask a question, drop a build log…"
-            className="w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px]"
+            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px] rounded-lg px-2 -mx-2 ${
+              showTextError ? "ring-1 ring-red-500/60" : ""
+            }`}
           />
+          <div className="flex items-start justify-between gap-3">
+            <div id="composer-text-error" className="min-w-0">
+              {showTextError && <FieldError>{textError}</FieldError>}
+            </div>
+            {trimmed.length > MAX_TEXT * 0.8 && (
+              <span className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}>
+                {trimmed.length.toLocaleString()}/{MAX_TEXT.toLocaleString()}
+              </span>
+            )}
+          </div>
+
 
           {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
           <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
@@ -553,7 +610,8 @@ export function PostComposerModal({
           )}
 
 
-          {error && <div className="mt-3 text-xs text-red-400">{error}</div>}
+          {mediaError && <FieldError>{mediaError}</FieldError>}
+          {error && <FieldError>{error}</FieldError>}
         </div>
 
       </div>
