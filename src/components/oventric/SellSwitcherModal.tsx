@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { X, Package, Cpu } from "lucide-react";
 import { SellAssetModal } from "./SellAssetModal";
