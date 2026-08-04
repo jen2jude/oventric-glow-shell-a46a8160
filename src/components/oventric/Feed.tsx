@@ -40,6 +40,12 @@ import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { PostComposerModal } from "@/components/oventric/PostComposerModal";
+import {
+  FeedSearchBar,
+  FeedGlobalResults,
+  GLOBAL_CATEGORIES,
+  type FeedCategory,
+} from "@/components/oventric/feed/FeedSearch";
 
 interface Comment {
   id: string;
@@ -281,6 +287,9 @@ export function Feed() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [category, setCategory] = useState<FeedCategory>("all");
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [mentionsSheet, setMentionsSheet] = useState<FeedPost["mentions"] | null>(null);
