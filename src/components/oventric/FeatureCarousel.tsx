@@ -9,6 +9,7 @@ import mockAcademy from "@/assets/mock-academy.jpg";
 import mockBounties from "@/assets/mock-bounties.jpg";
 import mockWallet from "@/assets/mock-wallet.jpg";
 import oventricFull from "@/assets/oventric-full.asset.json";
+import heroCollageMobile from "@/assets/hero-collage-mobile.webp.asset.json";
 import { markCarouselSeen as markCarouselSeenFn } from "@/lib/carousel.functions";
 
 interface Slide {
