@@ -46,6 +46,10 @@ import {
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { currencySymbol, formatMoney, usdRate } from "@/lib/fx-display";
 import { CURRENCY_CODES, CURRENCY_META, currencyDecimals, fallbackRateTable } from "@/lib/currency/africa";
+import { ModalShell, StatusBadge, currencyMeta, CURRENCY_STYLES, type TxStatus as SharedTxStatus } from "@/components/oventric/wallet/shared";
+import { TransferModal } from "@/components/oventric/wallet/TransferModal";
+import { downloadWalletCsv, printWalletPdf } from "@/components/oventric/wallet/export";
+import { Send } from "lucide-react";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
@@ -68,49 +72,7 @@ interface Tx {
   status: TxStatus;
 }
 
-type CurMeta = { symbol: string; label: string; glow: string; ring: string; text: string; dot: string };
-
-const CURRENCY_STYLES: Record<string, CurMeta> = {
-  USD: {
-    symbol: "$",
-    label: "US Dollar",
-    glow: "",
-    ring: "border-sky-500/40",
-    text: "text-sky-300",
-    dot: "bg-sky-400",
-  },
-  NGN: {
-    symbol: "₦",
-    label: "Nigerian Naira",
-    glow: "",
-    ring: "border-emerald-500/40",
-    text: "text-emerald-300",
-    dot: "bg-emerald-400",
-  },
-  GHS: {
-    symbol: "₵",
-    label: "Ghanaian Cedi",
-    glow: "",
-    ring: "border-amber-500/40",
-    text: "text-amber-300",
-    dot: "bg-amber-400",
-  },
-};
-
-/** Style + symbol for ANY supported currency, falling back to a neutral theme. */
-const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
-  get: (_t, key: string) =>
-    CURRENCY_STYLES[key] ?? {
-      symbol: currencySymbol(key),
-      label: CURRENCY_META[key]?.name ?? key,
-      glow: "",
-      ring: "border-slate-500/40",
-      text: "text-slate-300 md:text-slate-600",
-      dot: "bg-slate-400",
-    },
-});
-
-function fmt(n: number, c: Currency) {
+function fmt(n: number, c: Currency) {function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
 }
 
