@@ -1719,11 +1719,18 @@ function ProfilePage() {
         {/* Mobile footer nav is rendered globally in __root.tsx */}
       </div>
 
-      <MessagesDrawer
-        open={dmOpen && !!realProfile?.userId}
-        onClose={() => setDmOpen(false)}
-        initialThreadId={realProfile?.userId}
-      />
+      {realProfile?.userId && (
+        <ProfileMessageModal
+          open={dmOpen}
+          onClose={() => setDmOpen(false)}
+          recipient={{
+            userId: realProfile.userId,
+            displayName,
+            avatarUrl: realProfile.avatarUrl,
+            slug: realProfile.slug,
+          }}
+        />
+      )}
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <FollowRequestsDrawer open={followRequestsOpen} onClose={() => setFollowRequestsOpen(false)} />
       {isOwnProfile && realProfile && (
