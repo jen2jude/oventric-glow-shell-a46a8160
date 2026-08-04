@@ -36,7 +36,7 @@ export function PostComposerModal({
 }: {
   open: boolean;
   onClose: () => void;
-  onPosted?: () => void;
+  onPosted?: (postId?: string) => void | Promise<void>;
   /** When set, the post is written to that member's wall (audience forced to public). */
   wallUserId?: string | null;
   wallOwnerName?: string | null;
@@ -241,7 +241,7 @@ export function PostComposerModal({
           mediaType = "image";
         }
       }
-      await createPost({
+      const created = await createPost({
         data: {
           text: text.trim(),
           mediaPath,
@@ -259,8 +259,8 @@ export function PostComposerModal({
       setAudience("public");
       setCircleId(null);
       clearAttachments();
-      onPosted?.();
       onClose();
+      await onPosted?.((created as any)?.post?.id);
     } catch (e: any) {
       console.error("[PostComposerModal] post failed", e);
       setError(e?.message || "Couldn't publish. Try again.");
