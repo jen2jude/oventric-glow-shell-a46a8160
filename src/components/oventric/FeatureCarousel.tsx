@@ -25,7 +25,7 @@ const SLIDES: Slide[] = [
     image: mockCashback,
     title: "Cashback",
     description: "Earn up to 10% cashback on every purchase.",
-    accent: "#22ff88",
+    accent: "#3b82f6",
   },
   {
     id: "feed",
@@ -47,7 +47,7 @@ const SLIDES: Slide[] = [
     image: mockAcademy,
     title: "Academy",
     description: "Earn real money while you learn or teach new skills — learn top tech skills.",
-    accent: "#22ff88",
+    accent: "#3b82f6",
   },
   {
     id: "bounties",
