@@ -2705,6 +2705,39 @@ export type Database = {
         }
         Relationships: []
       }
+      promo_events: {
+        Row: {
+          created_at: string
+          id: string
+          kind: string
+          promo_id: string
+          promo_title: string | null
+          session_id: string | null
+          surface: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          kind: string
+          promo_id: string
+          promo_title?: string | null
+          session_id?: string | null
+          surface?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          kind?: string
+          promo_id?: string
+          promo_title?: string | null
+          session_id?: string | null
+          surface?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       support_chat_messages: {
         Row: {
           body: string
