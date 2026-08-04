@@ -312,6 +312,15 @@ function AdvertisePage() {
   const [presetTier, setPresetTier] = useState<"text" | "image" | "video">("image");
   const simple = useSimplifyAdvertise();
 
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const raw = new URLSearchParams(window.location.search).get("start");
+    if (raw === "text" || raw === "image" || raw === "video") {
+      setPresetTier(raw);
+      setOpen(true);
+    }
+  }, []);
+
   const start = (tier: "text" | "image" | "video" = "image") => {
     setPresetTier(tier);
     setOpen(true);

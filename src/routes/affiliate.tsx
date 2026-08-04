@@ -91,6 +91,15 @@ function AffiliatePage() {
     };
   }, [loadMine]);
 
+  useEffect(() => {
+    if (typeof window === "undefined" || state === "loading") return;
+    if (new URLSearchParams(window.location.search).get("reserve") !== "1") return;
+    const el = document.getElementById("reserve-spot");
+    if (!el) return;
+    el.scrollIntoView({ behavior: "smooth", block: "center" });
+    el.querySelector("input")?.focus({ preventScroll: true });
+  }, [state]);
+
   async function onReserve() {
     setSubmitting(true);
     setErr(null);
@@ -130,7 +139,7 @@ function AffiliatePage() {
             first in line when we launch.
           </p>
 
-          <div className="mt-6">
+          <div className="mt-6" id="reserve-spot">
             {state === "loading" ? (
               <Loader2 className="w-5 h-5 animate-spin text-fuchsia-300" />
             ) : state === "reserved" ? (

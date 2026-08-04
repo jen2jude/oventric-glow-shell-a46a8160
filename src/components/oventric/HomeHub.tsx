@@ -384,6 +384,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           body="Invite builders and earn from their activity."
           cta="Invite friends"
           to="/affiliate"
+          search={{ reserve: "1" }}
           art={promoReferArt}
           gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
@@ -394,6 +395,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           body="Put your product in front of Africa's builders."
           cta="Start a campaign"
           to="/advertise"
+          search={{ start: "image" }}
           art={promoAdvertiseArt}
           gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
@@ -570,6 +572,7 @@ function PromoCard({
   gradient,
   onClick,
   to,
+  search,
 }: {
   id: string;
   title: string;
@@ -580,6 +583,7 @@ function PromoCard({
   gradient: string;
   onClick?: () => void;
   to?: string;
+  search?: Record<string, unknown>;
 }) {
   const promo = { id, title, surface: "home_promo_rail" };
   const ref = usePromoImpression<HTMLDivElement>(promo);
@@ -612,7 +616,13 @@ function PromoCard({
     onClick?.();
   };
   return to ? (
-    <Link ref={ref as unknown as React.Ref<HTMLAnchorElement>} to={to} className={cls} onClick={handleClick}>
+    <Link
+      ref={ref as unknown as React.Ref<HTMLAnchorElement>}
+      to={to}
+      search={search as never}
+      className={cls}
+      onClick={handleClick}
+    >
       {content}
     </Link>
   ) : (
