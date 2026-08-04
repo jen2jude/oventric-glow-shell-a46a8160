@@ -2626,6 +2626,7 @@ export type Database = {
           phone: string | null
           profile_completed_at: string | null
           reputation_stars: number
+          skills: string[]
           slug: string
           social_links: Json
           updated_at: string
@@ -2658,6 +2659,7 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          skills?: string[]
           slug: string
           social_links?: Json
           updated_at?: string
@@ -2690,6 +2692,7 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          skills?: string[]
           slug?: string
           social_links?: Json
           updated_at?: string

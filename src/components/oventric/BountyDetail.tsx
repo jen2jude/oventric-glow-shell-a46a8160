@@ -450,6 +450,22 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         </div>
       </div>
 
+
+      <BountyTimeline
+        bounty={{
+          created_at: bounty.created_at,
+          accepted_applicant_id: bounty.accepted_applicant_id,
+          accepted_at: apps.find((a) => a.applicant_id === bounty.accepted_applicant_id && a.status === "accepted")?.updated_at ?? null,
+          solved_at: bounty.solved_at,
+          released_at: bounty.released_at,
+          dispute_status: bounty.dispute_status,
+          status: bounty.status,
+        }}
+        applicationsCount={apps.length}
+        firstApplicationAt={apps.length ? apps[apps.length - 1].created_at : null}
+        acceptedProfile={acceptedProfile}
+      />
+
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
         <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(16,185,129,0.7)]">
@@ -631,7 +647,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <Users className="w-4 h-4 text-emerald-400" /> Proposals ({apps.length})
             </div>
             {apps.length > 0 && (
-              <div className="flex flex-wrap gap-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <ProposalSortDropdown value={appSort} onChange={setAppSort} />
+                <div className="flex flex-wrap gap-1.5">
                 {(["all", "pending", "accepted", "rejected"] as const).map((f) => {
                   const count =
                     f === "all" ? apps.length : apps.filter((a) => a.status === f).length;
@@ -650,6 +668,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                     </button>
                   );
                 })}
+                </div>
               </div>
             )}
           </div>
@@ -659,8 +678,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             </div>
           ) : (
             (() => {
-              const shown =
+              const filtered =
                 appFilter === "all" ? apps : apps.filter((a) => a.status === appFilter);
+              const shown = sortProposals(filtered, appSort);
               if (shown.length === 0)
                 return (
                   <div className="text-sm text-slate-500 text-center py-6">

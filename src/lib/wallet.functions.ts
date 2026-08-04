@@ -30,6 +30,10 @@ export interface WalletTxDTO {
 export interface ListWalletTxInput {
   search?: string;
   currency?: "ALL" | WalletCurrency;
+  type?: "ALL" | WalletTxType;
+  status?: "ALL" | WalletTxStatus;
+  from?: string | null;
+  to?: string | null;
   page?: number;
   pageSize?: number;
 }
@@ -46,8 +50,12 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
   .inputValidator((input: ListWalletTxInput) => ({
     search: typeof input?.search === "string" ? input.search.trim() : "",
     currency: (input?.currency ?? "ALL") as "ALL" | WalletCurrency,
+    type: (input?.type ?? "ALL") as "ALL" | WalletTxType,
+    status: (input?.status ?? "ALL") as "ALL" | WalletTxStatus,
+    from: typeof input?.from === "string" && input.from ? input.from : null,
+    to: typeof input?.to === "string" && input.to ? input.to : null,
     page: Math.max(1, Number(input?.page ?? 1)),
-    pageSize: Math.min(50, Math.max(1, Number(input?.pageSize ?? 6))),
+    pageSize: Math.min(1000, Math.max(1, Number(input?.pageSize ?? 6))),
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -59,6 +67,10 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       .order("occurred_at", { ascending: false });
 
     if (data.currency !== "ALL") q = q.eq("currency", dbCurrency(data.currency));
+    if (data.type !== "ALL") q = q.eq("type", data.type);
+    if (data.status !== "ALL") q = q.eq("status", data.status);
+    if (data.from) q = q.gte("occurred_at", data.from);
+    if (data.to) q = q.lte("occurred_at", data.to);
     if (data.search) {
       const s = data.search.replace(/[%,]/g, "");
       q = q.or(`tx_hash.ilike.%${s}%,type.ilike.%${s}%`);
