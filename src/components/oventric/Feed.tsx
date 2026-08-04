@@ -438,6 +438,9 @@ export function Feed() {
     setPendingPosts((prev) => [{ ...draft }, ...prev]);
   }, []);
 
+  const pendingRef = useRef<PendingPost[]>([]);
+  pendingRef.current = pendingPosts;
+
   const failPending = useCallback((tempId: string, message: string) => {
     setPendingPosts((prev) => prev.map((p) => (p.tempId === tempId ? { ...p, error: message } : p)));
   }, []);
