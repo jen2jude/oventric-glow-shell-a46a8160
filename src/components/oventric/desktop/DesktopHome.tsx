@@ -371,19 +371,19 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           </div>
         </div>
 
-        {/* Hero visual — large but contained so the right edge stays visible */}
-        <div className="pointer-events-none absolute right-[-1%] top-1/2 z-0 w-[78vw] max-w-[1080px] -translate-y-1/2">
+        {/* Hero visual — scaled down so it sits beside the headline without crowding the viewport */}
+        <div className="pointer-events-none absolute right-[5%] top-1/2 z-0 w-[54vw] max-w-[720px] -translate-y-1/2">
           <div
-            className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
+            className="pointer-events-none absolute -inset-8 -z-10 rounded-full blur-3xl"
             style={{
               backgroundImage:
-                "radial-gradient(closest-side, rgba(16,185,129,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
+                "radial-gradient(closest-side, rgba(16,185,129,0.12), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.10), transparent 75%)",
             }}
           />
           <img
             src={heroCollage.url}
             alt="Oventric members shopping, learning and chatting across the platform"
-            className="hp-float w-full select-none object-contain drop-shadow-[0_30px_80px_rgba(15,23,42,0.14)]"
+            className="hp-float w-full select-none object-contain drop-shadow-[0_24px_60px_rgba(15,23,42,0.12)]"
             loading="eager"
             decoding="async"
           />
