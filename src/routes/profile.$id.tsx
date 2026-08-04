@@ -1102,6 +1102,19 @@ function ProfilePage() {
                   </p>
                 )}
 
+                {realProfile?.skills && realProfile.skills.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
+                    {realProfile.skills.map((s) => (
+                      <span
+                        key={s}
+                        className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border border-emerald-500/30"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
                   <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                     {Object.entries(realProfile.socialLinks).map(([key, url]) => (
