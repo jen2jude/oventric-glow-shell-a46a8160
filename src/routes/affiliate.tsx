@@ -106,7 +106,7 @@ function AffiliatePage() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0b0b0d] text-slate-200 md:bg-slate-50 md:text-slate-800">
+    <div className="page-light min-h-screen bg-[#0b0b0d] text-slate-200 md:bg-slate-50 md:text-slate-800">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={goBack}

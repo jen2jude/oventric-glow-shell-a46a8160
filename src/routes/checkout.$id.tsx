@@ -331,7 +331,7 @@ function CheckoutPage() {
 
 
   return (
-    <div className="min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
+    <div className="page-light min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
       <Header onOpenMessages={() => {}} />
       <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
 
