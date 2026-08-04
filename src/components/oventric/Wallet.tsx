@@ -586,7 +586,7 @@ export function Wallet() {
             className="shrink-0 inline-flex items-center justify-center text-xs font-black px-4 py-2 rounded-lg"
             style={
               affiliateReserved
-                ? { backgroundColor: "#065f46", color: "#d1fae5", border: "1px solid #3b82f6" }
+                ? { backgroundColor: "#1e3a8a", color: "#dbeafe", border: "1px solid #3b82f6" }
                 : { backgroundColor: "#d946ef", color: "#000000" }
             }
           >

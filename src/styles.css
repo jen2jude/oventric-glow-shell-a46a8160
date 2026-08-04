@@ -1232,7 +1232,7 @@ html.light {
   --card-foreground: oklch(0.18 0.01 260);
   --popover: oklch(1 0 0);
   --popover-foreground: oklch(0.18 0.01 260);
-  --primary: oklch(0.55 0.16 160);
+  --primary: oklch(0.55 0.19 258);
   --primary-foreground: oklch(0.99 0.005 260);
   --secondary: oklch(0.94 0.005 260);
   --secondary-foreground: oklch(0.2 0.01 260);
@@ -1244,7 +1244,7 @@ html.light {
   --destructive-foreground: oklch(0.99 0.005 260);
   --border: oklch(0.18 0.01 260 / 12%);
   --input: oklch(0.18 0.01 260 / 14%);
-  --ring: oklch(0.55 0.16 160);
+  --ring: oklch(0.55 0.19 258);
 
   /* Retint the app surfaces. */
   --app-bg: #f6f6f7;
@@ -1300,7 +1300,7 @@ html.light .blog-article pre {
   color: var(--strong-ink);
 }
 html.light .prose-editor a,
-html.light .blog-article a { color: oklch(0.5 0.16 160); }
+html.light .blog-article a { color: oklch(0.5 0.19 258); }
 html.light .blog-article blockquote { color: var(--muted-ink); }
 
 /* Neutralize semi-transparent white overlays that assume a dark canvas. */
@@ -1635,7 +1635,7 @@ html.light input::placeholder, html.light textarea::placeholder {
   .blog-article h4,
   .blog-article strong { color: #0f172a; }
   .blog-article { color: #334155; }
-  .blog-article a { color: oklch(0.5 0.16 160); }
+  .blog-article a { color: oklch(0.5 0.19 258); }
   .blog-article blockquote { color: #475569; border-left-color: #e2e8f0; }
   .blog-article pre,
   .blog-article code { background: #f1f5f9; color: #0f172a; }
