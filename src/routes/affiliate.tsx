@@ -19,9 +19,6 @@ import {
 } from "@/lib/affiliate.functions";
 
 export const Route = createFileRoute("/affiliate")({
-  validateSearch: (search: Record<string, unknown>) => ({
-    reserve: search["reserve"] === "1" || search["reserve"] === true ? true : undefined,
-  }),
   head: () => ({
     meta: [
       { title: "Affiliate Program · Oventric" },
@@ -44,7 +41,6 @@ export const Route = createFileRoute("/affiliate")({
 });
 
 function AffiliatePage() {
-  const { reserve: reserveParam } = Route.useSearch();
   const router = useRouter();
   const navigate = useNavigate();
   const loadMine = useServerFn(getMyAffiliateReservation);
@@ -96,12 +92,13 @@ function AffiliatePage() {
   }, [loadMine]);
 
   useEffect(() => {
-    if (!reserveParam || state === "loading") return;
+    if (typeof window === "undefined" || state === "loading") return;
+    if (new URLSearchParams(window.location.search).get("reserve") !== "1") return;
     const el = document.getElementById("reserve-spot");
     if (!el) return;
     el.scrollIntoView({ behavior: "smooth", block: "center" });
     el.querySelector("input")?.focus({ preventScroll: true });
-  }, [reserveParam, state]);
+  }, [state]);
 
   async function onReserve() {
     setSubmitting(true);
