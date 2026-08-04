@@ -151,9 +151,45 @@ export function NotificationsDrawer({
   const [items, setItems] = useState<DbNotif[]>([]);
   const [loading, setLoading] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushAvailable, setPushAvailable] = useState(false);
 
   // localStorage is client-only — read after hydration.
   useEffect(() => setMuted(isSoundMuted()), []);
+
+  useEffect(() => {
+    if (!pushSupported() || !pushAllowedHere()) return;
+    setPushAvailable(true);
+    void isPushEnabled().then(setPushOn);
+  }, []);
+
+  const togglePush = async () => {
+    setPushBusy(true);
+    try {
+      if (pushOn) {
+        await disablePush();
+        setPushOn(false);
+        toast.success("Background alerts turned off on this device.");
+      } else {
+        const res = await enablePush();
+        if (res.ok) {
+          setPushOn(true);
+          toast.success("Background alerts on for this device.");
+        } else if (res.reason === "install-required") {
+          toast.error("On iPhone, add Oventric to your Home Screen first, then open it from the icon.");
+        } else if (res.reason === "denied") {
+          toast.error("Notifications are blocked in your browser settings.");
+        } else {
+          toast.error("Couldn't turn on background alerts.");
+        }
+      }
+    } catch {
+      toast.error("Couldn't update background alerts.");
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const toggleSound = () => {
     const next = !muted;
@@ -161,6 +197,7 @@ export function NotificationsDrawer({
     setSoundMuted(next);
     if (!next) playNotificationSound("success");
   };
+
 
 
   const fetchList = useServerFn(myNotifications);
