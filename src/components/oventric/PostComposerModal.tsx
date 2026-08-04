@@ -84,6 +84,8 @@ export function PostComposerModal({
   const [mentionLoading, setMentionLoading] = useState(false);
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [mediaError, setMediaError] = useState<string | null>(null);
+  const [submitAttempted, setSubmitAttempted] = useState(false);
 
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
@@ -94,6 +96,8 @@ export function PostComposerModal({
   useEffect(() => {
     if (!open) return;
     setError(null);
+    setMediaError(null);
+    setSubmitAttempted(false);
     setTimeout(() => textareaRef.current?.focus(), 60);
     // load circles lazily
     listCircles()
