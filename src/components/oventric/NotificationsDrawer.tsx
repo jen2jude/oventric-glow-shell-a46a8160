@@ -248,7 +248,7 @@ export function NotificationsDrawer({
     const raisePush = (row: DbNotif) => {
       if (typeof window === "undefined" || !("Notification" in window)) return;
       if (Notification.permission !== "granted") return;
-      const pushKinds = ["announcement", "system", "alert", "direct_message"];
+      const pushKinds = ["announcement", "system", "alert", "direct_message", "order_message"];
       if (!pushKinds.includes(row.kind)) return;
       try {
         const n = new Notification(row.title, {
