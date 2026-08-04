@@ -366,7 +366,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       </section>
 
       {/* Promo rail */}
-      <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 snap-x snap-mandatory [scrollbar-width:none]">
+      <section
+        aria-label="Promotions"
+        className="flex gap-3 overflow-x-auto overscroll-x-contain touch-pan-x scroll-pl-3 pb-3 pt-1 -mx-3 px-3 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0 md:pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:snap-none"
+      >
         <PromoCard
           id="cashback"
           title="Earn 2% cashback"
@@ -589,14 +592,14 @@ function PromoCard({
   const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
-      className="promo-tile-surface relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
+      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[26px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
       <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">{title}</span>
       <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">{highlight}</span>
       <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">{body}</span>
-      <span className="promo-tile-cta relative mt-3 inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-1.5 text-[11px] font-bold text-white">
+      <span className="promo-tile-cta relative mt-3 inline-flex min-h-[2.25rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-[11px] font-bold text-white">
         {cta} <ChevronRight className="w-3.5 h-3.5" />
       </span>
       <img
@@ -610,7 +613,8 @@ function PromoCard({
       />
     </span>
   );
-  const cls = "promo-tile shrink-0 w-[19rem] snap-start text-left";
+  const cls =
+    "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
   const handleClick = () => {
     void trackPromoEvent("click", promo);
     onClick?.();
