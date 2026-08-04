@@ -412,16 +412,19 @@ export function Feed() {
   const updateComment = useServerFn(updateCommentFn);
   const deleteComment = useServerFn(deleteCommentFn);
 
-  const refreshPosts = useCallback(async () => {
+  const refreshPosts = useCallback(async (): Promise<FeedPost[] | null> => {
     try {
       const res = await listPosts();
       setPosts(res.posts);
       setPostsError(null);
+      return res.posts;
     } catch (e) {
       console.error("[Feed] listPosts failed", e);
       setPostsError("Couldn't load feed.");
+      return null;
     }
   }, [listPosts]);
+
 
   /** Drop a pending placeholder and release its object URLs. */
   const dismissPending = useCallback((tempId: string) => {
