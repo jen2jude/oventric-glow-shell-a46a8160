@@ -29,8 +29,41 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --animate-rgb-neon-chase: rgb-neon-chase 6s linear infinite;
-  --animate-rgb-pulse: rgb-pulse 3s ease-in-out infinite;
 }
+
+/* Brand accent: the platform's green accent is remapped to the sharp hero blue.
+   Every emerald-*/
+/* and green-* utility across the app now resolves to blue. */
+@theme {
+  --color-emerald-50: #eff6ff;
+  --color-emerald-100: #dbeafe;
+  --color-emerald-200: #bfdbfe;
+  --color-emerald-300: #93c5fd;
+  --color-emerald-400: #60a5fa;
+  --color-emerald-500: #3b82f6;
+  --color-emerald-600: #2563eb;
+  --color-emerald-700: #1d4ed8;
+  --color-emerald-800: #1e40af;
+  --color-emerald-900: #1e3a8a;
+  --color-emerald-950: #172554;
+  --color-green-50: #eff6ff;
+  --color-green-100: #dbeafe;
+  --color-green-200: #bfdbfe;
+  --color-green-300: #93c5fd;
+  --color-green-400: #60a5fa;
+  --color-green-500: #3b82f6;
+  --color-green-600: #2563eb;
+  --color-green-700: #1d4ed8;
+  --color-green-800: #1e40af;
+  --color-green-900: #1e3a8a;
+  --color-green-950: #172554;
+  --color-teal-400: #60a5fa;
+  --color-teal-500: #3b82f6;
+  --color-teal-600: #2563eb;
+  --color-lime-400: #60a5fa;
+  --color-lime-500: #3b82f6;
+}
+
 
 :root {
   --radius: 0.5rem;
