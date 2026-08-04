@@ -1,5 +1,5 @@
 import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, AtSign, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen, User, Users } from "lucide-react";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -40,6 +40,12 @@ import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { PostComposerModal } from "@/components/oventric/PostComposerModal";
+import {
+  FeedSearchBar,
+  FeedGlobalResults,
+  GLOBAL_CATEGORIES,
+  type FeedCategory,
+} from "@/components/oventric/feed/FeedSearch";
 
 interface Comment {
   id: string;
@@ -281,6 +287,9 @@ export function Feed() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
+  const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+  const [category, setCategory] = useState<FeedCategory>("all");
   const [postsLoading, setPostsLoading] = useState(true);
   const [postsError, setPostsError] = useState<string | null>(null);
   const [mentionsSheet, setMentionsSheet] = useState<FeedPost["mentions"] | null>(null);
@@ -404,6 +413,12 @@ export function Feed() {
       setPostsError("Couldn't load feed.");
     }
   }, [listPosts]);
+
+  // Debounce the search box so filtering / global lookups stay cheap.
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 220);
+    return () => window.clearTimeout(t);
+  }, [query]);
 
   // Current user id + last name
   useEffect(() => {
@@ -936,6 +951,25 @@ export function Feed() {
     }
   };
 
+  const isGlobalCategory = GLOBAL_CATEGORIES.includes(category);
+  const showPostList = !isGlobalCategory;
+  const filteredPosts = useMemo(() => {
+    const term = debouncedQuery.toLowerCase();
+    return posts.filter((p) => {
+      if (hiddenPosts.has(p.id)) return false;
+      const hasMedia = p.media.length > 0 || !!p.media_url;
+      if (category === "media" && !hasMedia) return false;
+      if (category === "posts" && hasMedia) return false;
+      if (!term) return true;
+      return (
+        p.text.toLowerCase().includes(term) ||
+        p.author_name.toLowerCase().includes(term) ||
+        (p.circle?.name ?? "").toLowerCase().includes(term)
+      );
+    });
+  }, [posts, hiddenPosts, category, debouncedQuery]);
+  const isFiltering = debouncedQuery.length > 0 || category !== "all";
+
   const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
   const handleBounty = () => require(2, () => alert("Applying to bounty (mock)"), "solver");
   const isLoggedIn = tier >= 1;
@@ -979,11 +1013,23 @@ export function Feed() {
         </button>
 
 
+        <FeedSearchBar
+          q={query}
+          onQueryChange={setQuery}
+          category={category}
+          onCategoryChange={setCategory}
+          resultCount={showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null}
+        />
+
+        {(debouncedQuery.length >= 2 || isGlobalCategory) && (
+          <FeedGlobalResults q={debouncedQuery} category={category} />
+        )}
+
         <AdSlot placement="feed" variant="banner" />
 
 
         {/* Posts (live) */}
-        {postsLoading ? (
+        {!showPostList ? null : postsLoading ? (
           <div className="space-y-4" aria-busy="true" aria-label="Loading feed">
             {[0, 1, 2].map((i) => (
               <div
@@ -1017,7 +1063,22 @@ export function Feed() {
             <p className="text-sm font-semibold text-red-300 md:text-red-600">Couldn’t load the feed</p>
             <p className="mt-1 text-xs text-red-300/80">{postsError}</p>
           </div>
-        ) : posts.length === 0 ? (
+        ) : filteredPosts.length === 0 ? (
+          isFiltering ? (
+            <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
+              <p className="text-sm font-semibold text-white md:text-slate-900">No posts match your filters</p>
+              <p className="mt-1 text-xs text-slate-400 md:text-slate-600">
+                Try a different search term or switch category.
+              </p>
+              <button
+                type="button"
+                onClick={() => { setQuery(""); setCategory("all"); }}
+                className="mt-3 inline-flex items-center rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-emerald-400 transition-colors"
+              >
+                Clear filters
+              </button>
+            </div>
+          ) : (
           <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
             <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
               <MessageSquare className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
@@ -1027,11 +1088,11 @@ export function Feed() {
               No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question.
             </p>
           </div>
-
+          )
         ) : (
           (() => {
             const shareOrigin = typeof window !== "undefined" ? window.location.origin : "";
-            const visible = posts.filter((p) => !hiddenPosts.has(p.id));
+            const visible = filteredPosts;
             const items: React.ReactNode[] = [];
             let blogIdx = 0;
             visible.forEach((post, i) => {
