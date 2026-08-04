@@ -34,6 +34,7 @@ import promoAdvertiseArt from "@/assets/promo-advertise.png";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
@@ -91,6 +92,8 @@ function fromUSD(usd: number, target: Currency): number {
 
 export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
+  // Same live unread counters the header shows, mirrored onto the hub tiles.
+  const unread = useUnreadCounts();
   const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName, require: requireTier } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
@@ -327,7 +330,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
           {TILES.map((t, i) => {
-            const count = t.countKey ? counts?.[t.countKey] ?? 0 : 0;
+            const sectionUnread =
+              t.label === "Messages"
+                ? unread.messages + (unread.sections["Messages"] ?? 0)
+                : unread.sections[t.label] ?? 0;
+            const count = (t.countKey ? counts?.[t.countKey] ?? 0 : 0) + sectionUnread;
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span

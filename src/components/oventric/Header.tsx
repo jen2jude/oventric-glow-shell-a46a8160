@@ -154,6 +154,25 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               <Search className="w-5 h-5" strokeWidth={2.5} />
             </button>
 
+            {/* Notifications + chat: same live red counters as the full header */}
+            <button
+              onClick={() => setNotifOpen(true)}
+              aria-label="Open notifications"
+              className={`relative inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
+            >
+              <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+              <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
+            </button>
+
+            <button
+              onClick={onOpenMessages}
+              aria-label="Open messages"
+              className={`relative inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
+            >
+              <MessageSquare className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
+              <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
+            </button>
+
             <Link
               to="/help-board"
               aria-label="Help board"
@@ -179,6 +198,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
+        <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
         {searchOverlay}
       </header>
     );
