@@ -261,3 +261,22 @@ export const saveKyc = createServerFn({ method: "POST" })
     return { ok: true };
   });
 
+
+/**
+ * Mints a short-lived, server-recorded liveness attestation for the signed-in
+ * user. Called immediately after a successful face re-match. Withdrawal
+ * creation (payout_request_create*) refuses to run unless this attestation is
+ * less than 15 minutes old, so the check cannot be skipped by calling the
+ * payout server function directly.
+ */
+export const recordLivenessAttestation = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .handler(async ({ context }) => {
+    const { supabase } = context;
+    const { data, error } = await supabase.rpc("record_liveness_attestation");
+    if (error) {
+      console.error("[recordLivenessAttestation] failed", error.message);
+      throw new Error("Identity re-check could not be recorded");
+    }
+    return { verifiedAt: data as unknown as string };
+  });
