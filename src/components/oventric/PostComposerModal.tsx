@@ -27,16 +27,28 @@ function initialsOf(name: string) {
   return ((p[0]?.[0] ?? "") + (p[p.length - 1]?.[0] ?? "")).toUpperCase() || "OV";
 }
 
+export interface OptimisticPostDraft {
+  tempId: string;
+  text: string;
+  media: { url: string; kind: "image" | "video" }[];
+}
+
 export function PostComposerModal({
   open,
   onClose,
   onPosted,
+  onOptimistic,
+  onPostFailed,
   wallUserId,
   wallOwnerName,
 }: {
   open: boolean;
   onClose: () => void;
-  onPosted?: (postId?: string) => void | Promise<void>;
+  onPosted?: (postId?: string, tempId?: string) => void | Promise<void>;
+  /** Fired the instant the user hits Post, before upload/creation runs. */
+  onOptimistic?: (draft: OptimisticPostDraft) => void;
+  /** Fired when the background submission fails, so the placeholder can show the error. */
+  onPostFailed?: (tempId: string, message: string) => void;
   /** When set, the post is written to that member's wall (audience forced to public). */
   wallUserId?: string | null;
   wallOwnerName?: string | null;
