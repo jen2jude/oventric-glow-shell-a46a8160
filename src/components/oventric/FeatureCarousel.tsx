@@ -230,12 +230,31 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           <img
             src={oventricFull.url}
             alt="Oventric"
-            className="h-12 sm:h-14 w-auto select-none mb-8"
+            className="h-12 sm:h-14 w-auto select-none mb-6"
             draggable={false}
           />
+          <div className="relative w-full mb-6">
+            <div
+              aria-hidden
+              className="absolute inset-0 m-auto h-40 w-40 rounded-full blur-3xl opacity-60"
+              style={{ background: "radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%)" }}
+            />
+            <img
+              src={heroCollageMobile.url}
+              alt="Oventric features: social feed, marketplace, academy and rewards"
+              width={900}
+              height={600}
+              decoding="async"
+              loading="eager"
+              draggable={false}
+              className="hp-float relative w-full max-w-[420px] mx-auto h-auto select-none"
+              style={{ animation: `${ENTER}, hp-float 6s ease-in-out 0.6s infinite` }}
+            />
+          </div>
           <p className="text-lg sm:text-xl text-slate-200 leading-relaxed">
             The first cashback digital platform for Africa's creators &amp; developers.
           </p>
+
           <button
             onClick={() => setIntroExiting(true)}
             className="mt-10 text-sm font-medium text-slate-400 hover:text-white transition-colors"
