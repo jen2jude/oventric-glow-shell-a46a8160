@@ -296,6 +296,14 @@ export function Feed() {
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
+  // Like / comment / share tapped on an optimistic card before the server
+  // returns the real post id — replayed against the real post once it lands.
+  const [pendingIntents, setPendingIntents] = useState<
+    Record<string, { react?: ReactionType | null; comment?: boolean; share?: boolean }>
+  >({});
+  const pendingIntentsRef = useRef(pendingIntents);
+  pendingIntentsRef.current = pendingIntents;
+
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [category, setCategory] = useState<FeedCategory>("all");
