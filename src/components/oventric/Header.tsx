@@ -198,6 +198,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
+        <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
         {searchOverlay}
       </header>
     );
