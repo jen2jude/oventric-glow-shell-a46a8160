@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellSwitcherModal } from "./SellSwitcherModal";
@@ -20,6 +20,15 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   const [bountyOpen, setBountyOpen] = useState(false);
+
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
 
   const handleChoice = (c: Choice) => {
     require(c.tier, () => {
