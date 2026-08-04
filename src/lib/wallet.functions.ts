@@ -14,7 +14,9 @@ export type WalletTxType =
   | "Affiliate Cashback Payout"
   | "Wallet Top-Up"
   | "Payout Withdrawal"
-  | "Cashback Earned";
+  | "Cashback Earned"
+  | "Wallet Transfer Sent"
+  | "Wallet Transfer Received";
 
 export interface WalletTxDTO {
   id: string;
@@ -30,6 +32,10 @@ export interface WalletTxDTO {
 export interface ListWalletTxInput {
   search?: string;
   currency?: "ALL" | WalletCurrency;
+  type?: "ALL" | WalletTxType;
+  status?: "ALL" | WalletTxStatus;
+  from?: string | null;
+  to?: string | null;
   page?: number;
   pageSize?: number;
 }
@@ -46,8 +52,12 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
   .inputValidator((input: ListWalletTxInput) => ({
     search: typeof input?.search === "string" ? input.search.trim() : "",
     currency: (input?.currency ?? "ALL") as "ALL" | WalletCurrency,
+    type: (input?.type ?? "ALL") as "ALL" | WalletTxType,
+    status: (input?.status ?? "ALL") as "ALL" | WalletTxStatus,
+    from: typeof input?.from === "string" && input.from ? input.from : null,
+    to: typeof input?.to === "string" && input.to ? input.to : null,
     page: Math.max(1, Number(input?.page ?? 1)),
-    pageSize: Math.min(50, Math.max(1, Number(input?.pageSize ?? 6))),
+    pageSize: Math.min(1000, Math.max(1, Number(input?.pageSize ?? 6))),
   }))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
@@ -59,6 +69,10 @@ export const listWalletTransactions = createServerFn({ method: "POST" })
       .order("occurred_at", { ascending: false });
 
     if (data.currency !== "ALL") q = q.eq("currency", dbCurrency(data.currency));
+    if (data.type !== "ALL") q = q.eq("type", data.type);
+    if (data.status !== "ALL") q = q.eq("status", data.status);
+    if (data.from) q = q.gte("occurred_at", data.from);
+    if (data.to) q = q.lte("occurred_at", data.to);
     if (data.search) {
       const s = data.search.replace(/[%,]/g, "");
       q = q.or(`tx_hash.ilike.%${s}%,type.ilike.%${s}%`);
@@ -203,4 +217,73 @@ export const getWalletEarnings = createServerFn({ method: "GET" })
       .reduce((s, r) => s + Number(r.amount ?? 0), 0);
 
     return { cashbackUSD, marketplaceHome, marketplaceCurrency, bountyUSD, affiliateUSD };
+  });
+
+// ---------------------------------------------------------------------------
+// User-to-user wallet transfers
+// ---------------------------------------------------------------------------
+
+export interface TransferRecipientDTO {
+  userId: string;
+  username: string | null;
+  displayName: string | null;
+  avatarUrl: string | null;
+}
+
+export const searchTransferRecipients = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { query: string }) => ({
+    query: String(input?.query ?? "").trim().slice(0, 60),
+  }))
+  .handler(async ({ data, context }): Promise<TransferRecipientDTO[]> => {
+    const { supabase, userId } = context;
+    if (data.query.length < 2) return [];
+    const like = `%${data.query.replace(/[%,]/g, "")}%`;
+    const { data: rows, error } = await supabase
+      .from("profiles")
+      .select("user_id, username, display_name, avatar_path")
+      .or(`username.ilike.${like},display_name.ilike.${like}`)
+      .neq("user_id", userId)
+      .limit(8);
+    if (error) throw new Error(error.message);
+    return ((rows ?? []) as Array<Record<string, unknown>>).map((r) => ({
+      userId: r.user_id as string,
+      username: (r.username as string | null) ?? null,
+      displayName: (r.display_name as string | null) ?? null,
+      avatarUrl: null,
+    }));
+  });
+
+export interface TransferToUserInput {
+  recipientId: string;
+  currency: WalletCurrency;
+  amount: number;
+  note?: string;
+}
+
+export const transferToUser = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: TransferToUserInput) => {
+    const amount = Number(input?.amount);
+    if (!Number.isFinite(amount) || amount <= 0) throw new Error("Invalid amount");
+    const recipientId = String(input?.recipientId ?? "");
+    if (!recipientId) throw new Error("Recipient required");
+    return {
+      recipientId,
+      currency: dbCurrency(String(input?.currency ?? "")),
+      amount: Math.round(amount * 100) / 100,
+      note: typeof input?.note === "string" ? input.note.slice(0, 200) : null,
+    };
+  })
+  .handler(async ({ data, context }) => {
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const sb = context.supabase as any;
+    const { data: result, error } = await sb.rpc("wallet_transfer_to_user", {
+      _recipient_id: data.recipientId,
+      _currency: data.currency,
+      _amount: data.amount,
+      _note: data.note,
+    });
+    if (error) throw new Error(error.message);
+    return result as { ok: true; ref: string; recipient_name: string; sender_name: string };
   });

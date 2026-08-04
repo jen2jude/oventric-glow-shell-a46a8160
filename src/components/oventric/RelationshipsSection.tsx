@@ -1,11 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Users, UserPlus, AlertTriangle, RefreshCw } from "lucide-react";
+import { Users, UserPlus, AlertTriangle, RefreshCw, Clock, Wifi } from "lucide-react";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { listFollowers, listFollowing, type PersonSummary } from "@/lib/follows.functions";
 import { useOnlineUsers } from "@/hooks/use-presence";
+import { PersonQuickView } from "@/components/oventric/profile/PersonQuickView";
 
 export type RelationshipTab = "followers" | "following";
 
@@ -48,6 +49,14 @@ export function RelationshipsSection({
     followers: PAGE,
     following: PAGE,
   });
+  /** When on, people who are online right now float to the top of the list. */
+  const [onlineFirst, setOnlineFirst] = useState(true);
+  const [updatedAt, setUpdatedAt] = useState<Record<RelationshipTab, number | null>>({
+    followers: null,
+    following: null,
+  });
+  const [quickView, setQuickView] = useState<PersonSummary | null>(null);
+  const [, forceTick] = useState(0);
 
   const load = useCallback(
     async (which: RelationshipTab) => {
@@ -58,6 +67,7 @@ export function RelationshipsSection({
             ? await fetchFollowers({ data: { userId } })
             : await fetchFollowing({ data: { userId } });
         setState((s) => ({ ...s, [which]: { people: rows, error: null } }));
+        setUpdatedAt((u) => ({ ...u, [which]: Date.now() }));
       } catch {
         setState((s) => ({
           ...s,
@@ -77,6 +87,12 @@ export function RelationshipsSection({
     if (state[tab].people === null && !state[tab].error) load(tab);
   }, [tab, state, load]);
 
+  // Keep the "updated x ago" label honest without refetching.
+  useEffect(() => {
+    const id = window.setInterval(() => forceTick((n) => n + 1), 30_000);
+    return () => window.clearInterval(id);
+  }, []);
+
   const onTabKeyDown = (e: React.KeyboardEvent) => {
     if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End") return;
     e.preventDefault();
@@ -95,8 +111,17 @@ export function RelationshipsSection({
   };
 
   const current = state[tab];
-  const shown = (current.people ?? []).slice(0, visible[tab]);
-  const remaining = Math.max(0, (current.people?.length ?? 0) - shown.length);
+  const ordered = (() => {
+    const list = current.people ?? [];
+    if (!onlineFirst) return list;
+    return [...list].sort((a, b) => {
+      const ao = online.has(a.userId) ? 0 : 1;
+      const bo = online.has(b.userId) ? 0 : 1;
+      return ao - bo;
+    });
+  })();
+  const shown = ordered.slice(0, visible[tab]);
+  const remaining = Math.max(0, ordered.length - shown.length);
 
   return (
     <section
@@ -148,6 +173,46 @@ export function RelationshipsSection({
             );
           })}
         </div>
+      </div>
+
+      <div className="flex flex-wrap items-center justify-between gap-2 px-4 pt-3 sm:px-6">
+        <button
+          type="button"
+          role="switch"
+          aria-checked={onlineFirst}
+          onClick={() => setOnlineFirst((v) => !v)}
+          className={`inline-flex items-center gap-2 rounded-full border px-3 py-1.5 text-[11px] font-bold transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+            onlineFirst
+              ? "border-emerald-500/40 bg-emerald-500/15 text-emerald-300 md:text-emerald-700"
+              : "border-white/10 bg-white/5 text-slate-400 md:border-slate-200 md:bg-slate-100 md:text-slate-600"
+          }`}
+        >
+          <Wifi className="h-3.5 w-3.5" aria-hidden />
+          Online first
+          <span
+            className={`ml-0.5 h-3.5 w-6 rounded-full transition-colors ${
+              onlineFirst ? "bg-emerald-500" : "bg-slate-600 md:bg-slate-300"
+            }`}
+            aria-hidden
+          >
+            <span
+              className={`block h-3.5 w-3.5 rounded-full bg-white transition-transform ${
+                onlineFirst ? "translate-x-2.5" : "translate-x-0"
+              }`}
+            />
+          </span>
+        </button>
+        <p className="inline-flex items-center gap-1.5 text-[11px] text-slate-500">
+          <Clock className="h-3.5 w-3.5" aria-hidden />
+          {updatedAt[tab] ? `Updated ${relativeTime(updatedAt[tab] as number)}` : "Updating…"}
+          <button
+            type="button"
+            onClick={() => load(tab)}
+            className="ml-1 rounded px-1.5 py-0.5 font-bold text-emerald-400 hover:text-emerald-300 md:text-emerald-600 md:hover:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+          >
+            Refresh
+          </button>
+        </p>
       </div>
 
       <div
@@ -234,9 +299,14 @@ export function RelationshipsSection({
                       >
                         {p.displayName}
                       </Link>
-                      <div className="truncate text-[11px] text-slate-500">
-                        {p.username ? `@${p.username}` : isOnline ? "Online now" : "Offline"}
-                      </div>
+                      <button
+                        type="button"
+                        onClick={() => setQuickView(p)}
+                        aria-haspopup="dialog"
+                        className="block truncate text-left text-[11px] text-slate-500 hover:text-emerald-400 md:hover:text-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 rounded"
+                      >
+                        {p.username ? `@${p.username}` : isOnline ? "Online now" : "Offline"} · Quick view
+                      </button>
                     </div>
                     {viewerId && viewerId !== p.userId && (
                       <div className="shrink-0">
@@ -264,6 +334,24 @@ export function RelationshipsSection({
           </>
         )}
       </div>
+
+      <PersonQuickView
+        person={quickView}
+        isOnline={quickView ? online.has(quickView.userId) : false}
+        viewerId={viewerId}
+        onClose={() => setQuickView(null)}
+      />
     </section>
   );
+}
+
+/** Compact "x ago" label for the list's last refresh time. */
+function relativeTime(ts: number): string {
+  const secs = Math.max(0, Math.round((Date.now() - ts) / 1000));
+  if (secs < 45) return "just now";
+  const mins = Math.round(secs / 60);
+  if (mins < 60) return `${mins}m ago`;
+  const hours = Math.round(mins / 60);
+  if (hours < 24) return `${hours}h ago`;
+  return `${Math.round(hours / 24)}d ago`;
 }

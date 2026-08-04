@@ -169,6 +169,24 @@ export function normaliseSocialLinks(raw: unknown): SocialLinks {
   return out;
 }
 
+/** Normalises an unknown value into a clean, de-duped skills/tags list. */
+export function normaliseSkills(raw: unknown): string[] {
+  if (!Array.isArray(raw)) return [];
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const v of raw) {
+    if (typeof v !== "string") continue;
+    const tag = v.trim().replace(/\s+/g, " ").slice(0, 32);
+    if (!tag) continue;
+    const key = tag.toLowerCase();
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(tag);
+    if (out.length >= 20) break;
+  }
+  return out;
+}
+
 export interface RealProfileView {
   userId: string;
   slug: string;
@@ -178,6 +196,7 @@ export interface RealProfileView {
   avatarUrl: string | null;
   coverUrl: string | null;
   socialLinks: SocialLinks;
+  skills: string[];
 
   verificationTier: string;
   reputationStars: number;
@@ -203,7 +222,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, social_links, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, social_links, skills, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
       )
       .limit(1);
 
@@ -236,6 +255,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         avatarUrl,
         coverUrl,
         socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
+        skills: normaliseSkills((row as { skills?: unknown }).skills),
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: (row as { country?: string | null }).country ?? null,
@@ -358,6 +378,7 @@ const UpdateInput = z.object({
       youtube: z.string().trim().max(200).optional(),
     })
     .optional(),
+  skills: z.array(z.string().trim().max(32)).max(20).optional(),
   notificationPreferences: NotificationPrefsInput.optional(),
 
 });
@@ -381,6 +402,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       date_of_birth?: string | null;
       dob_public?: boolean;
       social_links?: Record<string, string>;
+      skills?: string[];
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -396,6 +418,7 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.dateOfBirth !== undefined) patch.date_of_birth = data.dateOfBirth;
     if (data.dobPublic !== undefined) patch.dob_public = data.dobPublic;
     if (data.socialLinks !== undefined) patch.social_links = normaliseSocialLinks(data.socialLinks) as Record<string, string>;
+    if (data.skills !== undefined) patch.skills = normaliseSkills(data.skills);
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
 
 
@@ -433,6 +456,7 @@ export interface MyFullProfile {
   dateOfBirth: string | null;
   dobPublic: boolean;
   socialLinks: SocialLinks;
+  skills: string[];
 
   avatarUrl: string | null;
   verificationTier: string;
@@ -457,7 +481,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, social_links, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, social_links, skills, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
       .eq("user_id", userId)
       .maybeSingle();
@@ -490,6 +514,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         dateOfBirth: (row as { date_of_birth?: string | null }).date_of_birth ?? null,
         dobPublic: !!(row as { dob_public?: boolean }).dob_public,
         socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
+        skills: normaliseSkills((row as { skills?: unknown }).skills),
         avatarUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),

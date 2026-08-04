@@ -74,7 +74,8 @@ import { ReportModal } from "@/components/oventric/ReportModal";
 import { EditProfileModal } from "@/components/oventric/EditProfileModal";
 import { CircleRequestsDrawer } from "@/components/oventric/CircleRequestsDrawer";
 import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer";
-import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
+import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
+import { EarningsBreakdown } from "@/components/oventric/profile/EarningsBreakdown";
 import { RelationshipsSection, type RelationshipTab } from "@/components/oventric/RelationshipsSection";
 import { useOnlineUsers } from "@/hooks/use-presence";
 import { FollowButton } from "@/components/oventric/FollowButton";
@@ -1102,6 +1103,19 @@ function ProfilePage() {
                   </p>
                 )}
 
+                {realProfile?.skills && realProfile.skills.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
+                    {realProfile.skills.map((s) => (
+                      <span
+                        key={s}
+                        className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border border-emerald-500/30"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
                   <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
                     {Object.entries(realProfile.socialLinks).map(([key, url]) => (
@@ -1693,6 +1707,10 @@ function ProfilePage() {
               />
             )}
 
+            <EarningsBreakdown isOwner={isOwnProfile} />
+
+
+
             {/* Member wall — followers can drop posts, owner is notified */}
             {realProfile?.userId && (
               <ProfileWall
@@ -1706,11 +1724,18 @@ function ProfilePage() {
         {/* Mobile footer nav is rendered globally in __root.tsx */}
       </div>
 
-      <MessagesDrawer
-        open={dmOpen && !!realProfile?.userId}
-        onClose={() => setDmOpen(false)}
-        initialThreadId={realProfile?.userId}
-      />
+      {realProfile?.userId && (
+        <ProfileMessageModal
+          open={dmOpen}
+          onClose={() => setDmOpen(false)}
+          recipient={{
+            userId: realProfile.userId,
+            displayName,
+            avatarUrl: realProfile.avatarUrl,
+            slug: realProfile.slug,
+          }}
+        />
+      )}
       <CircleRequestsDrawer open={requestsOpen} onClose={() => setRequestsOpen(false)} />
       <FollowRequestsDrawer open={followRequestsOpen} onClose={() => setFollowRequestsOpen(false)} />
       {isOwnProfile && realProfile && (
@@ -1722,7 +1747,9 @@ function ProfilePage() {
             displayName: realProfile.displayName,
             bio: realProfile.bio,
             avatarUrl: realProfile.avatarUrl,
+            coverUrl: realProfile.coverUrl,
             socialLinks: realProfile.socialLinks,
+            skills: realProfile.skills,
           }}
           onSaved={reloadRealProfile}
         />

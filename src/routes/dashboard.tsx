@@ -80,6 +80,11 @@ import {
 import { formatMoney } from "@/lib/fx-display";
 import { listMySales, type SaleDTO } from "@/lib/fulfilment.functions";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
+import { QuickActions } from "@/components/oventric/dashboard/QuickActions";
+import { AnalyticsWidget } from "@/components/oventric/dashboard/AnalyticsWidget";
+import { AnalyticsCharts } from "@/components/oventric/dashboard/AnalyticsCharts";
+import { ActivityFeedWidget } from "@/components/oventric/dashboard/ActivityFeedWidget";
+import { NotificationsPanel } from "@/components/oventric/dashboard/NotificationsPanel";
 import { SalesFulfilmentList } from "@/components/oventric/SalesFulfilmentList";
 import { Truck } from "lucide-react";
 
@@ -1139,7 +1144,17 @@ function OverviewPane({ overview, onGoto }: { overview: DashboardOverview | null
   const bountyEarned = fmtHome(overview.bounties.earned);
   return (
     <div className="space-y-5">
+      <QuickActions />
       <KeyOverviewCards overview={overview} onGoto={onGoto} />
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+        <AnalyticsWidget />
+        <ActivityFeedWidget />
+      </div>
+
+      <AnalyticsCharts />
+
+      <NotificationsPanel />
 
       {/* Mobile: simplified flat rows, monochrome icons, no gradients / shadows / glow */}
 

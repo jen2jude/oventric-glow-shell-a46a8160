@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { toast } from "sonner";
 import {
   Paperclip,
   Loader2,
@@ -10,6 +11,8 @@ import {
   CheckCircle2,
   Download,
   Eye,
+  GripVertical,
+  Trash2,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -31,6 +34,14 @@ interface Props {
 }
 
 const TIMELINES = ["Within 24 hours", "2-3 days", "Within a week", "2 weeks", "Custom"];
+
+const MAX_FILE_BYTES = 10 * 1024 * 1024;
+const ALLOWED_TYPE_PREFIXES = ["image/", "application/pdf", "text/", "application/zip", "application/msword", "application/vnd."];
+
+function isAllowedType(type: string) {
+  if (!type) return true;
+  return ALLOWED_TYPE_PREFIXES.some((p) => type.startsWith(p));
+}
 
 function fileToBase64(file: File): Promise<string> {
   return new Promise((resolve, reject) => {
@@ -62,7 +73,10 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   const [customTimeline, setCustomTimeline] = useState("");
   const [files, setFiles] = useState<Array<SubmissionFile & { url?: string | null }>>([]);
   const [previews, setPreviews] = useState<Record<string, string>>({});
-  const [uploading, setUploading] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState<Record<string, "uploading" | "error">>({});
+  const [fileErrors, setFileErrors] = useState<string[]>([]);
+  const [dragIndex, setDragIndex] = useState<number | null>(null);
+  const [removeConfirm, setRemoveConfirm] = useState<string | null>(null);
   const [busy, setBusy] = useState<"save" | "submit" | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [err, setErr] = useState<string | null>(null);
@@ -106,7 +120,9 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
     [],
   );
 
-  const removeFile = (path: string) => {
+  const doRemoveFile = (path: string) => {
+    const removed = files.find((x) => x.path === path);
+    const removedIndex = files.findIndex((x) => x.path === path);
     setFiles((prev) => prev.filter((x) => x.path !== path));
     setPreviews((prev) => {
       const u = prev[path];
@@ -115,6 +131,25 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
       delete next[path];
       return next;
     });
+    if (removed) {
+      toast(`Removed ${removed.name}`, {
+        action: {
+          label: "Undo",
+          onClick: () => {
+            setFiles((prev) => {
+              const next = [...prev];
+              next.splice(Math.min(removedIndex, next.length), 0, removed);
+              return next;
+            });
+          },
+        },
+        duration: 6000,
+      });
+    }
+  };
+
+  const requestRemoveFile = (path: string) => {
+    setRemoveConfirm(path);
   };
 
   const resolvedTimeline = timeline === "Custom" ? customTimeline.trim() : timeline;
@@ -122,26 +157,49 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
   const pickFiles = async (list: FileList | null) => {
     if (!list || list.length === 0) return;
     setErr(null);
-    setUploading(true);
-    try {
-      for (const f of Array.from(list).slice(0, 10 - files.length)) {
-        if (f.size > 10 * 1024 * 1024) throw new Error(`${f.name} is larger than 10MB`);
-        const b64 = await fileToBase64(f);
-        const saved = (await uploadFn({
-          data: { bounty_id: bountyId, name: f.name, type: f.type, data_base64: b64 },
-        })) as SubmissionFile;
-        if (f.type.startsWith("image/")) {
-          const objUrl = URL.createObjectURL(f);
-          setPreviews((prev) => ({ ...prev, [saved.path]: objUrl }));
-        }
-        setFiles((prev) => [...prev, saved]);
+    setFileErrors([]);
+    const incoming = Array.from(list).slice(0, 10 - files.length);
+    const errors: string[] = [];
+    const valid: File[] = [];
+    for (const f of incoming) {
+      if (f.size > MAX_FILE_BYTES) {
+        errors.push(`${f.name}: file is larger than 10MB`);
+        continue;
       }
-    } catch (e) {
-      setErr((e as Error).message);
-    } finally {
-      setUploading(false);
-      if (inputRef.current) inputRef.current.value = "";
+      if (!isAllowedType(f.type)) {
+        errors.push(`${f.name}: unsupported file type${f.type ? ` (${f.type})` : ""}`);
+        continue;
+      }
+      valid.push(f);
     }
+    if (errors.length) setFileErrors(errors);
+
+    await Promise.all(
+      valid.map(async (f) => {
+        const key = `${f.name}-${f.size}-${Date.now()}`;
+        setUploadProgress((prev) => ({ ...prev, [key]: "uploading" }));
+        try {
+          const b64 = await fileToBase64(f);
+          const saved = (await uploadFn({
+            data: { bounty_id: bountyId, name: f.name, type: f.type, data_base64: b64 },
+          })) as SubmissionFile;
+          if (f.type.startsWith("image/")) {
+            const objUrl = URL.createObjectURL(f);
+            setPreviews((prev) => ({ ...prev, [saved.path]: objUrl }));
+          }
+          setFiles((prev) => [...prev, saved]);
+        } catch (e) {
+          setFileErrors((prev) => [...prev, `${f.name}: ${(e as Error).message}`]);
+        } finally {
+          setUploadProgress((prev) => {
+            const next = { ...prev };
+            delete next[key];
+            return next;
+          });
+        }
+      }),
+    );
+    if (inputRef.current) inputRef.current.value = "";
   };
 
   const persist = async (submit: boolean) => {
@@ -227,6 +285,8 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
     );
   }
 
+  const isUploading = Object.keys(uploadProgress).length > 0;
+
   // Solver form
   return (
     <div className="bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 md:shadow-sm rounded-xl p-5 mb-5">
@@ -284,14 +344,32 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         Attachments <span className="font-normal text-slate-500">(up to 10 files, 10MB each)</span>
       </label>
       <div className="space-y-2 mb-2">
-        {files.map((f) => {
+        {files.map((f, idx) => {
           const preview = previews[f.path] ?? (f.type?.startsWith("image/") ? f.url ?? null : null);
           const openUrl = preview ?? f.url ?? null;
           return (
             <div
               key={f.path}
-              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800"
+              draggable
+              onDragStart={() => setDragIndex(idx)}
+              onDragOver={(e) => e.preventDefault()}
+              onDrop={(e) => {
+                e.preventDefault();
+                if (dragIndex === null || dragIndex === idx) return;
+                setFiles((prev) => {
+                  const next = [...prev];
+                  const [moved] = next.splice(dragIndex, 1);
+                  next.splice(idx, 0, moved);
+                  return next;
+                });
+                setDragIndex(null);
+              }}
+              onDragEnd={() => setDragIndex(null)}
+              className={`flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-800 ${dragIndex === idx ? "opacity-50" : ""}`}
             >
+              <span className="text-slate-500 cursor-grab shrink-0" aria-hidden="true">
+                <GripVertical className="w-4 h-4" />
+              </span>
               {preview ? (
                 <img
                   src={preview}
@@ -323,7 +401,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
               )}
               <button
                 type="button"
-                onClick={() => removeFile(f.path)}
+                onClick={() => requestRemoveFile(f.path)}
                 className="text-slate-400 hover:text-red-400 shrink-0"
                 aria-label={`Remove ${f.name}`}
               >
@@ -332,7 +410,29 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
             </div>
           );
         })}
+        {isUploading &&
+          Object.keys(uploadProgress).map((key) => (
+            <div
+              key={key}
+              className="flex items-center gap-3 p-2 rounded-lg bg-white/5 md:bg-slate-50 border border-white/10 md:border-slate-200 text-sm text-slate-400"
+            >
+              <Loader2 className="w-4 h-4 animate-spin shrink-0" />
+              <span className="truncate flex-1">Uploading…</span>
+            </div>
+          ))}
       </div>
+      {fileErrors.length > 0 && (
+        <div className="mb-2 space-y-1">
+          {fileErrors.map((m, i) => (
+            <div
+              key={i}
+              className="text-xs font-semibold text-red-300 md:text-red-600 bg-red-500/10 border border-red-500/30 rounded-lg px-3 py-2"
+            >
+              {m}
+            </div>
+          ))}
+        </div>
+      )}
       <input
         ref={inputRef}
         type="file"
@@ -342,12 +442,12 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
       />
       <button
         type="button"
-        disabled={uploading || files.length >= 10}
+        disabled={isUploading || files.length >= 10}
         onClick={() => inputRef.current?.click()}
         className="inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
       >
-        {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
-        {uploading ? "Uploading…" : "Attach files"}
+        {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Paperclip className="w-4 h-4" />}
+        {isUploading ? "Uploading…" : "Attach files"}
       </button>
 
       {err && (
@@ -365,7 +465,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
         <button
           type="button"
           onClick={() => void persist(false)}
-          disabled={busy !== null}
+          disabled={busy !== null || isUploading}
           className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold disabled:opacity-50"
         >
           {busy === "save" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
@@ -375,7 +475,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           <button
             type="button"
             onClick={() => setConfirm(true)}
-            disabled={busy !== null || summary.trim().length < 20}
+            disabled={busy !== null || isUploading || summary.trim().length < 20}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50"
           >
             <Send className="w-4 h-4" /> Submit &amp; mark delivered
@@ -385,7 +485,7 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
           <button
             type="button"
             onClick={() => void persist(true)}
-            disabled={busy !== null}
+            disabled={busy !== null || isUploading}
             className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-sky-500/15 border border-sky-500/40 text-sky-200 md:text-sky-700 md:bg-sky-50 text-sm font-bold disabled:opacity-50"
           >
             <CheckCircle2 className="w-4 h-4" /> Update submission
@@ -423,6 +523,49 @@ export function BountySolveForm({ bountyId, canSubmit, delivered, onDelivered }:
               >
                 {busy === "submit" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
                 Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {removeConfirm && (
+        <div
+          className="fixed inset-0 z-[130] bg-black/70 flex items-center justify-center p-4"
+          role="presentation"
+          onClick={() => setRemoveConfirm(null)}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="remove-attachment-title"
+            className="w-full max-w-sm rounded-2xl bg-[#1E1E24] md:bg-white border border-white/10 md:border-slate-200 p-5"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div id="remove-attachment-title" className="text-white md:text-slate-900 font-bold text-base mb-1">
+              Remove this attachment?
+            </div>
+            <p className="text-sm text-slate-400 md:text-slate-600 mb-4">
+              {files.find((f) => f.path === removeConfirm)?.name ?? "This file"} will be taken off your draft.
+              You can undo for a few seconds afterwards.
+            </p>
+            <div className="flex gap-2 justify-end">
+              <button
+                onClick={() => setRemoveConfirm(null)}
+                className="px-4 py-2 rounded-lg bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-sm font-semibold"
+              >
+                Keep it
+              </button>
+              <button
+                onClick={() => {
+                  const path = removeConfirm;
+                  setRemoveConfirm(null);
+                  doRemoveFile(path);
+                }}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-red-500 hover:bg-red-400 text-black text-sm font-bold"
+              >
+                <Trash2 className="w-4 h-4" />
+                Remove
               </button>
             </div>
           </div>

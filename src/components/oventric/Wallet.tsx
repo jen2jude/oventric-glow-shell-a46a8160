@@ -46,6 +46,10 @@ import {
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { currencySymbol, formatMoney, usdRate } from "@/lib/fx-display";
 import { CURRENCY_CODES, CURRENCY_META, currencyDecimals, fallbackRateTable } from "@/lib/currency/africa";
+import { ModalShell, StatusBadge, currencyMeta } from "@/components/oventric/wallet/shared";
+import { TransferModal } from "@/components/oventric/wallet/TransferModal";
+import { downloadWalletCsv, printWalletPdf } from "@/components/oventric/wallet/export";
+import { Send } from "lucide-react";
 
 type TxStatus = "success" | "pending" | "failed";
 type TxType =
@@ -67,48 +71,6 @@ interface Tx {
   timestamp: string;
   status: TxStatus;
 }
-
-type CurMeta = { symbol: string; label: string; glow: string; ring: string; text: string; dot: string };
-
-const CURRENCY_STYLES: Record<string, CurMeta> = {
-  USD: {
-    symbol: "$",
-    label: "US Dollar",
-    glow: "",
-    ring: "border-sky-500/40",
-    text: "text-sky-300",
-    dot: "bg-sky-400",
-  },
-  NGN: {
-    symbol: "₦",
-    label: "Nigerian Naira",
-    glow: "",
-    ring: "border-emerald-500/40",
-    text: "text-emerald-300",
-    dot: "bg-emerald-400",
-  },
-  GHS: {
-    symbol: "₵",
-    label: "Ghanaian Cedi",
-    glow: "",
-    ring: "border-amber-500/40",
-    text: "text-amber-300",
-    dot: "bg-amber-400",
-  },
-};
-
-/** Style + symbol for ANY supported currency, falling back to a neutral theme. */
-const currencyMeta = new Proxy({} as Record<string, CurMeta>, {
-  get: (_t, key: string) =>
-    CURRENCY_STYLES[key] ?? {
-      symbol: currencySymbol(key),
-      label: CURRENCY_META[key]?.name ?? key,
-      glow: "",
-      ring: "border-slate-500/40",
-      text: "text-slate-300 md:text-slate-600",
-      dot: "bg-slate-400",
-    },
-});
 
 function fmt(n: number, c: Currency) {
   return formatMoney(n, c);
@@ -145,6 +107,7 @@ export function Wallet() {
   const [authReady, setAuthReady] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -506,6 +469,26 @@ export function Wallet() {
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
               </button>
+              <button
+                onClick={() => downloadWalletCsv(items)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                title="Export visible rows as CSV"
+              >
+                CSV
+              </button>
+              <button
+                onClick={() => printWalletPdf(items, baseCurrency)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                title="Print / save as PDF"
+              >
+                PDF
+              </button>
+              <Link
+                to="/wallet/ledger"
+                className="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-xs text-emerald-300 hover:bg-emerald-500/15"
+              >
+                Full ledger →
+              </Link>
             </div>
           )}
         </div>
@@ -612,8 +595,22 @@ export function Wallet() {
         </div>
       </section>
 
-      {/* Fund Wallet + Request Payout side-by-side */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Fund Wallet + Request Payout + Send to User */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
+          onClick={() => require(2, () => ensureKyc(() => setTransferOpen(true)), "withdraw")}
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-fuchsia-500/50 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl border border-fuchsia-500/40 bg-fuchsia-500/10 flex items-center justify-center shrink-0">
+              <Send className="w-5 h-5 text-fuchsia-300" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-bold text-white md:text-slate-900">↗ Send to User</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">Transfer instantly by username</div>
+            </div>
+          </div>
+        </button>
         <button
           onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-emerald-500/50 transition-all"
@@ -724,6 +721,15 @@ export function Wallet() {
         />
       )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
+      {transferOpen && (
+        <TransferModal
+          onClose={() => setTransferOpen(false)}
+          onDone={() => {
+            queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          }}
+        />
+      )}
       {bountyModalOpen && (
         <BountyWalletModal
           balanceUSD={balancesQuery.data?.bountyBalance ?? 0}
@@ -742,28 +748,6 @@ export function Wallet() {
   );
 }
 
-function StatusBadge({ status }: { status: TxStatus }) {
-  if (status === "success") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-emerald-500/40 bg-emerald-500/10 px-2 py-0.5 text-[11px] font-semibold text-emerald-300">
-        <CheckCircle2 className="w-3 h-3" /> Success
-      </span>
-    );
-  }
-  if (status === "pending") {
-    return (
-      <span className="inline-flex items-center gap-1 rounded-md border border-amber-500/50 bg-amber-500/10 px-2 py-0.5 text-[11px] font-semibold text-amber-300 animate-pulse">
-        <Clock3 className="w-3 h-3" /> Pending Escrow
-      </span>
-    );
-  }
-  return (
-    <span className="inline-flex items-center gap-1 rounded-md border border-red-500/40 bg-red-500/10 px-2 py-0.5 text-[11px] font-semibold text-red-300">
-      <AlertTriangle className="w-3 h-3" /> Failed
-    </span>
-  );
-}
-
 function TierPill({ active, label, desc }: { active: boolean; label: string; desc: string }) {
   return (
     <div
@@ -779,37 +763,8 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
   );
 }
 
-function ModalShell({ title, onClose, children }: { title: string; onClose: () => void; children: React.ReactNode }) {
-  useEffect(() => {
-    const prevOverflow = document.body.style.overflow;
-    const prevTouch = document.body.style.touchAction;
-    document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    return () => {
-      document.body.style.overflow = prevOverflow;
-      document.body.style.touchAction = prevTouch;
-    };
-  }, []);
-  return (
-    <div className="modal-light fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
-      <div
-        className="w-full sm:max-w-lg bg-[#141418] md:bg-white md:shadow-sm border border-[#222226] md:border-slate-200 rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3 p-4 border-b border-[#222226] md:border-slate-200">
-          <h3 className="truncate text-base font-bold text-white md:text-slate-900">{title}</h3>
-          <button onClick={onClose} className="shrink-0 p-1.5 rounded-lg hover:bg-white/5 text-slate-400 md:text-slate-500">
-            <X className="w-4 h-4" />
-          </button>
-        </div>
-        <div className="p-4 space-y-3">{children}</div>
-      </div>
-    </div>
-  );
-}
 
-
-function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
+export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
 
@@ -1086,7 +1041,7 @@ function PayoutSuccessSplash({
   );
 }
 
-function PayoutModal({ onClose }: { onClose: () => void }) {
+export function PayoutModal({ onClose }: { onClose: () => void }) {
   const { balances, baseCurrency } = useOnboarding();
   const qc = useQueryClient();
 

@@ -2626,6 +2626,7 @@ export type Database = {
           phone: string | null
           profile_completed_at: string | null
           reputation_stars: number
+          skills: string[]
           slug: string
           social_links: Json
           updated_at: string
@@ -2658,6 +2659,7 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          skills?: string[]
           slug: string
           social_links?: Json
           updated_at?: string
@@ -2690,6 +2692,7 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          skills?: string[]
           slug?: string
           social_links?: Json
           updated_at?: string
@@ -3307,6 +3310,8 @@ export type Database = {
         | "Bounty To Main"
         | "Campaign Escrow"
         | "Campaign Refund"
+        | "Wallet Transfer Sent"
+        | "Wallet Transfer Received"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3500,6 +3505,8 @@ export const Constants = {
         "Bounty To Main",
         "Campaign Escrow",
         "Campaign Refund",
+        "Wallet Transfer Sent",
+        "Wallet Transfer Received",
       ],
     },
   },
