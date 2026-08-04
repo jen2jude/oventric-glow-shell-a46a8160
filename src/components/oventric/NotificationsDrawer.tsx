@@ -248,7 +248,7 @@ export function NotificationsDrawer({
     const raisePush = (row: DbNotif) => {
       if (typeof window === "undefined" || !("Notification" in window)) return;
       if (Notification.permission !== "granted") return;
-      const pushKinds = ["announcement", "system", "alert", "direct_message"];
+      const pushKinds = ["announcement", "system", "alert", "direct_message", "order_message"];
       if (!pushKinds.includes(row.kind)) return;
       try {
         const n = new Notification(row.title, {
@@ -285,7 +285,9 @@ export function NotificationsDrawer({
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
             const row = payload.new as DbNotif;
-            playNotificationSound(row.kind === "direct_message" ? "message" : "notification");
+            playNotificationSound(
+              row.kind === "direct_message" || row.kind === "order_message" ? "message" : "notification",
+            );
             raisePush(row);
             void refresh();
           },
