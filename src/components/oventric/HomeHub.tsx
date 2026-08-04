@@ -28,6 +28,9 @@ import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
+import promoCashbackArt from "@/assets/promo-cashback.png";
+import promoReferArt from "@/assets/promo-refer.png";
+import promoAdvertiseArt from "@/assets/promo-advertise.png";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
@@ -361,29 +364,36 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       </section>
 
       {/* Promo rail */}
-      <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+      <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 snap-x snap-mandatory [scrollbar-width:none]">
         <PromoCard
           title="Earn 2% cashback"
-          body="Every purchase pays you back into your cashback wallet."
+          highlight="on every order"
+          body="Money back into your cashback wallet."
           cta="Shop now"
           onClick={() => onSelect("Marketplace")}
-          tint="from-emerald-500/25"
+          art={promoCashbackArt}
+          gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
         <PromoCard
           title="Refer & earn"
+          highlight="both sides win"
           body="Invite builders and earn from their activity."
-          cta="Open affiliate"
+          cta="Invite friends"
           to="/affiliate"
-          tint="from-rose-500/25"
+          art={promoReferArt}
+          gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
         <PromoCard
-          title="Advertise on Oventric"
+          title="Advertise here"
+          highlight="reach thousands"
           body="Put your product in front of Africa's builders."
           cta="Start a campaign"
           to="/advertise"
-          tint="from-orange-500/25"
+          art={promoAdvertiseArt}
+          gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
       </section>
+
 
       {/* Live strips */}
       <MiniRail
@@ -546,29 +556,47 @@ function QuickAction({
 
 function PromoCard({
   title,
+  highlight,
   body,
   cta,
-  tint,
+  art,
+  gradient,
   onClick,
   to,
 }: {
   title: string;
+  highlight: string;
   body: string;
   cta: string;
-  tint: string;
+  art: string;
+  gradient: string;
   onClick?: () => void;
   to?: string;
 }) {
   const content = (
-    <span className={`block h-full rounded-3xl border border-white/10 bg-gradient-to-br ${tint} to-transparent p-4`}>
-      <span className="block text-sm font-bold text-white">{title}</span>
-      <span className="mt-1 block text-xs text-slate-300 leading-snug">{body}</span>
-      <span className="mt-3 inline-flex items-center gap-1 text-xs font-semibold text-emerald-300">
+    <span
+      className="relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
+      style={{ backgroundImage: gradient }}
+    >
+      <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
+      <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">{title}</span>
+      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">{highlight}</span>
+      <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">{body}</span>
+      <span className="relative mt-3 inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-1.5 text-[11px] font-bold text-white">
         {cta} <ChevronRight className="w-3.5 h-3.5" />
       </span>
+      <img
+        src={art}
+        alt=""
+        aria-hidden
+        loading="lazy"
+        width={768}
+        height={768}
+        className="pointer-events-none absolute -bottom-2 right-[-6px] h-[112%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
+      />
     </span>
   );
-  const cls = "shrink-0 w-60 text-left active:scale-95 transition-transform";
+  const cls = "shrink-0 w-[19rem] snap-start text-left transition-transform duration-300 active:scale-[0.97] hover:-translate-y-0.5";
   return to ? (
     <Link to={to} className={cls}>
       {content}
@@ -579,3 +607,4 @@ function PromoCard({
     </button>
   );
 }
+
