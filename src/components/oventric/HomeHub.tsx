@@ -311,7 +311,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} />
       </section>
 
+      {/* Promo banners */}
+      <PromoBanners onSelect={onSelect} />
+
       {/* Feature grid */}
+
       <section>
         <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
         <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
