@@ -312,3 +312,106 @@ export const getPeerOrderContext = createServerFn({ method: "POST" })
       displayTotal: Number(o.display_total ?? 0),
     };
   });
+
+/* ------------------------------------------------------------------ *
+ * Profile-to-profile composer support (find-or-create DM "thread" +
+ * attachment upload/signing). The schema has no explicit threads table —
+ * a thread is simply the (me, peer) message pair, so "ensuring" one just
+ * resolves the peer's profile and returns the existing history.
+ * ------------------------------------------------------------------ */
+
+export interface DirectThreadInfo {
+  peerId: string;
+  peerName: string;
+  peerSlug: string;
+  peerInitials: string;
+  peerGradient: string;
+  peerAvatarUrl: string | null;
+  messages: DMRow[];
+  hasMore: boolean;
+}
+
+export const ensureDirectThread = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ peerId: z.string().uuid() }).parse(d))
+  .handler(async ({ data, context }): Promise<DirectThreadInfo> => {
+    const me = context.userId;
+    if (data.peerId === me) throw new Error("You cannot message yourself");
+
+    const { data: p, error } = await context.supabase
+      .from("profiles")
+      .select("user_id, display_name, username, slug, avatar_path")
+      .eq("user_id", data.peerId)
+      .maybeSingle();
+    if (error) throw error;
+    if (!p) throw new Error("Peer profile not found");
+
+    const name = p.display_name || p.username || "Peer";
+    const avatarByPath = await signAvatars(context.supabase, [p.avatar_path]);
+
+    const limit = 30;
+    const { data: rows, error: mErr } = await context.supabase
+      .from("direct_messages")
+      .select("id, sender_id, recipient_id, body, media_path, media_type, created_at, read_at, order_id")
+      .or(
+        `and(sender_id.eq.${me},recipient_id.eq.${data.peerId}),and(sender_id.eq.${data.peerId},recipient_id.eq.${me})`,
+      )
+      .order("created_at", { ascending: false })
+      .limit(limit + 1);
+    if (mErr) throw mErr;
+    const list = (rows ?? []) as DMRow[];
+    const hasMore = list.length > limit;
+    const page = hasMore ? list.slice(0, limit) : list;
+    page.reverse();
+
+    // Mark any unread messages from this peer as read as soon as the thread opens.
+    await context.supabase
+      .from("direct_messages")
+      .update({ read_at: new Date().toISOString() })
+      .eq("recipient_id", me)
+      .eq("sender_id", data.peerId)
+      .is("read_at", null);
+
+    return {
+      peerId: data.peerId,
+      peerName: name,
+      peerSlug: p.slug ?? data.peerId,
+      peerInitials: initialsFor(name),
+      peerGradient: gradientFor(data.peerId),
+      peerAvatarUrl: p.avatar_path ? (avatarByPath.get(p.avatar_path) ?? null) : null,
+      messages: page,
+      hasMore,
+    };
+  });
+
+/** Signed upload slot for a DM attachment (private post-media bucket, reused across features). */
+export const getMessageMediaUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ filename: z.string().min(1).max(200) }).parse(d))
+  .handler(async ({ data, context }) => {
+    const safe = data.filename.replace(/[^a-zA-Z0-9._-]/g, "_") || "file";
+    const path = `dm/${context.userId}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}-${safe}`;
+    const { data: signed, error } = await context.supabase.storage
+      .from("post-media")
+      .createSignedUploadUrl(path);
+    if (error) throw error;
+    return { path, token: signed.token as string, signedUrl: signed.signedUrl as string };
+  });
+
+/** Batch-sign DM attachment paths for inline preview/download. */
+export const getMessageAttachmentUrls = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ paths: z.array(z.string().max(500)).max(50) }).parse(d))
+  .handler(async ({ data, context }): Promise<Record<string, string>> => {
+    const unique = [...new Set(data.paths)];
+    if (!unique.length) return {};
+    const { data: signed, error } = await context.supabase.storage
+      .from("post-media")
+      .createSignedUrls(unique, 60 * 60 * 6);
+    if (error) throw error;
+    const out: Record<string, string> = {};
+    (signed ?? []).forEach((s, i) => {
+      if (s.signedUrl) out[unique[i]] = s.signedUrl;
+    });
+    return out;
+  });
