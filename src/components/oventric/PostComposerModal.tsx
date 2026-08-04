@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { X, Image as ImageIcon, Video as VideoIcon, AtSign, Users, Globe2, UsersRound, ChevronDown, Check, Loader2 } from "lucide-react";
+import { toast } from "sonner";
+import { X, Image as ImageIcon, Video as VideoIcon, AtSign, Users, Globe2, UsersRound, ChevronDown, Check, Loader2, AlertCircle } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
