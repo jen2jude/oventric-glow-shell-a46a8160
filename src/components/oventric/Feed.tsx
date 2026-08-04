@@ -287,6 +287,7 @@ export function Feed() {
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
+  const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
   const [category, setCategory] = useState<FeedCategory>("all");
