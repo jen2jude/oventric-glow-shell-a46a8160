@@ -3310,6 +3310,8 @@ export type Database = {
         | "Bounty To Main"
         | "Campaign Escrow"
         | "Campaign Refund"
+        | "Wallet Transfer Sent"
+        | "Wallet Transfer Received"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -3503,6 +3505,8 @@ export const Constants = {
         "Bounty To Main",
         "Campaign Escrow",
         "Campaign Refund",
+        "Wallet Transfer Sent",
+        "Wallet Transfer Received",
       ],
     },
   },
