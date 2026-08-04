@@ -585,14 +585,14 @@ function PromoCard({
   const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
-      className="relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
+      className="promo-tile-surface relative block h-full overflow-hidden rounded-[26px] p-4 pr-24 shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)]"
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
       <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">{title}</span>
       <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">{highlight}</span>
       <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">{body}</span>
-      <span className="relative mt-3 inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-1.5 text-[11px] font-bold text-white">
+      <span className="promo-tile-cta relative mt-3 inline-flex items-center gap-1 rounded-full bg-slate-950 px-3.5 py-1.5 text-[11px] font-bold text-white">
         {cta} <ChevronRight className="w-3.5 h-3.5" />
       </span>
       <img
@@ -602,11 +602,11 @@ function PromoCard({
         loading="lazy"
         width={768}
         height={768}
-        className="pointer-events-none absolute -bottom-2 right-[-6px] h-[112%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
+        className="promo-tile-art pointer-events-none absolute -bottom-2 right-[-6px] h-[112%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
       />
     </span>
   );
-  const cls = "shrink-0 w-[19rem] snap-start text-left transition-transform duration-300 active:scale-[0.97] hover:-translate-y-0.5";
+  const cls = "promo-tile shrink-0 w-[19rem] snap-start text-left";
   const handleClick = () => {
     void trackPromoEvent("click", promo);
     onClick?.();

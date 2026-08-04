@@ -1977,3 +1977,102 @@ html.light input::placeholder, html.light textarea::placeholder {
   .marketplace-render-safe .shadow-lg { box-shadow: 0 1px 2px rgba(0,0,0,0.5) !important; }
   .marketplace-render-safe .border-red-200 { border-color: rgba(248,113,113,0.4) !important; }
 }
+
+/* ---- Promo rail cards: hover / focus polish (identical in light + dark) ---- */
+.promo-tile {
+  border-radius: 26px;
+  transition:
+    transform 320ms cubic-bezier(0.22, 1, 0.36, 1),
+    box-shadow 320ms cubic-bezier(0.22, 1, 0.36, 1);
+  will-change: transform;
+}
+.promo-tile:focus-visible {
+  outline: none;
+}
+.promo-tile .promo-tile-surface {
+  position: relative;
+  transition:
+    filter 320ms ease,
+    box-shadow 320ms ease;
+}
+/* soft coloured glow behind the card (outside the clipped surface) */
+.promo-tile {
+  box-shadow: 0 0 0 0 rgba(255, 255, 255, 0);
+}
+.promo-tile:hover,
+.promo-tile:focus-visible {
+  box-shadow:
+    0 18px 40px -20px rgba(0, 0, 0, 0.7),
+    0 0 34px -6px rgba(125, 180, 255, 0.35);
+}
+/* sheen sweep */
+.promo-tile .promo-tile-surface::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: linear-gradient(
+    115deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 48%,
+    transparent 66%
+  );
+  transform: translateX(-120%);
+  opacity: 0;
+  transition: transform 720ms ease, opacity 220ms ease;
+  pointer-events: none;
+}
+.promo-tile:hover,
+.promo-tile:focus-visible {
+  transform: translateY(-6px) scale(1.015);
+}
+.promo-tile:hover .promo-tile-surface,
+.promo-tile:focus-visible .promo-tile-surface {
+  filter: saturate(1.14) brightness(1.05);
+  box-shadow:
+    0 22px 46px -18px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+.promo-tile:hover .promo-tile-surface::after,
+.promo-tile:focus-visible .promo-tile-surface::after {
+  opacity: 1;
+  transform: translateX(120%);
+}
+.promo-tile:focus-visible .promo-tile-surface {
+  box-shadow:
+    0 0 0 2px rgba(255, 255, 255, 0.9),
+    0 0 0 5px rgba(59, 130, 246, 0.55),
+    0 22px 46px -18px rgba(0, 0, 0, 0.65);
+}
+.promo-tile:active {
+  transform: translateY(-2px) scale(0.985);
+}
+.promo-tile .promo-tile-art {
+  transition: transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.promo-tile:hover .promo-tile-art,
+.promo-tile:focus-visible .promo-tile-art {
+  transform: translateY(-3px) scale(1.045);
+}
+.promo-tile .promo-tile-cta {
+  transition: background-color 260ms ease, color 260ms ease, transform 260ms ease;
+}
+.promo-tile:hover .promo-tile-cta,
+.promo-tile:focus-visible .promo-tile-cta {
+  background-color: #ffffff;
+  color: #0b1220;
+  transform: translateX(2px);
+}
+@media (prefers-reduced-motion: reduce) {
+  .promo-tile,
+  .promo-tile .promo-tile-surface,
+  .promo-tile .promo-tile-surface::after,
+  .promo-tile .promo-tile-art,
+  .promo-tile .promo-tile-cta {
+    transition: none !important;
+  }
+  .promo-tile:hover,
+  .promo-tile:focus-visible {
+    transform: none;
+  }
+}
