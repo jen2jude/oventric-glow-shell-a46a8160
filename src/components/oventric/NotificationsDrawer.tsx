@@ -285,7 +285,9 @@ export function NotificationsDrawer({
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
             const row = payload.new as DbNotif;
-            playNotificationSound(row.kind === "direct_message" ? "message" : "notification");
+            playNotificationSound(
+              row.kind === "direct_message" || row.kind === "order_message" ? "message" : "notification",
+            );
             raisePush(row);
             void refresh();
           },
