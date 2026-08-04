@@ -317,31 +317,34 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} search={renderSearch("nav")} />
 
       {/* Hero */}
-      <section className="relative overflow-hidden">
+      <section className="relative min-h-[92vh] overflow-hidden">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(900px 420px at 15% -10%, rgba(16,185,129,0.14), transparent 70%), radial-gradient(700px 380px at 90% 0%, rgba(99,102,241,0.10), transparent 70%)",
+              "radial-gradient(1000px 480px at 10% -10%, rgba(16,185,129,0.12), transparent 70%), radial-gradient(800px 420px at 95% 0%, rgba(99,102,241,0.09), transparent 70%)",
           }}
         />
-        <div className="relative mx-auto grid w-full max-w-[1200px] grid-cols-[1.05fr_0.95fr] items-center gap-16 px-8 pb-24 pt-20">
-          <div>
+
+        {/* Left readability gradient — text overlaps the collage */}
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[62%] bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
+
+        <div className="relative z-20 mx-auto grid h-full min-h-[92vh] w-full max-w-[1400px] grid-cols-1 items-center px-6 py-24 lg:px-8">
+          <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
               <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
             </span>
-            <h1 className="mt-6 text-[56px] font-bold leading-[1.05] tracking-tight text-slate-900">
+            <h1 className="mt-6 text-[clamp(2.5rem,5.2vw,4.5rem)] font-bold leading-[1.05] tracking-tight text-slate-900">
               The platform where Africa&apos;s builders
               <span className="text-emerald-600"> sell, learn and get paid.</span>
             </h1>
-            <p className="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">
+            <p className="mt-6 max-w-lg text-lg leading-relaxed text-slate-600 [text-shadow:0_1px_16px_rgba(255,255,255,0.9)]">
               Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
               own currency, wherever you are on the continent.
             </p>
-            {/* Search-first entry */}
-            <div className="mt-9 max-w-xl">{renderSearch("hero")}</div>
+            <div className="mt-9 max-w-lg">{renderSearch("hero")}</div>
 
-            <div className="mt-6 flex items-center gap-3">
+            <div className="mt-6 flex flex-wrap items-center gap-3">
               <button
                 type="button"
                 onClick={primary}
@@ -352,13 +355,13 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <button
                 type="button"
                 onClick={() => onSelect("Marketplace")}
-                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-900 transition-transform active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-6 text-sm font-bold text-slate-900 backdrop-blur-sm transition-transform active:scale-95"
               >
                 Explore marketplace
               </button>
             </div>
 
-            <div className="mt-8 flex items-center gap-6 text-xs text-slate-500">
+            <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-slate-500 [text-shadow:0_1px_12px_rgba(255,255,255,0.9)]">
               <span className="inline-flex items-center gap-1.5">
                 <ShieldCheck className="h-4 w-4 text-emerald-600" /> Escrow on every order
               </span>
@@ -366,24 +369,24 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span>Card, bank &amp; mobile money</span>
             </div>
           </div>
+        </div>
 
-          {/* Hero visual */}
-          <div className="relative">
-            <div
-              className="pointer-events-none absolute -inset-8 -z-10 rounded-full blur-3xl"
-              style={{
-                backgroundImage:
-                  "radial-gradient(closest-side, rgba(16,185,129,0.18), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.16), transparent 75%)",
-              }}
-            />
-            <img
-              src={heroCollage.url}
-              alt="Oventric members shopping, learning and chatting across the platform"
-              className="hp-float w-full max-w-[620px] select-none object-contain drop-shadow-[0_30px_60px_rgba(15,23,42,0.18)]"
-              loading="eager"
-              decoding="async"
-            />
-          </div>
+        {/* Hero visual — oversized, extends to the right edge */}
+        <div className="pointer-events-none absolute right-[-8%] top-1/2 z-0 w-[92vw] max-w-[1300px] -translate-y-1/2">
+          <div
+            className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
+            style={{
+              backgroundImage:
+                "radial-gradient(closest-side, rgba(16,185,129,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
+            }}
+          />
+          <img
+            src={heroCollage.url}
+            alt="Oventric members shopping, learning and chatting across the platform"
+            className="hp-float w-full select-none object-contain drop-shadow-[0_30px_80px_rgba(15,23,42,0.14)]"
+            loading="eager"
+            decoding="async"
+          />
         </div>
       </section>
 
