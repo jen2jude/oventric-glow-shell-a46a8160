@@ -364,29 +364,36 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       </section>
 
       {/* Promo rail */}
-      <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 [scrollbar-width:none]">
+      <section className="flex gap-3 overflow-x-auto pb-1 -mx-3 px-3 md:mx-0 md:px-0 snap-x snap-mandatory [scrollbar-width:none]">
         <PromoCard
           title="Earn 2% cashback"
-          body="Every purchase pays you back into your cashback wallet."
+          highlight="on every order"
+          body="Money back into your cashback wallet."
           cta="Shop now"
           onClick={() => onSelect("Marketplace")}
-          tint="from-emerald-500/25"
+          art={promoCashbackArt}
+          gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
         <PromoCard
           title="Refer & earn"
+          highlight="both sides win"
           body="Invite builders and earn from their activity."
-          cta="Open affiliate"
+          cta="Invite friends"
           to="/affiliate"
-          tint="from-rose-500/25"
+          art={promoReferArt}
+          gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
         <PromoCard
-          title="Advertise on Oventric"
+          title="Advertise here"
+          highlight="reach thousands"
           body="Put your product in front of Africa's builders."
           cta="Start a campaign"
           to="/advertise"
-          tint="from-orange-500/25"
+          art={promoAdvertiseArt}
+          gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
       </section>
+
 
       {/* Live strips */}
       <MiniRail
