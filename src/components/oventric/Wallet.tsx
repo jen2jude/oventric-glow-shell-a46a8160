@@ -46,7 +46,7 @@ import {
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { currencySymbol, formatMoney, usdRate } from "@/lib/fx-display";
 import { CURRENCY_CODES, CURRENCY_META, currencyDecimals, fallbackRateTable } from "@/lib/currency/africa";
-import { ModalShell, StatusBadge, currencyMeta, CURRENCY_STYLES, type TxStatus as SharedTxStatus } from "@/components/oventric/wallet/shared";
+import { ModalShell, StatusBadge, currencyMeta } from "@/components/oventric/wallet/shared";
 import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { downloadWalletCsv, printWalletPdf } from "@/components/oventric/wallet/export";
 import { Send } from "lucide-react";
@@ -107,6 +107,7 @@ export function Wallet() {
   const [authReady, setAuthReady] = useState(false);
   const [moreOpen, setMoreOpen] = useState(false);
   const [ledgerOpen, setLedgerOpen] = useState(false);
+  const [transferOpen, setTransferOpen] = useState(false);
 
   useEffect(() => {
     let alive = true;
@@ -468,6 +469,26 @@ export function Wallet() {
               >
                 <RefreshCw className={`w-3.5 h-3.5 ${query.isFetching ? "animate-spin" : ""}`} />
               </button>
+              <button
+                onClick={() => downloadWalletCsv(items)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                title="Export visible rows as CSV"
+              >
+                CSV
+              </button>
+              <button
+                onClick={() => printWalletPdf(items, baseCurrency)}
+                className="px-2.5 py-1.5 rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white text-xs text-slate-300 md:text-slate-600 hover:border-emerald-500/40"
+                title="Print / save as PDF"
+              >
+                PDF
+              </button>
+              <Link
+                to="/wallet/ledger"
+                className="px-2.5 py-1.5 rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-xs text-emerald-300 hover:bg-emerald-500/15"
+              >
+                Full ledger →
+              </Link>
             </div>
           )}
         </div>
@@ -574,8 +595,22 @@ export function Wallet() {
         </div>
       </section>
 
-      {/* Fund Wallet + Request Payout side-by-side */}
-      <section className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+      {/* Fund Wallet + Request Payout + Send to User */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+        <button
+          onClick={() => require(2, () => ensureKyc(() => setTransferOpen(true)), "transfer")}
+          className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-fuchsia-500/50 transition-all"
+        >
+          <div className="flex items-center gap-3">
+            <div className="w-11 h-11 rounded-xl border border-fuchsia-500/40 bg-fuchsia-500/10 flex items-center justify-center shrink-0">
+              <Send className="w-5 h-5 text-fuchsia-300" />
+            </div>
+            <div className="min-w-0">
+              <div className="font-bold text-white md:text-slate-900">↗ Send to User</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">Transfer instantly by username</div>
+            </div>
+          </div>
+        </button>
         <button
           onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
           className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-emerald-500/50 transition-all"
@@ -686,6 +721,15 @@ export function Wallet() {
         />
       )}
       {payoutOpen && <PayoutModal onClose={() => setPayoutOpen(false)} />}
+      {transferOpen && (
+        <TransferModal
+          onClose={() => setTransferOpen(false)}
+          onDone={() => {
+            queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
+            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          }}
+        />
+      )}
       {bountyModalOpen && (
         <BountyWalletModal
           balanceUSD={balancesQuery.data?.bountyBalance ?? 0}
@@ -720,7 +764,7 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
 }
 
 
-function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
+export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
 
@@ -997,7 +1041,7 @@ function PayoutSuccessSplash({
   );
 }
 
-function PayoutModal({ onClose }: { onClose: () => void }) {
+export function PayoutModal({ onClose }: { onClose: () => void }) {
   const { balances, baseCurrency } = useOnboarding();
   const qc = useQueryClient();
 
