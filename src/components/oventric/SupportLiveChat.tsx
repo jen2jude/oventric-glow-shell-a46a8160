@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Send, Headset } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { playNotificationSound } from "@/lib/notification-sound";
 import { listMySupportChat, sendSupportChatMessage } from "@/lib/support.functions";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
