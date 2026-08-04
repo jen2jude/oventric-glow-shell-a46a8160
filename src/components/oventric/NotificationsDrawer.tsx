@@ -225,9 +225,12 @@ export function NotificationsDrawer({
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
-            raisePush(payload.new as DbNotif);
+            const row = payload.new as DbNotif;
+            playNotificationSound(row.kind === "direct_message" ? "message" : "notification");
+            raisePush(row);
             void refresh();
           },
+
         )
         .on(
           "postgres_changes",
