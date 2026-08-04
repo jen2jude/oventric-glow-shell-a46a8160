@@ -614,10 +614,22 @@ function KycLivenessModal({
 
   useEffect(() => {
     if (step === "success" && mode === "match") {
-      const t = window.setTimeout(() => onComplete(), 1000);
-      return () => window.clearTimeout(t);
+      let cancelled = false;
+      const t = window.setTimeout(() => {
+        // Record a server-side attestation before releasing the gated action.
+        // Withdrawals are rejected server-side without a recent attestation.
+        void recordLiveness({})
+          .catch((e) => console.error("[liveness attestation]", e))
+          .finally(() => {
+            if (!cancelled) onComplete();
+          });
+      }, 1000);
+      return () => {
+        cancelled = true;
+        window.clearTimeout(t);
+      };
     }
-  }, [step, mode, onComplete]);
+  }, [step, mode, onComplete, recordLiveness]);
 
   const beginId = () => {
     setPhoneError(null);
