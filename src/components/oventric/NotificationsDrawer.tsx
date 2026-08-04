@@ -150,6 +150,18 @@ export function NotificationsDrawer({
   const [channel, setChannel] = useState<Channel>("all");
   const [items, setItems] = useState<DbNotif[]>([]);
   const [loading, setLoading] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  // localStorage is client-only — read after hydration.
+  useEffect(() => setMuted(isSoundMuted()), []);
+
+  const toggleSound = () => {
+    const next = !muted;
+    setMuted(next);
+    setSoundMuted(next);
+    if (!next) playNotificationSound("success");
+  };
+
 
   const fetchList = useServerFn(myNotifications);
   const markOne = useServerFn(markNotificationRead);
