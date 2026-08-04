@@ -12,15 +12,23 @@ import {
   Megaphone,
   Mail,
   ArrowRight,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
+  isSoundMuted,
+  playNotificationSound,
+  setSoundMuted,
+} from "@/lib/notification-sound";
+import {
   myNotifications,
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/lib/communications.functions";
+
 
 type Channel = "all" | "financials" | "circles" | "bounties" | "system";
 
