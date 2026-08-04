@@ -203,6 +203,7 @@ export function PostComposerModal({
 
   const doPost = () => {
     if (!canPost) return;
+    setPosting(true);
     setError(null);
 
     // --- Optimistic hand-off -------------------------------------------
@@ -230,6 +231,7 @@ export function PostComposerModal({
     setCircleId(null);
     setAttachments([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
+    setPosting(false);
     onClose();
 
     void (async () => {
