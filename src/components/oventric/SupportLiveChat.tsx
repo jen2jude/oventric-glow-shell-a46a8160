@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { X, Send, Headset } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
+import { playNotificationSound } from "@/lib/notification-sound";
 import { listMySupportChat, sendSupportChatMessage } from "@/lib/support.functions";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
@@ -38,9 +39,16 @@ export function SupportLiveChat({ open, onClose }: { open: boolean; onClose: () 
         .on(
           "postgres_changes",
           { event: "*", schema: "public", table: "support_chat_messages", filter: `user_id=eq.${uid}` },
-          () => { void load(); },
+          (payload) => {
+            const row = payload.new as Partial<Msg> | null;
+            if (payload.eventType === "INSERT" && row?.sender && row.sender !== "user") {
+              playNotificationSound("message");
+            }
+            void load();
+          },
         )
         .subscribe();
+
     })();
 
     return () => {

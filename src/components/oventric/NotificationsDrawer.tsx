@@ -12,15 +12,23 @@ import {
   Megaphone,
   Mail,
   ArrowRight,
+  Volume2,
+  VolumeX,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
+  isSoundMuted,
+  playNotificationSound,
+  setSoundMuted,
+} from "@/lib/notification-sound";
+import {
   myNotifications,
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/lib/communications.functions";
+
 
 type Channel = "all" | "financials" | "circles" | "bounties" | "system";
 
@@ -142,6 +150,18 @@ export function NotificationsDrawer({
   const [channel, setChannel] = useState<Channel>("all");
   const [items, setItems] = useState<DbNotif[]>([]);
   const [loading, setLoading] = useState(false);
+  const [muted, setMuted] = useState(false);
+
+  // localStorage is client-only — read after hydration.
+  useEffect(() => setMuted(isSoundMuted()), []);
+
+  const toggleSound = () => {
+    const next = !muted;
+    setMuted(next);
+    setSoundMuted(next);
+    if (!next) playNotificationSound("success");
+  };
+
 
   const fetchList = useServerFn(myNotifications);
   const markOne = useServerFn(markNotificationRead);
@@ -217,9 +237,12 @@ export function NotificationsDrawer({
           "postgres_changes",
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
-            raisePush(payload.new as DbNotif);
+            const row = payload.new as DbNotif;
+            playNotificationSound(row.kind === "direct_message" ? "message" : "notification");
+            raisePush(row);
             void refresh();
           },
+
         )
         .on(
           "postgres_changes",
@@ -310,13 +333,25 @@ export function NotificationsDrawer({
               {isAuthenticated ? "Live activity across your workspace" : "Connect your account to receive alerts"}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close notifications"
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleSound}
+              aria-label={muted ? "Unmute notification sound" : "Mute notification sound"}
+              title={muted ? "Sound off" : "Sound on"}
+              aria-pressed={!muted}
+              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            >
+              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Close notifications"
+              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
 
         <div className="px-4 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5">

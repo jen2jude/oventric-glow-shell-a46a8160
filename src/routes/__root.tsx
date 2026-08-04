@@ -26,6 +26,8 @@ import { BootSplash } from "@/components/oventric/BootSplash";
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
+import { unlockNotificationSound } from "@/lib/notification-sound";
+
 
 
 function NotFoundComponent() {
@@ -337,6 +339,21 @@ function RootComponent() {
   }, []);
   // Keeps live FX rates fresh for every price conversion in the app.
   useLiveFx();
+
+  // Browsers block audio until the user interacts; prime the chime engine once.
+  useEffect(() => {
+    const unlock = () => unlockNotificationSound();
+    const opts = { once: true, passive: true } as const;
+    window.addEventListener("pointerdown", unlock, opts);
+    window.addEventListener("keydown", unlock, opts);
+    window.addEventListener("touchstart", unlock, opts);
+    return () => {
+      window.removeEventListener("pointerdown", unlock);
+      window.removeEventListener("keydown", unlock);
+      window.removeEventListener("touchstart", unlock);
+    };
+  }, []);
+
 
 
 
