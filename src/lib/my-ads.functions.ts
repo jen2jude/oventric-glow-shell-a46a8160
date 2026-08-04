@@ -47,6 +47,7 @@ export interface MyCampaignDetail {
   status: "draft" | "active" | "paused" | "ended";
   header: string;
   body: string;
+  media_url: string;
   placements: string[];
   countries: string[];
   cities: string[];
@@ -175,6 +176,7 @@ export const getMyCampaign = createServerFn({ method: "POST" })
       status: c.status,
       header: c.header ?? "",
       body: c.body ?? "",
+      media_url: c.media_url ?? "",
       placements: c.placements ?? [],
       countries: c.countries ?? [],
       cities: c.cities ?? [],
