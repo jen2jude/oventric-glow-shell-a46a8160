@@ -206,7 +206,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const flag = country ? COUNTRY_META[country]?.flag ?? "" : "";
 
   return (
-    <div className="home-hub-light hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
       {/* Identity row */}
       <div className="flex items-center gap-3">
         {isAuthenticated ? (
@@ -242,7 +242,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Wallet card */}
       <section
-        className="hub-wallet hub-wallet-gradient relative overflow-hidden rounded-3xl border border-emerald-500/25 p-4 md:p-5"
+        className="hub-wallet relative overflow-hidden rounded-3xl border border-emerald-500/25 p-4 md:p-5"
+        style={{
+          backgroundImage:
+            "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+        }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
