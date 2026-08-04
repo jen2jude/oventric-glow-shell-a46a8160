@@ -29,11 +29,11 @@
   --color-input: var(--input);
   --color-ring: var(--ring);
   --animate-rgb-neon-chase: rgb-neon-chase 6s linear infinite;
+  --animate-rgb-pulse: rgb-pulse 3s ease-in-out infinite;
 }
 
-/* Brand accent: the platform's green accent is remapped to the sharp hero blue.
-   Every emerald-*/
-/* and green-* utility across the app now resolves to blue. */
+/* Brand accent remap: green/emerald utilities resolve to the sharp hero blue. */
+
 @theme {
   --color-emerald-50: #eff6ff;
   --color-emerald-100: #dbeafe;
