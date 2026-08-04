@@ -333,13 +333,25 @@ export function NotificationsDrawer({
               {isAuthenticated ? "Live activity across your workspace" : "Connect your account to receive alerts"}
             </p>
           </div>
-          <button
-            onClick={onClose}
-            aria-label="Close notifications"
-            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
-          >
-            <X className="w-4 h-4" />
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              onClick={toggleSound}
+              aria-label={muted ? "Unmute notification sound" : "Mute notification sound"}
+              title={muted ? "Sound off" : "Sound on"}
+              aria-pressed={!muted}
+              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            >
+              {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={onClose}
+              aria-label="Close notifications"
+              className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white transition-colors"
+            >
+              <X className="w-4 h-4" />
+            </button>
+          </div>
+
         </div>
 
         <div className="px-4 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5">
