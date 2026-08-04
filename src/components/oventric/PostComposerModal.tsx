@@ -22,6 +22,17 @@ type CircleOpt = { id: string; name: string };
 
 const MAX_MEDIA_BYTES = 50 * 1024 * 1024;
 const MAX_IMAGES = 10;
+const MAX_TEXT = 5000;
+
+/** Small inline field error row. */
+function FieldError({ children }: { children: React.ReactNode }) {
+  return (
+    <p role="alert" className="mt-1.5 flex items-start gap-1.5 text-xs text-red-400">
+      <AlertCircle className="w-3.5 h-3.5 mt-[1px] shrink-0" />
+      <span>{children}</span>
+    </p>
+  );
+}
 
 function initialsOf(name: string) {
   const p = name.trim().split(/\s+/);
