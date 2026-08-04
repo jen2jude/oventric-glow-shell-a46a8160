@@ -63,6 +63,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
+import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
 import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 import { Route as ApiPublicHooksAutoReleaseOrdersRouteImport } from './routes/api/public/hooks/auto-release-orders'
 import { Route as ProfileIdItemKindItemIdRouteImport } from './routes/profile.$id.item.$kind.$itemId'
@@ -340,6 +341,12 @@ const ApiPublicPIdRoute = ApiPublicPIdRouteImport.update({
   path: '/api/public/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicHooksPushDispatchRoute =
+  ApiPublicHooksPushDispatchRouteImport.update({
+    id: '/api/public/hooks/push-dispatch',
+    path: '/api/public/hooks/push-dispatch',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const ApiPublicHooksPurgeDeletedAccountsRoute =
   ApiPublicHooksPurgeDeletedAccountsRouteImport.update({
     id: '/api/public/hooks/purge-deleted-accounts',
@@ -411,6 +418,7 @@ export interface FileRoutesByFullPath {
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -468,6 +476,7 @@ export interface FileRoutesByTo {
   '/admin/blog': typeof AdminBlogIndexRoute
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -528,6 +537,7 @@ export interface FileRoutesById {
   '/admin/blog/': typeof AdminBlogIndexRoute
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -589,6 +599,7 @@ export interface FileRouteTypes {
     | '/admin/blog/'
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -646,6 +657,7 @@ export interface FileRouteTypes {
     | '/admin/blog'
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -705,6 +717,7 @@ export interface FileRouteTypes {
     | '/admin/blog/'
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
+    | '/api/public/hooks/push-dispatch'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -739,6 +752,7 @@ export interface RootRouteChildren {
   ApiPublicPaystackWebhookRoute: typeof ApiPublicPaystackWebhookRoute
   ApiPublicHooksAutoReleaseOrdersRoute: typeof ApiPublicHooksAutoReleaseOrdersRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
+  ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
   ApiPublicPIdRoute: typeof ApiPublicPIdRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1125,6 +1139,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/hooks/push-dispatch': {
+      id: '/api/public/hooks/push-dispatch'
+      path: '/api/public/hooks/push-dispatch'
+      fullPath: '/api/public/hooks/push-dispatch'
+      preLoaderRoute: typeof ApiPublicHooksPushDispatchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/purge-deleted-accounts': {
       id: '/api/public/hooks/purge-deleted-accounts'
       path: '/api/public/hooks/purge-deleted-accounts'
@@ -1269,6 +1290,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksAutoReleaseOrdersRoute: ApiPublicHooksAutoReleaseOrdersRoute,
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
+  ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
   ApiPublicPIdRoute: ApiPublicPIdRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,

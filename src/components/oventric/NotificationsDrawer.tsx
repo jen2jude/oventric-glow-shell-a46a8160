@@ -14,7 +14,10 @@ import {
   ArrowRight,
   Volume2,
   VolumeX,
+  BellRing,
+  BellOff,
 } from "lucide-react";
+import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -23,6 +26,13 @@ import {
   playNotificationSound,
   setSoundMuted,
 } from "@/lib/notification-sound";
+import {
+  disablePush,
+  enablePush,
+  isPushEnabled,
+  pushAllowedHere,
+  pushSupported,
+} from "@/lib/push/client";
 import {
   myNotifications,
   markNotificationRead,
@@ -151,9 +161,45 @@ export function NotificationsDrawer({
   const [items, setItems] = useState<DbNotif[]>([]);
   const [loading, setLoading] = useState(false);
   const [muted, setMuted] = useState(false);
+  const [pushOn, setPushOn] = useState(false);
+  const [pushBusy, setPushBusy] = useState(false);
+  const [pushAvailable, setPushAvailable] = useState(false);
 
   // localStorage is client-only — read after hydration.
   useEffect(() => setMuted(isSoundMuted()), []);
+
+  useEffect(() => {
+    if (!pushSupported() || !pushAllowedHere()) return;
+    setPushAvailable(true);
+    void isPushEnabled().then(setPushOn);
+  }, []);
+
+  const togglePush = async () => {
+    setPushBusy(true);
+    try {
+      if (pushOn) {
+        await disablePush();
+        setPushOn(false);
+        toast.success("Background alerts turned off on this device.");
+      } else {
+        const res = await enablePush();
+        if (res.ok) {
+          setPushOn(true);
+          toast.success("Background alerts on for this device.");
+        } else if (res.reason === "install-required") {
+          toast.error("On iPhone, add Oventric to your Home Screen first, then open it from the icon.");
+        } else if (res.reason === "denied") {
+          toast.error("Notifications are blocked in your browser settings.");
+        } else {
+          toast.error("Couldn't turn on background alerts.");
+        }
+      }
+    } catch {
+      toast.error("Couldn't update background alerts.");
+    } finally {
+      setPushBusy(false);
+    }
+  };
 
   const toggleSound = () => {
     const next = !muted;
@@ -161,6 +207,7 @@ export function NotificationsDrawer({
     setSoundMuted(next);
     if (!next) playNotificationSound("success");
   };
+
 
 
   const fetchList = useServerFn(myNotifications);
@@ -334,6 +381,20 @@ export function NotificationsDrawer({
             </p>
           </div>
           <div className="flex items-center gap-1">
+            {pushAvailable && (
+              <button
+                onClick={() => void togglePush()}
+                disabled={pushBusy}
+                aria-label={pushOn ? "Turn off background alerts" : "Turn on background alerts"}
+                title={pushOn ? "Background alerts on" : "Background alerts off"}
+                aria-pressed={pushOn}
+                className={`p-2 rounded-lg hover:bg-white/5 transition-colors disabled:opacity-50 ${
+                  pushOn ? "text-emerald-400" : "text-slate-400 hover:text-white"
+                }`}
+              >
+                {pushOn ? <BellRing className="w-4 h-4" /> : <BellOff className="w-4 h-4" />}
+              </button>
+            )}
             <button
               onClick={toggleSound}
               aria-label={muted ? "Unmute notification sound" : "Mute notification sound"}

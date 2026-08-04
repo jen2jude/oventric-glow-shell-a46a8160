@@ -23,6 +23,7 @@ import { ReactivationGate } from "@/components/oventric/ReactivationGate";
 import { GlobalMobileNav } from "@/components/oventric/GlobalMobileNav";
 import { Toaster } from "@/components/ui/sonner";
 import { LiveNotificationToasts } from "@/components/oventric/LiveNotificationToasts";
+import { PushOptInPrompt } from "@/components/oventric/PushOptInPrompt";
 import { BootSplash } from "@/components/oventric/BootSplash";
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
@@ -373,6 +374,7 @@ function RootComponent() {
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
               <LiveNotificationToasts />
+              <PushOptInPrompt />
 
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
