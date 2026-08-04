@@ -293,10 +293,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={onCreate} />
-        <QuickAction icon={Plus} label="Post" onClick={onCreate} />
-        <QuickAction icon={ArrowDownToLine} label="Fund" onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))} />
-        <QuickAction icon={Target} label="Bounty" onClick={() => onSelect("Bounties")} />
+        <QuickAction icon={Store} label="Sell" onClick={() => require(2, () => setSellOpen(true))} />
+        <QuickAction icon={Plus} label="Post" onClick={() => require(1, () => {
+          onSelect("Feed");
+          setTimeout(() => {
+            window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
+          }, 80);
+        })} />
+        <QuickAction icon={GraduationCap} label="Course" onClick={() => require(2, () => setCourseOpen(true))} />
+        <QuickAction icon={Target} label="Bounty" onClick={() => require(2, () => setBountyOpen(true))} />
       </section>
 
       {/* Feature grid */}
