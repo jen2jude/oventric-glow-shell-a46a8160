@@ -33,6 +33,7 @@ import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 import { Reveal } from "@/components/oventric/desktop/Reveal";
 import { SiteFooter } from "@/components/oventric/desktop/SiteFooter";
 import { DownloadAppSection } from "@/components/oventric/desktop/DownloadAppSection";
+import { DesktopPromo } from "@/components/oventric/desktop/DesktopPromo";
 import {
   TradeSecurelyBanner,
   ProductRails,
@@ -428,6 +429,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           ))}
         </div>
       </section>
+
+      <DesktopPromo onSelect={onSelect} />
+
 
       {/* Explore categories */}
       {catList.length > 0 && (
