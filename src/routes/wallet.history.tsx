@@ -81,7 +81,7 @@ function TopupHistoryPage() {
         </div>
 
         {error ? (
-          <div className="rounded-lg border border-red-500/40 bg-red-500/10 p-4 text-sm text-red-200">
+          <div className="rounded-lg border border-red-500/40 md:border-red-200 bg-red-500/10 md:bg-red-50 p-4 text-sm text-red-200 md:text-red-700">
             {error}
           </div>
         ) : rows === null ? (
