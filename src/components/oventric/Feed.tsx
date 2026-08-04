@@ -276,6 +276,14 @@ function ReportedBadge({ details }: { details?: ReportDetails }) {
   );
 }
 
+/** A post the viewer just submitted, painted before the server confirms it. */
+interface PendingPost {
+  tempId: string;
+  text: string;
+  media: { url: string; kind: "image" | "video" }[];
+  error?: string;
+}
+
 export function Feed() {
   const { require, tier } = useOnboarding();
   
