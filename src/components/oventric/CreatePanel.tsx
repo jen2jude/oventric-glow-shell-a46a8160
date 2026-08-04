@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { X, PenSquare, Target, ShoppingBag, GraduationCap } from "lucide-react";
 import { useOnboarding, type Tier } from "@/lib/onboarding/OnboardingContext";
 import { SellSwitcherModal } from "./SellSwitcherModal";
