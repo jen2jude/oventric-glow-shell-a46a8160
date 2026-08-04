@@ -372,6 +372,8 @@ function RootComponent() {
               <ReactivationGate />
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
+              <LiveNotificationToasts />
+
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
             </KycGateProvider>
