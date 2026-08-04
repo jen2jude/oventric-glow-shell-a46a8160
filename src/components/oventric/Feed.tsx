@@ -423,6 +423,35 @@ export function Feed() {
     }
   }, [listPosts]);
 
+  /** Drop a pending placeholder and release its object URLs. */
+  const dismissPending = useCallback((tempId: string) => {
+    setPendingPosts((prev) => {
+      const target = prev.find((p) => p.tempId === tempId);
+      target?.media.forEach((m) => {
+        if (m.url.startsWith("blob:")) URL.revokeObjectURL(m.url);
+      });
+      return prev.filter((p) => p.tempId !== tempId);
+    });
+  }, []);
+
+  const addPending = useCallback((draft: PendingPost) => {
+    setPendingPosts((prev) => [{ ...draft }, ...prev]);
+  }, []);
+
+  const failPending = useCallback((tempId: string, message: string) => {
+    setPendingPosts((prev) => prev.map((p) => (p.tempId === tempId ? { ...p, error: message } : p)));
+  }, []);
+
+  // Release any object URLs still held when the feed unmounts.
+  useEffect(() => {
+    return () => {
+      pendingRef.current.forEach((p) =>
+        p.media.forEach((m) => { if (m.url.startsWith("blob:")) URL.revokeObjectURL(m.url); }),
+      );
+    };
+  }, []);
+
+
   // Debounce the search box so filtering / global lookups stay cheap.
   useEffect(() => {
     const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 220);
