@@ -9,6 +9,11 @@ import {
 } from "lucide-react";
 
 export const Route = createFileRoute("/advertise")({
+  validateSearch: (search: Record<string, unknown>) => {
+    const raw = String(search["start"] ?? "");
+    const start = raw === "text" || raw === "image" || raw === "video" ? raw : undefined;
+    return { start } as { start?: "text" | "image" | "video" };
+  },
   head: () => ({
     meta: [
       { title: "Advertise on Oventric — Reach builders across Africa" },
@@ -308,9 +313,17 @@ function useSimplifyAdvertise() {
 }
 
 function AdvertisePage() {
+  const { start: startParam } = Route.useSearch();
   const [open, setOpen] = useState(false);
   const [presetTier, setPresetTier] = useState<"text" | "image" | "video">("image");
   const simple = useSimplifyAdvertise();
+
+  useEffect(() => {
+    if (startParam) {
+      setPresetTier(startParam);
+      setOpen(true);
+    }
+  }, [startParam]);
 
   const start = (tier: "text" | "image" | "video" = "image") => {
     setPresetTier(tier);

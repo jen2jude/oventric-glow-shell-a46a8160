@@ -373,7 +373,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           highlight="on every order"
           body="Money back into your cashback wallet."
           cta="Shop now"
-          onClick={() => onSelect("Marketplace")}
+          to="/wallet/history"
           art={promoCashbackArt}
           gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
         />
@@ -384,6 +384,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           body="Invite builders and earn from their activity."
           cta="Invite friends"
           to="/affiliate"
+          search={{ reserve: true as const }}
           art={promoReferArt}
           gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
         />
@@ -394,6 +395,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           body="Put your product in front of Africa's builders."
           cta="Start a campaign"
           to="/advertise"
+          search={{ start: "image" as const }}
           art={promoAdvertiseArt}
           gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
