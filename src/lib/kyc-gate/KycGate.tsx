@@ -28,6 +28,7 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
   getOnboardingStatus as getStatusFn,
   saveKyc as saveKycFn,
+  recordLivenessAttestation as recordLivenessFn,
 } from "@/lib/onboarding.functions";
 import { submitKycSupport as submitKycSupportFn } from "@/lib/kyc-support.functions";
 
