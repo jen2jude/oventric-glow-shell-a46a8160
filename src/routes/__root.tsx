@@ -373,6 +373,7 @@ function RootComponent() {
               <GlobalMobileNav />
               <Toaster position="top-center" richColors closeButton />
               <LiveNotificationToasts />
+              <PushOptInPrompt />
 
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
