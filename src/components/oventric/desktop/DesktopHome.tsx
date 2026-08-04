@@ -369,59 +369,19 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           {/* Hero visual */}
           <div className="relative">
             <div
-              className="rounded-[28px] border border-emerald-200 p-6"
+              className="pointer-events-none absolute -inset-8 -z-10 rounded-full blur-3xl"
               style={{
                 backgroundImage:
-                  "linear-gradient(135deg, rgba(16,185,129,0.16) 0%, rgba(255,255,255,1) 60%, rgba(255,255,255,1) 100%)",
+                  "radial-gradient(closest-side, rgba(16,185,129,0.18), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.16), transparent 75%)",
               }}
-            >
-              <div className="flex items-start justify-between">
-                <div>
-                  <div className="text-[11px] uppercase tracking-wide text-emerald-700">Main balance</div>
-                  <div className="mt-1 flex items-center gap-2">
-                    <span className="text-4xl font-bold tabular-nums text-slate-900">
-                      {isAuthenticated && !balancesHidden ? formatMoney(main, currency) : isAuthenticated ? "••••" : formatMoney(0, currency)}
-                    </span>
-                    {isAuthenticated && (
-                      <button
-                        type="button"
-                        onClick={toggleBalancesHidden}
-                        aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                        className="rounded-full p-1.5 text-slate-400 transition-colors hover:text-slate-900"
-                      >
-                        {balancesHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                      </button>
-                    )}
-                  </div>
-                </div>
-                <span className="inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-3 text-xs font-semibold text-slate-700">
-                  {flag && <span aria-hidden>{flag}</span>}
-                  {currency}
-                </span>
-              </div>
-
-              <div className="mt-6 grid grid-cols-4 gap-3">
-                {FEATURES.slice(0, 4).map((f) => (
-                  <button
-                    key={f.label}
-                    type="button"
-                    onClick={() => onSelect(f.section)}
-                    className={`rounded-2xl border border-slate-200 bg-gradient-to-b ${f.tint} to-transparent p-3 text-center transition-transform hover:-translate-y-0.5`}
-                  >
-                    <img src={f.img} alt="" aria-hidden className="mx-auto h-9 w-9 object-contain" />
-                    <span className="mt-2 block text-[11px] font-semibold text-slate-900">{f.label}</span>
-                  </button>
-                ))}
-              </div>
-
-              <button
-                type="button"
-                onClick={onCreate}
-                className="mt-6 inline-flex h-11 w-full items-center justify-center gap-2 rounded-2xl border border-slate-200 bg-white text-sm font-bold text-slate-900 transition-transform active:scale-95"
-              >
-                Start selling on Oventric
-              </button>
-            </div>
+            />
+            <img
+              src={heroCollage.url}
+              alt="Oventric members shopping, learning and chatting across the platform"
+              className="hp-float w-full max-w-[620px] select-none object-contain drop-shadow-[0_30px_60px_rgba(15,23,42,0.18)]"
+              loading="eager"
+              decoding="async"
+            />
           </div>
         </div>
       </section>
