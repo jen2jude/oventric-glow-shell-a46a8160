@@ -1833,7 +1833,10 @@ html.light input::placeholder, html.light textarea::placeholder {
   /* Pale accent inks need contrast on white */
   .home-hub-light .text-emerald-100,
   .home-hub-light .text-emerald-200 { color: #1d4ed8 !important; }
-  .home-hub-light .text-emerald-300 { color: #2563eb !important; }
+  .home-hub-light .text-emerald-300,
+  .home-hub-light [class*="text-emerald-300/"] { color: #2563eb !important; }
+  .home-hub-light .text-blue-300,
+  .home-hub-light .text-blue-400 { color: #2563eb !important; }
 
   /* Wallet card gradient — soft blue wash over white/grey */
   .home-hub-light .hub-wallet-gradient {
