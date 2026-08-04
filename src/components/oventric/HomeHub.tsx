@@ -34,6 +34,7 @@ import promoAdvertiseArt from "@/assets/promo-advertise.png";
 import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
@@ -91,6 +92,8 @@ function fromUSD(usd: number, target: Currency): number {
 
 export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
+  // Same live unread counters the header shows, mirrored onto the hub tiles.
+  const unread = useUnreadCounts();
   const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName, require: requireTier } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
