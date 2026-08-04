@@ -414,6 +414,12 @@ export function Feed() {
     }
   }, [listPosts]);
 
+  // Debounce the search box so filtering / global lookups stay cheap.
+  useEffect(() => {
+    const t = window.setTimeout(() => setDebouncedQuery(query.trim()), 220);
+    return () => window.clearTimeout(t);
+  }, [query]);
+
   // Current user id + last name
   useEffect(() => {
     (async () => {
@@ -987,6 +993,18 @@ export function Feed() {
           </span>
         </button>
 
+
+        <FeedSearchBar
+          q={query}
+          onQueryChange={setQuery}
+          category={category}
+          onCategoryChange={setCategory}
+          resultCount={showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null}
+        />
+
+        {(debouncedQuery.length >= 2 || isGlobalCategory) && (
+          <FeedGlobalResults q={debouncedQuery} category={category} />
+        )}
 
         <AdSlot placement="feed" variant="banner" />
 
