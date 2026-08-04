@@ -103,7 +103,7 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
   const [moreMine, setMoreMine] = useState(false);
   const [moreRecs, setMoreRecs] = useState(false);
-  const [collapsed, setCollapsed] = useState(false);
+  const [collapsed, setCollapsed] = useState(true);
 
   useEffect(() => {
     let alive = true;
