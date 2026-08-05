@@ -712,6 +712,9 @@ function ProductCard({
         </span>
       </div>
       <div className="flex-1 min-w-0">
+        <div className="text-[10px] font-black uppercase tracking-wider text-red-600 truncate">
+          {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
+        </div>
         <h3 className="text-slate-900 text-sm sm:text-base font-semibold leading-snug line-clamp-2">{p.name}</h3>
         <div className="text-[11px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         {p.kind === "physical" && p.location && (
@@ -719,10 +722,12 @@ function ProductCard({
             <MapPin className="w-3 h-3" /> {p.location}
           </div>
         )}
-        <div className="flex items-center gap-1 mt-1 text-[11px] text-amber-300">
-          <Star className="w-3 h-3 fill-current" />
-          <span className="font-semibold">{p.rating.toFixed(1)}</span>
-          <span className="text-slate-500">({p.reviews})</span>
+        <div className="flex items-center gap-1 mt-1 text-[11px] text-amber-500">
+          {[1, 2, 3, 4, 5].map((s) => (
+            <Star key={s} className={`w-3 h-3 ${s <= Math.round(p.rating) ? "fill-current" : "text-slate-300"}`} />
+          ))}
+          <span className="font-semibold text-slate-700 ml-0.5">{p.rating.toFixed(1)}</span>
+          <span className="text-red-600 font-semibold">({p.reviews})</span>
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
