@@ -358,11 +358,8 @@ function CheckoutPage() {
           </div>
         )}
 
-        {product && (product.originalCurrency as Currency) !== baseCurrency && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-4 text-xs text-slate-300 md:text-slate-600 mb-4">
-            Listed in {String(product.originalCurrency).toUpperCase()} · you pay the live {baseCurrency} equivalent at today's exchange rate.
-          </div>
-        )}
+
+
 
         {product && (
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
