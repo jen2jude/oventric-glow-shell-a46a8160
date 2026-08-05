@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus, PenLine } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { checkIsAdmin } from "@/lib/admin.functions";
 import logo from "@/assets/oventric-full.asset.json";
 
 export type SiteNavbarProps = {
   onSelect: (section: string) => void;
+  onCreate?: () => void;
   avatarUrl?: string | null;
   name?: string;
   search?: React.ReactNode;
@@ -21,9 +24,32 @@ const LINKS: Array<{ label: string; section?: string; to?: string }> = [
   { label: "Help", to: "/help" },
 ];
 
-export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProps) {
+export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
+  const [canWriteBlog, setCanWriteBlog] = useState(false);
+  const check = useServerFn(checkIsAdmin);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCanWriteBlog(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res: any = await check();
+        const roles: string[] = res?.roles ?? [];
+        if (!cancelled) setCanWriteBlog(Boolean(res?.isAdmin) && (roles.includes("admin") || roles.includes("content")));
+      } catch {
+        if (!cancelled) setCanWriteBlog(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [check, isAuthenticated]);
+
 
   useEffect(() => {
     const el = document.getElementById("desktop-home-scroll");
@@ -74,6 +100,24 @@ export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProp
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
+          {canWriteBlog && (
+            <Link
+              to="/admin/blog/$id"
+              params={{ id: "new" }}
+              className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 px-3.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
+            >
+              <PenLine className="h-4 w-4" strokeWidth={2.5} /> Write blog
+            </Link>
+          )}
+          {onCreate && (
+            <button
+              type="button"
+              onClick={onCreate}
+              className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-emerald-200 bg-emerald-50 px-4 text-sm font-bold text-emerald-700 transition-colors hover:bg-emerald-100"
+            >
+              <Plus className="h-4 w-4" strokeWidth={3} /> Sell
+            </button>
+          )}
           {isAuthenticated ? (
             <>
               <button
@@ -110,6 +154,7 @@ export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProp
             </>
           )}
         </div>
+
       </div>
     </header>
   );
