@@ -24,9 +24,32 @@ const LINKS: Array<{ label: string; section?: string; to?: string }> = [
   { label: "Help", to: "/help" },
 ];
 
-export function SiteNavbar({ onSelect, avatarUrl, name, search }: SiteNavbarProps) {
+export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
+  const [canWriteBlog, setCanWriteBlog] = useState(false);
+  const check = useServerFn(checkIsAdmin);
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setCanWriteBlog(false);
+      return;
+    }
+    let cancelled = false;
+    (async () => {
+      try {
+        const res: any = await check();
+        const roles: string[] = res?.roles ?? [];
+        if (!cancelled) setCanWriteBlog(Boolean(res?.isAdmin) && (roles.includes("admin") || roles.includes("content")));
+      } catch {
+        if (!cancelled) setCanWriteBlog(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, [check, isAuthenticated]);
+
 
   useEffect(() => {
     const el = document.getElementById("desktop-home-scroll");
