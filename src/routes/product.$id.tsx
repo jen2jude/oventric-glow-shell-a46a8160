@@ -7,8 +7,86 @@ import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { getProduct, logProductContact, getProductContact, type ProductDTO } from "@/lib/marketplace.functions";
+import { getProductRating, rateProduct } from "@/lib/product-reviews.functions";
+import { supabase } from "@/integrations/supabase/client";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+
+function ProductRating({
+  productId,
+  initialAverage,
+  initialCount,
+}: {
+  productId: string;
+  initialAverage: number;
+  initialCount: number;
+}) {
+  const { require } = useOnboarding();
+  const fetchRating = useServerFn(getProductRating);
+  const submitRating = useServerFn(rateProduct);
+  const [average, setAverage] = useState(initialAverage);
+  const [count, setCount] = useState(initialCount);
+  const [mine, setMine] = useState<number | null>(null);
+  const [hover, setHover] = useState<number | null>(null);
+  const [saving, setSaving] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    void (async () => {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id ?? null;
+      try {
+        const r = await fetchRating({ data: { productId, userId: uid } });
+        if (!cancelled) { setAverage(r.average); setCount(r.count); setMine(r.myRating); }
+      } catch { /* keep server-rendered values */ }
+    })();
+    return () => { cancelled = true; };
+  }, [productId, fetchRating]);
+
+  const rate = (stars: number) => {
+    require(1, () => {
+      setSaving(true);
+      submitRating({ data: { productId, rating: stars } })
+        .then((r) => {
+          setAverage(r.average); setCount(r.count); setMine(r.myRating);
+          toast.success("Thanks for rating!");
+        })
+        .catch((e: Error) => toast.error(e.message || "Could not save your rating"))
+        .finally(() => setSaving(false));
+    }, "buyer");
+  };
+
+  const shown = hover ?? mine ?? Math.round(average);
+
+  return (
+    <div className="mb-5">
+      <div className="flex items-center gap-1 text-sm text-amber-400">
+        <Star className="w-4 h-4 fill-current" />
+        <span className="font-semibold">{average.toFixed(1)}</span>
+        <span className="text-red-500 font-semibold">({count} {count === 1 ? "review" : "reviews"})</span>
+      </div>
+      <div className="mt-2 flex items-center gap-1" onMouseLeave={() => setHover(null)}>
+        {[1, 2, 3, 4, 5].map((s) => (
+          <button
+            key={s}
+            type="button"
+            disabled={saving}
+            aria-label={`Rate ${s} star${s > 1 ? "s" : ""}`}
+            onMouseEnter={() => setHover(s)}
+            onClick={() => rate(s)}
+            className="p-0.5 disabled:opacity-50"
+          >
+            <Star className={`w-5 h-5 transition-transform hover:scale-110 ${s <= shown ? "text-amber-400 fill-current" : "text-slate-600 md:text-slate-300"}`} />
+          </button>
+        ))}
+        <span className="ml-2 text-[11px] text-slate-400 md:text-slate-500">
+          {mine ? `You rated ${mine}★ — tap to change` : "Tap to rate this product"}
+        </span>
+      </div>
+    </div>
+  );
+}
+
 
 function productDisplay(p: ProductDTO, viewer: Currency) {
   return computeDisplayPrice(
@@ -24,7 +102,7 @@ function productDisplay(p: ProductDTO, viewer: Currency) {
 
 export const Route = createFileRoute("/product/$id")({
   ssr: false,
-  validateSearch: (s: Record<string, unknown>) => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
+  validateSearch: (s: { qty?: unknown }) => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
   head: () => ({
     meta: [
       { title: "Product · Oventric Marketplace" },
@@ -165,11 +243,8 @@ function ProductPage() {
                   {product.delivery && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">Delivery: {product.delivery}</span>}
                 </div>
               )}
-              <div className="flex items-center gap-1 text-sm text-amber-300 mb-5">
-                <Star className="w-4 h-4 fill-current" />
-                <span className="font-semibold">{product.rating.toFixed(1)}</span>
-                <span className="text-slate-500 md:text-slate-500">({product.reviews} reviews)</span>
-              </div>
+              <ProductRating productId={product.id} initialAverage={product.rating} initialCount={product.reviews} />
+
 
               <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6">{product.description || "No description provided."}</p>
 
