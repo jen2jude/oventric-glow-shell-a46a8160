@@ -1,12 +1,15 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight } from "lucide-react";
+import { ChevronRight, Plus, PenLine } from "lucide-react";
+import { useServerFn } from "@tanstack/react-start";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { checkIsAdmin } from "@/lib/admin.functions";
 import logo from "@/assets/oventric-full.asset.json";
 
 export type SiteNavbarProps = {
   onSelect: (section: string) => void;
+  onCreate?: () => void;
   avatarUrl?: string | null;
   name?: string;
   search?: React.ReactNode;
