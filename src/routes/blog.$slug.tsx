@@ -23,7 +23,11 @@ export const Route = createFileRoute("/blog/$slug")({
       const r = await getBlogPost({ data: { slug: params.slug } });
       const p = r.post;
       return p
-        ? { title: p.title, description: p.excerpt || "Read this article on the Oventric Blog.", image: p.cover_url }
+        ? {
+            title: p.title,
+            description: p.excerpt || "Read this article on the Oventric Blog.",
+            image: p.cover_path ? `https://oventric.com/api/public/img/blog-covers/${p.cover_path}` : null,
+          }
         : null;
     } catch {
       return null;
