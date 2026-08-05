@@ -494,7 +494,7 @@ function ProfilePage() {
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab, pages: nextPage, y }),
+        search: (prev) => ({ ...prev, tab, pages: nextPage, y }),
         replace: true,
         resetScroll: false,
       });
@@ -538,7 +538,7 @@ function ProfilePage() {
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, tab: which, y: 0 }),
+        search: (prev) => ({ ...prev, tab: which, y: 0 }),
         replace: true,
       });
     },
@@ -628,7 +628,7 @@ function ProfilePage() {
         navigate({
           to: "/profile/$id",
           params: { id },
-          search: (prev: z.infer<typeof profileSearchSchema>) => ({ ...prev, y }),
+          search: (prev) => ({ ...prev, y }),
           replace: true,
           resetScroll: false,
         });
@@ -1408,7 +1408,7 @@ function ProfilePage() {
                 navigate({
                   to: "/profile/$id",
                   params: { id },
-                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                  search: (prev) => ({
                     ...prev,
                     q: next,
                     pages: 1,
@@ -1421,7 +1421,7 @@ function ProfilePage() {
                 navigate({
                   to: "/profile/$id",
                   params: { id },
-                  search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                  search: (prev) => ({
                     ...prev,
                     sort: next,
                     pages: 1,
@@ -1486,7 +1486,7 @@ function ProfilePage() {
                       navigate({
                         to: "/profile/$id",
                         params: { id },
-                        search: (prev: z.infer<typeof profileSearchSchema>) => ({
+                        search: (prev) => ({
                           ...prev,
                           q: "",
                           pages: 1,
