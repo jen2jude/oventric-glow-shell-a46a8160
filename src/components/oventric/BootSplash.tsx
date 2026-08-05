@@ -29,10 +29,11 @@ function isStandaloneLaunch() {
   };
   if (typeof w.__oventricStandalone === "boolean") return w.__oventricStandalone;
   try {
-    return (
+    const standalone =
       window.matchMedia?.("(display-mode: standalone)").matches ||
-      w.navigator.standalone === true
-    );
+      w.navigator.standalone === true;
+    // Mobile only — no splash on desktop or tablet.
+    return standalone && window.matchMedia?.("(max-width: 767px)").matches;
   } catch {
     return false;
   }
