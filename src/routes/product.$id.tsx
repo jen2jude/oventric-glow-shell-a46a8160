@@ -101,14 +101,50 @@ function productDisplay(p: ProductDTO, viewer: Currency) {
 }
 
 export const Route = createFileRoute("/product/$id")({
-  ssr: false,
+  // Loader + head run on the server so shared links carry a real preview card.
+  ssr: "data-only",
   validateSearch: (s: { qty?: unknown }): { qty?: number } => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
-  head: () => ({
-    meta: [
-      { title: "Product · Oventric Marketplace" },
-      { name: "description", content: "Buy digital assets from Oventric's marketplace." },
-    ],
-  }),
+  loader: async ({ params }) => {
+    try {
+      const p = await getProduct({ data: { id: params.id } });
+      return {
+        title: p.name as string,
+        description: ((p.description as string) || "").slice(0, 155) || "Buy digital assets from Oventric's marketplace.",
+        image: (() => {
+          const path = (p.coverPath as string | null) ?? (p.imagePaths as string[] | undefined)?.[0] ?? null;
+          return path ? `https://oventric.com/api/public/img/product-covers/${path}` : null;
+        })(),
+      };
+    } catch {
+      return null;
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const url = `https://oventric.com/product/${params.id}`;
+    const title = loaderData?.title ? `${loaderData.title} · Oventric Marketplace` : "Product · Oventric Marketplace";
+    const description = loaderData?.description ?? "Buy digital assets from Oventric's marketplace.";
+    const image = loaderData?.image;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "product" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: ProductPage,
 });
 

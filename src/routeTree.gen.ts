@@ -64,6 +64,7 @@ import { Route as LovableEmailQueueProcessRouteImport } from './routes/lovable/e
 import { Route as LovableEmailAuthWebhookRouteImport } from './routes/lovable/email/auth/webhook'
 import { Route as LovableEmailAuthPreviewRouteImport } from './routes/lovable/email/auth/preview'
 import { Route as ApiPublicPIdRouteImport } from './routes/api/public/p.$id'
+import { Route as ApiPublicImgSplatRouteImport } from './routes/api/public/img.$'
 import { Route as ApiPublicHooksPushDispatchRouteImport } from './routes/api/public/hooks/push-dispatch'
 import { Route as ApiPublicHooksPurgeDeletedAccountsRouteImport } from './routes/api/public/hooks/purge-deleted-accounts'
 import { Route as ApiPublicHooksAutoReleaseOrdersRouteImport } from './routes/api/public/hooks/auto-release-orders'
@@ -347,6 +348,11 @@ const ApiPublicPIdRoute = ApiPublicPIdRouteImport.update({
   path: '/api/public/p/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiPublicImgSplatRoute = ApiPublicImgSplatRouteImport.update({
+  id: '/api/public/img/$',
+  path: '/api/public/img/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiPublicHooksPushDispatchRoute =
   ApiPublicHooksPushDispatchRouteImport.update({
     id: '/api/public/hooks/push-dispatch',
@@ -426,6 +432,7 @@ export interface FileRoutesByFullPath {
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -485,6 +492,7 @@ export interface FileRoutesByTo {
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -547,6 +555,7 @@ export interface FileRoutesById {
   '/api/public/hooks/auto-release-orders': typeof ApiPublicHooksAutoReleaseOrdersRoute
   '/api/public/hooks/purge-deleted-accounts': typeof ApiPublicHooksPurgeDeletedAccountsRoute
   '/api/public/hooks/push-dispatch': typeof ApiPublicHooksPushDispatchRoute
+  '/api/public/img/$': typeof ApiPublicImgSplatRoute
   '/api/public/p/$id': typeof ApiPublicPIdRoute
   '/lovable/email/auth/preview': typeof LovableEmailAuthPreviewRoute
   '/lovable/email/auth/webhook': typeof LovableEmailAuthWebhookRoute
@@ -610,6 +619,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/img/$'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -669,6 +679,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/img/$'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -730,6 +741,7 @@ export interface FileRouteTypes {
     | '/api/public/hooks/auto-release-orders'
     | '/api/public/hooks/purge-deleted-accounts'
     | '/api/public/hooks/push-dispatch'
+    | '/api/public/img/$'
     | '/api/public/p/$id'
     | '/lovable/email/auth/preview'
     | '/lovable/email/auth/webhook'
@@ -766,6 +778,7 @@ export interface RootRouteChildren {
   ApiPublicHooksAutoReleaseOrdersRoute: typeof ApiPublicHooksAutoReleaseOrdersRoute
   ApiPublicHooksPurgeDeletedAccountsRoute: typeof ApiPublicHooksPurgeDeletedAccountsRoute
   ApiPublicHooksPushDispatchRoute: typeof ApiPublicHooksPushDispatchRoute
+  ApiPublicImgSplatRoute: typeof ApiPublicImgSplatRoute
   ApiPublicPIdRoute: typeof ApiPublicPIdRoute
   LovableEmailAuthPreviewRoute: typeof LovableEmailAuthPreviewRoute
   LovableEmailAuthWebhookRoute: typeof LovableEmailAuthWebhookRoute
@@ -1159,6 +1172,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiPublicPIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/public/img/$': {
+      id: '/api/public/img/$'
+      path: '/api/public/img/$'
+      fullPath: '/api/public/img/$'
+      preLoaderRoute: typeof ApiPublicImgSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/public/hooks/push-dispatch': {
       id: '/api/public/hooks/push-dispatch'
       path: '/api/public/hooks/push-dispatch'
@@ -1312,6 +1332,7 @@ const rootRouteChildren: RootRouteChildren = {
   ApiPublicHooksPurgeDeletedAccountsRoute:
     ApiPublicHooksPurgeDeletedAccountsRoute,
   ApiPublicHooksPushDispatchRoute: ApiPublicHooksPushDispatchRoute,
+  ApiPublicImgSplatRoute: ApiPublicImgSplatRoute,
   ApiPublicPIdRoute: ApiPublicPIdRoute,
   LovableEmailAuthPreviewRoute: LovableEmailAuthPreviewRoute,
   LovableEmailAuthWebhookRoute: LovableEmailAuthWebhookRoute,
