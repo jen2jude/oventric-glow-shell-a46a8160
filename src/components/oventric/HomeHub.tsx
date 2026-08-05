@@ -487,6 +487,21 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         onClose={() => setBountyOpen(false)}
         onPublished={() => onSelect("Bounties")}
       />
+      {transferOpen && (
+        <TransferModal
+          onClose={() => setTransferOpen(false)}
+          onDone={() => {
+            loadBalances()
+              .then((r) => {
+                setMain(r.balances[baseCurrency] ?? 0);
+                setEscrow(r.escrow[baseCurrency] ?? 0);
+                setCashback(r.cashback ?? 0);
+                setBounty(r.bountyBalance ?? 0);
+              })
+              .catch(() => {});
+          }}
+        />
+      )}
     </div>
   );
 }
