@@ -1,10 +1,8 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Plus, PenLine } from "lucide-react";
-import { useServerFn } from "@tanstack/react-start";
+import { ChevronRight, Plus } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
-import { checkIsAdmin } from "@/lib/admin.functions";
 import logo from "@/assets/oventric-full.asset.json";
 
 export type SiteNavbarProps = {
@@ -27,28 +25,7 @@ const LINKS: Array<{ label: string; section?: string; to?: string }> = [
 export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
-  const [canWriteBlog, setCanWriteBlog] = useState(false);
-  const check = useServerFn(checkIsAdmin);
 
-  useEffect(() => {
-    if (!isAuthenticated) {
-      setCanWriteBlog(false);
-      return;
-    }
-    let cancelled = false;
-    (async () => {
-      try {
-        const res: any = await check();
-        const roles: string[] = res?.roles ?? [];
-        if (!cancelled) setCanWriteBlog(Boolean(res?.isAdmin) && (roles.includes("admin") || roles.includes("content")));
-      } catch {
-        if (!cancelled) setCanWriteBlog(false);
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [check, isAuthenticated]);
 
 
   useEffect(() => {
@@ -100,15 +77,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          {canWriteBlog && (
-            <Link
-              to="/admin/blog/$id"
-              params={{ id: "new" }}
-              className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 px-3.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
-            >
-              <PenLine className="h-4 w-4" strokeWidth={2.5} /> Write blog
-            </Link>
-          )}
           {onCreate && (
             <button
               type="button"
