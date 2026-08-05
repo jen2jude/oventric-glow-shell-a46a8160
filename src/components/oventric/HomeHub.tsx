@@ -297,16 +297,23 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
           >
-            <ArrowDownToLine className="w-4 h-4" strokeWidth={3} /> Add Money
+            <ArrowDownToLine className="w-4 h-4" strokeWidth={3} /> Add
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-2 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <ArrowUpFromLine className="w-4 h-4" strokeWidth={3} /> Withdraw
+          </button>
+          <button
+            type="button"
+            onClick={() => (isAuthenticated ? setTransferOpen(true) : openGate("generic"))}
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+          >
+            <Send className="w-4 h-4" strokeWidth={3} /> Send
           </button>
         </div>
       </section>
