@@ -512,7 +512,7 @@ function ModeCard({
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
         <Icon className="absolute left-3 top-3 w-6 h-6 text-white" />
-        <span className="absolute right-3 top-3 text-[10px] font-bold uppercase tracking-wider bg-white/90 text-slate-700 rounded-full px-2 py-0.5 shadow-sm">
+        <span className="absolute right-3 top-3 text-[10px] font-black uppercase tracking-wider bg-red-600 text-white rounded-full px-2 py-0.5 shadow-sm ring-1 ring-white/70">
           {count} items
         </span>
       </div>
