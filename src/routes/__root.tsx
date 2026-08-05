@@ -310,10 +310,11 @@ function RootShell({ children }: { children: ReactNode }) {
             dangerouslySetInnerHTML={{
             __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
-  // Only show the boot splash when the app is launched from the phone's
-  // home screen (installed PWA / standalone), never for in-app navigation.
+  // Only show the boot splash when the app is launched from a phone's
+  // home screen (installed PWA / standalone) on a mobile-sized screen —
+  // never on desktop/tablet, and never for in-app navigation.
   var standalone=false;
-  try{standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;}catch(e){}
+  try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
   if(!standalone){root.parentNode&&root.parentNode.removeChild(root);return;}
   var svgs=root.getElementsByTagName('svg');
