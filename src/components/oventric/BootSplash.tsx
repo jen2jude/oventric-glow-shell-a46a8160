@@ -17,7 +17,35 @@ const ICONS = [
  * left → right in step with *real* load progress (hydration → route data →
  * document load → fonts/first idle frame) rather than on a fixed loop.
  */
+// Only the very first mount of the session may show the splash — later route
+// changes inside the app must never re-trigger it.
+let splashConsumed = false;
+
+function isStandaloneLaunch() {
+  if (typeof window === "undefined") return false;
+  const w = window as unknown as {
+    __oventricStandalone?: boolean;
+    navigator: Navigator & { standalone?: boolean };
+  };
+  if (typeof w.__oventricStandalone === "boolean") return w.__oventricStandalone;
+  try {
+    return (
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      w.navigator.standalone === true
+    );
+  } catch {
+    return false;
+  }
+}
+
 export function BootSplash() {
+  const [enabled] = useState(() => {
+    if (typeof window === "undefined") return false;
+    if (splashConsumed) return false;
+    if (!isStandaloneLaunch()) return false;
+    splashConsumed = true;
+    return true;
+  });
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
   // Eased value that chases the milestone target, so the sweep still looks
