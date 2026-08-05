@@ -667,6 +667,27 @@ function FilterPanel({
   );
 }
 
+/** Alternates the category label with a cashback nudge (digital assets only). */
+function CategoryTicker({ label }: { label: string }) {
+  const [alt, setAlt] = useState(false);
+  useEffect(() => {
+    const t = setInterval(() => setAlt((v) => !v), 3200);
+    return () => clearInterval(t);
+  }, []);
+  return (
+    <div className="relative h-[13px] overflow-hidden">
+      <div
+        key={alt ? "promo" : "cat"}
+        className={`animate-fade-in truncate text-[10px] font-black uppercase tracking-wider ${
+          alt ? "text-red-600" : "text-emerald-600 sm:text-red-600"
+        }`}
+      >
+        {alt ? "Save · earn 2% cashback on this offer" : label}
+      </div>
+    </div>
+  );
+}
+
 function ProductCard({
   p,
   currency,
@@ -680,9 +701,12 @@ function ProductCard({
 }) {
   const Icon = categoryIcon(p.category);
   const eager = index < 4;
+  const price = displayPriceForProduct(p, currency);
+  const isFree = (Number(price.value) || 0) <= 0;
+  const catLabel = `${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`;
   const cardInner = (
-    <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
-      <div className="relative aspect-[4/3] rounded-xl bg-slate-100 mb-3 overflow-hidden">
+    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
+      <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="(min-width: 1280px) 300px, (min-width: 640px) 40vw, 50vw"
@@ -700,23 +724,27 @@ function ProductCard({
         )}
         <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white drop-shadow" />
         {p.promoted && (
-          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-full px-1.5 py-0.5 shadow-sm">
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-none px-1.5 py-0.5 shadow-sm">
             <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" />
             Promoted
           </span>
         )}
-        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider rounded-full px-1.5 py-0.5 ${
+        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider rounded-none px-1.5 py-0.5 ${
           p.kind === "physical" ? "bg-sky-600 text-white" : "bg-slate-900/80 text-white"
         }`}>
           {p.kind === "physical" ? "Physical" : "Digital"}
         </span>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
-          {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
-        </div>
-        <h3 className="text-slate-900 text-sm sm:text-base font-semibold leading-snug line-clamp-2">{p.name}</h3>
-        <div className="text-[11px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
+        {p.kind === "physical" ? (
+          <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
+            {catLabel}
+          </div>
+        ) : (
+          <CategoryTicker label={catLabel} />
+        )}
+        <h3 className="text-slate-900 text-xs sm:text-[13px] font-semibold leading-snug line-clamp-2">{p.name}</h3>
+        <div className="text-[10px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         {p.kind === "physical" && p.location && (
           <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
             <MapPin className="w-3 h-3" /> {p.location}
@@ -737,10 +765,10 @@ function ProductCard({
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
-        <div className="text-slate-900 font-extrabold text-sm sm:text-base truncate">{displayPriceForProduct(p, currency).formatted}</div>
+        <div className="text-red-600 font-extrabold text-sm truncate">{isFree ? "FREE" : price.formatted}</div>
         <button
           onClick={onClick}
-          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-full transition-colors"
+          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-none transition-colors"
         >
           <ShoppingCart className="w-3.5 h-3.5" /> {p.kind === "physical" ? "View" : "Buy"}
         </button>
@@ -749,10 +777,11 @@ function ProductCard({
   );
 
   if (p.promoted) {
-    return <div className="rounded-2xl rgb-promo-border">{cardInner}</div>;
+    return <div className="rounded-none rgb-promo-border">{cardInner}</div>;
   }
   return cardInner;
 }
+
 
 function SkeletonCard() {
   return (
