@@ -1890,7 +1890,9 @@ export type Database = {
           payment_method: string
           paystack_ref: string | null
           prerelease_notified_at: string | null
-          product_id: string
+          product_category_snapshot: string | null
+          product_id: string | null
+          product_name_snapshot: string | null
           quantity: number
           released_at: string | null
           released_by: string | null
@@ -1921,7 +1923,9 @@ export type Database = {
           payment_method: string
           paystack_ref?: string | null
           prerelease_notified_at?: string | null
-          product_id: string
+          product_category_snapshot?: string | null
+          product_id?: string | null
+          product_name_snapshot?: string | null
           quantity?: number
           released_at?: string | null
           released_by?: string | null
@@ -1952,7 +1956,9 @@ export type Database = {
           payment_method?: string
           paystack_ref?: string | null
           prerelease_notified_at?: string | null
-          product_id?: string
+          product_category_snapshot?: string | null
+          product_id?: string | null
+          product_name_snapshot?: string | null
           quantity?: number
           released_at?: string | null
           released_by?: string | null

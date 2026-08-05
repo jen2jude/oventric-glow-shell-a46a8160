@@ -857,6 +857,8 @@ export const createOrder = createServerFn({ method: "POST" })
       .insert({
         buyer_id: userId,
         product_id: product.id,
+        product_name_snapshot: product.name,
+        product_category_snapshot: product.category,
         seller_id: product.sellerId,
         quantity: data.quantity,
         unit_price_usd: product.priceUSD,
@@ -1059,8 +1061,8 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
       order: {
         id: o.id as string,
         productId: o.product_id as string,
-        productName: (product.name as string) ?? "Digital product",
-        category: (product.category as ProductCategory) ?? "themes",
+        productName: (product.name as string) ?? (o.product_name_snapshot as string) ?? "Digital product",
+        category: ((product.category as ProductCategory) ?? (o.product_category_snapshot as ProductCategory)) ?? "themes",
         vendor: (product.vendor as string) ?? "",
         hue: (product.hue as string) ?? "from-emerald-500 to-teal-700",
         quantity: Number(o.quantity),
@@ -1111,7 +1113,7 @@ export const listMyPurchases = createServerFn({ method: "GET" })
   .handler(async ({ context }): Promise<PurchaseDTO[]> => {
     const { data, error } = await context.supabase
       .from("orders")
-      .select("id, product_id, quantity, unit_price_usd, total_usd, display_currency, display_total, status, paid_at, created_at, escrow_status, buyer_confirmed_at, products:product_id (name, category, vendor, hue, cover_path, file_path, external_url, requires_manual_delivery)")
+      .select("id, product_id, product_name_snapshot, product_category_snapshot, quantity, unit_price_usd, total_usd, display_currency, display_total, status, paid_at, created_at, escrow_status, buyer_confirmed_at, products:product_id (name, category, vendor, hue, cover_path, file_path, external_url, requires_manual_delivery)")
       .eq("buyer_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
@@ -1130,8 +1132,8 @@ export const listMyPurchases = createServerFn({ method: "GET" })
       out.push({
         orderId: r.id as string,
         productId: r.product_id as string,
-        productName: (p.name as string) ?? "Digital product",
-        category: (p.category as string) ?? "themes",
+        productName: (p.name as string) ?? (r.product_name_snapshot as string) ?? "Digital product",
+        category: (p.category as string) ?? (r.product_category_snapshot as string) ?? "themes",
         vendor: (p.vendor as string) ?? "",
         hue: (p.hue as string) ?? "from-emerald-500 to-teal-700",
         coverUrl,
