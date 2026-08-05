@@ -39,7 +39,14 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
-import { TransferModal } from "@/components/oventric/wallet/TransferModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PromoBanners } from "@/components/oventric/PromoBanners";
 import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
 
@@ -100,7 +107,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   const [bountyOpen, setBountyOpen] = useState(false);
-  const [transferOpen, setTransferOpen] = useState(false);
+  const [sendSoonOpen, setSendSoonOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
   const loadBalances = useServerFn(getWalletBalances);
@@ -310,7 +317,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </button>
           <button
             type="button"
-            onClick={() => (isAuthenticated ? setTransferOpen(true) : openGate("generic"))}
+            onClick={() => (isAuthenticated ? setSendSoonOpen(true) : openGate("generic"))}
             className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <Send className="w-4 h-4" strokeWidth={3} /> Send
@@ -487,21 +494,25 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         onClose={() => setBountyOpen(false)}
         onPublished={() => onSelect("Bounties")}
       />
-      {transferOpen && (
-        <TransferModal
-          onClose={() => setTransferOpen(false)}
-          onDone={() => {
-            loadBalances()
-              .then((r) => {
-                setMain(r.balances[baseCurrency] ?? 0);
-                setEscrow(r.escrow[baseCurrency] ?? 0);
-                setCashback(r.cashback ?? 0);
-                setBounty(r.bountyBalance ?? 0);
-              })
-              .catch(() => {});
-          }}
-        />
-      )}
+      <Dialog open={sendSoonOpen} onOpenChange={setSendSoonOpen}>
+        <DialogContent className="sm:max-w-sm bg-[#1E1E24] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-center text-white">Send to users</DialogTitle>
+            <DialogDescription className="text-center text-slate-400">
+              Big things coming soon, stay tuned!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <button
+              type="button"
+              onClick={() => setSendSoonOpen(false)}
+              className="w-full h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
+            >
+              OK
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
