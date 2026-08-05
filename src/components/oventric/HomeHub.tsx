@@ -39,7 +39,14 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
-import { TransferModal } from "@/components/oventric/wallet/TransferModal";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
 import { PromoBanners } from "@/components/oventric/PromoBanners";
 import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
 
