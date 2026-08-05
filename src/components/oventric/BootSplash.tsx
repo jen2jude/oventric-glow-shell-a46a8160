@@ -112,7 +112,7 @@ export function BootSplash() {
     return () => clearTimeout(t);
   }, [target, shown]);
 
-  if (!visible) return null;
+  if (!enabled || !visible) return null;
 
   const lit = shown * ICONS.length;
 
