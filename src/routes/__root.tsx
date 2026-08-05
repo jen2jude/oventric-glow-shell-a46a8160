@@ -267,7 +267,7 @@ function RootShell({ children }: { children: ReactNode }) {
             <BootSplash /> once the app is interactive. */}
         <div id="oventric-boot" aria-hidden>
           <img
-            src="/__l5e/assets-v1/685da575-6dc3-4bb2-8c32-a75c68fd8b6a/oventric-full.png"
+            src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
             alt=""
             draggable={false}
           />
@@ -308,8 +308,14 @@ function RootShell({ children }: { children: ReactNode }) {
             // HTML parsed → stylesheets/DOM ready → window load. React's
             // <BootSplash /> takes over (and removes this) once hydrated.
             dangerouslySetInnerHTML={{
-              __html: `(function(){try{
+            __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
+  // Only show the boot splash when the app is launched from the phone's
+  // home screen (installed PWA / standalone), never for in-app navigation.
+  var standalone=false;
+  try{standalone=(window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true;}catch(e){}
+  window.__oventricStandalone=!!standalone;
+  if(!standalone){root.parentNode&&root.parentNode.removeChild(root);return;}
   var svgs=root.getElementsByTagName('svg');
   var at=0;
   function set(n){if(n<=at)return;at=n;for(var i=0;i<svgs.length;i++){if(i<n)svgs[i].classList.add('ob-lit');}}
