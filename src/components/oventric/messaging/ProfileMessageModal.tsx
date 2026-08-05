@@ -412,12 +412,12 @@ export function ProfileMessageModal({
                       } ${isTmp ? "opacity-70" : ""}`}
                     >
                       {(() => {
-                        const match = m.body ? PRODUCT_LINK_RE.exec(m.body) : null;
-                        const text = m.body ? m.body.replace(PRODUCT_LINK_RE, "").trim() : "";
+                        const pid = extractProductId(m.body);
+                        const text = stripProductLink(m.body);
                         return (
                           <>
                             {text && <div className="leading-relaxed whitespace-pre-wrap break-words">{text}</div>}
-                            {match && <ProductBubbleCard productId={match[1]} mine={mine} />}
+                            {pid && <ProductBubbleCard productId={pid} mine={mine} onNavigate={onClose} />}
                           </>
                         );
                       })()}
