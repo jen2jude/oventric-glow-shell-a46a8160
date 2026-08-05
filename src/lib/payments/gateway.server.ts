@@ -115,7 +115,8 @@ export async function createCharge(opts: {
   if (chargeCurrency !== intent.currency) {
     const { rates } = await resolveFxRates();
     const rate = Number(rates[intent.currency]) > 0 ? Number(rates[intent.currency]) : 1;
-    chargeAmount = Number((intent.amount / rate).toFixed(2));
+    const raw = intent.amount / rate;
+    chargeAmount = currencyDecimals(chargeCurrency) === 0 ? Math.round(raw) : Number(raw.toFixed(2));
   }
 
   const metadata: Record<string, unknown> = { ...intent.metadata, gateway: provider, charge_currency: chargeCurrency };
