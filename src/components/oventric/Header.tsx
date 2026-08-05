@@ -10,7 +10,8 @@ import {
 import { RequestsInboxDrawer } from "@/components/oventric/RequestsInboxDrawer";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { GlobalSearch } from "@/components/oventric/GlobalSearch";
-import logoFull from "@/assets/oventric-full.asset.json";
+import logoLight from "@/assets/oventric-full-transparent.png";
+import logoDark from "@/assets/oventric-logo-dark.png";
 import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
@@ -87,27 +88,20 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   // Flat (no pill) icon buttons.
   const flat = light ? "text-slate-700 hover:bg-slate-100" : "text-white hover:bg-white/5";
 
+  const logoSrc = light ? logoDark : logoLight;
+
   const LogoImg = (
     <ResponsiveImage
-      src={logoFull.url}
+      src={logoSrc}
       alt="Oventric"
       sizes="160px"
-      className="h-8 w-auto object-contain rounded-[10px] [mix-blend-mode:screen]"
-      style={{
-        WebkitMaskImage:
-          "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
-        maskImage:
-          "linear-gradient(90deg, transparent 0%, black 6%, black 94%, transparent 100%)",
-      }}
+      className="h-8 w-auto object-contain"
       draggable={false}
+      loading="eager"
     />
   );
 
-  const LogoMark = light ? (
-    <span className="inline-flex items-center rounded-xl bg-slate-900 px-2 py-1">{LogoImg}</span>
-  ) : (
-    LogoImg
-  );
+  const LogoMark = LogoImg;
 
   const searchOverlay = mobileSearchOpen ? (
     <div

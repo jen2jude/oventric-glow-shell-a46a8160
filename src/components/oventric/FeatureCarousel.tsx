@@ -8,7 +8,7 @@ import mockMarketplace from "@/assets/mock-marketplace.jpg";
 import mockAcademy from "@/assets/mock-academy.jpg";
 import mockBounties from "@/assets/mock-bounties.jpg";
 import mockWallet from "@/assets/mock-wallet.jpg";
-import oventricFull from "@/assets/oventric-full.asset.json";
+import oventricFull from "@/assets/oventric-full-transparent.png";
 import heroCollageMobile from "@/assets/hero-collage-float.png.asset.json";
 import { markCarouselSeen as markCarouselSeenFn } from "@/lib/carousel.functions";
 
@@ -228,7 +228,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             Welcome to
           </p>
           <img
-            src={oventricFull.url}
+            src={oventricFull}
             alt="Oventric"
             className="h-12 sm:h-14 w-auto select-none mb-6"
             draggable={false}
@@ -291,7 +291,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
           {/* Top bar */}
           <div className="absolute top-0 inset-x-0 flex items-center justify-between px-5 pt-5 pb-4 z-10">
             <img
-              src={oventricFull.url}
+              src={oventricFull}
               alt="Oventric"
               className="h-8 w-auto select-none"
               draggable={false}
