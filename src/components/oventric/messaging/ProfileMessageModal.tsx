@@ -160,10 +160,10 @@ export function ProfileMessageModal({
   // Reset local composer state each time the modal opens
   useEffect(() => {
     if (!open) return;
-    setDraft("");
+    setDraft(initialDraft ?? "");
     setAttachment(null);
     setError(null);
-  }, [open]);
+  }, [open, initialDraft]);
 
   // Sign any attachment paths present in loaded history
   useEffect(() => {
