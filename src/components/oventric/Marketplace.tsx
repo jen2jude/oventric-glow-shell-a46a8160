@@ -592,7 +592,7 @@ function SubPill({ label, active, onClick }: { label: string; active: boolean; o
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap ${
+      className={`shrink-0 px-3.5 py-1.5 rounded-none text-xs font-semibold border transition-colors whitespace-nowrap ${
         active
           ? "bg-emerald-600 border-emerald-600 text-white"
           : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
@@ -800,8 +800,8 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
-      <div className="aspect-[4/3] rounded-xl bg-slate-100 mb-3" />
+    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
+      <div className="aspect-[4/3] rounded-none bg-slate-100 mb-3" />
       <div className="h-4 w-3/4 bg-slate-100 rounded mb-2" />
       <div className="h-3 w-1/2 bg-slate-100 rounded mb-4" />
       <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
@@ -816,12 +816,12 @@ function MarketplaceSkeleton() {
   return (
     <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
       <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
-        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
+        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
       </div>
       <div className="flex gap-3 mb-6 overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-xl bg-slate-100 animate-pulse" />
+          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse" />
         ))}
       </div>
       <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
