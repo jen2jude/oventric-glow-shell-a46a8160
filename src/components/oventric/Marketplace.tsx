@@ -562,13 +562,13 @@ function MiniProductCard({
             Promoted
           </span>
         )}
-        <span className="absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 text-amber-600 rounded-full px-1.5 py-0.5 shadow-sm">
-          <Star className="w-2.5 h-2.5 fill-current" />
-          {p.rating.toFixed(1)}
+        <span className={`absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 rounded-full px-1.5 py-0.5 shadow-sm ${p.rating > 0 ? "text-amber-600" : "text-slate-400"}`}>
+          <Star className={`w-2.5 h-2.5 ${p.rating > 0 ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-300"}`} />
+          {(p.rating || 0).toFixed(1)}
         </span>
       </div>
       <div className="px-3 py-2">
-        <div className="text-[10px] font-black uppercase tracking-wider text-red-600 truncate">
+        <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
           {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
         </div>
         <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{p.name}</div>
@@ -712,7 +712,7 @@ function ProductCard({
         </span>
       </div>
       <div className="flex-1 min-w-0">
-        <div className="text-[10px] font-black uppercase tracking-wider text-red-600 truncate">
+        <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
           {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
         </div>
         <h3 className="text-slate-900 text-sm sm:text-base font-semibold leading-snug line-clamp-2">{p.name}</h3>
@@ -722,12 +722,18 @@ function ProductCard({
             <MapPin className="w-3 h-3" /> {p.location}
           </div>
         )}
-        <div className="flex items-center gap-1 mt-1 text-[11px] text-amber-500">
+        <div className="flex items-center gap-1 mt-1 text-[11px]">
           {[1, 2, 3, 4, 5].map((s) => (
-            <Star key={s} className={`w-3 h-3 ${s <= Math.round(p.rating) ? "fill-current" : "text-slate-300"}`} />
+            <Star
+              key={s}
+              className={`w-3 h-3 ${
+                s <= Math.round(p.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300 fill-slate-200"
+              }`}
+            />
           ))}
-          <span className="font-semibold text-slate-700 ml-0.5">{p.rating.toFixed(1)}</span>
-          <span className="text-red-600 font-semibold">({p.reviews})</span>
+          <span className={`font-semibold ml-0.5 ${p.rating > 0 ? "text-slate-700" : "text-slate-400"}`}>
+            {(p.rating || 0).toFixed(1)}
+          </span>
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
