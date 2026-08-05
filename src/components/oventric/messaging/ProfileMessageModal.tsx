@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Paperclip, Send, X, FileText, AlertTriangle } from "lucide-react";
+import { Loader2, Paperclip, Send, X, FileText, AlertTriangle, ShoppingBag, ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -22,11 +23,55 @@ export interface ProfileMessageRecipient {
   slug?: string | null;
 }
 
+/** A product "clipped" into the conversation (marketplace → chat with seller). */
+export interface ChatProductPin {
+  id: string;
+  name: string;
+  coverUrl?: string | null;
+  priceLabel?: string | null;
+}
+
 interface ProfileMessageModalProps {
   open: boolean;
   onClose: () => void;
   recipient: ProfileMessageRecipient;
+  /** Pre-filled composer text (e.g. the product enquiry line). */
+  initialDraft?: string;
+  /** Product card clipped to the composer and sent with the first message. */
+  pinnedProduct?: ChatProductPin | null;
 }
+
+const PRODUCT_LINK_RE = /https?:\/\/[^\s]*\/product\/([0-9a-fA-F-]{36})/;
+
+/** Inline product card rendered inside a chat bubble when the body carries a product link. */
+function ProductBubbleCard({ productId, mine }: { productId: string; mine: boolean }) {
+  return (
+    <div
+      className={`mt-2 rounded-lg overflow-hidden border ${
+        mine ? "border-white/30 bg-black/15" : "border-white/10 md:border-slate-200 bg-black/20 md:bg-white"
+      }`}
+    >
+      <Link
+        to="/product/$id"
+        params={{ id: productId }}
+        className="flex items-center gap-2 px-2.5 py-2 hover:opacity-90"
+      >
+        <ShoppingBag className={`w-4 h-4 shrink-0 ${mine ? "text-white" : "text-emerald-400"}`} />
+        <span className={`text-[11px] font-semibold truncate ${mine ? "text-white" : "text-slate-200 md:text-slate-700"}`}>
+          Product attached — tap to open
+        </span>
+      </Link>
+      <Link
+        to="/product/$id"
+        params={{ id: productId }}
+        className="flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-500 text-white text-[11px] font-bold py-2"
+      >
+        <ExternalLink className="w-3.5 h-3.5" /> View product
+      </Link>
+    </div>
+  );
+}
+
 
 const MAX_BODY = 4000;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
@@ -56,7 +101,13 @@ interface PendingAttachment {
   error: string | null;
 }
 
-export function ProfileMessageModal({ open, onClose, recipient }: ProfileMessageModalProps) {
+export function ProfileMessageModal({
+  open,
+  onClose,
+  recipient,
+  initialDraft,
+  pinnedProduct,
+}: ProfileMessageModalProps) {
   const { session } = useAuthGate();
   const me = session?.user?.id ?? null;
 
@@ -109,10 +160,10 @@ export function ProfileMessageModal({ open, onClose, recipient }: ProfileMessage
   // Reset local composer state each time the modal opens
   useEffect(() => {
     if (!open) return;
-    setDraft("");
+    setDraft(initialDraft ?? "");
     setAttachment(null);
     setError(null);
-  }, [open]);
+  }, [open, initialDraft]);
 
   // Sign any attachment paths present in loaded history
   useEffect(() => {
@@ -385,7 +436,16 @@ export function ProfileMessageModal({ open, onClose, recipient }: ProfileMessage
                           : "bg-[#2A2A32] md:bg-slate-100 border border-white/5 md:border-slate-200"
                       } ${isTmp ? "opacity-70" : ""}`}
                     >
-                      {m.body && <div className="leading-relaxed whitespace-pre-wrap break-words">{m.body}</div>}
+                      {(() => {
+                        const match = m.body ? PRODUCT_LINK_RE.exec(m.body) : null;
+                        const text = m.body ? m.body.replace(PRODUCT_LINK_RE, "").trim() : "";
+                        return (
+                          <>
+                            {text && <div className="leading-relaxed whitespace-pre-wrap break-words">{text}</div>}
+                            {match && <ProductBubbleCard productId={match[1]} mine={mine} />}
+                          </>
+                        );
+                      })()}
                       {m.media_path && (
                         <div className="mt-1.5">
                           {isImage && url ? (
@@ -430,6 +490,24 @@ export function ProfileMessageModal({ open, onClose, recipient }: ProfileMessage
           </div>
 
           <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3 shrink-0">
+            {pinnedProduct && (
+              <div className="mb-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 md:bg-emerald-50 px-2.5 py-2">
+                <div className="w-9 h-9 rounded overflow-hidden bg-white/10 md:bg-slate-100 shrink-0 flex items-center justify-center">
+                  {pinnedProduct.coverUrl ? (
+                    <img src={pinnedProduct.coverUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <ShoppingBag className="w-4 h-4 text-emerald-400" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Product clipped</div>
+                  <div className="text-xs text-slate-200 md:text-slate-800 font-semibold truncate">{pinnedProduct.name}</div>
+                </div>
+                {pinnedProduct.priceLabel && (
+                  <div className="text-xs font-black text-emerald-300 md:text-emerald-600 shrink-0">{pinnedProduct.priceLabel}</div>
+                )}
+              </div>
+            )}
             {attachment && (
               <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-2.5 py-2">
                 {attachment.previewUrl ? (
