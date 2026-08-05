@@ -161,7 +161,12 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
             : "bg-[#2A2A32] md:bg-slate-100 border border-white/5 md:border-slate-200"
         }`}
       >
-        {msg.body && <div className="leading-relaxed whitespace-pre-wrap break-words">{msg.body}</div>}
+        {stripProductLink(msg.body) && (
+          <div className="leading-relaxed whitespace-pre-wrap break-words">{stripProductLink(msg.body)}</div>
+        )}
+        {extractProductId(msg.body) && (
+          <ProductBubbleCard productId={extractProductId(msg.body)!} mine={mine} />
+        )}
         {msg.media_path && (
           <div className="mt-1 text-[11px] italic opacity-80">📎 attachment</div>
         )}
