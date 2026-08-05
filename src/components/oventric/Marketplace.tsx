@@ -318,7 +318,7 @@ export function Marketplace() {
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
                     <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
-                    <span className="absolute right-2 top-2 text-[10px] font-bold bg-white/90 text-slate-700 rounded-full px-1.5 py-0.5 shadow-sm">
+                    <span className="absolute right-2 top-2 text-[10px] font-black bg-red-600 text-white rounded-full px-1.5 py-0.5 shadow-sm ring-1 ring-white/70">
                       {c.count}
                     </span>
                   </div>
