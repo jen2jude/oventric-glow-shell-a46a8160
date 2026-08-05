@@ -165,11 +165,8 @@ function ProductPage() {
                   {product.delivery && <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">Delivery: {product.delivery}</span>}
                 </div>
               )}
-              <div className="flex items-center gap-1 text-sm text-amber-300 mb-5">
-                <Star className="w-4 h-4 fill-current" />
-                <span className="font-semibold">{product.rating.toFixed(1)}</span>
-                <span className="text-slate-500 md:text-slate-500">({product.reviews} reviews)</span>
-              </div>
+              <ProductRating productId={product.id} initialAverage={product.rating} initialCount={product.reviews} />
+
 
               <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6">{product.description || "No description provided."}</p>
 
