@@ -315,7 +315,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
   return (
     <div className="min-h-full bg-white text-slate-700">
-      <SiteNavbar onSelect={onSelect} avatarUrl={avatarUrl} name={name} search={renderSearch("nav")} />
+      <SiteNavbar onSelect={onSelect} onCreate={onCreate} avatarUrl={avatarUrl} name={name} search={renderSearch("nav")} />
 
       {/* Hero */}
       <section className="relative min-h-[92vh] overflow-hidden">
