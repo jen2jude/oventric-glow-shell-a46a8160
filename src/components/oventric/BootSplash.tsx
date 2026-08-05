@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { ShoppingCart, Banknote, Target, GraduationCap, Wallet, MessageCircle } from "lucide-react";
-import logoFull from "@/assets/oventric-full.asset.json";
+import logoFull from "@/assets/oventric-full-transparent.png";
 
 const ICONS = [
   { Icon: ShoppingCart, color: "#ff4d6d" },
@@ -96,7 +96,7 @@ export function BootSplash() {
       style={{ opacity: fading ? 0 : 1 }}
     >
       <img
-        src={logoFull.url}
+        src={logoFull}
         alt=""
         className="h-12 w-auto select-none sm:h-14"
         draggable={false}
