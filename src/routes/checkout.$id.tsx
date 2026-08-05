@@ -566,7 +566,7 @@ function CheckoutPage() {
                 {cashbackApplyUSD > 0 && (
                   <div className="flex justify-between text-emerald-300"><span>Cashback applied</span><span>− {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}</span></div>
                 )}
-                <div className="flex justify-between text-slate-400 md:text-slate-500"><span>Processing</span><span>Free</span></div>
+                <div className="flex justify-between text-slate-400 md:text-slate-500"><span>Processing</span><span /></div>
                 <div className="flex justify-between text-white md:text-slate-900 font-black text-base pt-2 border-t border-white/5 md:border-slate-200"><span>Total</span><span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span></div>
               </div>
 
