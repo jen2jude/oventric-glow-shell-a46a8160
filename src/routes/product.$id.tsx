@@ -102,7 +102,7 @@ function productDisplay(p: ProductDTO, viewer: Currency) {
 
 export const Route = createFileRoute("/product/$id")({
   ssr: false,
-  validateSearch: (s: { qty?: unknown }) => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
+  validateSearch: (s: { qty?: unknown }): { qty?: number } => ({ qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)) }),
   head: () => ({
     meta: [
       { title: "Product · Oventric Marketplace" },
