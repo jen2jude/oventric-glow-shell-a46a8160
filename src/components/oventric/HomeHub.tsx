@@ -7,6 +7,7 @@ import {
   Plus,
   ArrowDownToLine,
   ArrowUpFromLine,
+  Send,
   Store,
   Target,
   GraduationCap,
@@ -38,6 +39,7 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { PromoBanners } from "@/components/oventric/PromoBanners";
 import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
 
