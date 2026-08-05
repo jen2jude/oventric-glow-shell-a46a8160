@@ -325,7 +325,7 @@ export function Marketplace() {
                   <div className="px-3 py-2">
                     <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{c.name}</div>
                     {c.subs.length > 0 && (
-                      <div className="text-[11px] text-slate-500 mt-0.5 inline-flex items-center gap-1">
+                      <div className="text-[11px] font-semibold text-red-600 mt-0.5 inline-flex items-center gap-1">
                         {c.subs.length} subcategories <ChevronDown className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`} />
                       </div>
                     )}
