@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Paperclip, Send, X, FileText, AlertTriangle } from "lucide-react";
+import { Loader2, Paperclip, Send, X, FileText, AlertTriangle, ShoppingBag } from "lucide-react";
 import {
   ProductBubbleCard,
   extractProductId,
