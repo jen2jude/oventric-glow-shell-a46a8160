@@ -131,9 +131,11 @@ export async function buildPaymentIntent(
     converted = convertViaSnapshot(totalUSD, "USD", displayCurrency, snap);
   }
 
-  const amount = Number(
-    (converted > 0 ? converted : totalUSD * (FX_FROM_USD[displayCurrency] ?? 1)).toFixed(2),
-  );
+  // Round to the SAME precision the UI displays, so the amount the buyer sees
+  // (e.g. ₵191) is exactly what the gateway charges — not ₵190.98.
+  const raw = converted > 0 ? converted : totalUSD * (FX_FROM_USD[displayCurrency] ?? 1);
+  const amount =
+    currencyDecimals(displayCurrency) === 0 ? Math.round(raw) : Number(raw.toFixed(2));
 
   metadata.product_id = p.id;
   metadata.quantity = qty;
