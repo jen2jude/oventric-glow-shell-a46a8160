@@ -267,7 +267,7 @@ function RootShell({ children }: { children: ReactNode }) {
             <BootSplash /> once the app is interactive. */}
         <div id="oventric-boot" aria-hidden>
           <img
-            src="/__l5e/assets-v1/685da575-6dc3-4bb2-8c32-a75c68fd8b6a/oventric-full.png"
+            src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
             alt=""
             draggable={false}
           />
