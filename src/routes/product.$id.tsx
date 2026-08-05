@@ -110,7 +110,10 @@ export const Route = createFileRoute("/product/$id")({
       return {
         title: p.name as string,
         description: ((p.description as string) || "").slice(0, 155) || "Buy digital assets from Oventric's marketplace.",
-        image: (p.coverUrl as string | null) ?? (p.imageUrls as string[] | undefined)?.[0] ?? null,
+        image: (() => {
+          const path = (p.coverPath as string | null) ?? (p.imagePaths as string[] | undefined)?.[0] ?? null;
+          return path ? `https://oventric.com/api/public/img/product-covers/${path}` : null;
+        })(),
       };
     } catch {
       return null;
