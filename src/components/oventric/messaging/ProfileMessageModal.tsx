@@ -490,6 +490,24 @@ export function ProfileMessageModal({
           </div>
 
           <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3 shrink-0">
+            {pinnedProduct && (
+              <div className="mb-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 md:bg-emerald-50 px-2.5 py-2">
+                <div className="w-9 h-9 rounded overflow-hidden bg-white/10 md:bg-slate-100 shrink-0 flex items-center justify-center">
+                  {pinnedProduct.coverUrl ? (
+                    <img src={pinnedProduct.coverUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    <ShoppingBag className="w-4 h-4 text-emerald-400" />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Product clipped</div>
+                  <div className="text-xs text-slate-200 md:text-slate-800 font-semibold truncate">{pinnedProduct.name}</div>
+                </div>
+                {pinnedProduct.priceLabel && (
+                  <div className="text-xs font-black text-emerald-300 md:text-emerald-600 shrink-0">{pinnedProduct.priceLabel}</div>
+                )}
+              </div>
+            )}
             {attachment && (
               <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-2.5 py-2">
                 {attachment.previewUrl ? (
