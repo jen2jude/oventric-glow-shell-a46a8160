@@ -301,7 +301,7 @@ export function Marketplace() {
                 <button
                   key={c.slug}
                   onClick={() => selectCat(c.slug)}
-                  className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
+                  className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-none overflow-hidden border transition-colors ${
                     active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
                   }`}
                 >
@@ -318,12 +318,12 @@ export function Marketplace() {
                     ) : null}
                     <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
                     <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
-                    <span className="absolute right-2 top-2 text-[10px] font-black bg-red-600 text-white rounded-full px-1.5 py-0.5 shadow-sm ring-1 ring-white/70">
+                    <span className="absolute right-2 top-2 text-[10px] font-black bg-red-600 text-white rounded-none px-1.5 py-0.5 shadow-sm ring-1 ring-white/70">
                       {c.count}
                     </span>
                   </div>
                   <div className="px-3 py-2">
-                    <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{c.name}</div>
+                    <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">{c.name}</div>
                     {c.subs.length > 0 && (
                       <div className="text-[11px] font-semibold text-red-600 mt-0.5 inline-flex items-center gap-1">
                         {c.subs.length} subcategories <ChevronDown className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`} />
@@ -498,7 +498,7 @@ function ModeCard({
     <button
       onClick={onClick}
       aria-expanded={active}
-      className={`text-left rounded-2xl overflow-hidden border transition-colors ${
+      className={`text-left rounded-none overflow-hidden border transition-colors ${
         active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
@@ -512,13 +512,13 @@ function ModeCard({
         ))}
         <div className="absolute inset-0 bg-gradient-to-t from-black/45 via-black/10 to-transparent" />
         <Icon className="absolute left-3 top-3 w-6 h-6 text-white" />
-        <span className="absolute right-3 top-3 text-[10px] font-black uppercase tracking-wider bg-red-600 text-white rounded-full px-2 py-0.5 shadow-sm ring-1 ring-white/70">
+        <span className="absolute right-3 top-3 text-[10px] font-black uppercase tracking-wider bg-red-600 text-white rounded-none px-2 py-0.5 shadow-sm ring-1 ring-white/70">
           {count} items
         </span>
       </div>
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-slate-900 font-extrabold text-sm sm:text-lg leading-tight">{label}</h2>
+          <h2 className="text-slate-900 font-extrabold text-[13px] sm:text-base leading-tight">{label}</h2>
           <ChevronDown className={`w-4 h-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180" : ""}`} />
         </div>
         <p className="text-[11px] sm:text-xs text-slate-500 mt-1 leading-snug">{sub}</p>
@@ -536,10 +536,12 @@ function MiniProductCard({
   onClick: () => void;
 }) {
   const Icon = categoryIcon(p.category);
+  const mp = displayPriceForProduct(p, currency);
+  const miniPrice = (Number(mp.value) || 0) <= 0 ? "FREE" : mp.formatted;
   return (
     <button
       onClick={onClick}
-      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-xl overflow-hidden border transition-colors ${
+      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-none overflow-hidden border transition-colors ${
         p.promoted ? "border-emerald-400 bg-emerald-50/60" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
@@ -558,22 +560,26 @@ function MiniProductCard({
         <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
         <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
         {p.promoted && (
-          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-full px-1.5 py-0.5 shadow-sm">
+          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-none px-1.5 py-0.5 shadow-sm">
             Promoted
           </span>
         )}
-        <span className={`absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 rounded-full px-1.5 py-0.5 shadow-sm ${p.rating > 0 ? "text-amber-600" : "text-slate-400"}`}>
+        <span className={`absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 rounded-none px-1.5 py-0.5 shadow-sm ${p.rating > 0 ? "text-amber-600" : "text-slate-400"}`}>
           <Star className={`w-2.5 h-2.5 ${p.rating > 0 ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-300"}`} />
           {(p.rating || 0).toFixed(1)}
         </span>
       </div>
       <div className="px-3 py-2">
-        <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
-          {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
-        </div>
-        <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{p.name}</div>
+        {p.kind === "physical" ? (
+          <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
+            {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
+          </div>
+        ) : (
+          <CategoryTicker label={`${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`} />
+        )}
+        <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">{p.name}</div>
         <div className="mt-1 flex items-center justify-between gap-2">
-          <span className="text-slate-900 font-extrabold text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
+          <span className="text-red-600 font-extrabold text-xs truncate">{miniPrice}</span>
           <span className="text-[10px] text-slate-500 shrink-0">{p.reviews} sold</span>
         </div>
       </div>
@@ -586,7 +592,7 @@ function SubPill({ label, active, onClick }: { label: string; active: boolean; o
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 px-3.5 py-1.5 rounded-full text-xs font-semibold border transition-colors whitespace-nowrap ${
+      className={`shrink-0 px-3.5 py-1.5 rounded-none text-xs font-semibold border transition-colors whitespace-nowrap ${
         active
           ? "bg-emerald-600 border-emerald-600 text-white"
           : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
@@ -674,19 +680,28 @@ function CategoryTicker({ label }: { label: string }) {
     const t = setInterval(() => setAlt((v) => !v), 3200);
     return () => clearInterval(t);
   }, []);
+  const base =
+    "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div
-        key={alt ? "promo" : "cat"}
-        className={`animate-fade-in truncate text-[10px] font-black uppercase tracking-wider ${
-          alt ? "text-red-600" : "text-emerald-600 sm:text-red-600"
+        className={`${base} text-emerald-600 sm:text-red-600 ${
+          alt ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
-        {alt ? "Save · earn 2% cashback on this offer" : label}
+        {label}
+      </div>
+      <div
+        className={`${base} text-red-600 ${
+          alt ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        }`}
+      >
+        Earn 2% Cashback on this item
       </div>
     </div>
   );
 }
+
 
 function ProductCard({
   p,
@@ -785,8 +800,8 @@ function ProductCard({
 
 function SkeletonCard() {
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
-      <div className="aspect-[4/3] rounded-xl bg-slate-100 mb-3" />
+    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
+      <div className="aspect-[4/3] rounded-none bg-slate-100 mb-3" />
       <div className="h-4 w-3/4 bg-slate-100 rounded mb-2" />
       <div className="h-3 w-1/2 bg-slate-100 rounded mb-4" />
       <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
@@ -801,12 +816,12 @@ function MarketplaceSkeleton() {
   return (
     <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
       <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
-        <div className="h-44 rounded-2xl bg-slate-100 animate-pulse" />
+        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
       </div>
       <div className="flex gap-3 mb-6 overflow-hidden">
         {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-xl bg-slate-100 animate-pulse" />
+          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse" />
         ))}
       </div>
       <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
