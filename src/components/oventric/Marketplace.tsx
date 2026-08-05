@@ -674,19 +674,28 @@ function CategoryTicker({ label }: { label: string }) {
     const t = setInterval(() => setAlt((v) => !v), 3200);
     return () => clearInterval(t);
   }, []);
+  const base =
+    "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div
-        key={alt ? "promo" : "cat"}
-        className={`animate-fade-in truncate text-[10px] font-black uppercase tracking-wider ${
-          alt ? "text-red-600" : "text-emerald-600 sm:text-red-600"
+        className={`${base} text-emerald-600 sm:text-red-600 ${
+          alt ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
-        {alt ? "Save · earn 2% cashback on this offer" : label}
+        {label}
+      </div>
+      <div
+        className={`${base} text-red-600 ${
+          alt ? "translate-y-0 opacity-100" : "translate-y-full opacity-0"
+        }`}
+      >
+        Earn 2% Cashback on this item
       </div>
     </div>
   );
 }
+
 
 function ProductCard({
   p,
