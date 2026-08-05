@@ -857,6 +857,8 @@ export const createOrder = createServerFn({ method: "POST" })
       .insert({
         buyer_id: userId,
         product_id: product.id,
+        product_name_snapshot: product.name,
+        product_category_snapshot: product.category,
         seller_id: product.sellerId,
         quantity: data.quantity,
         unit_price_usd: product.priceUSD,
