@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { Loader2, Paperclip, Send, X, FileText, AlertTriangle } from "lucide-react";
+import { Loader2, Paperclip, Send, X, FileText, AlertTriangle, ShoppingBag, ExternalLink } from "lucide-react";
+import { Link } from "@tanstack/react-router";
 import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
