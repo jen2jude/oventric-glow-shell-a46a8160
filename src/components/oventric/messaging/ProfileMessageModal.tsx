@@ -45,36 +45,6 @@ interface ProfileMessageModalProps {
   pinnedProduct?: ChatProductPin | null;
 }
 
-const PRODUCT_LINK_RE = /https?:\/\/[^\s]*\/product\/([0-9a-fA-F-]{36})/;
-
-/** Inline product card rendered inside a chat bubble when the body carries a product link. */
-function ProductBubbleCard({ productId, mine }: { productId: string; mine: boolean }) {
-  return (
-    <div
-      className={`mt-2 rounded-lg overflow-hidden border ${
-        mine ? "border-white/30 bg-black/15" : "border-white/10 md:border-slate-200 bg-black/20 md:bg-white"
-      }`}
-    >
-      <Link
-        to="/product/$id"
-        params={{ id: productId }}
-        className="flex items-center gap-2 px-2.5 py-2 hover:opacity-90"
-      >
-        <ShoppingBag className={`w-4 h-4 shrink-0 ${mine ? "text-white" : "text-emerald-400"}`} />
-        <span className={`text-[11px] font-semibold truncate ${mine ? "text-white" : "text-slate-200 md:text-slate-700"}`}>
-          Product attached — tap to open
-        </span>
-      </Link>
-      <Link
-        to="/product/$id"
-        params={{ id: productId }}
-        className="flex items-center justify-center gap-1.5 bg-red-600 hover:bg-red-500 text-white text-[11px] font-bold py-2"
-      >
-        <ExternalLink className="w-3.5 h-3.5" /> View product
-      </Link>
-    </div>
-  );
-}
 
 
 const MAX_BODY = 4000;
