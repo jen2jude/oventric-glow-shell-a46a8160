@@ -868,14 +868,8 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
         </div>
         {numericAmount > 0 && (
           <div className="mt-1 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed">
-            You&apos;ll be charged{" "}
-            <span className="text-slate-200 md:text-slate-700 font-semibold">
-              {symbol}{formattedCharge}
-            </span>{" "}
-            via Paystack — that&apos;s your{" "}
-            <span className="text-slate-300 md:text-slate-600">{symbol}{fmt(numericAmount)}</span> top-up plus a{" "}
-            <span className="text-amber-300">{symbol}{formattedFee}</span> Paystack transaction fee.
-            Your wallet is credited with the full {symbol}{fmt(numericAmount)}.
+            You&apos;ll be charged via Paystack — your top-up amount plus a Paystack transaction fee.
+            Your wallet is credited with the full top-up amount.
           </div>
         )}
       </div>
