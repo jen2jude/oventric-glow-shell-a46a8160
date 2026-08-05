@@ -436,7 +436,16 @@ export function ProfileMessageModal({
                           : "bg-[#2A2A32] md:bg-slate-100 border border-white/5 md:border-slate-200"
                       } ${isTmp ? "opacity-70" : ""}`}
                     >
-                      {m.body && <div className="leading-relaxed whitespace-pre-wrap break-words">{m.body}</div>}
+                      {(() => {
+                        const match = m.body ? PRODUCT_LINK_RE.exec(m.body) : null;
+                        const text = m.body ? m.body.replace(PRODUCT_LINK_RE, "").trim() : "";
+                        return (
+                          <>
+                            {text && <div className="leading-relaxed whitespace-pre-wrap break-words">{text}</div>}
+                            {match && <ProductBubbleCard productId={match[1]} mine={mine} />}
+                          </>
+                        );
+                      })()}
                       {m.media_path && (
                         <div className="mt-1.5">
                           {isImage && url ? (
