@@ -15,13 +15,44 @@ import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/blog/$slug")({
-  head: ({ params }) => ({
-    meta: [
-      { title: `Reading… — Oventric Blog` },
-      { name: "description", content: "Read this article on the Oventric Blog." },
-      { property: "og:title", content: `Oventric Blog — /${params.slug}` },
-    ],
-  }),
+  // Run loader + head on the server so crawlers get real preview tags,
+  // while the page itself still hydrates/renders on the client.
+  ssr: "data-only",
+  loader: async ({ params }) => {
+    try {
+      const r = await getBlogPost({ data: { slug: params.slug } });
+      const p = r.post;
+      return p
+        ? { title: p.title, description: p.excerpt || "Read this article on the Oventric Blog.", image: p.cover_url }
+        : null;
+    } catch {
+      return null;
+    }
+  },
+  head: ({ params, loaderData }) => {
+    const url = `https://oventric.com/blog/${params.slug}`;
+    const title = loaderData?.title ? `${loaderData.title} — Oventric Blog` : "Oventric Blog";
+    const description = loaderData?.description ?? "Read this article on the Oventric Blog.";
+    const image = loaderData?.image;
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:title", content: title },
+        { property: "og:description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        ...(image
+          ? [
+              { property: "og:image", content: image },
+              { name: "twitter:image", content: image },
+            ]
+          : []),
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   component: BlogArticle,
 });
 
