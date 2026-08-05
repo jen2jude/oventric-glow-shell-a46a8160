@@ -207,18 +207,7 @@ export function CourseCheckoutModal({
         </div>
 
         <div className="p-5 space-y-5">
-          {!isFree && conversionNeeded ? (
-            <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 p-4 text-sm text-amber-200">
-              <div className="text-white font-bold mb-1">Not available in your region</div>
-              <p className="text-amber-200/80">
-                This course is priced in {String(course.originalCurrency).toUpperCase()} and can only be enrolled in
-                by accounts based in that currency’s region. Your account transacts in {baseCurrency}.
-              </p>
-              <button onClick={onClose} className="mt-3 inline-flex items-center gap-2 px-3 py-1.5 rounded-md bg-white/10 hover:bg-white/20 text-white text-xs font-bold">
-                Close
-              </button>
-            </div>
-          ) : done ? (
+          {done ? (
             <div className="text-center py-8">
               <div className="relative w-20 h-20 mx-auto mb-4">
                 <div className="absolute inset-0 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
