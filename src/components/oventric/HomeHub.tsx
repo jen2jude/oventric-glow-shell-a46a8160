@@ -107,7 +107,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   const [bountyOpen, setBountyOpen] = useState(false);
-  const [transferOpen, setTransferOpen] = useState(false);
+  const [sendSoonOpen, setSendSoonOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
   const loadBalances = useServerFn(getWalletBalances);
