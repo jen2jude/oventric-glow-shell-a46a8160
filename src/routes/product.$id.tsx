@@ -11,6 +11,7 @@ import { getProductRating, rateProduct } from "@/lib/product-reviews.functions";
 import { supabase } from "@/integrations/supabase/client";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
 
 function ProductRating({
   productId,
@@ -157,6 +158,7 @@ function ProductPage() {
   const [error, setError] = useState<string | null>(null);
   const [qty, setQty] = useState(1);
   const [contactOpen, setContactOpen] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
 
   useEffect(() => {
@@ -176,6 +178,10 @@ function ProductPage() {
 
   const openContact = () => {
     require(1, () => setContactOpen(true), "buyer");
+  };
+
+  const openSellerChat = () => {
+    require(1, () => setChatOpen(true), "buyer");
   };
 
   return (
@@ -324,6 +330,14 @@ function ProductPage() {
                 >
                   <ShoppingCart className="w-4 h-4" /> Buy Now
                 </button>
+                {product.kind !== "physical" && (
+                  <button
+                    onClick={openSellerChat}
+                    className="mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-[#121214] md:bg-white text-emerald-400 md:text-emerald-600 border border-emerald-500/40 hover:border-emerald-400 hover:bg-emerald-500/10 font-bold text-sm transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" /> Chat with seller
+                  </button>
+                )}
               </div>
 
               <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
@@ -336,6 +350,20 @@ function ProductPage() {
           </div>
         )}
       </main>
+      {product && product.kind !== "physical" && (
+        <ProfileMessageModal
+          open={chatOpen}
+          onClose={() => setChatOpen(false)}
+          recipient={{ userId: product.sellerId, displayName: product.vendor, slug: product.sellerSlug }}
+          pinnedProduct={{
+            id: product.id,
+            name: product.name,
+            coverUrl: product.coverUrl,
+            priceLabel: productDisplay(product, baseCurrency).formatted,
+          }}
+          initialDraft={`Hi ${product.vendor}! I'm interested in "${product.name}" (${productDisplay(product, baseCurrency).formatted}) on Oventric. Is it available and can you deliver right away?\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`}
+        />
+      )}
       {contactOpen && product && product.kind === "physical" && (
         <ContactSellerModal product={product} onClose={() => setContactOpen(false)} />
       )}
