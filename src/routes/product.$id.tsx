@@ -133,6 +133,8 @@ export const Route = createFileRoute("/product/$id")({
         { property: "og:type", content: "product" },
         { property: "og:url", content: url },
         { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        { name: "twitter:title", content: title },
+        { name: "twitter:description", content: description },
         ...(image
           ? [
               { property: "og:image", content: image },
