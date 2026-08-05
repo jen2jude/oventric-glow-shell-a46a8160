@@ -494,21 +494,25 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         onClose={() => setBountyOpen(false)}
         onPublished={() => onSelect("Bounties")}
       />
-      {transferOpen && (
-        <TransferModal
-          onClose={() => setTransferOpen(false)}
-          onDone={() => {
-            loadBalances()
-              .then((r) => {
-                setMain(r.balances[baseCurrency] ?? 0);
-                setEscrow(r.escrow[baseCurrency] ?? 0);
-                setCashback(r.cashback ?? 0);
-                setBounty(r.bountyBalance ?? 0);
-              })
-              .catch(() => {});
-          }}
-        />
-      )}
+      <Dialog open={sendSoonOpen} onOpenChange={setSendSoonOpen}>
+        <DialogContent className="sm:max-w-sm bg-[#1E1E24] border-white/10 text-white">
+          <DialogHeader>
+            <DialogTitle className="text-center text-white">Send to users</DialogTitle>
+            <DialogDescription className="text-center text-slate-400">
+              Big things coming soon, stay tuned!
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter className="mt-4">
+            <button
+              type="button"
+              onClick={() => setSendSoonOpen(false)}
+              className="w-full h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
+            >
+              OK
+            </button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
