@@ -190,6 +190,7 @@ export const getBlogPost = createServerFn({ method: "GET" })
       excerpt: row.excerpt,
       body_html: row.body_html,
       cover_url: row.cover_path ? covers.get(row.cover_path) ?? null : null,
+      cover_path: row.cover_path ?? null,
       category_slug: (cat as any)?.slug ?? null,
       category_name: (cat as any)?.name ?? null,
       author_name: (prof as any)?.display_name || (prof as any)?.username || "Oventric",
