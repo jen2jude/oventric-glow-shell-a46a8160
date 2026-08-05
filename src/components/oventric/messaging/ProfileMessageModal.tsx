@@ -101,7 +101,13 @@ interface PendingAttachment {
   error: string | null;
 }
 
-export function ProfileMessageModal({ open, onClose, recipient }: ProfileMessageModalProps) {
+export function ProfileMessageModal({
+  open,
+  onClose,
+  recipient,
+  initialDraft,
+  pinnedProduct,
+}: ProfileMessageModalProps) {
   const { session } = useAuthGate();
   const me = session?.user?.id ?? null;
 
