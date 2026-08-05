@@ -17,6 +17,7 @@ import {
   Cloud,
   Truck,
   X,
+  Search,
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
@@ -74,6 +75,7 @@ export function Marketplace() {
 
   // Filters
   const [filtersOpen, setFiltersOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [minPrice, setMinPrice] = useState("");
   const [maxPrice, setMaxPrice] = useState("");
   const [minRating, setMinRating] = useState(0);
@@ -148,10 +150,18 @@ export function Marketplace() {
 
   const activeCatNode = categories.find((c) => c.slug === activeCat) ?? null;
 
+  const searchTerm = searchQuery.trim().toLowerCase();
+
   const filtered = useMemo(() => {
     let list = modeItems;
     if (activeCat) list = list.filter((p) => norm(p.category) === activeCat);
     if (activeSub) list = list.filter((p) => norm(p.subcategory) === activeSub);
+    if (searchTerm) {
+      list = list.filter((p) => {
+        const hay = `${p.name} ${p.category} ${p.subcategory ?? ""} ${p.vendor ?? ""}`.toLowerCase();
+        return hay.includes(searchTerm);
+      });
+    }
     const min = Number(minPrice);
     const max = Number(maxPrice);
     list = list.filter((p) => {
@@ -173,7 +183,7 @@ export function Marketplace() {
       sorted.sort((a, b) => Number(b.promoted) - Number(a.promoted));
     }
     return sorted;
-  }, [modeItems, activeCat, activeSub, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
+  }, [modeItems, activeCat, activeSub, searchTerm, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
 
   // Sales proxy: review volume first, then rating, then promotion.
   const salesScore = (p: ProductDTO) => p.reviews * 10 + p.rating;
@@ -258,6 +268,29 @@ export function Marketplace() {
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
 
+      {/* ── Marketplace search ─────────────────────────────────── */}
+      <div className="mb-4 sm:mb-5">
+        <div className="relative max-w-2xl mx-auto group">
+          <input
+            type="search"
+            role="searchbox"
+            aria-label="Search marketplace products"
+            value={searchQuery}
+            onChange={(e) => {
+              setSearchQuery(e.target.value);
+              if (!mode) setMode("digital");
+              setFiltersOpen(true);
+            }}
+            onFocus={() => setFiltersOpen(true)}
+            placeholder="I'm looking for..."
+            className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
+          />
+          <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l border-slate-200 bg-slate-50 text-slate-500 group-focus-within:text-emerald-600 group-focus-within:bg-emerald-50 transition-colors pointer-events-none">
+            <Search className="w-5 h-5" />
+          </div>
+        </div>
+      </div>
+
       {/* ── Mode cards ─────────────────────────────────────────── */}
       <div className="grid grid-cols-2 gap-3 sm:gap-4">
         <ModeCard
@@ -281,7 +314,7 @@ export function Marketplace() {
       </div>
 
       {/* ── Category slider (drops down under the selected mode) ── */}
-      <Collapse open={!!mode && categories.length > 0}>
+      <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
         <div className="pt-5">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
@@ -353,7 +386,7 @@ export function Marketplace() {
       </Collapse>
 
       {/* ── Hot products (top sellers in this section) ───────────── */}
-      <Collapse open={!!mode && hotItems.length > 0}>
+      <Collapse open={!!mode && hotItems.length > 0 && !searchTerm}>
         <div className="pt-5">
           <div className="flex items-center gap-2 mb-3">
             <Flame className="w-4 h-4 text-orange-400" />
@@ -374,8 +407,16 @@ export function Marketplace() {
       {/* ── Toolbar + grid with side filter ──────────────────────── */}
       <div className="mt-6 flex items-center justify-between gap-3">
         <div className="text-sm text-slate-500">
-          <span className="text-slate-900 font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
-          {activeCatNode ? <> in <span className="text-emerald-600">{activeCatNode.name}</span></> : null}
+          {searchTerm ? (
+            <>
+              <span className="text-slate-900 font-bold">{filtered.length}</span> result{filtered.length === 1 ? "" : "s"} for “<span className="text-emerald-600">{searchTerm}</span>”
+            </>
+          ) : (
+            <>
+              <span className="text-slate-900 font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
+              {activeCatNode ? <> in <span className="text-emerald-600">{activeCatNode.name}</span></> : null}
+            </>
+          )}
         </div>
         <button
           onClick={() => setFiltersOpen((v) => !v)}
@@ -444,7 +485,7 @@ export function Marketplace() {
       </div>
 
       {/* ── Recommended: best sellers + promoted ─────────────────── */}
-      {recommended.length > 0 && (
+      {recommended.length > 0 && !searchTerm && (
         <section className="mt-10">
           <div className="flex items-center gap-2 mb-3">
             <Star className="w-4 h-4 text-amber-300 fill-current" />
