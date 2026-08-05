@@ -568,6 +568,9 @@ function MiniProductCard({
         </span>
       </div>
       <div className="px-3 py-2">
+        <div className="text-[10px] font-black uppercase tracking-wider text-red-600 truncate">
+          {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
+        </div>
         <div className="text-slate-900 text-sm font-semibold leading-snug line-clamp-2">{p.name}</div>
         <div className="mt-1 flex items-center justify-between gap-2">
           <span className="text-slate-900 font-extrabold text-xs truncate">{displayPriceForProduct(p, currency).formatted}</span>
