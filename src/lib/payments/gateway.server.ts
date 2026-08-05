@@ -8,7 +8,7 @@
 import { resolveFxRates } from "@/lib/fx.server";
 import { paystackFee } from "@/lib/paystack-fees";
 import { flutterwaveFee } from "@/lib/flutterwave-fees";
-import { dbCurrency } from "@/lib/currency/africa";
+import { dbCurrency, currencyDecimals } from "@/lib/currency/africa";
 import {
   DEFAULT_GATEWAY_SETTINGS,
   routeGateway,
