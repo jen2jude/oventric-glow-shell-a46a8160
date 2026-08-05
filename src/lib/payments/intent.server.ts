@@ -11,6 +11,7 @@
 import { getRequestHeader } from "@tanstack/react-start/server";
 import { primeRuntimeFxRates } from "@/lib/fx.server";
 import { convertViaSnapshot } from "@/lib/fx-display";
+import { currencyDecimals } from "@/lib/currency/africa";
 import { FX_FROM_USD, type OrderCurrency } from "@/lib/marketplace.functions";
 
 export type WalletTopupIntent = {
