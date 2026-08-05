@@ -24,6 +24,7 @@ export interface BlogListItem {
 
 export interface BlogDetail extends BlogListItem {
   body_html: string;
+  cover_path?: string | null;
   tags: { slug: string; name: string }[];
   viewer_reaction: BlogReaction | null;
 }
