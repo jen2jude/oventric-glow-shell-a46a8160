@@ -382,9 +382,10 @@ export function ProfileMessageModal({
         role="dialog"
         aria-modal="true"
         aria-label={`Message ${recipient.displayName}`}
-        className="fixed z-[71] inset-x-0 bottom-0 md:inset-0 md:flex md:items-center md:justify-center"
+        className="fixed z-[71] inset-0 md:flex md:items-center md:justify-center"
       >
-        <div className="w-full md:w-[520px] md:max-h-[80vh] max-h-[92vh] flex flex-col rounded-t-2xl md:rounded-2xl bg-[#16161B] md:bg-white border border-white/10 md:border-slate-200 shadow-2xl overflow-hidden">
+        <div className="w-full h-full md:w-[880px] md:max-w-full md:h-[88vh] flex flex-col rounded-none md:rounded-2xl bg-[#16161B] md:bg-white border-0 md:border border-white/10 md:border-slate-200 shadow-2xl overflow-hidden">
+
           <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10 md:border-slate-200 bg-[#1A1A1F] md:bg-white shrink-0">
             <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
               <AvatarImage src={recipient.avatarUrl ?? null} alt={recipient.displayName} className="rounded-full" />
