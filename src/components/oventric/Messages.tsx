@@ -17,6 +17,11 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { playNotificationSound } from "@/lib/notification-sound";
+import {
+  ProductBubbleCard,
+  extractProductId,
+  stripProductLink,
+} from "@/components/oventric/messaging/ProductBubbleCard";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import {
   listThreads,
