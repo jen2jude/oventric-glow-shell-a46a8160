@@ -100,15 +100,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
         </nav>
 
         <div className="ml-auto flex items-center gap-3">
-          {canWriteBlog && (
-            <Link
-              to="/admin/blog/$id"
-              params={{ id: "new" }}
-              className="inline-flex h-10 items-center gap-1.5 rounded-2xl border border-slate-200 px-3.5 text-sm font-semibold text-slate-700 transition-colors hover:border-slate-300 hover:text-slate-900"
-            >
-              <PenLine className="h-4 w-4" strokeWidth={2.5} /> Write blog
-            </Link>
-          )}
           {onCreate && (
             <button
               type="button"
