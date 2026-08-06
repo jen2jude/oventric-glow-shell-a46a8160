@@ -344,7 +344,7 @@ function ProductPage() {
             </div>
 
             <div>
-              <div className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">
+              <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
