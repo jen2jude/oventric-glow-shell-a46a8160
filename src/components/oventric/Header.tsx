@@ -385,22 +385,24 @@ export function Header({
             <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
           </button>
 
+          {/* Profile */}
+          {isAuthenticated ? (
             <div className="shrink-0 flex items-center gap-2.5 md:gap-3">
-                {isAuthenticated && (
-                  <div className="flex items-center gap-1.5 md:hidden mr-0.5">
-                    {country && COUNTRY_META[country] && (
-                      <span className="text-base leading-none" aria-hidden>
-                        {COUNTRY_META[country].flag}
-                      </span>
-                    )}
-                    <div className="flex flex-col items-start leading-none">
-                      <span className="text-[9px] font-black text-white uppercase">{country}</span>
-                      <span className="text-[8px] font-bold text-slate-400 uppercase">{baseCurrency}</span>
-                    </div>
+              {isAuthenticated && (
+                <div className="flex items-center gap-1.5 md:hidden mr-0.5">
+                  {country && COUNTRY_META[country] && (
+                    <span className="text-base leading-none" aria-hidden>
+                      {COUNTRY_META[country].flag}
+                    </span>
+                  )}
+                  <div className="flex flex-col items-start leading-none">
+                    <span className="text-[9px] font-black text-white uppercase">{country}</span>
+                    <span className="text-[8px] font-bold text-slate-400 uppercase">{baseCurrency}</span>
                   </div>
-                )}
-                <ProfileDropdown />
-              
+                </div>
+              )}
+              <ProfileDropdown />
+
               {/* Desktop candy-box menu (MegaMenu) */}
               <button
                 onClick={() => setMegaOpen(true)}
