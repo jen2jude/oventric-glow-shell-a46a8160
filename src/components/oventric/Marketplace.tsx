@@ -335,9 +335,8 @@ export function Marketplace() {
               onChange={(e) => {
                 setSearchQuery(e.target.value);
                 if (!mode) setMode("digital");
-                setFiltersOpen(true);
               }}
-              onFocus={() => setFiltersOpen(true)}
+
               placeholder="I'm looking for..."
               className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
             />
