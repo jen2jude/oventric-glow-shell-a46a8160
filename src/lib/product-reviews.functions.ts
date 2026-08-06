@@ -45,7 +45,7 @@ async function summarize(
       rating,
       comment,
       created_at,
-      profiles:user_id (
+      profiles:profiles!user_id (
         full_name,
         avatar_url,
         country
