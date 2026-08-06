@@ -55,7 +55,7 @@ function Index() {
   const [createChoice, setCreateChoice] = useState<ChoiceKey | null>(null);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState<string>("Home");
 
   const { require } = useOnboarding();
 
