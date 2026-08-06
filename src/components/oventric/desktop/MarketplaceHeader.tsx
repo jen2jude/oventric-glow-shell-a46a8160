@@ -80,7 +80,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
 
           {/* Right Actions */}
           <div className="flex items-center gap-4 lg:gap-6 ml-auto">
-            {/* User Profile & Localization */}
+            {/* User Profile Link */}
             <div className="hidden lg:flex items-center gap-4">
               <Link 
                 to="/profile/$id"
@@ -96,14 +96,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
                     </div>
                   )}
                 </div>
-                <div className="flex flex-col text-left">
-                  <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">
-                    {isAuthenticated ? (name?.split(' ')[0] || "My") : "Guest"}
-                  </span>
-                  <span className="text-[12px] font-black text-slate-900 leading-tight">Profile & Shop</span>
-                </div>
               </Link>
-
             </div>
 
             {/* Mobile Profile Link */}

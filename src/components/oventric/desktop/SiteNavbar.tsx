@@ -114,9 +114,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
                     <User className="w-5 h-5 text-slate-400" />
                   )}
                 </div>
-                {isAuthenticated && name && (
-                  <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
-                )}
               </Link>
             </div>
 
