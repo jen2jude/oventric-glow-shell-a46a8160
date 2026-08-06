@@ -380,10 +380,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full hub-top-user-ring shadow-xl shadow-black/20 group-active:scale-95 transition-transform duration-200">
-                    <div className="w-full h-full rounded-full border-[3px] border-[#1a1a1a] overflow-hidden bg-[#222]">
-                      <AvatarImage src={u.avatarUrl} alt={u.displayName} />
-                    </div>
+                  <div className="w-16 h-16 rounded-full group-active:scale-95 transition-transform duration-200 overflow-hidden bg-[#222]">
+                    <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                   </div>
                   <div className="absolute -bottom-1 -right-1 bg-black text-[10px] font-black text-red-600 px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px] gap-0.5">
                     <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />

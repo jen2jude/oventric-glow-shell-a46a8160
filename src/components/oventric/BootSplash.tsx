@@ -131,25 +131,24 @@ export function BootSplash() {
           className="h-8 w-auto select-none sm:h-10"
           draggable={false}
         />
-      </div>
-      <div className="mt-6 flex items-center gap-4 sm:gap-5">
-        {ICONS.map(({ Icon, color }, i) => {
-          // 0 → not reached, 1 → fully lit; partial for the icon at the edge.
-          const level = Math.max(0, Math.min(1, lit - i));
-          return (
-            <Icon
-              key={i}
-              className="h-5 w-5 transition-none sm:h-6 sm:w-6"
-              strokeWidth={2.2}
-              style={{
-                color,
-                opacity: 0.18 + level * 0.82,
-                transform: `translateY(${-3 * level}px) scale(${0.92 + level * 0.2})`,
-                filter: level > 0 ? `drop-shadow(0 0 ${10 * level}px currentColor)` : undefined,
-              }}
-            />
-          );
-        })}
+        <div className="flex items-center gap-3 sm:gap-4">
+          {ICONS.map(({ Icon, color }, i) => {
+            const level = Math.max(0, Math.min(1, lit - i));
+            return (
+              <Icon
+                key={i}
+                className="h-4 w-4 transition-none sm:h-5 sm:w-5"
+                strokeWidth={2.2}
+                style={{
+                  color,
+                  opacity: 0.18 + level * 0.82,
+                  transform: `translateY(${-2 * level}px) scale(${0.92 + level * 0.15})`,
+                  filter: level > 0 ? `drop-shadow(0 0 ${8 * level}px currentColor)` : undefined,
+                }}
+              />
+            );
+          })}
+        </div>
       </div>
     </div>
   );
