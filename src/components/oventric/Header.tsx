@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { Link } from "@tanstack/react-router";
 import {
   Search,
@@ -38,6 +38,7 @@ import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { COUNTRY_META } from "@/lib/currency/africa";
 
 const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string }[] = [
   { label: "Market", icon: Store, section: "Marketplace" },
@@ -389,6 +390,9 @@ export function Header({
             <div className="shrink-0 flex items-center gap-3">
               <div className="hidden lg:flex flex-col items-end mr-1">
                 <div className="flex items-center gap-1">
+                  <span className="text-lg leading-none" aria-hidden="true">
+                    {country ? (COUNTRY_META[country]?.flag || "") : ""}
+                  </span>
                   <span className={`text-xs font-black ${light ? "text-emerald-600" : "text-emerald-400"}`}>
                     {country || "NG"}
                   </span>
