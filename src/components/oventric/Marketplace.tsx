@@ -954,18 +954,18 @@ function FilterPanel({
   return (
     <div
       className={
-        flush ? "bg-white p-4" : "bg-white border border-slate-200 rounded-none p-4"
+        flush ? (isAppShell ? "bg-black p-4" : "bg-white p-4") : (isAppShell ? "bg-[#1E1E24] border border-white/5 rounded-none p-4" : "bg-white border border-slate-200 rounded-none p-4")
       }
     >
 
       <div className="flex items-center justify-between mb-4">
-        <div className="inline-flex items-center gap-2 text-slate-900 font-bold text-sm">
+        <div className={`inline-flex items-center gap-2 font-bold text-sm ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           <SlidersHorizontal className="w-4 h-4" /> Filters
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onReset}
-            className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+            className={`text-xs font-semibold hover:opacity-80 transition-opacity ${isAppShell ? "text-emerald-400" : "text-emerald-600"}`}
           >
             Reset
           </button>
