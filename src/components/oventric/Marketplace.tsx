@@ -828,6 +828,7 @@ function FilterPanel({
   setSort,
   onReset,
   onClose,
+  flush = false,
 }: {
   currency: Currency;
   minPrice: string;
@@ -842,11 +843,17 @@ function FilterPanel({
   setSort: (v: SortKey) => void;
   onReset: () => void;
   onClose?: () => void;
+  flush?: boolean;
 }) {
   const input =
-    "w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
+    "w-full bg-white border border-slate-200 rounded-none px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl p-4">
+    <div
+      className={
+        flush ? "bg-white p-4" : "bg-white border border-slate-200 rounded-none p-4"
+      }
+    >
+
       <div className="flex items-center justify-between mb-4">
         <div className="inline-flex items-center gap-2 text-slate-900 font-bold text-sm">
           <SlidersHorizontal className="w-4 h-4" /> Filters
