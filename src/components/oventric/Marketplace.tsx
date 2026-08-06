@@ -643,7 +643,61 @@ export function Marketplace() {
       </div>
     </div>
   );
+
+/** Mobile / tablet filter bottom sheet. Hidden entirely on lg+ (sidebar there). */
+function FilterSheet({
+  open,
+  onClose,
+  children,
+}: {
+  open: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      window.removeEventListener("keydown", onKey);
+    };
+  }, [open, onClose]);
+
+  if (!open) return null;
+
+  return (
+    <div className="fixed inset-0 z-50 lg:hidden" role="dialog" aria-modal="true">
+      <button
+        aria-label="Close filters"
+        onClick={onClose}
+        className="absolute inset-0 w-full bg-slate-900/50"
+      />
+      <div
+        className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] animate-in slide-in-from-bottom duration-200"
+        style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
+      >
+        <div className="sticky top-0 flex justify-center bg-white pt-3 pb-1">
+          <span className="h-1 w-10 rounded-full bg-slate-300" />
+        </div>
+        {children}
+        <div className="px-4 pb-2">
+          <button
+            onClick={onClose}
+            className="w-full h-11 bg-emerald-600 text-white font-bold text-sm rounded-none"
+          >
+            Show results
+          </button>
+        </div>
+      </div>
+    </div>
+  );
 }
+
 
 /** Height-animated drop-down wrapper — no filters/blur, GPU-safe. */
 function Collapse({ open, children }: { open: boolean; children: React.ReactNode }) {
