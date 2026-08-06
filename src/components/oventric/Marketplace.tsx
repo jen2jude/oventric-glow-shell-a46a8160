@@ -328,21 +328,21 @@ export function Marketplace() {
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* ── Lightning Deals Section ─────────────────────────── */}
-        <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
+        <div className={`mb-8 p-4 border-b-2 ${isAppShell ? "bg-[#1E1E24] border-emerald-500/30" : "bg-white border-slate-900"}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <span className="text-lg sm:text-2xl">⚡</span>
-                <h2 className="text-[13px] sm:text-xl font-black italic tracking-tighter text-slate-900 uppercase whitespace-nowrap">Lightning Deals</h2>
+                <h2 className={`text-[13px] sm:text-xl font-black italic tracking-tighter uppercase whitespace-nowrap ${isAppShell ? "text-white" : "text-slate-900"}`}>Lightning Deals</h2>
               </div>
               <LightningCountdown />
             </div>
-            <button className="text-xs font-black text-slate-900 hover:underline self-end sm:self-center">View All &gt;</button>
+            <button className={`text-xs font-black hover:underline self-end sm:self-center ${isAppShell ? "text-emerald-400" : "text-slate-900"}`}>View All &gt;</button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
             {hotItems.slice(0, 6).map(p => (
               <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)}>
-                <div className="aspect-square bg-slate-100 mb-2 overflow-hidden relative">
+                <div className={`aspect-square mb-2 overflow-hidden relative ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
                   <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
                 </div>
@@ -371,9 +371,9 @@ export function Marketplace() {
               }}
 
               placeholder="I'm looking for..."
-              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border-2 border-slate-900 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-shadow shadow-sm"
+              className={`w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base border-2 focus:outline-none transition-shadow shadow-sm ${isAppShell ? "bg-[#1E1E24] border-emerald-500/30 text-white placeholder:text-slate-500" : "bg-white border-slate-900 text-slate-900 placeholder:text-slate-400"}`}
             />
-            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 border-slate-900 bg-slate-900 text-white transition-colors pointer-events-none">
+            <div className={`absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 transition-colors pointer-events-none ${isAppShell ? "bg-emerald-600 border-emerald-500 text-white" : "bg-slate-900 border-slate-900 text-white"}`}>
               <Search className="w-5 h-5" />
             </div>
           </div>
@@ -415,7 +415,7 @@ export function Marketplace() {
         <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
           <div className="pt-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-black uppercase tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 {mode === "physical" ? "Physical" : "Digital"} categories
               </h2>
 
