@@ -1776,6 +1776,36 @@ export type Database = {
           },
         ]
       }
+      notification_preferences: {
+        Row: {
+          created_at: string
+          id: string
+          in_app: boolean
+          push: boolean
+          topic: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          in_app?: boolean
+          push?: boolean
+          topic: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          in_app?: boolean
+          push?: boolean
+          topic?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           body: string | null
@@ -3254,6 +3284,7 @@ export type Database = {
         }
         Returns: number
       }
+      notif_topic_for_kind: { Args: { _kind: string }; Returns: string }
       pause_campaign: { Args: { _id: string }; Returns: undefined }
       payout_request_create: {
         Args: {
