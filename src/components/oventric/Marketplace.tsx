@@ -446,11 +446,12 @@ export function Marketplace() {
                     onClick={() => selectCat(c.slug)}
                     className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
                       active
-                        ? "border-emerald-500 bg-emerald-50 shadow-sm"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+                        ? "border-slate-900 bg-slate-50 shadow-sm"
+                        : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md"
                     }`}
                   >
                     <div className="relative h-20 sm:h-24 bg-slate-100">
+
                       {c.cover ? (
                         <ResponsiveImage
                           sizes="200px"
