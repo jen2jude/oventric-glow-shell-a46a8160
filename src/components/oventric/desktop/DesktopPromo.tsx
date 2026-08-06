@@ -247,20 +247,20 @@ function DesktopPromoCard({
   const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
-      className="promo-tile-surface relative block h-full min-h-[12rem] overflow-hidden rounded-[28px] p-6 pr-32 shadow-[0_18px_40px_-22px_rgba(15,23,42,0.45)]"
+      className="promo-tile-surface relative block h-full min-h-[10.5rem] overflow-hidden rounded-[28px] p-5 pr-28 shadow-[0_18px_40px_-22px_rgba(15,23,42,0.45)] sm:min-h-[12rem] sm:p-6 sm:pr-32"
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-8 -top-12 h-40 w-40 rounded-full bg-white/25 blur-2xl" />
-      <span className="relative block text-xl font-extrabold leading-tight text-slate-900">
+      <span className="relative block text-lg font-extrabold leading-tight text-slate-900 sm:text-xl">
         {title}
       </span>
-      <span className="relative mt-0.5 block text-sm font-bold leading-tight text-slate-900/80">
+      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80 sm:text-sm">
         {highlight}
       </span>
-      <span className="relative mt-1.5 block max-w-[11rem] text-xs leading-relaxed text-slate-900/65">
+      <span className="relative mt-1.5 block max-w-[10rem] text-xs leading-relaxed text-slate-900/65 sm:max-w-[11rem]">
         {body}
       </span>
-      <span className="promo-tile-cta relative mt-4 inline-flex min-h-[2.5rem] items-center gap-1 rounded-full bg-slate-950 px-5 py-2 text-xs font-bold text-white">
+      <span className="promo-tile-cta relative mt-3.5 inline-flex min-h-[2.5rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-xs font-bold text-white sm:mt-4 sm:px-5">
         {cta} <ChevronRight className="h-3.5 w-3.5" />
       </span>
       <img
@@ -270,7 +270,7 @@ function DesktopPromoCard({
         loading="lazy"
         width={768}
         height={768}
-        className="promo-tile-art pointer-events-none absolute -bottom-3 right-[-10px] h-[110%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
+        className="promo-tile-art pointer-events-none absolute -bottom-3 right-[-10px] h-[100%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)] sm:h-[110%]"
       />
     </span>
   );
