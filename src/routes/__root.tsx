@@ -334,6 +334,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const appRouter = useRouter();
+
   const { show, markSeen, hydrated } = useFirstLaunch();
   // Welcome slides are a mobile-first onboarding experience; skip them on PC.
   const [isPc, setIsPc] = useState(() =>
