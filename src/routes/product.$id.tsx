@@ -259,13 +259,6 @@ function ProductPage() {
             onClick={() => {
               if (typeof window !== "undefined" && window.history.length > 1) {
                 window.history.back();
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
               } else {
                 navigate({ to: "/" });
                 setTimeout(
@@ -289,13 +282,6 @@ function ProductPage() {
             onClick={() => {
               if (typeof window !== "undefined" && window.history.length > 1) {
                 window.history.back();
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
               } else {
                 navigate({ to: "/" });
                 setTimeout(
