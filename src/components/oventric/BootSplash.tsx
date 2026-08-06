@@ -150,7 +150,7 @@ export function BootSplash() {
                 strokeWidth={1.8}
                 style={{
                   color,
-                  "--icon-color": color,
+                  "--ic": color,
                   animationDelay: `${i * 0.15}s`,
                   opacity: 0.15,
                 } as any}
@@ -173,7 +173,7 @@ export function BootSplash() {
             50% {
               opacity: 1;
               transform: translateY(-4px) scale(1.1);
-              filter: drop-shadow(0 0 12px var(--icon-color));
+              filter: drop-shadow(0 0 14px var(--ic));
             }
           }
         `
