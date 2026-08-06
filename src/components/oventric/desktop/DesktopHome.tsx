@@ -398,11 +398,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span>Card, bank &amp; mobile money</span>
             </div>
 
-            {/* Mobile hero visual — stacked below the copy instead of behind it */}
+            {/* Mobile hero visual — hidden to keep the fold tight */}
             <img
               src={heroCollage.url}
               alt="Oventric members shopping, learning and chatting across the platform"
-              className="mt-10 w-full select-none object-contain sm:hidden"
+              className="hidden"
               loading="eager"
               decoding="async"
             />
