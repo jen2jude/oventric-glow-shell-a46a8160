@@ -3,6 +3,7 @@ import { useNavigate, useRouterState } from "@tanstack/react-router";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { CreatePanel } from "@/components/oventric/CreatePanel";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { useLaunchContext } from "@/hooks/use-launch-context";
 
 /**
  * App-wide mobile footer nav. Rendered once at the root so every route
