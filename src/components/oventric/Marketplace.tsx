@@ -1200,40 +1200,41 @@ function ProductCard({
 
 }
 
-function SkeletonCard() {
+function SkeletonCard({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
-      <div className="aspect-[4/3] rounded-none bg-slate-100 mb-3" />
-      <div className="h-4 w-3/4 bg-slate-100 rounded mb-2" />
-      <div className="h-3 w-1/2 bg-slate-100 rounded mb-4" />
-      <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
-        <div className="h-4 w-16 bg-slate-100 rounded" />
-        <div className="h-6 w-12 bg-slate-100 rounded" />
+    <div className={`border rounded-none p-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-shadow animate-pulse ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
+      <div className={`aspect-[4/3] rounded-none mb-3 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`h-4 w-3/4 rounded mb-2 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`h-3 w-1/2 rounded mb-4 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`flex items-center justify-between pt-3 mt-2 border-t ${isAppShell ? "border-white/5" : "border-slate-100"}`}>
+        <div className={`h-4 w-16 rounded ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+        <div className={`h-6 w-12 rounded ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
       </div>
     </div>
   );
 }
 
 function MarketplaceSkeleton() {
+  const isAppShell = useIsAppShell();
   return (
-    <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full">
+    <div className={`marketplace-render-safe min-h-full max-w-full ${isAppShell ? "bg-black" : "bg-[#F7F8FA]"}`}>
       <div className="max-w-7xl mx-auto w-full px-4 py-5">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
-          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+          <div className={`h-44 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+          <div className={`h-44 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
         </div>
         <div className="flex gap-3 mb-6 overflow-hidden">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse"
+              className={`shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`}
             />
           ))}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
 
           {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <SkeletonCard key={i} isAppShell={isAppShell} />
           ))}
         </div>
       </div>
