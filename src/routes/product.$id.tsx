@@ -401,7 +401,7 @@ function ProductPage() {
                 {product.description || "No description provided."}
               </p>
 
-              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 mb-4">
+              <div className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
