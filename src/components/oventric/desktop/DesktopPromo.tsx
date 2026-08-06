@@ -50,12 +50,12 @@ const BANNERS: Banner[] = [
 export function DesktopPromo({ onSelect }: { onSelect: (section: string) => void }) {
   return (
     <section aria-label="Promotions" className="border-b border-slate-200 bg-white">
-      <div className="mx-auto w-full max-w-[1200px] px-8 py-16">
+      <div className="mx-auto w-full max-w-[1200px] px-5 py-12 sm:px-8 sm:py-16">
         <Reveal>
           <DesktopPromoBanners onSelect={onSelect} />
         </Reveal>
 
-        <div className="mt-10 grid grid-cols-3 gap-6">
+        <div className="mt-8 grid grid-cols-1 gap-5 sm:grid-cols-2 sm:gap-6 lg:mt-10 lg:grid-cols-3">
           <Reveal delay={0}>
             <DesktopPromoCard
               id="cashback"

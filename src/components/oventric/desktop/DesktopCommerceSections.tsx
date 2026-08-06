@@ -33,15 +33,15 @@ const PILLARS = [
 
 export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }) {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
+    <section className="mx-auto w-full max-w-[1200px] px-5 pt-14 sm:px-8 sm:pt-20">
       <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(110deg,#6d7cf0_0%,#8b7bf0_45%,#c58ce8_100%)] p-10 pr-[360px]">
-        <h2 className="text-4xl font-black tracking-tight text-white">
+        <h2 className="text-2xl font-black tracking-tight text-white sm:text-4xl">
           Trade Securely with OventricProtect
         </h2>
         <p className="mt-3 max-w-xl text-base text-white/85">
           Skip the scams and trade safely. We verify sellers and guarantee every purchase.
         </p>
-        <div className="mt-8 grid max-w-2xl grid-cols-3 gap-8">
+        <div className="mt-8 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
           {PILLARS.map((p) => (
             <div key={p.title}>
               <p.Icon className="h-6 w-6 text-white" strokeWidth={2.5} />
@@ -153,7 +153,7 @@ export function ProductRails({ onSelect }: { onSelect: (section: string) => void
   if (aiRow.length === 0 && otherRow.length === 0) return null;
 
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-8 pt-16">
+    <section className="mx-auto w-full max-w-[1200px] px-5 pt-12 sm:px-8 sm:pt-16">
       <div className="flex items-end justify-between">
         <div>
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
@@ -199,7 +199,7 @@ const METHODS = [
 export function SecuredPayments() {
   return (
     <section className="border-t border-slate-200 bg-white">
-      <div className="mx-auto w-full max-w-[1200px] px-8 py-16 text-center">
+      <div className="mx-auto w-full max-w-[1200px] px-5 py-12 text-center sm:px-8 sm:py-16">
         <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
           <Lock className="h-3.5 w-3.5" strokeWidth={2.6} /> Secured payments
         </div>
@@ -214,7 +214,7 @@ export function SecuredPayments() {
 
       {/* Solid tinted band — logos only, not interactive */}
       <div aria-hidden={false} className="w-full bg-[#EFEDF4] py-8">
-        <ul className="mx-auto flex w-full max-w-[1400px] list-none flex-wrap items-center justify-center gap-x-14 gap-y-7 px-8">
+        <ul className="mx-auto flex w-full max-w-[1400px] list-none flex-wrap items-center justify-center gap-x-8 gap-y-6 px-5 sm:gap-x-14 sm:gap-y-7 sm:px-8">
           {METHODS.map(({ name, Mark }) => (
             <li key={name} title={name} className="pointer-events-none flex items-center">
               <Mark />
