@@ -312,7 +312,10 @@ function RootShell({ children }: { children: ReactNode }) {
   var standalone=false;
   try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
-  if(standalone){root.style.display='flex';}else{root.parentNode&&root.parentNode.removeChild(root);}
+  // Keep the node in the DOM (removing it before hydration causes a mismatch);
+  // just leave it hidden when this is not a standalone mobile launch.
+  if(standalone){root.style.display='flex';}else{root.style.display='none';}
+
 }catch(e){}})();`,
             }}
           />
