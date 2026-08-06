@@ -37,10 +37,12 @@ function ProductRating({
   productId,
   initialAverage,
   initialCount,
+  isAppShell,
 }: {
   productId: string;
   initialAverage: number;
   initialCount: number;
+  isAppShell: boolean;
 }) {
   const { require } = useOnboarding();
   const fetchRating = useServerFn(getProductRating);
