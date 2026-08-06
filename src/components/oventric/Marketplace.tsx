@@ -1107,8 +1107,11 @@ function ProductCard({
           />
         )}
         <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white drop-shadow" />
+        <span className="absolute top-2 left-2 bg-[#F39C12] text-white text-[10px] font-black px-2 py-0.5 rounded-none shadow-sm italic uppercase tracking-wider">
+          Deal
+        </span>
         {p.promoted && (
-          <span className="absolute top-0 left-0 text-[9px] font-black uppercase tracking-wider bg-[#E13B2E] text-white rounded-none px-2 py-1 shadow-sm italic">
+          <span className="absolute top-8 left-2 text-[9px] font-black uppercase tracking-wider bg-[#E13B2E] text-white rounded-none px-2 py-1 shadow-sm italic">
             Ad
           </span>
         )}
@@ -1153,11 +1156,11 @@ function ProductCard({
       </div>
       <div className="flex flex-col gap-0.5 pt-3 mt-2 border-t border-slate-50">
         <div className="flex items-baseline gap-1.5">
-          <span className="text-[#E13B2E] font-black text-base">
+          <span className="text-[#E13B2E] font-black text-lg">
             {isFree ? "FREE" : price.formatted}
           </span>
           {!isFree && (
-            <span className="text-[10px] text-slate-400 line-through">
+            <span className="text-[11px] text-slate-400 line-through">
               {computeDisplayPrice({ price_usd: p.priceUSD * 1.4 }, currency).formatted}
             </span>
           )}
