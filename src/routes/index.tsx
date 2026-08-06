@@ -19,6 +19,7 @@ import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 import { MarketplaceHeader } from "@/components/oventric/desktop/MarketplaceHeader";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useIsAppShell } from "@/hooks/use-launch-context";
@@ -292,15 +293,16 @@ function Index() {
           active === "Marketplace" ? (
             <MarketplaceHeader
               onSelect={setActive}
-              avatarUrl={null}
-              name={""}
+              avatarUrl={avatarUrl}
+              name={name}
             />
           ) : (
             <SiteNavbar
               onSelect={setActive}
               onCreate={handleCreate}
-              avatarUrl={null}
-              name={""}
+              avatarUrl={avatarUrl}
+              name={name}
+              searchSlot={renderNavSearch()}
             />
           )
         ) : (
