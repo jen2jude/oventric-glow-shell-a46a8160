@@ -549,15 +549,15 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
       {/* Feature blocks */}
-      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-slate-900">
+      <section className="mx-auto w-full max-w-[1200px] px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+        <h2 className="max-w-2xl text-2xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl">
           Everything you need to build an income online.
         </h2>
-        <div className="mt-16 space-y-20">
+        <div className="mt-10 space-y-12 sm:mt-16 sm:space-y-20">
           {FEATURES.map((f, i) => (
             <Reveal
               key={f.label}
-              className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
+              className={`grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16 ${i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""}`}
             >
               <div>
                 <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-600">
