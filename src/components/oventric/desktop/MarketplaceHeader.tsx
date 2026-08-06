@@ -133,7 +133,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
             >
               {l.icon && <span>{l.icon}</span>}
               {l.label}
-              {l.hasArrow && <span className="text-[10px] ml-0.5 opacity-80">▼</span>}
+              {"hasArrow" in l && (l as any).hasArrow && <span className="text-[10px] ml-0.5 opacity-80">▼</span>}
             </button>
           ))}
           <div className="ml-auto flex items-center gap-1 text-[11px] font-bold">
