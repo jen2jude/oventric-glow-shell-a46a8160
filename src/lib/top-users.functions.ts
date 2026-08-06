@@ -23,8 +23,8 @@ export const getTopUsers = createServerFn({ method: "GET" })
     }
 
     const { createClient } = await import("@supabase/supabase-js");
-    const supabaseUrl = process.env.SUPABASE_URL!;
-    const publishableKey = process.env.SUPABASE_PUBLISHABLE_KEY!;
+    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL!;
+    const publishableKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY!;
     const publicClient = createClient(supabaseUrl, publishableKey, {
       auth: { persistSession: false }
     });
