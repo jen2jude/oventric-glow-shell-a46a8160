@@ -243,6 +243,7 @@ function Index() {
   // width). Native builds and installed PWAs keep the app-style Home Hub.
   // We now extend desktopLanding to Marketplace for browser visitors to use the specialized header.
   const desktopLanding = (active === "Home" || active === "Marketplace") && (isDesktop || !isAppShell);
+  const isMarketplace = active === "Marketplace";
 
   const view =
     active === "Home" ? (
@@ -313,12 +314,12 @@ function Index() {
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
-            hubMode={(active === "Home" || active === "Marketplace") && !isDesktop}
+            hubMode={(active === "Home" || (active === "Marketplace" && isAppShell)) && !isDesktop}
             desktopNav={
               isDesktop &&
               ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)
             }
-            light={isDesktop}
+            light={isDesktop && !isMarketplace}
           />
         )}
 

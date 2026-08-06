@@ -110,13 +110,16 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
             <div className="lg:hidden flex items-center gap-3">
               {isAuthenticated && (
                 <div className="flex items-center gap-2 mr-1">
-                  {flag && <span className="text-lg leading-none" aria-hidden>{flag}</span>}
-                  <div className="flex flex-col items-end">
-                    <span className="text-[9px] font-black text-slate-900 uppercase leading-none">{country}</span>
-                    <span className="text-[9px] font-bold text-slate-500 leading-tight uppercase">{baseCurrency}</span>
+                  {country && COUNTRY_META[country] && (
+                    <span className="text-base leading-none" aria-hidden>
+                      {COUNTRY_META[country].flag}
+                    </span>
+                  )}
+                  <div className="flex flex-col items-start leading-none">
+                    <span className="text-[9px] font-black text-slate-900 uppercase">{country}</span>
+                    <span className="text-[8px] font-bold text-slate-500 uppercase">{baseCurrency}</span>
                   </div>
                 </div>
-
               )}
               <Link 
                 to="/profile/$id"
