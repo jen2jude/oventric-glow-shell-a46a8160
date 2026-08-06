@@ -403,6 +403,8 @@ function RootComponent() {
               <OfflineBanner />
               <AppShellGestures />
               <InstallPrompt />
+              <UpdatePrompt />
+
 
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
