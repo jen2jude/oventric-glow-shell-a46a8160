@@ -397,7 +397,7 @@ function ProductPage() {
                 isAppShell={isAppShell}
               />
 
-              <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6">
+              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6`}>
                 {product.description || "No description provided."}
               </p>
 
