@@ -364,27 +364,27 @@ function ProductPage() {
               {product.kind === "physical" && (
                 <div className="flex flex-wrap gap-2 text-xs text-slate-300 md:text-slate-600 mb-4">
                   {product.location && (
-                    <span className="inline-flex items-center gap-1 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`inline-flex items-center gap-1 ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       <MapPin className="w-3 h-3" /> {product.location}
                     </span>
                   )}
                   {product.condition && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       {product.condition}
                     </span>
                   )}
                   {product.brand && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       {product.brand}
                     </span>
                   )}
                   {product.negotiable && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       Negotiable: {product.negotiable}
                     </span>
                   )}
                   {product.delivery && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       Delivery: {product.delivery}
                     </span>
                   )}
