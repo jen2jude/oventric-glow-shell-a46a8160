@@ -498,7 +498,7 @@ function ProductPage() {
         />
       )}
       {contactOpen && product && product.kind === "physical" && (
-        <ContactSellerModal product={product} onClose={() => setContactOpen(false)} />
+        <ContactSellerModal product={product} onClose={() => setContactOpen(false)} isAppShell={isAppShell} />
       )}
       <MobileNav onCreate={() => {}} active="Market" onSelect={() => navigate({ to: "/" })} />
     </div>
