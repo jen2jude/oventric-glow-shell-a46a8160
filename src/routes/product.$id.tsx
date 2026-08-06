@@ -649,7 +649,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           onChange={(e) => setNote(e.target.value.slice(0, 240))}
           rows={2}
           placeholder="e.g. Is this still available? Can I pick up today?"
-          className="w-full mb-4 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+          className={`w-full mb-4 ${isAppShell ? "bg-[#121214] border-white/10 text-white placeholder:text-slate-600" : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50`}
         />
 
         <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed mb-4">
