@@ -1,23 +1,23 @@
 # Plan - Fix non-existent column `full_name` in product reviews
 
-The user is reporting an error: `column profiles_1.full_name does not exist`. This typically happens when a PostgREST query (via Supabase) tries to select a column that isn't in the database schema.
+The user is reporting the error `column profiles_1.full_name does not exist`. My investigation confirms that the `profiles` table does NOT have a `full_name` column; it uses `display_name` and `username`. 
 
-In the previous turn, the agent partially fixed this in `src/lib/product-reviews.functions.ts` by changing `full_name` to `display_name` and `username`. However, the error message `profiles_1.full_name` suggests there might be a cached query or another location still trying to access `full_name` via an alias or join.
+While `src/lib/product-reviews.functions.ts` was partially updated in the previous turn, the error message `profiles_1.full_name` often occurs when PostgREST (Supabase) generates an internal alias (like `profiles_1`) during a joined query where it still thinks it needs to fetch a column that doesn't exist. This usually happens if the `.select()` string is not perfectly aligned with the actual schema or if there's a cached schema mismatch.
 
 ## Proposed Changes
 
-### Database & Schema
-- I will verify the `profiles` table schema via `supabase--read_query` to confirm `full_name` is indeed missing.
-- I will check if there are any remaining references to `full_name` in the codebase.
-
 ### Server Functions
-- Update `src/lib/product-reviews.functions.ts` to ensure the `.select()` call is perfectly aligned with the actual schema columns found in the database.
-- Check `src/lib/circles.functions.ts` which also references `full_name` (though from `user_metadata`).
+- I will re-examine `src/lib/product-reviews.functions.ts` and ensure the `.select()` call is absolutely clean. I will also check if any other server functions are joining `profiles` and requesting `full_name`.
+- I will check `src/lib/circles.functions.ts` which uses `meta.full_name` from `user_metadata` and ensure it's not accidentally causing a schema error if used in a table join somewhere else.
+
+### Codebase Cleanup
+- I will search for any other instances where `profiles` is joined (e.g., `profiles(...)` in a select string) to ensure `full_name` is not being requested.
 
 ## Verification Plan
 
-### Automated Tests
-- Run the `summarize` logic (or the `getProductRating` function) using a script to ensure the Supabase query no longer throws the "column does not exist" error.
+### Automated Verification
+- I will run a Playwright script to navigate to a product page and trigger the `getProductRating` server function call. I will monitor the browser console and network responses for the `500` error containing `profiles_1.full_name`.
+- I will also attempt to post a review to verify the `rateProduct` function (which calls `summarize`) works end-to-end.
 
 ### Manual Verification
-- Use `preview_ui` (or `code--execute_preview_javascript`) to trigger a product review fetch and confirm it renders without console errors.
+- View the screenshots from the Playwright run to ensure the "Customer Reviews" section renders correctly with names and avatars.
