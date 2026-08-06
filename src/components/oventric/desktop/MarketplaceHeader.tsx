@@ -106,21 +106,30 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
               {/* Country & Currency */}
               <div className="flex flex-col items-end border-l border-slate-100 pl-4">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-lg leading-none">{flag}</span>
+                  <span className="text-lg leading-none" aria-hidden="true">{flag}</span>
                   <span className="text-[11px] font-black text-slate-900 uppercase">{country || "NG"}</span>
                 </div>
-                <div className="text-[10px] font-bold text-emerald-600 mt-0.5">
-                  Market: {COUNTRY_META[country || "NG"]?.currency || "NGN"}
+                <div className="text-[10px] font-bold text-emerald-600 mt-0.5 uppercase">
+                  {COUNTRY_META[country || "NG"]?.currency || "NGN"}
                 </div>
               </div>
             </div>
 
-            {/* Mobile Profile Clickable Image */}
-            <div className="lg:hidden flex items-center gap-2">
+            {/* Mobile Profile Clickable Image & Info */}
+            <div className="lg:hidden flex items-center gap-3">
+              <div className="flex flex-col items-end">
+                <div className="flex items-center gap-1">
+                  <span className="text-sm leading-none" aria-hidden="true">{flag}</span>
+                  <span className="text-[9px] font-black text-slate-900 uppercase">{country || "NG"}</span>
+                </div>
+                <div className="text-[8px] font-bold text-emerald-600 leading-none uppercase">
+                  {COUNTRY_META[country || "NG"]?.currency || "NGN"}
+                </div>
+              </div>
               <Link 
                 to="/profile/$id"
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
-                className="h-8 w-8 rounded-full overflow-hidden border border-slate-200"
+                className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 active:scale-95 transition-transform"
               >
                 {isAuthenticated ? (
                   <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
