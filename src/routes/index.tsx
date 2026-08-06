@@ -16,6 +16,8 @@ import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { MarketplaceHeader } from "@/components/oventric/desktop/MarketplaceHeader";
 
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useIsAppShell } from "@/hooks/use-launch-context";
