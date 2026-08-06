@@ -282,25 +282,16 @@ function RootShell({ children }: { children: ReactNode }) {
             }}
           />
           <script
-            // Advance the icon sweep on real pre-hydration milestones:
-            // HTML parsed → stylesheets/DOM ready → window load. React's
-            // <BootSplash /> takes over (and removes this) once hydrated.
+            // Only show the boot splash when the app is launched from a phone's
+            // home screen (installed PWA / standalone) on a mobile-sized screen —
+            // never on desktop/tablet, and never for in-app navigation.
             dangerouslySetInnerHTML={{
-            __html: `(function(){try{
+              __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
-  // Only show the boot splash when the app is launched from a phone's
-  // home screen (installed PWA / standalone) on a mobile-sized screen —
-  // never on desktop/tablet, and never for in-app navigation.
   var standalone=false;
   try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
   if(!standalone){root.parentNode&&root.parentNode.removeChild(root);return;}
-  var svgs=root.getElementsByTagName('svg');
-  var at=0;
-  function set(n){if(n<=at)return;at=n;for(var i=0;i<svgs.length;i++){if(i<n)svgs[i].classList.add('ob-lit');}}
-  set(1);
-  document.addEventListener('DOMContentLoaded',function(){set(2);});
-  window.addEventListener('load',function(){set(3);});
 }catch(e){}})();`,
             }}
           />
