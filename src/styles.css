@@ -2,14 +2,6 @@
 @source "../src";
 @import "tw-animate-css";
 
-/* Prevent hydration mismatch from GPU tier classes applied before React. */
-html.ov-initial {
-  &.high-gpu {
-    background: #121214;
-  }
-}
-
-
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {

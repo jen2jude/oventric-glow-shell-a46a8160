@@ -14,7 +14,6 @@ import logoLight from "@/assets/oventric-full-transparent.png";
 import logoDark from "@/assets/oventric-logo-dark.png";
 import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
-import ringLogoAsset from "@/assets/oventric-ring-glow.jpg.asset.json";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
@@ -94,7 +93,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   const LogoImg = (
     <div className="flex items-center gap-1.5">
       <ResponsiveImage
-        src={ringLogoAsset.url}
+        src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
         alt=""
         sizes="32px"
         className="h-6 w-6 object-contain"
