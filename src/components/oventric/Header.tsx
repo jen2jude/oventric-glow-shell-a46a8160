@@ -64,6 +64,7 @@ export function Header({
   light?: boolean;
   desktopNav?: boolean;
 }) {
+  const { country, baseCurrency } = useOnboarding();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -393,9 +394,13 @@ export function Header({
             <div className="shrink-0 flex items-center gap-3">
               <div className="hidden lg:flex flex-col items-end mr-1">
                 <div className="flex items-center gap-1">
-                  <span className="text-xs font-black text-emerald-400">NG</span>
+                  <span className={`text-xs font-black ${light ? "text-emerald-600" : "text-emerald-400"}`}>
+                    {country || "NG"}
+                  </span>
                 </div>
-                <div className="text-[10px] font-bold text-slate-500">NGN</div>
+                <div className={`text-[10px] font-bold ${light ? "text-slate-500" : "text-slate-400"}`}>
+                  {baseCurrency || "NGN"}
+                </div>
               </div>
               <ProfileDropdown />
             </div>
