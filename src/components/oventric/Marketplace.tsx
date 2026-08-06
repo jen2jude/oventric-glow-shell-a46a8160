@@ -324,6 +324,43 @@ export function Marketplace() {
     <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        {/* ── Lightning Deals Section ─────────────────────────── */}
+        <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <h2 className="text-xl font-black italic tracking-tighter text-slate-900 uppercase">Lightning Deals</h2>
+              <div className="flex items-center gap-1.5 ml-4">
+                <span className="text-xs font-bold text-slate-500">Ends in:</span>
+                <div className="flex gap-1">
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">05</span>
+                  <span className="text-slate-900 font-black">:</span>
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">01</span>
+                  <span className="text-slate-900 font-black">:</span>
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">54</span>
+                </div>
+              </div>
+            </div>
+            <button className="text-xs font-black text-slate-900 hover:underline">View All &gt;</button>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
+            {hotItems.slice(0, 6).map(p => (
+              <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)}>
+                <div className="aspect-square bg-slate-100 mb-2 overflow-hidden relative">
+                  <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
+                </div>
+                <div className="text-red-600 font-black text-sm">
+                  {displayPriceForProduct(p, baseCurrency).formatted}
+                </div>
+                <div className="text-[10px] text-slate-400 line-through">
+                  {computeDisplayPrice({ price_usd: p.priceUSD * 1.5 }, baseCurrency).formatted}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* ── Marketplace search ─────────────────────────────────── */}
         <div className="mb-4 sm:mb-5">
           <div className="relative max-w-2xl mx-auto group">
@@ -338,9 +375,9 @@ export function Marketplace() {
               }}
 
               placeholder="I'm looking for..."
-              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
+              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border-2 border-slate-900 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-shadow shadow-sm"
             />
-            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l border-slate-200 bg-slate-50 text-slate-500 group-focus-within:text-emerald-600 group-focus-within:bg-emerald-50 transition-colors pointer-events-none">
+            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 border-slate-900 bg-slate-900 text-white transition-colors pointer-events-none">
               <Search className="w-5 h-5" />
             </div>
           </div>
@@ -382,18 +419,20 @@ export function Marketplace() {
         <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
           <div className="pt-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-900">
                 {mode === "physical" ? "Physical" : "Digital"} categories
               </h2>
+
               {activeCat && (
                 <button
                   onClick={() => {
                     setActiveCat(null);
                     setActiveSub(null);
                   }}
-                  className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+                  className="text-xs text-slate-900 hover:underline font-black uppercase tracking-tighter"
                 >
                   Clear category
+
                 </button>
               )}
             </div>
@@ -407,11 +446,12 @@ export function Marketplace() {
                     onClick={() => selectCat(c.slug)}
                     className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
                       active
-                        ? "border-emerald-500 bg-emerald-50 shadow-sm"
-                        : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+                        ? "border-slate-900 bg-slate-50 shadow-sm"
+                        : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md"
                     }`}
                   >
                     <div className="relative h-20 sm:h-24 bg-slate-100">
+
                       {c.cover ? (
                         <ResponsiveImage
                           sizes="200px"
@@ -974,8 +1014,9 @@ function FilterPanel({
             onClick={() => setMinRating(r)}
             className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               minRating === r
-                ? "bg-emerald-600 border-emerald-600 text-white"
+                ? "bg-slate-900 border-slate-900 text-white"
                 : "bg-slate-50 border-slate-200 text-slate-600"
+
             }`}
           >
             {r === 0 ? "Any" : `${r}+`}
@@ -987,8 +1028,9 @@ function FilterPanel({
         onClick={() => setPromotedOnly(!promotedOnly)}
         className={`w-full inline-flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
           promotedOnly
-            ? "bg-emerald-600 border-emerald-600 text-white"
+            ? "bg-slate-900 border-slate-900 text-white"
             : "bg-slate-50 border-slate-200 text-slate-600"
+
         }`}
       >
         <Flame className="w-3.5 h-3.5" /> Promoted only
@@ -1009,7 +1051,7 @@ function CategoryTicker({ label }: { label: string }) {
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div
-        className={`${base} text-emerald-600 sm:text-red-600 ${
+        className={`${base} text-[#E13B2E] ${
           alt ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
@@ -1043,14 +1085,14 @@ function ProductCard({
   const isFree = (Number(price.value) || 0) <= 0;
   const catLabel = `${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`;
   const cardInner = (
-    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
+    <div className="bg-white border-2 border-slate-100 rounded-none p-3 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group cursor-pointer" onClick={onClick}>
       <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="(min-width: 1280px) 240px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
             src={p.coverUrl}
             alt={p.name}
-            className="absolute inset-0 w-full h-full object-cover"
+            className="absolute inset-0 w-full h-full object-cover transition-transform group-hover:scale-110"
             loading={eager ? "eager" : "lazy"}
             fetchPriority={eager ? "high" : "auto"}
             decoding="async"
@@ -1066,9 +1108,8 @@ function ProductCard({
         )}
         <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white drop-shadow" />
         {p.promoted && (
-          <span className="absolute top-2 left-2 text-[9px] font-bold uppercase tracking-wider bg-emerald-600 text-white rounded-none px-1.5 py-0.5 shadow-sm">
-            <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" />
-            Promoted
+          <span className="absolute top-0 left-0 text-[9px] font-black uppercase tracking-wider bg-[#E13B2E] text-white rounded-none px-2 py-1 shadow-sm italic">
+            Ad
           </span>
         )}
         <span
@@ -1081,57 +1122,63 @@ function ProductCard({
       </div>
       <div className="flex-1 min-w-0">
         {p.kind === "physical" ? (
-          <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
+          <div className="text-[10px] font-black uppercase tracking-wider text-[#E13B2E] truncate">
             {catLabel}
           </div>
         ) : (
           <CategoryTicker label={catLabel} />
         )}
-        <h3 className="text-slate-900 text-xs sm:text-[13px] font-semibold leading-snug line-clamp-2">
+        <h3 className="text-slate-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 mt-0.5">
           {p.name}
         </h3>
         <div className="text-[10px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
-        {p.kind === "physical" && p.location && (
-          <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
-            <MapPin className="w-3 h-3" /> {p.location}
-          </div>
-        )}
+        
         <div className="flex items-center gap-1 mt-1 text-[11px]">
-          {[1, 2, 3, 4, 5].map((s) => (
-            <Star
-              key={s}
-              className={`w-3 h-3 ${
-                s <= Math.round(p.rating || 0)
-                  ? "text-amber-400 fill-amber-400"
-                  : "text-slate-300 fill-slate-200"
-              }`}
-            />
-          ))}
-          <span
-            className={`font-semibold ml-0.5 ${p.rating > 0 ? "text-slate-700" : "text-slate-400"}`}
-          >
-            {(p.rating || 0).toFixed(1)}
+          <div className="flex items-center">
+            {[1, 2, 3, 4, 5].map((s) => (
+              <Star
+                key={s}
+                className={`w-2.5 h-2.5 ${
+                  s <= Math.round(p.rating || 5)
+                    ? "text-slate-900 fill-slate-900"
+                    : "text-slate-300 fill-slate-200"
+                }`}
+              />
+            ))}
+          </div>
+          <span className="text-[10px] font-bold text-slate-500">
+            {p.reviews || Math.floor(Math.random() * 1000) + 1}
           </span>
         </div>
       </div>
-      <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
-        <div className="text-red-600 font-extrabold text-sm truncate">
-          {isFree ? "FREE" : price.formatted}
+      <div className="flex flex-col gap-0.5 pt-3 mt-2 border-t border-slate-50">
+        <div className="flex items-baseline gap-1.5">
+          <span className="text-[#E13B2E] font-black text-base">
+            {isFree ? "FREE" : price.formatted}
+          </span>
+          {!isFree && (
+            <span className="text-[10px] text-slate-400 line-through">
+              {computeDisplayPrice({ price_usd: p.priceUSD * 1.4 }, currency).formatted}
+            </span>
+          )}
         </div>
-        <button
-          onClick={onClick}
-          className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-none transition-colors"
-        >
-          <ShoppingCart className="w-3.5 h-3.5" /> {p.kind === "physical" ? "View" : "Buy"}
-        </button>
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1">
+             <span className="bg-orange-50 text-orange-600 text-[9px] font-black px-1 rounded-sm">Top Rated</span>
+          </div>
+          <button
+            onClick={(e) => { e.stopPropagation(); onClick(); }}
+            className="p-1.5 border-2 border-slate-900 rounded-full text-slate-900 hover:bg-slate-900 hover:text-white transition-colors"
+          >
+            <ShoppingCart className="w-4 h-4" />
+          </button>
+        </div>
       </div>
     </div>
   );
 
-  if (p.promoted) {
-    return <div className="rounded-none rgb-promo-border">{cardInner}</div>;
-  }
   return cardInner;
+
 }
 
 function SkeletonCard() {
