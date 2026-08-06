@@ -106,21 +106,8 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
 
             </div>
 
-            {/* Mobile Profile & Localization */}
+            {/* Mobile Profile Link */}
             <div className="lg:hidden flex items-center gap-3">
-              {isAuthenticated && (
-                <div className="flex items-center gap-2 mr-1">
-                  {country && COUNTRY_META[country] && (
-                    <span className="text-base leading-none" aria-hidden>
-                      {COUNTRY_META[country].flag}
-                    </span>
-                  )}
-                  <div className="flex flex-col items-start leading-none">
-                    <span className="text-[9px] font-black text-slate-900 uppercase">{country}</span>
-                    <span className="text-[8px] font-bold text-slate-500 uppercase">{baseCurrency}</span>
-                  </div>
-                </div>
-              )}
               <Link 
                 to="/profile/$id"
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
