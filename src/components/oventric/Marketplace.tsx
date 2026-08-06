@@ -394,6 +394,7 @@ export function Marketplace() {
             }
             active={mode === "digital"}
             onClick={() => selectMode("digital")}
+            isAppShell={isAppShell}
           />
           <ModeCard
             label="Physical Products"
@@ -408,6 +409,7 @@ export function Marketplace() {
             }
             active={mode === "physical"}
             onClick={() => selectMode("physical")}
+            isAppShell={isAppShell}
           />
         </div>
 
@@ -487,7 +489,7 @@ export function Marketplace() {
         {/* ── Subcategory drop-down ────────────────────────────────── */}
         <Collapse open={!!activeCatNode && activeCatNode.subs.length > 0}>
           <div className="pt-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
-            <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} />
+            <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} isAppShell={isAppShell} />
             {(activeCatNode?.subs ?? []).map((s) => (
               <SubPill
                 key={s.id}
@@ -496,6 +498,7 @@ export function Marketplace() {
                 onClick={() =>
                   setActiveSub((prev) => (prev === norm(s.slug) ? null : norm(s.slug)))
                 }
+                isAppShell={isAppShell}
               />
             ))}
           </div>
@@ -517,6 +520,7 @@ export function Marketplace() {
                   p={p}
                   currency={baseCurrency}
                   onClick={() => onOpenProduct(p)}
+                  isAppShell={isAppShell}
                 />
               ))}
             </div>
@@ -822,10 +826,12 @@ function MiniProductCard({
   p,
   currency,
   onClick,
+  isAppShell,
 }: {
   p: ProductDTO;
   currency: Currency;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   const Icon = categoryIcon(p.category);
   const mp = displayPriceForProduct(p, currency);
@@ -835,11 +841,11 @@ function MiniProductCard({
       onClick={onClick}
       className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
         p.promoted
-          ? "border-emerald-400 bg-emerald-50/60"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+          ? (isAppShell ? "border-emerald-500 bg-emerald-500/10" : "border-emerald-400 bg-emerald-50/60")
+          : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
-      <div className="relative h-20 sm:h-24 bg-slate-100">
+      <div className={`relative h-20 sm:h-24 ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="200px"
@@ -875,7 +881,7 @@ function MiniProductCard({
         ) : (
           <CategoryTicker label={`${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`} />
         )}
-        <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+        <div className={`text-xs font-semibold leading-snug line-clamp-2 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           {p.name}
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
@@ -891,18 +897,20 @@ function SubPill({
   label,
   active,
   onClick,
+  isAppShell,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       className={`shrink-0 px-3.5 py-1.5 rounded-none text-xs font-semibold border transition-colors whitespace-nowrap ${
         active
-          ? "bg-emerald-600 border-emerald-600 text-white"
-          : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+          ? (isAppShell ? "bg-emerald-600 border-emerald-600 text-white" : "bg-emerald-600 border-emerald-600 text-white")
+          : (isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-400 hover:text-slate-200" : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300")
       }`}
     >
       {label}
