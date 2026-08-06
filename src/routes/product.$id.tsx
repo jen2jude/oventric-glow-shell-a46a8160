@@ -390,12 +390,14 @@ function ProductPage() {
                   )}
                 </div>
               )}
-              <ProductRating
-                productId={product.id}
-                initialAverage={product.rating}
-                initialCount={product.reviews}
-                isAppShell={isAppShell}
-              />
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <ProductRating
+                  productId={product.id}
+                  initialAverage={product.rating}
+                  initialCount={product.reviews}
+                  isAppShell={isAppShell}
+                />
+              </div>
 
               <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6`}>
                 {product.description || "No description provided."}
