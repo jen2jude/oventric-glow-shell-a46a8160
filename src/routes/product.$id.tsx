@@ -247,8 +247,8 @@ function ProductPage() {
               );
             }, 30);
           }}
-          avatarUrl={product?.vendor_avatar}
-          name={product?.vendor_name}
+          avatarUrl={null}
+          name={product?.vendor}
         />
       ) : (
         <Header onOpenMessages={() => {}} />
