@@ -31,6 +31,7 @@ import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { MarketplaceBanner } from "@/components/oventric/MarketplaceBanner";
 import { LightningCountdown } from "@/components/oventric/LightningCountdown";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -69,6 +70,7 @@ type SortKey = "featured" | "price-asc" | "price-desc" | "rating";
 const norm = (s: string | null | undefined) => (s ?? "").toLowerCase().trim();
 
 export function Marketplace() {
+  const isAppShell = useIsAppShell();
   const { require, baseCurrency } = useOnboarding();
   const navigate = useNavigate();
   const load = useServerFn(listProducts);

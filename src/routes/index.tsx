@@ -314,12 +314,12 @@ function Index() {
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
-            hubMode={(active === "Home" || active === "Marketplace") && !isDesktop}
+            hubMode={(active === "Home" || (active === "Marketplace" && isAppShell)) && !isDesktop}
             desktopNav={
               isDesktop &&
               ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)
             }
-            light={isDesktop}
+            light={isDesktop && !isMarketplace}
           />
         )}
 
