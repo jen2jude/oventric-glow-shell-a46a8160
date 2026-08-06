@@ -39,6 +39,8 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
+
 import {
   Dialog,
   DialogContent,
