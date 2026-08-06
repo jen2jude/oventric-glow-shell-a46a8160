@@ -617,7 +617,7 @@ function MiniRail({
             onClick={it.onClick}
             className="shrink-0 w-32 text-left active:scale-95 transition-transform"
           >
-            <span className="block w-32 h-24 rounded-2xl overflow-hidden bg-[#1E1E24] border border-white/10">
+            <span className="block w-32 h-24 rounded-none overflow-hidden bg-[#1E1E24] border border-white/10">
               {it.coverUrl ? (
                 <img src={it.coverUrl} alt={it.title} className="w-full h-full object-cover" loading="lazy" />
               ) : (
