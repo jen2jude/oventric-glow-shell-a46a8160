@@ -185,7 +185,7 @@ function Index() {
   const isAppShell = useIsAppShell();
   // The marketing site is the home surface for every browser visitor (any
   // width). Native builds and installed PWAs keep the app-style Home Hub.
-  const desktopLanding = active === "Home" && (isDesktop || !isAppShell);
+  const desktopLanding = (active === "Home" || active === "Marketplace") && (isDesktop || !isAppShell);
 
   const view =
     active === "Home" ? (
