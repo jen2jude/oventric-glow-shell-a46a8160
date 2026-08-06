@@ -2153,3 +2153,131 @@ html.standalone-app body {
   /* Respect device safe areas so content never sits under the notch. */
   padding-top: env(safe-area-inset-top);
 }
+
+/* =========================================================================
+   TIMELESS PASS — global calm-design layer.
+   No glows, no glassmorphism, no neon gradients. Subtle shadows, clean
+   spacing and professional typography instead. This block is intentionally
+   last so it wins over every earlier decorative rule in the file.
+   ========================================================================= */
+
+:root {
+  /* One shadow scale used everywhere: quiet, physical, never coloured. */
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.06);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.08);
+  --shadow-md: 0 4px 12px -4px rgba(15, 23, 42, 0.12);
+  --shadow-lg: 0 12px 32px -12px rgba(15, 23, 42, 0.18);
+}
+html.dark,
+.modal-light,
+html:not(.light) {
+  --shadow-xs: 0 1px 2px rgba(0, 0, 0, 0.35);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 16px -8px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 16px 40px -20px rgba(0, 0, 0, 0.55);
+}
+
+/* --- Typography: steady, readable, no display gimmicks ------------------ */
+html {
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+}
+body {
+  letter-spacing: 0;
+}
+h1, h2, h3, h4 {
+  letter-spacing: -0.011em;
+  text-wrap: balance;
+}
+p {
+  text-wrap: pretty;
+}
+
+/* --- Kill glassmorphism everywhere -------------------------------------- */
+*,
+*::before,
+*::after {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* --- Kill glow shadows and neon animation ------------------------------- */
+.rgb-neon-bg,
+.rgb-neon-border-wrapper,
+.rgb-static-border,
+.rgb-static-border-wrapper,
+.rgb-promo-border,
+.hub-top-user-ring {
+  background: var(--border) !important;
+  background-size: auto !important;
+  animation: none !important;
+  box-shadow: none !important;
+}
+.rgb-pulse-glow,
+.neon-chase-border,
+.neon-chase-bg,
+.neon-pulse,
+.headset-fluid {
+  animation: none !important;
+  box-shadow: none !important;
+  filter: none !important;
+}
+.hub-card-glow::after,
+.promo-banner-card .promo-glow,
+.promo-glow {
+  display: none !important;
+}
+
+@utility hub-card-solid {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: var(--shadow-sm);
+  isolation: isolate;
+  transition: box-shadow 0.2s ease, border-color 0.2s ease;
+}
+
+/* Splash icons: a plain fade instead of the ping-pong glow sweep. */
+@keyframes splash-icon-fade {
+  0%, 100% { opacity: 0.45; }
+  50% { opacity: 1; }
+}
+.splash-icon-fade {
+  animation: splash-icon-fade 1.6s ease-in-out infinite;
+  filter: none !important;
+}
+
+/* --- Flatten decorative surfaces --------------------------------------- */
+.promo-banner-card {
+  background: var(--card) !important;
+  border: 1px solid var(--border) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+.promo-tile,
+.promo-tile:hover,
+.promo-tile:focus-visible {
+  box-shadow: var(--shadow-md) !important;
+  transform: none !important;
+}
+.promo-tile .promo-tile-surface::after {
+  display: none !important;
+}
+.promo-tile:hover .promo-tile-surface,
+.promo-tile:focus-visible .promo-tile-surface {
+  filter: none !important;
+  box-shadow: none !important;
+}
+
+/* Any leftover coloured halo on cards/buttons collapses to the quiet scale. */
+.hub-card-glass,
+.hub-card-solid,
+.card,
+[data-elevated="true"] {
+  box-shadow: var(--shadow-sm);
+}
+
+/* --- Spacing rhythm ----------------------------------------------------- */
+section + section {
+  margin-top: clamp(1.5rem, 4vw, 3rem);
+}
