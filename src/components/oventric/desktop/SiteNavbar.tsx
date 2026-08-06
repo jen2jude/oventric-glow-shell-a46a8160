@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { ChevronRight, Plus } from "lucide-react";
+import { ChevronRight, Menu, Plus, X } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import logo from "@/assets/oventric-logo-dark.png";
