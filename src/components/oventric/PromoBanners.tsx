@@ -137,14 +137,14 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
       }}
       className="snap-center shrink-0 w-full text-left focus-visible:outline-none"
     >
-      <div className="promo-banner-card relative overflow-hidden rounded-3xl bg-slate-950/55 backdrop-blur-xl border border-white/10 px-4 py-4 min-h-[5.5rem] md:px-5 md:py-5 flex items-center gap-3 md:gap-4 active:scale-[0.985] transition-transform duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)]">
+      <div className="promo-banner-card relative overflow-hidden rounded-[10px] bg-slate-950/55 backdrop-blur-xl border border-white/10 px-4 py-4 min-h-[5.5rem] md:px-5 md:py-5 flex items-center gap-3 md:gap-4 active:scale-[0.985] transition-transform duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] hub-card-glass hub-card-glow">
         <span
           aria-hidden
           className="promo-glow absolute -left-6 -top-8 h-28 w-28 rounded-full blur-2xl opacity-60"
           style={{ background: `radial-gradient(circle, ${p.glow}, transparent 70%)` }}
         />
         <span
-          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-gradient-to-b ${p.tint} border border-white/15 flex items-center justify-center backdrop-blur-md`}
+          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-[10px] bg-gradient-to-b ${p.tint} border border-white/15 flex items-center justify-center backdrop-blur-md`}
         >
           <p.icon className="w-7 h-7 text-blue-300" strokeWidth={2.5} />
         </span>

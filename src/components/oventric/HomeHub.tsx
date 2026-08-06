@@ -39,6 +39,8 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
+
 import {
   Dialog,
   DialogContent,
@@ -114,12 +116,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
+  const loadTopUsers = useServerFn(getTopUsers);
 
   const [main, setMain] = useState(0);
   const [cashback, setCashback] = useState(0);
   const [bounty, setBounty] = useState(0);
   const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [topUsers, setTopUsers] = useState<TopUser[]>([]);
+
   const [name, setName] = useState<string>(fullName || storeName || "");
   const [products, setProducts] = useState<
     Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number }>
@@ -195,7 +200,14 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         );
       })
       .catch(() => {});
+    loadTopUsers()
+      .then((r) => {
+        if (cancelled) return;
+        setTopUsers(r.users);
+      })
+      .catch(() => {});
     loadCourses()
+
       .then((rows) => {
         if (cancelled) return;
         setCourses(
@@ -232,7 +244,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             <Link
               to="/dashboard"
               aria-label="Open your dashboard"
-              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0"
+              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 hub-glow-blue"
             >
               <AvatarImage src={avatarUrl} alt={name || "You"} loading="eager" />
             </Link>
@@ -260,12 +272,12 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Wallet card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-3xl border border-emerald-500/25 p-4 md:p-5"
+        className="hub-wallet relative overflow-hidden rounded-[10px] border border-blue-500/30 p-4 md:p-5 hub-card-glass hub-card-glow hub-glow-blue"
         style={{
-          backgroundImage:
-            "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+          background: "linear-gradient(135deg, rgba(20, 20, 26, 0.95) 0%, rgba(20, 20, 26, 1) 100%)",
         }}
       >
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
@@ -304,42 +316,91 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-blue-600 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-blue-600/20"
           >
             <ArrowDownToLine className="w-4 h-4" strokeWidth={3} /> Add
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <ArrowUpFromLine className="w-4 h-4" strokeWidth={3} /> Withdraw
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? setSendSoonOpen(true) : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-2xl bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <Send className="w-4 h-4" strokeWidth={3} /> Send
           </button>
         </div>
+
       </section>
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} />
+        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
         <QuickAction icon={Plus} label="Post" onClick={() => requireTier(1, () => {
           onSelect("Feed");
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
           }, 80);
-        })} />
-        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} />
-        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} />
+        })} className="hub-card-glass hub-card-glow rounded-[10px]" />
+        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
+        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
+
+
       </section>
 
       {/* Promo banners */}
       <PromoBanners onSelect={onSelect} />
+
+      {/* Top Users Section */}
+      {topUsers.length > 0 && (
+        <section className="mt-6 mb-2">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Top Users</h2>
+            <button 
+              onClick={() => onSelect("Feed")}
+              className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              View all
+            </button>
+
+          </div>
+
+          <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
+            {topUsers.map((u) => (
+              <Link 
+                key={u.userId}
+                to="/profile/$id" 
+                params={{ id: u.slug }}
+                className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
+              >
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-xl shadow-blue-500/10 group-active:scale-95 transition-transform duration-200">
+                    <div className="w-full h-full rounded-full border-[3px] border-[#1a1a1a] overflow-hidden bg-[#222]">
+                      <AvatarImage src={u.avatarUrl} alt={u.displayName} />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px]">
+                    {u.reputationStars}
+                  </div>
+                </div>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-blue-400 transition-colors">
+                    {u.displayName.split(' ')[0]}
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+
 
       {/* Feature grid */}
 
@@ -355,7 +416,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center`}
+                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-glass hub-card-glow`}
                 >
                   {t.img ? (
                     <img src={t.img} alt="" aria-hidden className="w-8 h-8 md:w-9 md:h-9 object-contain" loading="eager" />
@@ -368,7 +429,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">{t.caption}</span>
               </span>
             );
-            const cls = "hub-tile p-1.5 rounded-2xl hover:bg-white/5 active:scale-95 transition-transform";
+            const cls = "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
+
             const style = { animationDelay: `${Math.min(i, 11) * 28}ms` } as const;
             return t.to ? (
               <Link key={t.label} to={t.to} className={cls} style={style}>
@@ -578,7 +640,7 @@ function MiniRail({
 
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
+    <div className="rounded-[10px] bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-slate-500 truncate">{label}</div>
       <div className="text-xs font-bold text-white tabular-nums truncate">{value}</div>
     </div>
@@ -589,16 +651,18 @@ function QuickAction({
   icon: Icon,
   label,
   onClick,
+  className,
 }: {
   icon: typeof Store;
   label: string;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 py-2 rounded-2xl hover:bg-white/5 active:scale-95 transition-transform"
+      className={`flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform ${className || "rounded-2xl hover:bg-white/5"}`}
     >
       <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white">
         <Icon className="w-5 h-5" strokeWidth={2.5} />
@@ -607,6 +671,7 @@ function QuickAction({
     </button>
   );
 }
+
 
 function PromoCard({
   id,
@@ -635,7 +700,7 @@ function PromoCard({
   const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
-      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[26px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
+      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[10px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
