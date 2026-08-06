@@ -425,7 +425,7 @@ export function Marketplace() {
                     setActiveCat(null);
                     setActiveSub(null);
                   }}
-                  className="text-xs text-slate-900 hover:underline font-black uppercase tracking-tighter"
+                  className={`text-xs hover:underline font-black uppercase tracking-tighter ${isAppShell ? "text-emerald-400" : "text-slate-900"}`}
                 >
                   Clear category
 
@@ -442,8 +442,8 @@ export function Marketplace() {
                     onClick={() => selectCat(c.slug)}
                     className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
                       active
-                        ? "border-slate-900 bg-slate-50 shadow-sm"
-                        : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md"
+                        ? (isAppShell ? "border-emerald-500 bg-slate-900 shadow-sm" : "border-slate-900 bg-slate-50 shadow-sm")
+                        : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md")
                     }`}
                   >
                     <div className="relative h-20 sm:h-24 bg-slate-100">
@@ -465,7 +465,7 @@ export function Marketplace() {
                       </span>
                     </div>
                     <div className="px-3 py-2">
-                      <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+                      <div className={`text-xs font-semibold leading-snug line-clamp-2 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                         {c.name}
                       </div>
                       {c.subs.length > 0 && (
@@ -506,7 +506,7 @@ export function Marketplace() {
           <div className="pt-5">
             <div className="flex items-center gap-2 mb-3">
               <Flame className="w-4 h-4 text-orange-400" />
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 Hot {mode === "physical" ? "physical" : "digital"} products
               </h2>
             </div>
@@ -525,16 +525,16 @@ export function Marketplace() {
 
         {/* ── Toolbar + grid with side filter ──────────────────────── */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-slate-500">
+          <div className={`text-sm ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
             {searchTerm ? (
               <>
-                <span className="text-slate-900 font-bold">{filtered.length}</span> result
+                <span className={`font-bold ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>{filtered.length}</span> result
                 {filtered.length === 1 ? "" : "s"} for “
                 <span className="text-emerald-600">{searchTerm}</span>”
               </>
             ) : (
               <>
-                <span className="text-slate-900 font-bold">{filtered.length}</span> item
+                <span className={`font-bold ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>{filtered.length}</span> item
                 {filtered.length === 1 ? "" : "s"}
                 {activeCatNode ? (
                   <>
@@ -550,7 +550,7 @@ export function Marketplace() {
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               aria-label="Sort products"
-              className="h-9 rounded-none border border-slate-200 bg-white px-2.5 text-sm text-slate-700 focus:outline-none focus:border-emerald-500"
+              className={`h-9 rounded-none border px-2.5 text-sm focus:outline-none focus:border-emerald-500 ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
             >
               <option value="featured">Featured</option>
               <option value="price-asc">Price: low to high</option>
