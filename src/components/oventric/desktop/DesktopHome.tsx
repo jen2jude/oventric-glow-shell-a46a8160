@@ -491,7 +491,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               ))}
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-3 gap-5">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {catList.slice(0, 6).map((c, i) => (
               <Reveal
                 key={c.id}
