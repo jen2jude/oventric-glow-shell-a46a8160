@@ -577,7 +577,7 @@ function ContactSellerModal({
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <h3 className="text-lg font-bold text-white md:text-slate-900">Contact the seller</h3>
+            <h3 className={`text-lg font-bold ${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900`}>Contact the seller</h3>
           </div>
           <button
             onClick={onClose}
