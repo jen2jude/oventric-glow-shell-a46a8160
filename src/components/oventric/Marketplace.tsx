@@ -970,7 +970,7 @@ function ProductCard({
       <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
         {p.coverUrl ? (
           <ResponsiveImage
-            sizes="(min-width: 1280px) 300px, (min-width: 640px) 40vw, 50vw"
+            sizes="(min-width: 1280px) 240px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
             src={p.coverUrl}
             alt={p.name}
             className="absolute inset-0 w-full h-full object-cover"
