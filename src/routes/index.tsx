@@ -304,8 +304,8 @@ function Index() {
               onCreate={handleCreate}
               avatarUrl={avatarUrl}
               name={name}
-              country={country}
-              currency={baseCurrency}
+              country={country ?? undefined}
+              currency={baseCurrency ?? undefined}
               search={renderNavSearch()}
             />
           )
