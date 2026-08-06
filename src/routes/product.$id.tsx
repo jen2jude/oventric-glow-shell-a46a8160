@@ -193,6 +193,7 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
+  const isAppShell = useIsAppShell();
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const { baseCurrency, require } = useOnboarding();
