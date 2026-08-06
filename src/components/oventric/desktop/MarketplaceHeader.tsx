@@ -17,8 +17,6 @@ export type MarketplaceHeaderProps = {
 const RED_LINKS = [
   { label: "Best-Selling Items", section: "Marketplace", icon: "👍" },
   { label: "5-Star Rated", section: "Marketplace", icon: "⭐" },
-  { label: "New In", section: "Marketplace", icon: "🆕" },
-  { label: "Categories", section: "Marketplace", hasArrow: true },
 ];
 
 export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: MarketplaceHeaderProps) {
