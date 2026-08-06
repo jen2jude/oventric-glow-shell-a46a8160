@@ -1,3 +1,4 @@
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useState, useEffect } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Star, Send, Loader2, MessageSquare, Trash2 } from "lucide-react";
