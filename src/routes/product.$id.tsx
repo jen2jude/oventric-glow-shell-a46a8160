@@ -455,7 +455,7 @@ function ProductPage() {
                 {product.kind !== "physical" && (
                   <button
                     onClick={openSellerChat}
-                    className="mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-[#121214] md:bg-white text-emerald-400 md:text-emerald-600 border border-emerald-500/40 hover:border-emerald-400 hover:bg-emerald-500/10 font-bold text-sm transition-colors"
+                    className={`mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg border font-bold text-sm transition-colors ${isAppShell ? "bg-[#121214] border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10" : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"} md:bg-white md:text-emerald-600 md:border-emerald-500/40`}
                   >
                     <MessageCircle className="w-4 h-4" /> Chat with seller
                   </button>
