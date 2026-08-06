@@ -29,6 +29,8 @@ import { AppShellGestures } from "@/components/oventric/pwa/AppShellGestures";
 import { InstallPrompt } from "@/components/oventric/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/oventric/pwa/OfflineBanner";
 import { registerAppServiceWorker } from "@/lib/pwa/register-sw";
+import { initNativeShell } from "@/lib/native/capacitor";
+
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
@@ -363,6 +365,12 @@ function RootComponent() {
   useEffect(() => {
     registerAppServiceWorker();
   }, []);
+
+  // Native iOS / Android shell (no-op in the browser).
+  useEffect(() => {
+    void initNativeShell();
+  }, []);
+
 
   return (
     <QueryClientProvider client={queryClient}>
