@@ -590,7 +590,7 @@ export function Marketplace() {
           </aside>
 
           {/* Mobile / tablet: bottom sheet */}
-          <FilterSheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+          <FilterSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} isAppShell={isAppShell}>
             <FilterPanel
               currency={baseCurrency}
               minPrice={minPrice}
@@ -687,10 +687,12 @@ function FilterSheet({
   open,
   onClose,
   children,
+  isAppShell,
 }: {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  isAppShell: boolean;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -726,7 +728,7 @@ function FilterSheet({
         <div className="px-4 pb-2">
           <button
             onClick={onClose}
-            className="w-full h-11 bg-emerald-600 text-white font-bold text-sm rounded-none"
+            className={`w-full h-11 font-bold text-sm rounded-none ${isAppShell ? "bg-emerald-600 text-white" : "bg-emerald-600 text-white"}`}
           >
             Show results
           </button>
@@ -758,6 +760,7 @@ function ModeCard({
   covers,
   active,
   onClick,
+  isAppShell,
 }: {
   label: string;
   sub: string;
@@ -766,6 +769,7 @@ function ModeCard({
   covers: string[];
   active: boolean;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   return (
     <button
@@ -773,13 +777,13 @@ function ModeCard({
       aria-expanded={active}
       className={`text-left rounded-[10px] overflow-hidden border transition-colors ${
         active
-          ? "border-emerald-500 bg-emerald-50 shadow-sm"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+          ? (isAppShell ? "border-emerald-500 bg-emerald-500/10 shadow-sm" : "border-emerald-500 bg-emerald-50 shadow-sm")
+          : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
-      <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-slate-100">
+      <div className={`relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="relative overflow-hidden bg-slate-100">
+          <div key={i} className={`relative overflow-hidden ${isAppShell ? "bg-slate-900" : "bg-slate-100"}`}>
             {covers[i] ? (
               <img
                 src={covers[i]}
@@ -800,7 +804,7 @@ function ModeCard({
       </div>
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-slate-900 font-extrabold text-[13px] sm:text-base leading-tight">
+          <h2 className={`font-extrabold text-[13px] sm:text-base leading-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
             {label}
           </h2>
           <ChevronDown
