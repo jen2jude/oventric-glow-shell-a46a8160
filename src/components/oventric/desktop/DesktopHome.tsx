@@ -469,9 +469,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Explore categories */}
       {catList.length > 0 && (
-        <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
-          <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold tracking-tight text-slate-900">Explore categories</h2>
+        <section className="mx-auto w-full max-w-[1200px] px-5 pt-14 sm:px-8 sm:pt-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Explore categories
+            </h2>
             <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1">
               {(["digital", "physical"] as const).map((k) => (
                 <button
