@@ -615,7 +615,7 @@ function ContactSellerModal({
                 by {product.vendor}
               </div>
               <div className="mt-1 flex items-center justify-between gap-2">
-                <div className="text-emerald-300 font-black text-sm">{dp.formatted}</div>
+                <div className={`${isAppShell ? "text-emerald-300" : "text-emerald-600"} font-black text-sm`}>{dp.formatted}</div>
                 {product.location && (
                   <span className="text-[10px] text-slate-400 md:text-slate-500 inline-flex items-center gap-1 truncate">
                     <MapPin className="w-3 h-3" /> {product.location}
