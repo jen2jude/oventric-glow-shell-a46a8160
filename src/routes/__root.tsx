@@ -37,7 +37,7 @@ import { initDeepLinks } from "@/lib/native/deep-links";
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
-import { useIsAppShell } from "@/hooks/use-launch-context";
+import { useLaunchContext } from "@/hooks/use-launch-context";
 import { unlockNotificationSound } from "@/lib/notification-sound";
 
 function NotFoundComponent() {
@@ -349,7 +349,8 @@ function RootComponent() {
   const { show, markSeen, hydrated } = useFirstLaunch();
   // Welcome slides belong to the app shell (native build / installed PWA);
   // plain browser visitors get the marketing site instead.
-  const isAppShell = useIsAppShell();
+  const launchCtx = useLaunchContext();
+  const isAppShell = launchCtx === "native" || launchCtx === "standalone";
   // Welcome slides are a mobile-first onboarding experience; skip them on PC.
   const [isPc, setIsPc] = useState(() =>
     typeof window !== "undefined" ? window.innerWidth >= 1024 : false,
