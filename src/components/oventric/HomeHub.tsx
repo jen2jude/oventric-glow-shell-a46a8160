@@ -272,12 +272,12 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Wallet card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-3xl border border-emerald-500/25 p-4 md:p-5"
+        className="hub-wallet relative overflow-hidden rounded-[10px] border border-blue-500/30 p-4 md:p-5 hub-card-glass hub-card-glow hub-glow-blue"
         style={{
-          backgroundImage:
-            "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+          background: "linear-gradient(135deg, rgba(20, 20, 26, 0.95) 0%, rgba(20, 20, 26, 1) 100%)",
         }}
       >
+
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
             <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
