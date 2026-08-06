@@ -1026,8 +1026,9 @@ function FilterPanel({
         onClick={() => setPromotedOnly(!promotedOnly)}
         className={`w-full inline-flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
           promotedOnly
-            ? "bg-emerald-600 border-emerald-600 text-white"
+            ? "bg-slate-900 border-slate-900 text-white"
             : "bg-slate-50 border-slate-200 text-slate-600"
+
         }`}
       >
         <Flame className="w-3.5 h-3.5" /> Promoted only
