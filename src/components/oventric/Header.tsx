@@ -390,7 +390,13 @@ export function Header({
 
           {/* Profile */}
           {isAuthenticated ? (
-            <div className="shrink-0">
+            <div className="shrink-0 flex items-center gap-3">
+              <div className="hidden lg:flex flex-col items-end mr-1">
+                <div className="flex items-center gap-1">
+                  <span className="text-xs font-black text-emerald-400">NG</span>
+                </div>
+                <div className="text-[10px] font-bold text-slate-500">NGN</div>
+              </div>
               <ProfileDropdown />
             </div>
           ) : (
