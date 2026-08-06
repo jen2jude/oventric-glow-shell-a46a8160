@@ -105,6 +105,8 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
 
             </div>
 
+            {/* Mobile Profile Clickable Image */}
+            <div className="lg:hidden flex items-center gap-3">
               <Link 
                 to="/profile/$id"
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
