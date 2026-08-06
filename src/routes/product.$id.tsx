@@ -348,7 +348,7 @@ function ProductPage() {
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-2">
+              <h1 className={`text-2xl md:text-3xl font-black ${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 mb-2`}>
                 {product.name}
               </h1>
               <div className="text-sm text-slate-500 md:text-slate-500 mb-3">
