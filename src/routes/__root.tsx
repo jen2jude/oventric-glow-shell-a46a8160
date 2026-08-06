@@ -314,8 +314,8 @@ function RootShell({ children }: { children: ReactNode }) {
 #oventric-boot .ob-icon:nth-child(5){animation-delay:0.6s}
 #oventric-boot .ob-icon:nth-child(6){animation-delay:0.75s}
 @keyframes ob-sweep{
-  0%,100%{transform:scale(1);opacity:0.2;background:rgba(255,255,255,0.15);box-shadow:none}
-  50%{transform:scale(1.5);opacity:1;background:var(--c);box-shadow:0 0 12px var(--c)}
+  0%,100%{transform:scale(1);opacity:0.25;background:rgba(255,255,255,0.18)}
+  50%{transform:scale(1.35);opacity:1;background:var(--c)}
 }`,
             }}
           />
