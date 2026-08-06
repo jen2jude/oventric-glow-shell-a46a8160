@@ -505,7 +505,15 @@ function ProductPage() {
   );
 }
 
-function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
+function ContactSellerModal({
+  product,
+  onClose,
+  isAppShell,
+}: {
+  product: ProductDTO;
+  onClose: () => void;
+  isAppShell: boolean;
+}) {
   const { baseCurrency } = useOnboarding();
   const logContact = useServerFn(logProductContact);
   const fetchContact = useServerFn(getProductContact);
