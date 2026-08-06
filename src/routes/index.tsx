@@ -232,7 +232,23 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
       <div className="flex h-full flex-col">
-        {!desktopLanding && (
+        {/* Managed Header (Desktop Landing/Browser Context vs App Shell) */}
+        {desktopLanding ? (
+          active === "Marketplace" ? (
+            <MarketplaceHeader
+              onSelect={setActive}
+              avatarUrl={null}
+              name={""}
+            />
+          ) : (
+            <SiteNavbar
+              onSelect={setActive}
+              onCreate={handleCreate}
+              avatarUrl={null}
+              name={""}
+            />
+          )
+        ) : (
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
