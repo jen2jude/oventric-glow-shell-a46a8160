@@ -588,7 +588,7 @@ function ContactSellerModal({
         </div>
 
         {/* Live preview card — mirrors what the seller will see */}
-        <div className="mb-4 rounded-xl border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 overflow-hidden">
+        <div className={`mb-4 rounded-xl border ${isAppShell ? "border-white/10 bg-[#121214]" : "border-slate-200 bg-slate-50"} md:border-slate-200 md:bg-slate-50 overflow-hidden`}>
           <div className="flex gap-3 p-3">
             <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
               {cover ? (
