@@ -299,7 +299,7 @@ function ProductPage() {
                 const cur = gallery[activeImage] ?? gallery[0];
                 return (
                   <>
-                    <div className="relative aspect-[4/3] rounded-2xl bg-white/5 md:bg-slate-100 overflow-hidden flex items-center justify-center">
+                    <div className={`relative aspect-[4/3] rounded-2xl ${isAppShell ? "bg-white/5" : "bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
                       {cur ? (
                         <ResponsiveImage
                           sizes="(min-width: 1024px) 640px, 100vw"
