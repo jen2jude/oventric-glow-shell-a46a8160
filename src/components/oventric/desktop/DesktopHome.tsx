@@ -437,7 +437,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Trust strip */}
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-6 px-5 py-8 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
           {[
             {
               Icon: ShieldCheck,
