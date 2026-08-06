@@ -11,6 +11,7 @@ type Promo = {
   tint: string;
   glow: string;
   section: string;
+  img?: string;
 };
 
 const PROMOS: Promo[] = [
@@ -19,27 +20,30 @@ const PROMOS: Promo[] = [
     title: "Download Millions of Digital Assets for Free",
     subtitle: "Grab free templates, kits & more",
     icon: Download,
-    tint: "from-blue-500/25 to-blue-500/5",
-    glow: "rgba(59,130,246,0.45)",
+    tint: "from-slate-800/50 to-slate-900/50",
+    glow: "transparent",
     section: "Marketplace",
+    img: "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?auto=format&fit=crop&w=400&q=80",
   },
   {
     id: "shopping",
     title: "Save Big on all your Shopping",
     subtitle: "Up to 10% cashback on every order",
     icon: ShoppingBag,
-    tint: "from-sky-400/25 to-sky-400/5",
-    glow: "rgba(56,189,248,0.45)",
+    tint: "from-slate-800/50 to-slate-900/50",
+    glow: "transparent",
     section: "Marketplace",
+    img: "https://images.unsplash.com/photo-1607082348824-0a96f2a4b9da?auto=format&fit=crop&w=400&q=80",
   },
   {
     id: "skills",
     title: "Learn high value digital skills",
     subtitle: "Earn while you learn on Academy",
     icon: GraduationCap,
-    tint: "from-indigo-500/25 to-indigo-500/5",
-    glow: "rgba(99,102,241,0.45)",
+    tint: "from-slate-800/50 to-slate-900/50",
+    glow: "transparent",
     section: "Academy",
+    img: "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=400&q=80",
   },
 ];
 
@@ -106,7 +110,7 @@ export function PromoBanners({ onSelect }: { onSelect: (section: string) => void
           >
             <span
               className={`block h-1.5 rounded-full transition-all duration-300 ${
-                i === active ? "w-6 bg-blue-400" : "w-1.5 bg-white/25 group-hover:bg-white/45"
+                i === active ? "w-6 bg-white" : "w-1.5 bg-white/25 group-hover:bg-white/45"
               }`}
             />
           </button>
@@ -137,16 +141,17 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
       }}
       className="snap-center shrink-0 w-full text-left focus-visible:outline-none"
     >
-      <div className="promo-banner-card relative overflow-hidden rounded-[10px] bg-slate-950/55 backdrop-blur-xl border border-white/10 px-4 py-4 min-h-[5.5rem] md:px-5 md:py-5 flex items-center gap-3 md:gap-4 active:scale-[0.985] transition-transform duration-300 shadow-[inset_0_1px_0_rgba(255,255,255,0.06)] hub-card-glass hub-card-glow">
+      <div className="promo-banner-card relative overflow-hidden rounded-[10px] bg-oklch(0.24 0 0) border border-white/10 px-4 py-4 min-h-[5.5rem] md:px-5 md:py-5 flex items-center gap-3 md:gap-4 active:scale-[0.985] transition-transform duration-300 shadow-lg shadow-black/40">
+        {p.img && (
+          <div className="absolute inset-0 opacity-40">
+            <img src={p.img} alt="" className="w-full h-full object-cover" />
+            <div className="absolute inset-0 bg-gradient-to-r from-oklch(0.24 0 0) via-oklch(0.24 0 0 / 80%) to-transparent" />
+          </div>
+        )}
         <span
-          aria-hidden
-          className="promo-glow absolute -left-6 -top-8 h-28 w-28 rounded-full blur-2xl opacity-60"
-          style={{ background: `radial-gradient(circle, ${p.glow}, transparent 70%)` }}
-        />
-        <span
-          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-[10px] bg-gradient-to-b ${p.tint} border border-white/15 flex items-center justify-center backdrop-blur-md`}
+          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-[10px] bg-oklch(0.3 0 0) border border-white/15 flex items-center justify-center`}
         >
-          <p.icon className="w-7 h-7 text-blue-300" strokeWidth={2.5} />
+          <p.icon className="w-7 h-7 text-white" strokeWidth={2.5} />
         </span>
         <span className="relative min-w-0 flex-1">
           <span className="block text-sm md:text-base font-extrabold text-white leading-snug line-clamp-2">
@@ -154,7 +159,7 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
           </span>
           <span className="block text-xs text-slate-400 mt-0.5 truncate">{p.subtitle}</span>
         </span>
-        <span className="relative shrink-0 h-11 min-w-[3.25rem] px-4 justify-center rounded-full bg-blue-500/10 border border-blue-400/50 text-blue-300 text-xs font-bold inline-flex items-center backdrop-blur-sm">
+        <span className="relative shrink-0 h-11 min-w-[3.25rem] px-4 justify-center rounded-[10px] bg-white/5 border border-white/20 text-white text-xs font-bold inline-flex items-center backdrop-blur-sm">
           GO
         </span>
       </div>

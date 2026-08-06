@@ -103,11 +103,10 @@
 }
 
 @utility hub-card-glass {
-  background: oklch(0.24 0 0 / 80%);
-  backdrop-filter: blur(12px);
+  background: oklch(0.24 0 0);
   border: 1px solid oklch(1 0 0 / 12%);
   border-radius: 12px;
-  box-shadow: 0 4px 16px -4px oklch(0 0 0 / 40%);
+  box-shadow: none;
   isolation: isolate;
   transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
 }
@@ -115,24 +114,19 @@
 @utility hub-card-glow {
   position: relative;
   &::after {
-    content: "";
-    position: absolute;
-    inset: -1px;
-    background: linear-gradient(135deg, oklch(0.6 0.2 250 / 0.3), transparent 60%);
-    border-radius: inherit;
-    z-index: -1;
-    opacity: 0.6;
-    pointer-events: none;
+    display: none;
   }
 }
 
 @utility hub-glow-blue {
-  box-shadow: 0 0 20px -5px oklch(0.6 0.2 250 / 0.3);
+  box-shadow: none;
 }
 
 .hub-top-user-ring {
   padding: 2px;
-  background: conic-gradient(from 0deg, #3b82f6, #60a5fa, #3b82f6);
+  background: linear-gradient(90deg, #ff0000, #ff7f00, #ffff00, #00ff00, #0000ff, #4b0082, #8b00ff, #ff0000);
+  background-size: 200% 200%;
+  animation: rgb-spectrum-shift 4s linear infinite;
   border-radius: 999px;
 }
 
