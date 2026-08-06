@@ -464,6 +464,11 @@ function ProductPage() {
                   : "Instant download after payment · Buyer protection covered"}
               </div>
             </div>
+            
+            {/* Review and Comment Section */}
+            <div className="lg:col-span-2">
+              <ProductComments productId={product.id} />
+            </div>
           </div>
         )}
       </main>
