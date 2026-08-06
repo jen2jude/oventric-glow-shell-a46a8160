@@ -761,7 +761,7 @@ function ProductCard({
   const isFree = (Number(price.value) || 0) <= 0;
   const catLabel = `${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`;
   const cardInner = (
-    <div className="bg-white border border-slate-200 rounded-[10px] p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
+    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow flex flex-col h-full">
       <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
         {p.coverUrl ? (
           <ResponsiveImage
