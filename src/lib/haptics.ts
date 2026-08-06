@@ -36,10 +36,4 @@ export function haptic(kind: HapticKind = "light") {
       /* ignore */
     }
   });
-  if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
-  try {
-    navigator.vibrate(PATTERNS[kind]);
-  } catch {
-    /* ignore */
-  }
 }
