@@ -22,18 +22,20 @@ export const getTopUsers = createServerFn({ method: "GET" })
       return { users: [] };
     }
 
-    const { createClient } = await import("@supabase/supabase-js");
-    const supabaseUrl = process.env.VITE_SUPABASE_URL || process.env.SUPABASE_URL!;
-    const publishableKey = process.env.VITE_SUPABASE_ANON_KEY || process.env.SUPABASE_PUBLISHABLE_KEY!;
-    const publicClient = createClient(supabaseUrl, publishableKey, {
-      auth: { persistSession: false }
-    });
-
     const users = await Promise.all((data || []).map(async (row) => {
       let avatarUrl = null;
       if (row.avatar_path) {
-        const { data: { publicUrl } } = publicClient.storage.from("avatars").getPublicUrl(row.avatar_path);
-        avatarUrl = publicUrl;
+        // Try to get a long-lived signed URL (1 week) since this is a leaderboard
+        const { data: signed } = await supabaseAdmin.storage
+          .from("avatars")
+          .createSignedUrl(row.avatar_path, 60 * 60 * 24 * 7);
+        avatarUrl = signed?.signedUrl || null;
+
+        // Fallback to public URL if signing failed (e.g. bucket settings)
+        if (!avatarUrl) {
+          const { data: pub } = supabaseAdmin.storage.from("avatars").getPublicUrl(row.avatar_path);
+          avatarUrl = pub.publicUrl || null;
+        }
       }
       return {
         userId: row.user_id,
