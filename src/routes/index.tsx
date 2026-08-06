@@ -244,7 +244,7 @@ function Index() {
         )}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""}`}
         >
           {!isDesktop && !desktopLanding && (
             <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
