@@ -200,7 +200,14 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         );
       })
       .catch(() => {});
+    loadTopUsers()
+      .then((r) => {
+        if (cancelled) return;
+        setTopUsers(r.users);
+      })
+      .catch(() => {});
     loadCourses()
+
       .then((rows) => {
         if (cancelled) return;
         setCourses(
