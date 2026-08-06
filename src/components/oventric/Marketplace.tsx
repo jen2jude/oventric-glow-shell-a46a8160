@@ -30,6 +30,7 @@ import {
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { MarketplaceBanner } from "@/components/oventric/MarketplaceBanner";
+import { LightningCountdown } from "@/components/oventric/LightningCountdown";
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -326,22 +327,15 @@ export function Marketplace() {
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* ── Lightning Deals Section ─────────────────────────── */}
         <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
-              <span className="text-2xl">⚡</span>
-              <h2 className="text-xl font-black italic tracking-tighter text-slate-900 uppercase">Lightning Deals</h2>
-              <div className="flex items-center gap-1.5 ml-4">
-                <span className="text-xs font-bold text-slate-500">Ends in:</span>
-                <div className="flex gap-1">
-                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">05</span>
-                  <span className="text-slate-900 font-black">:</span>
-                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">01</span>
-                  <span className="text-slate-900 font-black">:</span>
-                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">54</span>
-                </div>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
+            <div className="flex items-center gap-3 flex-wrap">
+              <div className="flex items-center gap-2">
+                <span className="text-xl sm:text-2xl">⚡</span>
+                <h2 className="text-lg sm:text-xl font-black italic tracking-tighter text-slate-900 uppercase whitespace-nowrap">Lightning Deals</h2>
               </div>
+              <LightningCountdown />
             </div>
-            <button className="text-xs font-black text-slate-900 hover:underline">View All &gt;</button>
+            <button className="text-xs font-black text-slate-900 hover:underline self-end sm:self-center">View All &gt;</button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
             {hotItems.slice(0, 6).map(p => (
