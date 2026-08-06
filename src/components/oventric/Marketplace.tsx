@@ -328,21 +328,21 @@ export function Marketplace() {
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* ── Lightning Deals Section ─────────────────────────── */}
-        <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
+        <div className={`mb-8 p-4 border-b-2 ${isAppShell ? "bg-[#1E1E24] border-emerald-500/30" : "bg-white border-slate-900"}`}>
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
             <div className="flex items-center gap-2 sm:gap-3">
               <div className="flex items-center gap-1 sm:gap-2 shrink-0">
                 <span className="text-lg sm:text-2xl">⚡</span>
-                <h2 className="text-[13px] sm:text-xl font-black italic tracking-tighter text-slate-900 uppercase whitespace-nowrap">Lightning Deals</h2>
+                <h2 className={`text-[13px] sm:text-xl font-black italic tracking-tighter uppercase whitespace-nowrap ${isAppShell ? "text-white" : "text-slate-900"}`}>Lightning Deals</h2>
               </div>
               <LightningCountdown />
             </div>
-            <button className="text-xs font-black text-slate-900 hover:underline self-end sm:self-center">View All &gt;</button>
+            <button className={`text-xs font-black hover:underline self-end sm:self-center ${isAppShell ? "text-emerald-400" : "text-slate-900"}`}>View All &gt;</button>
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
             {hotItems.slice(0, 6).map(p => (
               <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)}>
-                <div className="aspect-square bg-slate-100 mb-2 overflow-hidden relative">
+                <div className={`aspect-square mb-2 overflow-hidden relative ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
                   <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
                 </div>
@@ -371,9 +371,9 @@ export function Marketplace() {
               }}
 
               placeholder="I'm looking for..."
-              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border-2 border-slate-900 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-shadow shadow-sm"
+              className={`w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base border-2 focus:outline-none transition-shadow shadow-sm ${isAppShell ? "bg-[#1E1E24] border-emerald-500/30 text-white placeholder:text-slate-500" : "bg-white border-slate-900 text-slate-900 placeholder:text-slate-400"}`}
             />
-            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 border-slate-900 bg-slate-900 text-white transition-colors pointer-events-none">
+            <div className={`absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 transition-colors pointer-events-none ${isAppShell ? "bg-emerald-600 border-emerald-500 text-white" : "bg-slate-900 border-slate-900 text-white"}`}>
               <Search className="w-5 h-5" />
             </div>
           </div>
@@ -394,6 +394,7 @@ export function Marketplace() {
             }
             active={mode === "digital"}
             onClick={() => selectMode("digital")}
+            isAppShell={isAppShell}
           />
           <ModeCard
             label="Physical Products"
@@ -408,6 +409,7 @@ export function Marketplace() {
             }
             active={mode === "physical"}
             onClick={() => selectMode("physical")}
+            isAppShell={isAppShell}
           />
         </div>
 
@@ -415,7 +417,7 @@ export function Marketplace() {
         <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
           <div className="pt-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-black uppercase tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 {mode === "physical" ? "Physical" : "Digital"} categories
               </h2>
 
@@ -425,7 +427,7 @@ export function Marketplace() {
                     setActiveCat(null);
                     setActiveSub(null);
                   }}
-                  className="text-xs text-slate-900 hover:underline font-black uppercase tracking-tighter"
+                  className={`text-xs hover:underline font-black uppercase tracking-tighter ${isAppShell ? "text-emerald-400" : "text-slate-900"}`}
                 >
                   Clear category
 
@@ -442,8 +444,8 @@ export function Marketplace() {
                     onClick={() => selectCat(c.slug)}
                     className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
                       active
-                        ? "border-slate-900 bg-slate-50 shadow-sm"
-                        : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md"
+                        ? (isAppShell ? "border-emerald-500 bg-slate-900 shadow-sm" : "border-slate-900 bg-slate-50 shadow-sm")
+                        : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-100 bg-white hover:border-slate-300 hover:shadow-md")
                     }`}
                   >
                     <div className="relative h-20 sm:h-24 bg-slate-100">
@@ -465,7 +467,7 @@ export function Marketplace() {
                       </span>
                     </div>
                     <div className="px-3 py-2">
-                      <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+                      <div className={`text-xs font-semibold leading-snug line-clamp-2 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                         {c.name}
                       </div>
                       {c.subs.length > 0 && (
@@ -487,7 +489,7 @@ export function Marketplace() {
         {/* ── Subcategory drop-down ────────────────────────────────── */}
         <Collapse open={!!activeCatNode && activeCatNode.subs.length > 0}>
           <div className="pt-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
-            <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} />
+            <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} isAppShell={isAppShell} />
             {(activeCatNode?.subs ?? []).map((s) => (
               <SubPill
                 key={s.id}
@@ -496,6 +498,7 @@ export function Marketplace() {
                 onClick={() =>
                   setActiveSub((prev) => (prev === norm(s.slug) ? null : norm(s.slug)))
                 }
+                isAppShell={isAppShell}
               />
             ))}
           </div>
@@ -506,7 +509,7 @@ export function Marketplace() {
           <div className="pt-5">
             <div className="flex items-center gap-2 mb-3">
               <Flame className="w-4 h-4 text-orange-400" />
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 Hot {mode === "physical" ? "physical" : "digital"} products
               </h2>
             </div>
@@ -517,6 +520,7 @@ export function Marketplace() {
                   p={p}
                   currency={baseCurrency}
                   onClick={() => onOpenProduct(p)}
+                  isAppShell={isAppShell}
                 />
               ))}
             </div>
@@ -525,16 +529,16 @@ export function Marketplace() {
 
         {/* ── Toolbar + grid with side filter ──────────────────────── */}
         <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
-          <div className="text-sm text-slate-500">
+          <div className={`text-sm ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
             {searchTerm ? (
               <>
-                <span className="text-slate-900 font-bold">{filtered.length}</span> result
+                <span className={`font-bold ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>{filtered.length}</span> result
                 {filtered.length === 1 ? "" : "s"} for “
                 <span className="text-emerald-600">{searchTerm}</span>”
               </>
             ) : (
               <>
-                <span className="text-slate-900 font-bold">{filtered.length}</span> item
+                <span className={`font-bold ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>{filtered.length}</span> item
                 {filtered.length === 1 ? "" : "s"}
                 {activeCatNode ? (
                   <>
@@ -550,7 +554,7 @@ export function Marketplace() {
               value={sort}
               onChange={(e) => setSort(e.target.value as SortKey)}
               aria-label="Sort products"
-              className="h-9 rounded-none border border-slate-200 bg-white px-2.5 text-sm text-slate-700 focus:outline-none focus:border-emerald-500"
+              className={`h-9 rounded-none border px-2.5 text-sm focus:outline-none focus:border-emerald-500 ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
             >
               <option value="featured">Featured</option>
               <option value="price-asc">Price: low to high</option>
@@ -559,7 +563,7 @@ export function Marketplace() {
             </select>
             <button
               onClick={() => setFiltersOpen(true)}
-              className="lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-none bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
+              className={`lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-none text-sm shadow-sm border ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
               {activeFilterCount > 0 && (
@@ -586,11 +590,12 @@ export function Marketplace() {
               sort={sort}
               setSort={setSort}
               onReset={resetFilters}
+              isAppShell={isAppShell}
             />
           </aside>
 
           {/* Mobile / tablet: bottom sheet */}
-          <FilterSheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+          <FilterSheet open={filtersOpen} onClose={() => setFiltersOpen(false)} isAppShell={isAppShell}>
             <FilterPanel
               currency={baseCurrency}
               minPrice={minPrice}
@@ -605,23 +610,24 @@ export function Marketplace() {
               setSort={setSort}
               onReset={resetFilters}
               onClose={() => setFiltersOpen(false)}
+              isAppShell={isAppShell}
               flush
             />
           </FilterSheet>
 
           <div className="flex-1 min-w-0">
             {!mode ? (
-              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
+              <div className={`border rounded-none p-10 text-center ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
+                <div className={`font-semibold mb-1 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>Pick a section</div>
                 <div className="text-sm text-slate-500">
                   Choose Digital or Physical products above to browse.
                 </div>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
+              <div className={`border rounded-none p-10 text-center ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
+                <div className={`font-semibold mb-1 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>Nothing matches</div>
                 <div className="text-sm text-slate-500">
                   Try clearing the category or price filters.
                 </div>
@@ -634,6 +640,7 @@ export function Marketplace() {
                     p={p}
                     currency={baseCurrency}
                     onClick={() => onOpenProduct(p)}
+                    isAppShell={isAppShell}
                     index={i}
                   />
                 ))}
@@ -652,7 +659,7 @@ export function Marketplace() {
           <section className="mt-10">
             <div className="flex items-center gap-2 mb-3">
               <Star className="w-4 h-4 text-amber-300 fill-current" />
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 Recommended for you
               </h2>
             </div>
@@ -663,6 +670,7 @@ export function Marketplace() {
                   p={p}
                   currency={baseCurrency}
                   onClick={() => onOpenProduct(p)}
+                  isAppShell={isAppShell}
                   index={i}
                 />
               ))}
@@ -687,10 +695,12 @@ function FilterSheet({
   open,
   onClose,
   children,
+  isAppShell,
 }: {
   open: boolean;
   onClose: () => void;
   children: React.ReactNode;
+  isAppShell: boolean;
 }) {
   useEffect(() => {
     if (!open) return;
@@ -716,17 +726,17 @@ function FilterSheet({
         className="absolute inset-0 w-full bg-slate-900/50"
       />
       <div
-        className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] animate-in slide-in-from-bottom duration-200"
+        className={`absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain shadow-[0_-8px_30px_rgba(0,0,0,0.4)] animate-in slide-in-from-bottom duration-200 ${isAppShell ? "bg-[#121214]" : "bg-white"}`}
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
       >
-        <div className="sticky top-0 flex justify-center bg-white pt-3 pb-1">
+        <div className={`sticky top-0 flex justify-center pt-3 pb-1 ${isAppShell ? "bg-black" : "bg-white"}`}>
           <span className="h-1 w-10 rounded-full bg-slate-300" />
         </div>
         {children}
         <div className="px-4 pb-2">
           <button
             onClick={onClose}
-            className="w-full h-11 bg-emerald-600 text-white font-bold text-sm rounded-none"
+            className={`w-full h-11 font-bold text-sm rounded-none ${isAppShell ? "bg-emerald-600 text-white" : "bg-emerald-600 text-white"}`}
           >
             Show results
           </button>
@@ -758,6 +768,7 @@ function ModeCard({
   covers,
   active,
   onClick,
+  isAppShell,
 }: {
   label: string;
   sub: string;
@@ -766,6 +777,7 @@ function ModeCard({
   covers: string[];
   active: boolean;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   return (
     <button
@@ -773,13 +785,13 @@ function ModeCard({
       aria-expanded={active}
       className={`text-left rounded-[10px] overflow-hidden border transition-colors ${
         active
-          ? "border-emerald-500 bg-emerald-50 shadow-sm"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+          ? (isAppShell ? "border-emerald-500 bg-emerald-500/10 shadow-sm" : "border-emerald-500 bg-emerald-50 shadow-sm")
+          : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
-      <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-slate-100">
+      <div className={`relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {Array.from({ length: 4 }).map((_, i) => (
-          <div key={i} className="relative overflow-hidden bg-slate-100">
+          <div key={i} className={`relative overflow-hidden ${isAppShell ? "bg-slate-900" : "bg-slate-100"}`}>
             {covers[i] ? (
               <img
                 src={covers[i]}
@@ -800,7 +812,7 @@ function ModeCard({
       </div>
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-slate-900 font-extrabold text-[13px] sm:text-base leading-tight">
+          <h2 className={`font-extrabold text-[13px] sm:text-base leading-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
             {label}
           </h2>
           <ChevronDown
@@ -818,10 +830,12 @@ function MiniProductCard({
   p,
   currency,
   onClick,
+  isAppShell,
 }: {
   p: ProductDTO;
   currency: Currency;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   const Icon = categoryIcon(p.category);
   const mp = displayPriceForProduct(p, currency);
@@ -831,11 +845,11 @@ function MiniProductCard({
       onClick={onClick}
       className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
         p.promoted
-          ? "border-emerald-400 bg-emerald-50/60"
-          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+          ? (isAppShell ? "border-emerald-500 bg-emerald-500/10" : "border-emerald-400 bg-emerald-50/60")
+          : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
-      <div className="relative h-20 sm:h-24 bg-slate-100">
+      <div className={`relative h-20 sm:h-24 ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="200px"
@@ -871,7 +885,7 @@ function MiniProductCard({
         ) : (
           <CategoryTicker label={`${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`} />
         )}
-        <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+        <div className={`text-xs font-semibold leading-snug line-clamp-2 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           {p.name}
         </div>
         <div className="mt-1 flex items-center justify-between gap-2">
@@ -887,18 +901,20 @@ function SubPill({
   label,
   active,
   onClick,
+  isAppShell,
 }: {
   label: string;
   active: boolean;
   onClick: () => void;
+  isAppShell: boolean;
 }) {
   return (
     <button
       onClick={onClick}
       className={`shrink-0 px-3.5 py-1.5 rounded-none text-xs font-semibold border transition-colors whitespace-nowrap ${
         active
-          ? "bg-emerald-600 border-emerald-600 text-white"
-          : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+          ? (isAppShell ? "bg-emerald-600 border-emerald-600 text-white" : "bg-emerald-600 border-emerald-600 text-white")
+          : (isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-400 hover:text-slate-200" : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300")
       }`}
     >
       {label}
@@ -920,6 +936,7 @@ function FilterPanel({
   setSort,
   onReset,
   onClose,
+  isAppShell,
   flush = false,
 }: {
   currency: Currency;
@@ -935,25 +952,26 @@ function FilterPanel({
   setSort: (v: SortKey) => void;
   onReset: () => void;
   onClose?: () => void;
+  isAppShell: boolean;
   flush?: boolean;
 }) {
   const input =
-    "w-full bg-white border border-slate-200 rounded-none px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
+    `w-full border rounded-none px-2.5 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors ${isAppShell ? "bg-[#121214] border-white/10 text-slate-200 placeholder:text-slate-600" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"}`;
   return (
     <div
       className={
-        flush ? "bg-white p-4" : "bg-white border border-slate-200 rounded-none p-4"
+        flush ? (isAppShell ? "bg-black p-4" : "bg-white p-4") : (isAppShell ? "bg-[#1E1E24] border border-white/5 rounded-none p-4" : "bg-white border border-slate-200 rounded-none p-4")
       }
     >
 
       <div className="flex items-center justify-between mb-4">
-        <div className="inline-flex items-center gap-2 text-slate-900 font-bold text-sm">
+        <div className={`inline-flex items-center gap-2 font-bold text-sm ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           <SlidersHorizontal className="w-4 h-4" /> Filters
         </div>
         <div className="flex items-center gap-2">
           <button
             onClick={onReset}
-            className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+            className={`text-xs font-semibold hover:opacity-80 transition-opacity ${isAppShell ? "text-emerald-400" : "text-emerald-600"}`}
           >
             Reset
           </button>
@@ -1068,11 +1086,13 @@ function ProductCard({
   p,
   currency,
   onClick,
+  isAppShell,
   index = 0,
 }: {
   p: ProductDTO;
   currency: Currency;
   onClick: () => void;
+  isAppShell: boolean;
   index?: number;
 }) {
   const Icon = categoryIcon(p.category);
@@ -1081,8 +1101,8 @@ function ProductCard({
   const isFree = (Number(price.value) || 0) <= 0;
   const catLabel = `${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`;
   const cardInner = (
-    <div className="bg-white border-2 border-slate-100 rounded-none p-3 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group cursor-pointer" onClick={onClick}>
-      <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
+    <div className={`border-2 p-3 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group cursor-pointer rounded-none ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-100"}`} onClick={onClick}>
+      <div className={`relative aspect-[4/3] rounded-none mb-3 overflow-hidden ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="(min-width: 1280px) 240px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
@@ -1127,20 +1147,20 @@ function ProductCard({
         ) : (
           <CategoryTicker label={catLabel} />
         )}
-        <h3 className="text-slate-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 mt-0.5">
+        <h3 className={`text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 mt-0.5 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           {p.name}
         </h3>
         <div className="text-[10px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         
         <div className="flex items-center gap-1 mt-1 text-[11px]">
           <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((s) => (
+             {[1, 2, 3, 4, 5].map((s) => (
               <Star
                 key={s}
                 className={`w-2.5 h-2.5 ${
                   s <= Math.round(p.rating || 5)
-                    ? "text-slate-900 fill-slate-900"
-                    : "text-slate-300 fill-slate-200"
+                    ? (isAppShell ? "text-emerald-500 fill-emerald-500" : "text-slate-900 fill-slate-900")
+                    : (isAppShell ? "text-white/10 fill-white/5" : "text-slate-300 fill-slate-200")
                 }`}
               />
             ))}
@@ -1150,7 +1170,7 @@ function ProductCard({
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-0.5 pt-3 mt-2 border-t border-slate-50">
+      <div className={`flex flex-col gap-0.5 pt-3 mt-2 border-t ${isAppShell ? "border-white/5" : "border-slate-50"}`}>
         <div className="flex items-baseline gap-1.5">
           <span className="text-[#E13B2E] font-black text-lg">
             {isFree ? "FREE" : price.formatted}
@@ -1167,7 +1187,7 @@ function ProductCard({
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onClick(); }}
-            className="p-1.5 border-2 border-slate-900 rounded-full text-slate-900 hover:bg-slate-900 hover:text-white transition-colors"
+            className={`p-1.5 border-2 rounded-full transition-colors ${isAppShell ? "border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-white" : "border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white"}`}
           >
             <ShoppingCart className="w-4 h-4" />
           </button>
@@ -1180,40 +1200,41 @@ function ProductCard({
 
 }
 
-function SkeletonCard() {
+function SkeletonCard({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className="bg-white border border-slate-200 rounded-none p-3 shadow-[0_1px_3px_rgba(15,23,42,0.06)] hover:shadow-lg transition-shadow animate-pulse">
-      <div className="aspect-[4/3] rounded-none bg-slate-100 mb-3" />
-      <div className="h-4 w-3/4 bg-slate-100 rounded mb-2" />
-      <div className="h-3 w-1/2 bg-slate-100 rounded mb-4" />
-      <div className="flex items-center justify-between pt-3 mt-2 border-t border-slate-100">
-        <div className="h-4 w-16 bg-slate-100 rounded" />
-        <div className="h-6 w-12 bg-slate-100 rounded" />
+    <div className={`border rounded-none p-3 shadow-[0_1px_3px_rgba(0,0,0,0.1)] transition-shadow animate-pulse ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
+      <div className={`aspect-[4/3] rounded-none mb-3 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`h-4 w-3/4 rounded mb-2 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`h-3 w-1/2 rounded mb-4 ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+      <div className={`flex items-center justify-between pt-3 mt-2 border-t ${isAppShell ? "border-white/5" : "border-slate-100"}`}>
+        <div className={`h-4 w-16 rounded ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+        <div className={`h-6 w-12 rounded ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
       </div>
     </div>
   );
 }
 
 function MarketplaceSkeleton() {
+  const isAppShell = useIsAppShell();
   return (
-    <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full">
+    <div className={`marketplace-render-safe min-h-full max-w-full ${isAppShell ? "bg-black" : "bg-[#F7F8FA]"}`}>
       <div className="max-w-7xl mx-auto w-full px-4 py-5">
         <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
-          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+          <div className={`h-44 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
+          <div className={`h-44 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`} />
         </div>
         <div className="flex gap-3 mb-6 overflow-hidden">
           {Array.from({ length: 5 }).map((_, i) => (
             <div
               key={i}
-              className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse"
+              className={`shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none animate-pulse ${isAppShell ? "bg-white/5" : "bg-slate-100"}`}
             />
           ))}
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
 
           {Array.from({ length: 6 }).map((_, i) => (
-            <SkeletonCard key={i} />
+            <SkeletonCard key={i} isAppShell={isAppShell} />
           ))}
         </div>
       </div>
