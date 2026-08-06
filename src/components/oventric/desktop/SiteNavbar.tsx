@@ -15,7 +15,7 @@ export type SiteNavbarProps = {
   search?: React.ReactNode;
 };
 
-export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: SiteNavbarProps) {
+export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, currency, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
