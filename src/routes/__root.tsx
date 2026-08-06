@@ -268,72 +268,30 @@ function RootShell({ children }: { children: ReactNode }) {
         <div id="oventric-boot" aria-hidden>
           <div className="ob-logo-container">
             <img
-              src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
-              className="ob-ring-logo"
-              alt=""
-              draggable={false}
-            />
-            <img
               src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
               className="ob-wordmark"
               alt="Oventric"
               draggable={false}
             />
           </div>
-          <div className="ob-icons">
-            {[
-              { c: "#ff4d6d", p: <><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></> },
-              { c: "#ffb020", p: <><rect width="20" height="12" x="2" y="6" rx="2" /><circle cx="12" cy="12" r="2" /><path d="M6 12h.01M18 12h.01" /></> },
-              { c: "#22ff88", p: <><circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" /></> },
-              { c: "#00c2ff", p: <><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z" /><path d="M22 10v6" /><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5" /></> },
-              { c: "#7aa2ff", p: <><path d="M19 7V4a1 1 0 0 0-1-1H5a2 2 0 0 0 0 4h15a1 1 0 0 1 1 1v4h-3a2 2 0 0 0 0 4h3a1 1 0 0 0 1-1v-2a1 1 0 0 0-1-1" /><path d="M3 5v14a2 2 0 0 0 2 2h15a1 1 0 0 0 1-1v-4" /></> },
-              { c: "#a855f7", p: <path d="M2.992 16.342a2 2 0 0 1 .094 1.167l-1.065 3.29a1 1 0 0 0 1.236 1.168l3.413-.998a2 2 0 0 1 1.099.092 10 10 0 1 0-4.777-4.719" /> },
-            ].map((it, i) => (
-              <svg
-                key={i}
-                viewBox="0 0 24 24"
-                fill="none"
-                stroke="currentColor"
-                strokeWidth={2.2}
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                style={{ color: it.c }}
-              >
-                {it.p}
-              </svg>
-            ))}
-          </div>
           <style
             dangerouslySetInnerHTML={{
               __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
 #oventric-boot .ob-logo-container{display:flex;flex-direction:column;align-items:center;gap:12px}
-#oventric-boot .ob-ring-logo{height:64px;width:64px;object-fit:contain}
-#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}
-#oventric-boot .ob-icons{margin-top:24px;display:flex;align-items:center;gap:18px}
-#oventric-boot svg{width:22px;height:22px;opacity:.18;transform:translateY(0) scale(.92);transition:opacity .25s ease,transform .25s ease,filter .25s ease}
-#oventric-boot svg.ob-lit{opacity:1;transform:translateY(-3px) scale(1.12);filter:drop-shadow(0 0 10px currentColor)}`,
+#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}`,
             }}
           />
           <script
-            // Advance the icon sweep on real pre-hydration milestones:
-            // HTML parsed → stylesheets/DOM ready → window load. React's
-            // <BootSplash /> takes over (and removes this) once hydrated.
+            // Only show the boot splash when the app is launched from a phone's
+            // home screen (installed PWA / standalone) on a mobile-sized screen —
+            // never on desktop/tablet, and never for in-app navigation.
             dangerouslySetInnerHTML={{
-            __html: `(function(){try{
+              __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
-  // Only show the boot splash when the app is launched from a phone's
-  // home screen (installed PWA / standalone) on a mobile-sized screen —
-  // never on desktop/tablet, and never for in-app navigation.
   var standalone=false;
   try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
   if(!standalone){root.parentNode&&root.parentNode.removeChild(root);return;}
-  var svgs=root.getElementsByTagName('svg');
-  var at=0;
-  function set(n){if(n<=at)return;at=n;for(var i=0;i<svgs.length;i++){if(i<n)svgs[i].classList.add('ob-lit');}}
-  set(1);
-  document.addEventListener('DOMContentLoaded',function(){set(2);});
-  window.addEventListener('load',function(){set(3);});
 }catch(e){}})();`,
             }}
           />

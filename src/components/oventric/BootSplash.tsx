@@ -126,12 +126,6 @@ export function BootSplash() {
     >
       <div className="flex flex-col items-center gap-4">
         <img
-          src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
-          alt=""
-          className="h-16 w-16 object-contain select-none sm:h-20 sm:w-20"
-          draggable={false}
-        />
-        <img
           src={logoFull}
           alt="Oventric"
           className="h-8 w-auto select-none sm:h-10"
