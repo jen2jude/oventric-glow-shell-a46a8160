@@ -244,7 +244,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             <Link
               to="/dashboard"
               aria-label="Open your dashboard"
-              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0"
+              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 hub-glow-blue"
             >
               <AvatarImage src={avatarUrl} alt={name || "You"} loading="eager" />
             </Link>
