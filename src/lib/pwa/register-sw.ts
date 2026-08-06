@@ -37,6 +37,62 @@ async function unregisterAppShell() {
   );
 }
 
+type UpdateListener = (ready: boolean) => void;
+
+const listeners = new Set<UpdateListener>();
+let waitingWorker: ServiceWorker | null = null;
+let reloading = false;
+
+function announce(worker: ServiceWorker | null) {
+  waitingWorker = worker;
+  listeners.forEach((fn) => fn(Boolean(worker)));
+}
+
+/** Subscribe to "a new app version is installed and waiting" changes. */
+export function onServiceWorkerUpdate(fn: UpdateListener): () => void {
+  listeners.add(fn);
+  fn(Boolean(waitingWorker));
+  return () => listeners.delete(fn);
+}
+
+/** Activate the waiting worker and reload once it takes control. */
+export function applyServiceWorkerUpdate() {
+  if (reloading) return;
+  if (!waitingWorker) {
+    reloading = true;
+    window.location.reload();
+    return;
+  }
+  reloading = true;
+  navigator.serviceWorker.addEventListener("controllerchange", () => window.location.reload(), {
+    once: true,
+  });
+  waitingWorker.postMessage({ type: "SKIP_WAITING" });
+  // Safety net if controllerchange never fires.
+  window.setTimeout(() => window.location.reload(), 3000);
+}
+
+function track(reg: ServiceWorkerRegistration) {
+  if (reg.waiting && navigator.serviceWorker.controller) announce(reg.waiting);
+
+  reg.addEventListener("updatefound", () => {
+    const installing = reg.installing;
+    if (!installing) return;
+    installing.addEventListener("statechange", () => {
+      if (installing.state === "installed" && navigator.serviceWorker.controller) {
+        announce(installing);
+      }
+    });
+  });
+
+  const check = () => {
+    if (document.visibilityState === "visible") reg.update().catch(() => {});
+  };
+  window.setInterval(check, 60 * 60 * 1000);
+  document.addEventListener("visibilitychange", check);
+  window.addEventListener("online", check);
+}
+
 export function registerAppServiceWorker() {
   if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return;
   if (isBlockedContext()) {
@@ -44,6 +100,10 @@ export function registerAppServiceWorker() {
     return;
   }
   window.addEventListener("load", () => {
-    navigator.serviceWorker.register(SW_URL, { scope: "/" }).catch(() => {});
+    navigator.serviceWorker
+      .register(SW_URL, { scope: "/" })
+      .then((reg) => track(reg))
+      .catch(() => {});
   });
 }
+
