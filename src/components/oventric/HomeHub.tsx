@@ -116,12 +116,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const loadProfile = useServerFn(getMyFullProfile);
   const loadDiscovery = useServerFn(getDiscoveryFeed);
   const loadCourses = useServerFn(listCourses);
+  const loadTopUsers = useServerFn(getTopUsers);
 
   const [main, setMain] = useState(0);
   const [cashback, setCashback] = useState(0);
   const [bounty, setBounty] = useState(0);
   const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [topUsers, setTopUsers] = useState<TopUser[]>([]);
+
   const [name, setName] = useState<string>(fullName || storeName || "");
   const [products, setProducts] = useState<
     Array<{ id: string; title: string; coverUrl: string | null; priceUsd: number }>
