@@ -27,6 +27,8 @@ import { PushOptInPrompt } from "@/components/oventric/PushOptInPrompt";
 import { BootSplash } from "@/components/oventric/BootSplash";
 import { AppShellGestures } from "@/components/oventric/pwa/AppShellGestures";
 import { InstallPrompt } from "@/components/oventric/pwa/InstallPrompt";
+import { UpdatePrompt } from "@/components/oventric/pwa/UpdatePrompt";
+
 import { OfflineBanner } from "@/components/oventric/pwa/OfflineBanner";
 import { registerAppServiceWorker } from "@/lib/pwa/register-sw";
 import { initNativeShell } from "@/lib/native/capacitor";
