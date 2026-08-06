@@ -51,10 +51,8 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
     if (!open) return;
     const channel = supabase
       .channel("incoming-follow-requests")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "follow_requests" },
-        () => load(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "follow_requests" }, () =>
+        load(),
       )
       .subscribe();
     return () => {
@@ -88,7 +86,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="relative w-full sm:max-w-sm h-full bg-[#141418] border-l border-white/10 shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200">
-        <div className="sticky top-0 z-10 bg-[#141418]/95 px-5 py-4 border-b border-white/5 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-[#141418] px-5 py-4 border-b border-white/5 flex items-center justify-between">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
               Follow requests
@@ -141,11 +139,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   aria-label={`Open ${r.requesterName}'s profile`}
                 >
                   {r.avatarUrl ? (
-                    <img
-                      src={r.avatarUrl}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <img src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                       <UserIcon className="w-4 h-4" />
@@ -153,9 +147,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   )}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm text-white font-semibold truncate">
-                    {r.requesterName}
-                  </div>
+                  <div className="text-sm text-white font-semibold truncate">{r.requesterName}</div>
                   <div className="text-[11px] text-slate-500">wants to follow you</div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">

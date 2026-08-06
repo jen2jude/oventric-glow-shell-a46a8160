@@ -26,8 +26,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
 
-
-
   useEffect(() => {
     const el = document.getElementById("desktop-home-scroll");
     const target: HTMLElement | Window = el ?? window;
@@ -47,8 +45,15 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
       }`}
     >
       <div className="mx-auto flex h-[72px] w-full max-w-[1200px] items-center gap-6 px-8">
-        <button type="button" onClick={() => onSelect("Home")} className="shrink-0" aria-label="Oventric home">
-          <span className="inline-flex items-center"><img src={logo} alt="Oventric" className="h-6 w-auto object-contain" /></span>
+        <button
+          type="button"
+          onClick={() => onSelect("Home")}
+          className="shrink-0"
+          aria-label="Oventric home"
+        >
+          <span className="inline-flex items-center">
+            <img src={logo} alt="Oventric" className="h-6 w-auto object-contain" />
+          </span>
         </button>
 
         {search && <div className="hidden shrink-0 md:block">{search}</div>}
@@ -122,7 +127,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
             </>
           )}
         </div>
-
       </div>
     </header>
   );

@@ -13,10 +13,7 @@ import {
   Globe2,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import {
-  getMyAffiliateReservation,
-  reserveAffiliateSpot,
-} from "@/lib/affiliate.functions";
+import { getMyAffiliateReservation, reserveAffiliateSpot } from "@/lib/affiliate.functions";
 
 export const Route = createFileRoute("/affiliate")({
   head: () => ({
@@ -54,9 +51,7 @@ function AffiliatePage() {
     }
   }
 
-  const [state, setState] = useState<"loading" | "guest" | "none" | "reserved">(
-    "loading",
-  );
+  const [state, setState] = useState<"loading" | "guest" | "none" | "reserved">("loading");
   const [note, setNote] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [err, setErr] = useState<string | null>(null);
@@ -134,9 +129,8 @@ function AffiliatePage() {
             Oventric Affiliate Program
           </h1>
           <p className="text-slate-300 mt-3 max-w-2xl text-sm sm:text-base leading-relaxed md:text-slate-600">
-            Refer creators, sellers and learners to Oventric — and earn recurring
-            rewards on every transaction they make. Reserve your spot now to be
-            first in line when we launch.
+            Refer creators, sellers and learners to Oventric — and earn recurring rewards on every
+            transaction they make. Reserve your spot now to be first in line when we launch.
           </p>
 
           <div className="mt-6" id="reserve-spot">
@@ -249,12 +243,9 @@ function AffiliatePage() {
           <div className="rounded-xl border border-white/10 bg-[#141418] p-4 flex items-start gap-3 md:border-slate-200 md:bg-white">
             <ShieldCheck className="w-5 h-5 text-emerald-300 shrink-0 mt-0.5" />
             <div>
-              <div className="text-white text-sm font-bold md:text-slate-900">
-                No spam, ever
-              </div>
+              <div className="text-white text-sm font-bold md:text-slate-900">No spam, ever</div>
               <div className="text-xs text-slate-400 mt-0.5 md:text-slate-500">
-                We'll only email you when the program is live and about your
-                affiliate account.
+                We'll only email you when the program is live and about your affiliate account.
               </div>
             </div>
           </div>

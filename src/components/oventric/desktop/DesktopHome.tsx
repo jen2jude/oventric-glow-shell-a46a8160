@@ -46,7 +46,6 @@ import academyIcon from "@/assets/academy-3d.png.asset.json";
 import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
 import circlesIcon from "@/assets/circles-3d.png.asset.json";
 
-
 export type DesktopHomeProps = {
   onSelect: (section: string) => void;
   onCreate: () => void;
@@ -103,16 +102,26 @@ const FEATURES = [
 ] as const;
 
 const STEPS = [
-  { title: "Create your account", body: "Pick your country and currency once — everything you see is priced for you." },
-  { title: "Buy, learn or post work", body: "Shop the marketplace, enrol in a course, or fund a bounty in minutes." },
-  { title: "Get paid and withdraw", body: "Escrow releases to your wallet, then cash out to your bank or mobile money." },
+  {
+    title: "Create your account",
+    body: "Pick your country and currency once — everything you see is priced for you.",
+  },
+  {
+    title: "Buy, learn or post work",
+    body: "Shop the marketplace, enrol in a course, or fund a bounty in minutes.",
+  },
+  {
+    title: "Get paid and withdraw",
+    body: "Escrow releases to your wallet, then cash out to your bank or mobile money.",
+  },
 ];
 
 export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
   const { isAuthenticated, openGate } = useAuthGate();
-  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName } = useOnboarding();
+  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName } =
+    useOnboarding();
   const currency: Currency = country ? baseCurrency : "USD";
-  const flag = country ? COUNTRY_META[country]?.flag ?? "" : "";
+  const flag = country ? (COUNTRY_META[country]?.flag ?? "") : "";
 
   const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
@@ -161,11 +170,14 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
     if (term.length < 2) return [] as Array<Card & { kind: "product" | "course" | "bounty" }>;
     const tag = (list: Card[], kind: "product" | "course" | "bounty") =>
       list.filter((c) => c.title.toLowerCase().includes(term)).map((c) => ({ ...c, kind }));
-    return [...tag(products, "product"), ...tag(courses, "course"), ...tag(bounties, "bounty")].slice(0, 8);
+    return [
+      ...tag(products, "product"),
+      ...tag(courses, "course"),
+      ...tag(bounties, "bounty"),
+    ].slice(0, 8);
   }, [q, products, courses, bounties]);
 
   const catList = useMemo(() => cats.filter((c) => c.kind === catTab), [cats, catTab]);
-
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -254,7 +266,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             e.preventDefault();
             if (results[0]) {
               setSearchOpen(null);
-              if (results[0].kind === "product") navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
+              if (results[0].kind === "product")
+                navigate({ to: "/product/$id", params: { id: results[0].id }, search: { qty: 1 } });
               else onSelect(results[0].kind === "course" ? "Academy" : "Bounties");
             } else onSelect("Marketplace");
           }}
@@ -295,13 +308,21 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 type="button"
                 onClick={() => {
                   setSearchOpen(null);
-                  if (r.kind === "product") navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
+                  if (r.kind === "product")
+                    navigate({ to: "/product/$id", params: { id: r.id }, search: { qty: 1 } });
                   else onSelect(r.kind === "course" ? "Academy" : "Bounties");
                 }}
                 className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors hover:bg-slate-50"
               >
                 <span className="h-9 w-9 shrink-0 overflow-hidden rounded-lg bg-slate-100">
-                  {r.coverUrl && <img src={r.coverUrl} alt="" aria-hidden className="h-full w-full object-cover" />}
+                  {r.coverUrl && (
+                    <img
+                      src={r.coverUrl}
+                      alt=""
+                      aria-hidden
+                      className="h-full w-full object-cover"
+                    />
+                  )}
                 </span>
                 <span className="min-w-0 flex-1 truncate text-sm text-slate-900">{r.title}</span>
                 <span className="shrink-0 text-xs font-semibold text-emerald-600">{r.meta}</span>
@@ -315,7 +336,13 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
   return (
     <div className="min-h-full bg-white text-slate-700">
-      <SiteNavbar onSelect={onSelect} onCreate={onCreate} avatarUrl={avatarUrl} name={name} search={renderSearch("nav")} />
+      <SiteNavbar
+        onSelect={onSelect}
+        onCreate={onCreate}
+        avatarUrl={avatarUrl}
+        name={name}
+        search={renderSearch("nav")}
+      />
 
       {/* Hero */}
       <section className="relative min-h-[92vh] overflow-hidden">
@@ -340,8 +367,8 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span className="text-emerald-600"> sell, learn and get paid.</span>
             </h1>
             <p className="mt-6 max-w-lg text-lg leading-relaxed text-slate-600 [text-shadow:0_1px_16px_rgba(255,255,255,0.9)]">
-              Marketplace, academy, bounties and a multi-currency wallet in one place. Escrow-protected payments in your
-              own currency, wherever you are on the continent.
+              Marketplace, academy, bounties and a multi-currency wallet in one place.
+              Escrow-protected payments in your own currency, wherever you are on the continent.
             </p>
             <div className="mt-9 max-w-lg">{renderSearch("hero")}</div>
 
@@ -351,12 +378,13 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 onClick={primary}
                 className="inline-flex h-12 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform active:scale-95"
               >
-                {isAuthenticated ? "Visit feed" : "Get started free"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+                {isAuthenticated ? "Visit feed" : "Get started free"}{" "}
+                <ArrowRight className="h-4 w-4" strokeWidth={3} />
               </button>
               <button
                 type="button"
                 onClick={() => onSelect("Marketplace")}
-                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-6 text-sm font-bold text-slate-900 backdrop-blur-sm transition-transform active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-900 transition-transform active:scale-95"
               >
                 Explore marketplace
               </button>
@@ -407,15 +435,22 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         </div>
       </section>
 
-
       {/* Trust strip */}
       <section className="border-b border-slate-200 bg-white">
         <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
           {[
-            { Icon: ShieldCheck, title: "Escrow protection", body: "Funds held until delivery is confirmed" },
+            {
+              Icon: ShieldCheck,
+              title: "Escrow protection",
+              body: "Funds held until delivery is confirmed",
+            },
             { Icon: Clock, title: "Fast delivery", body: "In-app handover with 48h auto-release" },
             { Icon: Star, title: "2% cashback", body: "Earned on every completed purchase" },
-            { Icon: Headphones, title: "Support & disputes", body: "Live chat and mediated resolution" },
+            {
+              Icon: Headphones,
+              title: "Support & disputes",
+              body: "Live chat and mediated resolution",
+            },
           ].map((t) => (
             <div key={t.title} className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-50 text-emerald-600">
@@ -432,7 +467,6 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       <DesktopPromo onSelect={onSelect} />
 
-
       {/* Explore categories */}
       {catList.length > 0 && (
         <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
@@ -445,7 +479,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                   type="button"
                   onClick={() => setCatTab(k)}
                   className={`h-9 rounded-xl px-4 text-sm font-semibold capitalize transition-colors ${
-                    catTab === k ? "bg-emerald-600 text-white" : "text-slate-500 hover:text-slate-900"
+                    catTab === k
+                      ? "bg-emerald-600 text-white"
+                      : "text-slate-500 hover:text-slate-900"
                   }`}
                 >
                   {k}
@@ -455,7 +491,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           </div>
           <div className="mt-8 grid grid-cols-3 gap-5">
             {catList.slice(0, 6).map((c, i) => (
-              <Reveal key={c.id} delay={(i % 3) * 90} className="hp-lift rounded-3xl border border-slate-200 bg-white p-6">
+              <Reveal
+                key={c.id}
+                delay={(i % 3) * 90}
+                className="hp-lift rounded-3xl border border-slate-200 bg-white p-6"
+              >
                 <button
                   type="button"
                   onClick={() => onSelect("Marketplace")}
@@ -464,7 +504,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                   <span className="text-base font-bold text-slate-900">{c.name}</span>
                   <ChevronRight className="h-4 w-4 text-slate-500" />
                 </button>
-                {c.description && <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-500">{c.description}</p>}
+                {c.description && (
+                  <p className="mt-1.5 line-clamp-2 text-xs leading-relaxed text-slate-500">
+                    {c.description}
+                  </p>
+                )}
                 {c.children.length > 0 && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {c.children.slice(0, 5).map((s) => (
@@ -490,12 +534,15 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       {/* Live rails */}
       <section className="hp-dark border-t border-slate-200">
         <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
-          <CardGrid title="Fresh in the market" items={products} onSeeAll={() => onSelect("Marketplace")} />
+          <CardGrid
+            title="Fresh in the market"
+            items={products}
+            onSeeAll={() => onSelect("Marketplace")}
+          />
           <CardGrid title="Learn on Academy" items={courses} onSeeAll={() => onSelect("Academy")} />
           <CardGrid title="Open bounties" items={bounties} onSeeAll={() => onSelect("Bounties")} />
         </div>
       </section>
-
 
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
@@ -514,7 +561,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
                 <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-600">
                   <f.icon className="h-4 w-4" strokeWidth={2.5} /> {f.label}
                 </span>
-                <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-slate-900">{f.title}</h3>
+                <h3 className="mt-4 text-3xl font-bold leading-tight tracking-tight text-slate-900">
+                  {f.title}
+                </h3>
                 <p className="mt-4 max-w-lg text-base leading-relaxed text-slate-600">{f.body}</p>
                 <button
                   type="button"
@@ -527,17 +576,17 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <div
                 className={`hp-lift flex h-64 items-center justify-center rounded-3xl border border-slate-200 bg-gradient-to-br ${f.tint} to-transparent`}
               >
-                <img src={f.img} alt="" aria-hidden className="h-28 w-28 object-contain transition-transform duration-500 hover:scale-110" />
+                <img
+                  src={f.img}
+                  alt=""
+                  aria-hidden
+                  className="h-28 w-28 object-contain transition-transform duration-500 hover:scale-110"
+                />
               </div>
             </Reveal>
           ))}
         </div>
-
       </section>
-
-
-
-
 
       {/* How it works */}
       <section className="hp-dark border-y border-slate-200">
@@ -545,7 +594,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
           <div className="mt-12 grid grid-cols-3 gap-6">
             {STEPS.map((s, i) => (
-              <Reveal key={s.title} delay={i * 110} className="hp-lift rounded-3xl border border-slate-200 bg-white p-7">
+              <Reveal
+                key={s.title}
+                delay={i * 110}
+                className="hp-lift rounded-3xl border border-slate-200 bg-white p-7"
+              >
                 <span className="inline-flex h-9 w-9 items-center justify-center rounded-full bg-emerald-50 text-sm font-bold text-emerald-600">
                   {i + 1}
                 </span>
@@ -557,10 +610,12 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
           <Reveal className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
             <div>
-              <h3 className="text-2xl font-bold text-slate-900">Ready to start earning on Oventric?</h3>
+              <h3 className="text-2xl font-bold text-slate-900">
+                Ready to start earning on Oventric?
+              </h3>
               <p className="mt-2 max-w-xl text-sm text-slate-600">
-                Join builders across the continent trading, teaching and solving bounties — protected by escrow, paid in
-                your own currency.
+                Join builders across the continent trading, teaching and solving bounties —
+                protected by escrow, paid in your own currency.
               </p>
             </div>
             <button
@@ -568,12 +623,12 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               onClick={primary}
               className="inline-flex h-12 shrink-0 items-center gap-2 rounded-2xl bg-emerald-600 px-6 text-sm font-bold text-white transition-transform hover:scale-[1.03] active:scale-95"
             >
-              {isAuthenticated ? "Visit feed" : "Create your account"} <ArrowRight className="h-4 w-4" strokeWidth={3} />
+              {isAuthenticated ? "Visit feed" : "Create your account"}{" "}
+              <ArrowRight className="h-4 w-4" strokeWidth={3} />
             </button>
           </Reveal>
         </div>
       </section>
-
 
       <DownloadAppSection />
 
@@ -584,20 +639,33 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-8 py-10 md:flex-row">
           <div>
             <h3 className="text-lg font-bold text-slate-900">Follow Oventric</h3>
-            <p className="mt-1 text-sm text-slate-500">Get updates, tips and community highlights.</p>
+            <p className="mt-1 text-sm text-slate-500">
+              Get updates, tips and community highlights.
+            </p>
           </div>
           <div className="flex items-center gap-3">
-            <SocialLink href="https://facebook.com/oventric" label="Facebook" icon={<FacebookIcon />} />
-            <SocialLink href="https://instagram.com/oventric" label="Instagram" icon={<InstagramIcon />} />
+            <SocialLink
+              href="https://facebook.com/oventric"
+              label="Facebook"
+              icon={<FacebookIcon />}
+            />
+            <SocialLink
+              href="https://instagram.com/oventric"
+              label="Instagram"
+              icon={<InstagramIcon />}
+            />
             <SocialLink href="https://x.com/oventric" label="X" icon={<XIcon />} />
             <SocialLink href="https://tiktok.com/@oventric" label="TikTok" icon={<TikTokIcon />} />
-            <SocialLink href="https://whatsapp.com/channel/oventric" label="WhatsApp Channel" icon={<WhatsAppIcon />} />
+            <SocialLink
+              href="https://whatsapp.com/channel/oventric"
+              label="WhatsApp Channel"
+              icon={<WhatsAppIcon />}
+            />
           </div>
         </div>
       </section>
 
       <SiteFooter onSelect={onSelect} currency={currency} flag={flag} />
-
     </div>
   );
 }
@@ -605,7 +673,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 function Stat({ value, label }: { value: number; label: string }) {
   return (
     <div>
-      <div className="text-3xl font-bold tabular-nums text-slate-900">{value > 0 ? `${value}+` : "—"}</div>
+      <div className="text-3xl font-bold tabular-nums text-slate-900">
+        {value > 0 ? `${value}+` : "—"}
+      </div>
       <div className="mt-1 text-sm text-slate-500">{label}</div>
     </div>
   );
@@ -636,9 +706,32 @@ function FacebookIcon() {
 function InstagramIcon() {
   return (
     <svg viewBox="0 0 24 24" className="h-5 w-5" aria-hidden>
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" strokeWidth="2" />
-      <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z" fill="none" stroke="currentColor" strokeWidth="2" />
-      <line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+      <rect
+        x="2"
+        y="2"
+        width="20"
+        height="20"
+        rx="5"
+        ry="5"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <path
+        d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+      />
+      <line
+        x1="17.5"
+        y1="6.5"
+        x2="17.51"
+        y2="6.5"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+      />
     </svg>
   );
 }
@@ -667,7 +760,15 @@ function WhatsAppIcon() {
   );
 }
 
-function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; onSeeAll: () => void }) {
+function CardGrid({
+  title,
+  items,
+  onSeeAll,
+}: {
+  title: string;
+  items: Card[];
+  onSeeAll: () => void;
+}) {
   if (items.length === 0) return null;
   return (
     <div>
@@ -702,12 +803,13 @@ function CardGrid({ title, items, onSeeAll }: { title: string; items: Card[]; on
               <span className="mt-3 block line-clamp-2 h-[36px] overflow-hidden text-sm font-semibold leading-[18px] text-slate-900">
                 {it.title}
               </span>
-              <span className="mt-1 block truncate text-sm font-bold text-emerald-600">{it.meta}</span>
+              <span className="mt-1 block truncate text-sm font-bold text-emerald-600">
+                {it.meta}
+              </span>
             </button>
           </Reveal>
         ))}
       </div>
-
     </div>
   );
 }

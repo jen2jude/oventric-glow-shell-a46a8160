@@ -14,9 +14,18 @@ export function AdCard({ ad, variant = "card" }: { ad: AdminAd; variant?: "card"
       }`}
     >
       {ad.tier !== "text" && (
-        <div className={`relative bg-gradient-to-br from-fuchsia-600 to-purple-800 ${isBanner ? "h-24" : "h-32"} overflow-hidden`}>
+        <div
+          className={`relative bg-gradient-to-br from-fuchsia-600 to-purple-800 ${isBanner ? "h-24" : "h-32"} overflow-hidden`}
+        >
           {ad.mediaUrl && (
-            <ResponsiveImage sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw" src={ad.mediaUrl} alt={ad.advertiser} className="absolute inset-0 w-full h-full object-cover opacity-70"  loading="lazy" decoding="async" />
+            <ResponsiveImage
+              sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+              src={ad.mediaUrl}
+              alt={ad.advertiser}
+              className="absolute inset-0 w-full h-full object-cover opacity-70"
+              loading="lazy"
+              decoding="async"
+            />
           )}
           {ad.tier === "video" && (
             <PlayCircle className="absolute inset-0 m-auto w-10 h-10 text-white/90 md:text-slate-700" />
@@ -32,8 +41,12 @@ export function AdCard({ ad, variant = "card" }: { ad: AdminAd; variant?: "card"
             <Megaphone className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Sponsored
           </span>
         )}
-        <div className="text-white md:text-slate-900 font-bold text-sm leading-snug line-clamp-2">{ad.advertiser}</div>
-        <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">Promoted placement · {ad.tier}</div>
+        <div className="text-white md:text-slate-900 font-bold text-sm leading-snug line-clamp-2">
+          {ad.advertiser}
+        </div>
+        <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">
+          Promoted placement · {ad.tier}
+        </div>
         <span className="mt-auto inline-flex items-center justify-center px-3 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-semibold text-xs rounded-lg transition-colors">
           {ad.cta}
         </span>

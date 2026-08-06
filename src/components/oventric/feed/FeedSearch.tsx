@@ -187,7 +187,9 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                 </span>
               )}
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">{p.name}</span>
+                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
+                  {p.name}
+                </span>
                 <span className="block text-[11px] text-slate-500 truncate">
                   {p.username ? `@${p.username}` : p.slug}
                 </span>
@@ -215,7 +217,9 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                 <Coins className="w-3.5 h-3.5" />
               </span>
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">{b.title}</span>
+                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
+                  {b.title}
+                </span>
                 <span className="block text-[11px] text-slate-500 truncate">
                   ${b.amountUsd.toLocaleString()}
                   {b.category ? ` · ${b.category}` : ""}
@@ -243,7 +247,9 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
                 </span>
               )}
               <span className="min-w-0 flex-1">
-                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">{p.title}</span>
+                <span className="block text-sm font-semibold text-white md:text-slate-900 truncate">
+                  {p.title}
+                </span>
                 <span className="block text-[11px] text-slate-500 truncate">
                   ${p.priceUsd.toLocaleString()} · {p.category}
                   {p.vendor ? ` · ${p.vendor}` : ""}

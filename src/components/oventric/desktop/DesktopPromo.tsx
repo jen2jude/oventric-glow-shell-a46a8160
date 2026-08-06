@@ -112,7 +112,11 @@ function DesktopPromoBanners({ onSelect }: { onSelect: (section: string) => void
   };
 
   useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    )
+      return;
     const t = setInterval(() => {
       if (pausedRef.current) return;
       const el = trackRef.current;
@@ -164,7 +168,13 @@ function DesktopPromoBanners({ onSelect }: { onSelect: (section: string) => void
   );
 }
 
-function DesktopBannerSlide({ banner: b, onSelect }: { banner: Banner; onSelect: (section: string) => void }) {
+function DesktopBannerSlide({
+  banner: b,
+  onSelect,
+}: {
+  banner: Banner;
+  onSelect: (section: string) => void;
+}) {
   const ref = usePromoImpression<HTMLButtonElement>({
     id: `banner-${b.id}`,
     title: b.title,
@@ -176,7 +186,11 @@ function DesktopBannerSlide({ banner: b, onSelect }: { banner: Banner; onSelect:
       ref={ref}
       type="button"
       onClick={() => {
-        void trackPromoEvent("click", { id: `banner-${b.id}`, title: b.title, surface: "desktop_home_banner" });
+        void trackPromoEvent("click", {
+          id: `banner-${b.id}`,
+          title: b.title,
+          surface: "desktop_home_banner",
+        });
         onSelect(b.section);
       }}
       className="snap-center shrink-0 w-full text-left focus-visible:outline-none"
@@ -235,9 +249,15 @@ function DesktopPromoCard({
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-8 -top-12 h-40 w-40 rounded-full bg-white/25 blur-2xl" />
-      <span className="relative block text-xl font-extrabold leading-tight text-slate-900">{title}</span>
-      <span className="relative mt-0.5 block text-sm font-bold leading-tight text-slate-900/80">{highlight}</span>
-      <span className="relative mt-1.5 block max-w-[11rem] text-xs leading-relaxed text-slate-900/65">{body}</span>
+      <span className="relative block text-xl font-extrabold leading-tight text-slate-900">
+        {title}
+      </span>
+      <span className="relative mt-0.5 block text-sm font-bold leading-tight text-slate-900/80">
+        {highlight}
+      </span>
+      <span className="relative mt-1.5 block max-w-[11rem] text-xs leading-relaxed text-slate-900/65">
+        {body}
+      </span>
       <span className="promo-tile-cta relative mt-4 inline-flex min-h-[2.5rem] items-center gap-1 rounded-full bg-slate-950 px-5 py-2 text-xs font-bold text-white">
         {cta} <ChevronRight className="h-3.5 w-3.5" />
       </span>
@@ -268,7 +288,12 @@ function DesktopPromoCard({
       {content}
     </Link>
   ) : (
-    <button ref={ref as unknown as React.Ref<HTMLButtonElement>} type="button" onClick={handleClick} className={cls}>
+    <button
+      ref={ref as unknown as React.Ref<HTMLButtonElement>}
+      type="button"
+      onClick={handleClick}
+      className={cls}
+    >
       {content}
     </button>
   );

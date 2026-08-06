@@ -3,9 +3,27 @@ import { Rss, Target, Store, BookOpen } from "lucide-react";
 
 const ACTIONS = [
   { to: "/", search: { section: "Feed" }, label: "Posts", icon: Rss, hint: "Jump to your feed" },
-  { to: "/", search: { section: "Bounties" }, label: "Bounties", icon: Target, hint: "Browse & post bounties" },
-  { to: "/", search: { section: "Marketplace" }, label: "Assets", icon: Store, hint: "Marketplace & listings" },
-  { to: "/blog", search: undefined, label: "Blog", icon: BookOpen, hint: "Read & publish articles" },
+  {
+    to: "/",
+    search: { section: "Bounties" },
+    label: "Bounties",
+    icon: Target,
+    hint: "Browse & post bounties",
+  },
+  {
+    to: "/",
+    search: { section: "Marketplace" },
+    label: "Assets",
+    icon: Store,
+    hint: "Marketplace & listings",
+  },
+  {
+    to: "/blog",
+    search: undefined,
+    label: "Blog",
+    icon: BookOpen,
+    hint: "Read & publish articles",
+  },
 ] as const;
 
 export function QuickActions() {
@@ -25,8 +43,12 @@ export function QuickActions() {
             <a.icon className="w-4 h-4 text-white md:text-slate-900" />
           </span>
           <span className="min-w-0">
-            <span className="block text-sm font-bold text-white md:text-slate-900 truncate">{a.label}</span>
-            <span className="block text-[11px] text-slate-400 md:text-slate-500 truncate">{a.hint}</span>
+            <span className="block text-sm font-bold text-white md:text-slate-900 truncate">
+              {a.label}
+            </span>
+            <span className="block text-[11px] text-slate-400 md:text-slate-500 truncate">
+              {a.hint}
+            </span>
           </span>
         </Link>
       ))}

@@ -1,6 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ShieldCheck, Store, MessagesSquare, Sparkles, ArrowRight, Lock, Package } from "lucide-react";
+import {
+  ShieldCheck,
+  Store,
+  MessagesSquare,
+  Sparkles,
+  ArrowRight,
+  Lock,
+  Package,
+} from "lucide-react";
 import { listProducts, type ProductDTO } from "@/lib/marketplace.functions";
 import {
   VisaMark,
@@ -27,7 +35,9 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
   return (
     <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
       <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(110deg,#6d7cf0_0%,#8b7bf0_45%,#c58ce8_100%)] p-10 pr-[360px]">
-        <h2 className="text-4xl font-black tracking-tight text-white">Trade Securely with OventricProtect</h2>
+        <h2 className="text-4xl font-black tracking-tight text-white">
+          Trade Securely with OventricProtect
+        </h2>
         <p className="mt-3 max-w-xl text-base text-white/85">
           Skip the scams and trade safely. We verify sellers and guarantee every purchase.
         </p>
@@ -45,7 +55,10 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
         <div className="pointer-events-none absolute right-16 top-1/2 hidden -translate-y-1/2 lg:block">
           <div className="relative grid h-44 w-44 place-items-center">
             <span className="absolute inset-0 animate-pulse rounded-full bg-white/20 blur-2xl" />
-            <ShieldCheck className="relative h-32 w-32 text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.25)]" strokeWidth={1.5} />
+            <ShieldCheck
+              className="relative h-32 w-32 text-white drop-shadow-[0_10px_30px_rgba(0,0,0,0.25)]"
+              strokeWidth={1.5}
+            />
           </div>
         </div>
 
@@ -146,8 +159,12 @@ export function ProductRails({ onSelect }: { onSelect: (section: string) => void
           <div className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
             <Sparkles className="h-3.5 w-3.5" strokeWidth={2.6} /> Trending on the marketplace
           </div>
-          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">AI platforms online</h2>
-          <p className="mt-1 text-sm text-slate-500">Live AI tools and assets, plus fresh picks from every category.</p>
+          <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+            AI platforms online
+          </h2>
+          <p className="mt-1 text-sm text-slate-500">
+            Live AI tools and assets, plus fresh picks from every category.
+          </p>
         </div>
         <button
           type="button"
@@ -163,7 +180,6 @@ export function ProductRails({ onSelect }: { onSelect: (section: string) => void
     </section>
   );
 }
-
 
 /* ------------------------------------------------------------------ */
 /* Secured payments                                                    */
@@ -187,10 +203,12 @@ export function SecuredPayments() {
         <div className="inline-flex items-center gap-2 rounded-full bg-emerald-50 px-3 py-1.5 text-xs font-bold text-emerald-700">
           <Lock className="h-3.5 w-3.5" strokeWidth={2.6} /> Secured payments
         </div>
-        <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">Pay your way, protected end to end</h2>
+        <h2 className="mt-4 text-3xl font-bold tracking-tight text-slate-900">
+          Pay your way, protected end to end
+        </h2>
         <p className="mx-auto mt-3 max-w-2xl text-sm leading-relaxed text-slate-500">
-          Every checkout is encrypted and held in escrow until delivery is confirmed. Pay with cards, mobile money or
-          your Oventric wallet.
+          Every checkout is encrypted and held in escrow until delivery is confirmed. Pay with
+          cards, mobile money or your Oventric wallet.
         </p>
       </div>
 
@@ -207,4 +225,3 @@ export function SecuredPayments() {
     </section>
   );
 }
-

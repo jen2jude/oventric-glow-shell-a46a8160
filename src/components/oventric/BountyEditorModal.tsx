@@ -1,5 +1,17 @@
 import { useEffect, useRef, useState } from "react";
-import { X, ImagePlus, Loader2, Target, Calendar, Wallet, AlertTriangle, Save, CheckCircle2, Sparkles, ShieldCheck } from "lucide-react";
+import {
+  X,
+  ImagePlus,
+  Loader2,
+  Target,
+  Calendar,
+  Wallet,
+  AlertTriangle,
+  Save,
+  CheckCircle2,
+  Sparkles,
+  ShieldCheck,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -79,7 +91,11 @@ export function BountyEditorModal({
   const [walletBase, setWalletBase] = useState<number | null>(null);
   const [showFundPrompt, setShowFundPrompt] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
-  const [publishedSplash, setPublishedSplash] = useState<{ title: string; amountLabel: string; id: string } | null>(null);
+  const [publishedSplash, setPublishedSplash] = useState<{
+    title: string;
+    amountLabel: string;
+    id: string;
+  } | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
 
   useEffect(() => {
@@ -99,9 +115,13 @@ export function BountyEditorModal({
       const _uid = session.user?.id ?? null;
       if (cancelled) return;
       setUid(_uid);
-      if (!_uid) { setWalletBase(null); return; }
+      if (!_uid) {
+        setWalletBase(null);
+        return;
+      }
       try {
-        const raw = typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
+        const raw =
+          typeof window !== "undefined" ? window.localStorage.getItem(draftKey(_uid)) : null;
         if (raw) {
           const parsed = JSON.parse(raw) as Partial<FormState>;
           const rawImages = Array.isArray(parsed.images) ? parsed.images : [];
@@ -109,7 +129,12 @@ export function BountyEditorModal({
           // (signed URLs stored in the draft may have expired during the top-up flow).
           const images: ImageEntry[] = await Promise.all(
             rawImages
-              .filter((i): i is ImageEntry => !!i && typeof (i as ImageEntry).path === "string" && (i as ImageEntry).path.length > 0)
+              .filter(
+                (i): i is ImageEntry =>
+                  !!i &&
+                  typeof (i as ImageEntry).path === "string" &&
+                  (i as ImageEntry).path.length > 0,
+              )
               .map(async (i) => {
                 try {
                   const { data: signed } = await supabase.storage
@@ -119,7 +144,7 @@ export function BountyEditorModal({
                 } catch {
                   return { path: i.path, preview: i.preview ?? null };
                 }
-              })
+              }),
           );
           if (cancelled) return;
           setForm({ ...emptyForm, ...parsed, images });
@@ -127,13 +152,21 @@ export function BountyEditorModal({
         } else {
           setDraftLoaded(false);
         }
-      } catch { /* ignore */ }
-      const { data: walletData } = await supabase.from("wallets")
-        .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
+      } catch {
+        /* ignore */
+      }
+      const { data: walletData } = await supabase
+        .from("wallets")
+        .select("available_balance")
+        .eq("user_id", _uid)
+        .eq("currency", baseCurrency)
+        .maybeSingle();
       if (cancelled) return;
       setWalletBase(Number(walletData?.available_balance ?? 0));
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [open]);
 
   if (!open) return null;
@@ -142,7 +175,11 @@ export function BountyEditorModal({
     setForm(emptyForm);
     setDraftLoaded(false);
     if (uid) {
-      try { window.localStorage.removeItem(draftKey(uid)); } catch { /* ignore */ }
+      try {
+        window.localStorage.removeItem(draftKey(uid));
+      } catch {
+        /* ignore */
+      }
     }
   };
 
@@ -167,15 +204,16 @@ export function BountyEditorModal({
 
   const goToWallet = () => {
     saveDraft(true);
-    const topupLocal = baseCurrency === "USD"
-      ? Math.ceil(shortfallBase * 100) / 100
-      : Math.ceil(shortfallBase);
+    const topupLocal =
+      baseCurrency === "USD" ? Math.ceil(shortfallBase * 100) / 100 : Math.ceil(shortfallBase);
     onClose();
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("oventric:wallet:topup", {
-        detail: { amountLocal: topupLocal, currency: baseCurrency, reason: "bounty-escrow" },
-      }));
+      window.dispatchEvent(
+        new CustomEvent("oventric:wallet:topup", {
+          detail: { amountLocal: topupLocal, currency: baseCurrency, reason: "bounty-escrow" },
+        }),
+      );
     }, 60);
   };
 
@@ -190,14 +228,26 @@ export function BountyEditorModal({
       if (!_uid) throw new Error("You must be signed in");
       const newEntries: ImageEntry[] = [];
       for (const file of picks) {
-        if (!file.type.startsWith("image/")) { toast.error(`${file.name} isn't an image`); continue; }
-        if (file.size > 5 * 1024 * 1024) { toast.error(`${file.name} exceeds 5MB`); continue; }
+        if (!file.type.startsWith("image/")) {
+          toast.error(`${file.name} isn't an image`);
+          continue;
+        }
+        if (file.size > 5 * 1024 * 1024) {
+          toast.error(`${file.name} exceeds 5MB`);
+          continue;
+        }
         const safe = file.name.replace(/[^\w.\-]+/g, "_");
         const path = `${_uid}/${Date.now()}_${safe}`;
-        const { error } = await supabase.storage.from("bounty-covers")
+        const { error } = await supabase.storage
+          .from("bounty-covers")
           .upload(path, file, { contentType: file.type || undefined, upsert: false });
-        if (error) { toast.error(error.message); continue; }
-        const { data: signed } = await supabase.storage.from("bounty-covers").createSignedUrl(path, 60 * 60);
+        if (error) {
+          toast.error(error.message);
+          continue;
+        }
+        const { data: signed } = await supabase.storage
+          .from("bounty-covers")
+          .createSignedUrl(path, 60 * 60);
         newEntries.push({ path, preview: signed?.signedUrl ?? null });
       }
       if (newEntries.length) {
@@ -236,18 +286,33 @@ export function BountyEditorModal({
       if (!_uid) throw new Error("You must be signed in");
       setUid(_uid);
 
-      const snapshot = rewardBase > 0
-        ? await snapshotFx()
-        : { base: "USD" as const, rates: { USD: 1, NGN: 1500, GHS: 14 }, source: "fallback" as const, fetched_at: new Date().toISOString() };
+      const snapshot =
+        rewardBase > 0
+          ? await snapshotFx()
+          : {
+              base: "USD" as const,
+              rates: { USD: 1, NGN: 1500, GHS: 14 },
+              source: "fallback" as const,
+              fetched_at: new Date().toISOString(),
+            };
       const rateForBase = Number(snapshot.rates[baseCurrency] ?? 1);
-      const priceUsd = baseCurrency === "USD" ? rewardBase : Number((rewardBase / rateForBase).toFixed(2));
+      const priceUsd =
+        baseCurrency === "USD" ? rewardBase : Number((rewardBase / rateForBase).toFixed(2));
 
       if (priceUsd > 0) {
-        const { data: walletRow } = await supabase.from("wallets")
-          .select("available_balance").eq("user_id", _uid).eq("currency", baseCurrency).maybeSingle();
+        const { data: walletRow } = await supabase
+          .from("wallets")
+          .select("available_balance")
+          .eq("user_id", _uid)
+          .eq("currency", baseCurrency)
+          .maybeSingle();
         const balance = Number(walletRow?.available_balance ?? 0);
         setWalletBase(balance);
-        if (balance < rewardBase) { setShowFundPrompt(true); setSaving(false); return; }
+        if (balance < rewardBase) {
+          setShowFundPrompt(true);
+          setSaving(false);
+          return;
+        }
       }
 
       const imagePaths = form.images.map((i) => i.path);
@@ -269,7 +334,6 @@ export function BountyEditorModal({
         },
       });
 
-
       const titleTxt = form.title.trim();
       reset();
       setPublishedSplash({
@@ -285,13 +349,17 @@ export function BountyEditorModal({
   };
 
   return (
-    <div className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-400" /> Post a bounty
           </h2>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -301,7 +369,10 @@ export function BountyEditorModal({
             <span className="inline-flex items-center gap-2">
               <Save className="w-3.5 h-3.5" /> Draft restored — continue editing.
             </span>
-            <button onClick={() => reset()} className="text-emerald-300 hover:text-white underline underline-offset-2">
+            <button
+              onClick={() => reset()}
+              className="text-emerald-300 hover:text-white underline underline-offset-2"
+            >
               Discard draft
             </button>
           </div>
@@ -312,7 +383,9 @@ export function BountyEditorModal({
             <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
               Images ({form.images.length}/{MAX_IMAGES})
             </span>
-            <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">First image is the cover. PNG/JPG/WebP up to 5MB each.</p>
+            <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">
+              First image is the cover. PNG/JPG/WebP up to 5MB each.
+            </p>
             <input
               ref={fileInputRef}
               type="file"
@@ -326,11 +399,23 @@ export function BountyEditorModal({
             />
             <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 mb-2">
               {form.images.map((img, idx) => (
-                <div key={img.path} className="relative aspect-square rounded-md border border-white/10 overflow-hidden bg-black/30">
+                <div
+                  key={img.path}
+                  className="relative aspect-square rounded-md border border-white/10 overflow-hidden bg-black/30"
+                >
                   {img.preview ? (
-                    <ResponsiveImage sizes="80px" src={img.preview} alt={`Image ${idx + 1}`} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                    <ResponsiveImage
+                      sizes="80px"
+                      src={img.preview}
+                      alt={`Image ${idx + 1}`}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
-                    <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">…</div>
+                    <div className="w-full h-full flex items-center justify-center text-slate-600 text-xs">
+                      …
+                    </div>
                   )}
                   {idx === 0 && (
                     <span className="absolute top-1 left-1 text-[9px] font-bold uppercase tracking-wider px-1.5 py-0.5 rounded bg-emerald-500/80 text-black">
@@ -354,7 +439,11 @@ export function BountyEditorModal({
                   disabled={uploadingImage}
                   className="aspect-square rounded-md border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 flex flex-col items-center justify-center gap-1 text-slate-500 hover:text-emerald-300 text-xs"
                 >
-                  {uploadingImage ? <Loader2 className="w-5 h-5 animate-spin" /> : <ImagePlus className="w-5 h-5" />}
+                  {uploadingImage ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <ImagePlus className="w-5 h-5" />
+                  )}
                   <span>{uploadingImage ? "Uploading…" : "Add image"}</span>
                 </button>
               )}
@@ -362,32 +451,63 @@ export function BountyEditorModal({
           </div>
 
           <Field label="Title">
-            <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className={inputCls} placeholder="e.g. Fix Paystack webhook loop" />
+            <input
+              value={form.title}
+              onChange={(e) => setForm({ ...form, title: e.target.value })}
+              className={inputCls}
+              placeholder="e.g. Fix Paystack webhook loop"
+            />
           </Field>
 
           <Field label="Category">
-            <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as Category })} className={inputCls}>
-              {categories.map((c) => <option key={c.slug} value={c.slug}>{c.label}</option>)}
+            <select
+              value={form.category}
+              onChange={(e) => setForm({ ...form, category: e.target.value as Category })}
+              className={inputCls}
+            >
+              {categories.map((c) => (
+                <option key={c.slug} value={c.slug}>
+                  {c.label}
+                </option>
+              ))}
             </select>
           </Field>
 
           <div className="grid grid-cols-2 gap-3">
             <Field label={`Reward (${baseCurrency})`}>
-              <input type="number" step={baseCurrency === "USD" ? "0.01" : "1"} min="0" value={form.price_usd}
-                onChange={(e) => setForm({ ...form, price_usd: e.target.value })} className={inputCls} />
+              <input
+                type="number"
+                step={baseCurrency === "USD" ? "0.01" : "1"}
+                min="0"
+                value={form.price_usd}
+                onChange={(e) => setForm({ ...form, price_usd: e.target.value })}
+                className={inputCls}
+              />
               <p className="text-[10px] text-slate-500 mt-1">
-                Funds are locked into escrow on publish and released to the solver when work is confirmed.
+                Funds are locked into escrow on publish and released to the solver when work is
+                confirmed.
               </p>
             </Field>
             <Field label="Applicant limit">
-              <input type="number" min="1" step="1" value={form.applicant_limit}
-                onChange={(e) => setForm({ ...form, applicant_limit: e.target.value })} className={inputCls} />
+              <input
+                type="number"
+                min="1"
+                step="1"
+                value={form.applicant_limit}
+                onChange={(e) => setForm({ ...form, applicant_limit: e.target.value })}
+                className={inputCls}
+              />
             </Field>
           </div>
 
           <Field label="Description">
-            <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={4}
-              className={inputCls} placeholder="Scope, deliverables, acceptance criteria…" />
+            <textarea
+              value={form.description}
+              onChange={(e) => setForm({ ...form, description: e.target.value })}
+              rows={4}
+              className={inputCls}
+              placeholder="Scope, deliverables, acceptance criteria…"
+            />
           </Field>
 
           <div className="pt-2">
@@ -396,56 +516,101 @@ export function BountyEditorModal({
             </div>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <Field label="Starts">
-                <input type="datetime-local" value={form.start_at} onChange={(e) => setForm({ ...form, start_at: e.target.value })} className={inputCls} />
+                <input
+                  type="datetime-local"
+                  value={form.start_at}
+                  onChange={(e) => setForm({ ...form, start_at: e.target.value })}
+                  className={inputCls}
+                />
               </Field>
               <Field label="Ends (listing)">
-                <input type="datetime-local" value={form.end_at} onChange={(e) => setForm({ ...form, end_at: e.target.value })} className={inputCls} />
+                <input
+                  type="datetime-local"
+                  value={form.end_at}
+                  onChange={(e) => setForm({ ...form, end_at: e.target.value })}
+                  className={inputCls}
+                />
               </Field>
               <Field label="Deadline (delivery)">
-                <input type="datetime-local" value={form.deadline_at} onChange={(e) => setForm({ ...form, deadline_at: e.target.value })} className={inputCls} />
+                <input
+                  type="datetime-local"
+                  value={form.deadline_at}
+                  onChange={(e) => setForm({ ...form, deadline_at: e.target.value })}
+                  className={inputCls}
+                />
               </Field>
             </div>
           </div>
 
           <div className="flex flex-wrap gap-2 pt-3">
-            <button disabled={saving} onClick={save}
-              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2">
+            <button
+              disabled={saving}
+              onClick={save}
+              className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
+            >
               {saving ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
               Publish bounty
             </button>
-            <button type="button" onClick={() => saveDraft()}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
+            <button
+              type="button"
+              onClick={() => saveDraft()}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+            >
               <Save className="w-4 h-4" /> Save draft
             </button>
-            <button onClick={onClose}
-              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg">
+            <button
+              onClick={onClose}
+              className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
+            >
               Cancel
             </button>
           </div>
         </div>
 
         {showFundPrompt && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm rounded-2xl">
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 rounded-2xl">
             <div className="w-full max-w-md bg-[#1a1a20] border border-amber-500/40 rounded-xl p-5 shadow-2xl">
               <div className="flex items-center gap-2 text-amber-300 font-bold">
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
               </div>
               <p className="text-sm text-slate-300 mt-2 leading-relaxed">
-                Publishing this bounty escrows <span className="text-white font-semibold">{formatMoney(inputBase, baseCurrency)}</span>.
-                Your current wallet balance is <span className="text-white font-semibold">{formatMoney(walletBase ?? 0, baseCurrency)}</span>.
+                Publishing this bounty escrows{" "}
+                <span className="text-white font-semibold">
+                  {formatMoney(inputBase, baseCurrency)}
+                </span>
+                . Your current wallet balance is{" "}
+                <span className="text-white font-semibold">
+                  {formatMoney(walletBase ?? 0, baseCurrency)}
+                </span>
+                .
               </p>
               <p className="text-xs text-slate-400 mt-2">
-                Top up at least <span className="text-emerald-300 font-semibold">{formatMoney(shortfallBase, baseCurrency)}</span> to publish.
+                Top up at least{" "}
+                <span className="text-emerald-300 font-semibold">
+                  {formatMoney(shortfallBase, baseCurrency)}
+                </span>{" "}
+                to publish.
               </p>
               <div className="flex flex-wrap gap-2 mt-4">
-                <button onClick={goToWallet} className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2">
+                <button
+                  onClick={goToWallet}
+                  className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg inline-flex items-center gap-2"
+                >
                   <Wallet className="w-4 h-4" /> Save draft & top up
                 </button>
-                <button onClick={() => { saveDraft(); setShowFundPrompt(false); }}
-                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    saveDraft();
+                    setShowFundPrompt(false);
+                  }}
+                  className="px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg inline-flex items-center gap-2"
+                >
                   <Save className="w-4 h-4" /> Save draft only
                 </button>
-                <button onClick={() => setShowFundPrompt(false)} className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg">
+                <button
+                  onClick={() => setShowFundPrompt(false)}
+                  className="px-4 py-2 text-slate-400 hover:text-white text-sm font-semibold rounded-lg"
+                >
                   Back to editor
                 </button>
               </div>
@@ -496,7 +661,7 @@ function BountyPublishedSplash({
       aria-label="Bounty published"
     >
       <div
-        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(59, 130, 246,0.55)]"
+        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-sm"
         style={{
           background:
             "linear-gradient(160deg, rgba(59, 130, 246,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
@@ -517,9 +682,11 @@ function BountyPublishedSplash({
         </div>
         <h2 className="text-xl font-black text-white mb-1">Your bounty is in! 🎉</h2>
         <p className="text-sm text-slate-200/85 mb-4 leading-relaxed">
-          <span className="text-white font-semibold">{title}</span> has been published and is awaiting admin review.
+          <span className="text-white font-semibold">{title}</span> has been published and is
+          awaiting admin review.
         </p>
-        <div className="inline-flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-white text-sm font-bold"
+        <div
+          className="inline-flex items-center gap-2 rounded-xl px-3 py-2 mb-4 text-white text-sm font-bold"
           style={{
             background: "linear-gradient(135deg, rgba(96, 165, 250,0.35), rgba(96,165,250,0.35))",
             border: "1px solid rgba(255,255,255,0.25)",

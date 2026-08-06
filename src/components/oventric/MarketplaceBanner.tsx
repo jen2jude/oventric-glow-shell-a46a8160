@@ -39,10 +39,8 @@ export function MarketplaceBanner() {
       return;
     }
 
-
     const target = scrollParent(ref.current);
-    const readTop = () =>
-      target === window ? window.scrollY : (target as HTMLElement).scrollTop;
+    const readTop = () => (target === window ? window.scrollY : (target as HTMLElement).scrollTop);
     let last = readTop();
     let raf = 0;
 
@@ -65,8 +63,6 @@ export function MarketplaceBanner() {
       if (raf) cancelAnimationFrame(raf);
     };
   }, [isWide]);
-
-
 
   return (
     <div

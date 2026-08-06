@@ -45,7 +45,12 @@ import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { supabase } from "@/integrations/supabase/client";
 import { CommentsSheet } from "@/components/oventric/feed/CommentsSheet";
-import { ReactionPicker, REACTION_META, ReactionGlyph, isImageReaction } from "@/components/oventric/feed/Reactions";
+import {
+  ReactionPicker,
+  REACTION_META,
+  ReactionGlyph,
+  isImageReaction,
+} from "@/components/oventric/feed/Reactions";
 import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
@@ -57,7 +62,6 @@ const DEFAULT_CATEGORIES = [
   "Infra & DevOps",
   "Community",
 ];
-
 
 function timeAgo(iso: string) {
   const diff = Date.now() - new Date(iso).getTime();
@@ -114,7 +118,6 @@ export function CirclesHub() {
     return () => window.removeEventListener("oventric:circle:open-slug", onOpenSlug);
   }, []);
 
-
   const catalog = catalogQ.data;
   const filtered = useMemo(() => {
     const all = catalog?.all ?? [];
@@ -122,9 +125,7 @@ export function CirclesHub() {
       const catOk = activeCategory === "All" || c.category === activeCategory;
       const q = query.trim().toLowerCase();
       const qOk =
-        !q ||
-        c.name.toLowerCase().includes(q) ||
-        (c.description ?? "").toLowerCase().includes(q);
+        !q || c.name.toLowerCase().includes(q) || (c.description ?? "").toLowerCase().includes(q);
       return catOk && qOk;
     });
   }, [catalog, activeCategory, query]);
@@ -138,7 +139,9 @@ export function CirclesHub() {
       <div className="max-w-3xl mx-auto px-4 py-12 text-center">
         <div className="text-4xl mb-3">🛡️</div>
         <h1 className="text-2xl font-black text-white md:text-slate-900">Circles & Guilds</h1>
-        <p className="text-slate-400 mt-2 md:text-slate-600">Sign in to discover and join real builder guilds.</p>
+        <p className="text-slate-400 mt-2 md:text-slate-600">
+          Sign in to discover and join real builder guilds.
+        </p>
         <button
           onClick={() => openGate("generic")}
           className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 text-black font-bold text-sm"
@@ -238,7 +241,9 @@ export function CirclesHub() {
 
       {/* Grid */}
       {catalogQ.isLoading ? (
-        <div className="text-center text-slate-500 py-8 text-sm md:text-slate-500">Loading circles…</div>
+        <div className="text-center text-slate-500 py-8 text-sm md:text-slate-500">
+          Loading circles…
+        </div>
       ) : filtered.length === 0 ? (
         <div className="text-center text-slate-500 py-12 text-sm md:text-slate-500">
           No circles yet. Be the first to forge one for your niche.
@@ -291,13 +296,27 @@ function Rail({
             onClick={() => onOpen(c)}
             className="snap-start shrink-0 w-64 text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors md:bg-white md:shadow-sm md:border-slate-200"
           >
-            <div className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}>
+            <div
+              className={`h-16 relative overflow-hidden ${c.coverUrl ? "" : `bg-gradient-to-br ${c.bannerHue}`}`}
+            >
               {c.coverUrl && (
-                <img src={c.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+                <img
+                  src={c.coverUrl}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
               )}
               <div className="absolute bottom-0 left-3 translate-y-1/2 w-10 h-10 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-lg overflow-hidden">
                 {c.avatarUrl ? (
-                  <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+                  <img
+                    src={c.avatarUrl}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 ) : (
                   <span>{c.emoji}</span>
                 )}
@@ -309,7 +328,9 @@ function Rail({
               )}
             </div>
             <div className="pt-6 pb-3 px-3">
-              <div className="text-white font-bold text-sm truncate md:text-slate-900">{c.name}</div>
+              <div className="text-white font-bold text-sm truncate md:text-slate-900">
+                {c.name}
+              </div>
               <div className="text-[10px] text-slate-500 uppercase tracking-wider md:text-slate-500">
                 {c.category}
               </div>
@@ -330,13 +351,27 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
       onClick={onOpen}
       className="text-left bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 rounded-xl overflow-hidden transition-colors md:bg-white md:shadow-sm md:border-slate-200"
     >
-      <div className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+      <div
+        className={`h-20 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
+      >
         {circle.coverUrl && (
-          <img src={circle.coverUrl} alt="" className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" />
+          <img
+            src={circle.coverUrl}
+            alt=""
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         )}
         <div className="absolute bottom-0 left-4 translate-y-1/2 w-12 h-12 rounded-full bg-[#121214] md:bg-white border-2 border-[#1E1E24] md:border-white flex items-center justify-center text-xl overflow-hidden">
           {circle.avatarUrl ? (
-            <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+            <img
+              src={circle.avatarUrl}
+              alt=""
+              className="w-full h-full object-cover"
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <span>{circle.emoji}</span>
           )}
@@ -348,7 +383,9 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
         )}
       </div>
       <div className="pt-7 pb-4 px-4">
-        <div className="text-white font-bold text-base truncate md:text-slate-900">{circle.name}</div>
+        <div className="text-white font-bold text-base truncate md:text-slate-900">
+          {circle.name}
+        </div>
         <div className="text-[10px] text-slate-500 uppercase tracking-wider mb-2 md:text-slate-500">
           {circle.category}
         </div>
@@ -363,10 +400,10 @@ function CircleCard({ circle, onOpen }: { circle: CircleSummary; onOpen: () => v
             {circle.myStatus === "member"
               ? "Joined"
               : circle.myStatus === "awaiting_coc"
-              ? "Accept CoC"
-              : circle.myStatus === "pending"
-              ? "Pending"
-              : "View"}
+                ? "Accept CoC"
+                : circle.myStatus === "pending"
+                  ? "Pending"
+                  : "View"}
           </div>
         </div>
       </div>
@@ -381,7 +418,10 @@ type Tab = "watercooler" | "members" | "bounties" | "resources";
 function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void }) {
   const qc = useQueryClient();
   const getCircle = useServerFn(getCircleBySlug);
-  const circleQ = useQuery({ queryKey: ["circle", slug], queryFn: () => getCircle({ data: { slug } }) });
+  const circleQ = useQuery({
+    queryKey: ["circle", slug],
+    queryFn: () => getCircle({ data: { slug } }),
+  });
   const circle = circleQ.data;
 
   const [tab, setTab] = useState<Tab>("watercooler");
@@ -412,7 +452,11 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   });
 
   if (circleQ.isLoading) {
-    return <div className="p-8 text-center text-slate-500 text-sm md:text-slate-500">Loading circle…</div>;
+    return (
+      <div className="p-8 text-center text-slate-500 text-sm md:text-slate-500">
+        Loading circle…
+      </div>
+    );
   }
   if (!circle) {
     return (
@@ -430,7 +474,9 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
   return (
     <div className="max-w-6xl mx-auto w-full md:bg-white md:min-h-screen">
       {/* Banner */}
-      <div className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}>
+      <div
+        className={`h-40 md:h-48 relative overflow-hidden ${circle.coverUrl ? "" : `bg-gradient-to-br ${circle.bannerHue}`}`}
+      >
         {circle.coverUrl && (
           <img
             src={circle.coverUrl}
@@ -455,15 +501,25 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
 
       <div className="px-4 md:px-6 -mt-10 relative">
         <div className="flex items-end gap-4">
-          <div className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] md:border-white shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}>
+          <div
+            className={`w-20 h-20 md:w-24 md:h-24 rounded-2xl border-4 border-[#121214] md:border-white shrink-0 overflow-hidden flex items-center justify-center text-3xl md:text-4xl ${circle.avatarUrl ? "bg-neutral-900" : `bg-gradient-to-br ${circle.avatarHue}`}`}
+          >
             {circle.avatarUrl ? (
-              <img src={circle.avatarUrl} alt="" className="w-full h-full object-cover" loading="eager" decoding="async" />
+              <img
+                src={circle.avatarUrl}
+                alt=""
+                className="w-full h-full object-cover"
+                loading="eager"
+                decoding="async"
+              />
             ) : (
               <span>{circle.emoji}</span>
             )}
           </div>
           <div className="flex-1 min-w-0 pb-2">
-            <h1 className="text-xl md:text-2xl font-black text-white truncate md:text-slate-900">{circle.name}</h1>
+            <h1 className="text-xl md:text-2xl font-black text-white truncate md:text-slate-900">
+              {circle.name}
+            </h1>
             <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap md:text-slate-600">
               <span className="uppercase tracking-wider font-bold">{circle.category}</span>
               <span className="inline-flex items-center gap-1">
@@ -482,7 +538,9 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
           </div>
         </div>
 
-        <p className="text-sm text-slate-300 mt-4 md:text-slate-600">{circle.description || "A guild for builders."}</p>
+        <p className="text-sm text-slate-300 mt-4 md:text-slate-600">
+          {circle.description || "A guild for builders."}
+        </p>
 
         {/* Join / status / leave */}
         <div className="mt-4 flex flex-wrap items-center gap-2">
@@ -606,7 +664,9 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
     return (
       <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center md:bg-white md:shadow-sm md:border-slate-200">
         <Lock className="w-6 h-6 text-slate-500 mx-auto mb-2 md:text-slate-500" />
-        <p className="text-sm text-slate-300 font-semibold md:text-slate-600">Members-only conversation</p>
+        <p className="text-sm text-slate-300 font-semibold md:text-slate-600">
+          Members-only conversation
+        </p>
         <p className="text-xs text-slate-500 mt-1 md:text-slate-500">
           Request to join. Once an admin approves, accept the code of conduct to unlock posting.
         </p>
@@ -637,7 +697,9 @@ function WatercoolerTab({ circle, isMember }: { circle: CircleSummary; isMember:
           </button>
         </div>
         {lastShared !== null && (
-          <div className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500 md:text-slate-500"}`}>
+          <div
+            className={`mt-2 text-[11px] ${lastShared ? "text-emerald-300" : "text-slate-500 md:text-slate-500"}`}
+          >
             {lastShared
               ? "🎉 This post was also shared to the main news feed."
               : "Posted to the circle. Only members can see it."}
@@ -684,7 +746,13 @@ function WatercoolerPost({
   const setReactionM = useServerFn(setReactionFn);
   const [viewerReaction, setViewerReaction] = useState<ReactionType | null>(null);
   const [pickerOpen, setPickerOpen] = useState(false);
-  const [totals, setTotals] = useState<Record<ReactionType, number>>({ love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 });
+  const [totals, setTotals] = useState<Record<ReactionType, number>>({
+    love: 0,
+    like: 0,
+    dislike: 0,
+    laugh: 0,
+    crown: 0,
+  });
 
   const react = async (r: ReactionType | null) => {
     const prev = viewerReaction;
@@ -704,14 +772,21 @@ function WatercoolerPost({
   };
 
   const total = totals.love + totals.like + totals.laugh + totals.crown;
-  
+
   const activeColor = viewerReaction ? REACTION_META[viewerReaction].color : undefined;
 
   return (
     <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 md:bg-white md:shadow-sm md:border-slate-200">
       <div className="flex items-center gap-2 mb-2">
         {p.authorAvatar ? (
-          <ResponsiveImage sizes="32px" src={p.authorAvatar} alt="" className="w-8 h-8 rounded-full object-cover" loading="lazy" decoding="async" />
+          <ResponsiveImage
+            sizes="32px"
+            src={p.authorAvatar}
+            alt=""
+            className="w-8 h-8 rounded-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <div className="w-8 h-8 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 text-xs font-bold">
             {p.authorName.slice(0, 1).toUpperCase()}
@@ -738,7 +813,10 @@ function WatercoolerPost({
           style={activeColor ? { color: activeColor } : undefined}
         >
           {viewerReaction ? (
-            <ReactionGlyph reaction={viewerReaction} className={isImageReaction(viewerReaction) ? "w-5 h-5" : "w-3.5 h-3.5"} />
+            <ReactionGlyph
+              reaction={viewerReaction}
+              className={isImageReaction(viewerReaction) ? "w-5 h-5" : "w-3.5 h-3.5"}
+            />
           ) : (
             <ReactionGlyph reaction="love" className="w-5 h-5" />
           )}
@@ -760,7 +838,6 @@ function WatercoolerPost({
   );
 }
 
-
 /* ---- Tab: Members ---- */
 function MembersTab({ circle }: { circle: CircleSummary }) {
   const listFn = useServerFn(listCircleMembers);
@@ -768,16 +845,36 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
     queryKey: ["circle-members", circle.id],
     queryFn: () => listFn({ data: { circleId: circle.id } }),
   });
-  if (q.isLoading) return <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading members…</div>;
+  if (q.isLoading)
+    return (
+      <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">
+        Loading members…
+      </div>
+    );
   const rows = q.data ?? [];
-  if (rows.length === 0) return <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">No members yet.</div>;
+  if (rows.length === 0)
+    return (
+      <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">
+        No members yet.
+      </div>
+    );
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       {rows.map((m) => (
-        <div key={m.userId} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3 md:bg-white md:shadow-sm md:border-slate-200">
+        <div
+          key={m.userId}
+          className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-center gap-3 md:bg-white md:shadow-sm md:border-slate-200"
+        >
           {m.avatar ? (
             // eslint-disable-next-line @next/next/no-img-element
-            <ResponsiveImage sizes="40px" src={m.avatar} alt="" className="w-10 h-10 rounded-full object-cover shrink-0"  loading="lazy" decoding="async" />
+            <ResponsiveImage
+              sizes="40px"
+              src={m.avatar}
+              alt=""
+              className="w-10 h-10 rounded-full object-cover shrink-0"
+              loading="lazy"
+              decoding="async"
+            />
           ) : (
             <div className="w-10 h-10 rounded-full bg-emerald-500/20 flex items-center justify-center text-emerald-300 font-bold shrink-0">
               {m.name.slice(0, 1).toUpperCase()}
@@ -789,8 +886,12 @@ function MembersTab({ circle }: { circle: CircleSummary }) {
             }
             className="min-w-0 flex-1 text-left"
           >
-            <div className="text-sm font-semibold text-white truncate md:text-slate-900">{m.name}</div>
-            <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">{m.role}</div>
+            <div className="text-sm font-semibold text-white truncate md:text-slate-900">
+              {m.name}
+            </div>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
+              {m.role}
+            </div>
           </button>
           <FollowButton targetId={m.userId} compact />
         </div>
@@ -811,28 +912,37 @@ function BountiesTab({ circle }: { circle: CircleSummary }) {
       <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 md:bg-white md:shadow-sm">
         <div className="flex items-center gap-2 mb-1">
           <Sparkles className="w-4 h-4 text-emerald-300" />
-          <div className="text-sm font-bold text-white md:text-slate-900">Bounties posted by circle members</div>
+          <div className="text-sm font-bold text-white md:text-slate-900">
+            Bounties posted by circle members
+          </div>
         </div>
         <p className="text-xs text-slate-400 md:text-slate-600">
           Discuss and coordinate here; each member still applies individually via their profile.
         </p>
       </div>
       {q.isLoading ? (
-        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading bounties…</div>
+        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">
+          Loading bounties…
+        </div>
       ) : (q.data ?? []).length === 0 ? (
         <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-6 text-center text-slate-500 text-sm md:bg-white md:shadow-sm md:border-slate-200 md:text-slate-500">
           No open bounties from members yet.
         </div>
       ) : (
         q.data!.map((b) => (
-          <div key={b.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:shadow-sm md:border-slate-200">
+          <div
+            key={b.id}
+            className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:shadow-sm md:border-slate-200"
+          >
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
                 <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 text-[10px] font-bold tracking-wide mb-2">
                   <Target className="w-3 h-3" />
                   {b.status.toUpperCase()} · ${b.priceUsd.toLocaleString()}
                 </div>
-                <h3 className="text-white font-bold text-sm leading-snug md:text-slate-900">{b.title}</h3>
+                <h3 className="text-white font-bold text-sm leading-snug md:text-slate-900">
+                  {b.title}
+                </h3>
                 <div className="text-xs text-slate-500 mt-1 md:text-slate-500">
                   by {b.posterName}
                   {b.category ? ` · ${b.category}` : ""}
@@ -906,7 +1016,9 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
       </div>
 
       {q.isLoading ? (
-        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">Loading resources…</div>
+        <div className="text-center text-slate-500 text-sm py-6 md:text-slate-500">
+          Loading resources…
+        </div>
       ) : (q.data ?? []).length === 0 ? (
         <div className="text-center text-slate-500 text-sm py-8 md:text-slate-500">
           No resources shared yet. Drop a link, template, or repo above.
@@ -914,7 +1026,10 @@ function ResourcesTab({ circle, isMember }: { circle: CircleSummary; isMember: b
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {q.data!.map((r) => (
-            <div key={r.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-start gap-3 md:bg-white md:shadow-sm md:border-slate-200">
+            <div
+              key={r.id}
+              className="bg-[#1E1E24] border border-white/10 rounded-xl p-3 flex items-start gap-3 md:bg-white md:shadow-sm md:border-slate-200"
+            >
               <div className="w-10 h-10 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center shrink-0">
                 {r.pinned ? (
                   <Pin className="w-4 h-4 text-emerald-300" />
@@ -959,7 +1074,10 @@ function ForgeCircleModal({
   onCreated: (slug: string) => void;
 }) {
   const createFn = useServerFn(createCircle);
-  const catsQ = useQuery({ queryKey: ["circle-categories"], queryFn: () => listCircleCategories() });
+  const catsQ = useQuery({
+    queryKey: ["circle-categories"],
+    queryFn: () => listCircleCategories(),
+  });
   const dynamicCategories = useMemo(() => {
     const names = (catsQ.data ?? []).map((c) => c.name);
     return names.length > 0 ? names : DEFAULT_CATEGORIES;
@@ -985,9 +1103,7 @@ function ForgeCircleModal({
   const [pledge, setPledge] = useState(
     "Be kind, respectful, and constructive. No spam, harassment, or self-promo without value.",
   );
-  const [rules, setRules] = useState<CocRule[]>([
-    { id: crypto.randomUUID(), text: "" },
-  ]);
+  const [rules, setRules] = useState<CocRule[]>([{ id: crypto.randomUUID(), text: "" }]);
 
   // Prevent body scroll while modal is open
   useEffect(() => {
@@ -1057,9 +1173,7 @@ function ForgeCircleModal({
           avatarUrl: avatarPath ?? undefined,
           coverUrl: coverPath ?? undefined,
           codeOfConduct:
-            cleanRules.length > 0
-              ? { pledge: pledge.trim(), questions: cleanRules }
-              : undefined,
+            cleanRules.length > 0 ? { pledge: pledge.trim(), questions: cleanRules } : undefined,
         },
       });
       onCreated(c.slug);
@@ -1084,7 +1198,10 @@ function ForgeCircleModal({
             <h2 className="text-white font-black text-lg">Forge New Circle</h2>
             <p className="text-xs text-slate-400">Rally your peers under one banner.</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1111,7 +1228,14 @@ function ForgeCircleModal({
                   className="hidden"
                   onChange={(e) => {
                     const f = e.target.files?.[0];
-                    if (f) pickAndUpload("circle-covers", f, setCoverPath, setCoverPreview, setUploadingCover);
+                    if (f)
+                      pickAndUpload(
+                        "circle-covers",
+                        f,
+                        setCoverPath,
+                        setCoverPreview,
+                        setUploadingCover,
+                      );
                     e.currentTarget.value = "";
                   }}
                 />
@@ -1140,7 +1264,13 @@ function ForgeCircleModal({
                     onChange={(e) => {
                       const f = e.target.files?.[0];
                       if (f)
-                        pickAndUpload("circle-avatars", f, setAvatarPath, setAvatarPreview, setUploadingAvatar);
+                        pickAndUpload(
+                          "circle-avatars",
+                          f,
+                          setAvatarPath,
+                          setAvatarPreview,
+                          setUploadingAvatar,
+                        );
                       e.currentTarget.value = "";
                     }}
                   />
@@ -1162,7 +1292,9 @@ function ForgeCircleModal({
           </div>
 
           <div>
-            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Scope / Bio</label>
+            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+              Scope / Bio
+            </label>
             <textarea
               value={bio}
               onChange={(e) => setBio(e.target.value)}
@@ -1174,7 +1306,9 @@ function ForgeCircleModal({
 
           {/* Category */}
           <div>
-            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Category</label>
+            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+              Category
+            </label>
             <div className="mt-1 flex flex-wrap gap-2">
               {dynamicCategories.map((c) => {
                 const active = category === c;
@@ -1218,7 +1352,9 @@ function ForgeCircleModal({
 
           {/* Privacy */}
           <div>
-            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">Privacy</label>
+            <label className="text-[11px] uppercase tracking-widest font-bold text-slate-400">
+              Privacy
+            </label>
             <div className="mt-1 grid grid-cols-2 gap-2">
               <button
                 type="button"
@@ -1282,7 +1418,9 @@ function ForgeCircleModal({
                   <input
                     value={r.text}
                     onChange={(e) =>
-                      setRules((prev) => prev.map((p) => (p.id === r.id ? { ...p, text: e.target.value } : p)))
+                      setRules((prev) =>
+                        prev.map((p) => (p.id === r.id ? { ...p, text: e.target.value } : p)),
+                      )
                     }
                     maxLength={500}
                     placeholder={`Rule ${idx + 1} (e.g. Keep discussions on-topic)`}
@@ -1310,12 +1448,17 @@ function ForgeCircleModal({
           </div>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">{error}</div>
+            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">
+              {error}
+            </div>
           )}
         </div>
 
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50 shrink-0">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5"
+          >
             Cancel
           </button>
           <button
@@ -1330,8 +1473,6 @@ function ForgeCircleModal({
     </div>
   );
 }
-
-
 
 /* ============================ Code-of-Conduct Modal ============================ */
 function CoCAcceptModal({
@@ -1374,7 +1515,7 @@ function CoCAcceptModal({
 
   return (
     <div
-      className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
       onClick={onClose}
     >
       <div
@@ -1386,7 +1527,10 @@ function CoCAcceptModal({
             <h2 className="text-white font-black text-lg">Accept the Code of Conduct</h2>
             <p className="text-xs text-slate-400">One last step to join {circle.name}.</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/5"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -1397,7 +1541,9 @@ function CoCAcceptModal({
               <ShieldCheck className="w-4 h-4 text-emerald-300" />
               <div className="text-xs font-bold text-white">Circle Pledge</div>
             </div>
-            <p className="text-xs text-slate-200 whitespace-pre-wrap">{circle.codeOfConduct.pledge}</p>
+            <p className="text-xs text-slate-200 whitespace-pre-wrap">
+              {circle.codeOfConduct.pledge}
+            </p>
           </div>
 
           {questions.map((q, idx) => (
@@ -1427,12 +1573,17 @@ function CoCAcceptModal({
           </label>
 
           {error && (
-            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">{error}</div>
+            <div className="bg-red-500/10 border border-red-500/40 rounded-lg p-3 text-xs text-red-300">
+              {error}
+            </div>
           )}
         </div>
 
         <div className="flex items-center justify-end gap-2 px-5 py-4 border-t border-white/10 bg-[#121214]/50">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5">
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-sm text-slate-300 hover:bg-white/5"
+          >
             Later
           </button>
           <button

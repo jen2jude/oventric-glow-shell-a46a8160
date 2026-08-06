@@ -1,5 +1,15 @@
 import { useEffect, useRef, useState } from "react";
-import { Eye, EyeOff, Wallet as WalletIcon, ChevronDown, Lock, Coins, TrendingUp, Gift, Store } from "lucide-react";
+import {
+  Eye,
+  EyeOff,
+  Wallet as WalletIcon,
+  ChevronDown,
+  Lock,
+  Coins,
+  TrendingUp,
+  Gift,
+  Store,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { getWalletBalances } from "@/lib/wallet.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
@@ -17,7 +27,10 @@ function fromUSD(usd: number, target: Currency): number {
   return usd * usdRate(target);
 }
 
-export function HeaderWalletChip({ align = "left", compact = false }: { align?: "left" | "right"; compact?: boolean } = {}) {
+export function HeaderWalletChip({
+  align = "left",
+  compact = false,
+}: { align?: "left" | "right"; compact?: boolean } = {}) {
   const { isAuthenticated } = useAuthGate();
   const { baseCurrency, balancesHidden, toggleBalancesHidden, country } = useOnboarding();
   const hasCountry = country != null;
@@ -66,8 +79,21 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
       }
       ch = supabase
         .channel(`hdr-wallet-${uid}`)
-        .on("postgres_changes", { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` }, () => load())
-        .on("postgres_changes", { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${uid}` }, () => load())
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
+          () => load(),
+        )
+        .on(
+          "postgres_changes",
+          {
+            event: "*",
+            schema: "public",
+            table: "wallet_transactions",
+            filter: `user_id=eq.${uid}`,
+          },
+          () => load(),
+        )
         .subscribe();
     })();
 
@@ -102,7 +128,9 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
 
   return (
     <div ref={wrapRef} className="relative">
-      <div className={`inline-flex items-center gap-1 rounded-full bg-[#1E1E24] border border-emerald-500/30 ${compact ? "h-8 pl-2 pr-1" : "h-10 pl-3 pr-1.5"}`}>
+      <div
+        className={`inline-flex items-center gap-1 rounded-full bg-[#1E1E24] border border-emerald-500/30 ${compact ? "h-8 pl-2 pr-1" : "h-10 pl-3 pr-1.5"}`}
+      >
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -111,8 +139,14 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
           className="inline-flex items-center gap-1 text-white hover:text-emerald-300 transition-colors min-w-0"
         >
           <WalletIcon className={`shrink-0 text-emerald-300 ${compact ? "w-4 h-4" : "w-5 h-5"}`} />
-          <span className={`font-semibold tabular-nums truncate ${compact ? "text-xs max-w-[5.5rem]" : "text-sm max-w-[8rem]"}`}>{display}</span>
-          <ChevronDown className={`shrink-0 text-slate-400 transition-transform ${compact ? "w-3.5 h-3.5" : "w-4 h-4"} ${open ? "rotate-180" : ""}`} />
+          <span
+            className={`font-semibold tabular-nums truncate ${compact ? "text-xs max-w-[5.5rem]" : "text-sm max-w-[8rem]"}`}
+          >
+            {display}
+          </span>
+          <ChevronDown
+            className={`shrink-0 text-slate-400 transition-transform ${compact ? "w-3.5 h-3.5" : "w-4 h-4"} ${open ? "rotate-180" : ""}`}
+          />
         </button>
         {!compact && (
           <button
@@ -131,18 +165,42 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
           role="dialog"
           className={`absolute mt-2 w-72 max-w-[calc(100vw-1.5rem)] rounded-2xl bg-[#17171B] border border-white/10 shadow-xl p-3 z-50 animate-scale-in ${align === "right" ? "right-0 origin-top-right" : "left-0 origin-top-left"}`}
         >
-          <div className="text-[11px] uppercase tracking-wide text-slate-500 px-1 pb-2">Sub-wallets · {displayCurrency}</div>
+          <div className="text-[11px] uppercase tracking-wide text-slate-500 px-1 pb-2">
+            Sub-wallets · {displayCurrency}
+          </div>
           <div className="grid grid-cols-2 gap-2">
-            <SubTile icon={<Lock className="w-4 h-4" />} label="Escrowed" value={balancesHidden ? "••••" : fmt(escrowDisplay, displayCurrency)} tint="text-amber-300" />
-            <SubTile icon={<TrendingUp className="w-4 h-4" />} label="Bounty earnings" value={balancesHidden ? "••••" : fmt(bountyDisplay, displayCurrency)} tint="text-sky-300" />
-            <SubTile icon={<Gift className="w-4 h-4" />} label="Cashback" value={balancesHidden ? "••••" : fmt(cashbackDisplay, displayCurrency)} tint="text-emerald-300" />
-            <SubTile icon={<Store className="w-4 h-4" />} label="Seller earnings" value={balancesHidden ? "••••" : fmt(sellerDisplay, displayCurrency)} tint="text-fuchsia-300" />
+            <SubTile
+              icon={<Lock className="w-4 h-4" />}
+              label="Escrowed"
+              value={balancesHidden ? "••••" : fmt(escrowDisplay, displayCurrency)}
+              tint="text-amber-300"
+            />
+            <SubTile
+              icon={<TrendingUp className="w-4 h-4" />}
+              label="Bounty earnings"
+              value={balancesHidden ? "••••" : fmt(bountyDisplay, displayCurrency)}
+              tint="text-sky-300"
+            />
+            <SubTile
+              icon={<Gift className="w-4 h-4" />}
+              label="Cashback"
+              value={balancesHidden ? "••••" : fmt(cashbackDisplay, displayCurrency)}
+              tint="text-emerald-300"
+            />
+            <SubTile
+              icon={<Store className="w-4 h-4" />}
+              label="Seller earnings"
+              value={balancesHidden ? "••••" : fmt(sellerDisplay, displayCurrency)}
+              tint="text-fuchsia-300"
+            />
           </div>
           <button
             type="button"
             onClick={() => {
               setOpen(false);
-              window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }));
+              window.dispatchEvent(
+                new CustomEvent("oventric:navigate", { detail: { section: "Wallet" } }),
+              );
             }}
             className="mt-3 w-full inline-flex items-center justify-center gap-2 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-200 text-xs font-semibold hover:bg-emerald-500/25 transition-colors"
           >
@@ -154,7 +212,17 @@ export function HeaderWalletChip({ align = "left", compact = false }: { align?: 
   );
 }
 
-function SubTile({ icon, label, value, tint }: { icon: React.ReactNode; label: string; value: string; tint: string }) {
+function SubTile({
+  icon,
+  label,
+  value,
+  tint,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  tint: string;
+}) {
   return (
     <div className="rounded-xl bg-[#0f0f13] border border-white/5 p-2.5">
       <div className={`flex items-center gap-1.5 ${tint}`}>

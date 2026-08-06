@@ -10,7 +10,6 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
-
 } from "lucide-react";
 import {
   getAcademyRecommendations,
@@ -41,12 +40,24 @@ function SectionHeader({ icon: Icon, title, hint }: { icon: any; title: string; 
         <Icon className="w-5 h-5 text-emerald-400 md:text-emerald-600" strokeWidth={2.5} />
         <h3 className="text-white md:text-slate-900 font-black text-lg tracking-tight">{title}</h3>
       </div>
-      {hint && <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">{hint}</span>}
+      {hint && (
+        <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
+          {hint}
+        </span>
+      )}
     </div>
   );
 }
 
-function CourseTile({ c, currency, onOpen }: { c: RecoCourse; currency: Currency; onOpen: (id: string) => void }) {
+function CourseTile({
+  c,
+  currency,
+  onOpen,
+}: {
+  c: RecoCourse;
+  currency: Currency;
+  onOpen: (id: string) => void;
+}) {
   return (
     <button
       onClick={() => onOpen(c.id)}
@@ -54,11 +65,22 @@ function CourseTile({ c, currency, onOpen }: { c: RecoCourse; currency: Currency
     >
       <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40">
         {c.coverUrl ? (
-          <ResponsiveImage src={c.coverUrl} alt={c.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw" />
+          <ResponsiveImage
+            src={c.coverUrl}
+            alt={c.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
+          />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center"><GraduationCap className="w-10 h-10 text-white/30" /></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <GraduationCap className="w-10 h-10 text-white/30" />
+          </div>
         )}
-        <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">{c.category}</span>
+        <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">
+          {c.category}
+        </span>
         <span className="absolute top-2 right-2 text-[10px] font-bold bg-emerald-500 text-black rounded px-2 py-0.5">
           {c.isFree ? "Free" : fmtPrice(c.priceUsd, currency)}
         </span>
@@ -83,9 +105,18 @@ function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency 
     >
       <div className={`relative aspect-video bg-gradient-to-br ${p.hue}`}>
         {p.coverUrl ? (
-          <ResponsiveImage src={p.coverUrl} alt={p.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
+          <ResponsiveImage
+            src={p.coverUrl}
+            alt={p.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 25vw, 50vw"
+          />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center"><ShoppingBag className="w-8 h-8 text-white/40" /></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <ShoppingBag className="w-8 h-8 text-white/40" />
+          </div>
         )}
         <span className="absolute top-2 right-2 text-[11px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5">
           {fmtPrice(p.priceUsd, currency)}
@@ -104,16 +135,30 @@ function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency })
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
     // give Bounties a tick to mount, then open the detail view
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("oventric:bounty:open-detail", { detail: { id: b.id } }));
+      window.dispatchEvent(
+        new CustomEvent("oventric:bounty:open-detail", { detail: { id: b.id } }),
+      );
     }, 60);
   };
   return (
-    <button onClick={open} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block w-full">
+    <button
+      onClick={open}
+      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-amber-400/40 transition-colors block w-full"
+    >
       <div className="relative aspect-video bg-gradient-to-br from-amber-500/30 to-rose-600/30">
         {b.coverUrl ? (
-          <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 25vw, 50vw" />
+          <ResponsiveImage
+            src={b.coverUrl}
+            alt={b.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 25vw, 50vw"
+          />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center"><Target className="w-8 h-8 text-white/40" /></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Target className="w-8 h-8 text-white/40" />
+          </div>
         )}
         <span className="absolute top-2 right-2 text-[11px] font-bold bg-black/70 text-amber-300 border border-amber-400/40 rounded px-2 py-0.5">
           {fmtPrice(b.amountUsd, currency)}
@@ -121,7 +166,11 @@ function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency })
       </div>
       <div className="p-3">
         <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
-        {b.category && <div className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider">{b.category}</div>}
+        {b.category && (
+          <div className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider">
+            {b.category}
+          </div>
+        )}
       </div>
     </button>
   );
@@ -131,42 +180,73 @@ function CircleTile({ c }: { c: RecoCircle }) {
   const open = () => {
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }));
     setTimeout(() => {
-      window.dispatchEvent(new CustomEvent("oventric:circle:open-slug", { detail: { slug: c.slug } }));
+      window.dispatchEvent(
+        new CustomEvent("oventric:circle:open-slug", { detail: { slug: c.slug } }),
+      );
     }, 60);
   };
   return (
-    <button onClick={open} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block w-full">
+    <button
+      onClick={open}
+      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-indigo-400/40 transition-colors block w-full"
+    >
       <div className="relative aspect-[3/1] bg-gradient-to-br from-indigo-600/40 to-fuchsia-600/40">
         {c.coverUrl ? (
-          <ResponsiveImage src={c.coverUrl} alt={c.name} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
+          <ResponsiveImage
+            src={c.coverUrl}
+            alt={c.name}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 33vw, 100vw"
+          />
         ) : null}
       </div>
       <div className="p-3 flex items-center gap-3">
         <div className="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
-          {c.avatarUrl ? <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" /> : <span>{c.emoji}</span>}
+          {c.avatarUrl ? (
+            <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
+          ) : (
+            <span>{c.emoji}</span>
+          )}
         </div>
         <div className="min-w-0 flex-1">
           <h4 className="text-white font-bold text-sm truncate">{c.name}</h4>
-          <div className="text-[11px] text-slate-500 flex items-center gap-1"><Users className="w-3 h-3" /> {c.memberCount} members</div>
+          <div className="text-[11px] text-slate-500 flex items-center gap-1">
+            <Users className="w-3 h-3" /> {c.memberCount} members
+          </div>
         </div>
       </div>
     </button>
   );
 }
 
-
-
 function BlogTile({ b }: { b: RecoBlog }) {
   return (
-    <Link to="/blog/$slug" params={{ slug: b.slug }} className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-sky-400/40 transition-colors block">
+    <Link
+      to="/blog/$slug"
+      params={{ slug: b.slug }}
+      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-sky-400/40 transition-colors block"
+    >
       <div className="relative aspect-video bg-gradient-to-br from-sky-600/30 to-emerald-600/30">
         {b.coverUrl ? (
-          <ResponsiveImage src={b.coverUrl} alt={b.title} className="absolute inset-0 w-full h-full object-cover" loading="lazy" decoding="async" sizes="(min-width: 1024px) 33vw, 100vw" />
+          <ResponsiveImage
+            src={b.coverUrl}
+            alt={b.title}
+            className="absolute inset-0 w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+            sizes="(min-width: 1024px) 33vw, 100vw"
+          />
         ) : (
-          <div className="absolute inset-0 flex items-center justify-center"><Newspaper className="w-8 h-8 text-white/40" /></div>
+          <div className="absolute inset-0 flex items-center justify-center">
+            <Newspaper className="w-8 h-8 text-white/40" />
+          </div>
         )}
         {b.categoryName && (
-          <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">{b.categoryName}</span>
+          <span className="absolute top-2 left-2 text-[10px] font-bold bg-black/60 text-white border border-white/20 rounded px-2 py-0.5 uppercase tracking-wider">
+            {b.categoryName}
+          </span>
         )}
       </div>
       <div className="p-3">
@@ -183,7 +263,9 @@ function PromotedStrip({ ads }: { ads: DiscoveryAd[] }) {
     <div className="my-6 rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-indigo-500/5 p-4">
       <div className="flex items-center gap-2 mb-3">
         <Sparkles className="w-4 h-4 text-emerald-400" />
-        <span className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold">Promoted picks</span>
+        <span className="text-[11px] uppercase tracking-wider text-emerald-300 font-bold">
+          Promoted picks
+        </span>
       </div>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
         {ads.map((a) => (
@@ -195,12 +277,19 @@ function PromotedStrip({ ads }: { ads: DiscoveryAd[] }) {
             className="flex gap-3 items-center bg-[#1E1E24] border border-white/10 hover:border-emerald-400/40 rounded-lg p-3 transition-colors"
           >
             {a.coverUrl ? (
-              <img src={a.coverUrl} alt="" className="w-16 h-16 rounded-lg object-cover shrink-0" loading="lazy" />
+              <img
+                src={a.coverUrl}
+                alt=""
+                className="w-16 h-16 rounded-lg object-cover shrink-0"
+                loading="lazy"
+              />
             ) : (
               <div className="w-16 h-16 rounded-lg bg-gradient-to-br from-emerald-500/40 to-indigo-600/40 shrink-0" />
             )}
             <div className="min-w-0 flex-1">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500">{a.advertiser}</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500">
+                {a.advertiser}
+              </div>
               <div className="text-white font-bold text-sm truncate">{a.title}</div>
               {a.body && <div className="text-[12px] text-slate-400 line-clamp-1">{a.body}</div>}
             </div>
@@ -230,7 +319,10 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       <section className="mt-12 border-t border-white/10 pt-8">
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse">
+            <div
+              key={i}
+              className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse"
+            >
               <div className="aspect-video bg-white/5" />
               <div className="p-3 space-y-2">
                 <div className="h-3 bg-white/10 rounded w-3/4" />
@@ -242,7 +334,6 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       </section>
     );
   }
-
 
   const halfAds = Math.ceil(data.promoted.length / 2);
   const adsA = data.promoted.slice(0, halfAds);
@@ -270,10 +361,11 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
           <SectionHeader icon={Newspaper} title="From the blog" hint="Latest" />
           <div className="flex md:grid gap-3 md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {blogA.map((b) => (
-              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start"><BlogTile b={b} /></div>
+              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start">
+                <BlogTile b={b} />
+              </div>
             ))}
           </div>
-
         </div>
       )}
 
@@ -283,9 +375,15 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       {/* Recommended products */}
       {data.products.length > 0 && (
         <div>
-          <SectionHeader icon={ShoppingBag} title="Recommended products" hint="Digital + physical" />
+          <SectionHeader
+            icon={ShoppingBag}
+            title="Recommended products"
+            hint="Digital + physical"
+          />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {data.products.map((p) => <ProductTile key={p.id} p={p} currency={baseCurrency} />)}
+            {data.products.map((p) => (
+              <ProductTile key={p.id} p={p} currency={baseCurrency} />
+            ))}
           </div>
         </div>
       )}
@@ -295,7 +393,9 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
         <div>
           <SectionHeader icon={Target} title="Top bounties" hint="Highest reward" />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
-            {data.bounties.map((b) => <BountyTile key={b.id} b={b} currency={baseCurrency} />)}
+            {data.bounties.map((b) => (
+              <BountyTile key={b.id} b={b} currency={baseCurrency} />
+            ))}
           </div>
         </div>
       )}
@@ -306,10 +406,11 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
           <SectionHeader icon={Newspaper} title="More reads" />
           <div className="flex md:grid gap-3 md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {blogB.map((b) => (
-              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start"><BlogTile b={b} /></div>
+              <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start">
+                <BlogTile b={b} />
+              </div>
             ))}
           </div>
-
         </div>
       )}
 
@@ -321,7 +422,9 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
         <div>
           <SectionHeader icon={Users} title="Top circles" hint="Join the movement" />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-            {data.circles.map((c) => <CircleTile key={c.id} c={c} />)}
+            {data.circles.map((c) => (
+              <CircleTile key={c.id} c={c} />
+            ))}
           </div>
         </div>
       )}

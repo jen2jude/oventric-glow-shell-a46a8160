@@ -30,12 +30,15 @@ import { RichTextEditor } from "@/components/ui/rich-text-editor";
 
 function stripHtml(html: string): string {
   if (!html) return "";
-  if (typeof document === "undefined") return html.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (typeof document === "undefined")
+    return html
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   const div = document.createElement("div");
   div.innerHTML = html;
   return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
 }
-
 
 export const Route = createFileRoute("/admin/communications")({
   head: () => ({
@@ -308,7 +311,11 @@ function AnnouncementsTab() {
               onClick={submit}
               className="px-4 py-2 bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black text-sm font-bold rounded-lg flex items-center gap-2"
             >
-              {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+              {busy ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-4 h-4" />
+              )}
               {form.id ? "Save changes" : "Create announcement"}
             </button>
             {form.id && (
@@ -331,9 +338,7 @@ function AnnouncementsTab() {
             <Loader2 className="w-5 h-5 text-emerald-400 animate-spin" />
           </div>
         ) : rows.length === 0 ? (
-          <div className="text-sm text-slate-500 text-center py-8">
-            No announcements yet.
-          </div>
+          <div className="text-sm text-slate-500 text-center py-8">No announcements yet.</div>
         ) : (
           <ul className="space-y-2 max-h-[600px] overflow-y-auto pr-1">
             {rows.map((r) => (

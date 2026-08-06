@@ -25,15 +25,32 @@ interface Props {
  * MiniPay is a manual rail: the buyer sends the transfer themselves, uploads a
  * receipt, and a reviewer releases the purchase. No card is charged here.
  */
-export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = null, amount, currency, onClose }: Props) {
+export function MiniPayPanel({
+  purpose,
+  targetId,
+  quantity = 1,
+  couponCode = null,
+  amount,
+  currency,
+  onClose,
+}: Props) {
   const create = useServerFn(createManualPayment);
   const getUpload = useServerFn(getProofUploadUrl);
   const attach = useServerFn(attachManualProof);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [payment, setPayment] = useState<{ id: string; reference: string; amount: number; currency: string } | null>(null);
-  const [instructions, setInstructions] = useState<{ handle: string | null; accountName: string | null; instructions: string | null }>({
+  const [payment, setPayment] = useState<{
+    id: string;
+    reference: string;
+    amount: number;
+    currency: string;
+  } | null>(null);
+  const [instructions, setInstructions] = useState<{
+    handle: string | null;
+    accountName: string | null;
+    instructions: string | null;
+  }>({
     handle: null,
     accountName: null,
     instructions: null,
@@ -46,7 +63,9 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
   useEffect(() => {
     if (startedRef.current) return;
     startedRef.current = true;
-    create({ data: { purpose, targetId: targetId ?? null, quantity, couponCode, amount, currency } })
+    create({
+      data: { purpose, targetId: targetId ?? null, quantity, couponCode, amount, currency },
+    })
       .then((res) => {
         setPayment({
           id: res.payment.id,
@@ -74,7 +93,9 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
     setUploading(true);
     try {
       const { path, token } = await getUpload({ data: { filename: file.name } });
-      const { error: upErr } = await supabase.storage.from("payment-proofs").uploadToSignedUrl(path, token, file);
+      const { error: upErr } = await supabase.storage
+        .from("payment-proofs")
+        .uploadToSignedUrl(path, token, file);
       if (upErr) throw new Error(upErr.message);
       await attach({ data: { id: payment.id, proofPath: path } });
       setDone(true);
@@ -93,7 +114,11 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
             <ShieldCheck className="w-4 h-4 text-emerald-400" />
             <h2 className="text-sm font-black text-white">Pay with MiniPay</h2>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -111,21 +136,30 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
           {payment && !done && (
             <>
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3">
-                <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">Amount to send</div>
-                <div className="text-2xl font-black text-white mt-1">{formatMoney(payment.amount, payment.currency)}</div>
+                <div className="text-[11px] uppercase tracking-wider text-emerald-300/90 font-semibold">
+                  Amount to send
+                </div>
+                <div className="text-2xl font-black text-white mt-1">
+                  {formatMoney(payment.amount, payment.currency)}
+                </div>
               </div>
 
               <Row label="MiniPay handle" value={instructions.handle ?? "—"} onCopy={copy} />
-              {instructions.accountName && <Row label="Account name" value={instructions.accountName} onCopy={copy} />}
+              {instructions.accountName && (
+                <Row label="Account name" value={instructions.accountName} onCopy={copy} />
+              )}
               <Row label="Reference (put in the note)" value={payment.reference} onCopy={copy} />
 
               {instructions.instructions && (
-                <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-line">{instructions.instructions}</p>
+                <p className="text-xs text-slate-400 leading-relaxed whitespace-pre-line">
+                  {instructions.instructions}
+                </p>
               )}
 
               <div className="rounded-xl border border-white/10 bg-[#1E1E24] p-4">
                 <p className="text-xs text-slate-400 mb-3">
-                  Send the exact amount, then upload your receipt. We verify manually — usually within a few hours.
+                  Send the exact amount, then upload your receipt. We verify manually — usually
+                  within a few hours.
                 </p>
                 <input
                   ref={fileRef}
@@ -139,7 +173,11 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
                   disabled={uploading}
                   className="w-full rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black font-bold text-sm py-2.5 flex items-center justify-center gap-2"
                 >
-                  {uploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+                  {uploading ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Upload className="w-4 h-4" />
+                  )}
                   {uploading ? "Uploading…" : "Upload payment receipt"}
                 </button>
               </div>
@@ -151,8 +189,11 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
               <CheckCircle2 className="w-10 h-10 text-emerald-400 mx-auto mb-3" />
               <h3 className="text-base font-black text-white">Receipt received</h3>
               <p className="text-xs text-slate-400 mt-2 leading-relaxed">
-                We&apos;re verifying your MiniPay transfer. You&apos;ll get a notification the moment it clears
-                {purpose === "order" ? " and your order goes live." : " and the amount lands in your wallet."}
+                We&apos;re verifying your MiniPay transfer. You&apos;ll get a notification the
+                moment it clears
+                {purpose === "order"
+                  ? " and your order goes live."
+                  : " and the amount lands in your wallet."}
               </p>
               <button
                 onClick={onClose}
@@ -168,14 +209,28 @@ export function MiniPayPanel({ purpose, targetId, quantity = 1, couponCode = nul
   );
 }
 
-function Row({ label, value, onCopy }: { label: string; value: string; onCopy: (v: string) => void }) {
+function Row({
+  label,
+  value,
+  onCopy,
+}: {
+  label: string;
+  value: string;
+  onCopy: (v: string) => void;
+}) {
   return (
     <div className="flex items-center justify-between gap-3 rounded-lg border border-white/10 bg-[#1E1E24] px-3 py-2">
       <div className="min-w-0">
-        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">{label}</div>
+        <div className="text-[10px] uppercase tracking-wider text-slate-500 font-semibold">
+          {label}
+        </div>
         <div className="text-sm text-white font-mono truncate">{value}</div>
       </div>
-      <button onClick={() => onCopy(value)} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0" aria-label={`Copy ${label}`}>
+      <button
+        onClick={() => onCopy(value)}
+        className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0"
+        aria-label={`Copy ${label}`}
+      >
         <Copy className="w-3.5 h-3.5" />
       </button>
     </div>

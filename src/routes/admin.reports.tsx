@@ -1,7 +1,17 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Flag, Check, EyeOff, RotateCcw, ShieldCheck, AlertCircle, Loader2, ChevronDown, MessageSquareQuote } from "lucide-react";
+import {
+  Flag,
+  Check,
+  EyeOff,
+  RotateCcw,
+  ShieldCheck,
+  AlertCircle,
+  Loader2,
+  ChevronDown,
+  MessageSquareQuote,
+} from "lucide-react";
 import {
   listPendingReports,
   resolveReport,
@@ -151,7 +161,9 @@ function AdminReportsPage() {
 
         {session === false && (
           <div className="rounded-xl border border-white/10 bg-[#1E1E24] p-6 text-center">
-            <p className="text-sm text-slate-300">You need to sign in as an admin to review reports.</p>
+            <p className="text-sm text-slate-300">
+              You need to sign in as an admin to review reports.
+            </p>
             <button
               onClick={signIn}
               className="mt-3 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg"
@@ -195,140 +207,166 @@ function AdminReportsPage() {
                 {reports.map((r) => {
                   const isOpen = expandedId === r.id;
                   return (
-                  <li
-                    key={r.id}
-                    className="bg-[#1E1E24] border border-white/10 rounded-xl p-4"
-                  >
-                    <div className="flex items-start gap-3">
-                      <div className="w-8 h-8 shrink-0 rounded-lg bg-red-500/10 border border-red-500/40 flex items-center justify-center">
-                        <Flag className="w-4 h-4 text-red-300" />
-                      </div>
-                      <div className="min-w-0 flex-1">
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span
-                            className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLE[r.status]}`}
-                          >
-                            {r.status}
-                          </span>
-                          <span className="inline-flex items-center rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-bold text-red-200">
-                            {REASON_LABEL[r.reason]}
-                          </span>
-                          <span className="text-[11px] text-slate-500">·</span>
-                          <span className="text-[11px] text-slate-500 capitalize">
-                            {r.target_kind}
-                          </span>
-                          <span className="text-[11px] text-slate-500">·</span>
-                          <span className="text-[11px] text-slate-500">
-                            {new Date(r.created_at).toLocaleString()}
-                          </span>
+                    <li key={r.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-4">
+                      <div className="flex items-start gap-3">
+                        <div className="w-8 h-8 shrink-0 rounded-lg bg-red-500/10 border border-red-500/40 flex items-center justify-center">
+                          <Flag className="w-4 h-4 text-red-300" />
                         </div>
-                        <div className="mt-1 text-sm text-white font-semibold break-all">
-                          {r.target_author ? `${r.target_author} · ` : ""}{r.target_id}
-                        </div>
-                        {r.target_preview && (
-                          <div className="mt-2 rounded-lg border border-white/10 bg-black/40 p-2.5">
-                            <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
-                              Reported {r.target_kind === "blog_comment" ? "comment" : "content"}
-                            </div>
-                            <p className={`mt-0.5 text-xs text-slate-200 leading-relaxed whitespace-pre-wrap ${isOpen ? "" : "line-clamp-3"}`}>
-                              {r.target_preview}
-                            </p>
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span
+                              className={`inline-flex items-center rounded-md border px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider ${STATUS_STYLE[r.status]}`}
+                            >
+                              {r.status}
+                            </span>
+                            <span className="inline-flex items-center rounded-md border border-red-500/30 bg-red-500/10 px-2 py-0.5 text-[11px] font-bold text-red-200">
+                              {REASON_LABEL[r.reason]}
+                            </span>
+                            <span className="text-[11px] text-slate-500">·</span>
+                            <span className="text-[11px] text-slate-500 capitalize">
+                              {r.target_kind}
+                            </span>
+                            <span className="text-[11px] text-slate-500">·</span>
+                            <span className="text-[11px] text-slate-500">
+                              {new Date(r.created_at).toLocaleString()}
+                            </span>
                           </div>
-                        )}
-                        {r.note ? (
-                          <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/10 bg-black/30 p-2.5">
-                            <MessageSquareQuote className="w-3.5 h-3.5 text-amber-300 mt-0.5 shrink-0" />
-                            <div className="min-w-0">
-                              <div className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
-                                Reporter's note
+                          <div className="mt-1 text-sm text-white font-semibold break-all">
+                            {r.target_author ? `${r.target_author} · ` : ""}
+                            {r.target_id}
+                          </div>
+                          {r.target_preview && (
+                            <div className="mt-2 rounded-lg border border-white/10 bg-black/40 p-2.5">
+                              <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                                Reported {r.target_kind === "blog_comment" ? "comment" : "content"}
                               </div>
-                              <p className={`mt-0.5 text-xs text-slate-200 leading-relaxed break-words ${isOpen ? "" : "line-clamp-2"}`}>
-                                {r.note}
+                              <p
+                                className={`mt-0.5 text-xs text-slate-200 leading-relaxed whitespace-pre-wrap ${isOpen ? "" : "line-clamp-3"}`}
+                              >
+                                {r.target_preview}
                               </p>
                             </div>
-                          </div>
-                        ) : (
-                          <p className="mt-2 text-[11px] italic text-slate-500">
-                            No custom note provided by the reporter.
-                          </p>
-                        )}
-                      </div>
-                      <button
-                        onClick={() => setExpandedId(isOpen ? null : r.id)}
-                        aria-expanded={isOpen}
-                        aria-label={isOpen ? "Collapse details" : "Expand details"}
-                        className="p-1.5 rounded-md hover:bg-white/5 text-slate-400"
-                      >
-                        <ChevronDown className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`} />
-                      </button>
-                    </div>
-
-                    {isOpen && (
-                      <dl className="mt-3 ml-11 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-white/10 bg-black/20 p-3 text-xs">
-                        <div>
-                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Reason</dt>
-                          <dd className="mt-0.5 text-slate-200 font-semibold">{REASON_LABEL[r.reason]}</dd>
-                          <dd className="text-[11px] text-slate-400 mt-0.5">{REASON_DESCRIPTION[r.reason]}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Target</dt>
-                          <dd className="mt-0.5 text-slate-200 capitalize">{r.target_kind}</dd>
-                          <dd className="text-[11px] text-slate-500 font-mono break-all">{r.target_id}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Submitted</dt>
-                          <dd className="mt-0.5 text-slate-200">{new Date(r.created_at).toLocaleString()}</dd>
-                        </div>
-                        <div>
-                          <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">Resolution</dt>
-                          <dd className="mt-0.5 text-slate-200">
-                            {r.resolved_at ? new Date(r.resolved_at).toLocaleString() : "—"}
-                          </dd>
-                          {r.resolved_by && (
-                            <dd className="text-[11px] text-slate-500 font-mono break-all">by {r.resolved_by}</dd>
+                          )}
+                          {r.note ? (
+                            <div className="mt-2 flex items-start gap-2 rounded-lg border border-white/10 bg-black/30 p-2.5">
+                              <MessageSquareQuote className="w-3.5 h-3.5 text-amber-300 mt-0.5 shrink-0" />
+                              <div className="min-w-0">
+                                <div className="text-[10px] uppercase tracking-wider text-amber-300/80 font-bold">
+                                  Reporter's note
+                                </div>
+                                <p
+                                  className={`mt-0.5 text-xs text-slate-200 leading-relaxed break-words ${isOpen ? "" : "line-clamp-2"}`}
+                                >
+                                  {r.note}
+                                </p>
+                              </div>
+                            </div>
+                          ) : (
+                            <p className="mt-2 text-[11px] italic text-slate-500">
+                              No custom note provided by the reporter.
+                            </p>
                           )}
                         </div>
-                      </dl>
-                    )}
+                        <button
+                          onClick={() => setExpandedId(isOpen ? null : r.id)}
+                          aria-expanded={isOpen}
+                          aria-label={isOpen ? "Collapse details" : "Expand details"}
+                          className="p-1.5 rounded-md hover:bg-white/5 text-slate-400"
+                        >
+                          <ChevronDown
+                            className={`w-4 h-4 transition-transform ${isOpen ? "rotate-180" : ""}`}
+                          />
+                        </button>
+                      </div>
 
-                    <div className="mt-3 flex items-center gap-2 flex-wrap">
-                      {r.status !== "approved" && (
-                        <button
-                          onClick={() => act(r, "approve")}
-                          disabled={busyId === r.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black text-xs font-bold"
-                        >
-                          <Check className="w-3.5 h-3.5" /> Approve
-                        </button>
+                      {isOpen && (
+                        <dl className="mt-3 ml-11 grid grid-cols-1 sm:grid-cols-2 gap-x-4 gap-y-2 rounded-lg border border-white/10 bg-black/20 p-3 text-xs">
+                          <div>
+                            <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                              Reason
+                            </dt>
+                            <dd className="mt-0.5 text-slate-200 font-semibold">
+                              {REASON_LABEL[r.reason]}
+                            </dd>
+                            <dd className="text-[11px] text-slate-400 mt-0.5">
+                              {REASON_DESCRIPTION[r.reason]}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                              Target
+                            </dt>
+                            <dd className="mt-0.5 text-slate-200 capitalize">{r.target_kind}</dd>
+                            <dd className="text-[11px] text-slate-500 font-mono break-all">
+                              {r.target_id}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                              Submitted
+                            </dt>
+                            <dd className="mt-0.5 text-slate-200">
+                              {new Date(r.created_at).toLocaleString()}
+                            </dd>
+                          </div>
+                          <div>
+                            <dt className="text-[10px] uppercase tracking-wider text-slate-500 font-bold">
+                              Resolution
+                            </dt>
+                            <dd className="mt-0.5 text-slate-200">
+                              {r.resolved_at ? new Date(r.resolved_at).toLocaleString() : "—"}
+                            </dd>
+                            {r.resolved_by && (
+                              <dd className="text-[11px] text-slate-500 font-mono break-all">
+                                by {r.resolved_by}
+                              </dd>
+                            )}
+                          </div>
+                        </dl>
                       )}
-                      {r.status !== "hidden" && (
-                        <button
-                          onClick={() => act(r, "hide")}
-                          disabled={busyId === r.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/50 hover:bg-red-500/25 disabled:opacity-40 text-red-200 text-xs font-bold"
-                        >
-                          <EyeOff className="w-3.5 h-3.5" /> Hide
-                        </button>
-                      )}
-                      {r.status !== "pending" && (
-                        <button
-                          onClick={() => act(r, "reset")}
-                          disabled={busyId === r.id}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-40 text-slate-300 text-xs font-semibold"
-                        >
-                          <RotateCcw className="w-3.5 h-3.5" /> Reset to pending
-                        </button>
-                      )}
-                      {busyId === r.id && <Loader2 className="w-4 h-4 animate-spin text-slate-500" />}
-                    </div>
-                  </li>
+
+                      <div className="mt-3 flex items-center gap-2 flex-wrap">
+                        {r.status !== "approved" && (
+                          <button
+                            onClick={() => act(r, "approve")}
+                            disabled={busyId === r.id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 text-black text-xs font-bold"
+                          >
+                            <Check className="w-3.5 h-3.5" /> Approve
+                          </button>
+                        )}
+                        {r.status !== "hidden" && (
+                          <button
+                            onClick={() => act(r, "hide")}
+                            disabled={busyId === r.id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-red-500/15 border border-red-500/50 hover:bg-red-500/25 disabled:opacity-40 text-red-200 text-xs font-bold"
+                          >
+                            <EyeOff className="w-3.5 h-3.5" /> Hide
+                          </button>
+                        )}
+                        {r.status !== "pending" && (
+                          <button
+                            onClick={() => act(r, "reset")}
+                            disabled={busyId === r.id}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/10 hover:bg-white/5 disabled:opacity-40 text-slate-300 text-xs font-semibold"
+                          >
+                            <RotateCcw className="w-3.5 h-3.5" /> Reset to pending
+                          </button>
+                        )}
+                        {busyId === r.id && (
+                          <Loader2 className="w-4 h-4 animate-spin text-slate-500" />
+                        )}
+                      </div>
+                    </li>
                   );
                 })}
               </ul>
             ) : (
               <div className="rounded-xl border border-white/10 bg-[#1E1E24] p-10 text-center">
                 <ShieldCheck className="w-8 h-8 text-emerald-400 mx-auto mb-2" />
-                <p className="text-sm text-slate-300">No {filter === "all" ? "" : filter} reports.</p>
+                <p className="text-sm text-slate-300">
+                  No {filter === "all" ? "" : filter} reports.
+                </p>
                 <p className="text-xs text-slate-500 mt-1">You're all caught up.</p>
               </div>
             )}

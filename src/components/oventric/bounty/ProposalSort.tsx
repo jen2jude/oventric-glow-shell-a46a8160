@@ -25,7 +25,9 @@ export function sortProposals<T extends SortableProposal>(list: T[], key: Propos
   const arr = [...list];
   switch (key) {
     case "oldest":
-      return arr.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      return arr.sort(
+        (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime(),
+      );
     case "highest_score":
       return arr.sort((a, b) => proposalScore(b) - proposalScore(a));
     case "most_urgent":
@@ -38,7 +40,9 @@ export function sortProposals<T extends SortableProposal>(list: T[], key: Propos
       });
     case "newest":
     default:
-      return arr.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      return arr.sort(
+        (a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime(),
+      );
   }
 }
 

@@ -5,7 +5,9 @@ import { Loader2 } from "lucide-react";
 import { listAuditLogs } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/audit")({
-  head: () => ({ meta: [{ title: "Audit Log · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({
+    meta: [{ title: "Audit Log · Admin" }, { name: "robots", content: "noindex, nofollow" }],
+  }),
   component: AuditPage,
 });
 
@@ -15,7 +17,9 @@ function AuditPage() {
   const listFn = useServerFn(listAuditLogs);
   const [rows, setRows] = useState<Row[] | null>(null);
 
-  useEffect(() => { listFn().then((r) => setRows(r as Row[])); }, [listFn]);
+  useEffect(() => {
+    listFn().then((r) => setRows(r as Row[]));
+  }, [listFn]);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">
@@ -24,7 +28,9 @@ function AuditPage() {
         <p className="text-sm text-slate-400">Last 300 admin actions.</p>
       </header>
 
-      {!rows ? <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" /> : rows.length === 0 ? (
+      {!rows ? (
+        <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" />
+      ) : rows.length === 0 ? (
         <p className="text-sm text-slate-500 text-center mt-10">No admin activity yet.</p>
       ) : (
         <div className="bg-[#141418] border border-white/10 rounded-xl overflow-hidden">
@@ -40,10 +46,19 @@ function AuditPage() {
             <tbody className="divide-y divide-white/5">
               {rows.map((r) => (
                 <tr key={r.id as string} className="hover:bg-white/[0.02]">
-                  <td className="px-3 py-2 text-slate-400 whitespace-nowrap">{new Date(r.created_at as string).toLocaleString()}</td>
-                  <td className="px-3 py-2 text-slate-300 font-mono text-xs">{String(r.actor_id ?? "").slice(0, 8) || "system"}</td>
-                  <td className="px-3 py-2 text-emerald-300 font-mono text-xs">{r.action as string}</td>
-                  <td className="px-3 py-2 text-slate-400 text-xs">{(r.target_type as string) ?? "—"} · {String(r.target_id ?? "").slice(0, 8) || "—"}</td>
+                  <td className="px-3 py-2 text-slate-400 whitespace-nowrap">
+                    {new Date(r.created_at as string).toLocaleString()}
+                  </td>
+                  <td className="px-3 py-2 text-slate-300 font-mono text-xs">
+                    {String(r.actor_id ?? "").slice(0, 8) || "system"}
+                  </td>
+                  <td className="px-3 py-2 text-emerald-300 font-mono text-xs">
+                    {r.action as string}
+                  </td>
+                  <td className="px-3 py-2 text-slate-400 text-xs">
+                    {(r.target_type as string) ?? "—"} ·{" "}
+                    {String(r.target_id ?? "").slice(0, 8) || "—"}
+                  </td>
                 </tr>
               ))}
             </tbody>

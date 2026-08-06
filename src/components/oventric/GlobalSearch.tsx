@@ -14,7 +14,12 @@ interface GlobalSearchProps {
 
 const EMPTY: SearchResults = { peers: [], bounties: [], products: [] };
 
-export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = false }: GlobalSearchProps) {
+export function GlobalSearch({
+  variant = "inline",
+  onClose,
+  autoFocus,
+  light = false,
+}: GlobalSearchProps) {
   const [q, setQ] = useState("");
   const [debounced, setDebounced] = useState("");
   const [open, setOpen] = useState(false);
@@ -58,42 +63,66 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = f
   const enabled = debounced.length >= 1;
 
   const flat = useMemo(() => {
-    const items: Array<{ key: string; label: string; sub: string; icon: React.ReactNode; onSelect: () => void; trailing?: React.ReactNode; trailingLabel?: string }> = [];
-    results.peers.forEach((p) => items.push({
-      key: `peer-${p.id}`,
-      label: p.name,
-      sub: p.username ? `@${p.username}` : p.slug,
-      icon: p.avatarUrl ? (
-        <img src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
-      ) : (
-        <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center"><User className="w-3.5 h-3.5" /></div>
-      ),
-      trailing: <Star className="w-3 h-3 text-amber-400" />,
-      trailingLabel: p.stars ? p.stars.toFixed(1) : undefined,
-      onSelect: () => navigate({ to: "/profile/$id", params: { id: p.slug } }),
-    }));
-    results.bounties.forEach((b) => items.push({
-      key: `bounty-${b.id}`,
-      label: b.title,
-      sub: `$${b.amountUsd.toLocaleString()}${b.category ? ` · ${b.category}` : ""}`,
-      icon: <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-300 flex items-center justify-center"><Coins className="w-3.5 h-3.5" /></div>,
-      onSelect: () => navigateSection("Bounties"),
-    }));
-    results.products.forEach((p) => items.push({
-      key: `product-${p.id}`,
-      label: p.title,
-      sub: `$${p.priceUsd.toLocaleString()} · ${p.category}${p.vendor ? ` · ${p.vendor}` : ""}`,
-      icon: p.coverUrl ? (
-        <img src={p.coverUrl} alt="" className="w-7 h-7 rounded-md object-cover" />
-      ) : (
-        <div className="w-7 h-7 rounded-md bg-sky-500/20 text-sky-300 flex items-center justify-center"><Store className="w-3.5 h-3.5" /></div>
-      ),
-      onSelect: () => navigate({ to: "/product/$id", params: { id: p.id } }),
-    }));
+    const items: Array<{
+      key: string;
+      label: string;
+      sub: string;
+      icon: React.ReactNode;
+      onSelect: () => void;
+      trailing?: React.ReactNode;
+      trailingLabel?: string;
+    }> = [];
+    results.peers.forEach((p) =>
+      items.push({
+        key: `peer-${p.id}`,
+        label: p.name,
+        sub: p.username ? `@${p.username}` : p.slug,
+        icon: p.avatarUrl ? (
+          <img src={p.avatarUrl} alt="" className="w-7 h-7 rounded-full object-cover" />
+        ) : (
+          <div className="w-7 h-7 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
+            <User className="w-3.5 h-3.5" />
+          </div>
+        ),
+        trailing: <Star className="w-3 h-3 text-amber-400" />,
+        trailingLabel: p.stars ? p.stars.toFixed(1) : undefined,
+        onSelect: () => navigate({ to: "/profile/$id", params: { id: p.slug } }),
+      }),
+    );
+    results.bounties.forEach((b) =>
+      items.push({
+        key: `bounty-${b.id}`,
+        label: b.title,
+        sub: `$${b.amountUsd.toLocaleString()}${b.category ? ` · ${b.category}` : ""}`,
+        icon: (
+          <div className="w-7 h-7 rounded-md bg-amber-500/20 text-amber-300 flex items-center justify-center">
+            <Coins className="w-3.5 h-3.5" />
+          </div>
+        ),
+        onSelect: () => navigateSection("Bounties"),
+      }),
+    );
+    results.products.forEach((p) =>
+      items.push({
+        key: `product-${p.id}`,
+        label: p.title,
+        sub: `$${p.priceUsd.toLocaleString()} · ${p.category}${p.vendor ? ` · ${p.vendor}` : ""}`,
+        icon: p.coverUrl ? (
+          <img src={p.coverUrl} alt="" className="w-7 h-7 rounded-md object-cover" />
+        ) : (
+          <div className="w-7 h-7 rounded-md bg-sky-500/20 text-sky-300 flex items-center justify-center">
+            <Store className="w-3.5 h-3.5" />
+          </div>
+        ),
+        onSelect: () => navigate({ to: "/product/$id", params: { id: p.id } }),
+      }),
+    );
     return items;
   }, [results, navigate]);
 
-  useEffect(() => { if (autoFocus) inputRef.current?.focus(); }, [autoFocus]);
+  useEffect(() => {
+    if (autoFocus) inputRef.current?.focus();
+  }, [autoFocus]);
 
   useEffect(() => {
     if (variant !== "inline") return;
@@ -126,10 +155,16 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = f
           role="searchbox"
           aria-label="Search creators, bounties and assets"
           value={q}
-          onChange={(e) => { setQ(e.target.value); setOpen(true); }}
+          onChange={(e) => {
+            setQ(e.target.value);
+            setOpen(true);
+          }}
           onFocus={() => setOpen(true)}
           onKeyDown={(e) => {
-            if (e.key === "Escape") { setOpen(false); onClose?.(); }
+            if (e.key === "Escape") {
+              setOpen(false);
+              onClose?.();
+            }
             if (e.key === "Enter" && flat[0]) handleSelect(flat[0].onSelect);
           }}
           placeholder="Search creators, bounties, assets…"
@@ -138,7 +173,10 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = f
         {q && (
           <button
             type="button"
-            onClick={() => { setQ(""); inputRef.current?.focus(); }}
+            onClick={() => {
+              setQ("");
+              inputRef.current?.focus();
+            }}
             aria-label="Clear search"
             className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-500 hover:text-slate-200 hover:bg-white/5"
           >
@@ -163,23 +201,41 @@ export function GlobalSearch({ variant = "inline", onClose, autoFocus, light = f
           ) : (
             <ul className={`${listMaxH} overflow-y-auto py-1`}>
               {results.peers.length > 0 && (
-                <li className="px-4 pt-2 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><User className="w-3 h-3" /> Peers</li>
+                <li className="px-4 pt-2 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                  <User className="w-3 h-3" /> Peers
+                </li>
               )}
-              {flat.filter((f) => f.key.startsWith("peer-")).map((item) => (
-                <ResultRow key={item.key} item={item} onSelect={handleSelect} trailing={item.trailing} trailingLabel={item.trailingLabel} />
-              ))}
+              {flat
+                .filter((f) => f.key.startsWith("peer-"))
+                .map((item) => (
+                  <ResultRow
+                    key={item.key}
+                    item={item}
+                    onSelect={handleSelect}
+                    trailing={item.trailing}
+                    trailingLabel={item.trailingLabel}
+                  />
+                ))}
               {results.bounties.length > 0 && (
-                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><Coins className="w-3 h-3" /> Bounties</li>
+                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                  <Coins className="w-3 h-3" /> Bounties
+                </li>
               )}
-              {flat.filter((f) => f.key.startsWith("bounty-")).map((item) => (
-                <ResultRow key={item.key} item={item} onSelect={handleSelect} />
-              ))}
+              {flat
+                .filter((f) => f.key.startsWith("bounty-"))
+                .map((item) => (
+                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+                ))}
               {results.products.length > 0 && (
-                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5"><Store className="w-3 h-3" /> Marketplace</li>
+                <li className="px-4 pt-3 pb-1 text-[10px] uppercase tracking-widest text-slate-500 flex items-center gap-1.5">
+                  <Store className="w-3 h-3" /> Marketplace
+                </li>
               )}
-              {flat.filter((f) => f.key.startsWith("product-")).map((item) => (
-                <ResultRow key={item.key} item={item} onSelect={handleSelect} />
-              ))}
+              {flat
+                .filter((f) => f.key.startsWith("product-"))
+                .map((item) => (
+                  <ResultRow key={item.key} item={item} onSelect={handleSelect} />
+                ))}
             </ul>
           )}
         </div>

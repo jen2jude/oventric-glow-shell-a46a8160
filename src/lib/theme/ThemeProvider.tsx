@@ -36,7 +36,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   const setTheme = (t: Theme) => {
     setThemeState(t);
     applyTheme(t);
-    try { window.localStorage.setItem(KEY, t); } catch { /* ignore */ }
+    try {
+      window.localStorage.setItem(KEY, t);
+    } catch {
+      /* ignore */
+    }
   };
   const toggle = () => setTheme(theme === "dark" ? "light" : "dark");
 

@@ -26,14 +26,7 @@ interface Props {
   counts?: { followers: number; following: number };
 }
 
-export function RelationshipsSection({
-  userId,
-  name,
-  viewerId,
-  tab,
-  onTabChange,
-  counts,
-}: Props) {
+export function RelationshipsSection({ userId, name, viewerId, tab, onTabChange, counts }: Props) {
   const online = useOnlineUsers();
   const fetchFollowers = useServerFn(listFollowers);
   const fetchFollowing = useServerFn(listFollowing);
@@ -79,7 +72,10 @@ export function RelationshipsSection({
   );
 
   useEffect(() => {
-    setState({ followers: { people: null, error: null }, following: { people: null, error: null } });
+    setState({
+      followers: { people: null, error: null },
+      following: { people: null, error: null },
+    });
     setVisible({ followers: PAGE, following: PAGE });
   }, [userId]);
 
@@ -94,7 +90,8 @@ export function RelationshipsSection({
   }, []);
 
   const onTabKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End") return;
+    if (e.key !== "ArrowRight" && e.key !== "ArrowLeft" && e.key !== "Home" && e.key !== "End")
+      return;
     e.preventDefault();
     const idx = TABS.findIndex((t) => t.key === tab);
     const next =
@@ -135,7 +132,8 @@ export function RelationshipsSection({
           id="relationships-heading"
           className="inline-flex items-center gap-2 text-sm font-black uppercase tracking-wider text-slate-300 md:text-slate-900"
         >
-          <Users className="w-4 h-4 text-emerald-400 md:text-emerald-600" aria-hidden /> Relationships
+          <Users className="w-4 h-4 text-emerald-400 md:text-emerald-600" aria-hidden />{" "}
+          Relationships
         </h2>
         <div
           ref={tabsRef}
@@ -146,8 +144,7 @@ export function RelationshipsSection({
         >
           {TABS.map((t) => {
             const active = t.key === tab;
-            const count =
-              t.key === "followers" ? counts?.followers : counts?.following;
+            const count = t.key === "followers" ? counts?.followers : counts?.following;
             return (
               <button
                 key={t.key}
@@ -224,7 +221,10 @@ export function RelationshipsSection({
       >
         {current.error ? (
           <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-5 text-center md:border-red-200 md:bg-red-50">
-            <AlertTriangle className="mx-auto mb-2 h-4 w-4 text-red-300 md:text-red-500" aria-hidden />
+            <AlertTriangle
+              className="mx-auto mb-2 h-4 w-4 text-red-300 md:text-red-500"
+              aria-hidden
+            />
             <p className="text-sm font-semibold text-red-200 md:text-red-700">{current.error}</p>
             <button
               onClick={() => load(tab)}
@@ -234,7 +234,11 @@ export function RelationshipsSection({
             </button>
           </div>
         ) : current.people === null ? (
-          <ul className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3" aria-busy="true" aria-label="Loading people">
+          <ul
+            className="grid gap-2 sm:grid-cols-2 xl:grid-cols-3"
+            aria-busy="true"
+            aria-label="Loading people"
+          >
             {Array.from({ length: 6 }).map((_, i) => (
               <li
                 key={i}
@@ -305,12 +309,17 @@ export function RelationshipsSection({
                         aria-haspopup="dialog"
                         className="block truncate text-left text-[11px] text-slate-500 hover:text-emerald-400 md:hover:text-emerald-600 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 rounded"
                       >
-                        {p.username ? `@${p.username}` : isOnline ? "Online now" : "Offline"} · Quick view
+                        {p.username ? `@${p.username}` : isOnline ? "Online now" : "Offline"} ·
+                        Quick view
                       </button>
                     </div>
                     {viewerId && viewerId !== p.userId && (
                       <div className="shrink-0">
-                        <FollowButton targetId={p.userId} compact className="!px-3 !py-1.5 !text-xs" />
+                        <FollowButton
+                          targetId={p.userId}
+                          compact
+                          className="!px-3 !py-1.5 !text-xs"
+                        />
                       </div>
                     )}
                   </li>

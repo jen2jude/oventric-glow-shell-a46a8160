@@ -42,7 +42,9 @@ export function ActivityFeedWidget() {
     }
   }, [fetchFn]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   return (
     <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4">
@@ -63,7 +65,9 @@ export function ActivityFeedWidget() {
         <div className="flex flex-col items-center gap-2 text-xs text-red-400 py-8" role="alert">
           <AlertTriangle className="w-5 h-5" />
           {error}
-          <button onClick={() => void load()} className="text-white underline underline-offset-2">Try again</button>
+          <button onClick={() => void load()} className="text-white underline underline-offset-2">
+            Try again
+          </button>
         </div>
       ) : items === null ? (
         <div className="flex items-center justify-center py-8">
@@ -82,8 +86,12 @@ export function ActivityFeedWidget() {
                 aria-hidden
               />
               <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold text-white md:text-slate-900 truncate">{n.title}</p>
-                <p className="text-[11px] text-slate-400 md:text-slate-500">{timeAgo(n.created_at)}</p>
+                <p className="text-xs font-semibold text-white md:text-slate-900 truncate">
+                  {n.title}
+                </p>
+                <p className="text-[11px] text-slate-400 md:text-slate-500">
+                  {timeAgo(n.created_at)}
+                </p>
               </div>
             </li>
           ))}

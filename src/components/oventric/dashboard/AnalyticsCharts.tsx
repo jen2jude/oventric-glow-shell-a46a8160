@@ -18,7 +18,15 @@ const RANGES = [
   { label: "90d", days: 90 as const },
 ];
 
-function CustomTooltip({ active, payload, label }: { active?: boolean; payload?: Array<{ name: string; value: number; color: string }>; label?: string }) {
+function CustomTooltip({
+  active,
+  payload,
+  label,
+}: {
+  active?: boolean;
+  payload?: Array<{ name: string; value: number; color: string }>;
+  label?: string;
+}) {
   if (!active || !payload || payload.length === 0) return null;
   return (
     <div
@@ -47,9 +55,15 @@ export function AnalyticsCharts() {
     setData(null);
     setError(null);
     fetchFn({ data: { rangeDays: range } })
-      .then((d) => { if (alive) setData(d); })
-      .catch((e) => { if (alive) setError((e as Error).message || "Failed to load chart data"); });
-    return () => { alive = false; };
+      .then((d) => {
+        if (alive) setData(d);
+      })
+      .catch((e) => {
+        if (alive) setError((e as Error).message || "Failed to load chart data");
+      });
+    return () => {
+      alive = false;
+    };
   }, [fetchFn, range]);
 
   const chartData = (data ?? []).map((p) => ({
@@ -63,7 +77,11 @@ export function AnalyticsCharts() {
         <h3 className="text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
           <BarChart3 className="w-4 h-4" /> Activity trend
         </h3>
-        <div className="flex items-center gap-1 rounded-full border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-1" role="tablist" aria-label="Time range">
+        <div
+          className="flex items-center gap-1 rounded-full border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-1"
+          role="tablist"
+          aria-label="Time range"
+        >
           {RANGES.map((r) => (
             <button
               key={r.label}
@@ -83,7 +101,10 @@ export function AnalyticsCharts() {
       </div>
 
       {error ? (
-        <div className="flex items-center gap-2 text-xs text-red-400 py-10 justify-center" role="alert">
+        <div
+          className="flex items-center gap-2 text-xs text-red-400 py-10 justify-center"
+          role="alert"
+        >
           <AlertTriangle className="w-4 h-4" /> {error}
         </div>
       ) : !data ? (
@@ -102,11 +123,37 @@ export function AnalyticsCharts() {
                 axisLine={{ stroke: "rgba(148,163,184,0.2)" }}
                 tickLine={false}
               />
-              <YAxis tick={{ fontSize: 10, fill: "#94a3b8" }} axisLine={false} tickLine={false} allowDecimals={false} />
+              <YAxis
+                tick={{ fontSize: 10, fill: "#94a3b8" }}
+                axisLine={false}
+                tickLine={false}
+                allowDecimals={false}
+              />
               <Tooltip content={<CustomTooltip />} />
-              <Line type="monotone" dataKey="posts" name="Posts" stroke="#38bdf8" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="orders" name="Orders" stroke="#60a5fa" strokeWidth={2} dot={false} />
-              <Line type="monotone" dataKey="walletVolumeUSD" name="Wallet volume (USD)" stroke="#f59e0b" strokeWidth={2} dot={false} />
+              <Line
+                type="monotone"
+                dataKey="posts"
+                name="Posts"
+                stroke="#38bdf8"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="orders"
+                name="Orders"
+                stroke="#60a5fa"
+                strokeWidth={2}
+                dot={false}
+              />
+              <Line
+                type="monotone"
+                dataKey="walletVolumeUSD"
+                name="Wallet volume (USD)"
+                stroke="#f59e0b"
+                strokeWidth={2}
+                dot={false}
+              />
             </LineChart>
           </ResponsiveContainer>
         </div>

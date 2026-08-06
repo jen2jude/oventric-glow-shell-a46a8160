@@ -11,8 +11,7 @@ export function Icon3D({
   size?: "sm" | "md" | "lg";
   ariaLabel?: string;
 }) {
-  const dims =
-    size === "sm" ? "w-8 h-8" : size === "lg" ? "w-14 h-14" : "w-10 h-10";
+  const dims = size === "sm" ? "w-8 h-8" : size === "lg" ? "w-14 h-14" : "w-10 h-10";
   const iconSize = size === "sm" ? 16 : size === "lg" ? 28 : 20;
 
   return (

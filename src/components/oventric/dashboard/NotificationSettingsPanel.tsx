@@ -9,10 +9,7 @@ import {
   type NotificationTopic,
   type TopicPrefs,
 } from "@/lib/notifications/topics";
-import {
-  getMyNotificationPrefs,
-  setNotificationPref,
-} from "@/lib/notification-prefs.functions";
+import { getMyNotificationPrefs, setNotificationPref } from "@/lib/notification-prefs.functions";
 
 function Toggle({
   on,
@@ -106,9 +103,7 @@ export function NotificationSettingsPanel() {
         Choose what alerts you in the app and what reaches your phone.
       </p>
 
-      {error ? (
-        <p className="mt-3 text-xs text-amber-500">{error}</p>
-      ) : null}
+      {error ? <p className="mt-3 text-xs text-amber-500">{error}</p> : null}
 
       <div className="mt-3 hidden md:flex items-center justify-end gap-6 pr-1 text-[10px] font-bold uppercase tracking-wide text-slate-500">
         <span className="flex items-center gap-1">

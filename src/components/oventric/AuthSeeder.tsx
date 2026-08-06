@@ -7,7 +7,12 @@ import {
   getOnboardingStatus as getOnboardingStatusFn,
 } from "@/lib/onboarding.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { useOnboarding, countryToCurrency, parseCountry, type Country } from "@/lib/onboarding/OnboardingContext";
+import {
+  useOnboarding,
+  countryToCurrency,
+  parseCountry,
+  type Country,
+} from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
@@ -25,7 +30,6 @@ export function AuthSeeder() {
   const fetchStatus = useServerFn(getOnboardingStatusFn);
   const { setBalances, advanceTo, setBaseCurrency } = useOnboarding();
   const seededFor = useRef<string | null>(null);
-
 
   useEffect(() => {
     let cancelled = false;
@@ -87,7 +91,6 @@ export function AuthSeeder() {
       }
     };
 
-
     // Initial session (page load with existing tokens)
     supabase.auth.getSession().then(({ data }) => {
       if (!cancelled) seed(data.session?.user?.id);
@@ -126,4 +129,3 @@ export function AuthSeeder() {
 
   return null;
 }
-

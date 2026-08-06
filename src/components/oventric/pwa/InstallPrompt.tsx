@@ -76,7 +76,11 @@ export function InstallPrompt() {
   if (!open) return null;
 
   return (
-    <div className="fixed inset-0 z-[70] flex items-end md:hidden" role="dialog" aria-label="Install Oventric">
+    <div
+      className="fixed inset-0 z-[70] flex items-end md:hidden"
+      role="dialog"
+      aria-label="Install Oventric"
+    >
       <button className="absolute inset-0 bg-black/60" aria-label="Close" onClick={dismiss} />
       <div
         className="relative w-full animate-[slide-up_.3s_ease-out] rounded-t-[20px] border-t border-white/10 bg-[#1E1E24] px-5 pt-5 text-slate-200"

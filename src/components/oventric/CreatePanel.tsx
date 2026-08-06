@@ -9,10 +9,34 @@ type ChoiceKey = "post" | "bounty" | "sell" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
 
 const choices: Choice[] = [
-  { key: "post", icon: PenSquare, title: "Drop a Post", desc: "Share updates with the community", tier: 1 },
-  { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
-  { key: "sell", icon: ShoppingBag, title: "Sell", desc: "List digital assets or physical goods", tier: 2 },
-  { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
+  {
+    key: "post",
+    icon: PenSquare,
+    title: "Drop a Post",
+    desc: "Share updates with the community",
+    tier: 1,
+  },
+  {
+    key: "bounty",
+    icon: Target,
+    title: "Post a Bounty ($)",
+    desc: "Get expert help, pay on delivery",
+    tier: 2,
+  },
+  {
+    key: "sell",
+    icon: ShoppingBag,
+    title: "Sell",
+    desc: "List digital assets or physical goods",
+    tier: 2,
+  },
+  {
+    key: "course",
+    icon: GraduationCap,
+    title: "Publish a Course",
+    desc: "Teach with video modules, free or paid",
+    tier: 2,
+  },
 ];
 
 export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -60,7 +84,7 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
     <>
       {open && (
         <div className="modal-light fixed inset-0 z-50 flex items-end justify-center sm:items-center">
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+          <div className="absolute inset-0 bg-black/70" onClick={onClose} />
           <div className="slide-up relative w-full max-w-2xl bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
             <div className="flex items-center justify-between mb-6">
               <h2 className="text-xl font-bold text-white">Create Something</h2>
@@ -91,15 +115,23 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         </div>
       )}
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
-      <CoursePublishWizard open={courseOpen} onClose={() => setCourseOpen(false)} onSaved={() => {
-        setCourseOpen(false);
-        window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
-      }} />
+      <CoursePublishWizard
+        open={courseOpen}
+        onClose={() => setCourseOpen(false)}
+        onSaved={() => {
+          setCourseOpen(false);
+          window.dispatchEvent(
+            new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }),
+          );
+        }}
+      />
       <BountyEditorModal
         open={bountyOpen}
         onClose={() => setBountyOpen(false)}
         onPublished={() => {
-          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
+          window.dispatchEvent(
+            new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }),
+          );
         }}
       />
     </>

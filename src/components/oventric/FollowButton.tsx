@@ -77,27 +77,54 @@ export function FollowButton({ targetId, className, compact, onStatusChange }: P
     );
   }
 
-  const base = "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60";
-  const label = compact ? { follow: "Follow", requested: "Requested", following: "Following", mutual: "Mutual", follows_you: "Follow back" } : { follow: "Follow", requested: "Requested", following: "Following", mutual: "Mutual friends", follows_you: "Follow back" };
+  const base =
+    "inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg font-semibold text-sm transition-colors disabled:opacity-60";
+  const label = compact
+    ? {
+        follow: "Follow",
+        requested: "Requested",
+        following: "Following",
+        mutual: "Mutual",
+        follows_you: "Follow back",
+      }
+    : {
+        follow: "Follow",
+        requested: "Requested",
+        following: "Following",
+        mutual: "Mutual friends",
+        follows_you: "Follow back",
+      };
 
   let button;
   if (status === "none") {
     button = (
-      <button onClick={() => act(() => send({ data: { targetId } }))} disabled={busy} className={`${base} bg-sky-500 hover:bg-sky-400 text-black ${className ?? ""}`}>
+      <button
+        onClick={() => act(() => send({ data: { targetId } }))}
+        disabled={busy}
+        className={`${base} bg-sky-500 hover:bg-sky-400 text-black ${className ?? ""}`}
+      >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
         {label.follow}
       </button>
     );
   } else if (status === "follows_you") {
     button = (
-      <button onClick={() => act(() => send({ data: { targetId } }))} disabled={busy} className={`${base} bg-sky-500 hover:bg-sky-400 text-black ${className ?? ""}`}>
+      <button
+        onClick={() => act(() => send({ data: { targetId } }))}
+        disabled={busy}
+        className={`${base} bg-sky-500 hover:bg-sky-400 text-black ${className ?? ""}`}
+      >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <UserPlus className="w-4 h-4" />}
         {label.follows_you}
       </button>
     );
   } else if (status === "requested") {
     button = (
-      <button onClick={() => act(() => cancel({ data: { targetId } }))} disabled={busy} className={`${base} bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/15 ${className ?? ""}`}>
+      <button
+        onClick={() => act(() => cancel({ data: { targetId } }))}
+        disabled={busy}
+        className={`${base} bg-yellow-500/10 border border-yellow-500/40 text-yellow-300 hover:bg-yellow-500/15 ${className ?? ""}`}
+      >
         {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : <Clock className="w-4 h-4" />}
         {label.requested}
       </button>
@@ -105,20 +132,26 @@ export function FollowButton({ targetId, className, compact, onStatusChange }: P
   } else if (status === "following" || status === "mutual") {
     button = (
       <button
-        onClick={() => act(async () => {
-          const r = await unfollowFn({ data: { targetId } });
-          return { status: r.status };
-        })}
+        onClick={() =>
+          act(async () => {
+            const r = await unfollowFn({ data: { targetId } });
+            return { status: r.status };
+          })
+        }
         disabled={busy}
         className={`${base} bg-emerald-500/15 border border-emerald-500/50 text-emerald-300 hover:bg-red-500/15 hover:border-red-500/50 hover:text-red-300 group ${className ?? ""}`}
       >
-        {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : (
+        {busy ? (
+          <Loader2 className="w-4 h-4 animate-spin" />
+        ) : (
           <>
             <UserCheck className="w-4 h-4 group-hover:hidden" />
             <UserMinus className="w-4 h-4 hidden group-hover:inline" />
           </>
         )}
-        <span className="group-hover:hidden">{status === "mutual" ? label.mutual : label.following}</span>
+        <span className="group-hover:hidden">
+          {status === "mutual" ? label.mutual : label.following}
+        </span>
         <span className="hidden group-hover:inline">Unfollow</span>
       </button>
     );

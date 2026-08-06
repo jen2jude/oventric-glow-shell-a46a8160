@@ -14,7 +14,12 @@ interface MessagesDrawerProps {
  * - Slides in from the right on desktop as a wide split drawer
  * - Full-screen sheet on mobile
  */
-export function MessagesDrawer({ open, onClose, initialThreadId, onOpenEscrow }: MessagesDrawerProps) {
+export function MessagesDrawer({
+  open,
+  onClose,
+  initialThreadId,
+  onOpenEscrow,
+}: MessagesDrawerProps) {
   useEffect(() => {
     if (!open) return;
     const onKey = (e: KeyboardEvent) => {
@@ -45,7 +50,9 @@ export function MessagesDrawer({ open, onClose, initialThreadId, onOpenEscrow }:
       >
         <div className="flex items-center justify-between h-12 px-4 border-b border-white/10 bg-[#16161B]">
           <div className="flex items-center gap-2">
-            <span className="text-[11px] uppercase tracking-widest font-black text-emerald-400">Secure Channel</span>
+            <span className="text-[11px] uppercase tracking-widest font-black text-emerald-400">
+              Secure Channel
+            </span>
             <span className="text-xs text-slate-400">P2P Messaging Hub</span>
           </div>
           <button
@@ -57,7 +64,12 @@ export function MessagesDrawer({ open, onClose, initialThreadId, onOpenEscrow }:
           </button>
         </div>
         <div className="h-[calc(100%-3rem)]">
-          <Messages variant="compact" initialThreadId={initialThreadId} onOpenEscrow={onOpenEscrow} onClose={onClose} />
+          <Messages
+            variant="compact"
+            initialThreadId={initialThreadId}
+            onOpenEscrow={onOpenEscrow}
+            onClose={onClose}
+          />
         </div>
       </aside>
     </>

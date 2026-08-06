@@ -1,4 +1,10 @@
-import { forwardRef, useEffect, useState, type ImgHTMLAttributes, type SyntheticEvent } from "react";
+import {
+  forwardRef,
+  useEffect,
+  useState,
+  type ImgHTMLAttributes,
+  type SyntheticEvent,
+} from "react";
 
 /**
  * ResponsiveImage — drop-in replacement for <img> that emits srcset/sizes
@@ -20,7 +26,10 @@ function buildTransformedUrl(src: string, width: number): string | null {
   //   /storage/v1/render/image/(public|sign|authenticated)/<bucket>/<path>?...
   if (/\/storage\/v1\/render\/image\//.test(src)) {
     try {
-      const u = new URL(src, typeof window !== "undefined" ? window.location.origin : "http://localhost");
+      const u = new URL(
+        src,
+        typeof window !== "undefined" ? window.location.origin : "http://localhost",
+      );
       u.searchParams.set("width", String(width));
       u.searchParams.set("resize", "contain");
       u.searchParams.set("quality", "75");
@@ -94,6 +103,5 @@ export const ResponsiveImage = forwardRef<HTMLImageElement, ResponsiveImageProps
     );
   },
 );
-
 
 export default ResponsiveImage;

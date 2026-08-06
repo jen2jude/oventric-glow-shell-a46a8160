@@ -1,4 +1,15 @@
-import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
+import {
+  Home,
+  Target,
+  Wallet,
+  Plus,
+  ChevronLeft,
+  MessageSquare,
+  Users,
+  ShoppingBag,
+  GraduationCap,
+  Newspaper,
+} from "lucide-react";
 import { useState } from "react";
 
 const items = [
@@ -11,7 +22,6 @@ const items = [
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
 ] as Array<{ icon: typeof Home; label: string }>;
-
 
 export function Sidebar({
   onCreate,
@@ -33,7 +43,7 @@ export function Sidebar({
       <div className="flex-1 flex flex-col gap-1 p-3 overflow-y-auto">
         <button
           onClick={onCreate}
-          className={`relative group mb-4 mt-2 mx-auto flex items-center justify-center rounded-full rgb-neon-bg ${
+          className={`relative group mb-4 mt-2 mx-auto flex items-center justify-center rounded-full  ${
             collapsed ? "w-12 h-12" : "w-16 h-16"
           }`}
           aria-label="Create"

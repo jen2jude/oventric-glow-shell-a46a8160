@@ -4,7 +4,11 @@ import { useServerFn } from "@tanstack/react-start";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { Loader2, ShieldAlert, CheckCircle2, Undo2, XCircle } from "lucide-react";
-import { listOrderDisputes, resolveOrderDispute, type AdminDisputeDTO } from "@/lib/fulfilment.functions";
+import {
+  listOrderDisputes,
+  resolveOrderDispute,
+  type AdminDisputeDTO,
+} from "@/lib/fulfilment.functions";
 
 export const Route = createFileRoute("/admin/disputes")({
   component: AdminDisputesPage,
@@ -12,7 +16,9 @@ export const Route = createFileRoute("/admin/disputes")({
     <div className="p-6 text-red-300">
       <div className="font-bold mb-2">Dispute queue error</div>
       <div className="text-sm text-red-200/80 mb-3">{error.message}</div>
-      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">Retry</button>
+      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">
+        Retry
+      </button>
     </div>
   ),
   notFoundComponent: () => <div className="p-6 text-slate-400">Not found.</div>,
@@ -28,7 +34,10 @@ function AdminDisputesPage() {
 
   const q = useQuery({ queryKey: ["admin-disputes"], queryFn: () => listFn(), staleTime: 10_000 });
 
-  const act = async (d: AdminDisputeDTO, outcome: "release_seller" | "refund_buyer" | "dismiss") => {
+  const act = async (
+    d: AdminDisputeDTO,
+    outcome: "release_seller" | "refund_buyer" | "dismiss",
+  ) => {
     setBusy(d.id);
     try {
       await resolveFn({ data: { disputeId: d.id, outcome, note: notes[d.id] ?? "" } });
@@ -68,10 +77,14 @@ function AdminDisputesPage() {
       </div>
 
       {q.isLoading && (
-        <div className="flex items-center gap-2 text-sm text-slate-400"><Loader2 className="w-4 h-4 animate-spin" /> Loading…</div>
+        <div className="flex items-center gap-2 text-sm text-slate-400">
+          <Loader2 className="w-4 h-4 animate-spin" /> Loading…
+        </div>
       )}
       {!q.isLoading && rows.length === 0 && (
-        <div className="rounded-lg border border-white/10 bg-[#1E1E24] p-6 text-sm text-slate-400">No disputes here.</div>
+        <div className="rounded-lg border border-white/10 bg-[#1E1E24] p-6 text-sm text-slate-400">
+          No disputes here.
+        </div>
       )}
 
       <div className="space-y-3">
@@ -81,25 +94,34 @@ function AdminDisputesPage() {
               <div className="min-w-0">
                 <div className="text-white font-bold text-sm truncate">{d.productName}</div>
                 <div className="text-[11px] text-slate-500">
-                  {d.buyerName} vs {d.sellerName} · Order {d.orderId.slice(0, 8)} · {new Date(d.createdAt).toLocaleString()}
+                  {d.buyerName} vs {d.sellerName} · Order {d.orderId.slice(0, 8)} ·{" "}
+                  {new Date(d.createdAt).toLocaleString()}
                 </div>
               </div>
               <span className="shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded bg-white/5 text-slate-300">
                 {d.status} · escrow {d.escrowStatus}
               </span>
             </div>
-            <div className="text-[11px] uppercase tracking-widest text-red-300 mb-1">{d.reason.replace("_", " ")}</div>
+            <div className="text-[11px] uppercase tracking-widest text-red-300 mb-1">
+              {d.reason.replace("_", " ")}
+            </div>
             <p className="text-xs text-slate-300 whitespace-pre-wrap mb-2">{d.details}</p>
             {d.imageUrls.length > 0 && (
               <div className="flex gap-2 flex-wrap mb-2">
                 {d.imageUrls.map((u) => (
                   <a key={u} href={u} target="_blank" rel="noreferrer">
-                    <img src={u} alt="Dispute evidence" className="w-20 h-20 object-cover rounded border border-white/10" />
+                    <img
+                      src={u}
+                      alt="Dispute evidence"
+                      className="w-20 h-20 object-cover rounded border border-white/10"
+                    />
                   </a>
                 ))}
               </div>
             )}
-            {d.adminNote && <div className="text-[11px] text-emerald-300 mb-2">Note: {d.adminNote}</div>}
+            {d.adminNote && (
+              <div className="text-[11px] text-emerald-300 mb-2">Note: {d.adminNote}</div>
+            )}
 
             {d.status === "open" && (
               <>

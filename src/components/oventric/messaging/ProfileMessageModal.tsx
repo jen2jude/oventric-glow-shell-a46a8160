@@ -45,8 +45,6 @@ interface ProfileMessageModalProps {
   pinnedProduct?: ChatProductPin | null;
 }
 
-
-
 const MAX_BODY = 4000;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
@@ -106,7 +104,11 @@ export function ProfileMessageModal({
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   const bodyTooLong = draft.length > MAX_BODY;
-  const canSend = !sending && !attachment?.uploading && !bodyTooLong && (draft.trim().length > 0 || !!attachment?.path);
+  const canSend =
+    !sending &&
+    !attachment?.uploading &&
+    !bodyTooLong &&
+    (draft.trim().length > 0 || !!attachment?.path);
 
   // Load / create thread on open
   useEffect(() => {
@@ -168,7 +170,12 @@ export function ProfileMessageModal({
       .channel(`dm-modal-${me}-${recipient.userId}`)
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
           if (row.sender_id !== recipient.userId) return;
@@ -178,7 +185,12 @@ export function ProfileMessageModal({
       )
       .on(
         "postgres_changes",
-        { event: "INSERT", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
           if (row.recipient_id !== recipient.userId) return;
@@ -187,10 +199,17 @@ export function ProfileMessageModal({
       )
       .on(
         "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
-          setMessages((prev) => prev.map((m) => (m.id === row.id ? { ...m, read_at: row.read_at } : m)));
+          setMessages((prev) =>
+            prev.map((m) => (m.id === row.id ? { ...m, read_at: row.read_at } : m)),
+          );
         },
       )
       .subscribe();
@@ -251,18 +270,32 @@ export function ProfileMessageModal({
     async (file: File | undefined) => {
       if (!file) return;
       if (!ALLOWED_TYPES.includes(file.type)) {
-        setAttachment({ file, previewUrl: null, path: null, uploading: false, error: "Unsupported file type." });
+        setAttachment({
+          file,
+          previewUrl: null,
+          path: null,
+          uploading: false,
+          error: "Unsupported file type.",
+        });
         return;
       }
       if (file.size > MAX_FILE_BYTES) {
-        setAttachment({ file, previewUrl: null, path: null, uploading: false, error: "File exceeds the 10MB limit." });
+        setAttachment({
+          file,
+          previewUrl: null,
+          path: null,
+          uploading: false,
+          error: "File exceeds the 10MB limit.",
+        });
         return;
       }
       const previewUrl = file.type.startsWith("image/") ? URL.createObjectURL(file) : null;
       setAttachment({ file, previewUrl, path: null, uploading: true, error: null });
       try {
         const { path, token } = await getUploadUrl({ data: { filename: file.name } });
-        const { error: upErr } = await supabase.storage.from("post-media").uploadToSignedUrl(path, token, file);
+        const { error: upErr } = await supabase.storage
+          .from("post-media")
+          .uploadToSignedUrl(path, token, file);
         if (upErr) throw new Error(upErr.message);
         setAttachment({ file, previewUrl, path, uploading: false, error: null });
       } catch (e) {
@@ -346,11 +379,7 @@ export function ProfileMessageModal({
 
   return createPortal(
     <>
-      <div
-        onClick={onClose}
-        aria-hidden="true"
-        className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
-      />
+      <div onClick={onClose} aria-hidden="true" className="fixed inset-0 z-[70] bg-black/60" />
       <div
         ref={dialogRef}
         role="dialog"
@@ -359,10 +388,13 @@ export function ProfileMessageModal({
         className="fixed z-[71] inset-0 md:flex md:items-center md:justify-center"
       >
         <div className="w-full h-full md:w-[880px] md:max-w-full md:h-[88vh] flex flex-col rounded-none md:rounded-2xl bg-[#16161B] md:bg-white border-0 md:border border-white/10 md:border-slate-200 shadow-2xl overflow-hidden">
-
           <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10 md:border-slate-200 bg-[#1A1A1F] md:bg-white shrink-0">
             <div className="w-9 h-9 rounded-full overflow-hidden shrink-0">
-              <AvatarImage src={recipient.avatarUrl ?? null} alt={recipient.displayName} className="rounded-full" />
+              <AvatarImage
+                src={recipient.avatarUrl ?? null}
+                alt={recipient.displayName}
+                className="rounded-full"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-sm font-black text-white md:text-slate-900 truncate">
@@ -380,7 +412,10 @@ export function ProfileMessageModal({
             </button>
           </header>
 
-          <div ref={scrollRef} className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-[220px] bg-[#121214] md:bg-slate-50">
+          <div
+            ref={scrollRef}
+            className="flex-1 overflow-y-auto px-4 py-4 space-y-2.5 min-h-[220px] bg-[#121214] md:bg-slate-50"
+          >
             {loading ? (
               <div className="flex items-center justify-center h-full text-xs text-slate-400 gap-2 py-10">
                 <Loader2 className="w-4 h-4 animate-spin" /> Loading conversation…
@@ -416,15 +451,25 @@ export function ProfileMessageModal({
                         const text = stripProductLink(m.body);
                         return (
                           <>
-                            {text && <div className="leading-relaxed whitespace-pre-wrap break-words">{text}</div>}
-                            {pid && <ProductBubbleCard productId={pid} mine={mine} onNavigate={onClose} />}
+                            {text && (
+                              <div className="leading-relaxed whitespace-pre-wrap break-words">
+                                {text}
+                              </div>
+                            )}
+                            {pid && (
+                              <ProductBubbleCard productId={pid} mine={mine} onNavigate={onClose} />
+                            )}
                           </>
                         );
                       })()}
                       {m.media_path && (
                         <div className="mt-1.5">
                           {isImage && url ? (
-                            <img src={url} alt="attachment" className="max-h-40 rounded-md border border-white/10" />
+                            <img
+                              src={url}
+                              alt="attachment"
+                              className="max-h-40 rounded-md border border-white/10"
+                            />
                           ) : url ? (
                             <a
                               href={url}
@@ -443,13 +488,21 @@ export function ProfileMessageModal({
                       )}
                       <div
                         className={`text-[10px] mt-1 flex items-center gap-1 ${
-                          mine ? "text-emerald-100/80 justify-end" : "text-slate-500 md:text-slate-400"
+                          mine
+                            ? "text-emerald-100/80 justify-end"
+                            : "text-slate-500 md:text-slate-400"
                         }`}
                       >
                         <span>{formatTime(m.created_at)}</span>
                         {statusLabel && (
                           <span
-                            className={isTmp ? "text-emerald-100/60" : m.read_at ? "text-sky-200" : "text-emerald-100/60"}
+                            className={
+                              isTmp
+                                ? "text-emerald-100/60"
+                                : m.read_at
+                                  ? "text-sky-200"
+                                  : "text-emerald-100/60"
+                            }
                             title={statusLabel}
                             aria-label={statusLabel}
                           >
@@ -469,29 +522,45 @@ export function ProfileMessageModal({
               <div className="mb-2 flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/10 md:bg-emerald-50 px-2.5 py-2">
                 <div className="w-9 h-9 rounded overflow-hidden bg-white/10 md:bg-slate-100 shrink-0 flex items-center justify-center">
                   {pinnedProduct.coverUrl ? (
-                    <img src={pinnedProduct.coverUrl} alt="" className="w-full h-full object-cover" />
+                    <img
+                      src={pinnedProduct.coverUrl}
+                      alt=""
+                      className="w-full h-full object-cover"
+                    />
                   ) : (
                     <ShoppingBag className="w-4 h-4 text-emerald-400" />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">Product clipped</div>
-                  <div className="text-xs text-slate-200 md:text-slate-800 font-semibold truncate">{pinnedProduct.name}</div>
+                  <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                    Product clipped
+                  </div>
+                  <div className="text-xs text-slate-200 md:text-slate-800 font-semibold truncate">
+                    {pinnedProduct.name}
+                  </div>
                 </div>
                 {pinnedProduct.priceLabel && (
-                  <div className="text-xs font-black text-emerald-300 md:text-emerald-600 shrink-0">{pinnedProduct.priceLabel}</div>
+                  <div className="text-xs font-black text-emerald-300 md:text-emerald-600 shrink-0">
+                    {pinnedProduct.priceLabel}
+                  </div>
                 )}
               </div>
             )}
             {attachment && (
               <div className="mb-2 flex items-center gap-2 rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-2.5 py-2">
                 {attachment.previewUrl ? (
-                  <img src={attachment.previewUrl} alt="" className="w-9 h-9 rounded object-cover shrink-0" />
+                  <img
+                    src={attachment.previewUrl}
+                    alt=""
+                    className="w-9 h-9 rounded object-cover shrink-0"
+                  />
                 ) : (
                   <FileText className="w-5 h-5 text-slate-400 shrink-0" />
                 )}
                 <div className="min-w-0 flex-1">
-                  <div className="text-xs text-slate-200 md:text-slate-700 truncate">{attachment.file.name}</div>
+                  <div className="text-xs text-slate-200 md:text-slate-700 truncate">
+                    {attachment.file.name}
+                  </div>
                   {attachment.uploading && (
                     <div className="text-[10px] text-slate-500 flex items-center gap-1">
                       <Loader2 className="w-3 h-3 animate-spin" /> Uploading…
@@ -558,10 +627,16 @@ export function ProfileMessageModal({
                 aria-label="Send message"
                 className="shrink-0 inline-flex items-center justify-center gap-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:bg-slate-700 disabled:cursor-not-allowed text-black disabled:text-slate-400 font-bold text-sm px-3.5 py-2.5"
               >
-                {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                {sending ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Send className="w-4 h-4" />
+                )}
               </button>
             </div>
-            <div className={`mt-1 text-right text-[10px] ${bodyTooLong ? "text-red-400" : "text-slate-500"}`}>
+            <div
+              className={`mt-1 text-right text-[10px] ${bodyTooLong ? "text-red-400" : "text-slate-500"}`}
+            >
               {draft.length}/{MAX_BODY}
             </div>
           </div>

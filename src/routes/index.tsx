@@ -17,20 +17,25 @@ import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
 
-
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
-
-
 
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Oventric — Sell, learn and get paid across Africa" },
-      { name: "description", content: "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency." },
+      {
+        name: "description",
+        content:
+          "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency.",
+      },
       { property: "og:title", content: "Oventric — Sell, learn and get paid across Africa" },
-      { property: "og:description", content: "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency." },
+      {
+        property: "og:description",
+        content:
+          "Marketplace, academy, bounties and a multi-currency wallet in one platform. Escrow-protected payments in your own currency.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:url", content: "https://oventric.com/" },
       { property: "og:image", content: "https://oventric.com/og-image.jpg" },
@@ -87,7 +92,6 @@ function Index() {
     requireAuth: true,
   });
 
-
   useEffect(() => {
     const onNav = (e: Event) => {
       const detail = (e as CustomEvent<{ section?: string }>).detail;
@@ -107,7 +111,6 @@ function Index() {
       window.removeEventListener("oventric:open-dm", onOpenDM);
     };
   }, []);
-
 
   // Resume the bounty publish flow after a successful wallet top-up.
   useEffect(() => {
@@ -134,7 +137,16 @@ function Index() {
     const section = params.get("section");
     const bountyId = params.get("bounty");
     const dmPeer = params.get("dm");
-    const allowed = ["Home", "Feed", "Marketplace", "Academy", "Bounties", "Wallet", "Circles", "Messages"];
+    const allowed = [
+      "Home",
+      "Feed",
+      "Marketplace",
+      "Academy",
+      "Bounties",
+      "Wallet",
+      "Circles",
+      "Messages",
+    ];
     if (section && allowed.includes(section)) setActive(section);
     if (bountyId) {
       setActive("Bounties");
@@ -178,24 +190,31 @@ function Index() {
           }}
         />
       )
-    )
-    : active === "Wallet" ? <Wallet />
-    : active === "Marketplace" ? <Marketplace />
-    : active === "Academy" ? <Academy />
-    : active === "Bounties" ? <Bounties />
-    : active === "Messages" ? <Messages variant="page" />
-    : active === "Circles" ? <CirclesHub />
-    : <Feed />;
+    ) : active === "Wallet" ? (
+      <Wallet />
+    ) : active === "Marketplace" ? (
+      <Marketplace />
+    ) : active === "Academy" ? (
+      <Academy />
+    ) : active === "Bounties" ? (
+      <Bounties />
+    ) : active === "Messages" ? (
+      <Messages variant="page" />
+    ) : active === "Circles" ? (
+      <CirclesHub />
+    ) : (
+      <Feed />
+    );
 
   const isMessages = active === "Messages";
 
   return (
     <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
-      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
+      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50  hidden md:block" />
+      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50  hidden md:block" />
 
-      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
+      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50  hidden md:block" />
+      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
       <div className="flex h-full flex-col">
         {!desktopLanding && (
@@ -203,12 +222,17 @@ function Index() {
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
             hubMode={(active === "Home" || active === "Marketplace") && !isDesktop}
-            desktopNav={isDesktop && ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)}
+            desktopNav={
+              isDesktop &&
+              ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)
+            }
             light={isDesktop}
           />
         )}
 
-        <div className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}>
+        <div
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}
+        >
           {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
           {isDesktop && !desktopLanding && <DesktopAppSidebar onSelect={setActive} />}
 
@@ -231,7 +255,6 @@ function Index() {
             Wallet: walletCount.count,
           }}
         />
-
       </div>
 
       <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
@@ -243,7 +266,6 @@ function Index() {
         }}
         initialThreadId={messagesPeer}
       />
-
     </div>
   );
 }

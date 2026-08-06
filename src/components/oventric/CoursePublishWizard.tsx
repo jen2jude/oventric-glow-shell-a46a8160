@@ -2,8 +2,21 @@ import { useEffect, useMemo, useState } from "react";
 import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import {
-  X, Loader2, Plus, Trash2, Upload, ChevronLeft, ChevronRight, CheckCircle2,
-  Video, FileText, FileType2, GripVertical, Award, Rocket, Save,
+  X,
+  Loader2,
+  Plus,
+  Trash2,
+  Upload,
+  ChevronLeft,
+  ChevronRight,
+  CheckCircle2,
+  Video,
+  FileText,
+  FileType2,
+  GripVertical,
+  Award,
+  Rocket,
+  Save,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -145,9 +158,7 @@ export function CoursePublishWizard({
       fxSnapshot = await snapshotFx();
       const rate = fxSnapshot.rates[baseCurrency] ?? usdRate(baseCurrency);
       priceUSD =
-        baseCurrency === "USD"
-          ? priceLocal
-          : Number((priceLocal / (rate || 1)).toFixed(2));
+        baseCurrency === "USD" ? priceLocal : Number((priceLocal / (rate || 1)).toFixed(2));
       originalAmount = priceLocal;
     }
     return {
@@ -209,7 +220,7 @@ export function CoursePublishWizard({
 
   const body = (
     <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
       <div className="relative w-full max-w-5xl max-h-[95vh] bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 shrink-0">
@@ -219,7 +230,10 @@ export function CoursePublishWizard({
               Step {step + 1} of {STEPS.length} · {STEPS[step]}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -242,9 +256,15 @@ export function CoursePublishWizard({
                         : "bg-white/5 border border-white/10 text-slate-500"
                   }`}
                 >
-                  <div className={`w-5 h-5 shrink-0 rounded-full grid place-items-center text-[10px] ${
-                    done ? "bg-emerald-500 text-black" : active ? "bg-emerald-500/40 text-white" : "bg-white/10 text-slate-400"
-                  }`}>
+                  <div
+                    className={`w-5 h-5 shrink-0 rounded-full grid place-items-center text-[10px] ${
+                      done
+                        ? "bg-emerald-500 text-black"
+                        : active
+                          ? "bg-emerald-500/40 text-white"
+                          : "bg-white/10 text-slate-400"
+                    }`}
+                  >
                     {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
                   </div>
                   <span className="hidden sm:inline truncate">{s}</span>
@@ -258,39 +278,50 @@ export function CoursePublishWizard({
         <div className="flex-1 overflow-y-auto p-4 sm:p-6">
           {step === 0 && (
             <BasicsStep
-              title={title} setTitle={setTitle}
-              subtitle={subtitle} setSubtitle={setSubtitle}
-              longDesc={longDesc} setLongDesc={setLongDesc}
-              category={category} setCategory={setCategory}
-              level={level} setLevel={setLevel}
+              title={title}
+              setTitle={setTitle}
+              subtitle={subtitle}
+              setSubtitle={setSubtitle}
+              longDesc={longDesc}
+              setLongDesc={setLongDesc}
+              category={category}
+              setCategory={setCategory}
+              level={level}
+              setLevel={setLevel}
               coverPreview={coverPreview}
               coverPath={coverPath}
               uploading={uploading}
               onCoverUpload={handleCoverUpload}
             />
           )}
-          {step === 1 && (
-            <CurriculumStep sections={sections} setSections={setSections} />
-          )}
-          {step === 2 && (
-            <QuizzesStep quizzes={quizzes} setQuizzes={setQuizzes} />
-          )}
+          {step === 1 && <CurriculumStep sections={sections} setSections={setSections} />}
+          {step === 2 && <QuizzesStep quizzes={quizzes} setQuizzes={setQuizzes} />}
           {step === 3 && (
             <SettingsStep
-              isFree={isFree} setIsFree={setIsFree}
-              priceLocal={priceLocal} setPriceLocal={setPriceLocal}
+              isFree={isFree}
+              setIsFree={setIsFree}
+              priceLocal={priceLocal}
+              setPriceLocal={setPriceLocal}
               baseCurrency={baseCurrency}
-              requireLinear={requireLinear} setRequireLinear={setRequireLinear}
-              issueCertificate={issueCertificate} setIssueCertificate={setIssueCertificate}
-              certificateTemplate={certificateTemplate} setCertificateTemplate={setCertificateTemplate}
+              requireLinear={requireLinear}
+              setRequireLinear={setRequireLinear}
+              issueCertificate={issueCertificate}
+              setIssueCertificate={setIssueCertificate}
+              certificateTemplate={certificateTemplate}
+              setCertificateTemplate={setCertificateTemplate}
             />
           )}
           {step === 4 && (
             <ReviewStep
-              title={title} subtitle={subtitle}
-              sections={sections} quizzes={quizzes}
-              isFree={isFree} priceLocal={priceLocal} baseCurrency={baseCurrency}
-              requireLinear={requireLinear} issueCertificate={issueCertificate}
+              title={title}
+              subtitle={subtitle}
+              sections={sections}
+              quizzes={quizzes}
+              isFree={isFree}
+              priceLocal={priceLocal}
+              baseCurrency={baseCurrency}
+              requireLinear={requireLinear}
+              issueCertificate={issueCertificate}
               certificateTemplate={certificateTemplate}
               totalLessons={totalLessons}
             />
@@ -315,7 +346,11 @@ export function CoursePublishWizard({
                   disabled={saving !== null}
                   className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40"
                 >
-                  {saving === "draft" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Save className="w-4 h-4" />}
+                  {saving === "draft" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Save className="w-4 h-4" />
+                  )}
                   Save as Draft
                 </button>
                 <button
@@ -323,7 +358,11 @@ export function CoursePublishWizard({
                   disabled={saving !== null || totalLessons === 0 || !title.trim()}
                   className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40"
                 >
-                  {saving === "publish" ? <Loader2 className="w-4 h-4 animate-spin" /> : <Rocket className="w-4 h-4" />}
+                  {saving === "publish" ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Rocket className="w-4 h-4" />
+                  )}
                   Publish Course
                 </button>
               </>
@@ -351,54 +390,115 @@ export function CoursePublishWizard({
 /* -------------------- STEPS -------------------- */
 
 function Label({ children }: { children: React.ReactNode }) {
-  return <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">{children}</div>;
+  return (
+    <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">
+      {children}
+    </div>
+  );
 }
 const inputCls =
   "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
-  title: string; setTitle: (v: string) => void;
-  subtitle: string; setSubtitle: (v: string) => void;
-  longDesc: string; setLongDesc: (v: string) => void;
-  category: CourseCategory; setCategory: (v: CourseCategory) => void;
-  level: CourseLevel; setLevel: (v: CourseLevel) => void;
-  coverPreview: string | null; coverPath: string | null; uploading: boolean;
+  title: string;
+  setTitle: (v: string) => void;
+  subtitle: string;
+  setSubtitle: (v: string) => void;
+  longDesc: string;
+  setLongDesc: (v: string) => void;
+  category: CourseCategory;
+  setCategory: (v: CourseCategory) => void;
+  level: CourseLevel;
+  setLevel: (v: CourseLevel) => void;
+  coverPreview: string | null;
+  coverPath: string | null;
+  uploading: boolean;
   onCoverUpload: (file: File) => void;
 }) {
-  const { title, setTitle, subtitle, setSubtitle, longDesc, setLongDesc, category, setCategory, level, setLevel, coverPreview, coverPath, uploading, onCoverUpload } = props;
+  const {
+    title,
+    setTitle,
+    subtitle,
+    setSubtitle,
+    longDesc,
+    setLongDesc,
+    category,
+    setCategory,
+    level,
+    setLevel,
+    coverPreview,
+    coverPath,
+    uploading,
+    onCoverUpload,
+  } = props;
   return (
     <div className="space-y-5 max-w-3xl">
       <div>
         <Label>Course Title *</Label>
-        <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Mastering React Server Components" className={inputCls} />
+        <input
+          value={title}
+          onChange={(e) => setTitle(e.target.value)}
+          placeholder="e.g. Mastering React Server Components"
+          className={inputCls}
+        />
       </div>
       <div>
         <Label>Subtitle / Short Description</Label>
-        <textarea value={subtitle} onChange={(e) => setSubtitle(e.target.value)} rows={2} placeholder="One-line hook shown on the catalog card" className={`${inputCls} resize-none`} />
+        <textarea
+          value={subtitle}
+          onChange={(e) => setSubtitle(e.target.value)}
+          rows={2}
+          placeholder="One-line hook shown on the catalog card"
+          className={`${inputCls} resize-none`}
+        />
       </div>
       <div>
         <Label>Long Description</Label>
-        <textarea value={longDesc} onChange={(e) => setLongDesc(e.target.value)} rows={6} placeholder="Deep dive: what learners will build, prerequisites, outcomes…" className={`${inputCls} resize-none`} />
+        <textarea
+          value={longDesc}
+          onChange={(e) => setLongDesc(e.target.value)}
+          rows={6}
+          placeholder="Deep dive: what learners will build, prerequisites, outcomes…"
+          className={`${inputCls} resize-none`}
+        />
         <p className="text-[11px] text-slate-500 mt-1">Markdown supported when rendered.</p>
       </div>
       <div>
         <Label>Course Thumbnail (up to 5MB)</Label>
         <div className="flex items-center gap-3">
           <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
-            {coverPreview ? <img src={coverPreview} alt="cover" className="w-full h-full object-cover" /> : <FileType2 className="w-6 h-6 text-slate-600" />}
+            {coverPreview ? (
+              <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+            ) : (
+              <FileType2 className="w-6 h-6 text-slate-600" />
+            )}
           </div>
           <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
             <Upload className="w-4 h-4" />
             {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
-            <input type="file" accept="image/*" hidden disabled={uploading} onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])} />
+            <input
+              type="file"
+              accept="image/*"
+              hidden
+              disabled={uploading}
+              onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])}
+            />
           </label>
         </div>
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
           <Label>Category</Label>
-          <select value={category} onChange={(e) => setCategory(e.target.value as CourseCategory)} className={inputCls}>
-            {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+          <select
+            value={category}
+            onChange={(e) => setCategory(e.target.value as CourseCategory)}
+            className={inputCls}
+          >
+            {CATEGORIES.map((c) => (
+              <option key={c.key} value={c.key}>
+                {c.label}
+              </option>
+            ))}
           </select>
         </div>
         <div>
@@ -423,7 +523,8 @@ function BasicsStep(props: {
 }
 
 function CurriculumStep({
-  sections, setSections,
+  sections,
+  setSections,
 }: {
   sections: Section[];
   setSections: (s: Section[]) => void;
@@ -442,11 +543,21 @@ function CurriculumStep({
     updateSection(sectionId, {
       lessons: [
         ...(sections.find((s) => s.id === sectionId)?.lessons ?? []),
-        { title: "New Lesson", type: "video", isPreview: false, durationMin: 0, content: { url: "" } },
+        {
+          title: "New Lesson",
+          type: "video",
+          isPreview: false,
+          durationMin: 0,
+          content: { url: "" },
+        },
       ],
     });
   };
-  const updateLesson = (sectionId: string, idx: number, patch: Partial<Section["lessons"][number]>) => {
+  const updateLesson = (
+    sectionId: string,
+    idx: number,
+    patch: Partial<Section["lessons"][number]>,
+  ) => {
     const section = sections.find((s) => s.id === sectionId);
     if (!section) return;
     const next = section.lessons.map((l, i) => (i === idx ? { ...l, ...patch } : l));
@@ -461,8 +572,13 @@ function CurriculumStep({
   return (
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">Organise your course into sections. Each section can hold video, text, or PDF lessons.</p>
-        <button onClick={addSection} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold">
+        <p className="text-sm text-slate-400">
+          Organise your course into sections. Each section can hold video, text, or PDF lessons.
+        </p>
+        <button
+          onClick={addSection}
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+        >
           <Plus className="w-4 h-4" /> Add Section
         </button>
       </div>
@@ -474,7 +590,10 @@ function CurriculumStep({
       )}
 
       {sections.map((section, sIdx) => (
-        <div key={section.id} className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
+        <div
+          key={section.id}
+          className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3"
+        >
           <div className="flex items-center gap-2">
             <GripVertical className="w-4 h-4 text-slate-600" />
             <span className="text-xs font-bold text-slate-500">Section {sIdx + 1}</span>
@@ -483,7 +602,10 @@ function CurriculumStep({
               onChange={(e) => updateSection(section.id, { title: e.target.value })}
               className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white font-semibold text-sm px-1 py-1"
             />
-            <button onClick={() => removeSection(section.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-400">
+            <button
+              onClick={() => removeSection(section.id)}
+              className="p-1.5 rounded hover:bg-red-500/10 text-red-400"
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
@@ -497,7 +619,10 @@ function CurriculumStep({
                 onRemove={() => removeLesson(section.id, lIdx)}
               />
             ))}
-            <button onClick={() => addLesson(section.id)} className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold">
+            <button
+              onClick={() => addLesson(section.id)}
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+            >
               <Plus className="w-4 h-4" /> Add Lesson
             </button>
           </div>
@@ -528,7 +653,10 @@ function LessonRow({
           className="flex-1 bg-transparent outline-none text-white text-sm px-1"
           placeholder="Lesson title"
         />
-        <button onClick={() => setOpen((v) => !v)} className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1">
+        <button
+          onClick={() => setOpen((v) => !v)}
+          className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1"
+        >
           {open ? "Hide" : "Edit"}
         </button>
         <button onClick={onRemove} className="p-1.5 rounded hover:bg-red-500/10 text-red-400">
@@ -546,7 +674,8 @@ function LessonRow({
                   const t = e.target.value as LessonType;
                   onChange({
                     type: t,
-                    content: t === "video" ? { url: "" } : t === "text" ? { html: "" } : { url: "" },
+                    content:
+                      t === "video" ? { url: "" } : t === "text" ? { html: "" } : { url: "" },
                   });
                 }}
                 className={inputCls}
@@ -576,9 +705,7 @@ function LessonRow({
               <span className="text-sm text-white">Free preview lesson</span>
             </label>
           </div>
-          {lesson.type === "video" && (
-            <VideoLessonEditor lesson={lesson} onChange={onChange} />
-          )}
+          {lesson.type === "video" && <VideoLessonEditor lesson={lesson} onChange={onChange} />}
           {lesson.type === "text" && (
             <div>
               <Label>Lesson Body (rich text)</Label>
@@ -615,7 +742,8 @@ function VideoLessonEditor({
 }) {
   const getUpload = useServerFn(getCourseMediaUploadUrl);
   const [uploading, setUploading] = useState(false);
-  const videoPath = typeof lesson.content?.video_path === "string" ? (lesson.content.video_path as string) : "";
+  const videoPath =
+    typeof lesson.content?.video_path === "string" ? (lesson.content.video_path as string) : "";
   const url = String(lesson.content?.url ?? "");
   const body = String(lesson.content?.body ?? "");
 
@@ -625,7 +753,11 @@ function VideoLessonEditor({
     setUploading(true);
     try {
       const { path, signedUrl } = await getUpload({ data: { filename: file.name, kind: "video" } });
-      const res = await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "video/mp4" } });
+      const res = await fetch(signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type || "video/mp4" },
+      });
       if (!res.ok) throw new Error("Upload failed");
       onChange({ content: { ...lesson.content, video_path: path } });
       toast.success("Video uploaded");
@@ -653,10 +785,24 @@ function VideoLessonEditor({
           <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
             <Upload className="w-4 h-4" />
             {uploading ? "Uploading…" : videoPath ? "Replace video" : "Choose video"}
-            <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) upload(f); }} />
+            <input
+              type="file"
+              accept="video/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0];
+                if (f) upload(f);
+              }}
+            />
           </label>
           {videoPath && (
-            <button type="button" onClick={() => onChange({ content: { ...lesson.content, video_path: null } })} className="text-xs text-red-300 hover:text-red-200">Remove upload</button>
+            <button
+              type="button"
+              onClick={() => onChange({ content: { ...lesson.content, video_path: null } })}
+              className="text-xs text-red-300 hover:text-red-200"
+            >
+              Remove upload
+            </button>
           )}
         </div>
       </div>
@@ -673,13 +819,17 @@ function VideoLessonEditor({
 }
 
 function QuizzesStep({
-  quizzes, setQuizzes,
+  quizzes,
+  setQuizzes,
 }: {
   quizzes: Quiz[];
   setQuizzes: (q: Quiz[]) => void;
 }) {
   const addQuiz = () => {
-    setQuizzes([...quizzes, { id: uid(), title: `Quiz ${quizzes.length + 1}`, passingGrade: 80, questions: [] }]);
+    setQuizzes([
+      ...quizzes,
+      { id: uid(), title: `Quiz ${quizzes.length + 1}`, passingGrade: 80, questions: [] },
+    ]);
   };
   const updateQuiz = (id: string, patch: Partial<Quiz>) => {
     setQuizzes(quizzes.map((q) => (q.id === id ? { ...q, ...patch } : q)));
@@ -691,14 +841,27 @@ function QuizzesStep({
     updateQuiz(quizId, {
       questions: [
         ...q.questions,
-        { text: "New question", type: "multiple", options: [{ text: "Option A", correct: true }, { text: "Option B", correct: false }] },
+        {
+          text: "New question",
+          type: "multiple",
+          options: [
+            { text: "Option A", correct: true },
+            { text: "Option B", correct: false },
+          ],
+        },
       ],
     });
   };
-  const updateQuestion = (quizId: string, idx: number, patch: Partial<Quiz["questions"][number]>) => {
+  const updateQuestion = (
+    quizId: string,
+    idx: number,
+    patch: Partial<Quiz["questions"][number]>,
+  ) => {
     const q = quizzes.find((x) => x.id === quizId);
     if (!q) return;
-    updateQuiz(quizId, { questions: q.questions.map((qq, i) => (i === idx ? { ...qq, ...patch } : qq)) });
+    updateQuiz(quizId, {
+      questions: q.questions.map((qq, i) => (i === idx ? { ...qq, ...patch } : qq)),
+    });
   };
   const removeQuestion = (quizId: string, idx: number) => {
     const q = quizzes.find((x) => x.id === quizId);
@@ -709,8 +872,13 @@ function QuizzesStep({
   return (
     <div className="space-y-4 max-w-3xl">
       <div className="flex items-center justify-between">
-        <p className="text-sm text-slate-400">Quizzes are optional. Add one to the end of the course to gate certificates.</p>
-        <button onClick={addQuiz} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold">
+        <p className="text-sm text-slate-400">
+          Quizzes are optional. Add one to the end of the course to gate certificates.
+        </p>
+        <button
+          onClick={addQuiz}
+          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+        >
           <Plus className="w-4 h-4" /> Add Quiz
         </button>
       </div>
@@ -729,14 +897,20 @@ function QuizzesStep({
               onChange={(e) => updateQuiz(quiz.id, { title: e.target.value })}
               className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white font-semibold text-sm px-1 py-1"
             />
-            <button onClick={() => removeQuiz(quiz.id)} className="p-1.5 rounded hover:bg-red-500/10 text-red-400">
+            <button
+              onClick={() => removeQuiz(quiz.id)}
+              className="p-1.5 rounded hover:bg-red-500/10 text-red-400"
+            >
               <Trash2 className="w-4 h-4" />
             </button>
           </div>
           <div>
             <Label>Passing Grade: {quiz.passingGrade}%</Label>
             <input
-              type="range" min={10} max={100} step={5}
+              type="range"
+              min={10}
+              max={100}
+              step={5}
               value={quiz.passingGrade}
               onChange={(e) => updateQuiz(quiz.id, { passingGrade: Number(e.target.value) })}
               className="w-full accent-emerald-500"
@@ -751,7 +925,10 @@ function QuizzesStep({
                 onRemove={() => removeQuestion(quiz.id, qIdx)}
               />
             ))}
-            <button onClick={() => addQuestion(quiz.id)} className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold">
+            <button
+              onClick={() => addQuestion(quiz.id)}
+              className="w-full inline-flex items-center justify-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-dashed border-white/10 text-slate-300 text-xs font-semibold"
+            >
               <Plus className="w-4 h-4" /> Add Question
             </button>
           </div>
@@ -762,7 +939,9 @@ function QuizzesStep({
 }
 
 function QuestionCard({
-  question, onChange, onRemove,
+  question,
+  onChange,
+  onRemove,
 }: {
   question: Quiz["questions"][number];
   onChange: (patch: Partial<Quiz["questions"][number]>) => void;
@@ -776,12 +955,18 @@ function QuestionCard({
     if (t === "boolean") {
       onChange({
         type: t,
-        options: [{ text: "True", correct: true }, { text: "False", correct: false }],
+        options: [
+          { text: "True", correct: true },
+          { text: "False", correct: false },
+        ],
       });
     } else {
       onChange({
         type: t,
-        options: [{ text: "Option A", correct: true }, { text: "Option B", correct: false }],
+        options: [
+          { text: "Option A", correct: true },
+          { text: "Option B", correct: false },
+        ],
       });
     }
   };
@@ -794,7 +979,11 @@ function QuestionCard({
           className="flex-1 bg-transparent border-b border-white/10 focus:border-emerald-500/50 outline-none text-white text-sm px-1 py-1"
           placeholder="Question text"
         />
-        <select value={question.type} onChange={(e) => setType(e.target.value as "multiple" | "boolean")} className={inputCls + " max-w-[140px]"}>
+        <select
+          value={question.type}
+          onChange={(e) => setType(e.target.value as "multiple" | "boolean")}
+          className={inputCls + " max-w-[140px]"}
+        >
           <option value="multiple">Multiple choice</option>
           <option value="boolean">True / False</option>
         </select>
@@ -813,7 +1002,13 @@ function QuestionCard({
             />
             <input
               value={o.text}
-              onChange={(e) => setOptions(question.options.map((op, idx) => idx === i ? { ...op, text: e.target.value } : op))}
+              onChange={(e) =>
+                setOptions(
+                  question.options.map((op, idx) =>
+                    idx === i ? { ...op, text: e.target.value } : op,
+                  ),
+                )
+              }
               className="flex-1 bg-[#121214] border border-white/10 rounded px-2 py-1 text-sm text-white outline-none"
             />
             {question.type === "multiple" && question.options.length > 2 && (
@@ -828,7 +1023,15 @@ function QuestionCard({
         ))}
         {question.type === "multiple" && (
           <button
-            onClick={() => setOptions([...question.options, { text: `Option ${String.fromCharCode(65 + question.options.length)}`, correct: false }])}
+            onClick={() =>
+              setOptions([
+                ...question.options,
+                {
+                  text: `Option ${String.fromCharCode(65 + question.options.length)}`,
+                  correct: false,
+                },
+              ])
+            }
             className="text-[11px] text-emerald-400 hover:text-emerald-300"
           >
             + Add option
@@ -840,14 +1043,31 @@ function QuestionCard({
 }
 
 function SettingsStep(props: {
-  isFree: boolean; setIsFree: (v: boolean) => void;
-  priceLocal: number; setPriceLocal: (v: number) => void;
+  isFree: boolean;
+  setIsFree: (v: boolean) => void;
+  priceLocal: number;
+  setPriceLocal: (v: number) => void;
   baseCurrency: Currency;
-  requireLinear: boolean; setRequireLinear: (v: boolean) => void;
-  issueCertificate: boolean; setIssueCertificate: (v: boolean) => void;
-  certificateTemplate: string; setCertificateTemplate: (v: string) => void;
+  requireLinear: boolean;
+  setRequireLinear: (v: boolean) => void;
+  issueCertificate: boolean;
+  setIssueCertificate: (v: boolean) => void;
+  certificateTemplate: string;
+  setCertificateTemplate: (v: string) => void;
 }) {
-  const { isFree, setIsFree, priceLocal, setPriceLocal, baseCurrency, requireLinear, setRequireLinear, issueCertificate, setIssueCertificate, certificateTemplate, setCertificateTemplate } = props;
+  const {
+    isFree,
+    setIsFree,
+    priceLocal,
+    setPriceLocal,
+    baseCurrency,
+    requireLinear,
+    setRequireLinear,
+    issueCertificate,
+    setIssueCertificate,
+    certificateTemplate,
+    setCertificateTemplate,
+  } = props;
   return (
     <div className="space-y-5 max-w-3xl">
       <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
@@ -868,14 +1088,20 @@ function SettingsStep(props: {
         </div>
         {!isFree && (
           <div>
-            <Label>Price ({currencySymbol(baseCurrency)} {baseCurrency}) · locked at publish</Label>
+            <Label>
+              Price ({currencySymbol(baseCurrency)} {baseCurrency}) · locked at publish
+            </Label>
             <input
-              type="number" min={0} step={1}
+              type="number"
+              min={0}
+              step={1}
               value={priceLocal}
               onChange={(e) => setPriceLocal(Number(e.target.value))}
               className={inputCls}
             />
-            <p className="text-[11px] text-slate-500 mt-1">Buyers in other currencies see the equivalent locked at publish time.</p>
+            <p className="text-[11px] text-slate-500 mt-1">
+              Buyers in other currencies see the equivalent locked at publish time.
+            </p>
           </div>
         )}
       </section>
@@ -883,22 +1109,47 @@ function SettingsStep(props: {
       <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
         <div className="text-sm font-bold text-white">Completion Rules</div>
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={requireLinear} onChange={(e) => setRequireLinear(e.target.checked)} className="accent-emerald-500" />
-          <span className="text-sm text-white">Require linear progression <span className="text-slate-500">(learners must finish lesson 1 before seeing lesson 2)</span></span>
+          <input
+            type="checkbox"
+            checked={requireLinear}
+            onChange={(e) => setRequireLinear(e.target.checked)}
+            className="accent-emerald-500"
+          />
+          <span className="text-sm text-white">
+            Require linear progression{" "}
+            <span className="text-slate-500">
+              (learners must finish lesson 1 before seeing lesson 2)
+            </span>
+          </span>
         </label>
       </section>
 
       <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
-        <div className="text-sm font-bold text-white flex items-center gap-2"><Award className="w-4 h-4 text-emerald-400" /> Certificate</div>
+        <div className="text-sm font-bold text-white flex items-center gap-2">
+          <Award className="w-4 h-4 text-emerald-400" /> Certificate
+        </div>
         <label className="flex items-center gap-2 cursor-pointer">
-          <input type="checkbox" checked={issueCertificate} onChange={(e) => setIssueCertificate(e.target.checked)} className="accent-emerald-500" />
+          <input
+            type="checkbox"
+            checked={issueCertificate}
+            onChange={(e) => setIssueCertificate(e.target.checked)}
+            className="accent-emerald-500"
+          />
           <span className="text-sm text-white">Issue certificate on completion</span>
         </label>
         {issueCertificate && (
           <div>
             <Label>Certificate template</Label>
-            <select value={certificateTemplate} onChange={(e) => setCertificateTemplate(e.target.value)} className={inputCls}>
-              {CERT_TEMPLATES.map((t) => <option key={t.key} value={t.key}>{t.label}</option>)}
+            <select
+              value={certificateTemplate}
+              onChange={(e) => setCertificateTemplate(e.target.value)}
+              className={inputCls}
+            >
+              {CERT_TEMPLATES.map((t) => (
+                <option key={t.key} value={t.key}>
+                  {t.label}
+                </option>
+              ))}
             </select>
           </div>
         )}
@@ -908,13 +1159,31 @@ function SettingsStep(props: {
 }
 
 function ReviewStep(props: {
-  title: string; subtitle: string;
-  sections: Section[]; quizzes: Quiz[];
-  isFree: boolean; priceLocal: number; baseCurrency: Currency;
-  requireLinear: boolean; issueCertificate: boolean; certificateTemplate: string;
+  title: string;
+  subtitle: string;
+  sections: Section[];
+  quizzes: Quiz[];
+  isFree: boolean;
+  priceLocal: number;
+  baseCurrency: Currency;
+  requireLinear: boolean;
+  issueCertificate: boolean;
+  certificateTemplate: string;
   totalLessons: number;
 }) {
-  const { title, subtitle, sections, quizzes, isFree, priceLocal, baseCurrency, requireLinear, issueCertificate, certificateTemplate, totalLessons } = props;
+  const {
+    title,
+    subtitle,
+    sections,
+    quizzes,
+    isFree,
+    priceLocal,
+    baseCurrency,
+    requireLinear,
+    issueCertificate,
+    certificateTemplate,
+    totalLessons,
+  } = props;
   const missing: string[] = [];
   if (!title.trim()) missing.push("Course title");
   if (totalLessons === 0) missing.push("At least one lesson");
@@ -932,25 +1201,40 @@ function ReviewStep(props: {
           <Stat label="Sections" value={sections.length} />
           <Stat label="Lessons" value={totalLessons} />
           <Stat label="Quizzes" value={quizzes.length} />
-          <Stat label="Price" value={isFree ? "Free" : `${currencySymbol(baseCurrency)}${priceLocal}`} />
+          <Stat
+            label="Price"
+            value={isFree ? "Free" : `${currencySymbol(baseCurrency)}${priceLocal}`}
+          />
         </div>
         <div className="mt-4 text-xs text-slate-400 space-y-1">
           <div>· Linear progression: {requireLinear ? "on" : "off"}</div>
-          <div>· Certificate on completion: {issueCertificate ? `on (${certificateTemplate})` : "off"}</div>
+          <div>
+            · Certificate on completion: {issueCertificate ? `on (${certificateTemplate})` : "off"}
+          </div>
         </div>
       </div>
       <div className="rounded-xl bg-[#121214] border border-white/10 p-4">
-        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">Curriculum preview</div>
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-400 mb-2">
+          Curriculum preview
+        </div>
         {sections.map((s, i) => (
           <div key={s.id} className="mb-3">
-            <div className="text-sm font-semibold text-white">{i + 1}. {s.title || "Untitled section"}</div>
+            <div className="text-sm font-semibold text-white">
+              {i + 1}. {s.title || "Untitled section"}
+            </div>
             <ul className="mt-1 ml-4 space-y-0.5">
               {s.lessons.map((l, j) => (
                 <li key={j} className="text-xs text-slate-400 flex items-center gap-2">
-                  <span className="text-slate-600">{i + 1}.{j + 1}</span> {l.title || "Untitled lesson"} <span className="text-slate-600">· {l.type}</span> {l.isPreview && <span className="text-emerald-400">· preview</span>}
+                  <span className="text-slate-600">
+                    {i + 1}.{j + 1}
+                  </span>{" "}
+                  {l.title || "Untitled lesson"} <span className="text-slate-600">· {l.type}</span>{" "}
+                  {l.isPreview && <span className="text-emerald-400">· preview</span>}
                 </li>
               ))}
-              {s.lessons.length === 0 && <li className="text-xs text-slate-600">No lessons in this section.</li>}
+              {s.lessons.length === 0 && (
+                <li className="text-xs text-slate-600">No lessons in this section.</li>
+              )}
             </ul>
           </div>
         ))}

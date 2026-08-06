@@ -34,13 +34,10 @@ import { registerAppServiceWorker } from "@/lib/pwa/register-sw";
 import { initNativeShell } from "@/lib/native/capacitor";
 import { initDeepLinks } from "@/lib/native/deep-links";
 
-
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
 import { unlockNotificationSound } from "@/lib/notification-sound";
-
-
 
 function NotFoundComponent() {
   return (
@@ -112,14 +109,25 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
       { title: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
-      { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
+      {
+        name: "description",
+        content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders.",
+      },
       { property: "og:title", content: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
-      { property: "og:description", content: "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place." },
+      {
+        property: "og:description",
+        content:
+          "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place.",
+      },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Oventric" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:title", content: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
-      { name: "twitter:description", content: "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place." },
+      {
+        name: "twitter:description",
+        content:
+          "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place.",
+      },
       { property: "og:image", content: "https://oventric.com/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -306,8 +314,8 @@ function RootShell({ children }: { children: ReactNode }) {
 #oventric-boot .ob-icon:nth-child(5){animation-delay:0.6s}
 #oventric-boot .ob-icon:nth-child(6){animation-delay:0.75s}
 @keyframes ob-sweep{
-  0%,100%{transform:scale(1);opacity:0.2;background:rgba(255,255,255,0.15);box-shadow:none}
-  50%{transform:scale(1.5);opacity:1;background:var(--c);box-shadow:0 0 12px var(--c)}
+  0%,100%{transform:scale(1);opacity:0.25;background:rgba(255,255,255,0.18)}
+  50%{transform:scale(1.35);opacity:1;background:var(--c)}
 }`,
             }}
           />
@@ -332,7 +340,6 @@ function RootShell({ children }: { children: ReactNode }) {
     </html>
   );
 }
-
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
@@ -384,8 +391,6 @@ function RootComponent() {
     return () => dispose?.();
   }, [appRouter]);
 
-
-
   return (
     <QueryClientProvider client={queryClient}>
       <ThemeProvider>
@@ -407,12 +412,9 @@ function RootComponent() {
               <InstallPrompt />
               <UpdatePrompt />
 
-
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
-
             </KycGateProvider>
-
           </OnboardingProvider>
         </AuthGateProvider>
       </ThemeProvider>

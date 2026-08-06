@@ -79,7 +79,7 @@ export function PreviewModal({
 
   return (
     <div className="modal-light fixed inset-0 z-[100] flex items-center justify-center p-4">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={isSubmitting ? undefined : onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={isSubmitting ? undefined : onClose} />
       <div
         role="dialog"
         aria-modal="true"
@@ -89,7 +89,9 @@ export function PreviewModal({
           <div className="flex items-start gap-3 min-w-0">
             {icon}
             <div className="min-w-0">
-              <div className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-1.5 ${styles.pill}`}>
+              <div
+                className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-1.5 ${styles.pill}`}
+              >
                 <Eye className="w-3 h-3" /> Live Preview
               </div>
               <h2 className="text-white font-black text-base leading-tight truncate">{title}</h2>
@@ -119,9 +121,7 @@ export function PreviewModal({
                     {f.label}
                   </dt>
                   <dd
-                    className={`col-span-2 text-xs break-words ${
-                      f.mono ? "font-mono" : ""
-                    } ${
+                    className={`col-span-2 text-xs break-words ${f.mono ? "font-mono" : ""} ${
                       f.accent === "muted"
                         ? "text-slate-500"
                         : f.accent === "warn"

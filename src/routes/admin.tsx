@@ -27,7 +27,6 @@ import {
 
 import { canAccessSection, type ManagementRole } from "@/lib/admin-roles";
 
-
 import { supabase } from "@/integrations/supabase/client";
 import { checkIsAdmin, adminGetPendingProductsCount } from "@/lib/admin.functions";
 import { adminGetPendingPayoutCount } from "@/lib/payouts.functions";
@@ -54,7 +53,10 @@ function AdminError({ error, reset }: { error: Error; reset: () => void }) {
         <h2 className="text-lg font-bold text-white">Admin error</h2>
         <p className="text-sm text-slate-400 mt-1">{error.message}</p>
         <button
-          onClick={() => { reset(); router.invalidate(); }}
+          onClick={() => {
+            reset();
+            router.invalidate();
+          }}
           className="mt-4 px-4 py-2 bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold rounded-lg"
         >
           Retry
@@ -105,7 +107,10 @@ function AdminLayout() {
     let cancelled = false;
     (async () => {
       const { data } = await supabase.auth.getSession();
-      if (!data.session) { if (!cancelled) setState("unauth"); return; }
+      if (!data.session) {
+        if (!cancelled) setState("unauth");
+        return;
+      }
       try {
         const res = await check();
         if (cancelled) return;
@@ -115,7 +120,9 @@ function AdminLayout() {
         if (!cancelled) setState("forbidden");
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [check]);
 
   useEffect(() => {
@@ -127,17 +134,19 @@ function AdminLayout() {
         if (cancelled) return;
         setPendingPayouts(payouts.count);
         setPendingProducts(products.count);
-      } catch { /* ignore */ }
+      } catch {
+        /* ignore */
+      }
     };
     load();
     const id = window.setInterval(load, 30_000);
-    return () => { cancelled = true; window.clearInterval(id); };
+    return () => {
+      cancelled = true;
+      window.clearInterval(id);
+    };
   }, [state, getPendingPayouts, getPendingProducts]);
 
-  const visibleNav = useMemo(
-    () => NAV.filter((n) => canAccessSection(n.to, roles)),
-    [roles],
-  );
+  const visibleNav = useMemo(() => NAV.filter((n) => canAccessSection(n.to, roles)), [roles]);
   const currentAllowed = canAccessSection(location.pathname, roles);
 
   if (state === "loading") {
@@ -164,20 +173,19 @@ function AdminLayout() {
               <AdminSignInForm onSignedIn={() => router.invalidate()} />
             ) : (
               <button
-                onClick={async () => { await supabase.auth.signOut(); router.invalidate(); }}
+                onClick={async () => {
+                  await supabase.auth.signOut();
+                  router.invalidate();
+                }}
                 className="px-4 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-sm font-semibold rounded-lg"
               >
                 Sign out
               </button>
             )}
-            <Link
-              to="/"
-              className="text-xs text-slate-500 hover:text-slate-300 mt-2"
-            >
+            <Link to="/" className="text-xs text-slate-500 hover:text-slate-300 mt-2">
               Back to site
             </Link>
           </div>
-
         </div>
       </div>
     );
@@ -200,13 +208,18 @@ function AdminLayout() {
         <nav className="flex-1 p-2 flex flex-col gap-0.5 overflow-y-auto">
           {visibleNav.map((n) => {
             const badgeCount =
-              n.to === "/admin/payouts" ? pendingPayouts :
-              n.to === "/admin/products" ? pendingProducts : 0;
+              n.to === "/admin/payouts"
+                ? pendingPayouts
+                : n.to === "/admin/products"
+                  ? pendingProducts
+                  : 0;
             const alert = badgeCount > 0;
             const badgeLabel =
-              n.to === "/admin/payouts" ? `${badgeCount} pending payouts` :
-              n.to === "/admin/products" ? `${badgeCount} listings awaiting approval` :
-              `${badgeCount} pending`;
+              n.to === "/admin/payouts"
+                ? `${badgeCount} pending payouts`
+                : n.to === "/admin/products"
+                  ? `${badgeCount} listings awaiting approval`
+                  : `${badgeCount} pending`;
             return (
               <Link
                 key={n.to}
@@ -239,7 +252,10 @@ function AdminLayout() {
           })}
         </nav>
         <button
-          onClick={async () => { await supabase.auth.signOut(); router.invalidate(); }}
+          onClick={async () => {
+            await supabase.auth.signOut();
+            router.invalidate();
+          }}
           className="m-2 flex items-center gap-2 px-3 py-2 rounded-lg text-slate-400 hover:text-white hover:bg-white/5 text-sm"
         >
           <LogOut className="w-4 h-4" /> Sign out
@@ -254,8 +270,8 @@ function AdminLayout() {
               <ShieldCheck className="w-8 h-8 text-amber-400 mx-auto mb-3" />
               <h2 className="text-lg font-bold text-white">Restricted section</h2>
               <p className="text-sm text-slate-400 mt-2">
-                Your role ({roles.join(", ") || "—"}) does not include access to this page.
-                Ask a Super Admin to grant it.
+                Your role ({roles.join(", ") || "—"}) does not include access to this page. Ask a
+                Super Admin to grant it.
               </p>
             </div>
           </div>
@@ -331,7 +347,10 @@ function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
       <button
         type="button"
         onClick={async () => {
-          if (!email) { setErr("Enter your email first to receive a reset link."); return; }
+          if (!email) {
+            setErr("Enter your email first to receive a reset link.");
+            return;
+          }
           const { error } = await supabase.auth.resetPasswordForEmail(email.trim().toLowerCase(), {
             redirectTo: `${window.location.origin}/reset-password`,
           });
@@ -344,4 +363,3 @@ function AdminSignInForm({ onSignedIn }: { onSignedIn: () => void }) {
     </form>
   );
 }
-

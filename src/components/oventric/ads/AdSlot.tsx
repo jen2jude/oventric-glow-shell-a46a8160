@@ -15,7 +15,7 @@ function adSessionId(): string {
     const KEY = "ov_ad_session";
     let s = sessionStorage.getItem(KEY);
     if (!s) {
-      s = (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`);
+      s = crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(36).slice(2)}`;
       sessionStorage.setItem(KEY, s);
     }
     return s;
@@ -134,7 +134,10 @@ function LeadFormModal({
   };
 
   return (
-    <div className="modal-light fixed inset-0 z-[70] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+    <div
+      className="modal-light fixed inset-0 z-[70] bg-black/70 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-md bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl p-5"
         onClick={(e) => e.stopPropagation()}
@@ -144,23 +147,54 @@ function LeadFormModal({
             <div className="text-[10px] font-black uppercase tracking-widest text-fuchsia-300 md:text-fuchsia-600 flex items-center gap-1">
               <Megaphone className="w-3 h-3" /> Sponsored
             </div>
-            <h3 className="mt-1 text-lg font-bold text-white md:text-slate-900">{ad.header || "Get in touch"}</h3>
-            {ad.description && <p className="text-xs text-slate-400 md:text-slate-600 mt-0.5">{ad.description}</p>}
+            <h3 className="mt-1 text-lg font-bold text-white md:text-slate-900">
+              {ad.header || "Get in touch"}
+            </h3>
+            {ad.description && (
+              <p className="text-xs text-slate-400 md:text-slate-600 mt-0.5">{ad.description}</p>
+            )}
           </div>
-          <button onClick={onClose} className="text-slate-500 md:text-slate-500 hover:text-white md:hover:text-slate-900"><X className="w-5 h-5" /></button>
+          <button
+            onClick={onClose}
+            className="text-slate-500 md:text-slate-500 hover:text-white md:hover:text-slate-900"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
         <div className="space-y-2">
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
-          <input value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="Phone (optional)" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500" />
-          <textarea value={message} onChange={(e) => setMessage(e.target.value)} rows={3} placeholder="Message (optional)" className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 resize-none" />
+          <input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Full name"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+          />
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="Email"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+          />
+          <input
+            value={phone}
+            onChange={(e) => setPhone(e.target.value)}
+            placeholder="Phone (optional)"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500"
+          />
+          <textarea
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            rows={3}
+            placeholder="Message (optional)"
+            className="w-full bg-black/40 md:bg-slate-50 border border-white/10 md:border-slate-300 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 resize-none"
+          />
         </div>
         <button
           onClick={submit}
           disabled={busy}
           className="mt-3 w-full inline-flex items-center justify-center gap-1.5 py-2 rounded-lg bg-fuchsia-500 hover:bg-fuchsia-400 disabled:opacity-60 text-black font-bold text-sm"
         >
-          <Send className="w-4 h-4" /> {busy ? "Sending…" : (ad.cta_label || "Submit")}
+          <Send className="w-4 h-4" /> {busy ? "Sending…" : ad.cta_label || "Submit"}
         </button>
       </div>
     </div>
@@ -193,10 +227,7 @@ function useCtaHandler(ad: ServingAd, placement: AdPlacement) {
 /* ---------- Carousel media (image tier can have multiple) ---------- */
 function CreativeMedia({ ad, aspect = "video" }: { ad: ServingAd; aspect?: "square" | "video" }) {
   const [idx, setIdx] = useState(0);
-  const creatives = useMemo(
-    () => ad.creatives.filter((c) => !!c.url).slice(0, 8),
-    [ad.creatives],
-  );
+  const creatives = useMemo(() => ad.creatives.filter((c) => !!c.url).slice(0, 8), [ad.creatives]);
   if (creatives.length === 0) return null;
   const active = creatives[idx % creatives.length];
   const wrapCls = aspect === "square" ? "aspect-square" : "aspect-video";
@@ -230,7 +261,11 @@ function CreativeMedia({ ad, aspect = "video" }: { ad: ServingAd; aspect?: "squa
         <>
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx((n) => (n - 1 + creatives.length) % creatives.length); }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIdx((n) => (n - 1 + creatives.length) % creatives.length);
+            }}
             className="absolute left-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center"
             aria-label="Previous"
           >
@@ -238,7 +273,11 @@ function CreativeMedia({ ad, aspect = "video" }: { ad: ServingAd; aspect?: "squa
           </button>
           <button
             type="button"
-            onClick={(e) => { e.preventDefault(); e.stopPropagation(); setIdx((n) => (n + 1) % creatives.length); }}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIdx((n) => (n + 1) % creatives.length);
+            }}
             className="absolute right-1 top-1/2 -translate-y-1/2 w-7 h-7 rounded-full bg-black/60 text-white flex items-center justify-center"
             aria-label="Next"
           >
@@ -246,7 +285,10 @@ function CreativeMedia({ ad, aspect = "video" }: { ad: ServingAd; aspect?: "squa
           </button>
           <div className="absolute bottom-1.5 left-0 right-0 flex justify-center gap-1">
             {creatives.map((_, i) => (
-              <span key={i} className={`w-1.5 h-1.5 rounded-full ${i === idx ? "bg-white" : "bg-white/40"}`} />
+              <span
+                key={i}
+                className={`w-1.5 h-1.5 rounded-full ${i === idx ? "bg-white" : "bg-white/40"}`}
+              />
             ))}
           </div>
         </>
@@ -271,13 +313,24 @@ function BannerAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) 
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden">
+      <div
+        ref={ref}
+        className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden"
+      >
         {hasMedia && <CreativeMedia ad={ad} aspect="video" />}
         <div className="p-4 flex flex-col gap-2">
           <SponsoredBadge />
-          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug">{ad.header || "Sponsored placement"}</div>
-          {ad.description && <div className="text-xs text-slate-400 md:text-slate-600 line-clamp-2">{ad.description}</div>}
-          {ad.body && <div className="text-xs text-slate-500 md:text-slate-500 line-clamp-3">{ad.body}</div>}
+          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug">
+            {ad.header || "Sponsored placement"}
+          </div>
+          {ad.description && (
+            <div className="text-xs text-slate-400 md:text-slate-600 line-clamp-2">
+              {ad.description}
+            </div>
+          )}
+          {ad.body && (
+            <div className="text-xs text-slate-500 md:text-slate-500 line-clamp-3">{ad.body}</div>
+          )}
           <button
             type="button"
             onClick={onClick}
@@ -287,7 +340,13 @@ function BannerAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) 
           </button>
         </div>
       </div>
-      {leadOpen && <LeadFormModal ad={ad} onClose={() => setLeadOpen(false)} onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)} />}
+      {leadOpen && (
+        <LeadFormModal
+          ad={ad}
+          onClose={() => setLeadOpen(false)}
+          onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)}
+        />
+      )}
     </>
   );
 }
@@ -299,12 +358,21 @@ function GridCardAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="w-[220px] sm:w-[260px] snap-start row-span-2 flex flex-col bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden">
+      <div
+        ref={ref}
+        className="w-[220px] sm:w-[260px] snap-start row-span-2 flex flex-col bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-xl overflow-hidden"
+      >
         {hasMedia && <CreativeMedia ad={ad} aspect="square" />}
         <div className="p-3 flex flex-col gap-2 flex-1">
           <SponsoredBadge />
-          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug line-clamp-2">{ad.header || "Sponsored"}</div>
-          {ad.description && <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">{ad.description}</div>}
+          <div className="text-white md:text-slate-900 font-bold text-sm leading-snug line-clamp-2">
+            {ad.header || "Sponsored"}
+          </div>
+          {ad.description && (
+            <div className="text-[11px] text-slate-500 md:text-slate-500 line-clamp-2 flex-1">
+              {ad.description}
+            </div>
+          )}
           <button
             type="button"
             onClick={onClick}
@@ -314,7 +382,13 @@ function GridCardAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }
           </button>
         </div>
       </div>
-      {leadOpen && <LeadFormModal ad={ad} onClose={() => setLeadOpen(false)} onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)} />}
+      {leadOpen && (
+        <LeadFormModal
+          ad={ad}
+          onClose={() => setLeadOpen(false)}
+          onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)}
+        />
+      )}
     </>
   );
 }
@@ -326,12 +400,21 @@ function RailAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) {
   const hasMedia = ad.tier !== "text" && ad.creatives.some((c) => c.url);
   return (
     <>
-      <div ref={ref} className="relative bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-2xl overflow-hidden">
+      <div
+        ref={ref}
+        className="relative bg-[#1E1E24] md:bg-white md:shadow-sm border border-fuchsia-500/30 rounded-2xl overflow-hidden"
+      >
         {hasMedia && <CreativeMedia ad={ad} aspect="video" />}
         <div className="p-4 text-center">
           <SponsoredBadge />
-          <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">{ad.header || "Sponsored placement"}</div>
-          {ad.description && <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">{ad.description}</p>}
+          <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">
+            {ad.header || "Sponsored placement"}
+          </div>
+          {ad.description && (
+            <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">
+              {ad.description}
+            </p>
+          )}
           <button
             type="button"
             onClick={onClick}
@@ -341,7 +424,13 @@ function RailAd({ ad, placement }: { ad: ServingAd; placement: AdPlacement }) {
           </button>
         </div>
       </div>
-      {leadOpen && <LeadFormModal ad={ad} onClose={() => setLeadOpen(false)} onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)} />}
+      {leadOpen && (
+        <LeadFormModal
+          ad={ad}
+          onClose={() => setLeadOpen(false)}
+          onSubmitted={() => void logEvent(ad.id, "lead", placement, null, null)}
+        />
+      )}
     </>
   );
 }

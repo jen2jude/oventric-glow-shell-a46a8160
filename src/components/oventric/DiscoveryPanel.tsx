@@ -4,18 +4,43 @@ import { createPortal } from "react-dom";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, ShoppingBag, MessageCircle, Users, Package, Megaphone, PlayCircle, Cake, X, Send, Circle } from "lucide-react";
+import {
+  Star,
+  ShoppingBag,
+  MessageCircle,
+  Users,
+  Package,
+  Megaphone,
+  PlayCircle,
+  Cake,
+  X,
+  Send,
+  Circle,
+} from "lucide-react";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { supabase } from "@/integrations/supabase/client";
-import { getDiscoveryFeed, type DiscoveryAd, type DiscoveryPeer, type DiscoveryProduct } from "@/lib/discovery.functions";
-import { getBirthdaysToday, getProfilesLite, sendBirthdayWish, type BirthdayPerson, type OnlinePerson } from "@/lib/rail.functions";
+import {
+  getDiscoveryFeed,
+  type DiscoveryAd,
+  type DiscoveryPeer,
+  type DiscoveryProduct,
+} from "@/lib/discovery.functions";
+import {
+  getBirthdaysToday,
+  getProfilesLite,
+  sendBirthdayWish,
+  type BirthdayPerson,
+  type OnlinePerson,
+} from "@/lib/rail.functions";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 
-export function navigateSection(section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy") {
+export function navigateSection(
+  section: "Feed" | "Marketplace" | "Bounties" | "Circles" | "Messages" | "Wallet" | "Academy",
+) {
   if (typeof window === "undefined") return;
   window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
 }
@@ -24,7 +49,8 @@ function useMoney() {
   const { baseCurrency } = useOnboarding();
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
-  return (usd: number) => `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  return (usd: number) =>
+    `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 }
 
 function SkeletonBar({ className = "" }: { className?: string }) {
@@ -46,7 +72,9 @@ function EmptyState({
         <Icon className="w-4 h-4 text-slate-400 md:text-slate-600" />
       </div>
       <p className="text-xs font-semibold text-slate-200 md:text-slate-700">{title}</p>
-      <p className="mt-0.5 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed max-w-[220px]">{hint}</p>
+      <p className="mt-0.5 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed max-w-[220px]">
+        {hint}
+      </p>
     </div>
   );
 }
@@ -79,14 +107,22 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
         <span className="inline-flex items-center gap-1 text-[9px] font-black uppercase tracking-widest text-fuchsia-300 border border-fuchsia-400/40 bg-black/40 rounded px-1.5 py-0.5">
           <Megaphone className="w-3 h-3" /> Sponsored
         </span>
-        <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">{ad.title}</div>
-        {ad.body && <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">{ad.body}</p>}
+        <div className="mt-2 text-sm font-bold text-white md:text-slate-900 leading-snug line-clamp-2">
+          {ad.title}
+        </div>
+        {ad.body && (
+          <p className="mt-1 text-[11px] text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">
+            {ad.body}
+          </p>
+        )}
         <div className="mt-3">
           <span className="inline-flex items-center justify-center px-4 py-1.5 bg-fuchsia-500 hover:bg-fuchsia-400 text-black font-bold text-xs rounded-lg">
             {ad.ctaLabel}
           </span>
         </div>
-        <div className="mt-2 text-[10px] text-slate-500 md:text-slate-500 truncate">by {ad.advertiser}</div>
+        <div className="mt-2 text-[10px] text-slate-500 md:text-slate-500 truncate">
+          by {ad.advertiser}
+        </div>
       </div>
     </a>
   );
@@ -94,13 +130,7 @@ function SponsoredCard({ ad }: { ad: DiscoveryAd }) {
 
 /* ---------------- Birthday widget ---------------- */
 
-function BirthdayCard({
-  people,
-  onOpen,
-}: {
-  people: BirthdayPerson[];
-  onOpen: () => void;
-}) {
+function BirthdayCard({ people, onOpen }: { people: BirthdayPerson[]; onOpen: () => void }) {
   const first = people[0];
   const extra = people.length - 1;
   const label =
@@ -121,12 +151,17 @@ function BirthdayCard({
       <div className="flex items-center gap-3">
         <div className="flex -space-x-2">
           {people.slice(0, 4).map((p) => (
-            <span key={p.userId} className="w-9 h-9 rounded-full ring-2 ring-[#1E1E24] md:ring-white overflow-hidden inline-block">
+            <span
+              key={p.userId}
+              className="w-9 h-9 rounded-full ring-2 ring-[#1E1E24] md:ring-white overflow-hidden inline-block"
+            >
               <AvatarImage src={p.avatarUrl} alt={p.name} />
             </span>
           ))}
         </div>
-        <div className="min-w-0 flex-1 text-xs text-slate-200 md:text-slate-700 leading-snug">{label}</div>
+        <div className="min-w-0 flex-1 text-xs text-slate-200 md:text-slate-700 leading-snug">
+          {label}
+        </div>
       </div>
       <div className="mt-3 text-[11px] font-bold text-pink-300">Send wishes →</div>
     </button>
@@ -144,7 +179,10 @@ function BirthdayModal({
 }) {
   if (typeof document === "undefined") return null;
   return createPortal(
-    <div className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70" onClick={onClose}>
+    <div
+      className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70"
+      onClick={onClose}
+    >
       <div
         className="w-full max-w-md rounded-2xl bg-[#16161B] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 max-h-[80vh] overflow-hidden flex flex-col"
         onClick={(e) => e.stopPropagation()}
@@ -154,13 +192,20 @@ function BirthdayModal({
             <Cake className="w-4 h-4 text-pink-400" />
             <h4 className="text-sm font-bold text-white md:text-slate-900">Birthdays today</h4>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-md text-slate-400 md:text-slate-600 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:hover:bg-slate-100"
+          >
             <X className="w-4 h-4" />
           </button>
         </header>
         <ul className="flex-1 overflow-y-auto divide-y divide-white/5 md:divide-slate-200">
           {people.map((p) => (
-            <BirthdayRow key={p.userId} person={p} onSend={(body) => onSendWish(p.userId, p.name, body)} />
+            <BirthdayRow
+              key={p.userId}
+              person={p}
+              onSend={(body) => onSendWish(p.userId, p.name, body)}
+            />
           ))}
         </ul>
       </div>
@@ -169,7 +214,13 @@ function BirthdayModal({
   );
 }
 
-function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body: string) => Promise<void> }) {
+function BirthdayRow({
+  person,
+  onSend,
+}: {
+  person: BirthdayPerson;
+  onSend: (body: string) => Promise<void>;
+}) {
   const [body, setBody] = useState(`Happy birthday, ${person.name.split(" ")[0]}! 🎉`);
   const [busy, setBusy] = useState(false);
   const [sent, setSent] = useState(false);
@@ -196,10 +247,16 @@ function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body
           <AvatarImage src={person.avatarUrl} alt={person.name} />
         </Link>
         <div className="min-w-0 flex-1">
-          <Link to="/profile/$id" params={{ id: person.slug }} className="block truncate text-sm font-semibold text-white md:text-slate-900 hover:text-pink-300">
+          <Link
+            to="/profile/$id"
+            params={{ id: person.slug }}
+            className="block truncate text-sm font-semibold text-white md:text-slate-900 hover:text-pink-300"
+          >
             {person.name}
           </Link>
-          <div className="text-[10px] text-slate-500 md:text-slate-500">Turning another year today</div>
+          <div className="text-[10px] text-slate-500 md:text-slate-500">
+            Turning another year today
+          </div>
         </div>
       </div>
       <div className="mt-2 flex items-center gap-2">
@@ -215,7 +272,15 @@ function BirthdayRow({ person, onSend }: { person: BirthdayPerson; onSend: (body
           disabled={busy || sent}
           className="inline-flex items-center gap-1 px-3 py-1.5 rounded-md bg-pink-500 hover:bg-pink-400 disabled:bg-white/10 disabled:text-slate-500 text-black text-xs font-bold"
         >
-          {sent ? "Sent" : busy ? "…" : <><Send className="w-3 h-3" /> Send</>}
+          {sent ? (
+            "Sent"
+          ) : busy ? (
+            "…"
+          ) : (
+            <>
+              <Send className="w-3 h-3" /> Send
+            </>
+          )}
         </button>
       </div>
     </li>
@@ -234,7 +299,14 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
     >
       <div className="w-11 h-11 shrink-0 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
         {p.coverUrl ? (
-          <ResponsiveImage sizes="88px" src={p.coverUrl} alt={p.title} className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <ResponsiveImage
+            sizes="88px"
+            src={p.coverUrl}
+            alt={p.title}
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <ShoppingBag className="w-4 h-4 text-white/70 md:text-slate-600" />
         )}
@@ -245,11 +317,15 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
           <span className="inline-flex items-center rounded-full border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-100 px-1.5 py-0.5 text-[9px] font-semibold uppercase tracking-wider text-slate-300 md:text-slate-700">
             {p.category}
           </span>
-          <span className="text-[10px] text-slate-500 md:text-slate-500 truncate">{p.vendor || "Trending"}</span>
+          <span className="text-[10px] text-slate-500 md:text-slate-500 truncate">
+            {p.vendor || "Trending"}
+          </span>
         </div>
       </div>
       <div className="shrink-0 text-right">
-        <div className="text-sm font-black text-white md:text-slate-900">{priceFmt(p.priceUsd)}</div>
+        <div className="text-sm font-black text-white md:text-slate-900">
+          {priceFmt(p.priceUsd)}
+        </div>
       </div>
     </Link>
   );
@@ -260,7 +336,10 @@ function ProductRow({ p, priceFmt }: { p: DiscoveryProduct; priceFmt: (usd: numb
 function useOnlineUsers(myId: string | null) {
   const [ids, setIds] = useState<string[]>([]);
   useEffect(() => {
-    if (!myId) { setIds([]); return; }
+    if (!myId) {
+      setIds([]);
+      return;
+    }
     for (const c of supabase.getChannels()) {
       if (c.topic === "realtime:presence:online") supabase.removeChannel(c);
     }
@@ -276,7 +355,9 @@ function useOnlineUsers(myId: string | null) {
           await channel.track({ online_at: new Date().toISOString() });
         }
       });
-    return () => { supabase.removeChannel(channel); };
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [myId]);
   return ids;
 }
@@ -382,12 +463,19 @@ export function DiscoveryPanel() {
       )}
 
       {/* 3. Top Peers in Your Circle — top 5 across any star tier */}
-      <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4" aria-busy={isLoading}>
+      <section
+        className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4"
+        aria-busy={isLoading}
+      >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
           <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
-            <span className="shrink-0">👑</span> <span className="truncate">Top Peers in Your Circle</span>
+            <span className="shrink-0">👑</span>{" "}
+            <span className="truncate">Top Peers in Your Circle</span>
           </h3>
-          <button onClick={() => navigateSection("Circles")} className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors">
+          <button
+            onClick={() => navigateSection("Circles")}
+            className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
+          >
             See all
           </button>
         </div>
@@ -396,7 +484,6 @@ export function DiscoveryPanel() {
           <ul className="space-y-1">
             {Array.from({ length: 5 }).map((_, i) => (
               <li key={i} className="flex items-center gap-2.5 py-1.5">
-
                 <div className="w-9 h-9 shrink-0 rounded-full bg-white/[0.06] md:bg-slate-200 animate-pulse" />
                 <div className="flex-1 space-y-1.5">
                   <SkeletonBar className="h-3 w-3/5" />
@@ -407,17 +494,32 @@ export function DiscoveryPanel() {
             ))}
           </ul>
         ) : topPeers5.length === 0 ? (
-          <EmptyState icon={Users} title="No rated peers yet" hint="Peers appear here as they earn their first star." />
+          <EmptyState
+            icon={Users}
+            title="No rated peers yet"
+            hint="Peers appear here as they earn their first star."
+          />
         ) : (
           <ul className="space-y-1">
             {topPeers5.map((p: DiscoveryPeer) => (
-              <li key={p.id} className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50">
-
-                <Link to="/profile/$id" params={{ id: p.slug }} className="w-9 h-9 shrink-0 rounded-full overflow-hidden block" aria-label={`View ${p.name}`}>
+              <li
+                key={p.id}
+                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+              >
+                <Link
+                  to="/profile/$id"
+                  params={{ id: p.slug }}
+                  className="w-9 h-9 shrink-0 rounded-full overflow-hidden block"
+                  aria-label={`View ${p.name}`}
+                >
                   <AvatarImage src={p.avatarUrl} alt={p.name} />
                 </Link>
                 <div className="min-w-0 flex-1">
-                  <Link to="/profile/$id" params={{ id: p.slug }} className="block truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600">
+                  <Link
+                    to="/profile/$id"
+                    params={{ id: p.slug }}
+                    className="block truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600"
+                  >
                     {p.name}
                   </Link>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400 md:text-slate-600">
@@ -442,12 +544,19 @@ export function DiscoveryPanel() {
       <AdSlot placement="feed" variant="rail" index={1} />
 
       {/* 5. Trending Marketplace items */}
-      <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4" aria-busy={isLoading}>
+      <section
+        className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4"
+        aria-busy={isLoading}
+      >
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
           <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
-            <span className="shrink-0">🛍️</span> <span className="truncate">Trending Marketplace items</span>
+            <span className="shrink-0">🛍️</span>{" "}
+            <span className="truncate">Trending Marketplace items</span>
           </h3>
-          <button onClick={() => navigateSection("Marketplace")} className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors">
+          <button
+            onClick={() => navigateSection("Marketplace")}
+            className="shrink-0 rounded-md px-2 py-1 text-[11px] font-semibold text-emerald-400 md:text-emerald-600 hover:bg-white/5 md:hover:bg-emerald-50 hover:text-emerald-300 md:hover:text-emerald-700 transition-colors"
+          >
             Browse
           </button>
         </div>
@@ -465,39 +574,55 @@ export function DiscoveryPanel() {
             ))}
           </ul>
         ) : trending.length === 0 ? (
-          <EmptyState icon={Package} title="Marketplace is quiet" hint="No trending items right now. Be the first to publish." />
+          <EmptyState
+            icon={Package}
+            title="Marketplace is quiet"
+            hint="No trending items right now. Be the first to publish."
+          />
         ) : (
           <ul className="space-y-1">
             {trending.map((p) => (
-              <li key={p.id} className="-mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50">
+              <li
+                key={p.id}
+                className="-mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+              >
                 <ProductRow p={p} priceFmt={price} />
               </li>
             ))}
           </ul>
         )}
-
       </section>
 
       {/* 6. Online users — click to open a quick chat popover */}
       <section className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/5 md:border-slate-200 rounded-2xl p-4">
         <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 mb-3 pb-2.5 border-b border-white/5 md:border-slate-100">
-
           <h3 className="min-w-0 truncate text-sm font-bold text-white md:text-slate-900 flex items-center gap-1.5">
-            <Circle className="w-2.5 h-2.5 shrink-0 fill-emerald-400 text-emerald-400 md:fill-emerald-500 md:text-emerald-500" /> <span className="truncate">Online now</span>
+            <Circle className="w-2.5 h-2.5 shrink-0 fill-emerald-400 text-emerald-400 md:fill-emerald-500 md:text-emerald-500" />{" "}
+            <span className="truncate">Online now</span>
           </h3>
           <span className="shrink-0 rounded-full bg-emerald-400/10 md:bg-emerald-50 px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700">
             {onlineUsers.length} online
           </span>
         </div>
         {!myId ? (
-          <EmptyState icon={Users} title="Sign in to see who's online" hint="Members you can chat with show up here in real time." />
+          <EmptyState
+            icon={Users}
+            title="Sign in to see who's online"
+            hint="Members you can chat with show up here in real time."
+          />
         ) : onlineUsers.length === 0 ? (
-          <EmptyState icon={Users} title="Nobody else online" hint="When members come online, they'll appear here for a quick chat." />
+          <EmptyState
+            icon={Users}
+            title="Nobody else online"
+            hint="When members come online, they'll appear here for a quick chat."
+          />
         ) : (
           <ul className="space-y-1">
             {onlineUsers.slice(0, 10).map((u) => (
-              <li key={u.userId} className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50">
-
+              <li
+                key={u.userId}
+                className="flex items-center gap-2.5 min-w-0 -mx-1.5 px-1.5 py-1.5 rounded-lg transition-colors hover:bg-white/[0.03] md:hover:bg-slate-50"
+              >
                 <button
                   onClick={() => openChat(u.userId, u.name)}
                   className="relative w-9 h-9 shrink-0 rounded-full overflow-hidden block"
@@ -510,7 +635,9 @@ export function DiscoveryPanel() {
                   onClick={() => openChat(u.userId, u.name)}
                   className="min-w-0 flex-1 text-left"
                 >
-                  <div className="truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600">{u.name}</div>
+                  <div className="truncate text-xs font-semibold text-white md:text-slate-900 hover:text-emerald-400 md:hover:text-emerald-600">
+                    {u.name}
+                  </div>
                   <div className="flex items-center gap-1 text-[10px] text-slate-400 md:text-slate-600">
                     <Star className="w-3 h-3 fill-yellow-400 text-yellow-400" />
                     <span>{u.stars.toFixed(1)}</span>

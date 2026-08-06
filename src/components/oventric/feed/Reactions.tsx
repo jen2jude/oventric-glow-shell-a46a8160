@@ -53,11 +53,15 @@ export function ReactionGlyph({
   const imageUrl = IMAGE_REACTIONS[reaction];
   if (imageUrl) {
     const motion =
-      reaction === "love" ? "reaction-heart-beat"
-      : reaction === "like" ? "reaction-thumb-up-bob"
-      : reaction === "laugh" ? "reaction-laugh-wobble"
-      : reaction === "crown" ? "reaction-crown-float"
-      : "reaction-thumb-down-bob";
+      reaction === "love"
+        ? "reaction-heart-beat"
+        : reaction === "like"
+          ? "reaction-thumb-up-bob"
+          : reaction === "laugh"
+            ? "reaction-laugh-wobble"
+            : reaction === "crown"
+              ? "reaction-crown-float"
+              : "reaction-thumb-down-bob";
     return (
       <img
         src={imageUrl}
@@ -79,7 +83,6 @@ export function ReactionGlyph({
   return <Icon size={size} className={`fill-current ${className ?? ""}`} strokeWidth={2.5} />;
 }
 
-
 /** Default flat reaction button. */
 export function ReactionButton({
   reaction,
@@ -97,10 +100,13 @@ export function ReactionButton({
   const m = REACTION_META[reaction];
   const isImg = isImageReaction(reaction);
   const dims =
-    size === "xs" ? "w-6 h-6 rounded-md"
-    : size === "sm" ? "w-8 h-8 rounded-full"
-    : size === "lg" ? "w-14 h-14 rounded-2xl"
-    : "w-10 h-10 rounded-full";
+    size === "xs"
+      ? "w-6 h-6 rounded-md"
+      : size === "sm"
+        ? "w-8 h-8 rounded-full"
+        : size === "lg"
+          ? "w-14 h-14 rounded-2xl"
+          : "w-10 h-10 rounded-full";
   const iconSize = size === "xs" ? 12 : size === "sm" ? 16 : size === "lg" ? 28 : 20;
   return (
     <button
@@ -123,7 +129,6 @@ export function ReactionButton({
   );
 }
 
-
 /** Floating chooser rendered above a trigger button. */
 export function ReactionPicker({
   onPick,
@@ -143,9 +148,7 @@ export function ReactionPicker({
     return () => document.removeEventListener("mousedown", onDoc);
   }, [onClose]);
   const alignCls =
-    align === "right" ? "right-0"
-    : align === "center" ? "left-1/2 -translate-x-1/2"
-    : "left-0";
+    align === "right" ? "right-0" : align === "center" ? "left-1/2 -translate-x-1/2" : "left-0";
   return (
     <div
       ref={ref}
@@ -167,7 +170,13 @@ export function ReactionPicker({
 }
 
 /** One-shot splash that animates in the center of a container. */
-export function ReactionSplash({ reaction, keyId }: { reaction: ReactionType; keyId: string | number }) {
+export function ReactionSplash({
+  reaction,
+  keyId,
+}: {
+  reaction: ReactionType;
+  keyId: string | number;
+}) {
   const m = REACTION_META[reaction];
   const isImg = isImageReaction(reaction);
   return (
@@ -204,7 +213,6 @@ export function ReactionImageBadge({ reaction }: { reaction: ReactionType }) {
     </div>
   );
 }
-
 
 /** Hook that manages picker + splash state for a single reactable target. */
 export function useReactionSplash() {

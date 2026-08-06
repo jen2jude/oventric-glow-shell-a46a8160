@@ -1,6 +1,23 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, KeyRound, X, Shield, Grip, Menu, Bell, UserPlus, MessageSquare, Users, Store, GraduationCap, Target, Newspaper, Headphones, type LucideIcon } from "lucide-react";
+import {
+  Search,
+  KeyRound,
+  X,
+  Shield,
+  Grip,
+  Menu,
+  Bell,
+  UserPlus,
+  MessageSquare,
+  Users,
+  Store,
+  GraduationCap,
+  Target,
+  Newspaper,
+  Headphones,
+  type LucideIcon,
+} from "lucide-react";
 import { MegaMenu } from "@/components/oventric/MegaMenu";
 import { ProfileDropdown } from "@/components/oventric/ProfileDropdown";
 import {
@@ -30,8 +47,23 @@ const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string 
   { label: "Help", icon: Headphones, to: "/help-board" },
 ];
 
-
-export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMobileTopRow = false, hubMode = false, light = false, desktopNav = false }: { onMenuClick?: () => void; onOpenMessages?: () => void; safeMobile?: boolean; showMobileTopRow?: boolean; hubMode?: boolean; light?: boolean; desktopNav?: boolean }) {
+export function Header({
+  onMenuClick,
+  onOpenMessages,
+  safeMobile = false,
+  showMobileTopRow = false,
+  hubMode = false,
+  light = false,
+  desktopNav = false,
+}: {
+  onMenuClick?: () => void;
+  onOpenMessages?: () => void;
+  safeMobile?: boolean;
+  showMobileTopRow?: boolean;
+  hubMode?: boolean;
+  light?: boolean;
+  desktopNav?: boolean;
+}) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -47,7 +79,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     if (!mobileSearchOpen) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [mobileSearchOpen]);
 
   // Reopen MegaMenu when the user navigates back to the page where it was opened.
@@ -75,11 +109,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
     return () => window.removeEventListener("oventric:open-messages", handler);
   }, [onOpenMessages]);
 
-  const bg = light
-    ? "bg-white"
-    : safeMobile
-      ? "bg-[#121214] md:bg-[#121214]/90 md:backdrop-blur-md"
-      : "bg-[#121214]/90 backdrop-blur-md";
+  const bg = light ? "bg-white" : "bg-[#121214]";
   const edge = light ? "border-slate-200" : "border-white/10";
   // Round icon buttons in the right cluster.
   const chip = light
@@ -110,7 +140,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       role="dialog"
       aria-modal="true"
       aria-label="Search"
-      className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+      className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 flex flex-col"
     >
       <div className="flex items-center gap-2 p-3 border-b border-white/10">
         <div className="flex-1 min-w-0">
@@ -229,7 +259,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       )}
 
       {/* Main row */}
-      <div className={`h-11 md:h-[4.5rem] grid ${desktopNav ? "md:grid-cols-[auto_1fr_auto]" : ""} grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6`}>
+      <div
+        className={`h-11 md:h-[4.5rem] grid ${desktopNav ? "md:grid-cols-[auto_1fr_auto]" : ""} grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-2 md:gap-3 px-3 md:px-6`}
+      >
         <div className="flex items-center gap-2 md:gap-3 min-w-0">
           {onMenuClick && (
             <button
@@ -258,7 +290,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
         </div>
 
         {/* Desktop search input */}
-        <div className={`flex-1 max-w-xl mx-auto min-w-0 hidden ${desktopNav ? "sm:block md:hidden" : "sm:block"}`}>
+        <div
+          className={`flex-1 max-w-xl mx-auto min-w-0 hidden ${desktopNav ? "sm:block md:hidden" : "sm:block"}`}
+        >
           <GlobalSearch variant="inline" light={light} />
         </div>
 
@@ -266,7 +300,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           <nav className="hidden md:flex items-center gap-0.5 xl:gap-1 justify-self-center w-full justify-center shrink-0">
             {HUB_NAV.map((item) => {
               const cls = `flex flex-col items-center gap-0.5 px-2 xl:px-3 py-1.5 rounded-xl text-[11px] font-semibold transition-colors ${
-                light ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100" : "text-slate-300 hover:text-white hover:bg-white/5"
+                light
+                  ? "text-slate-600 hover:text-slate-900 hover:bg-slate-100"
+                  : "text-slate-300 hover:text-white hover:bg-white/5"
               }`;
               return item.to ? (
                 <Link key={item.label} to={item.to} className={cls}>
@@ -291,7 +327,6 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           </nav>
         )}
 
-
         <div className="flex items-center justify-between md:justify-start gap-1 md:gap-2.5 w-full md:w-auto shrink-0 min-w-0">
           {/* Wallet chip - desktop/tablet position in the right cluster */}
           <div className="hidden md:inline-flex shrink-0">
@@ -309,7 +344,11 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
 
           {/* Circles & Guilds */}
           <button
-            onClick={() => window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }))}
+            onClick={() =>
+              window.dispatchEvent(
+                new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }),
+              )
+            }
             aria-label="Circles & Guilds"
             className={`relative inline-flex p-2 md:p-2.5 rounded-full ${chip} transition-transform duration-150 hover:-translate-y-0.5 active:scale-90 active:translate-y-0 shrink-0`}
           >
@@ -361,7 +400,9 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
               className="inline-flex items-center justify-center h-9 md:h-10 rounded-full rgb-static-border p-[2px] hover:opacity-90 transition-opacity shrink-0"
               aria-label="Connect account"
             >
-              <span className={`inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full font-bold text-xs sm:text-sm ${light ? "bg-white text-slate-900" : "bg-[#1E1E24] text-white"}`}>
+              <span
+                className={`inline-flex items-center gap-1.5 h-full w-full px-2.5 md:px-3 rounded-full font-bold text-xs sm:text-sm ${light ? "bg-white text-slate-900" : "bg-[#1E1E24] text-white"}`}
+              >
                 <KeyRound className="w-4 h-4" strokeWidth={2.5} />
                 <span className="hidden sm:inline">Connect Account</span>
                 <span className="sm:hidden">Connect</span>
@@ -380,7 +421,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           role="dialog"
           aria-modal="true"
           aria-label="Search"
-          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 flex flex-col"
         >
           <div className="flex items-center gap-2 p-3 border-b border-white/10">
             <div className="flex-1 min-w-0">
@@ -432,13 +473,27 @@ function useUnreadMessagesCount() {
         .channel(`dm-count-${userId}`)
         .on(
           "postgres_changes",
-          { event: "*", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${userId}` },
-          () => { void load(); },
+          {
+            event: "*",
+            schema: "public",
+            table: "direct_messages",
+            filter: `recipient_id=eq.${userId}`,
+          },
+          () => {
+            void load();
+          },
         )
         .on(
           "postgres_changes",
-          { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${userId}` },
-          () => { void load(); },
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "direct_messages",
+            filter: `sender_id=eq.${userId}`,
+          },
+          () => {
+            void load();
+          },
         )
         .subscribe();
     })();
@@ -458,17 +513,25 @@ function usePendingFollowRequestsCount() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!isAuthenticated) { setCount(0); return; }
+    if (!isAuthenticated) {
+      setCount(0);
+      return;
+    }
     let cancelled = false;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
 
     const load = async () => {
       const { data: s } = await supabase.auth.getSession();
-      if (!s.session) { if (!cancelled) setCount(0); return; }
+      if (!s.session) {
+        if (!cancelled) setCount(0);
+        return;
+      }
       try {
         const rows = await listFn();
         if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0);
-      } catch { if (!cancelled) setCount(0); }
+      } catch {
+        if (!cancelled) setCount(0);
+      }
     };
 
     (async () => {
@@ -501,17 +564,25 @@ function usePendingCircleRequestsCount() {
   const [count, setCount] = useState(0);
 
   useEffect(() => {
-    if (!isAuthenticated) { setCount(0); return; }
+    if (!isAuthenticated) {
+      setCount(0);
+      return;
+    }
     let cancelled = false;
     let channelSub: ReturnType<typeof supabase.channel> | null = null;
 
     const load = async () => {
       const { data: s } = await supabase.auth.getSession();
-      if (!s.session) { if (!cancelled) setCount(0); return; }
+      if (!s.session) {
+        if (!cancelled) setCount(0);
+        return;
+      }
       try {
         const rows = await listFn();
         if (!cancelled) setCount(Array.isArray(rows) ? rows.length : 0);
-      } catch { if (!cancelled) setCount(0); }
+      } catch {
+        if (!cancelled) setCount(0);
+      }
     };
 
     (async () => {
@@ -542,4 +613,3 @@ function usePendingCircleRequestsCount() {
 
   return count;
 }
-

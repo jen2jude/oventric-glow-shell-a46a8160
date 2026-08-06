@@ -2,15 +2,7 @@ import { useCallback, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  X,
-  Loader2,
-  UserPlus,
-  Check,
-  Ban,
-  User as UserIcon,
-  Users,
-} from "lucide-react";
+import { X, Loader2, UserPlus, Check, Ban, User as UserIcon, Users } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import {
   listIncomingFollowRequests,
@@ -106,15 +98,11 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
     if (!open) return;
     const ch = supabase
       .channel("requests-inbox-drawer")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "follow_requests" },
-        () => loadFollow(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "follow_requests" }, () =>
+        loadFollow(),
       )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "circle_requests" },
-        () => loadCircle(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "circle_requests" }, () =>
+        loadCircle(),
       )
       .subscribe();
     return () => {
@@ -176,7 +164,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="relative w-full sm:max-w-sm h-full bg-[#141418] border-l border-white/10 shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-200">
-        <div className="sticky top-0 z-10 bg-[#141418]/95 px-5 py-4 border-b border-white/5 flex items-center justify-between">
+        <div className="sticky top-0 z-10 bg-[#141418] px-5 py-4 border-b border-white/5 flex items-center justify-between">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
               Requests
@@ -202,9 +190,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               onClick={() => setTab("follow")}
               aria-pressed={tab === "follow"}
               className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-colors ${
-                tab === "follow"
-                  ? "bg-emerald-500 text-black"
-                  : "text-slate-300 hover:text-white"
+                tab === "follow" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
               <UserPlus className="w-3.5 h-3.5" />
@@ -224,9 +210,7 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
               onClick={() => setTab("circle")}
               aria-pressed={tab === "circle"}
               className={`inline-flex items-center justify-center gap-1.5 py-2 rounded-md text-xs font-bold transition-colors ${
-                tab === "circle"
-                  ? "bg-emerald-500 text-black"
-                  : "text-slate-300 hover:text-white"
+                tab === "circle" ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
               }`}
             >
               <Users className="w-3.5 h-3.5" />
@@ -408,15 +392,7 @@ function LoadingRow() {
   );
 }
 
-function EmptyBlock({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
+function EmptyBlock({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="py-10 text-center">
       {icon}

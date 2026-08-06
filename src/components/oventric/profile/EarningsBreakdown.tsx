@@ -141,7 +141,10 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                     </div>
                     <div className="h-2 w-full rounded-full bg-black/30 md:bg-slate-100 overflow-hidden">
                       <div
-                        className={cn("h-full rounded-full", SOURCE_BAR[row.source] ?? "bg-slate-400")}
+                        className={cn(
+                          "h-full rounded-full",
+                          SOURCE_BAR[row.source] ?? "bg-slate-400",
+                        )}
                         style={{ width: `${Math.min(100, row.pct)}%` }}
                       />
                     </div>
@@ -213,17 +216,18 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                         item.status === "paid"
                           ? "bg-emerald-500/15 text-emerald-400"
                           : item.status === "rejected"
-                          ? "bg-rose-500/15 text-rose-400"
-                          : item.status === "pending"
-                          ? "bg-amber-500/15 text-amber-400"
-                          : "bg-slate-500/15 text-slate-400",
+                            ? "bg-rose-500/15 text-rose-400"
+                            : item.status === "pending"
+                              ? "bg-amber-500/15 text-amber-400"
+                              : "bg-slate-500/15 text-slate-400",
                       )}
                     >
                       {STATUS_TEXT[item.status] ?? item.status}
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5 capitalize">
-                    {item.method} · {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                    {item.method} ·{" "}
+                    {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                   </div>
                 </li>
               ))}

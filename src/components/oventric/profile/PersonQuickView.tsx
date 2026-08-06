@@ -98,7 +98,9 @@ export function PersonQuickView({ person, isOnline, viewerId, onClose, onMessage
                   : "bg-white/5 md:bg-slate-100 text-slate-400 md:text-slate-500"
               }`}
             >
-              <span className={`h-2 w-2 rounded-full ${isOnline ? "bg-emerald-400" : "bg-slate-500"}`} />
+              <span
+                className={`h-2 w-2 rounded-full ${isOnline ? "bg-emerald-400" : "bg-slate-500"}`}
+              />
               {isOnline ? "Online now" : "Offline"}
             </span>
           </div>

@@ -78,8 +78,7 @@ function Page() {
             >
               <div className="flex-1">
                 <div className="font-bold text-white">
-                  {c.name}{" "}
-                  <span className="text-xs text-slate-500 font-mono ml-2">/{c.slug}</span>
+                  {c.name} <span className="text-xs text-slate-500 font-mono ml-2">/{c.slug}</span>
                 </div>
                 <div className="text-xs text-slate-500">
                   sort {c.sortOrder} · {c.enabled ? "enabled" : "disabled"}
@@ -141,18 +140,14 @@ function Page() {
                   <input
                     type="number"
                     value={editing.sortOrder ?? 0}
-                    onChange={(e) =>
-                      setEditing({ ...editing, sortOrder: Number(e.target.value) })
-                    }
+                    onChange={(e) => setEditing({ ...editing, sortOrder: Number(e.target.value) })}
                     className={inp}
                   />
                 </F>
                 <F label="Enabled">
                   <select
                     value={editing.enabled ? "y" : "n"}
-                    onChange={(e) =>
-                      setEditing({ ...editing, enabled: e.target.value === "y" })
-                    }
+                    onChange={(e) => setEditing({ ...editing, enabled: e.target.value === "y" })}
                     className={inp}
                   >
                     <option value="y">Yes</option>
@@ -182,8 +177,7 @@ function Page() {
   );
 }
 
-const inp =
-  "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
+const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
 function F({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

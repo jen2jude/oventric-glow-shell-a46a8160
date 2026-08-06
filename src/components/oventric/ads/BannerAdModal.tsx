@@ -48,13 +48,17 @@ export function BannerAdModal({
   const [form, setForm] = useState<BannerAdDraft>(initial);
   const [saving, setSaving] = useState(false);
 
-  useEffect(() => { if (open) setForm(initial); }, [open, initial]);
+  useEffect(() => {
+    if (open) setForm(initial);
+  }, [open, initial]);
 
   useEffect(() => {
     if (!open) return;
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   if (!open) return null;
@@ -71,7 +75,10 @@ export function BannerAdModal({
     }));
 
   const save = async () => {
-    if (form.title.trim().length < 2) { toast.error("Give your ad a title"); return; }
+    if (form.title.trim().length < 2) {
+      toast.error("Give your ad a title");
+      return;
+    }
     setSaving(true);
     try {
       const payload = {
@@ -107,27 +114,56 @@ export function BannerAdModal({
             </h2>
             <p className="text-xs text-slate-400 mt-0.5">Tier 2 · sponsored banner placeholder</p>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:text-white p-1" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="text-slate-400 hover:text-white p-1"
+            aria-label="Close"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         <div className="space-y-3">
           <Field label="Campaign title">
-            <input className={inputCls} value={form.title} onChange={(e) => set("title", e.target.value)} placeholder="Summer promo" />
+            <input
+              className={inputCls}
+              value={form.title}
+              onChange={(e) => set("title", e.target.value)}
+              placeholder="Summer promo"
+            />
           </Field>
           <Field label="Headline">
-            <input className={inputCls} value={form.header} onChange={(e) => set("header", e.target.value)} placeholder="Shown in bold on the banner" />
+            <input
+              className={inputCls}
+              value={form.header}
+              onChange={(e) => set("header", e.target.value)}
+              placeholder="Shown in bold on the banner"
+            />
           </Field>
           <Field label="Body">
-            <textarea rows={3} className={`${inputCls} resize-none`} value={form.body} onChange={(e) => set("body", e.target.value)} placeholder="One or two short lines" />
+            <textarea
+              rows={3}
+              className={`${inputCls} resize-none`}
+              value={form.body}
+              onChange={(e) => set("body", e.target.value)}
+              placeholder="One or two short lines"
+            />
           </Field>
           <Field label="Banner image URL">
-            <input className={inputCls} value={form.media_url} onChange={(e) => set("media_url", e.target.value)} placeholder="https://…" />
+            <input
+              className={inputCls}
+              value={form.media_url}
+              onChange={(e) => set("media_url", e.target.value)}
+              placeholder="https://…"
+            />
           </Field>
           {form.media_url.trim() ? (
             <div className="rounded-lg overflow-hidden border border-white/10 md:border-slate-200 aspect-[16/6] bg-black/30">
-              <img src={form.media_url} alt="Banner preview" className="w-full h-full object-cover" />
+              <img
+                src={form.media_url}
+                alt="Banner preview"
+                className="w-full h-full object-cover"
+              />
             </div>
           ) : (
             <div className="rounded-lg border border-dashed border-white/10 md:border-slate-300 aspect-[16/6] flex items-center justify-center text-slate-500 text-xs gap-2">
@@ -137,18 +173,31 @@ export function BannerAdModal({
 
           <div className="grid grid-cols-2 gap-3">
             <Field label="CTA type">
-              <select className={inputCls} value={form.cta_type} onChange={(e) => set("cta_type", e.target.value)}>
+              <select
+                className={inputCls}
+                value={form.cta_type}
+                onChange={(e) => set("cta_type", e.target.value)}
+              >
                 <option value="url">Website link</option>
                 <option value="whatsapp">WhatsApp</option>
                 <option value="lead_form">Lead form</option>
               </select>
             </Field>
             <Field label="CTA label">
-              <input className={inputCls} value={form.cta_label} onChange={(e) => set("cta_label", e.target.value)} />
+              <input
+                className={inputCls}
+                value={form.cta_label}
+                onChange={(e) => set("cta_label", e.target.value)}
+              />
             </Field>
           </div>
           <Field label="CTA link">
-            <input className={inputCls} value={form.cta_url} onChange={(e) => set("cta_url", e.target.value)} placeholder="https://…" />
+            <input
+              className={inputCls}
+              value={form.cta_url}
+              onChange={(e) => set("cta_url", e.target.value)}
+              placeholder="https://…"
+            />
           </Field>
 
           <Field label="Placements">
@@ -175,7 +224,10 @@ export function BannerAdModal({
         </div>
 
         <div className="flex gap-2 mt-5">
-          <button onClick={onClose} className="flex-1 rounded-lg border border-white/15 md:border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-300">
+          <button
+            onClick={onClose}
+            className="flex-1 rounded-lg border border-white/15 md:border-slate-300 px-4 py-2.5 text-sm font-semibold text-slate-300"
+          >
             Cancel
           </button>
           <button
@@ -195,7 +247,9 @@ export function BannerAdModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">{label}</span>
+      <span className="block text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-1">
+        {label}
+      </span>
       {children}
     </label>
   );

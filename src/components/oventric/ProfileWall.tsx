@@ -102,7 +102,8 @@ export function ProfileWall({
         ? cur.map((p) => {
             if (p.id !== post.id) return p;
             const reactions = { ...p.reactions };
-            if (p.viewer_reaction) reactions[p.viewer_reaction] = Math.max(0, reactions[p.viewer_reaction] - 1);
+            if (p.viewer_reaction)
+              reactions[p.viewer_reaction] = Math.max(0, reactions[p.viewer_reaction] - 1);
             if (next) reactions[next] = (reactions[next] ?? 0) + 1;
             const total = reactions.love + reactions.like + reactions.laugh + reactions.crown;
             return {
@@ -152,7 +153,11 @@ export function ProfileWall({
           {viewerInitials || "You"}
         </div>
         <span className="flex-1 text-slate-400 md:text-slate-500 text-sm">
-          {cta.disabled ? cta.label : isSelf ? "What's on your mind today?" : `Post on ${wallOwnerName}'s wall…`}
+          {cta.disabled
+            ? cta.label
+            : isSelf
+              ? "What's on your mind today?"
+              : `Post on ${wallOwnerName}'s wall…`}
         </span>
         {cta.disabled ? (
           <Lock className="w-4 h-4 text-slate-500" />
@@ -220,10 +225,7 @@ export function ProfileWall({
                         }`}
                       >
                         {p.media.slice(0, 4).map((m, i) => (
-                          <div
-                            key={i}
-                            className="relative rounded-lg overflow-hidden bg-black/40"
-                          >
+                          <div key={i} className="relative rounded-lg overflow-hidden bg-black/40">
                             {m.type === "video" ? (
                               <video
                                 src={`${m.url}#t=0.1`}

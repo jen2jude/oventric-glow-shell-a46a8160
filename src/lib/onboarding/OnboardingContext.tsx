@@ -1,10 +1,6 @@
 import { createContext, useCallback, useContext, useMemo, useState, type ReactNode } from "react";
 import { useAuthGate, type AuthGateContextKey } from "@/lib/auth-gate/AuthGateProvider";
-import {
-  currencyForCountry,
-  normalizeCountryCode,
-  zeroAmounts,
-} from "@/lib/currency/africa";
+import { currencyForCountry, normalizeCountryCode, zeroAmounts } from "@/lib/currency/africa";
 
 export type Tier = 0 | 1 | 2 | 3 | 4 | 5;
 export type Stage = 1 | 2 | 3 | 4 | 5;
@@ -44,8 +40,6 @@ export function canTransactInUsd(country: Country | null | undefined): boolean {
   return true;
 }
 
-
-
 export type PayoutBank =
   | { country: "NG"; bank: string; accountNumber: string; accountName: string }
   | { country: "GH"; network: string; momoNumber: string; walletName: string }
@@ -72,7 +66,11 @@ interface OnboardingContextValue extends OnboardingState {
   advanceTo: (t: Tier, patch?: Partial<OnboardingState>) => void;
   setBaseCurrency: (c: Currency) => void;
   updateBalance: (c: Currency, delta: number) => void;
-  setBalances: (balances: Record<string, number>, escrow?: Record<string, number>, cashback?: number) => void;
+  setBalances: (
+    balances: Record<string, number>,
+    escrow?: Record<string, number>,
+    cashback?: number,
+  ) => void;
   setBalancesHidden: (hidden: boolean) => void;
   toggleBalancesHidden: () => void;
 }
@@ -119,43 +117,39 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
     [state.tier, ensureUserAuthenticated],
   );
 
-  const advanceTo = useCallback(
-    (t: Tier, patch?: Partial<OnboardingState>) => {
-      setState((s) => {
-        const merged = { ...s, ...patch, tier: t };
-        // Re-derive base currency from country whenever country is set/changed
-        // so the wallet + top-up currency stay locked to the profile country.
-        if (patch && "country" in patch) {
-          merged.baseCurrency = countryToCurrency(merged.country);
-        }
-        return merged;
-      });
-      // If reached the pending target, run callback and close.
-      setPending((p) => {
-        if (p && t >= p.minTier) {
-          setOpenStage(null);
-          setTimeout(() => p.cb?.(), 50);
-          return null;
-        }
-        // otherwise auto-advance to next stage
-        if (p) {
-          setOpenStage(((t + 1) as Stage) <= 5 ? ((t + 1) as Stage) : null);
-        } else {
-          setOpenStage(null);
-        }
-        return p;
-      });
-    },
-    [],
-  );
+  const advanceTo = useCallback((t: Tier, patch?: Partial<OnboardingState>) => {
+    setState((s) => {
+      const merged = { ...s, ...patch, tier: t };
+      // Re-derive base currency from country whenever country is set/changed
+      // so the wallet + top-up currency stay locked to the profile country.
+      if (patch && "country" in patch) {
+        merged.baseCurrency = countryToCurrency(merged.country);
+      }
+      return merged;
+    });
+    // If reached the pending target, run callback and close.
+    setPending((p) => {
+      if (p && t >= p.minTier) {
+        setOpenStage(null);
+        setTimeout(() => p.cb?.(), 50);
+        return null;
+      }
+      // otherwise auto-advance to next stage
+      if (p) {
+        setOpenStage(((t + 1) as Stage) <= 5 ? ((t + 1) as Stage) : null);
+      } else {
+        setOpenStage(null);
+      }
+      return p;
+    });
+  }, []);
 
   // Base currency is LOCKED to the user's country: US/UK/OTHER → USD, NG → NGN,
   // GH → GHS. The setter is retained for backwards compatibility but silently
   // enforces the country-derived value — passing a different currency is a
   // no-op. Country changes flow through advanceTo / profile hydration.
   const setBaseCurrency = useCallback(
-    (_c: Currency) =>
-      setState((s) => ({ ...s, baseCurrency: countryToCurrency(s.country) })),
+    (_c: Currency) => setState((s) => ({ ...s, baseCurrency: countryToCurrency(s.country) })),
     [],
   );
   const updateBalance = useCallback(
@@ -198,7 +192,17 @@ export function OnboardingProvider({ children }: { children: ReactNode }) {
       setBalancesHidden,
       toggleBalancesHidden,
     }),
-    [state, openStage, require, advanceTo, setBaseCurrency, updateBalance, setBalances, setBalancesHidden, toggleBalancesHidden],
+    [
+      state,
+      openStage,
+      require,
+      advanceTo,
+      setBaseCurrency,
+      updateBalance,
+      setBalances,
+      setBalancesHidden,
+      toggleBalancesHidden,
+    ],
   );
 
   return <OnboardingContext.Provider value={value}>{children}</OnboardingContext.Provider>;

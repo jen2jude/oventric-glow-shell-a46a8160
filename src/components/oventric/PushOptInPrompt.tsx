@@ -95,7 +95,7 @@ export function PushOptInPrompt() {
 
   return (
     <div className="fixed inset-x-3 bottom-24 z-[70] md:left-auto md:right-6 md:bottom-6 md:w-96">
-      <div className="rounded-2xl border border-border bg-popover/95 backdrop-blur-sm p-4 shadow-xl shadow-black/25">
+      <div className="rounded-2xl border border-border bg-popover p-4 shadow-xl shadow-black/25">
         <div className="flex items-start gap-3">
           <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary">
             <Bell className="h-5 w-5 text-primary-foreground" strokeWidth={2.5} />

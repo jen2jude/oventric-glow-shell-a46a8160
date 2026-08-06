@@ -1,4 +1,27 @@
-import { Paperclip, MessageSquare, Share2, Flag, Send, Pencil, Trash2, Check, X, RotateCcw, AlertCircle, Image as ImageIcon, Video as VideoIcon, AtSign, Megaphone, ShieldAlert, Copyright, AlertTriangle, Play, BookOpen, User, Users } from "lucide-react";
+import {
+  Paperclip,
+  MessageSquare,
+  Share2,
+  Flag,
+  Send,
+  Pencil,
+  Trash2,
+  Check,
+  X,
+  RotateCcw,
+  AlertCircle,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  AtSign,
+  Megaphone,
+  ShieldAlert,
+  Copyright,
+  AlertTriangle,
+  Play,
+  BookOpen,
+  User,
+  Users,
+} from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
@@ -162,12 +185,24 @@ function pickFeedMosaicLayout(postId: string, imageCount: number): FeedMosaicLay
   const fivePlusVariants: Omit<FeedMosaicLayout, "isMosaic">[] = [
     {
       wrapperClass: "grid grid-cols-6 grid-rows-3 gap-1 aspect-[4/3]",
-      tileClasses: ["col-span-3 row-span-2", "col-span-3 row-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      tileClasses: [
+        "col-span-3 row-span-2",
+        "col-span-3 row-span-2",
+        "col-span-2",
+        "col-span-2",
+        "col-span-2",
+      ],
       displayedCount: 5,
     },
     {
       wrapperClass: "grid grid-cols-5 grid-rows-4 gap-1 aspect-[4/3]",
-      tileClasses: ["col-span-3 row-span-4", "col-span-2", "col-span-2", "col-span-2", "col-span-2"],
+      tileClasses: [
+        "col-span-3 row-span-4",
+        "col-span-2",
+        "col-span-2",
+        "col-span-2",
+        "col-span-2",
+      ],
       displayedCount: 5,
     },
   ];
@@ -201,10 +236,7 @@ function FeedPostImage({
   return (
     <>
       {!loaded && (
-        <span
-          aria-hidden
-          className="absolute inset-0 bg-white/5 md:bg-slate-100 animate-pulse"
-        />
+        <span aria-hidden className="absolute inset-0 bg-white/5 md:bg-slate-100 animate-pulse" />
       )}
       <ResponsiveImage
         src={src}
@@ -260,7 +292,9 @@ const REASON_STYLES: Record<
 };
 
 function ReportedBadge({ details }: { details?: ReportDetails }) {
-  const style = details ? REASON_STYLES[details.reason] ?? REASON_STYLES.spam : REASON_STYLES.spam;
+  const style = details
+    ? (REASON_STYLES[details.reason] ?? REASON_STYLES.spam)
+    : REASON_STYLES.spam;
   const Icon = style.icon;
   const tooltip = details
     ? `Reason: ${details.reasonLabel}${details.note ? `\nNote: ${details.note}` : "\nNote: (none)"}`
@@ -286,7 +320,6 @@ interface PendingPost {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
-  
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
@@ -374,10 +407,17 @@ export function Feed() {
       /* ignore quota */
     }
   }, [reported]);
-  const markReported = (id: string, details: { reason: string; reasonLabel: string; note: string | null }) =>
+  const markReported = (
+    id: string,
+    details: { reason: string; reasonLabel: string; note: string | null },
+  ) =>
     setReported((m) => {
       const next = new Map(m);
-      next.set(id, { reason: details.reason, reasonLabel: details.reasonLabel, note: details.note });
+      next.set(id, {
+        reason: details.reason,
+        reasonLabel: details.reasonLabel,
+        note: details.note,
+      });
       return next;
     });
   const openReport = (id: string) => {
@@ -399,7 +439,9 @@ export function Feed() {
         // Refresh so viewerIsMember flips once approved and code-of-conduct is accepted.
         refreshPosts();
         if (typeof window !== "undefined") {
-          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }));
+          window.dispatchEvent(
+            new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }),
+          );
           const u = new URL(window.location.href);
           u.searchParams.set("circle", circleSlug);
           window.history.replaceState({}, "", u.toString());
@@ -433,7 +475,6 @@ export function Feed() {
     }
   }, [listPosts]);
 
-
   /** Drop a pending placeholder and release its object URLs. */
   const dismissPending = useCallback((tempId: string) => {
     setPendingPosts((prev) => {
@@ -453,18 +494,21 @@ export function Feed() {
   pendingRef.current = pendingPosts;
 
   const failPending = useCallback((tempId: string, message: string) => {
-    setPendingPosts((prev) => prev.map((p) => (p.tempId === tempId ? { ...p, error: message } : p)));
+    setPendingPosts((prev) =>
+      prev.map((p) => (p.tempId === tempId ? { ...p, error: message } : p)),
+    );
   }, []);
 
   // Release any object URLs still held when the feed unmounts.
   useEffect(() => {
     return () => {
       pendingRef.current.forEach((p) =>
-        p.media.forEach((m) => { if (m.url.startsWith("blob:")) URL.revokeObjectURL(m.url); }),
+        p.media.forEach((m) => {
+          if (m.url.startsWith("blob:")) URL.revokeObjectURL(m.url);
+        }),
       );
     };
   }, []);
-
 
   // Debounce the search box so filtering / global lookups stay cheap.
   useEffect(() => {
@@ -545,20 +589,12 @@ export function Feed() {
   useEffect(() => {
     const channel = supabase
       .channel("feed:live")
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "posts" },
-        () => {
-          refreshPosts();
-        },
-      )
-      .on(
-        "postgres_changes",
-        { event: "*", schema: "public", table: "post_likes" },
-        () => {
-          refreshPosts();
-        },
-      )
+      .on("postgres_changes", { event: "*", schema: "public", table: "posts" }, () => {
+        refreshPosts();
+      })
+      .on("postgres_changes", { event: "*", schema: "public", table: "post_likes" }, () => {
+        refreshPosts();
+      })
       .on(
         "postgres_changes",
         { event: "INSERT", schema: "public", table: "post_comments" },
@@ -606,7 +642,10 @@ export function Feed() {
           setCommentsByPost((prev) => {
             const arr = prev[row.post_id];
             if (!arr) return prev;
-            return { ...prev, [row.post_id]: sortComments(arr.map((c) => (c.id === row.id ? toComment(row) : c))) };
+            return {
+              ...prev,
+              [row.post_id]: sortComments(arr.map((c) => (c.id === row.id ? toComment(row) : c))),
+            };
           });
         },
       )
@@ -725,18 +764,19 @@ export function Feed() {
           mediaType = attachment.kind;
           if (attachment.kind === "video") {
             try {
-              const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+              const { generateVideoPoster, posterPathFor } =
+                await import("@/lib/media/videoPoster");
               const poster = await generateVideoPoster(attachment.file);
               if (poster) {
-                await supabase.storage
-                  .from("post-media")
-                  .upload(posterPathFor(path), poster, {
-                    contentType: "image/jpeg",
-                    cacheControl: "31536000",
-                    upsert: true,
-                  });
+                await supabase.storage.from("post-media").upload(posterPathFor(path), poster, {
+                  contentType: "image/jpeg",
+                  cacheControl: "31536000",
+                  upsert: true,
+                });
               }
-            } catch { /* poster is best-effort */ }
+            } catch {
+              /* poster is best-effort */
+            }
           }
         }
         await createPost({ data: { text, mediaPath, mediaType } });
@@ -753,10 +793,13 @@ export function Feed() {
     }, "interaction");
   };
 
-
   // Splash + picker state, keyed by post id.
   const [pickerFor, setPickerFor] = useState<string | null>(null);
-  const [splash, setSplash] = useState<{ postId: string; reaction: ReactionType; id: number } | null>(null);
+  const [splash, setSplash] = useState<{
+    postId: string;
+    reaction: ReactionType;
+    id: number;
+  } | null>(null);
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
@@ -766,13 +809,21 @@ export function Feed() {
   const listBlogFn = useServerFn(listBlogPosts);
 
   useEffect(() => {
-    listBlogFn().then((r) => setBlogPosts(r.posts)).catch(() => {});
+    listBlogFn()
+      .then((r) => setBlogPosts(r.posts))
+      .catch(() => {});
     const onUpdate = () => setHiddenPosts(getHiddenPosts());
     window.addEventListener("oventric:posts-updated", onUpdate);
     return () => window.removeEventListener("oventric:posts-updated", onUpdate);
   }, [listBlogFn]);
 
-  const zeroCounts = (): Record<ReactionType, number> => ({ love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 });
+  const zeroCounts = (): Record<ReactionType, number> => ({
+    love: 0,
+    like: 0,
+    dislike: 0,
+    laugh: 0,
+    crown: 0,
+  });
 
   const handleReact = (post: FeedPost, reaction: ReactionType | null) => {
     require(1, async () => {
@@ -806,7 +857,13 @@ export function Feed() {
         setPosts((prev) =>
           prev.map((p) =>
             p.id === post.id
-              ? { ...p, viewer_reaction: prevReaction, viewer_liked: prevReaction !== null, reactions: post.reactions, likes_count: post.likes_count }
+              ? {
+                  ...p,
+                  viewer_reaction: prevReaction,
+                  viewer_liked: prevReaction !== null,
+                  reactions: post.reactions,
+                  likes_count: post.likes_count,
+                }
               : p,
           ),
         );
@@ -861,7 +918,9 @@ export function Feed() {
         ...prev,
         [postId]: sortComments(
           arr.map((c) =>
-            c.id === tempId ? { ...c, status: "pending", errorMessage: undefined, createdAt: attemptTs } : c,
+            c.id === tempId
+              ? { ...c, status: "pending", errorMessage: undefined, createdAt: attemptTs }
+              : c,
           ),
         ),
       };
@@ -893,22 +952,29 @@ export function Feed() {
       unreserveTempId(key, tempId);
       const raw = e instanceof Error ? e.message : "Unknown error";
       const lower = raw.toLowerCase();
-      const friendly = lower.includes("unauthorized") || lower.includes("401") || lower.includes("jwt")
-        ? "Your session expired. Sign in again to post this comment."
-        : lower.includes("row-level security") || lower.includes("permission") || lower.includes("403")
-          ? "You don't have permission to post here."
-          : lower.includes("network") || lower.includes("fetch") || lower.includes("failed to fetch")
-            ? "Network hiccup. Check your connection and retry."
-            : lower.includes("rate") || lower.includes("429")
-              ? "You're posting too fast. Wait a moment and retry."
-              : lower.includes("timeout")
-                ? "Server took too long to respond. Retry in a moment."
-                : `Couldn't post: ${raw}`;
+      const friendly =
+        lower.includes("unauthorized") || lower.includes("401") || lower.includes("jwt")
+          ? "Your session expired. Sign in again to post this comment."
+          : lower.includes("row-level security") ||
+              lower.includes("permission") ||
+              lower.includes("403")
+            ? "You don't have permission to post here."
+            : lower.includes("network") ||
+                lower.includes("fetch") ||
+                lower.includes("failed to fetch")
+              ? "Network hiccup. Check your connection and retry."
+              : lower.includes("rate") || lower.includes("429")
+                ? "You're posting too fast. Wait a moment and retry."
+                : lower.includes("timeout")
+                  ? "Server took too long to respond. Retry in a moment."
+                  : `Couldn't post: ${raw}`;
       setCommentsByPost((prev) => {
         const arr = prev[postId] ?? [];
         return {
           ...prev,
-          [postId]: arr.map((c) => (c.id === tempId ? { ...c, status: "failed", errorMessage: friendly } : c)),
+          [postId]: arr.map((c) =>
+            c.id === tempId ? { ...c, status: "failed", errorMessage: friendly } : c,
+          ),
         };
       });
       setCommentError(friendly);
@@ -969,9 +1035,7 @@ export function Feed() {
       if (target) unreserveTempId(dedupeKeyOf(postId, authorId, target.text), tempId);
       return { ...prev, [postId]: arr.filter((c) => c.id !== tempId) };
     });
-
   };
-
 
   const startEdit = (c: Comment) => {
     setEditing({ id: c.id, text: c.text });
@@ -1046,10 +1110,16 @@ export function Feed() {
                 : "What's on your mind today, update us!"}
             </span>
           </span>
-          <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">Photo · Video · @Mention</span>
+          <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">
+            Photo · Video · @Mention
+          </span>
           <span className="hidden md:flex items-center gap-1 shrink-0">
             {[
-              { Icon: ImageIcon, label: "Photo", tone: "text-emerald-600 group-hover:bg-emerald-50" },
+              {
+                Icon: ImageIcon,
+                label: "Photo",
+                tone: "text-emerald-600 group-hover:bg-emerald-50",
+              },
               { Icon: VideoIcon, label: "Video", tone: "text-rose-600 group-hover:bg-rose-50" },
               { Icon: AtSign, label: "Mention", tone: "text-sky-600 group-hover:bg-sky-50" },
             ].map(({ Icon, label, tone }) => (
@@ -1064,13 +1134,14 @@ export function Feed() {
           </span>
         </button>
 
-
         <FeedSearchBar
           q={query}
           onQueryChange={setQuery}
           category={category}
           onCategoryChange={setCategory}
-          resultCount={showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null}
+          resultCount={
+            showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+          }
         />
 
         {(debouncedQuery.length >= 2 || isGlobalCategory) && (
@@ -1078,7 +1149,6 @@ export function Feed() {
         )}
 
         <AdSlot placement="feed" variant="banner" />
-
 
         {/* Optimistic posts — painted instantly while the server call runs */}
         {showPostList && pendingPosts.length > 0 && (
@@ -1113,65 +1183,92 @@ export function Feed() {
                   </div>
                 </header>
                 {p.text && (
-                  <p className="text-sm text-slate-200 md:text-slate-800 whitespace-pre-wrap break-words">{p.text}</p>
+                  <p className="text-sm text-slate-200 md:text-slate-800 whitespace-pre-wrap break-words">
+                    {p.text}
+                  </p>
                 )}
                 {p.media.length > 0 && (
-                  <div className={`mt-3 grid gap-1.5 rounded-lg overflow-hidden ${p.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}>
-                    {p.media.slice(0, 4).map((m) => (
-                      m.kind === "video" ? (
-                        <video key={m.url} src={m.url} muted playsInline className="w-full max-h-72 object-cover rounded-lg bg-black/40" />
-                      ) : (
-                        <img key={m.url} src={m.url} alt="" className="w-full max-h-72 object-cover rounded-lg bg-black/40" />
-                      )
-                    ))}
+                  <div
+                    className={`mt-3 grid gap-1.5 rounded-lg overflow-hidden ${p.media.length > 1 ? "grid-cols-2" : "grid-cols-1"}`}
+                  >
+                    {p.media
+                      .slice(0, 4)
+                      .map((m) =>
+                        m.kind === "video" ? (
+                          <video
+                            key={m.url}
+                            src={m.url}
+                            muted
+                            playsInline
+                            className="w-full max-h-72 object-cover rounded-lg bg-black/40"
+                          />
+                        ) : (
+                          <img
+                            key={m.url}
+                            src={m.url}
+                            alt=""
+                            className="w-full max-h-72 object-cover rounded-lg bg-black/40"
+                          />
+                        ),
+                      )}
                   </div>
                 )}
-                {!p.error && (() => {
-                  const intent = pendingIntents[p.tempId] ?? {};
-                  const liked = !!intent.react;
-                  const setIntent = (patch: Partial<{ react: ReactionType | null; comment: boolean; share: boolean }>) =>
-                    setPendingIntents((prev) => ({ ...prev, [p.tempId]: { ...(prev[p.tempId] ?? {}), ...patch } }));
-                  return (
-                    <>
-                      <div className="mt-4 pt-3 border-t border-white/5 md:border-slate-200 flex items-center gap-1 text-sm text-slate-400 md:text-slate-500">
-                        <button
-                          type="button"
-                          onClick={() => setIntent({ react: liked ? null : "love" })}
-                          aria-pressed={liked}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
-                            liked ? "text-rose-400 md:text-rose-500" : ""
-                          }`}
-                        >
-                          <ReactionImageBadge reaction="love" />
-                          <span>{liked ? 1 : 0}</span>
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIntent({ comment: true })}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
-                            intent.comment ? "text-emerald-400 md:text-emerald-600" : ""
-                          }`}
-                        >
-                          <MessageSquare className="w-4 h-4" /> 0
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setIntent({ share: true })}
-                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
-                            intent.share ? "text-emerald-400 md:text-emerald-600" : ""
-                          }`}
-                        >
-                          <Share2 className="w-4 h-4" /> Share
-                        </button>
-                      </div>
-                      {(liked || intent.comment || intent.share) && (
-                        <p className="mt-2 text-[11px] text-slate-500">
-                          Saved — applies the moment your post goes live.
-                        </p>
-                      )}
-                    </>
-                  );
-                })()}
+                {!p.error &&
+                  (() => {
+                    const intent = pendingIntents[p.tempId] ?? {};
+                    const liked = !!intent.react;
+                    const setIntent = (
+                      patch: Partial<{
+                        react: ReactionType | null;
+                        comment: boolean;
+                        share: boolean;
+                      }>,
+                    ) =>
+                      setPendingIntents((prev) => ({
+                        ...prev,
+                        [p.tempId]: { ...(prev[p.tempId] ?? {}), ...patch },
+                      }));
+                    return (
+                      <>
+                        <div className="mt-4 pt-3 border-t border-white/5 md:border-slate-200 flex items-center gap-1 text-sm text-slate-400 md:text-slate-500">
+                          <button
+                            type="button"
+                            onClick={() => setIntent({ react: liked ? null : "love" })}
+                            aria-pressed={liked}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                              liked ? "text-rose-400 md:text-rose-500" : ""
+                            }`}
+                          >
+                            <ReactionImageBadge reaction="love" />
+                            <span>{liked ? 1 : 0}</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIntent({ comment: true })}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
+                              intent.comment ? "text-emerald-400 md:text-emerald-600" : ""
+                            }`}
+                          >
+                            <MessageSquare className="w-4 h-4" /> 0
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setIntent({ share: true })}
+                            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
+                              intent.share ? "text-emerald-400 md:text-emerald-600" : ""
+                            }`}
+                          >
+                            <Share2 className="w-4 h-4" /> Share
+                          </button>
+                        </div>
+                        {(liked || intent.comment || intent.share) && (
+                          <p className="mt-2 text-[11px] text-slate-500">
+                            Saved — applies the moment your post goes live.
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
                 {p.error && (
                   <div className="mt-3 flex justify-end">
                     <button
@@ -1183,7 +1280,6 @@ export function Feed() {
                     </button>
                   </div>
                 )}
-
               </article>
             ))}
           </div>
@@ -1221,34 +1317,44 @@ export function Feed() {
         ) : postsError ? (
           <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-red-500/40 rounded-xl p-6 text-center">
             <AlertCircle className="w-6 h-6 text-red-400 md:text-red-600 mx-auto mb-2" />
-            <p className="text-sm font-semibold text-red-300 md:text-red-600">Couldn’t load the feed</p>
+            <p className="text-sm font-semibold text-red-300 md:text-red-600">
+              Couldn’t load the feed
+            </p>
             <p className="mt-1 text-xs text-red-300/80">{postsError}</p>
           </div>
         ) : filteredPosts.length === 0 ? (
           isFiltering ? (
             <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
-              <p className="text-sm font-semibold text-white md:text-slate-900">No posts match your filters</p>
+              <p className="text-sm font-semibold text-white md:text-slate-900">
+                No posts match your filters
+              </p>
               <p className="mt-1 text-xs text-slate-400 md:text-slate-600">
                 Try a different search term or switch category.
               </p>
               <button
                 type="button"
-                onClick={() => { setQuery(""); setCategory("all"); }}
+                onClick={() => {
+                  setQuery("");
+                  setCategory("all");
+                }}
                 className="mt-3 inline-flex items-center rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-emerald-400 transition-colors"
               >
                 Clear filters
               </button>
             </div>
           ) : (
-          <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
-            <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-              <MessageSquare className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
+            <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold text-white md:text-slate-900">
+                The feed is quiet right now
+              </p>
+              <p className="mt-1 text-xs text-slate-400 md:text-slate-600 max-w-sm mx-auto">
+                No posts have been shared yet. Kick things off — share an update, ship a build log,
+                or ask the network a question.
+              </p>
             </div>
-            <p className="text-sm font-semibold text-white md:text-slate-900">The feed is quiet right now</p>
-            <p className="mt-1 text-xs text-slate-400 md:text-slate-600 max-w-sm mx-auto">
-              No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question.
-            </p>
-          </div>
           )
         ) : (
           (() => {
@@ -1261,14 +1367,18 @@ export function Feed() {
               if ((i + 1) % 10 === 0 && blogPosts[blogIdx]) {
                 const b = blogPosts[blogIdx++];
                 items.push(
-                  <div key={`blog-${b.id}`} className="relative bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition">
-                    <Link
-                      to="/blog/$slug"
-                      params={{ slug: b.slug }}
-                      className="block"
-                    >
+                  <div
+                    key={`blog-${b.id}`}
+                    className="relative bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition"
+                  >
+                    <Link to="/blog/$slug" params={{ slug: b.slug }} className="block">
                       {b.cover_url && (
-                        <ResponsiveImage src={b.cover_url} alt={b.title} sizes="(min-width: 768px) 640px, 100vw" className="w-full aspect-[16/7] object-cover" />
+                        <ResponsiveImage
+                          src={b.cover_url}
+                          alt={b.title}
+                          sizes="(min-width: 768px) 640px, 100vw"
+                          className="w-full aspect-[16/7] object-cover"
+                        />
                       )}
 
                       <div className="p-4">
@@ -1278,10 +1388,16 @@ export function Feed() {
                             Blog{b.category_name ? ` · ${b.category_name}` : ""}
                           </span>
                         </div>
-                        <h3 className="text-white md:text-slate-900 text-lg font-black leading-tight">{b.title}</h3>
-                        <p className="mt-1.5 text-sm text-slate-400 md:text-slate-600 line-clamp-3">{b.excerpt}</p>
+                        <h3 className="text-white md:text-slate-900 text-lg font-black leading-tight">
+                          {b.title}
+                        </h3>
+                        <p className="mt-1.5 text-sm text-slate-400 md:text-slate-600 line-clamp-3">
+                          {b.excerpt}
+                        </p>
                         <div className="mt-3 flex items-center justify-between">
-                          <span className="text-[11px] text-slate-500 md:text-slate-500">By {b.author_name}</span>
+                          <span className="text-[11px] text-slate-500 md:text-slate-500">
+                            By {b.author_name}
+                          </span>
                           <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
                             Read article →
                           </span>
@@ -1289,8 +1405,12 @@ export function Feed() {
                       </div>
                     </Link>
                     <button
-                      onClick={(e) => { e.preventDefault(); e.stopPropagation(); setBlogShare(b); }}
-                      className="absolute top-2 right-2 p-2 rounded-full bg-black/60 backdrop-blur border border-white/10 text-slate-200 hover:text-white hover:bg-black/80"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setBlogShare(b);
+                      }}
+                      className="absolute top-2 right-2 p-2 rounded-full bg-black border border-white/10 text-slate-200 hover:text-white hover:bg-black"
                       aria-label="Share article"
                     >
                       <Share2 className="w-4 h-4" />
@@ -1308,159 +1428,202 @@ export function Feed() {
               const profileSlug = post.author_slug ?? post.author_id;
               const shareHref = `${shareOrigin}/#post-${post.id}`;
               return (
-              <article
-                key={post.id}
-                id={`post-${post.id}`}
-                className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${isReported ? "opacity-70" : ""} ${
-                  isNew
-                    ? "border-emerald-400/70 post-highlight"
-                    : "border-white/10 md:border-slate-200"
-                }`}
-                style={
-                  isNew
-                    ? undefined
-                    : { contentVisibility: "auto", containIntrinsicSize: "1px 600px" }
-                }
-              >
-                <header className="flex items-center gap-3 mb-3">
-                  <Link
-                    to="/profile/$id"
-                    params={{ id: profileSlug }}
-                    className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
-                  >
-                    <AvatarImage
-                      src={post.author_avatar_url}
-                      alt={post.author_name}
-                      initials={post.initials}
-                    />
-                  </Link>
-                  <div className="min-w-0">
-                    <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
-                      <Link
-                        to="/profile/$id"
-                        params={{ id: profileSlug }}
-                        className="font-semibold text-white md:text-slate-900 text-sm hover:text-emerald-400 md:hover:text-emerald-600 transition-colors"
-                      >
-                        {post.author_name}
-                      </Link>
-                      {post.mentions.length > 0 && (
-                        <span className="text-xs text-slate-400 md:text-slate-600">
-                          <span className="text-slate-500 md:text-slate-500">is with </span>
-                          <Link
-                            to="/profile/$id"
-                            params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
-                            className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
-                          >
-                            {post.mentions[0].name}
-                          </Link>
-                          {post.mentions.length > 1 && (
-                            <>
-                              <span className="text-slate-500 md:text-slate-500"> and </span>
-                              <button
-                                type="button"
-                                onClick={() => setMentionsSheet(post.mentions)}
-                                className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
-                              >
-                                {Math.min(post.mentions.length - 1, 99)}
-                                {post.mentions.length - 1 >= 99 ? "+" : ""} other
-                                {post.mentions.length - 1 === 1 ? "" : "s"}
-                              </button>
-                            </>
-                          )}
-                        </span>
-                      )}
-                    </div>
-                    <div className="text-xs text-slate-500 md:text-slate-500">{timeAgo(post.created_at)}</div>
-                    {post.circle && (
-                      <div className="mt-1.5 flex items-center gap-2 text-[11px]">
-                        <span className="text-slate-500 md:text-slate-500">Posted in</span>
-                        <a
-                          href={`/?section=Circles&circle=${encodeURIComponent(post.circle.slug)}`}
-                          className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
+                <article
+                  key={post.id}
+                  id={`post-${post.id}`}
+                  className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${isReported ? "opacity-70" : ""} ${
+                    isNew
+                      ? "border-emerald-400/70 post-highlight"
+                      : "border-white/10 md:border-slate-200"
+                  }`}
+                  style={
+                    isNew
+                      ? undefined
+                      : { contentVisibility: "auto", containIntrinsicSize: "1px 600px" }
+                  }
+                >
+                  <header className="flex items-center gap-3 mb-3">
+                    <Link
+                      to="/profile/$id"
+                      params={{ id: profileSlug }}
+                      className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
+                    >
+                      <AvatarImage
+                        src={post.author_avatar_url}
+                        alt={post.author_name}
+                        initials={post.initials}
+                      />
+                    </Link>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5">
+                        <Link
+                          to="/profile/$id"
+                          params={{ id: profileSlug }}
+                          className="font-semibold text-white md:text-slate-900 text-sm hover:text-emerald-400 md:hover:text-emerald-600 transition-colors"
                         >
-                          {post.circle.avatarUrl ? (
-                            <img
-                              src={post.circle.avatarUrl}
-                              alt=""
-                              className="w-4 h-4 rounded-full object-cover"
-                              loading="lazy"
-                              decoding="async"
-                            />
-                          ) : (
-                            <Users className="w-3 h-3" />
-                          )}
-                          {post.circle.name}
-                        </a>
-                        {!post.circle.viewerIsMember && (
-                          <button
-                            type="button"
-                            onClick={() => handleJoinCircleFromFeed(post.circle!.id, post.circle!.slug)}
-                            className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold hover:bg-emerald-500/25"
-                          >
-                            Join
-                          </button>
+                          {post.author_name}
+                        </Link>
+                        {post.mentions.length > 0 && (
+                          <span className="text-xs text-slate-400 md:text-slate-600">
+                            <span className="text-slate-500 md:text-slate-500">is with </span>
+                            <Link
+                              to="/profile/$id"
+                              params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
+                              className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
+                            >
+                              {post.mentions[0].name}
+                            </Link>
+                            {post.mentions.length > 1 && (
+                              <>
+                                <span className="text-slate-500 md:text-slate-500"> and </span>
+                                <button
+                                  type="button"
+                                  onClick={() => setMentionsSheet(post.mentions)}
+                                  className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
+                                >
+                                  {Math.min(post.mentions.length - 1, 99)}
+                                  {post.mentions.length - 1 >= 99 ? "+" : ""} other
+                                  {post.mentions.length - 1 === 1 ? "" : "s"}
+                                </button>
+                              </>
+                            )}
+                          </span>
                         )}
                       </div>
+                      <div className="text-xs text-slate-500 md:text-slate-500">
+                        {timeAgo(post.created_at)}
+                      </div>
+                      {post.circle && (
+                        <div className="mt-1.5 flex items-center gap-2 text-[11px]">
+                          <span className="text-slate-500 md:text-slate-500">Posted in</span>
+                          <a
+                            href={`/?section=Circles&circle=${encodeURIComponent(post.circle.slug)}`}
+                            className="inline-flex items-center gap-1.5 text-emerald-300 md:text-emerald-700 font-semibold hover:underline"
+                          >
+                            {post.circle.avatarUrl ? (
+                              <img
+                                src={post.circle.avatarUrl}
+                                alt=""
+                                className="w-4 h-4 rounded-full object-cover"
+                                loading="lazy"
+                                decoding="async"
+                              />
+                            ) : (
+                              <Users className="w-3 h-3" />
+                            )}
+                            {post.circle.name}
+                          </a>
+                          {!post.circle.viewerIsMember && (
+                            <button
+                              type="button"
+                              onClick={() =>
+                                handleJoinCircleFromFeed(post.circle!.id, post.circle!.slug)
+                              }
+                              className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold hover:bg-emerald-500/25"
+                            >
+                              Join
+                            </button>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                    {isReported ? (
+                      <ReportedBadge details={reported.get(post.id)} />
+                    ) : (
+                      <div className="ml-auto flex items-center gap-1">
+                        <PostActionsMenu
+                          postId={post.id}
+                          shareTitle={`${post.author_name} on Oventric`}
+                          shareHref={shareHref}
+                          onReport={() => openReport(post.id)}
+                          isOwn={meId === post.author_id}
+                          onDelete={() => handleDeletePost(post.id)}
+                        />
+                      </div>
                     )}
-                  </div>
-                  {isReported ? (
-                    <ReportedBadge details={reported.get(post.id)} />
-                  ) : (
-                    <div className="ml-auto flex items-center gap-1">
-                      <PostActionsMenu
-                        postId={post.id}
-                        shareTitle={`${post.author_name} on Oventric`}
-                        shareHref={shareHref}
-                        onReport={() => openReport(post.id)}
-                        isOwn={meId === post.author_id}
-                        onDelete={() => handleDeletePost(post.id)}
-                      />
+                  </header>
+                  {isReported && (
+                    <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600">
+                      <Flag className="w-3 h-3" />
+                      You reported this post. It's hidden from your feed pending review.
                     </div>
                   )}
-                </header>
-                {isReported && (
-                  <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600">
-                    <Flag className="w-3 h-3" />
-                    You reported this post. It's hidden from your feed pending review.
-                  </div>
-                )}
-                <TruncatedText
-                  text={post.text || ""}
-                  lines={3}
-                  className="text-slate-300 md:text-slate-700 text-sm leading-relaxed"
-                />
-                {post.media_type === "image" && post.media.length > 0 && (() => {
-                  const imgs = post.media.filter((m) => m.type === "image").map((m) => m.url);
-                  const count = imgs.length;
-                  if (count === 0) return null;
-                  const openAt = (idx: number) => setLightbox({ images: imgs, index: idx });
-                  const layout = pickFeedMosaicLayout(post.id, count);
-                  const displayed = imgs.slice(0, layout.displayedCount);
-                  return (
-                    <div className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10 md:border-slate-200`}>
-                      {displayed.map((url, i) => {
-                        const isLastTile = count > 4 && i === displayed.length - 1;
-                        return (
-                          <button
-                            key={url + i}
-                            type="button"
-                            onClick={() => openAt(i)}
-                            className={`relative block ${count === 1 ? "max-h-[520px]" : layout.isMosaic ? "min-h-0" : "aspect-square"} ${layout.tileClasses[i] ?? ""} w-full overflow-hidden`}
-                            aria-label={`Open image ${i + 1} of ${count}`}
-                          >
-                            <FeedPostImage
-                              src={url}
-                              alt={`Post attachment ${i + 1}`}
-                              className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
-                            />
-                            {isLastTile && count > 4 && (
-                              <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-white text-xl font-semibold">
-                                +{count - 4}
-                              </div>
-                            )}
-                          </button>
-                        );
-                      })}
+                  <TruncatedText
+                    text={post.text || ""}
+                    lines={3}
+                    className="text-slate-300 md:text-slate-700 text-sm leading-relaxed"
+                  />
+                  {post.media_type === "image" &&
+                    post.media.length > 0 &&
+                    (() => {
+                      const imgs = post.media.filter((m) => m.type === "image").map((m) => m.url);
+                      const count = imgs.length;
+                      if (count === 0) return null;
+                      const openAt = (idx: number) => setLightbox({ images: imgs, index: idx });
+                      const layout = pickFeedMosaicLayout(post.id, count);
+                      const displayed = imgs.slice(0, layout.displayedCount);
+                      return (
+                        <div
+                          className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10 md:border-slate-200`}
+                        >
+                          {displayed.map((url, i) => {
+                            const isLastTile = count > 4 && i === displayed.length - 1;
+                            return (
+                              <button
+                                key={url + i}
+                                type="button"
+                                onClick={() => openAt(i)}
+                                className={`relative block ${count === 1 ? "max-h-[520px]" : layout.isMosaic ? "min-h-0" : "aspect-square"} ${layout.tileClasses[i] ?? ""} w-full overflow-hidden`}
+                                aria-label={`Open image ${i + 1} of ${count}`}
+                              >
+                                <FeedPostImage
+                                  src={url}
+                                  alt={`Post attachment ${i + 1}`}
+                                  className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
+                                />
+                                {isLastTile && count > 4 && (
+                                  <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-white text-xl font-semibold">
+                                    +{count - 4}
+                                  </div>
+                                )}
+                              </button>
+                            );
+                          })}
+                          {splash && splash.postId === post.id && (
+                            <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
+                          )}
+                          {post.viewer_reaction && (
+                            <ReactionImageBadge reaction={post.viewer_reaction} />
+                          )}
+                        </div>
+                      );
+                    })()}
+                  {post.media_url && post.media_type === "video" && (
+                    <div className="relative mt-3">
+                      <button
+                        type="button"
+                        onClick={() => setVideoStartId(post.id)}
+                        className="relative block w-full aspect-video rounded-lg border border-white/10 md:border-slate-200 bg-black overflow-hidden group"
+                        aria-label="Play video"
+                      >
+                        <video
+                          src={`${post.media_url}#t=0.1`}
+                          poster={post.poster_url ?? undefined}
+                          preload={post.poster_url ? "none" : "metadata"}
+                          muted
+                          playsInline
+                          disableRemotePlayback
+                          // The uploaded poster is served instantly; the clip
+                          // itself is only fetched when the user opens the reel.
+                          className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+                        />
+
+                        <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
+                          <div className="p-4 rounded-full bg-black border border-white/25">
+                            <Play className="w-8 h-8 text-white md:text-slate-900 fill-white" />
+                          </div>
+                        </div>
+                      </button>
                       {splash && splash.postId === post.id && (
                         <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
                       )}
@@ -1468,136 +1631,103 @@ export function Feed() {
                         <ReactionImageBadge reaction={post.viewer_reaction} />
                       )}
                     </div>
-                  );
-                })()}
-                {post.media_url && post.media_type === "video" && (
-                  <div className="relative mt-3">
-                    <button
-                      type="button"
-                      onClick={() => setVideoStartId(post.id)}
-                      className="relative block w-full aspect-video rounded-lg border border-white/10 md:border-slate-200 bg-black overflow-hidden group"
-                      aria-label="Play video"
-                    >
-                      <video
-                        src={`${post.media_url}#t=0.1`}
-                        poster={post.poster_url ?? undefined}
-                        preload={post.poster_url ? "none" : "metadata"}
-                        muted
-                        playsInline
-                        disableRemotePlayback
-                        // The uploaded poster is served instantly; the clip
-                        // itself is only fetched when the user opens the reel.
-                        className="absolute inset-0 w-full h-full object-cover pointer-events-none"
-                      />
+                  )}
 
-                      <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
-                        <div className="p-4 rounded-full bg-black/70 border border-white/25 backdrop-blur">
-                          <Play className="w-8 h-8 text-white md:text-slate-900 fill-white" />
-                        </div>
-                      </div>
-                    </button>
-                    {splash && splash.postId === post.id && (
-                      <ReactionSplash reaction={splash.reaction} keyId={splash.id} />
-                    )}
-                    {post.viewer_reaction && (
-                      <ReactionImageBadge reaction={post.viewer_reaction} />
-                    )}
-                  </div>
-                )}
-
-                {/* Action bar */}
-                <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 md:border-slate-200 text-slate-400 md:text-slate-600 text-xs">
-                  <div className="relative flex items-center gap-2">
-                    <ReactionButton
-                      reaction={post.viewer_reaction ?? "love"}
-                      size="sm"
-                      ariaLabel="React"
-                      onClick={() => {
-                        if (post.viewer_reaction) {
-                          handleReact(post, null);
-                        } else {
-                          setPickerFor((v) => (v === post.id ? null : post.id));
-                        }
-                      }}
-                    />
-                    <span
-                      className="font-semibold"
-                      style={{
-                        color: post.viewer_reaction ? REACTION_META[post.viewer_reaction].color : undefined,
-                      }}
-                    >
-                      {post.likes_count}
-                    </span>
-                    {pickerFor === post.id && (
-                      <ReactionPicker
-                        onPick={(r) => {
-                          setPickerFor(null);
-                          handleReact(post, r);
+                  {/* Action bar */}
+                  <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 md:border-slate-200 text-slate-400 md:text-slate-600 text-xs">
+                    <div className="relative flex items-center gap-2">
+                      <ReactionButton
+                        reaction={post.viewer_reaction ?? "love"}
+                        size="sm"
+                        ariaLabel="React"
+                        onClick={() => {
+                          if (post.viewer_reaction) {
+                            handleReact(post, null);
+                          } else {
+                            setPickerFor((v) => (v === post.id ? null : post.id));
+                          }
                         }}
-                        onClose={() => setPickerFor(null)}
                       />
-                    )}
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setCommentsSheetPostId(post.id)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors"
-                    aria-label="Open comments"
-                  >
-                    <MessageSquare className="w-4 h-4" /> {post.comments_count}
-                  </button>
-                  <button
-                    onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors ml-auto"
-                  >
-                    <Share2 className="w-4 h-4" /> Share
-                  </button>
-                </div>
-
-                {/* Comments preview: latest one, tap count → sheet */}
-                <div className="mt-3">
-                  {comments.length === 0 ? (
+                      <span
+                        className="font-semibold"
+                        style={{
+                          color: post.viewer_reaction
+                            ? REACTION_META[post.viewer_reaction].color
+                            : undefined,
+                        }}
+                      >
+                        {post.likes_count}
+                      </span>
+                      {pickerFor === post.id && (
+                        <ReactionPicker
+                          onPick={(r) => {
+                            setPickerFor(null);
+                            handleReact(post, r);
+                          }}
+                          onClose={() => setPickerFor(null)}
+                        />
+                      )}
+                    </div>
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors"
+                      aria-label="Open comments"
                     >
-                      No comments yet — be the first to reply.
+                      <MessageSquare className="w-4 h-4" /> {post.comments_count}
                     </button>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {(() => {
-                        const latest = comments[comments.length - 1];
-                        return (
-                          <div className="flex items-start gap-2">
-                            <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center text-white/85 md:text-slate-700">
-                              <User className="w-4 h-4" strokeWidth={1.75} />
-                            </div>
-                            <div className="flex-1 min-w-0 bg-black/30 md:bg-slate-100 border border-white/5 md:border-slate-200 rounded-lg px-3 py-2">
-                              <div className="text-xs font-semibold text-white md:text-slate-900 truncate">
-                                {latest.author}
-                              </div>
-                              <div className="text-xs text-slate-300 md:text-slate-700 mt-0.5 line-clamp-2 whitespace-pre-wrap break-words">
-                                {latest.text}
-                              </div>
-                            </div>
-                          </div>
-                        );
-                      })()}
+                    <button
+                      onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors ml-auto"
+                    >
+                      <Share2 className="w-4 h-4" /> Share
+                    </button>
+                  </div>
+
+                  {/* Comments preview: latest one, tap count → sheet */}
+                  <div className="mt-3">
+                    {comments.length === 0 ? (
                       <button
                         type="button"
                         onClick={() => setCommentsSheetPostId(post.id)}
-                        className="text-[11px] font-medium text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
+                        className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
                       >
-                        {post.comments_count > 1
-                          ? `View all ${post.comments_count} comments`
-                          : "Reply"}
+                        No comments yet — be the first to reply.
                       </button>
-                    </div>
-                  )}
-                </div>
-              </article>
-            );
+                    ) : (
+                      <div className="space-y-1.5">
+                        {(() => {
+                          const latest = comments[comments.length - 1];
+                          return (
+                            <div className="flex items-start gap-2">
+                              <div className="w-7 h-7 shrink-0 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center text-white/85 md:text-slate-700">
+                                <User className="w-4 h-4" strokeWidth={1.75} />
+                              </div>
+                              <div className="flex-1 min-w-0 bg-black/30 md:bg-slate-100 border border-white/5 md:border-slate-200 rounded-lg px-3 py-2">
+                                <div className="text-xs font-semibold text-white md:text-slate-900 truncate">
+                                  {latest.author}
+                                </div>
+                                <div className="text-xs text-slate-300 md:text-slate-700 mt-0.5 line-clamp-2 whitespace-pre-wrap break-words">
+                                  {latest.text}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })()}
+                        <button
+                          type="button"
+                          onClick={() => setCommentsSheetPostId(post.id)}
+                          className="text-[11px] font-medium text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
+                        >
+                          {post.comments_count > 1
+                            ? `View all ${post.comments_count} comments`
+                            : "Reply"}
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </article>
+              );
             }
           })()
         )}
@@ -1607,58 +1737,79 @@ export function Feed() {
 
         {/* Mock marketplace, sponsored, and bounty cards removed — live data lives in the DiscoveryPanel and dedicated routes. */}
 
-
         <ShareSheet
           open={!!blogShare}
           onClose={() => setBlogShare(null)}
-          url={blogShare ? `${typeof window !== "undefined" ? window.location.origin : ""}/blog/${blogShare.slug}` : ""}
+          url={
+            blogShare
+              ? `${typeof window !== "undefined" ? window.location.origin : ""}/blog/${blogShare.slug}`
+              : ""
+          }
           title={blogShare?.title ?? "Oventric Blog"}
           text={blogShare?.excerpt || undefined}
         />
         <ReportModal
           open={!!reportOpen}
           onClose={() => setReportOpen(null)}
-          target={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+          target={
+            reportOpen?.startsWith("bounty")
+              ? "bounty"
+              : reportOpen?.startsWith("listing")
+                ? "listing"
+                : "post"
+          }
           targetId={reportOpen ?? undefined}
-          targetKind={reportOpen?.startsWith("bounty") ? "bounty" : reportOpen?.startsWith("listing") ? "listing" : "post"}
+          targetKind={
+            reportOpen?.startsWith("bounty")
+              ? "bounty"
+              : reportOpen?.startsWith("listing")
+                ? "listing"
+                : "post"
+          }
           onReported={markReported}
         />
       </div>
       <DiscoveryPanel />
 
       {lightbox && (
-        <ImageLightbox images={lightbox.images} startIndex={lightbox.index} onClose={() => setLightbox(null)} />
+        <ImageLightbox
+          images={lightbox.images}
+          startIndex={lightbox.index}
+          onClose={() => setLightbox(null)}
+        />
       )}
-      {videoStartId && (() => {
-        const videos = posts.filter((p) => p.media_type === "video" && p.media_url);
-        if (!videos.some((v) => v.id === videoStartId)) return null;
-        return (
-          <VideoPlayerModal
-            videos={videos}
-            startId={videoStartId}
-            onClose={() => setVideoStartId(null)}
-            onReact={(postId, reaction) => {
-              const p = posts.find((x) => x.id === postId);
-              if (p) handleReact(p, reaction);
-            }}
-            onOpenComments={(postId) => setCommentsSheetPostId(postId)}
-            onReport={(postId) => setReportOpen(postId)}
-          />
-        );
-      })()}
-      {commentsSheetPostId && (() => {
-        const p = posts.find((x) => x.id === commentsSheetPostId);
-        if (!p) return null;
-        return (
-          <CommentsSheet
-            postId={p.id}
-            postAuthorName={p.author_name}
-            onClose={() => setCommentsSheetPostId(null)}
-            viewerName="You"
-            viewerInitials="OV"
-          />
-        );
-      })()}
+      {videoStartId &&
+        (() => {
+          const videos = posts.filter((p) => p.media_type === "video" && p.media_url);
+          if (!videos.some((v) => v.id === videoStartId)) return null;
+          return (
+            <VideoPlayerModal
+              videos={videos}
+              startId={videoStartId}
+              onClose={() => setVideoStartId(null)}
+              onReact={(postId, reaction) => {
+                const p = posts.find((x) => x.id === postId);
+                if (p) handleReact(p, reaction);
+              }}
+              onOpenComments={(postId) => setCommentsSheetPostId(postId)}
+              onReport={(postId) => setReportOpen(postId)}
+            />
+          );
+        })()}
+      {commentsSheetPostId &&
+        (() => {
+          const p = posts.find((x) => x.id === commentsSheetPostId);
+          if (!p) return null;
+          return (
+            <CommentsSheet
+              postId={p.id}
+              postAuthorName={p.author_name}
+              onClose={() => setCommentsSheetPostId(null)}
+              viewerName="You"
+              viewerInitials="OV"
+            />
+          );
+        })()}
       <PostComposerModal
         open={composerOpen}
         onClose={() => setComposerOpen(false)}
@@ -1738,7 +1889,7 @@ export function Feed() {
       />
       {mentionsSheet && (
         <div
-          className="modal-light fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="modal-light fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4"
           onClick={() => setMentionsSheet(null)}
         >
           <div
@@ -1746,7 +1897,9 @@ export function Feed() {
             className="w-full max-w-sm bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden shadow-2xl"
           >
             <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 md:border-slate-200">
-              <h3 className="text-white md:text-slate-900 font-semibold text-sm">Mentioned in this post</h3>
+              <h3 className="text-white md:text-slate-900 font-semibold text-sm">
+                Mentioned in this post
+              </h3>
               <button
                 type="button"
                 onClick={() => setMentionsSheet(null)}

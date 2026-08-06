@@ -189,7 +189,10 @@ export function CourseEditorModal({
       if (!form.isFree) {
         fxSnapshot = await snapshotFx();
         const rate = fxSnapshot.rates[form.priceCurrency] ?? usdRate(form.priceCurrency);
-        priceUSD = form.priceCurrency === "USD" ? form.priceLocal : Number((form.priceLocal / (rate || 1)).toFixed(2));
+        priceUSD =
+          form.priceCurrency === "USD"
+            ? form.priceLocal
+            : Number((form.priceLocal / (rate || 1)).toFixed(2));
       } else {
         originalCurrency = "USD";
         originalAmount = 0;
@@ -249,7 +252,9 @@ export function CourseEditorModal({
     if (!hasAny) return toast.error("Add a video link, upload a video, or write module notes");
     try {
       const provider = detectProvider(modForm.videoUrl);
-      const pos = modForm.id ? modules.find((m) => m.id === modForm.id)?.position ?? 0 : modules.length;
+      const pos = modForm.id
+        ? (modules.find((m) => m.id === modForm.id)?.position ?? 0)
+        : modules.length;
       const saved = await saveModule({
         data: {
           id: modForm.id || undefined,
@@ -295,8 +300,14 @@ export function CourseEditorModal({
     if (file.size > 500 * 1024 * 1024) return toast.error("Video must be ≤ 500 MB");
     setModVideoUploading(true);
     try {
-      const { path, signedUrl } = await getModUpload({ data: { filename: file.name, kind: "video" } });
-      const res = await fetch(signedUrl, { method: "PUT", body: file, headers: { "Content-Type": file.type || "video/mp4" } });
+      const { path, signedUrl } = await getModUpload({
+        data: { filename: file.name, kind: "video" },
+      });
+      const res = await fetch(signedUrl, {
+        method: "PUT",
+        body: file,
+        headers: { "Content-Type": file.type || "video/mp4" },
+      });
       if (!res.ok) throw new Error("Upload failed");
       setModForm((f) => ({ ...f, videoPath: path, videoFileUrl: URL.createObjectURL(file) }));
       toast.success("Video uploaded");
@@ -331,56 +342,116 @@ export function CourseEditorModal({
 
   return (
     <div className="modal-light fixed inset-0 z-[60] flex items-end sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="relative w-full max-w-4xl max-h-[92vh] bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl flex flex-col">
         <div className="flex items-center justify-between p-5 border-b border-white/10 shrink-0">
           <div>
-            <h2 className="text-lg font-bold text-white">{savedId ? "Edit Course" : "Publish a Course"}</h2>
+            <h2 className="text-lg font-bold text-white">
+              {savedId ? "Edit Course" : "Publish a Course"}
+            </h2>
             <p className="text-xs text-slate-500">
-              {savedId ? "Update details and manage modules" : "Step 1: save details, then add video modules"}
+              {savedId
+                ? "Update details and manage modules"
+                : "Step 1: save details, then add video modules"}
             </p>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {loading ? (
-          <div className="p-10 text-center"><Loader2 className="w-6 h-6 mx-auto text-emerald-400 animate-spin" /></div>
+          <div className="p-10 text-center">
+            <Loader2 className="w-6 h-6 mx-auto text-emerald-400 animate-spin" />
+          </div>
         ) : (
           <div className="flex-1 overflow-y-auto p-5 space-y-6">
             {/* DETAILS */}
             <section className="space-y-3">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Course Details</h3>
+              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                Course Details
+              </h3>
               <div className="grid sm:grid-cols-2 gap-3">
                 <Field label="Title *">
-                  <input value={form.title} onChange={(e) => setForm({ ...form, title: e.target.value })} className="input" placeholder="e.g. React Server Components" />
+                  <input
+                    value={form.title}
+                    onChange={(e) => setForm({ ...form, title: e.target.value })}
+                    className="input"
+                    placeholder="e.g. React Server Components"
+                  />
                 </Field>
                 <Field label="Instructor name">
-                  <input value={form.instructorName} onChange={(e) => setForm({ ...form, instructorName: e.target.value })} className="input" placeholder="Displayed as author" />
+                  <input
+                    value={form.instructorName}
+                    onChange={(e) => setForm({ ...form, instructorName: e.target.value })}
+                    className="input"
+                    placeholder="Displayed as author"
+                  />
                 </Field>
                 <Field label="Category">
-                  <select value={form.category} onChange={(e) => setForm({ ...form, category: e.target.value as CourseCategory })} className="input">
-                    {CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
+                  <select
+                    value={form.category}
+                    onChange={(e) =>
+                      setForm({ ...form, category: e.target.value as CourseCategory })
+                    }
+                    className="input"
+                  >
+                    {CATEGORIES.map((c) => (
+                      <option key={c.key} value={c.key}>
+                        {c.label}
+                      </option>
+                    ))}
                   </select>
                 </Field>
                 <Field label="Level">
-                  <select value={form.level} onChange={(e) => setForm({ ...form, level: e.target.value as CourseLevel })} className="input">
-                    {LEVELS.map((l) => <option key={l.key} value={l.key}>{l.label}</option>)}
+                  <select
+                    value={form.level}
+                    onChange={(e) => setForm({ ...form, level: e.target.value as CourseLevel })}
+                    className="input"
+                  >
+                    {LEVELS.map((l) => (
+                      <option key={l.key} value={l.key}>
+                        {l.label}
+                      </option>
+                    ))}
                   </select>
                 </Field>
               </div>
               <Field label="Description">
-                <textarea value={form.description} onChange={(e) => setForm({ ...form, description: e.target.value })} rows={3} className="input resize-none" placeholder="What learners will build and master..." />
+                <textarea
+                  value={form.description}
+                  onChange={(e) => setForm({ ...form, description: e.target.value })}
+                  rows={3}
+                  className="input resize-none"
+                  placeholder="What learners will build and master..."
+                />
               </Field>
 
               <Field label="Cover image (optional, up to 5MB)">
                 <div className="flex items-center gap-3">
-                  {coverUrl && <ResponsiveImage sizes="96px" src={coverUrl} alt="cover" className="w-24 h-14 rounded-lg object-cover border border-white/10"  loading="lazy" decoding="async" />}
+                  {coverUrl && (
+                    <ResponsiveImage
+                      sizes="96px"
+                      src={coverUrl}
+                      alt="cover"
+                      className="w-24 h-14 rounded-lg object-cover border border-white/10"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  )}
                   <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-sm text-white">
                     <Upload className="w-4 h-4" />
                     {uploading ? "Uploading..." : coverPath ? "Replace" : "Upload cover"}
-                    <input type="file" accept="image/*" className="hidden" disabled={uploading} onChange={(e) => e.target.files?.[0] && handleCoverUpload(e.target.files[0])} />
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      disabled={uploading}
+                      onChange={(e) => e.target.files?.[0] && handleCoverUpload(e.target.files[0])}
+                    />
                   </label>
                 </div>
               </Field>
@@ -390,12 +461,20 @@ export function CourseEditorModal({
                   <input
                     type="checkbox"
                     checked={form.isFree}
-                    onChange={(e) => setForm({ ...form, isFree: e.target.checked, priceLocal: e.target.checked ? 0 : form.priceLocal })}
+                    onChange={(e) =>
+                      setForm({
+                        ...form,
+                        isFree: e.target.checked,
+                        priceLocal: e.target.checked ? 0 : form.priceLocal,
+                      })
+                    }
                     className="accent-emerald-500"
                   />
                   <span className="text-sm text-white">This is a free course</span>
                 </label>
-                <Field label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency}) ${form.isFree ? "· disabled" : "· locked at publish"}`}>
+                <Field
+                  label={`Price (${currencySymbol(form.priceCurrency)} ${form.priceCurrency}) ${form.isFree ? "· disabled" : "· locked at publish"}`}
+                >
                   <input
                     type="number"
                     min="0"
@@ -409,30 +488,49 @@ export function CourseEditorModal({
               </div>
               {!form.isFree && (
                 <p className="text-[11px] text-slate-500 -mt-2">
-                  Price is set in your base currency ({form.priceCurrency}). Learners on other currencies see the equivalent using the FX rate locked at publish time — the amount they pay never fluctuates after that.
+                  Price is set in your base currency ({form.priceCurrency}). Learners on other
+                  currencies see the equivalent using the FX rate locked at publish time — the
+                  amount they pay never fluctuates after that.
                 </p>
               )}
 
               <div className="flex flex-wrap gap-3">
                 <label className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10 cursor-pointer">
-                  <input type="checkbox" checked={form.isPublished} onChange={(e) => setForm({ ...form, isPublished: e.target.checked })} className="accent-emerald-500" />
+                  <input
+                    type="checkbox"
+                    checked={form.isPublished}
+                    onChange={(e) => setForm({ ...form, isPublished: e.target.checked })}
+                    className="accent-emerald-500"
+                  />
                   <span className="text-sm text-white">Published (visible in catalog)</span>
                 </label>
                 {isAdmin && (
                   <label className="flex items-center gap-2 p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/30 cursor-pointer">
-                    <input type="checkbox" checked={form.promoted} onChange={(e) => setForm({ ...form, promoted: e.target.checked })} className="accent-emerald-500" />
+                    <input
+                      type="checkbox"
+                      checked={form.promoted}
+                      onChange={(e) => setForm({ ...form, promoted: e.target.checked })}
+                      className="accent-emerald-500"
+                    />
                     <span className="text-sm text-emerald-300">Promote course (admin)</span>
                   </label>
                 )}
               </div>
 
               <div className="flex gap-2 pt-1">
-                <button onClick={saveCourse} disabled={saving} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2">
+                <button
+                  onClick={saveCourse}
+                  disabled={saving}
+                  className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-50 text-black font-bold text-sm inline-flex items-center gap-2"
+                >
                   {saving && <Loader2 className="w-4 h-4 animate-spin" />}
                   {savedId ? "Save changes" : "Create course & add modules"}
                 </button>
                 {savedId && (
-                  <button onClick={removeCourseHandler} className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold">
+                  <button
+                    onClick={removeCourseHandler}
+                    className="px-4 py-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300 text-sm font-semibold"
+                  >
                     Delete course
                   </button>
                 )}
@@ -442,21 +540,37 @@ export function CourseEditorModal({
             {/* MODULES */}
             {savedId && (
               <section className="space-y-3 border-t border-white/10 pt-5">
-                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">Modules ({modules.length})</h3>
+                <h3 className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  Modules ({modules.length})
+                </h3>
 
                 <div className="space-y-2">
                   {modules.map((m, i) => (
-                    <div key={m.id} className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10">
+                    <div
+                      key={m.id}
+                      className="flex items-center gap-2 p-3 rounded-lg bg-[#121214] border border-white/10"
+                    >
                       <GripVertical className="w-4 h-4 text-slate-600" />
                       <span className="text-xs font-bold text-slate-500 w-6">{i + 1}.</span>
                       <div className="flex-1 min-w-0">
                         <div className="text-sm font-semibold text-white truncate">{m.title}</div>
                         <div className="text-[11px] text-slate-500 flex items-center gap-2">
-                          <Video className="w-3 h-3" /> {m.videoProvider} · {m.durationMin || "?"} min {m.isPreview && "· preview"}
+                          <Video className="w-3 h-3" /> {m.videoProvider} · {m.durationMin || "?"}{" "}
+                          min {m.isPreview && "· preview"}
                         </div>
                       </div>
-                      <button onClick={() => editModule(m)} className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1">Edit</button>
-                      <button onClick={() => removeMod(m.id)} className="text-xs text-red-400 hover:text-red-300 p-1"><Trash2 className="w-3.5 h-3.5" /></button>
+                      <button
+                        onClick={() => editModule(m)}
+                        className="text-xs text-emerald-400 hover:text-emerald-300 px-2 py-1"
+                      >
+                        Edit
+                      </button>
+                      <button
+                        onClick={() => removeMod(m.id)}
+                        className="text-xs text-red-400 hover:text-red-300 p-1"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
                     </div>
                   ))}
                   {modules.length === 0 && (
@@ -472,46 +586,111 @@ export function CourseEditorModal({
                   </div>
                   <div className="grid sm:grid-cols-2 gap-3">
                     <Field label="Module title *">
-                      <input value={modForm.title} onChange={(e) => setModForm({ ...modForm, title: e.target.value })} className="input" placeholder="Module 1 — Foundations" />
+                      <input
+                        value={modForm.title}
+                        onChange={(e) => setModForm({ ...modForm, title: e.target.value })}
+                        className="input"
+                        placeholder="Module 1 — Foundations"
+                      />
                     </Field>
                     <Field label="Video URL (YouTube or Vimeo) *">
-                      <input value={modForm.videoUrl} onChange={(e) => setModForm({ ...modForm, videoUrl: e.target.value })} className="input" placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..." />
+                      <input
+                        value={modForm.videoUrl}
+                        onChange={(e) => setModForm({ ...modForm, videoUrl: e.target.value })}
+                        className="input"
+                        placeholder="https://youtube.com/watch?v=... or https://vimeo.com/..."
+                      />
                     </Field>
                     <Field label="Duration (minutes)">
-                      <input type="number" min="0" value={modForm.durationMin} onChange={(e) => setModForm({ ...modForm, durationMin: Number(e.target.value) })} className="input" />
+                      <input
+                        type="number"
+                        min="0"
+                        value={modForm.durationMin}
+                        onChange={(e) =>
+                          setModForm({ ...modForm, durationMin: Number(e.target.value) })
+                        }
+                        className="input"
+                      />
                     </Field>
                     <label className="flex items-center gap-2 p-3 rounded-lg bg-[#1E1E24] border border-white/10 cursor-pointer">
-                      <input type="checkbox" checked={modForm.isPreview} onChange={(e) => setModForm({ ...modForm, isPreview: e.target.checked })} className="accent-emerald-500" />
-                      <span className="text-sm text-white">Free preview (viewable pre-enrollment)</span>
+                      <input
+                        type="checkbox"
+                        checked={modForm.isPreview}
+                        onChange={(e) => setModForm({ ...modForm, isPreview: e.target.checked })}
+                        className="accent-emerald-500"
+                      />
+                      <span className="text-sm text-white">
+                        Free preview (viewable pre-enrollment)
+                      </span>
                     </label>
                   </div>
                   <Field label="Short description">
-                    <textarea rows={2} value={modForm.description} onChange={(e) => setModForm({ ...modForm, description: e.target.value })} className="input resize-none" placeholder="What this module covers" />
+                    <textarea
+                      rows={2}
+                      value={modForm.description}
+                      onChange={(e) => setModForm({ ...modForm, description: e.target.value })}
+                      className="input resize-none"
+                      placeholder="What this module covers"
+                    />
                   </Field>
                   <Field label="Upload module video (optional, ≤ 500 MB)">
                     <div className="flex items-center gap-2">
                       <label className="inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-200 cursor-pointer">
                         <Film className="w-4 h-4" />
-                        {modVideoUploading ? "Uploading…" : modForm.videoPath ? "Replace video" : "Choose video"}
-                        <input type="file" accept="video/*" className="hidden" onChange={(e) => { const f = e.target.files?.[0]; if (f) uploadModuleVideo(f); }} />
+                        {modVideoUploading
+                          ? "Uploading…"
+                          : modForm.videoPath
+                            ? "Replace video"
+                            : "Choose video"}
+                        <input
+                          type="file"
+                          accept="video/*"
+                          className="hidden"
+                          onChange={(e) => {
+                            const f = e.target.files?.[0];
+                            if (f) uploadModuleVideo(f);
+                          }}
+                        />
                       </label>
                       {modForm.videoPath && (
-                        <button type="button" onClick={() => setModForm({ ...modForm, videoPath: null, videoFileUrl: null })} className="text-xs text-red-300 hover:text-red-200">Remove</button>
+                        <button
+                          type="button"
+                          onClick={() =>
+                            setModForm({ ...modForm, videoPath: null, videoFileUrl: null })
+                          }
+                          className="text-xs text-red-300 hover:text-red-200"
+                        >
+                          Remove
+                        </button>
                       )}
                     </div>
                     {modForm.videoFileUrl && (
-                      <video src={modForm.videoFileUrl} controls className="mt-2 w-full max-h-48 rounded-lg border border-white/10 bg-black" />
+                      <video
+                        src={modForm.videoFileUrl}
+                        controls
+                        className="mt-2 w-full max-h-48 rounded-lg border border-white/10 bg-black"
+                      />
                     )}
                   </Field>
                   <Field label="Module body (rich text)">
-                    <RichTextEditor value={modForm.body} onChange={(html) => setModForm({ ...modForm, body: html })} placeholder="Write full lesson notes. Insert images or screenshots inline." />
+                    <RichTextEditor
+                      value={modForm.body}
+                      onChange={(html) => setModForm({ ...modForm, body: html })}
+                      placeholder="Write full lesson notes. Insert images or screenshots inline."
+                    />
                   </Field>
                   <div className="flex gap-2">
-                    <button onClick={addOrUpdateModule} className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2">
+                    <button
+                      onClick={addOrUpdateModule}
+                      className="px-3 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm inline-flex items-center gap-2"
+                    >
                       <Plus className="w-4 h-4" /> {modForm.id ? "Update module" : "Add module"}
                     </button>
                     {modForm.id && (
-                      <button onClick={() => setModForm(emptyModForm)} className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm">
+                      <button
+                        onClick={() => setModForm(emptyModForm)}
+                        className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-300 text-sm"
+                      >
                         Cancel
                       </button>
                     )}
@@ -523,9 +702,17 @@ export function CourseEditorModal({
         )}
 
         <div className="p-4 border-t border-white/10 flex justify-end gap-2 shrink-0">
-          <button onClick={onClose} className="px-4 py-2 rounded-lg text-slate-300 hover:text-white text-sm">Close</button>
+          <button
+            onClick={onClose}
+            className="px-4 py-2 rounded-lg text-slate-300 hover:text-white text-sm"
+          >
+            Close
+          </button>
           {savedId && (
-            <button onClick={finish} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm">
+            <button
+              onClick={finish}
+              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
+            >
               Done
             </button>
           )}
@@ -540,7 +727,9 @@ export function CourseEditorModal({
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 block">{label}</span>
+      <span className="text-[11px] font-semibold uppercase tracking-wider text-slate-500 mb-1 block">
+        {label}
+      </span>
       {children}
     </label>
   );

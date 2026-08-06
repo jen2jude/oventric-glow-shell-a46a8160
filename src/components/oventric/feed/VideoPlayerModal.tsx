@@ -1,7 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  X, MessageCircle, Pin, MoreHorizontal, Play, Share2, Bookmark, Flag,
-  ThumbsUp, ThumbsDown, EyeOff, Download, Link2,
+  X,
+  MessageCircle,
+  Pin,
+  MoreHorizontal,
+  Play,
+  Share2,
+  Bookmark,
+  Flag,
+  ThumbsUp,
+  ThumbsDown,
+  EyeOff,
+  Download,
+  Link2,
 } from "lucide-react";
 import { ReactionPicker, ReactionSplash, ReactionButton, REACTION_META } from "./Reactions";
 import { togglePostSet } from "@/components/oventric/PostActionsMenu";
@@ -14,16 +25,28 @@ const HIDE_KEY = "oventric:hidden_videos";
 const INTEREST_KEY = "oventric:video_interest"; // { [postId]: 1 | -1 }
 
 function readSet(key: string): Set<string> {
-  try { return new Set(JSON.parse(localStorage.getItem(key) ?? "[]")); } catch { return new Set(); }
+  try {
+    return new Set(JSON.parse(localStorage.getItem(key) ?? "[]"));
+  } catch {
+    return new Set();
+  }
 }
 function writeSet(key: string, s: Set<string>) {
-  try { localStorage.setItem(key, JSON.stringify(Array.from(s))); } catch {}
+  try {
+    localStorage.setItem(key, JSON.stringify(Array.from(s)));
+  } catch {}
 }
 function readMap(key: string): Record<string, number> {
-  try { return JSON.parse(localStorage.getItem(key) ?? "{}") ?? {}; } catch { return {}; }
+  try {
+    return JSON.parse(localStorage.getItem(key) ?? "{}") ?? {};
+  } catch {
+    return {};
+  }
 }
 function writeMap(key: string, m: Record<string, number>) {
-  try { localStorage.setItem(key, JSON.stringify(m)); } catch {}
+  try {
+    localStorage.setItem(key, JSON.stringify(m));
+  } catch {}
 }
 
 interface Props {
@@ -56,9 +79,19 @@ async function shareVideo(post: FeedPost) {
   const url = post.media_url ?? window.location.href;
   const shareData = { title: `@${post.author_slug ?? post.author_name}`, text: post.text, url };
   if (navigator.share) {
-    try { await navigator.share(shareData); return; } catch { /* cancelled */ }
+    try {
+      await navigator.share(shareData);
+      return;
+    } catch {
+      /* cancelled */
+    }
   }
-  try { await navigator.clipboard.writeText(url); alert("Link copied to clipboard"); } catch { /* ignore */ }
+  try {
+    await navigator.clipboard.writeText(url);
+    alert("Link copied to clipboard");
+  } catch {
+    /* ignore */
+  }
 }
 
 function VideoItem({
@@ -95,7 +128,9 @@ function VideoItem({
     if (!v) return;
     if (active) {
       v.currentTime = 0;
-      v.play().then(() => setPaused(false)).catch(() => setPaused(true));
+      v.play()
+        .then(() => setPaused(false))
+        .catch(() => setPaused(true));
     } else {
       v.pause();
     }
@@ -126,13 +161,22 @@ function VideoItem({
         onClick={() => {
           const v = vRef.current;
           if (!v) return;
-          if (v.paused) { v.play(); setPaused(false); } else { v.pause(); setPaused(true); }
+          if (v.paused) {
+            v.play();
+            setPaused(false);
+          } else {
+            v.pause();
+            setPaused(true);
+          }
         }}
       />
 
       {paused && (
         <button
-          onClick={() => { vRef.current?.play(); setPaused(false); }}
+          onClick={() => {
+            vRef.current?.play();
+            setPaused(false);
+          }}
           className="absolute inset-0 flex items-center justify-center bg-black/30"
         >
           <div className="p-5 rounded-full bg-black/60 border border-white/20">
@@ -152,14 +196,15 @@ function VideoItem({
             sizes="36px"
             className="w-9 h-9 rounded-full object-cover border border-white/30 shrink-0"
           />
-
         ) : (
           <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[11px] font-semibold text-emerald-300 shrink-0">
             {post.initials}
           </div>
         )}
         <div className="min-w-0">
-          <div className="text-[13px] font-semibold text-white/95">@{post.author_slug ?? post.author_name}</div>
+          <div className="text-[13px] font-semibold text-white/95">
+            @{post.author_slug ?? post.author_name}
+          </div>
           <div className="text-[12px] text-white/85 line-clamp-3 mt-0.5">{post.text}</div>
         </div>
       </div>
@@ -182,7 +227,10 @@ function VideoItem({
           {pickerOpen && (
             <ReactionPicker
               align="right"
-              onPick={(r) => { setPickerOpen(false); doReact(r); }}
+              onPick={(r) => {
+                setPickerOpen(false);
+                doReact(r);
+              }}
               onClose={() => setPickerOpen(false)}
             />
           )}
@@ -219,19 +267,28 @@ function VideoItem({
             <div className="absolute right-0 bottom-full mb-2 min-w-[11rem] rounded-xl bg-[#1a1a1e] border border-white/15 shadow-xl py-1 text-[13px] text-slate-100">
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                onClick={() => { setMenuOpen(false); onInterest(post.id, 1); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onInterest(post.id, 1);
+                }}
               >
                 <ThumbsUp className="w-4 h-4" /> Interested
               </button>
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                onClick={() => { setMenuOpen(false); onInterest(post.id, -1); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onInterest(post.id, -1);
+                }}
               >
                 <ThumbsDown className="w-4 h-4" /> Not interested
               </button>
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                onClick={() => { setMenuOpen(false); onHide(post.id); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onHide(post.id);
+                }}
               >
                 <EyeOff className="w-4 h-4" /> Hide reel
               </button>
@@ -257,7 +314,10 @@ function VideoItem({
               </button>
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2"
-                onClick={() => { setMenuOpen(false); shareVideo(post); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  shareVideo(post);
+                }}
               >
                 <Share2 className="w-4 h-4" /> Share
               </button>
@@ -276,7 +336,10 @@ function VideoItem({
               </button>
               <button
                 className="w-full px-3 py-2 hover:bg-white/5 flex items-center gap-2 text-rose-300"
-                onClick={() => { setMenuOpen(false); onReport?.(post.id); }}
+                onClick={() => {
+                  setMenuOpen(false);
+                  onReport?.(post.id);
+                }}
               >
                 <Flag className="w-4 h-4" /> Report
               </button>
@@ -288,7 +351,14 @@ function VideoItem({
   );
 }
 
-export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComments, onReport }: Props) {
+export function VideoPlayerModal({
+  videos,
+  startId,
+  onClose,
+  onReact,
+  onOpenComments,
+  onReport,
+}: Props) {
   const scrollRef = useRef<HTMLDivElement | null>(null);
   const [activeId, setActiveId] = useState(startId);
   const [pinned, setPinned] = useState<Set<string>>(() => readSet(PIN_KEY));
@@ -308,11 +378,16 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
   }, [videos, pinned, hidden, interest, startId]);
 
   useEffect(() => {
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     document.addEventListener("keydown", onKey);
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.removeEventListener("keydown", onKey); document.body.style.overflow = prev; };
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.body.style.overflow = prev;
+    };
   }, [onClose]);
 
   useEffect(() => {
@@ -341,7 +416,8 @@ export function VideoPlayerModal({ videos, startId, onClose, onReact, onOpenComm
   const togglePin = (id: string) => {
     setPinned((prev) => {
       const next = new Set(prev);
-      if (next.has(id)) next.delete(id); else next.add(id);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
       writeSet(PIN_KEY, next);
       return next;
     });

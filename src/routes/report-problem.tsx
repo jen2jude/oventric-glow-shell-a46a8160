@@ -11,7 +11,10 @@ export const Route = createFileRoute("/report-problem")({
   head: () => ({
     meta: [
       { title: "Report a problem — Oventric" },
-      { name: "description", content: "Report bugs, abuse, or platform issues to the Oventric team." },
+      {
+        name: "description",
+        content: "Report bugs, abuse, or platform issues to the Oventric team.",
+      },
       { property: "og:title", content: "Report a problem — Oventric" },
       { property: "og:description", content: "Tell us what went wrong so we can fix it." },
     ],
@@ -34,8 +37,14 @@ function ReportPage() {
   const [sending, setSending] = useState(false);
 
   const onSubmit = async () => {
-    if (!isAuthenticated) { openGate("generic"); return; }
-    if (note.trim().length < 8) { toast.error("Please describe the issue in a bit more detail."); return; }
+    if (!isAuthenticated) {
+      openGate("generic");
+      return;
+    }
+    if (note.trim().length < 8) {
+      toast.error("Please describe the issue in a bit more detail.");
+      return;
+    }
     setSending(true);
     try {
       await submit({ data: { targetId: "platform-report", targetKind: "platform", reason, note } });
@@ -52,8 +61,12 @@ function ReportPage() {
   return (
     <PublicChrome>
       <div className="max-w-2xl mx-auto px-4 py-10 text-slate-200 md:text-slate-800">
-        <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">Report a problem</h1>
-        <p className="mt-2 text-slate-400 md:text-slate-500">Bugs, abuse, or anything that feels wrong. Reports go straight to the admin dashboard.</p>
+        <h1 className="text-3xl md:text-4xl font-black text-white md:text-slate-900">
+          Report a problem
+        </h1>
+        <p className="mt-2 text-slate-400 md:text-slate-500">
+          Bugs, abuse, or anything that feels wrong. Reports go straight to the admin dashboard.
+        </p>
 
         <div className="mt-8 grid gap-2">
           {issues.map((it) => {
@@ -63,19 +76,27 @@ function ReportPage() {
                 key={it.key}
                 onClick={() => setReason(it.key)}
                 className={`flex items-center gap-3 p-4 rounded-2xl border text-left transition-colors ${
-                  active ? "border-emerald-400 bg-emerald-500/10" : "border-white/10 bg-[#141418] hover:border-white/25"
+                  active
+                    ? "border-emerald-400 bg-emerald-500/10"
+                    : "border-white/10 bg-[#141418] hover:border-white/25"
                 }`}
               >
-                <span className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] md:bg-slate-100 text-slate-300 md:text-slate-600"}`}>
+                <span
+                  className={`w-9 h-9 grid place-items-center rounded-full ${active ? "bg-emerald-500/20 text-emerald-300" : "bg-[#1E1E24] md:bg-slate-100 text-slate-300 md:text-slate-600"}`}
+                >
                   <it.icon className="w-4 h-4" />
                 </span>
-                <span className="flex-1 text-sm font-semibold text-white md:text-slate-900">{it.title}</span>
+                <span className="flex-1 text-sm font-semibold text-white md:text-slate-900">
+                  {it.title}
+                </span>
               </button>
             );
           })}
         </div>
 
-        <label className="block mt-6 text-xs font-bold text-slate-400 uppercase tracking-wide md:text-slate-500">What happened?</label>
+        <label className="block mt-6 text-xs font-bold text-slate-400 uppercase tracking-wide md:text-slate-500">
+          What happened?
+        </label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value.slice(0, 280))}

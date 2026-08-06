@@ -1,23 +1,49 @@
 import { useEffect, useState } from "react";
-import { X, ShieldCheck, Store, Wallet as WalletIcon, ScanFace, Loader2, Check, Loader } from "lucide-react";
+import {
+  X,
+  ShieldCheck,
+  Store,
+  Wallet as WalletIcon,
+  ScanFace,
+  Loader2,
+  Check,
+  Loader,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { useOnboarding, type Country, type Currency, countryToCurrency } from "@/lib/onboarding/OnboardingContext";
+import {
+  useOnboarding,
+  type Country,
+  type Currency,
+  countryToCurrency,
+} from "@/lib/onboarding/OnboardingContext";
 import { ALL_COUNTRIES, COUNTRY_META } from "@/lib/currency/africa";
 import { completeProfile as completeProfileFn } from "@/lib/onboarding.functions";
 
-
-function ModalShell({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: React.ReactNode }) {
+function ModalShell({
+  title,
+  subtitle,
+  onClose,
+  children,
+}: {
+  title: string;
+  subtitle?: string;
+  onClose: () => void;
+  children: React.ReactNode;
+}) {
   return (
     <div className="modal-light fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-0 sm:px-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-md" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
       <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
         <div className="flex items-start justify-between mb-4">
           <div>
             <h2 className="text-lg font-bold text-white">{title}</h2>
             {subtitle && <p className="text-xs text-slate-400 mt-1">{subtitle}</p>}
           </div>
-          <button onClick={onClose} className="p-2 -m-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white">
+          <button
+            onClick={onClose}
+            className="p-2 -m-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -30,13 +56,17 @@ function ModalShell({ title, subtitle, onClose, children }: { title: string; sub
 const inputCls =
   "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
 const labelCls = "block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5";
-const btnCls = "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors";
+const btnCls =
+  "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors";
 
 function StageIndicator({ current }: { current: number }) {
   return (
     <div className="flex items-center gap-1 mb-5">
       {[1, 2, 3, 4, 5].map((n) => (
-        <div key={n} className={`h-1 flex-1 rounded-full ${n <= current ? "bg-emerald-500" : "bg-white/10"}`} />
+        <div
+          key={n}
+          className={`h-1 flex-1 rounded-full ${n <= current ? "bg-emerald-500" : "bg-white/10"}`}
+        />
       ))}
     </div>
   );
@@ -45,12 +75,17 @@ function StageIndicator({ current }: { current: number }) {
 // Stage 1 (email verification) is intentionally removed. Email OTP verification
 // is fully handled by the global AuthGate — no legacy progressive form.
 
-
 // Country list + currency mapping now come from the pan-African registry.
 const COUNTRY_OPTIONS = ALL_COUNTRIES;
 
 function Stage2({ onClose }: { onClose: () => void }) {
-  const { advanceTo, setBaseCurrency, fullName: existingName, country: existingCountry, phone: existingPhone } = useOnboarding();
+  const {
+    advanceTo,
+    setBaseCurrency,
+    fullName: existingName,
+    country: existingCountry,
+    phone: existingPhone,
+  } = useOnboarding();
   const completeProfile = useServerFn(completeProfileFn);
   const [name, setName] = useState(existingName || "");
   const [country, setCountry] = useState<Country | "">(existingCountry ?? "");
@@ -60,7 +95,7 @@ function Stage2({ onClose }: { onClose: () => void }) {
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const currency = country ? COUNTRY_META[country]?.currency ?? "USD" : null;
+  const currency = country ? (COUNTRY_META[country]?.currency ?? "USD") : null;
 
   const canSubmit =
     name.trim().length >= 2 &&
@@ -75,8 +110,7 @@ function Stage2({ onClose }: { onClose: () => void }) {
     setError(null);
     setSaving(true);
     try {
-      const countryValue =
-        country === "OTHER" ? countryOther.trim() : country;
+      const countryValue = country === "OTHER" ? countryOther.trim() : country;
       await completeProfile({
         data: {
           fullName: name.trim(),
@@ -131,7 +165,9 @@ function Stage2({ onClose }: { onClose: () => void }) {
         value={country}
         onChange={(e) => setCountry(e.target.value as Country)}
       >
-        <option value="" disabled>Select a country</option>
+        <option value="" disabled>
+          Select a country
+        </option>
         {COUNTRY_OPTIONS.map((c) => (
           <option key={c.code} value={c.code}>
             {c.flag} {c.name} · {c.currency}
@@ -140,7 +176,8 @@ function Stage2({ onClose }: { onClose: () => void }) {
       </select>
       {currency && country !== "OTHER" && (
         <p className="text-[11px] text-emerald-300/80 mt-1.5">
-          Base currency will lock to <span className="font-semibold">{currency}</span> for wallet, marketplace and bounties.
+          Base currency will lock to <span className="font-semibold">{currency}</span> for wallet,
+          marketplace and bounties.
         </p>
       )}
       {country === "OTHER" && (
@@ -154,7 +191,8 @@ function Stage2({ onClose }: { onClose: () => void }) {
             onChange={(e) => setCountryOther(e.target.value)}
           />
           <p className="text-[11px] text-emerald-300/80 mt-1.5">
-            Base currency will be <span className="font-semibold">USD</span>. We'll add local rails for your country next.
+            Base currency will be <span className="font-semibold">USD</span>. We'll add local rails
+            for your country next.
           </p>
         </>
       )}
@@ -174,7 +212,9 @@ function Stage2({ onClose }: { onClose: () => void }) {
         className={inputCls}
         type="tel"
         autoComplete="tel"
-        placeholder={country ? `${COUNTRY_META[country]?.dial ?? "+"} 800 000 0000` : "+1 555 123 4567"}
+        placeholder={
+          country ? `${COUNTRY_META[country]?.dial ?? "+"} 800 000 0000` : "+1 555 123 4567"
+        }
         value={phone}
         onChange={(e) => setPhone(e.target.value)}
       />
@@ -189,7 +229,10 @@ function Stage2({ onClose }: { onClose: () => void }) {
         type="button"
         disabled={!canSubmit}
         onClick={() => void submit()}
-        className={btnCls + " mt-5 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"}
+        className={
+          btnCls +
+          " mt-5 disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center gap-2"
+        }
       >
         {saving && <Loader className="w-4 h-4 animate-spin" />}
         {saving ? "Saving profile…" : "Unlock commerce"}
@@ -198,23 +241,33 @@ function Stage2({ onClose }: { onClose: () => void }) {
   );
 }
 
-
 function Stage3({ onClose }: { onClose: () => void }) {
   const { advanceTo } = useOnboarding();
   const [store, setStore] = useState("");
   const [niche, setNiche] = useState("");
   const [addr, setAddr] = useState("");
   return (
-    <ModalShell title="Open your seller storefront" subtitle="Stage 3 of 5 · Merchant details" onClose={onClose}>
+    <ModalShell
+      title="Open your seller storefront"
+      subtitle="Stage 3 of 5 · Merchant details"
+      onClose={onClose}
+    >
       <StageIndicator current={3} />
       <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
         <Store className="w-6 h-6 text-emerald-400" />
       </div>
       <label className={labelCls}>Store / Brand Display Name</label>
-      <input className={inputCls} placeholder="Kessler Labs" value={store} onChange={(e) => setStore(e.target.value)} />
+      <input
+        className={inputCls}
+        placeholder="Kessler Labs"
+        value={store}
+        onChange={(e) => setStore(e.target.value)}
+      />
       <label className={labelCls + " mt-4"}>Primary Skill Niche</label>
       <select className={inputCls} value={niche} onChange={(e) => setNiche(e.target.value)}>
-        <option value="" disabled>Choose a niche</option>
+        <option value="" disabled>
+          Choose a niche
+        </option>
         <option>SaaS Templates</option>
         <option>UI Kits & Design</option>
         <option>AI Agents & Prompts</option>
@@ -222,7 +275,13 @@ function Stage3({ onClose }: { onClose: () => void }) {
         <option>Data & Analytics</option>
       </select>
       <label className={labelCls + " mt-4"}>Business Address</label>
-      <textarea rows={3} className={inputCls + " h-auto py-3"} placeholder="Street, city, state, postal" value={addr} onChange={(e) => setAddr(e.target.value)} />
+      <textarea
+        rows={3}
+        className={inputCls + " h-auto py-3"}
+        placeholder="Street, city, state, postal"
+        value={addr}
+        onChange={(e) => setAddr(e.target.value)}
+      />
       <button
         disabled={!store || !niche || !addr}
         onClick={() => advanceTo(3, { storeName: store })}
@@ -239,23 +298,40 @@ function Stage4({ onClose }: { onClose: () => void }) {
   const [phone, setPhone] = useState("");
   const [postal, setPostal] = useState("");
   return (
-    <ModalShell title="Secure your funding vault" subtitle="Stage 4 of 5 · Payments profile" onClose={onClose}>
+    <ModalShell
+      title="Secure your funding vault"
+      subtitle="Stage 4 of 5 · Payments profile"
+      onClose={onClose}
+    >
       <StageIndicator current={4} />
       <div className="w-12 h-12 rounded-xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center mb-4">
         <WalletIcon className="w-6 h-6 text-emerald-400" />
       </div>
       <label className={labelCls}>Phone Number</label>
-      <input className={inputCls} placeholder="+1 555 123 4567" value={phone} onChange={(e) => setPhone(e.target.value)} />
+      <input
+        className={inputCls}
+        placeholder="+1 555 123 4567"
+        value={phone}
+        onChange={(e) => setPhone(e.target.value)}
+      />
       <label className={labelCls + " mt-4"}>Billing Postal Code</label>
-      <input className={inputCls} placeholder="94103" value={postal} onChange={(e) => setPostal(e.target.value)} />
+      <input
+        className={inputCls}
+        placeholder="94103"
+        value={postal}
+        onChange={(e) => setPostal(e.target.value)}
+      />
       <div className="mt-5 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
-        <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">Baseline currency</div>
+        <div className="text-xs font-semibold text-emerald-300 uppercase tracking-wide mb-2">
+          Baseline currency
+        </div>
         <div className="flex items-center justify-between gap-3">
           <div className="h-10 px-3 rounded-md bg-emerald-500 text-black text-sm font-bold flex items-center">
             {baseCurrency}
           </div>
           <p className="text-[11px] text-slate-400 flex-1">
-            Locked to your country of residence. Wallet, marketplace, bounties and payouts all settle in {baseCurrency}.
+            Locked to your country of residence. Wallet, marketplace, bounties and payouts all
+            settle in {baseCurrency}.
           </p>
         </div>
       </div>
@@ -302,20 +378,27 @@ function Stage5({ onClose }: { onClose: () => void }) {
   const isGH = country === "GH";
 
   return (
-    <ModalShell title="Liveness KYC verification" subtitle="Stage 5 of 5 · Biometric scan" onClose={onClose}>
+    <ModalShell
+      title="Liveness KYC verification"
+      subtitle="Stage 5 of 5 · Biometric scan"
+      onClose={onClose}
+    >
       <StageIndicator current={5} />
 
       {step === "cam" && (
         <div className="flex flex-col items-center">
-          <div className="rgb-neon-bg rounded-full p-[3px] mb-4">
+          <div className=" rounded-full p-[3px] mb-4">
             <div className="w-52 h-52 rounded-full bg-black relative overflow-hidden flex items-center justify-center">
               {/* Simulated webcam gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black" />
               <div className="absolute inset-4 rounded-full border border-emerald-400/30" />
               {/* Spinning scanner arc */}
-              <Loader2 className="absolute w-52 h-52 text-emerald-400/70 animate-spin" strokeWidth={1} />
+              <Loader2
+                className="absolute w-52 h-52 text-emerald-400/70 animate-spin"
+                strokeWidth={1}
+              />
               <ScanFace className="relative w-16 h-16 text-emerald-300/80" strokeWidth={1.2} />
-              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6]" />
+              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-sm" />
             </div>
           </div>
           <p className="text-sm text-slate-300">Hold still — capturing biometric</p>
@@ -325,9 +408,9 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
       {step === "flash" && (
         <>
-          <div className="modal-light fixed inset-0 z-[70] pointer-events-none rgb-neon-bg opacity-70" />
+          <div className="modal-light fixed inset-0 z-[70] pointer-events-none  opacity-70" />
           <div className="modal-light fixed inset-0 z-[71] pointer-events-none flex items-center justify-center">
-            <div className="bg-black/70 backdrop-blur-md rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
+            <div className="bg-black rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
                 <Check className="w-6 h-6 text-black" strokeWidth={3} />
               </div>
@@ -349,7 +432,9 @@ function Stage5({ onClose }: { onClose: () => void }) {
             <>
               <label className={labelCls}>Select Nigerian Commercial Bank</label>
               <select className={inputCls} value={bank} onChange={(e) => setBank(e.target.value)}>
-                <option value="" disabled>Choose bank</option>
+                <option value="" disabled>
+                  Choose bank
+                </option>
                 <option>Access Bank</option>
                 <option>GTBank</option>
                 <option>Zenith Bank</option>
@@ -358,9 +443,18 @@ function Stage5({ onClose }: { onClose: () => void }) {
                 <option>Kuda Bank</option>
               </select>
               <label className={labelCls + " mt-4"}>10-digit Account Number</label>
-              <input className={inputCls} maxLength={10} value={acct} onChange={(e) => setAcct(e.target.value.replace(/\D/g, ""))} />
+              <input
+                className={inputCls}
+                maxLength={10}
+                value={acct}
+                onChange={(e) => setAcct(e.target.value.replace(/\D/g, ""))}
+              />
               <label className={labelCls + " mt-4"}>Account Holder Name</label>
-              <input className={inputCls} value={holder} onChange={(e) => setHolder(e.target.value)} />
+              <input
+                className={inputCls}
+                value={holder}
+                onChange={(e) => setHolder(e.target.value)}
+              />
               <button
                 disabled={!bank || acct.length !== 10 || !holder}
                 onClick={finish}
@@ -373,8 +467,14 @@ function Stage5({ onClose }: { onClose: () => void }) {
           {isGH && (
             <>
               <label className={labelCls}>Mobile Money Network Provider</label>
-              <select className={inputCls} value={network} onChange={(e) => setNetwork(e.target.value)}>
-                <option value="" disabled>Choose network</option>
+              <select
+                className={inputCls}
+                value={network}
+                onChange={(e) => setNetwork(e.target.value)}
+              >
+                <option value="" disabled>
+                  Choose network
+                </option>
                 <option>MTN</option>
                 <option>Vodafone</option>
                 <option>AirtelTigo</option>
@@ -382,7 +482,11 @@ function Stage5({ onClose }: { onClose: () => void }) {
               <label className={labelCls + " mt-4"}>Momo Wallet Phone Number</label>
               <input className={inputCls} value={momo} onChange={(e) => setMomo(e.target.value)} />
               <label className={labelCls + " mt-4"}>Registered Wallet Name</label>
-              <input className={inputCls} value={walletName} onChange={(e) => setWalletName(e.target.value)} />
+              <input
+                className={inputCls}
+                value={walletName}
+                onChange={(e) => setWalletName(e.target.value)}
+              />
               <button
                 disabled={!network || !momo || !walletName}
                 onClick={finish}
@@ -395,9 +499,12 @@ function Stage5({ onClose }: { onClose: () => void }) {
           {!isNG && !isGH && (
             <>
               <p className="text-sm text-slate-300 mb-4">
-                International payouts available via SWIFT wire. Our team will reach out to configure your account.
+                International payouts available via SWIFT wire. Our team will reach out to configure
+                your account.
               </p>
-              <button onClick={finish} className={btnCls}>Complete KYC</button>
+              <button onClick={finish} className={btnCls}>
+                Complete KYC
+              </button>
             </>
           )}
         </div>
