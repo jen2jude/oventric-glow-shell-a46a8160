@@ -273,12 +273,24 @@ function RootShell({ children }: { children: ReactNode }) {
               alt="Oventric"
               draggable={false}
             />
+            <div className="ob-icons">
+              <div className="ob-icon"></div>
+              <div className="ob-icon"></div>
+              <div className="ob-icon"></div>
+              <div className="ob-icon"></div>
+            </div>
           </div>
           <style
             dangerouslySetInnerHTML={{
               __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
 #oventric-boot .ob-logo-container{display:flex;flex-direction:column;align-items:center;gap:12px}
-#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}`,
+#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}
+#oventric-boot .ob-icons{display:flex;gap:8px}
+#oventric-boot .ob-icon{width:4px;height:4px;border-radius:50%;background:rgba(255,255,255,0.2);animation:ob-pulse 1.5s infinite ease-in-out}
+#oventric-boot .ob-icon:nth-child(2){animation-delay:0.2s}
+#oventric-boot .ob-icon:nth-child(3){animation-delay:0.4s}
+#oventric-boot .ob-icon:nth-child(4){animation-delay:0.6s}
+@keyframes ob-pulse{0%,100%{transform:scale(1);opacity:0.2}50%{transform:scale(1.5);opacity:0.6}}`,
             }}
           />
           <script
