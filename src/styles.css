@@ -98,6 +98,8 @@
   33%  { border-color: #ffee00; box-shadow: 0 0 8px #ffee00, inset 0 0 4px #ffee00; }
   50%  { border-color: #3b82f6; box-shadow: 0 0 8px #3b82f6, inset 0 0 4px #3b82f6; }
   66%  { border-color: #00aaff; box-shadow: 0 0 8px #00aaff, inset 0 0 4px #00aaff; }
+  83%  { border-color: #aa00ff; box-shadow: 0 0 8px #aa00ff, inset 0 0 4px #aa00ff; }
+  100% { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
 }
 
 @utility hub-card-glass {
@@ -134,9 +136,6 @@
   border-radius: 999px;
 }
 
-  83%  { border-color: #aa00ff; box-shadow: 0 0 8px #aa00ff, inset 0 0 4px #aa00ff; }
-  100% { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
-}
 
 @keyframes rgb-neon-chase-bg {
   0%   { background: linear-gradient(135deg, #ff0055, #ff8800); box-shadow: 0 0 20px #ff0055; }
