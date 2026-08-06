@@ -25,6 +25,10 @@ import { Toaster } from "@/components/ui/sonner";
 import { LiveNotificationToasts } from "@/components/oventric/LiveNotificationToasts";
 import { PushOptInPrompt } from "@/components/oventric/PushOptInPrompt";
 import { BootSplash } from "@/components/oventric/BootSplash";
+import { AppShellGestures } from "@/components/oventric/pwa/AppShellGestures";
+import { InstallPrompt } from "@/components/oventric/pwa/InstallPrompt";
+import { OfflineBanner } from "@/components/oventric/pwa/OfflineBanner";
+import { registerAppServiceWorker } from "@/lib/pwa/register-sw";
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
 import { useFirstLaunch } from "@/hooks/useFirstLaunch";
@@ -133,7 +137,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" style={{ background: "#121214", colorScheme: "dark" }}>
+    <html lang="en" style={{ background: "#121214", colorScheme: "dark" }} suppressHydrationWarning>
       <head>
         <HeadContent />
         <script
@@ -265,7 +269,7 @@ function RootShell({ children }: { children: ReactNode }) {
         {/* Pre-hydration boot splash: painted with the very first HTML frame so
             there is no white flash / raw logo before React mounts. Removed by
             <BootSplash /> once the app is interactive. */}
-        <div id="oventric-boot" aria-hidden>
+        <div id="oventric-boot" aria-hidden suppressHydrationWarning>
           <div className="ob-logo-container">
             <img
               src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
@@ -308,7 +312,10 @@ function RootShell({ children }: { children: ReactNode }) {
   var standalone=false;
   try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
-  if(standalone){root.style.display='flex';}else{root.parentNode&&root.parentNode.removeChild(root);}
+  // Keep the node in the DOM (removing it before hydration causes a mismatch);
+  // just leave it hidden when this is not a standalone mobile launch.
+  if(standalone){root.style.display='flex';}else{root.style.display='none';}
+
 }catch(e){}})();`,
             }}
           />
@@ -352,8 +359,10 @@ function RootComponent() {
     };
   }, []);
 
-
-
+  // Offline app shell (production, non-preview contexts only).
+  useEffect(() => {
+    registerAppServiceWorker();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -371,9 +380,13 @@ function RootComponent() {
               <Toaster position="top-center" richColors closeButton />
               <LiveNotificationToasts />
               <PushOptInPrompt />
+              <OfflineBanner />
+              <AppShellGestures />
+              <InstallPrompt />
 
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
+
             </KycGateProvider>
 
           </OnboardingProvider>
