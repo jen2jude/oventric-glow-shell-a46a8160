@@ -30,6 +30,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { computeDisplayPrice, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
+import { ProductComments } from "@/components/oventric/ProductComments";
 
 function ProductRating({
   productId,
@@ -462,6 +463,11 @@ function ProductPage() {
                   ? "Deal directly with the seller — Oventric does not mediate."
                   : "Instant download after payment · Buyer protection covered"}
               </div>
+            </div>
+            
+            {/* Review and Comment Section */}
+            <div className="lg:col-span-2">
+              <ProductComments productId={product.id} />
             </div>
           </div>
         )}
