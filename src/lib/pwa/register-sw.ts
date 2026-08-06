@@ -42,6 +42,7 @@ type UpdateListener = (ready: boolean) => void;
 const listeners = new Set<UpdateListener>();
 let waitingWorker: ServiceWorker | null = null;
 let reloading = false;
+let registrationRef: ServiceWorkerRegistration | null = null;
 
 function announce(worker: ServiceWorker | null) {
   waitingWorker = worker;
@@ -70,6 +71,18 @@ export function applyServiceWorkerUpdate() {
   waitingWorker.postMessage({ type: "SKIP_WAITING" });
   // Safety net if controllerchange never fires.
   window.setTimeout(() => window.location.reload(), 3000);
+}
+
+/** Manually check for a newer build right now. */
+export async function checkForUpdateNow(): Promise<boolean> {
+  if (typeof navigator === "undefined" || !("serviceWorker" in navigator)) return false;
+  if (!registrationRef) return false;
+  try {
+    await registrationRef.update();
+    return Boolean(waitingWorker);
+  } catch {
+    return false;
+  }
 }
 
 function track(reg: ServiceWorkerRegistration) {
@@ -102,7 +115,10 @@ export function registerAppServiceWorker() {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register(SW_URL, { scope: "/" })
-      .then((reg) => track(reg))
+      .then((reg) => {
+        registrationRef = reg;
+        track(reg);
+      })
       .catch(() => {});
   });
 }
