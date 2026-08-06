@@ -3,7 +3,9 @@ import { Link } from "@tanstack/react-router";
 import { Menu, Plus, X, Search, User } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import logo from "@/assets/oventric-logo-dark.png";
+
 import { COUNTRY_META } from "@/lib/currency/africa";
 
 export type SiteNavbarProps = {
@@ -17,6 +19,8 @@ export type SiteNavbarProps = {
 };
 
 export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, currency, search }: SiteNavbarProps) {
+  const { baseCurrency } = useOnboarding();
+
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
