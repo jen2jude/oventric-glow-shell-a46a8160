@@ -640,6 +640,7 @@ export function Marketplace() {
                     p={p}
                     currency={baseCurrency}
                     onClick={() => onOpenProduct(p)}
+                    isAppShell={isAppShell}
                     index={i}
                   />
                 ))}
@@ -669,6 +670,7 @@ export function Marketplace() {
                   p={p}
                   currency={baseCurrency}
                   onClick={() => onOpenProduct(p)}
+                  isAppShell={isAppShell}
                   index={i}
                 />
               ))}
@@ -1084,11 +1086,13 @@ function ProductCard({
   p,
   currency,
   onClick,
+  isAppShell,
   index = 0,
 }: {
   p: ProductDTO;
   currency: Currency;
   onClick: () => void;
+  isAppShell: boolean;
   index?: number;
 }) {
   const Icon = categoryIcon(p.category);
@@ -1097,8 +1101,8 @@ function ProductCard({
   const isFree = (Number(price.value) || 0) <= 0;
   const catLabel = `${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`;
   const cardInner = (
-    <div className="bg-white border-2 border-slate-100 rounded-none p-3 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group cursor-pointer" onClick={onClick}>
-      <div className="relative aspect-[4/3] rounded-none bg-slate-100 mb-3 overflow-hidden">
+    <div className={`border-2 p-3 shadow-sm hover:shadow-xl transition-all flex flex-col h-full group cursor-pointer rounded-none ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-100"}`} onClick={onClick}>
+      <div className={`relative aspect-[4/3] rounded-none mb-3 overflow-hidden ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
             sizes="(min-width: 1280px) 240px, (min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
@@ -1143,20 +1147,20 @@ function ProductCard({
         ) : (
           <CategoryTicker label={catLabel} />
         )}
-        <h3 className="text-slate-900 text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 mt-0.5">
+        <h3 className={`text-xs sm:text-[13px] font-bold leading-snug line-clamp-2 mt-0.5 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
           {p.name}
         </h3>
         <div className="text-[10px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         
         <div className="flex items-center gap-1 mt-1 text-[11px]">
           <div className="flex items-center">
-            {[1, 2, 3, 4, 5].map((s) => (
+             {[1, 2, 3, 4, 5].map((s) => (
               <Star
                 key={s}
                 className={`w-2.5 h-2.5 ${
                   s <= Math.round(p.rating || 5)
-                    ? "text-slate-900 fill-slate-900"
-                    : "text-slate-300 fill-slate-200"
+                    ? (isAppShell ? "text-emerald-500 fill-emerald-500" : "text-slate-900 fill-slate-900")
+                    : (isAppShell ? "text-white/10 fill-white/5" : "text-slate-300 fill-slate-200")
                 }`}
               />
             ))}
@@ -1166,7 +1170,7 @@ function ProductCard({
           </span>
         </div>
       </div>
-      <div className="flex flex-col gap-0.5 pt-3 mt-2 border-t border-slate-50">
+      <div className={`flex flex-col gap-0.5 pt-3 mt-2 border-t ${isAppShell ? "border-white/5" : "border-slate-50"}`}>
         <div className="flex items-baseline gap-1.5">
           <span className="text-[#E13B2E] font-black text-lg">
             {isFree ? "FREE" : price.formatted}
@@ -1183,7 +1187,7 @@ function ProductCard({
           </div>
           <button
             onClick={(e) => { e.stopPropagation(); onClick(); }}
-            className="p-1.5 border-2 border-slate-900 rounded-full text-slate-900 hover:bg-slate-900 hover:text-white transition-colors"
+            className={`p-1.5 border-2 rounded-full transition-colors ${isAppShell ? "border-emerald-500 text-emerald-400 hover:bg-emerald-500 hover:text-white" : "border-slate-900 text-slate-900 hover:bg-slate-900 hover:text-white"}`}
           >
             <ShoppingCart className="w-4 h-4" />
           </button>
