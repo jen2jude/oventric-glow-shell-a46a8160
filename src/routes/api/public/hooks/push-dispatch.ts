@@ -46,10 +46,24 @@ export const Route = createFileRoute("/api/public/hooks/push-dispatch")({
 
         const { data: notif } = await supabaseAdmin
           .from("notifications")
-          .select("id, user_id, title, body, link")
+          .select("id, user_id, title, body, link, kind")
           .eq("id", notificationId)
           .maybeSingle();
         if (!notif) return Response.json({ ok: true, sent: 0 });
+
+        // Respect the recipient's per-topic push preference.
+        const { topicForKind } = await import("@/lib/notifications/topics");
+        const topic = topicForKind((notif as { kind?: string }).kind ?? "");
+        const { data: pref } = await supabaseAdmin
+          .from("notification_preferences")
+          .select("push")
+          .eq("user_id", notif.user_id)
+          .eq("topic", topic)
+          .maybeSingle();
+        if (pref && (pref as { push: boolean }).push === false) {
+          return Response.json({ ok: true, sent: 0, skipped: "topic-muted" });
+        }
+
 
         const { data: subs } = await supabaseAdmin
           .from("push_subscriptions")
