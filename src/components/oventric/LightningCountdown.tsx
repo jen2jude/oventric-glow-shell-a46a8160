@@ -24,18 +24,18 @@ export function LightningCountdown() {
   const pad = (n: number) => n.toString().padStart(2, "0");
 
   return (
-    <div className="flex items-center gap-1.5 flex-wrap">
-      <span className="text-[10px] sm:text-xs font-bold text-slate-500 whitespace-nowrap">Ends in:</span>
-      <div className="flex gap-1 items-center">
-        <span className="bg-slate-900 text-white text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
+    <div className="flex items-center gap-1 sm:gap-1.5 whitespace-nowrap">
+      <span className="text-[9px] sm:text-xs font-bold text-slate-500">Ends in:</span>
+      <div className="flex gap-0.5 sm:gap-1 items-center">
+        <span className="bg-slate-900 text-white text-[9px] sm:text-xs font-black px-1 sm:px-1.5 py-0.5 rounded-sm min-w-[18px] sm:min-w-[24px] text-center">
           {pad(hours)}
         </span>
-        <span className="text-slate-900 font-black text-xs">:</span>
-        <span className="bg-slate-900 text-white text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
+        <span className="text-slate-900 font-black text-[9px] sm:text-xs">:</span>
+        <span className="bg-slate-900 text-white text-[9px] sm:text-xs font-black px-1 sm:px-1.5 py-0.5 rounded-sm min-w-[18px] sm:min-w-[24px] text-center">
           {pad(minutes)}
         </span>
-        <span className="text-slate-900 font-black text-xs">:</span>
-        <span className="bg-slate-900 text-white text-[10px] sm:text-xs font-black px-1.5 py-0.5 rounded-sm min-w-[24px] text-center">
+        <span className="text-slate-900 font-black text-[9px] sm:text-xs">:</span>
+        <span className="bg-slate-900 text-white text-[9px] sm:text-xs font-black px-1 sm:px-1.5 py-0.5 rounded-sm min-w-[18px] sm:min-w-[24px] text-center">
           {pad(seconds)}
         </span>
       </div>

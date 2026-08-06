@@ -327,11 +327,11 @@ export function Marketplace() {
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* ── Lightning Deals Section ─────────────────────────── */}
         <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-4">
-            <div className="flex items-center gap-3 flex-wrap">
-              <div className="flex items-center gap-2">
-                <span className="text-xl sm:text-2xl">⚡</span>
-                <h2 className="text-lg sm:text-xl font-black italic tracking-tighter text-slate-900 uppercase whitespace-nowrap">Lightning Deals</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="flex items-center gap-1 sm:gap-2 shrink-0">
+                <span className="text-lg sm:text-2xl">⚡</span>
+                <h2 className="text-[13px] sm:text-xl font-black italic tracking-tighter text-slate-900 uppercase whitespace-nowrap">Lightning Deals</h2>
               </div>
               <LightningCountdown />
             </div>
