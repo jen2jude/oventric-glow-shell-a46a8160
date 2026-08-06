@@ -26,6 +26,16 @@ export function setHapticsEnabled(value: boolean) {
 
 export function haptic(kind: HapticKind = "light") {
   if (!enabled) return;
+  // Native shell: use the real iOS / Android haptic engine.
+  void nativeHaptic(kind).then((handled) => {
+    if (handled) return;
+    if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
+    try {
+      navigator.vibrate(PATTERNS[kind]);
+    } catch {
+      /* ignore */
+    }
+  });
   if (typeof navigator === "undefined" || typeof navigator.vibrate !== "function") return;
   try {
     navigator.vibrate(PATTERNS[kind]);
