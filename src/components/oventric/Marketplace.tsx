@@ -489,7 +489,7 @@ export function Marketplace() {
         </Collapse>
 
         {/* ── Toolbar + grid with side filter ──────────────────────── */}
-        <div className="mt-6 flex items-center justify-between gap-3">
+        <div className="mt-6 flex flex-wrap items-center justify-between gap-3">
           <div className="text-sm text-slate-500">
             {searchTerm ? (
               <>
@@ -510,17 +510,30 @@ export function Marketplace() {
               </>
             )}
           </div>
-          <button
-            onClick={() => setFiltersOpen((v) => !v)}
-            className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
-          >
-            <SlidersHorizontal className="w-4 h-4" /> Filters
-            {activeFilterCount > 0 && (
-              <span className="text-[10px] font-bold bg-emerald-600 text-white rounded-full px-1.5">
-                {activeFilterCount}
-              </span>
-            )}
-          </button>
+          <div className="flex items-center gap-2">
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SortKey)}
+              aria-label="Sort products"
+              className="h-9 rounded-none border border-slate-200 bg-white px-2.5 text-sm text-slate-700 focus:outline-none focus:border-emerald-500"
+            >
+              <option value="featured">Featured</option>
+              <option value="price-asc">Price: low to high</option>
+              <option value="price-desc">Price: high to low</option>
+              <option value="rating">Top rated</option>
+            </select>
+            <button
+              onClick={() => setFiltersOpen(true)}
+              className="lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-none bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
+            >
+              <SlidersHorizontal className="w-4 h-4" /> Filters
+              {activeFilterCount > 0 && (
+                <span className="text-[10px] font-bold bg-emerald-600 text-white rounded-full px-1.5">
+                  {activeFilterCount}
+                </span>
+              )}
+            </button>
+          </div>
         </div>
 
         <div className="mt-4 flex gap-6 items-start">
@@ -541,29 +554,29 @@ export function Marketplace() {
             />
           </aside>
 
-          <div className="flex-1 min-w-0">
-            <Collapse open={filtersOpen}>
-              <div className="lg:hidden mb-4">
-                <FilterPanel
-                  currency={baseCurrency}
-                  minPrice={minPrice}
-                  setMinPrice={setMinPrice}
-                  maxPrice={maxPrice}
-                  setMaxPrice={setMaxPrice}
-                  minRating={minRating}
-                  setMinRating={setMinRating}
-                  promotedOnly={promotedOnly}
-                  setPromotedOnly={setPromotedOnly}
-                  sort={sort}
-                  setSort={setSort}
-                  onReset={resetFilters}
-                  onClose={() => setFiltersOpen(false)}
-                />
-              </div>
-            </Collapse>
+          {/* Mobile / tablet: bottom sheet */}
+          <FilterSheet open={filtersOpen} onClose={() => setFiltersOpen(false)}>
+            <FilterPanel
+              currency={baseCurrency}
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              minRating={minRating}
+              setMinRating={setMinRating}
+              promotedOnly={promotedOnly}
+              setPromotedOnly={setPromotedOnly}
+              sort={sort}
+              setSort={setSort}
+              onReset={resetFilters}
+              onClose={() => setFiltersOpen(false)}
+              flush
+            />
+          </FilterSheet>
 
+          <div className="flex-1 min-w-0">
             {!mode ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
                 <div className="text-sm text-slate-500">
@@ -571,7 +584,7 @@ export function Marketplace() {
                 </div>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
                 <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
                 <div className="text-sm text-slate-500">
@@ -579,7 +592,7 @@ export function Marketplace() {
                 </div>
               </div>
             ) : (
-              <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+              <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4">
                 {gridItems.map((p, i) => (
                   <ProductCard
                     key={`${p.id}-${i}`}
@@ -597,6 +610,7 @@ export function Marketplace() {
             </div>
           </div>
         </div>
+
 
         {/* ── Recommended: best sellers + promoted ─────────────────── */}
         {recommended.length > 0 && !searchTerm && (
