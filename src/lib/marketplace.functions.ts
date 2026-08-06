@@ -1334,7 +1334,10 @@ export const logProductContact = createServerFn({ method: "POST" })
 export const listMyContactedSellers = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }): Promise<ContactedSellerDTO[]> => {
-    const { data, error } = await context.supabase
+    // Contact columns are column-grant restricted; caller is verified by the
+    // middleware and rows are hard-scoped to their own contact history.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("product_contacts")
       .select("id, product_id, method, created_at, products:product_id (name, category, vendor, hue, cover_path, image_paths, location, price_usd, original_currency, original_amount, seller_phone, whatsapp_number, status)")
       .eq("buyer_id", context.userId)
