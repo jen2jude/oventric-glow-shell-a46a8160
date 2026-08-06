@@ -98,6 +98,42 @@
   33%  { border-color: #ffee00; box-shadow: 0 0 8px #ffee00, inset 0 0 4px #ffee00; }
   50%  { border-color: #3b82f6; box-shadow: 0 0 8px #3b82f6, inset 0 0 4px #3b82f6; }
   66%  { border-color: #00aaff; box-shadow: 0 0 8px #00aaff, inset 0 0 4px #00aaff; }
+}
+
+@utility hub-card-glass {
+  background: oklch(0.24 0 0 / 80%);
+  backdrop-filter: blur(12px);
+  border: 1px solid oklch(1 0 0 / 12%);
+  border-radius: 12px;
+  box-shadow: 0 4px 16px -4px oklch(0 0 0 / 40%);
+  isolation: isolate;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@utility hub-card-glow {
+  position: relative;
+  &::after {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    background: linear-gradient(135deg, oklch(0.6 0.2 250 / 0.3), transparent 60%);
+    border-radius: inherit;
+    z-index: -1;
+    opacity: 0.6;
+    pointer-events: none;
+  }
+}
+
+@utility hub-glow-blue {
+  box-shadow: 0 0 20px -5px oklch(0.6 0.2 250 / 0.3);
+}
+
+.hub-top-user-ring {
+  padding: 2px;
+  background: conic-gradient(from 0deg, #3b82f6, #60a5fa, #3b82f6);
+  border-radius: 999px;
+}
+
   83%  { border-color: #aa00ff; box-shadow: 0 0 8px #aa00ff, inset 0 0 4px #aa00ff; }
   100% { border-color: #ff0055; box-shadow: 0 0 8px #ff0055, inset 0 0 4px #ff0055; }
 }
