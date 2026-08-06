@@ -266,11 +266,20 @@ function RootShell({ children }: { children: ReactNode }) {
             there is no white flash / raw logo before React mounts. Removed by
             <BootSplash /> once the app is interactive. */}
         <div id="oventric-boot" aria-hidden>
-          <img
-            src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
-            alt=""
-            draggable={false}
-          />
+          <div className="ob-logo-container">
+            <img
+              src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+              className="ob-ring-logo"
+              alt=""
+              draggable={false}
+            />
+            <img
+              src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
+              className="ob-wordmark"
+              alt="Oventric"
+              draggable={false}
+            />
+          </div>
           <div className="ob-icons">
             {[
               { c: "#ff4d6d", p: <><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></> },
