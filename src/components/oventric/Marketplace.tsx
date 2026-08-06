@@ -1012,8 +1012,9 @@ function FilterPanel({
             onClick={() => setMinRating(r)}
             className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
               minRating === r
-                ? "bg-emerald-600 border-emerald-600 text-white"
+                ? "bg-slate-900 border-slate-900 text-white"
                 : "bg-slate-50 border-slate-200 text-slate-600"
+
             }`}
           >
             {r === 0 ? "Any" : `${r}+`}
