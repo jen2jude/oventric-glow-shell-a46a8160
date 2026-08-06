@@ -69,3 +69,59 @@ Store review notes worth pre-empting:
 the Android hardware back button, splash-screen hide, native haptics and the
 native share sheet. All of it no-ops in a normal browser, so the web app is
 unchanged.
+
+## 7. Deep links and universal links
+
+Shared URLs like `https://oventric.com/product/123` open the app directly on
+the right screen, and `oventric://product/123` works as a custom-scheme
+fallback. The site already serves the association files:
+
+- `https://oventric.com/.well-known/apple-app-site-association` (iOS)
+- `https://oventric.com/.well-known/assetlinks.json` (Android)
+
+Both read their app identifiers from secrets, so publish them once you sign:
+
+| Secret | Value |
+| --- | --- |
+| `APPLE_TEAM_ID` | Your 10-character Apple Developer Team ID |
+| `IOS_BUNDLE_ID` | Optional override, defaults to `com.oventric.app` |
+| `ANDROID_PACKAGE_NAME` | Optional override, defaults to `com.oventric.app` |
+| `ANDROID_CERT_FINGERPRINTS` | Release keystore SHA-256 fingerprint(s), comma-separated |
+
+Get the Android fingerprint with:
+
+```bash
+keytool -list -v -keystore my-release.keystore -alias my-alias | grep SHA256
+```
+
+### iOS (Xcode, once)
+
+1. Target → Signing & Capabilities → **+ Capability → Associated Domains**.
+2. Add `applinks:oventric.com` and `applinks:www.oventric.com`.
+3. For the custom scheme: Info → URL Types → add identifier `com.oventric.app`
+   with URL Scheme `oventric`.
+
+### Android (`android/app/src/main/AndroidManifest.xml`, once)
+
+Inside the main `<activity>`:
+
+```xml
+<intent-filter android:autoVerify="true">
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="https" android:host="oventric.com" />
+  <data android:scheme="https" android:host="www.oventric.com" />
+</intent-filter>
+<intent-filter>
+  <action android:name="android.intent.action.VIEW" />
+  <category android:name="android.intent.category.DEFAULT" />
+  <category android:name="android.intent.category.BROWSABLE" />
+  <data android:scheme="oventric" />
+</intent-filter>
+```
+
+Routing itself is handled in `src/lib/native/deep-links.ts`: cold-start launch
+URLs and warm `appUrlOpen` events are mapped to an in-app path and pushed
+through the router, while non-Oventric links open in the system browser.
+`/api/*` and `/~oauth/*` are excluded so payments and sign-in keep working.

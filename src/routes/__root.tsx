@@ -30,6 +30,8 @@ import { InstallPrompt } from "@/components/oventric/pwa/InstallPrompt";
 import { OfflineBanner } from "@/components/oventric/pwa/OfflineBanner";
 import { registerAppServiceWorker } from "@/lib/pwa/register-sw";
 import { initNativeShell } from "@/lib/native/capacitor";
+import { initDeepLinks } from "@/lib/native/deep-links";
+
 
 import { useLiveFx } from "@/lib/useLiveFx";
 import { FeatureCarousel } from "@/components/oventric/FeatureCarousel";
@@ -332,6 +334,8 @@ function RootShell({ children }: { children: ReactNode }) {
 
 function RootComponent() {
   const { queryClient } = Route.useRouteContext();
+  const appRouter = useRouter();
+
   const { show, markSeen, hydrated } = useFirstLaunch();
   // Welcome slides are a mobile-first onboarding experience; skip them on PC.
   const [isPc, setIsPc] = useState(() =>
@@ -366,10 +370,18 @@ function RootComponent() {
     registerAppServiceWorker();
   }, []);
 
-  // Native iOS / Android shell (no-op in the browser).
+  // Native iOS / Android shell + deep links (no-op in the browser).
   useEffect(() => {
     void initNativeShell();
-  }, []);
+    let dispose: (() => void) | undefined;
+    void initDeepLinks((path) => {
+      void appRouter.navigate({ href: path });
+    }).then((off) => {
+      dispose = off;
+    });
+    return () => dispose?.();
+  }, [appRouter]);
+
 
 
   return (

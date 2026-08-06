@@ -56,6 +56,8 @@ import { Route as AdminBlogRouteImport } from './routes/admin.blog'
 import { Route as AdminAuditRouteImport } from './routes/admin.audit'
 import { Route as AdminAffiliatesRouteImport } from './routes/admin.affiliates'
 import { Route as AdminAdInquiriesRouteImport } from './routes/admin.ad-inquiries'
+import { Route as DotwellKnownAssetlinksDotjsonRouteImport } from './routes/[.]well-known.assetlinks[.]json'
+import { Route as DotwellKnownAppleAppSiteAssociationRouteImport } from './routes/[.]well-known.apple-app-site-association'
 import { Route as AdminBlogIndexRouteImport } from './routes/admin.blog.index'
 import { Route as ApiPublicPaystackWebhookRouteImport } from './routes/api/public/paystack-webhook'
 import { Route as ApiPublicFlutterwaveWebhookRouteImport } from './routes/api/public/flutterwave-webhook'
@@ -305,6 +307,18 @@ const AdminAdInquiriesRoute = AdminAdInquiriesRouteImport.update({
   path: '/ad-inquiries',
   getParentRoute: () => AdminRoute,
 } as any)
+const DotwellKnownAssetlinksDotjsonRoute =
+  DotwellKnownAssetlinksDotjsonRouteImport.update({
+    id: '/.well-known/assetlinks.json',
+    path: '/.well-known/assetlinks.json',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const DotwellKnownAppleAppSiteAssociationRoute =
+  DotwellKnownAppleAppSiteAssociationRouteImport.update({
+    id: '/.well-known/apple-app-site-association',
+    path: '/.well-known/apple-app-site-association',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AdminBlogIndexRoute = AdminBlogIndexRouteImport.update({
   id: '/',
   path: '/',
@@ -392,6 +406,8 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -453,6 +469,8 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -515,6 +533,8 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/report-problem': typeof ReportProblemRoute
   '/terms': typeof TermsRoute
+  '/.well-known/apple-app-site-association': typeof DotwellKnownAppleAppSiteAssociationRoute
+  '/.well-known/assetlinks.json': typeof DotwellKnownAssetlinksDotjsonRoute
   '/admin/ad-inquiries': typeof AdminAdInquiriesRoute
   '/admin/affiliates': typeof AdminAffiliatesRoute
   '/admin/audit': typeof AdminAuditRoute
@@ -579,6 +599,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/.well-known/apple-app-site-association'
+    | '/.well-known/assetlinks.json'
     | '/admin/ad-inquiries'
     | '/admin/affiliates'
     | '/admin/audit'
@@ -640,6 +662,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/.well-known/apple-app-site-association'
+    | '/.well-known/assetlinks.json'
     | '/admin/ad-inquiries'
     | '/admin/affiliates'
     | '/admin/audit'
@@ -701,6 +725,8 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/report-problem'
     | '/terms'
+    | '/.well-known/apple-app-site-association'
+    | '/.well-known/assetlinks.json'
     | '/admin/ad-inquiries'
     | '/admin/affiliates'
     | '/admin/audit'
@@ -764,6 +790,8 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ReportProblemRoute: typeof ReportProblemRoute
   TermsRoute: typeof TermsRoute
+  DotwellKnownAppleAppSiteAssociationRoute: typeof DotwellKnownAppleAppSiteAssociationRoute
+  DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
   OrderIdRoute: typeof OrderIdRoute
@@ -1116,6 +1144,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AdminAdInquiriesRouteImport
       parentRoute: typeof AdminRoute
     }
+    '/.well-known/assetlinks.json': {
+      id: '/.well-known/assetlinks.json'
+      path: '/.well-known/assetlinks.json'
+      fullPath: '/.well-known/assetlinks.json'
+      preLoaderRoute: typeof DotwellKnownAssetlinksDotjsonRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/.well-known/apple-app-site-association': {
+      id: '/.well-known/apple-app-site-association'
+      path: '/.well-known/apple-app-site-association'
+      fullPath: '/.well-known/apple-app-site-association'
+      preLoaderRoute: typeof DotwellKnownAppleAppSiteAssociationRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/admin/blog/': {
       id: '/admin/blog/'
       path: '/'
@@ -1317,6 +1359,9 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ReportProblemRoute: ReportProblemRoute,
   TermsRoute: TermsRoute,
+  DotwellKnownAppleAppSiteAssociationRoute:
+    DotwellKnownAppleAppSiteAssociationRoute,
+  DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
   OrderIdRoute: OrderIdRoute,
