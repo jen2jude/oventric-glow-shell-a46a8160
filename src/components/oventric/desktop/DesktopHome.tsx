@@ -786,7 +786,7 @@ function CardGrid({
           See all <ChevronRight className="h-4 w-4" />
         </button>
       </div>
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {items.map((it, i) => (
           <Reveal key={it.id} delay={(i % 4) * 80}>
             <button type="button" onClick={onSeeAll} className="hp-lift group w-full text-left">
