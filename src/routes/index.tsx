@@ -296,6 +296,7 @@ function Index() {
               onSelect={setActive}
               avatarUrl={avatarUrl}
               name={name}
+              search={renderNavSearch()}
             />
           ) : (
             <SiteNavbar
