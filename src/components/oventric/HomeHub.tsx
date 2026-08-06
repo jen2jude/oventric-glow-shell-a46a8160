@@ -699,7 +699,7 @@ function PromoCard({
   const ref = usePromoImpression<HTMLDivElement>(promo);
   const content = (
     <span
-      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[26px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
+      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[10px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
