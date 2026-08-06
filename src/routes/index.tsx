@@ -64,7 +64,7 @@ function Index() {
   const [name, setName] = useState<string>("");
   const [q, setQ] = useState("");
 
-  const { require, fullName, storeName } = useOnboarding();
+  const { require, fullName, storeName, country, baseCurrency } = useOnboarding();
   const { isAuthenticated } = useAuthGate();
   const loadProfile = useServerFn(getMyFullProfile);
   const navigate = useNavigate();
