@@ -404,6 +404,15 @@ export function Header({
                 </div>
               </div>
               <ProfileDropdown />
+              
+              {/* Desktop candy-box menu (MegaMenu) */}
+              <button
+                onClick={() => setMegaOpen(true)}
+                aria-label="Open menu"
+                className={`hidden md:inline-flex p-2.5 rounded-full transition-colors shrink-0 ${chip}`}
+              >
+                <Grip className="w-6 h-6" strokeWidth={2.5} />
+              </button>
             </div>
           ) : (
             <button
