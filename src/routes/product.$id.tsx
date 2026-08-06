@@ -441,7 +441,7 @@ function ProductPage() {
                 {product.kind !== "physical" && (
                   <div className={`flex items-center justify-between text-xs ${isAppShell ? "text-slate-500" : "text-slate-400"} md:text-slate-500 mb-4`}>
                     <span>Line total</span>
-                    <span className="text-white md:text-slate-900 font-mono">
+                    <span className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-mono`}>
                       {formatMoney(productDisplay(product, baseCurrency).value * qty, baseCurrency)}
                     </span>
                   </div>
