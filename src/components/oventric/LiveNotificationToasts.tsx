@@ -4,6 +4,7 @@ import { useRouter } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { topicForKind, isNotificationTopic } from "@/lib/notifications/topics";
 import {
   Bell,
   MessageCircle,
@@ -48,6 +49,35 @@ export function LiveNotificationToasts() {
   const { isAuthenticated } = useAuthGate();
   const router = useRouter();
   const seen = useRef<Set<string>>(new Set());
+  const mutedTopics = useRef<Set<string>>(new Set());
+
+  // Keep the muted-topic set fresh (initial load + whenever settings change).
+  useEffect(() => {
+    if (!isAuthenticated) return;
+    let cancelled = false;
+    const load = async () => {
+      const { data: auth } = await supabase.auth.getUser();
+      const uid = auth.user?.id;
+      if (!uid || cancelled) return;
+      const { data } = await supabase
+        .from("notification_preferences")
+        .select("topic, in_app")
+        .eq("user_id", uid);
+      if (cancelled) return;
+      const muted = new Set<string>();
+      for (const r of (data ?? []) as { topic: string; in_app: boolean }[]) {
+        if (!r.in_app) muted.add(r.topic);
+      }
+      mutedTopics.current = muted;
+    };
+    void load();
+    const onChange = () => void load();
+    window.addEventListener("oventric:notif-prefs-changed", onChange);
+    return () => {
+      cancelled = true;
+      window.removeEventListener("oventric:notif-prefs-changed", onChange);
+    };
+  }, [isAuthenticated]);
 
   useEffect(() => {
     if (!isAuthenticated) return;
@@ -65,6 +95,9 @@ export function LiveNotificationToasts() {
 
     const pop = async (row: NotifRow) => {
       if (seen.current.has(row.id)) return;
+      // Respect the member's per-topic in-app alert preference.
+      const topic = topicForKind(row.kind ?? "");
+      if (isNotificationTopic(topic) && mutedTopics.current.has(topic)) return;
       seen.current.add(row.id);
       if (seen.current.size > 200) seen.current.clear();
 
