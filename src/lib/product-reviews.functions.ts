@@ -46,8 +46,9 @@ async function summarize(
       comment,
       created_at,
       profiles:profiles!user_id (
-        full_name,
-        avatar_url,
+        display_name,
+        username,
+        avatar_path,
         country
       )
     `)
@@ -61,6 +62,15 @@ async function summarize(
   const average = count === 0 ? 0 : rows.reduce((s, r) => s + Number(r.rating), 0) / count;
   const mine = userId ? rows.find((r) => r.user_id === userId) : undefined;
   
+  // Sign avatar_path values from the `avatars` bucket so <img> can render them.
+  const paths = rows.map((r: any) => (typeof r.profiles?.avatar_path === "string" && r.profiles.avatar_path ? r.profiles.avatar_path : null));
+  const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
+  const signed = new Map<string, string>();
+  if (unique.length > 0) {
+    const { data: urls } = await sb.storage.from("avatars").createSignedUrls(unique, 60 * 60 * 24 * 7);
+    (urls ?? []).forEach((u) => { if (u.path && u.signedUrl) signed.set(u.path, u.signedUrl); });
+  }
+
   const reviews: ProductReview[] = rows.map((r: any) => ({
     id: r.id,
     rating: Number(r.rating),
@@ -68,8 +78,8 @@ async function summarize(
     createdAt: r.created_at,
     userId: r.user_id,
     user: {
-      fullName: r.profiles?.display_name ?? r.profiles?.full_name ?? "User",
-      avatarUrl: r.profiles?.avatar_path ?? r.profiles?.avatar_url ?? null,
+      fullName: r.profiles?.display_name ?? r.profiles?.username ?? "User",
+      avatarUrl: r.profiles?.avatar_path ? (signed.get(r.profiles.avatar_path) ?? null) : null,
       country: r.profiles?.country ?? null,
     },
   }));
