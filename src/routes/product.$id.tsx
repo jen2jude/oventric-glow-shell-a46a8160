@@ -1,3 +1,4 @@
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -36,10 +37,12 @@ function ProductRating({
   productId,
   initialAverage,
   initialCount,
+  isAppShell,
 }: {
   productId: string;
   initialAverage: number;
   initialCount: number;
+  isAppShell: boolean;
 }) {
   const { require } = useOnboarding();
   const fetchRating = useServerFn(getProductRating);
@@ -92,7 +95,7 @@ function ProductRating({
     <div className="mb-5">
       <div className="flex items-center gap-1 text-sm text-amber-400">
         <Star className="w-4 h-4 fill-current" />
-        <span className="font-semibold">{average.toFixed(1)}</span>
+        <span className={`font-semibold ${isAppShell ? "text-amber-400" : "text-slate-900"}`}>{average.toFixed(1)}</span>
         <span className="text-red-500 font-semibold">
           ({count} {count === 1 ? "review" : "reviews"})
         </span>
@@ -109,11 +112,11 @@ function ProductRating({
             className="p-0.5 disabled:opacity-50"
           >
             <Star
-              className={`w-5 h-5 transition-transform hover:scale-110 ${s <= shown ? "text-amber-400 fill-current" : "text-slate-600 md:text-slate-300"}`}
+              className={`w-5 h-5 transition-transform hover:scale-110 ${s <= shown ? "text-amber-400 fill-current" : isAppShell ? "text-slate-600" : "text-slate-300"}`}
             />
           </button>
         ))}
-        <span className="ml-2 text-[11px] text-slate-400 md:text-slate-500">
+        <span className={`ml-2 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
           {mine ? `You rated ${mine}★ — tap to change` : "Tap to rate this product"}
         </span>
       </div>
@@ -190,6 +193,7 @@ export const Route = createFileRoute("/product/$id")({
 });
 
 function ProductPage() {
+  const isAppShell = useIsAppShell();
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const { baseCurrency, require } = useOnboarding();
@@ -231,7 +235,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700">
+    <div className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"} md:bg-slate-50 md:text-slate-700`}>
       <Header onOpenMessages={() => {}} />
       <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
         <button
@@ -258,13 +262,13 @@ function ProductPage() {
               );
             }
           }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          className={`inline-flex items-center gap-2 text-sm ${isAppShell ? "text-slate-300 bg-[#1E1E24] border-white/10 hover:text-white" : "text-slate-600 bg-white border-slate-200 hover:text-slate-900 shadow-sm"} md:text-slate-600 md:shadow-sm md:bg-white border md:border-slate-200 rounded-lg px-3 py-2 mb-6`}
         >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </button>
 
         {error && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-8 text-center">
+          <div className={`${isAppShell ? "bg-[#1E1E24] border-red-500/40" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
             <div className="text-red-300 font-bold mb-1">Couldn't load product</div>
             <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link
@@ -295,7 +299,7 @@ function ProductPage() {
                 const cur = gallery[activeImage] ?? gallery[0];
                 return (
                   <>
-                    <div className="relative aspect-[4/3] rounded-2xl bg-white/5 md:bg-slate-100 overflow-hidden flex items-center justify-center">
+                    <div className={`relative aspect-[4/3] rounded-2xl ${isAppShell ? "bg-white/5" : "bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
                       {cur ? (
                         <ResponsiveImage
                           sizes="(min-width: 1024px) 640px, 100vw"
@@ -321,7 +325,7 @@ function ProductPage() {
                           <button
                             key={url}
                             onClick={() => setActiveImage(i)}
-                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10 md:border-slate-200"}`}
+                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : isAppShell ? "border-white/10" : "border-slate-200"} md:border-slate-200`}
                           >
                             <img
                               src={url}
@@ -340,11 +344,11 @@ function ProductPage() {
             </div>
 
             <div>
-              <div className="text-xs font-bold uppercase tracking-widest text-emerald-400 mb-2">
+              <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
               </div>
-              <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-2">
+              <h1 className={`text-2xl md:text-3xl font-black ${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 mb-2`}>
                 {product.name}
               </h1>
               <div className="text-sm text-slate-500 md:text-slate-500 mb-3">
@@ -352,7 +356,7 @@ function ProductPage() {
                 <Link
                   to="/profile/$id"
                   params={{ id: product.sellerSlug ?? product.sellerId }}
-                  className="text-emerald-400 hover:underline font-medium"
+                  className={`${isAppShell ? "text-emerald-400" : "text-emerald-600"} hover:underline font-medium`}
                 >
                   {product.vendor}
                 </Link>
@@ -360,50 +364,53 @@ function ProductPage() {
               {product.kind === "physical" && (
                 <div className="flex flex-wrap gap-2 text-xs text-slate-300 md:text-slate-600 mb-4">
                   {product.location && (
-                    <span className="inline-flex items-center gap-1 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`inline-flex items-center gap-1 ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       <MapPin className="w-3 h-3" /> {product.location}
                     </span>
                   )}
                   {product.condition && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       {product.condition}
                     </span>
                   )}
                   {product.brand && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       {product.brand}
                     </span>
                   )}
                   {product.negotiable && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       Negotiable: {product.negotiable}
                     </span>
                   )}
                   {product.delivery && (
-                    <span className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded px-2 py-1">
+                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
                       Delivery: {product.delivery}
                     </span>
                   )}
                 </div>
               )}
-              <ProductRating
-                productId={product.id}
-                initialAverage={product.rating}
-                initialCount={product.reviews}
-              />
+              <div className="flex flex-wrap items-center gap-2 mb-4">
+                <ProductRating
+                  productId={product.id}
+                  initialAverage={product.rating}
+                  initialCount={product.reviews}
+                  isAppShell={isAppShell}
+                />
+              </div>
 
-              <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6">
+              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} md:text-slate-600 leading-relaxed whitespace-pre-wrap mb-6`}>
                 {product.description || "No description provided."}
               </p>
 
-              <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 mb-4">
+              <div className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
                       const dp = productDisplay(product, baseCurrency);
                       return (
                         <>
-                          <div className="text-white md:text-slate-900 font-black text-3xl">
+                          <div className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-black text-3xl`}>
                             {dp.formatted}
                           </div>
                           {dp.originalFormatted && (
@@ -428,15 +435,15 @@ function ProductPage() {
                         onChange={(e) =>
                           setQty(Math.max(1, Math.min(20, Number(e.target.value) || 1)))
                         }
-                        className="w-16 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-white md:text-slate-900 text-center"
+                        className={`w-16 ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-center`}
                       />
                     </div>
                   )}
                 </div>
                 {product.kind !== "physical" && (
-                  <div className="flex items-center justify-between text-xs text-slate-500 md:text-slate-500 mb-4">
+                  <div className={`flex items-center justify-between text-xs ${isAppShell ? "text-slate-500" : "text-slate-400"} md:text-slate-500 mb-4`}>
                     <span>Line total</span>
-                    <span className="text-white md:text-slate-900 font-mono">
+                    <span className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-mono`}>
                       {formatMoney(productDisplay(product, baseCurrency).value * qty, baseCurrency)}
                     </span>
                   </div>
@@ -450,7 +457,7 @@ function ProductPage() {
                 {product.kind !== "physical" && (
                   <button
                     onClick={openSellerChat}
-                    className="mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-[#121214] md:bg-white text-emerald-400 md:text-emerald-600 border border-emerald-500/40 hover:border-emerald-400 hover:bg-emerald-500/10 font-bold text-sm transition-colors"
+                    className={`mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg border font-bold text-sm transition-colors ${isAppShell ? "bg-[#121214] border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10" : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"} md:bg-white md:text-emerald-600 md:border-emerald-500/40`}
                   >
                     <MessageCircle className="w-4 h-4" /> Chat with seller
                   </button>
@@ -491,14 +498,22 @@ function ProductPage() {
         />
       )}
       {contactOpen && product && product.kind === "physical" && (
-        <ContactSellerModal product={product} onClose={() => setContactOpen(false)} />
+        <ContactSellerModal product={product} onClose={() => setContactOpen(false)} isAppShell={isAppShell} />
       )}
       <MobileNav onCreate={() => {}} active="Market" onSelect={() => navigate({ to: "/" })} />
     </div>
   );
 }
 
-function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose: () => void }) {
+function ContactSellerModal({
+  product,
+  onClose,
+  isAppShell,
+}: {
+  product: ProductDTO;
+  onClose: () => void;
+  isAppShell: boolean;
+}) {
   const { baseCurrency } = useOnboarding();
   const logContact = useServerFn(logProductContact);
   const fetchContact = useServerFn(getProductContact);
@@ -558,11 +573,11 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
       aria-modal="true"
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div className={`slide-up relative w-full max-w-md ${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto`}>
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
-            <h3 className="text-lg font-bold text-white md:text-slate-900">Contact the seller</h3>
+            <h3 className={`text-lg font-bold ${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900`}>Contact the seller</h3>
           </div>
           <button
             onClick={onClose}
@@ -573,7 +588,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
         </div>
 
         {/* Live preview card — mirrors what the seller will see */}
-        <div className="mb-4 rounded-xl border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 overflow-hidden">
+        <div className={`mb-4 rounded-xl border ${isAppShell ? "border-white/10 bg-[#121214]" : "border-slate-200 bg-slate-50"} md:border-slate-200 md:bg-slate-50 overflow-hidden`}>
           <div className="flex gap-3 p-3">
             <div className="shrink-0 w-20 h-20 rounded-lg overflow-hidden bg-white/5 md:bg-slate-100 flex items-center justify-center">
               {cover ? (
@@ -600,7 +615,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
                 by {product.vendor}
               </div>
               <div className="mt-1 flex items-center justify-between gap-2">
-                <div className="text-emerald-300 font-black text-sm">{dp.formatted}</div>
+                <div className={`${isAppShell ? "text-emerald-300" : "text-emerald-600"} font-black text-sm`}>{dp.formatted}</div>
                 {product.location && (
                   <span className="text-[10px] text-slate-400 md:text-slate-500 inline-flex items-center gap-1 truncate">
                     <MapPin className="w-3 h-3" /> {product.location}
@@ -609,7 +624,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 md:border-slate-200 bg-[#0f1012] md:bg-slate-100 px-3 py-2">
+          <div className={`border-t ${isAppShell ? "border-white/10 bg-[#0f1012]" : "border-slate-200 bg-slate-100"} md:border-slate-200 md:bg-slate-100 px-3 py-2`}>
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">
                 WhatsApp message preview
@@ -623,12 +638,12 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
                     toast.error("Could not copy message");
                   }
                 }}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 hover:text-emerald-200"
+                className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isAppShell ? "text-emerald-300 hover:text-emerald-200" : "text-emerald-600 hover:text-emerald-700"}`}
               >
                 <Copy className="w-3 h-3" /> Copy message
               </button>
             </div>
-            <pre className="text-xs text-slate-200 md:text-slate-700 whitespace-pre-wrap font-sans leading-relaxed break-words">
+            <pre className={`text-xs ${isAppShell ? "text-slate-200" : "text-slate-700"} md:text-slate-700 whitespace-pre-wrap font-sans leading-relaxed break-words`}>
               {message}
             </pre>
           </div>
@@ -642,7 +657,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
           onChange={(e) => setNote(e.target.value.slice(0, 240))}
           rows={2}
           placeholder="e.g. Is this still available? Can I pick up today?"
-          className="w-full mb-4 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600 md:placeholder:text-slate-400 focus:outline-none focus:border-emerald-500/50"
+          className={`w-full mb-4 ${isAppShell ? "bg-[#121214] border-white/10 text-white placeholder:text-slate-600" : "bg-slate-50 border-slate-200 text-slate-900 placeholder:text-slate-400"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-emerald-500/50`}
         />
 
         <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed mb-4">
@@ -654,7 +669,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
             href={canCall ? `tel:+${phone}` : undefined}
             aria-disabled={!canCall}
             onClick={() => canCall && handleContact("call")}
-            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? "bg-white/10 md:bg-slate-100 text-white md:text-slate-900 hover:bg-white/15 md:hover:bg-slate-200" : "bg-white/5 md:bg-slate-100 text-slate-500 pointer-events-none"}`}
+            className={`inline-flex items-center justify-center gap-2 py-3 rounded-lg font-semibold text-sm ${canCall ? isAppShell ? "bg-white/10 text-white hover:bg-white/15" : "bg-slate-100 text-slate-900 hover:bg-slate-200 shadow-sm" : isAppShell ? "bg-white/5 text-slate-500 pointer-events-none" : "bg-slate-50 text-slate-300 pointer-events-none"} md:bg-slate-100 md:text-slate-900 md:hover:bg-slate-200`}
           >
             <Phone className="w-4 h-4" /> Call Seller
           </a>
