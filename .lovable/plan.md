@@ -1,27 +1,23 @@
-# Plan: Revert Temu-style badges to original Design
+# Plan - Fix non-existent column `full_name` in product reviews
 
-The user wants to revert the "Deal", "Ad", "Top Rated" badges and the star rating appearance on product cards back to the original design across all platforms (Web and App). These elements were recently inherited from Temu-style samples.
+The user is reporting the error `column profiles_1.full_name does not exist`. My investigation confirms that the `profiles` table does NOT have a `full_name` column; it uses `display_name` and `username`. 
 
-## Analysis
-- **Badges to remove/revert:** "Deal" (orange), "Ad" (red/promoted), "Top Rated" (orange).
-- **Star Rating:** Revert from the Temu-style (currently logic for emerald/slate stars) to the previous simple version.
-- **Affected Components:** `Marketplace.tsx`, and potentially `AdSlot.tsx`/`AdCard.tsx` if they share similar badge logic.
-- **Target Context:** Both `isAppShell` (App) and browser (Web) versions should be reverted.
+While `src/lib/product-reviews.functions.ts` was partially updated in the previous turn, the error message `profiles_1.full_name` often occurs when PostgREST (Supabase) generates an internal alias (like `profiles_1`) during a joined query where it still thinks it needs to fetch a column that doesn't exist. This usually happens if the `.select()` string is not perfectly aligned with the actual schema or if there's a cached schema mismatch.
 
 ## Proposed Changes
-### `src/components/oventric/Marketplace.tsx`
-1.  **ProductCard Component:**
-    -   Remove the `<span className="absolute top-2 left-2 ...">Deal</span>` block.
-    -   Remove the `{p.promoted && (<span className="...">Ad</span>)}` block.
-    -   Remove the `<div className="flex items-center gap-1">...Top Rated...</div>` block.
-    -   Simplify the `Star` rating render to not use the conditional `isAppShell` coloring if the previous design was uniform.
-2.  **Lightning Deals Section:**
-    -   Remove Temu-specific labels if they don't match the original design (e.g., "Only X left" pill if that was Temu-inherited).
+
+### Server Functions
+- I will re-examine `src/lib/product-reviews.functions.ts` and ensure the `.select()` call is absolutely clean. I will also check if any other server functions are joining `profiles` and requesting `full_name`.
+- I will check `src/lib/circles.functions.ts` which uses `meta.full_name` from `user_metadata` and ensure it's not accidentally causing a schema error if used in a table join somewhere else.
+
+### Codebase Cleanup
+- I will search for any other instances where `profiles` is joined (e.g., `profiles(...)` in a select string) to ensure `full_name` is not being requested.
 
 ## Verification Plan
-1.  **Visual Inspection:**
-    -   Check the Marketplace in the preview.
-    -   Ensure the orange "Deal", red "Ad", and "Top Rated" pills are gone.
-    -   Ensure the star ratings look like the original simple design (typically slate/gray).
-2.  **Platform Check:**
-    -   Switch between Mobile (App) and Desktop (Web) views to ensure consistency as requested.
+
+### Automated Verification
+- I will run a Playwright script to navigate to a product page and trigger the `getProductRating` server function call. I will monitor the browser console and network responses for the `500` error containing `profiles_1.full_name`.
+- I will also attempt to post a review to verify the `rateProduct` function (which calls `summarize`) works end-to-end.
+
+### Manual Verification
+- View the screenshots from the Playwright run to ensure the "Customer Reviews" section renders correctly with names and avatars.
