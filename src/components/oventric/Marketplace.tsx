@@ -559,7 +559,7 @@ export function Marketplace() {
             </select>
             <button
               onClick={() => setFiltersOpen(true)}
-              className="lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-none bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
+              className={`lg:hidden inline-flex items-center gap-2 h-9 px-3 rounded-none text-sm shadow-sm border ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-200" : "bg-white border-slate-200 text-slate-700"}`}
             >
               <SlidersHorizontal className="w-4 h-4" /> Filters
               {activeFilterCount > 0 && (
@@ -611,17 +611,17 @@ export function Marketplace() {
 
           <div className="flex-1 min-w-0">
             {!mode ? (
-              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
+              <div className={`border rounded-none p-10 text-center ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
+                <div className={`font-semibold mb-1 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>Pick a section</div>
                 <div className="text-sm text-slate-500">
                   Choose Digital or Physical products above to browse.
                 </div>
               </div>
             ) : filtered.length === 0 ? (
-              <div className="bg-white border border-slate-200 rounded-none p-10 text-center">
+              <div className={`border rounded-none p-10 text-center ${isAppShell ? "bg-[#1E1E24] border-white/5" : "bg-white border-slate-200"}`}>
                 <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-                <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
+                <div className={`font-semibold mb-1 ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>Nothing matches</div>
                 <div className="text-sm text-slate-500">
                   Try clearing the category or price filters.
                 </div>
@@ -652,7 +652,7 @@ export function Marketplace() {
           <section className="mt-10">
             <div className="flex items-center gap-2 mb-3">
               <Star className="w-4 h-4 text-amber-300 fill-current" />
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className={`text-base sm:text-lg font-extrabold tracking-tight ${isAppShell ? "text-slate-200" : "text-slate-900"}`}>
                 Recommended for you
               </h2>
             </div>
@@ -716,10 +716,10 @@ function FilterSheet({
         className="absolute inset-0 w-full bg-slate-900/50"
       />
       <div
-        className="absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain bg-white shadow-[0_-8px_30px_rgba(15,23,42,0.18)] animate-in slide-in-from-bottom duration-200"
+        className={`absolute inset-x-0 bottom-0 max-h-[85dvh] overflow-y-auto overscroll-contain shadow-[0_-8px_30px_rgba(0,0,0,0.4)] animate-in slide-in-from-bottom duration-200 ${isAppShell ? "bg-[#121214]" : "bg-white"}`}
         style={{ paddingBottom: "max(env(safe-area-inset-bottom), 1rem)" }}
       >
-        <div className="sticky top-0 flex justify-center bg-white pt-3 pb-1">
+        <div className={`sticky top-0 flex justify-center pt-3 pb-1 ${isAppShell ? "bg-black" : "bg-white"}`}>
           <span className="h-1 w-10 rounded-full bg-slate-300" />
         </div>
         {children}
