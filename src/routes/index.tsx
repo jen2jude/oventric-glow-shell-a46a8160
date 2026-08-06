@@ -18,6 +18,7 @@ import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
 
 import { useIsDesktop } from "@/hooks/use-desktop";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
 
