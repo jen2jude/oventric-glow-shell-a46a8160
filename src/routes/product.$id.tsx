@@ -408,7 +408,7 @@ function ProductPage() {
                       const dp = productDisplay(product, baseCurrency);
                       return (
                         <>
-                          <div className="text-white md:text-slate-900 font-black text-3xl">
+                          <div className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-black text-3xl`}>
                             {dp.formatted}
                           </div>
                           {dp.originalFormatted && (
