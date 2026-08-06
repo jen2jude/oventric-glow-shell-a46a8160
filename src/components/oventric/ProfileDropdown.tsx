@@ -480,7 +480,7 @@ export function ProfileDropdown() {
       >
         <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
-          <div className="font-semibold truncate">View Public Profile Workspace</div>
+          <div className="font-semibold truncate">View My Workspace</div>
           <div className="text-[10px] text-slate-500 truncate">
             Your /profile aggregator tab view
           </div>
