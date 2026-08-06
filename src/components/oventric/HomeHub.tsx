@@ -416,7 +416,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center`}
+                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-glass hub-card-glow`}
                 >
                   {t.img ? (
                     <img src={t.img} alt="" aria-hidden className="w-8 h-8 md:w-9 md:h-9 object-contain" loading="eager" />
@@ -429,7 +429,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">{t.caption}</span>
               </span>
             );
-            const cls = "hub-tile p-1.5 rounded-2xl hover:bg-white/5 active:scale-95 transition-transform";
+            const cls = "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
+
             const style = { animationDelay: `${Math.min(i, 11) * 28}ms` } as const;
             return t.to ? (
               <Link key={t.label} to={t.to} className={cls} style={style}>
