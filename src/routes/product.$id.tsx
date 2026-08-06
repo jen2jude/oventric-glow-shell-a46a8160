@@ -95,7 +95,7 @@ function ProductRating({
     <div className="mb-5">
       <div className="flex items-center gap-1 text-sm text-amber-400">
         <Star className="w-4 h-4 fill-current" />
-        <span className="font-semibold">{average.toFixed(1)}</span>
+        <span className={`font-semibold ${isAppShell ? "text-amber-400" : "text-slate-900"}`}>{average.toFixed(1)}</span>
         <span className="text-red-500 font-semibold">
           ({count} {count === 1 ? "review" : "reviews"})
         </span>
@@ -112,11 +112,11 @@ function ProductRating({
             className="p-0.5 disabled:opacity-50"
           >
             <Star
-              className={`w-5 h-5 transition-transform hover:scale-110 ${s <= shown ? "text-amber-400 fill-current" : "text-slate-600 md:text-slate-300"}`}
+              className={`w-5 h-5 transition-transform hover:scale-110 ${s <= shown ? "text-amber-400 fill-current" : isAppShell ? "text-slate-600" : "text-slate-300"}`}
             />
           </button>
         ))}
-        <span className="ml-2 text-[11px] text-slate-400 md:text-slate-500">
+        <span className={`ml-2 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
           {mine ? `You rated ${mine}★ — tap to change` : "Tap to rate this product"}
         </span>
       </div>
