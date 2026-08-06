@@ -136,8 +136,9 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
               {"hasArrow" in l && (l as any).hasArrow && <span className="text-[10px] ml-0.5 opacity-80">▼</span>}
             </button>
           ))}
-          <div className="ml-auto flex items-center gap-1 text-[11px] font-bold">
-            <span className="opacity-80">Free returns within 90 days</span>
+          <div className="ml-auto flex flex-col items-end justify-center h-full">
+            <span className="text-[12px] font-black leading-none">Instant Delivery</span>
+            <span className="text-[9px] font-bold opacity-80 leading-tight">80% of orders under 5 min</span>
           </div>
         </div>
       </div>
