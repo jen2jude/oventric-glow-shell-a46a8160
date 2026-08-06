@@ -101,15 +101,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "color-scheme", content: "dark" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "Oventric — The multi-vendor tech platform" },
+      { title: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
       { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
-      { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
-      { property: "og:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
+      { property: "og:title", content: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
+      { property: "og:description", content: "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place." },
       { property: "og:type", content: "website" },
       { property: "og:site_name", content: "Oventric" },
       { name: "twitter:card", content: "summary_large_image" },
-      { name: "twitter:title", content: "Oventric — The multi-vendor tech platform" },
-      { name: "twitter:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
+      { name: "twitter:title", content: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
+      { name: "twitter:description", content: "Join the multi-vendor tech platform. Marketplace, Academy, Bounties, and Secured Wallet all in one place." },
       { property: "og:image", content: "https://oventric.com/og-image.jpg" },
       { property: "og:image:width", content: "1200" },
       { property: "og:image:height", content: "630" },
@@ -266,11 +266,20 @@ function RootShell({ children }: { children: ReactNode }) {
             there is no white flash / raw logo before React mounts. Removed by
             <BootSplash /> once the app is interactive. */}
         <div id="oventric-boot" aria-hidden>
-          <img
-            src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
-            alt=""
-            draggable={false}
-          />
+          <div className="ob-logo-container">
+            <img
+              src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+              className="ob-ring-logo"
+              alt=""
+              draggable={false}
+            />
+            <img
+              src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
+              className="ob-wordmark"
+              alt="Oventric"
+              draggable={false}
+            />
+          </div>
           <div className="ob-icons">
             {[
               { c: "#ff4d6d", p: <><circle cx="8" cy="21" r="1" /><circle cx="19" cy="21" r="1" /><path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12" /></> },
@@ -297,7 +306,9 @@ function RootShell({ children }: { children: ReactNode }) {
           <style
             dangerouslySetInnerHTML={{
               __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
-#oventric-boot img{height:48px;width:auto;user-select:none}
+#oventric-boot .ob-logo-container{display:flex;flex-direction:column;align-items:center;gap:12px}
+#oventric-boot .ob-ring-logo{height:64px;width:64px;object-fit:contain}
+#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}
 #oventric-boot .ob-icons{margin-top:24px;display:flex;align-items:center;gap:18px}
 #oventric-boot svg{width:22px;height:22px;opacity:.18;transform:translateY(0) scale(.92);transition:opacity .25s ease,transform .25s ease,filter .25s ease}
 #oventric-boot svg.ob-lit{opacity:1;transform:translateY(-3px) scale(1.12);filter:drop-shadow(0 0 10px currentColor)}`,

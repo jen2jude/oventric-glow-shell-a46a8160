@@ -91,14 +91,24 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   const logoSrc = light ? logoDark : logoLight;
 
   const LogoImg = (
-    <ResponsiveImage
-      src={logoSrc}
-      alt="Oventric"
-      sizes="160px"
-      className="h-8 w-auto object-contain"
-      draggable={false}
-      loading="eager"
-    />
+    <div className="flex items-center gap-1.5">
+      <ResponsiveImage
+        src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+        alt=""
+        sizes="32px"
+        className="h-6 w-6 object-contain"
+        draggable={false}
+        loading="eager"
+      />
+      <ResponsiveImage
+        src={logoSrc}
+        alt="Oventric"
+        sizes="160px"
+        className="h-8 w-auto object-contain"
+        draggable={false}
+        loading="eager"
+      />
+    </div>
   );
 
   const LogoMark = LogoImg;

@@ -124,12 +124,20 @@ export function BootSplash() {
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300"
       style={{ opacity: fading ? 0 : 1 }}
     >
-      <img
-        src={logoFull}
-        alt=""
-        className="h-12 w-auto select-none sm:h-14"
-        draggable={false}
-      />
+      <div className="flex flex-col items-center gap-4">
+        <img
+          src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+          alt=""
+          className="h-16 w-16 object-contain select-none sm:h-20 sm:w-20"
+          draggable={false}
+        />
+        <img
+          src={logoFull}
+          alt="Oventric"
+          className="h-8 w-auto select-none sm:h-10"
+          draggable={false}
+        />
+      </div>
       <div className="mt-6 flex items-center gap-4 sm:gap-5">
         {ICONS.map(({ Icon, color }, i) => {
           // 0 → not reached, 1 → fully lit; partial for the icon at the edge.
