@@ -17,7 +17,7 @@ export function GlobalMobileNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [createOpen, setCreateOpen] = useState(false);
 
-  const { launchCtx } = useLaunchContext();
+  const launchCtx = useLaunchContext();
   const isAppShell = launchCtx === "native" || launchCtx === "standalone";
 
   // Hide on admin routes, on "/" (index renders its own nav), and on product pages for browser users.

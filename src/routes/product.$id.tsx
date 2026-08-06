@@ -236,18 +236,17 @@ function ProductPage() {
   };
 
   return (
-    <div className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"} md:bg-slate-50 md:text-slate-700`}>
+    <div
+      className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"}`}
+    >
       {!isAppShell ? (
         <MarketplaceHeader
           onSelect={(section) => {
             navigate({ to: "/" });
             setTimeout(() => {
-              window.dispatchEvent(
-                new CustomEvent("oventric:navigate", { detail: { section } }),
-              );
+              window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
             }, 30);
           }}
-          avatarUrl={null}
           name={product?.vendor}
         />
       ) : (
