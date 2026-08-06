@@ -639,7 +639,7 @@ function MiniRail({
 
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
-    <div className="rounded-2xl bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
+    <div className="rounded-[10px] bg-black/25 border border-white/10 px-2.5 py-2 min-w-0">
       <div className="text-[10px] uppercase tracking-wide text-slate-500 truncate">{label}</div>
       <div className="text-xs font-bold text-white tabular-nums truncate">{value}</div>
     </div>
