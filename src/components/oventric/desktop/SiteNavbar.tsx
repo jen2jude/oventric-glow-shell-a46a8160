@@ -4,6 +4,7 @@ import { Menu, Plus, X, Search, User } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import logo from "@/assets/oventric-logo-dark.png";
+import { COUNTRY_META } from "@/lib/currency/africa";
 
 export type SiteNavbarProps = {
   onSelect: (section: string) => void;
@@ -97,9 +98,10 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
 
             {/* User Profile & Localization */}
             <div className="flex items-center gap-4 ml-auto">
-              <div 
+              <Link 
+                to="/profile/$id"
+                params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
                 className="flex items-center gap-2 cursor-pointer group p-1 rounded-full hover:bg-slate-100 transition-colors"
-                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
               >
                 <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
                   {isAuthenticated ? (
@@ -111,9 +113,12 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
                 {isAuthenticated && name && (
                   <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
                 )}
-              </div>
+              </Link>
               <div className="hidden lg:flex flex-col items-end border-l border-slate-100 pl-4">
                 <div className="flex items-center gap-1.5">
+                  <span className="text-lg leading-none" aria-hidden="true">
+                    {country ? (COUNTRY_META[country]?.flag || "") : ""}
+                  </span>
                   <span className="text-[11px] font-black text-slate-900 uppercase">{country || "NG"}</span>
                 </div>
                 <div className="text-[10px] font-bold text-emerald-600 mt-0.5">

@@ -81,9 +81,10 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
           <div className="flex items-center gap-4 lg:gap-6 ml-auto">
             {/* User Profile & Localization */}
             <div className="hidden lg:flex items-center gap-4">
-              <div 
+              <Link 
+                to="/profile/$id"
+                params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
                 className="flex items-center gap-3 cursor-pointer group"
-                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
               >
                 <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 ring-2 ring-white ring-offset-2 ring-offset-slate-50 group-hover:ring-emerald-400 transition-all">
                   {isAuthenticated ? (
@@ -100,7 +101,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
                   </span>
                   <span className="text-[12px] font-black text-slate-900 leading-tight">Profile & Shop</span>
                 </div>
-              </div>
+              </Link>
 
               {/* Country & Currency */}
               <div className="flex flex-col items-end border-l border-slate-100 pl-4">
@@ -116,9 +117,10 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
 
             {/* Mobile Profile Clickable Image */}
             <div className="lg:hidden flex items-center gap-2">
-              <div 
+              <Link 
+                to="/profile/$id"
+                params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
                 className="h-8 w-8 rounded-full overflow-hidden border border-slate-200"
-                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
               >
                 {isAuthenticated ? (
                   <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
@@ -127,7 +129,7 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
                     <User className="w-4 h-4 text-slate-400" />
                   </div>
                 )}
-              </div>
+              </Link>
             </div>
 
             {/* Mobile Menu Toggle */}
