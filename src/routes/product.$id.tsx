@@ -638,7 +638,7 @@ function ContactSellerModal({
                     toast.error("Could not copy message");
                   }
                 }}
-                className="inline-flex items-center gap-1 text-[10px] font-semibold text-emerald-300 hover:text-emerald-200"
+                className={`inline-flex items-center gap-1 text-[10px] font-semibold ${isAppShell ? "text-emerald-300 hover:text-emerald-200" : "text-emerald-600 hover:text-emerald-700"}`}
               >
                 <Copy className="w-3 h-3" /> Copy message
               </button>
