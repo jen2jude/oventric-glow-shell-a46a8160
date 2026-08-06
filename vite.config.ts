@@ -35,22 +35,16 @@ export default defineConfig({
           navigateFallback: undefined,
           cleanupOutdatedCaches: true,
           clientsClaim: true,
-          // The new worker waits until the user accepts the in-app update
-          // prompt (src/components/oventric/pwa/UpdatePrompt.tsx), which posts
-          // SKIP_WAITING and reloads.
-          skipWaiting: false,
+          // Take over immediately so a plain refresh always lands on the newest
+          // deployed build. The in-app update prompt still works as a nudge.
+          skipWaiting: true,
 
           runtimeCaching: [
             {
-              // HTML navigations must never be served cache-first.
+              // HTML navigations always come from the network (SSR pages).
               urlPattern: ({ request, url }) =>
                 request.mode === "navigate" && !url.pathname.startsWith("/~oauth"),
-              handler: "NetworkFirst",
-              options: {
-                cacheName: "oventric-pages",
-                networkTimeoutSeconds: 4,
-                expiration: { maxEntries: 40, maxAgeSeconds: 60 * 60 * 24 },
-              },
+              handler: "NetworkOnly",
             },
             {
               urlPattern: ({ request, sameOrigin }) =>
