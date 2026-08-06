@@ -624,7 +624,7 @@ function ContactSellerModal({
               </div>
             </div>
           </div>
-          <div className="border-t border-white/10 md:border-slate-200 bg-[#0f1012] md:bg-slate-100 px-3 py-2">
+          <div className={`border-t ${isAppShell ? "border-white/10 bg-[#0f1012]" : "border-slate-200 bg-slate-100"} md:border-slate-200 md:bg-slate-100 px-3 py-2`}>
             <div className="flex items-center justify-between gap-2 mb-1">
               <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">
                 WhatsApp message preview
