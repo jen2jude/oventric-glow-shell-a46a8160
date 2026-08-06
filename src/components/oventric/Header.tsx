@@ -109,11 +109,7 @@ export function Header({
     return () => window.removeEventListener("oventric:open-messages", handler);
   }, [onOpenMessages]);
 
-  const bg = light
-    ? "bg-white"
-    : safeMobile
-      ? "bg-[#121214] md:bg-[#121214]/90"
-      : "bg-[#121214]/90";
+  const bg = light ? "bg-white" : "bg-[#121214]";
   const edge = light ? "border-slate-200" : "border-white/10";
   // Round icon buttons in the right cluster.
   const chip = light
