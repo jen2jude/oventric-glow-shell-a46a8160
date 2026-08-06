@@ -1051,7 +1051,7 @@ function CategoryTicker({ label }: { label: string }) {
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div
-        className={`${base} text-emerald-600 sm:text-red-600 ${
+        className={`${base} text-[#E13B2E] ${
           alt ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
