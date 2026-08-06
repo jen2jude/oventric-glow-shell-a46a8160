@@ -355,37 +355,46 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
-        <section className="mt-6">
-          <div className="flex items-center justify-between mb-3 px-1">
-            <h2 className="text-sm font-bold text-white">Top Users</h2>
-            <Link to="/discovery" className="text-[11px] font-semibold text-emerald-400">View rankings</Link>
+        <section className="mt-6 mb-2">
+          <div className="flex items-center justify-between mb-4 px-1">
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Top Users</h2>
+            <button 
+              onClick={() => onSelect("Feed")}
+              className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+            >
+              View all
+            </button>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
+          <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
             {topUsers.map((u) => (
               <Link 
                 key={u.userId}
-                to="/profile/\$id" 
+                to="/profile/$id" 
                 params={{ id: u.slug }}
-                className="flex flex-col items-center gap-2 shrink-0 group"
+                className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-emerald-500 to-blue-500 shadow-lg shadow-blue-500/10 transition-transform group-active:scale-95">
-                    <div className="w-full h-full rounded-full border-2 border-[#1a1a1a] overflow-hidden">
+                  <div className="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-xl shadow-blue-500/10 group-active:scale-95 transition-transform duration-200">
+                    <div className="w-full h-full rounded-full border-[3px] border-[#1a1a1a] overflow-hidden bg-[#222]">
                       <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                     </div>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-sm">
-                    {u.reputationStars}★
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px]">
+                    {u.reputationStars}
                   </div>
                 </div>
-                <span className="text-[11px] font-medium text-slate-200 truncate w-16 text-center">
-                  {u.displayName.split(' ')[0]}
-                </span>
+                <div className="flex flex-col items-center gap-0.5">
+                  <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-blue-400 transition-colors">
+                    {u.displayName.split(' ')[0]}
+                  </span>
+                  <div className="w-1 h-1 rounded-full bg-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                </div>
               </Link>
             ))}
           </div>
         </section>
       )}
+
 
 
       {/* Feature grid */}
