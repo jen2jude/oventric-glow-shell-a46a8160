@@ -421,7 +421,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Stats */}
       <section className="hp-dark border-y border-slate-200">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-12">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-2 gap-6 px-5 py-10 sm:px-8 md:grid-cols-4 md:gap-8 md:py-12">
           {[
             { v: counts.products, l: "Live products" },
             { v: counts.courses, l: "Courses to learn" },
