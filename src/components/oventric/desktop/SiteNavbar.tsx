@@ -114,17 +114,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
                   <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
                 )}
               </Link>
-              <div className="hidden lg:flex flex-col items-end border-l border-slate-100 pl-4">
-                <div className="flex items-center gap-1.5">
-                  <span className="text-lg leading-none" aria-hidden="true">
-                    {country ? (COUNTRY_META[country]?.flag || "") : ""}
-                  </span>
-                  <span className="text-[11px] font-black text-slate-900 uppercase">{country || "NG"}</span>
-                </div>
-                <div className="text-[10px] font-bold text-emerald-600 mt-0.5">
-                  {currency || "NGN"}
-                </div>
-              </div>
             </div>
 
             {/* Mobile Menu Toggle */}
