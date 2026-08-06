@@ -573,7 +573,7 @@ function ContactSellerModal({
       aria-modal="true"
     >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
-      <div className="slide-up relative w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
+      <div className={`slide-up relative w-full max-w-md ${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto`}>
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
             <AlertTriangle className="w-5 h-5 text-amber-400" />
