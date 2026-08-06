@@ -134,32 +134,50 @@ export function BootSplash() {
       className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-background transition-opacity duration-300"
       style={{ opacity: fading ? 0 : 1 }}
     >
-      <div className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-6">
         <img
           src={logoFull}
           alt="Oventric"
-          className="h-8 w-auto select-none sm:h-10"
+          className="h-10 w-auto select-none sm:h-12"
           draggable={false}
         />
-        <div className="flex items-center gap-3 sm:gap-4">
+        <div className="flex items-center gap-4 sm:gap-6">
           {ICONS.map(({ Icon, color }, i) => {
-            const level = Math.max(0, Math.min(1, lit - i));
             return (
               <Icon
                 key={i}
-                className="h-8 w-8 transition-none sm:h-10 sm:w-10"
+                className="h-8 w-8 transition-none sm:h-10 sm:w-10 splash-icon-sweep"
                 strokeWidth={1.8}
                 style={{
                   color,
-                  opacity: 0.18 + level * 0.82,
-                  transform: `translateY(${-2 * level}px) scale(${0.92 + level * 0.15})`,
-                  filter: level > 0 ? `drop-shadow(0 0 ${8 * level}px currentColor)` : undefined,
-                }}
+                  "--icon-color": color,
+                  animationDelay: `${i * 0.15}s`,
+                  opacity: 0.15,
+                } as any}
               />
             );
           })}
         </div>
       </div>
+      <style dangerouslySetInnerHTML={{
+        __html: `
+          .splash-icon-sweep {
+            animation: splash-icon-ping-pong 2.4s infinite ease-in-out;
+          }
+          @keyframes splash-icon-ping-pong {
+            0%, 100% {
+              opacity: 0.15;
+              transform: translateY(0) scale(0.92);
+              filter: none;
+            }
+            50% {
+              opacity: 1;
+              transform: translateY(-4px) scale(1.1);
+              filter: drop-shadow(0 0 12px var(--icon-color));
+            }
+          }
+        `
+      }} />
     </div>
   );
 }
