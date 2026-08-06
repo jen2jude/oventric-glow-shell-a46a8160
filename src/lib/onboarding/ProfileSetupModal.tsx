@@ -154,7 +154,7 @@ function ProfileSetupSlide({
     >
       <div className="absolute inset-0 bg-black/80" />
       <div className="relative w-full sm:max-w-md h-full bg-[#141418] border-l border-white/10 shadow-2xl overflow-y-auto animate-in slide-in-from-right duration-300">
-        <div className="sticky top-0 z-10 bg-[#141418]/95 px-6 py-4 border-b border-white/5 flex items-start justify-between">
+        <div className="sticky top-0 z-10 bg-[#141418] px-6 py-4 border-b border-white/5 flex items-start justify-between">
           <div>
             <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400">
               Step 2 of 2 · Complete profile

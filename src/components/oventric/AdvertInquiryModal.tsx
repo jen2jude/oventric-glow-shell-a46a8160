@@ -290,7 +290,7 @@ export function AdvertInquiryModal({
   return (
     <div className="modal-light fixed inset-0 z-[2147483000] flex items-end sm:items-center justify-center bg-black/70">
       <div className="relative w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto bg-[#141418] border border-white/10 sm:rounded-2xl rounded-t-2xl">
-        <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 bg-[#141418]/95 border-b border-white/10">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 bg-[#141418] border-b border-white/10">
           <div>
             <div className="text-sm font-black text-white">Advertise on Oventric</div>
             <div className="text-[10px] uppercase tracking-wider text-emerald-300">

@@ -376,7 +376,7 @@ export function MegaMenu({ open, onClose }: Props) {
       }}
     >
       <div>
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 border-b border-white/10">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d] border-b border-white/10">
           <span className="text-sm font-bold text-white">Menu</span>
           <button
             onClick={onClose}

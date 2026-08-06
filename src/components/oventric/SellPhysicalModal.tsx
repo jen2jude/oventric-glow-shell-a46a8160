@@ -754,7 +754,7 @@ export function SellPhysicalModal({
                 </div>
               </div>
 
-              <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24]/95 border-t border-white/5">
+              <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24] border-t border-white/5">
                 {(formError || progress) && (
                   <div
                     className={`mb-3 rounded-lg border px-3 py-2 text-xs ${

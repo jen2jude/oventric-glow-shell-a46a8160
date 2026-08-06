@@ -141,7 +141,7 @@ export function Academy() {
       <AcademyHero />
 
       <div className="max-w-6xl mx-auto w-full">
-        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 border-b border-white/5 md:bg-white md:border-slate-200">
+        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214] border-b border-white/5 md:bg-white md:border-slate-200">
           <div className="flex items-center gap-3 mb-3 flex-wrap">
             <h2 className="text-white md:text-slate-900 font-black text-lg">Browse courses</h2>
             {userId && (
