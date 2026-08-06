@@ -285,7 +285,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             onFocus={() => setSearchOpen(place)}
             placeholder={compact ? "Search Oventric" : "Search products, courses and bounties"}
             aria-label="Search Oventric"
-            className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            className="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
           />
           <button
             type="submit"
@@ -345,7 +345,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       />
 
       {/* Hero */}
-      <section className="relative min-h-[78vh] overflow-hidden lg:min-h-[92vh]">
+      <section className="relative overflow-hidden sm:min-h-[78vh] lg:min-h-[92vh]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -357,7 +357,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         {/* Left readability gradient — text overlaps the collage */}
         <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-full bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
 
-        <div className="relative z-20 mx-auto grid h-full min-h-[78vh] w-full max-w-[1400px] grid-cols-1 items-center px-5 py-14 sm:px-6 sm:py-20 lg:min-h-[92vh] lg:px-8 lg:py-24">
+        <div className="relative z-20 mx-auto grid h-full w-full max-w-[1400px] grid-cols-1 items-center px-5 py-10 sm:min-h-[78vh] sm:px-6 sm:py-20 lg:min-h-[92vh] lg:px-8 lg:py-24">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
               <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
@@ -397,11 +397,20 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span>54 African countries</span>
               <span>Card, bank &amp; mobile money</span>
             </div>
+
+            {/* Mobile hero visual — stacked below the copy instead of behind it */}
+            <img
+              src={heroCollage.url}
+              alt="Oventric members shopping, learning and chatting across the platform"
+              className="mt-10 w-full select-none object-contain sm:hidden"
+              loading="eager"
+              decoding="async"
+            />
           </div>
         </div>
 
         {/* Hero visual — large but contained so the right edge stays visible */}
-        <div className="pointer-events-none absolute right-[-8%] top-1/2 z-0 w-[125vw] max-w-[1080px] -translate-y-1/2 opacity-50 sm:right-[-1%] sm:w-[78vw] sm:opacity-100">
+        <div className="pointer-events-none absolute right-[-1%] top-1/2 z-0 hidden w-[78vw] max-w-[1080px] -translate-y-1/2 sm:block">
           <div
             className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
             style={{
