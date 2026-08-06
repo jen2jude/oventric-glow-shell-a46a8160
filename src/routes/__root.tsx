@@ -359,8 +359,10 @@ function RootComponent() {
     };
   }, []);
 
-
-
+  // Offline app shell (production, non-preview contexts only).
+  useEffect(() => {
+    registerAppServiceWorker();
+  }, []);
 
   return (
     <QueryClientProvider client={queryClient}>
@@ -378,9 +380,13 @@ function RootComponent() {
               <Toaster position="top-center" richColors closeButton />
               <LiveNotificationToasts />
               <PushOptInPrompt />
+              <OfflineBanner />
+              <AppShellGestures />
+              <InstallPrompt />
 
               <BootSplash />
               {show && hydrated && !isPc && <FeatureCarousel onComplete={markSeen} />}
+
             </KycGateProvider>
 
           </OnboardingProvider>
