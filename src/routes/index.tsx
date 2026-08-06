@@ -59,8 +59,58 @@ function Index() {
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
   const [active, setActive] = useState<string>("Home");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [name, setName] = useState<string>("");
+  const [q, setQ] = useState("");
 
-  const { require } = useOnboarding();
+  const { require, isAuthenticated, fullName, storeName } = useOnboarding();
+  const loadProfile = useServerFn(getMyFullProfile);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAvatarUrl(null);
+      setName("");
+      return;
+    }
+    let cancelled = false;
+    loadProfile()
+      .then((r) => {
+        if (cancelled || !r?.profile) return;
+        setAvatarUrl(r.profile.avatarUrl ?? null);
+        setName(r.profile.displayName || fullName || storeName || "");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, fullName, storeName, loadProfile]);
+
+  const renderNavSearch = () => (
+    <div className="relative w-full">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setActive("Marketplace");
+        }}
+        className="flex items-center rounded-full border border-slate-200 bg-slate-50 h-10 gap-2 pl-3 pr-1 shadow-sm"
+      >
+        <Search className="shrink-0 text-slate-400 h-4 w-4" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search Oventric"
+          className="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+        />
+        <button
+          type="submit"
+          className="inline-flex items-center bg-slate-900 font-bold text-white transition-transform active:scale-95 h-7 rounded-lg px-3 text-xs"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  );
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
   const handleCreate = (choice?: ChoiceKey) =>
