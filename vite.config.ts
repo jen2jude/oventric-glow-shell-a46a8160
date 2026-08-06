@@ -22,8 +22,12 @@ export default defineConfig({
         injectRegister: null,
         injectManifest: undefined,
         filename: "sw.js",
+        // The browser-facing bundle lands in dist/client — the worker and its
+        // precache manifest must be generated from (and into) that folder.
+        outDir: "dist/client",
         // public/manifest.webmanifest is authored by hand.
         manifest: false,
+
         devOptions: { enabled: false },
         workbox: {
           globPatterns: ["**/*.{js,css,woff2,svg}"],
