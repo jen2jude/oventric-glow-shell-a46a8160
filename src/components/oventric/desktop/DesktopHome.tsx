@@ -612,7 +612,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             ))}
           </div>
 
-          <Reveal className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+          <Reveal className="mt-12 flex flex-col items-start justify-between gap-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-6 sm:p-10 lg:mt-16 lg:flex-row lg:items-center lg:gap-10">
             <div>
               <h3 className="text-2xl font-bold text-slate-900">
                 Ready to start earning on Oventric?
