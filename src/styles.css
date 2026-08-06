@@ -1980,30 +1980,9 @@ html.light input::placeholder, html.light textarea::placeholder {
   .hp-float { animation: none; }
 }
 
-/* ── Marketplace: premium dark on mobile/tablet (desktop stays light) ── */
-@media (max-width: 767px) {
-  .marketplace-render-safe { background-color: #121214 !important; color: #cbd5e1 !important; }
-  .marketplace-render-safe .bg-white,
-  .marketplace-render-safe .bg-white\/90 { background-color: #1E1E24 !important; }
-  .marketplace-render-safe .bg-slate-50,
-  .marketplace-render-safe .bg-slate-100 { background-color: #24242b !important; }
-  .marketplace-render-safe .bg-slate-900\/80 { background-color: rgba(0,0,0,0.72) !important; }
-  .marketplace-render-safe .bg-emerald-50,
-  .marketplace-render-safe .bg-emerald-50\/60 { background-color: rgba(59,130,246,0.14) !important; }
-  .marketplace-render-safe .text-slate-900 { color: #f8fafc !important; }
-  .marketplace-render-safe .text-slate-700 { color: #e2e8f0 !important; }
-  .marketplace-render-safe .text-slate-600 { color: #cbd5e1 !important; }
-  .marketplace-render-safe .text-slate-500 { color: #94a3b8 !important; }
-  .marketplace-render-safe .text-slate-400 { color: #7c8798 !important; }
-  .marketplace-render-safe .text-slate-300 { color: #64748b !important; }
-  .marketplace-render-safe .border-slate-100,
-  .marketplace-render-safe .border-slate-200,
-  .marketplace-render-safe .border-slate-300 { border-color: rgba(255,255,255,0.09) !important; }
-  .marketplace-render-safe .shadow-sm,
-  .marketplace-render-safe .shadow-md,
-  .marketplace-render-safe .shadow-lg { box-shadow: 0 1px 2px rgba(0,0,0,0.5) !important; }
-  .marketplace-render-safe .border-red-200 { border-color: rgba(248,113,113,0.4) !important; }
-}
+/* Marketplace is a single light commerce surface on every device (website
+   parity). The previous mobile-only dark override was removed intentionally. */
+
 
 /* ---- Promo rail cards: hover / focus polish (identical in light + dark) ---- */
 .promo-tile {
