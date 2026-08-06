@@ -274,17 +274,17 @@ function RootShell({ children }: { children: ReactNode }) {
               draggable={false}
             />
             <div className="ob-icons">
-              <div className="ob-icon" style={{ "--color": "#ff4d6d" } as any}></div>
-              <div className="ob-icon" style={{ "--color": "#ffb020" } as any}></div>
-              <div className="ob-icon" style={{ "--color": "#22ff88" } as any}></div>
-              <div className="ob-icon" style={{ "--color": "#00c2ff" } as any}></div>
-              <div className="ob-icon" style={{ "--color": "#7aa2ff" } as any}></div>
-              <div className="ob-icon" style={{ "--color": "#a855f7" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#ff4d6d" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#ffb020" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#22ff88" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#00c2ff" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#7aa2ff" } as any}></div>
+              <div className="ob-icon" style={{ "--c": "#a855f7" } as any}></div>
             </div>
           </div>
           <style
             dangerouslySetInnerHTML={{
-              __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
+              __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:none;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
 #oventric-boot .ob-logo-container{display:flex;flex-direction:column;align-items:center;gap:16px}
 #oventric-boot .ob-wordmark{height:40px;width:auto;user-select:none}
 #oventric-boot .ob-icons{display:flex;gap:12px}
@@ -297,21 +297,18 @@ function RootShell({ children }: { children: ReactNode }) {
 #oventric-boot .ob-icon:nth-child(6){animation-delay:0.75s}
 @keyframes ob-sweep{
   0%,100%{transform:scale(1);opacity:0.2;background:rgba(255,255,255,0.15);box-shadow:none}
-  50%{transform:scale(1.5);opacity:1;background:var(--color);box-shadow:0 0 12px var(--color)}
+  50%{transform:scale(1.5);opacity:1;background:var(--c);box-shadow:0 0 12px var(--c)}
 }`,
             }}
           />
           <script
-            // Only show the boot splash when the app is launched from a phone's
-            // home screen (installed PWA / standalone) on a mobile-sized screen —
-            // never on desktop/tablet, and never for in-app navigation.
             dangerouslySetInnerHTML={{
               __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
   var standalone=false;
   try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
   window.__oventricStandalone=!!standalone;
-  if(!standalone){root.style.display='none';root.parentNode&&root.parentNode.removeChild(root);return;}
+  if(standalone){root.style.display='flex';}else{root.parentNode&&root.parentNode.removeChild(root);}
 }catch(e){}})();`,
             }}
           />

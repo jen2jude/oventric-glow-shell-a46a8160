@@ -150,7 +150,7 @@ export function BootSplash() {
                 strokeWidth={1.8}
                 style={{
                   color,
-                  "--icon-color": color,
+                  "--ic": color,
                   animationDelay: `${i * 0.15}s`,
                   opacity: 0.15,
                 } as any}
@@ -162,18 +162,19 @@ export function BootSplash() {
       <style dangerouslySetInnerHTML={{
         __html: `
           .splash-icon-sweep {
-            animation: splash-icon-ping-pong 2.4s infinite ease-in-out;
+            animation: splash-icon-ping-pong 3.2s infinite ease-in-out;
+            will-change: transform, opacity, filter;
           }
           @keyframes splash-icon-ping-pong {
-            0%, 100% {
+            0%, 20%, 80%, 100% {
               opacity: 0.15;
               transform: translateY(0) scale(0.92);
-              filter: none;
+              filter: grayscale(0.4) blur(0.5px);
             }
             50% {
               opacity: 1;
-              transform: translateY(-4px) scale(1.1);
-              filter: drop-shadow(0 0 12px var(--icon-color));
+              transform: translateY(-8px) scale(1.2);
+              filter: drop-shadow(0 0 16px var(--ic)) drop-shadow(0 0 8px var(--ic));
             }
           }
         `
