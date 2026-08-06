@@ -101,7 +101,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "color-scheme", content: "dark" },
       { name: "apple-mobile-web-app-capable", content: "yes" },
       { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
-      { title: "Oventric — The multi-vendor tech platform" },
+      { title: "Oventric — Marketplace, Academy, Bounties, and Wallet" },
       { name: "description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
       { property: "og:title", content: "Oventric — The multi-vendor tech platform" },
       { property: "og:description", content: "Feed, marketplace, academy, bounties, and wallet — one platform for builders." },
