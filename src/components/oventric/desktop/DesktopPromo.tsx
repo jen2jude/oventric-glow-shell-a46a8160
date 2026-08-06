@@ -196,21 +196,23 @@ function DesktopBannerSlide({
       className="snap-center shrink-0 w-full text-left focus-visible:outline-none"
     >
       <div
-        className={`hp-lift relative flex items-center gap-6 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r ${b.tint} bg-white px-10 py-9`}
+        className={`hp-lift relative grid grid-cols-[auto_minmax(0,1fr)] items-center gap-x-4 gap-y-4 overflow-hidden rounded-3xl border border-slate-200 bg-gradient-to-r ${b.tint} bg-white px-5 py-6 sm:flex sm:gap-6 sm:px-10 sm:py-9`}
       >
         <span
           aria-hidden
           className="pointer-events-none absolute -left-10 -top-16 h-56 w-56 rounded-full blur-3xl"
           style={{ background: `radial-gradient(circle, ${b.glow}, transparent 70%)` }}
         />
-        <span className="relative inline-flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 text-blue-600">
-          <b.icon className="h-8 w-8" strokeWidth={2.4} />
+        <span className="relative inline-flex h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-blue-200 bg-blue-50 text-blue-600 sm:h-16 sm:w-16">
+          <b.icon className="h-6 w-6 sm:h-8 sm:w-8" strokeWidth={2.4} />
         </span>
         <span className="relative min-w-0 flex-1">
-          <span className="block text-2xl font-bold tracking-tight text-slate-900">{b.title}</span>
-          <span className="mt-1 block text-sm text-slate-500">{b.subtitle}</span>
+          <span className="block text-base font-bold leading-snug tracking-tight text-slate-900 sm:text-2xl">
+            {b.title}
+          </span>
+          <span className="mt-1 block text-xs text-slate-500 sm:text-sm">{b.subtitle}</span>
         </span>
-        <span className="relative inline-flex shrink-0 items-center gap-1 rounded-full bg-slate-900 px-6 py-3 text-sm font-bold text-white">
+        <span className="relative col-span-2 inline-flex shrink-0 items-center justify-center gap-1 rounded-full bg-slate-900 px-5 py-2.5 text-xs font-bold text-white sm:col-auto sm:px-6 sm:py-3 sm:text-sm">
           Explore <ChevronRight className="h-4 w-4" />
         </span>
       </div>
