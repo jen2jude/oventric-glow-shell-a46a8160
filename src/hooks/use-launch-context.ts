@@ -39,6 +39,6 @@ export function useLaunchContext(): LaunchContext | null {
 /** True for the app-like shells (native build or installed PWA). */
 export function useIsAppShell(): boolean {
   const ctx = useLaunchContext();
-  // Unknown (pre-hydration) keeps the existing app markup, avoiding a flash.
-  return ctx === null || ctx === "native" || ctx === "standalone";
+  // Default to false during hydration so browser visitors see marketing first.
+  return ctx === "native" || ctx === "standalone";
 }
