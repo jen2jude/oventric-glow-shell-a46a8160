@@ -10,6 +10,8 @@ export type SiteNavbarProps = {
   onCreate?: () => void;
   avatarUrl?: string | null;
   name?: string;
+  country?: string;
+  currency?: string;
   search?: React.ReactNode;
 };
 
