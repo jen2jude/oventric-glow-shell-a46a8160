@@ -37,6 +37,7 @@ import { listIncomingFollowRequests } from "@/lib/follows.functions";
 import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string }[] = [
   { label: "Market", icon: Store, section: "Marketplace" },
