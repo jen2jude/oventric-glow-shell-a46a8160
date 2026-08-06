@@ -11,6 +11,7 @@ type Promo = {
   tint: string;
   glow: string;
   section: string;
+  img?: string;
 };
 
 const PROMOS: Promo[] = [

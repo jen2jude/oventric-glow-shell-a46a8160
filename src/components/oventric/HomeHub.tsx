@@ -20,6 +20,7 @@ import {
   ChevronRight,
   KeyRound,
   User,
+  Star,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
