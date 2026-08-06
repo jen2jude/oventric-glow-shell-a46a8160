@@ -433,7 +433,7 @@ function ProductPage() {
                         onChange={(e) =>
                           setQty(Math.max(1, Math.min(20, Number(e.target.value) || 1)))
                         }
-                        className="w-16 bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-white md:text-slate-900 text-center"
+                        className={`w-16 ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg px-2 py-1.5 text-sm text-center`}
                       />
                     </div>
                   )}
