@@ -643,7 +643,7 @@ function ContactSellerModal({
                 <Copy className="w-3 h-3" /> Copy message
               </button>
             </div>
-            <pre className="text-xs text-slate-200 md:text-slate-700 whitespace-pre-wrap font-sans leading-relaxed break-words">
+            <pre className={`text-xs ${isAppShell ? "text-slate-200" : "text-slate-700"} md:text-slate-700 whitespace-pre-wrap font-sans leading-relaxed break-words`}>
               {message}
             </pre>
           </div>
