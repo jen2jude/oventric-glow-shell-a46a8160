@@ -355,9 +355,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         />
 
         {/* Left readability gradient — text overlaps the collage */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[62%] bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-full bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
 
-        <div className="relative z-20 mx-auto grid h-full min-h-[92vh] w-full max-w-[1400px] grid-cols-1 items-center px-6 py-24 lg:px-8">
+        <div className="relative z-20 mx-auto grid h-full min-h-[78vh] w-full max-w-[1400px] grid-cols-1 items-center px-5 py-14 sm:px-6 sm:py-20 lg:min-h-[92vh] lg:px-8 lg:py-24">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
               <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
