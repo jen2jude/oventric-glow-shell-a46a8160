@@ -46,8 +46,9 @@ async function summarize(
       comment,
       created_at,
       profiles:profiles!user_id (
-        full_name,
-        avatar_url,
+        display_name,
+        username,
+        avatar_path,
         country
       )
     `)
