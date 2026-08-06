@@ -535,7 +535,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Live rails */}
       <section className="hp-dark border-t border-slate-200">
-        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
+        <div className="mx-auto w-full max-w-[1200px] space-y-12 px-5 py-14 sm:space-y-16 sm:px-8 sm:py-20 lg:py-24">
           <CardGrid
             title="Fresh in the market"
             items={products}
