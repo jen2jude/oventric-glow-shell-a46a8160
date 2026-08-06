@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from "react";
 import { useRouterState } from "@tanstack/react-router";
 import { ShoppingCart, Banknote, Target, GraduationCap, Wallet, MessageCircle } from "lucide-react";
 import logoFull from "@/assets/oventric-full-transparent.png";
+import ringLogoAsset from "@/assets/oventric-ring-glow.jpg.asset.json";
 
 const ICONS = [
   { Icon: ShoppingCart, color: "#ff4d6d" },
@@ -126,7 +127,7 @@ export function BootSplash() {
     >
       <div className="flex flex-col items-center gap-4">
         <img
-          src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+          src={ringLogoAsset.url}
           alt=""
           className="h-16 w-16 object-contain select-none sm:h-20 sm:w-20"
           draggable={false}
