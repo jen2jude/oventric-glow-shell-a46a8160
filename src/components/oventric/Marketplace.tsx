@@ -590,6 +590,7 @@ export function Marketplace() {
               sort={sort}
               setSort={setSort}
               onReset={resetFilters}
+              isAppShell={isAppShell}
             />
           </aside>
 
@@ -609,6 +610,7 @@ export function Marketplace() {
               setSort={setSort}
               onReset={resetFilters}
               onClose={() => setFiltersOpen(false)}
+              isAppShell={isAppShell}
               flush
             />
           </FilterSheet>
@@ -932,6 +934,7 @@ function FilterPanel({
   setSort,
   onReset,
   onClose,
+  isAppShell,
   flush = false,
 }: {
   currency: Currency;
@@ -947,10 +950,11 @@ function FilterPanel({
   setSort: (v: SortKey) => void;
   onReset: () => void;
   onClose?: () => void;
+  isAppShell: boolean;
   flush?: boolean;
 }) {
   const input =
-    "w-full bg-white border border-slate-200 rounded-none px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
+    `w-full border rounded-none px-2.5 py-2 text-sm focus:outline-none focus:border-emerald-500 transition-colors ${isAppShell ? "bg-[#121214] border-white/10 text-slate-200 placeholder:text-slate-600" : "bg-white border-slate-200 text-slate-900 placeholder:text-slate-400"}`;
   return (
     <div
       className={
