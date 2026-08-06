@@ -356,7 +356,7 @@ function ProductPage() {
                 <Link
                   to="/profile/$id"
                   params={{ id: product.sellerSlug ?? product.sellerId }}
-                  className="text-emerald-400 hover:underline font-medium"
+                  className={`${isAppShell ? "text-emerald-400" : "text-emerald-600"} hover:underline font-medium`}
                 >
                   {product.vendor}
                 </Link>
