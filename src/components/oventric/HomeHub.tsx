@@ -272,9 +272,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Wallet card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-[10px] border border-blue-500/30 p-4 md:p-5 hub-card-glass hub-card-glow hub-glow-blue"
+        className="hub-wallet relative overflow-hidden rounded-[10px] border border-white/10 p-4 md:p-5 hub-card-glass"
         style={{
-          background: "linear-gradient(135deg, rgba(20, 20, 26, 0.95) 0%, rgba(20, 20, 26, 1) 100%)",
+          background: "oklch(0.2 0 0)",
         }}
       >
 
@@ -316,21 +316,21 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-blue-600 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-blue-600/20"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-slate-500 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-black/20"
           >
-            <ArrowDownToLine className="w-4 h-4" strokeWidth={3} /> Add
+            <ArrowDownToLine className="w-4 h-4 text-[#ff0000]" strokeWidth={3} /> <span style={{ color: "white" }}>Add</span>
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <ArrowUpFromLine className="w-4 h-4" strokeWidth={3} /> Withdraw
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? setSendSoonOpen(true) : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-[#1E1E24] border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
           >
             <Send className="w-4 h-4" strokeWidth={3} /> Send
           </button>
@@ -379,12 +379,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
               >
                 <div className="relative">
-                  <div className="w-16 h-16 rounded-full p-[2.5px] bg-gradient-to-tr from-blue-600 to-cyan-400 shadow-xl shadow-blue-500/10 group-active:scale-95 transition-transform duration-200">
+                  <div className="w-16 h-16 rounded-full hub-top-user-ring shadow-xl shadow-black/20 group-active:scale-95 transition-transform duration-200">
                     <div className="w-full h-full rounded-full border-[3px] border-[#1a1a1a] overflow-hidden bg-[#222]">
                       <AvatarImage src={u.avatarUrl} alt={u.displayName} />
                     </div>
                   </div>
-                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-black text-white px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px]">
+                  <div className="absolute -bottom-1 -right-1 bg-black text-[10px] font-black text-red-600 px-2 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-lg flex items-center justify-center min-w-[24px] gap-0.5">
+                    <Star className="w-2.5 h-2.5 fill-amber-400 text-amber-400" />
                     {u.reputationStars}
                   </div>
                 </div>
