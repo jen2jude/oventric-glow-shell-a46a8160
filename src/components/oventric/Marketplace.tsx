@@ -322,7 +322,7 @@ export function Marketplace() {
   if (!products) return <MarketplaceSkeleton />;
 
   return (
-    <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
+    <div className={`marketplace-render-safe ${isAppShell ? "bg-black text-slate-200" : "bg-[#F7F8FA] text-slate-700"} min-h-full`}>
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
         {/* ── Lightning Deals Section ─────────────────────────── */}
