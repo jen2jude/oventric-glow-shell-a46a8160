@@ -144,7 +144,7 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
           style={{ background: `radial-gradient(circle, ${p.glow}, transparent 70%)` }}
         />
         <span
-          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-2xl bg-gradient-to-b ${p.tint} border border-white/15 flex items-center justify-center backdrop-blur-md`}
+          className={`relative shrink-0 h-14 w-14 md:h-16 md:w-16 rounded-[10px] bg-gradient-to-b ${p.tint} border border-white/15 flex items-center justify-center backdrop-blur-md`}
         >
           <p.icon className="w-7 h-7 text-blue-300" strokeWidth={2.5} />
         </span>
