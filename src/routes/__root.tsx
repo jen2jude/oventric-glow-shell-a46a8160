@@ -269,7 +269,7 @@ function RootShell({ children }: { children: ReactNode }) {
         {/* Pre-hydration boot splash: painted with the very first HTML frame so
             there is no white flash / raw logo before React mounts. Removed by
             <BootSplash /> once the app is interactive. */}
-        <div id="oventric-boot" aria-hidden>
+        <div id="oventric-boot" aria-hidden suppressHydrationWarning>
           <div className="ob-logo-container">
             <img
               src="/__l5e/assets-v1/0d89031e-d4df-4068-9d2d-f54bab306f5b/oventric-full-transparent.png"
