@@ -268,7 +268,7 @@ function ProductPage() {
         </button>
 
         {error && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-8 text-center">
+          <div className={`${isAppShell ? "bg-[#1E1E24] border-red-500/40" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
             <div className="text-red-300 font-bold mb-1">Couldn't load product</div>
             <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link
