@@ -339,15 +339,16 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} />
+        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} className="hub-card-glass hub-card-glow" />
         <QuickAction icon={Plus} label="Post" onClick={() => requireTier(1, () => {
           onSelect("Feed");
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
           }, 80);
-        })} />
-        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} />
-        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} />
+        })} className="hub-card-glass hub-card-glow" />
+        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} className="hub-card-glass hub-card-glow" />
+        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} className="hub-card-glass hub-card-glow" />
+
       </section>
 
       {/* Promo banners */}
