@@ -325,7 +325,7 @@ function ProductPage() {
                           <button
                             key={url}
                             onClick={() => setActiveImage(i)}
-                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : "border-white/10 md:border-slate-200"}`}
+                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : isAppShell ? "border-white/10" : "border-slate-200"} md:border-slate-200`}
                           >
                             <img
                               src={url}
