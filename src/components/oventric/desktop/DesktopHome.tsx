@@ -592,9 +592,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* How it works */}
       <section className="hp-dark border-y border-slate-200">
-        <div className="mx-auto w-full max-w-[1200px] px-8 py-24">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
-          <div className="mt-12 grid grid-cols-3 gap-6">
+        <div className="mx-auto w-full max-w-[1200px] px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            How it works
+          </h2>
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {STEPS.map((s, i) => (
               <Reveal
                 key={s.title}
