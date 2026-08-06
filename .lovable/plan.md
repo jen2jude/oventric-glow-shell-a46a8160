@@ -1,27 +1,23 @@
-# Plan: Revert Temu-style badges to original Design
+# Plan - Fix non-existent column `full_name` in product reviews
 
-The user wants to revert the "Deal", "Ad", "Top Rated" badges and the star rating appearance on product cards back to the original design across all platforms (Web and App). These elements were recently inherited from Temu-style samples.
+The user is reporting an error: `column profiles_1.full_name does not exist`. This typically happens when a PostgREST query (via Supabase) tries to select a column that isn't in the database schema.
 
-## Analysis
-- **Badges to remove/revert:** "Deal" (orange), "Ad" (red/promoted), "Top Rated" (orange).
-- **Star Rating:** Revert from the Temu-style (currently logic for emerald/slate stars) to the previous simple version.
-- **Affected Components:** `Marketplace.tsx`, and potentially `AdSlot.tsx`/`AdCard.tsx` if they share similar badge logic.
-- **Target Context:** Both `isAppShell` (App) and browser (Web) versions should be reverted.
+In the previous turn, the agent partially fixed this in `src/lib/product-reviews.functions.ts` by changing `full_name` to `display_name` and `username`. However, the error message `profiles_1.full_name` suggests there might be a cached query or another location still trying to access `full_name` via an alias or join.
 
 ## Proposed Changes
-### `src/components/oventric/Marketplace.tsx`
-1.  **ProductCard Component:**
-    -   Remove the `<span className="absolute top-2 left-2 ...">Deal</span>` block.
-    -   Remove the `{p.promoted && (<span className="...">Ad</span>)}` block.
-    -   Remove the `<div className="flex items-center gap-1">...Top Rated...</div>` block.
-    -   Simplify the `Star` rating render to not use the conditional `isAppShell` coloring if the previous design was uniform.
-2.  **Lightning Deals Section:**
-    -   Remove Temu-specific labels if they don't match the original design (e.g., "Only X left" pill if that was Temu-inherited).
+
+### Database & Schema
+- I will verify the `profiles` table schema via `supabase--read_query` to confirm `full_name` is indeed missing.
+- I will check if there are any remaining references to `full_name` in the codebase.
+
+### Server Functions
+- Update `src/lib/product-reviews.functions.ts` to ensure the `.select()` call is perfectly aligned with the actual schema columns found in the database.
+- Check `src/lib/circles.functions.ts` which also references `full_name` (though from `user_metadata`).
 
 ## Verification Plan
-1.  **Visual Inspection:**
-    -   Check the Marketplace in the preview.
-    -   Ensure the orange "Deal", red "Ad", and "Top Rated" pills are gone.
-    -   Ensure the star ratings look like the original simple design (typically slate/gray).
-2.  **Platform Check:**
-    -   Switch between Mobile (App) and Desktop (Web) views to ensure consistency as requested.
+
+### Automated Tests
+- Run the `summarize` logic (or the `getProductRating` function) using a script to ensure the Supabase query no longer throws the "column does not exist" error.
+
+### Manual Verification
+- Use `preview_ui` (or `code--execute_preview_javascript`) to trigger a product review fetch and confirm it renders without console errors.
