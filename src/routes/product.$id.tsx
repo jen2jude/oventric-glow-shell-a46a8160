@@ -262,7 +262,7 @@ function ProductPage() {
               );
             }
           }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          className={`inline-flex items-center gap-2 text-sm ${isAppShell ? "text-slate-300 bg-[#1E1E24] border-white/10 hover:text-white" : "text-slate-600 bg-white border-slate-200 hover:text-slate-900 shadow-sm"} md:text-slate-600 md:shadow-sm md:bg-white border md:border-slate-200 rounded-lg px-3 py-2 mb-6`}
         >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </button>
