@@ -122,6 +122,48 @@ export function BountyEditorModal({
     };
   }, [open]);
 
+  // Track the visual viewport so the on-screen keyboard shrinks the modal
+  // instead of pushing it (and its inputs) off screen.
+  const panelRef = useRef<HTMLDivElement | null>(null);
+  const [vv, setVv] = useState<{ height: number; offsetTop: number } | null>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const viewport = typeof window !== "undefined" ? window.visualViewport : null;
+    if (!viewport) return;
+    const sync = () => setVv({ height: viewport.height, offsetTop: viewport.offsetTop });
+    sync();
+    viewport.addEventListener("resize", sync);
+    viewport.addEventListener("scroll", sync);
+    return () => {
+      viewport.removeEventListener("resize", sync);
+      viewport.removeEventListener("scroll", sync);
+      setVv(null);
+    };
+  }, [open]);
+
+  // Keep the focused field visible inside the modal's internal scroller.
+  useEffect(() => {
+    if (!open) return;
+    const panel = panelRef.current;
+    if (!panel) return;
+    let timer: ReturnType<typeof setTimeout>;
+    const onFocusIn = (e: FocusEvent) => {
+      const el = e.target as HTMLElement | null;
+      if (!el || !("tagName" in el)) return;
+      if (!/^(INPUT|TEXTAREA|SELECT)$/.test(el.tagName) && !el.isContentEditable) return;
+      timer = setTimeout(() => {
+        el.scrollIntoView({ block: "center", behavior: "smooth" });
+      }, 250);
+    };
+    panel.addEventListener("focusin", onFocusIn);
+    return () => {
+      clearTimeout(timer);
+      panel.removeEventListener("focusin", onFocusIn);
+    };
+  }, [open]);
+
+
 
 
   useEffect(() => {
