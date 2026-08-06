@@ -39,7 +39,7 @@ import { CountBadge } from "@/components/oventric/CountBadge";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
-import { BountyEditorModal } from "@/components/oventric/BountyEditorModal";
+import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 import {
@@ -65,7 +65,7 @@ type Counts = Partial<Record<string, number>>;
 
 export type HubProps = {
   onSelect: (section: string) => void;
-  onCreate: () => void;
+  onCreate: (choice?: ChoiceKey) => void;
   onOpenMessages: () => void;
   counts?: Counts;
 };
@@ -192,7 +192,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
-  const [bountyOpen, setBountyOpen] = useState(false);
   const [sendSoonOpen, setSendSoonOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
@@ -479,7 +478,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <QuickAction
           icon={Target}
           label="Bounty"
-          onClick={() => requireTier(2, () => setBountyOpen(true))}
+          onClick={() => onCreate("bounty")}
           className="hub-card-solid  rounded-[10px]"
         />
       </section>
@@ -687,11 +686,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           setCourseOpen(false);
           onSelect("Academy");
         }}
-      />
-      <BountyEditorModal
-        open={bountyOpen}
-        onClose={() => setBountyOpen(false)}
-        onPublished={() => onSelect("Bounties")}
       />
       <Dialog open={sendSoonOpen} onOpenChange={setSendSoonOpen}>
         <DialogContent className="sm:max-w-sm bg-[#1E1E24] border-white/10 text-white">

@@ -5,7 +5,7 @@ import { SellSwitcherModal } from "./SellSwitcherModal";
 import { CoursePublishWizard } from "./CoursePublishWizard";
 import { BountyEditorModal } from "./BountyEditorModal";
 
-type ChoiceKey = "post" | "bounty" | "sell" | "course";
+export type ChoiceKey = "post" | "bounty" | "sell" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
 
 const choices: Choice[] = [
@@ -39,7 +39,15 @@ const choices: Choice[] = [
   },
 ];
 
-export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
+export function CreatePanel({
+  open,
+  onClose,
+  initialChoice,
+}: {
+  open: boolean;
+  onClose: () => void;
+  initialChoice?: ChoiceKey | null;
+}) {
   const { require } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
@@ -79,6 +87,15 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
       }, 80);
     });
   };
+
+  useEffect(() => {
+    if (!open || !initialChoice) return;
+    const choice = choices.find((item) => item.key === initialChoice);
+    if (!choice) return;
+    handleChoice(choice);
+    // The requested choice is intentionally handled once when the panel opens.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, initialChoice]);
 
   return (
     <>

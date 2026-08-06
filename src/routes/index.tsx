@@ -8,7 +8,7 @@ import { Wallet } from "@/components/oventric/Wallet";
 import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
 import { Bounties } from "@/components/oventric/Bounties";
-import { CreatePanel } from "@/components/oventric/CreatePanel";
+import { CreatePanel, type ChoiceKey } from "@/components/oventric/CreatePanel";
 
 import { Messages } from "@/components/oventric/Messages";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
@@ -49,6 +49,7 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const [createOpen, setCreateOpen] = useState(false);
+  const [createChoice, setCreateChoice] = useState<ChoiceKey | null>(null);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
   const [active, setActive] = useState("Home");
@@ -56,7 +57,15 @@ function Index() {
   const { require } = useOnboarding();
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
-  const handleCreate = () => require(1, () => setCreateOpen(true), "seller");
+  const handleCreate = (choice?: ChoiceKey) =>
+    require(
+      1,
+      () => {
+        setCreateChoice(choice ?? null);
+        setCreateOpen(true);
+      },
+      "seller",
+    );
 
   // Live counters for each mobile-footer section. Each increments as new rows
   // are inserted on the corresponding table and clears when that section is
@@ -257,7 +266,14 @@ function Index() {
         />
       </div>
 
-      <CreatePanel open={createOpen} onClose={() => setCreateOpen(false)} />
+      <CreatePanel
+        open={createOpen}
+        initialChoice={createChoice}
+        onClose={() => {
+          setCreateOpen(false);
+          setCreateChoice(null);
+        }}
+      />
       <MessagesDrawer
         open={messagesOpen}
         onClose={() => {
