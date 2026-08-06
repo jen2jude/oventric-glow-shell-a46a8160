@@ -49,6 +49,8 @@ export function BootSplash() {
   });
   const [visible, setVisible] = useState(true);
   const [fading, setFading] = useState(false);
+  // Track start time for minimum duration.
+  const startTime = useRef(Date.now());
   // Eased value that chases the milestone target, so the sweep still looks
   // smooth when several milestones land in the same frame.
   const [shown, setShown] = useState(0);
@@ -95,7 +97,8 @@ export function BootSplash() {
   useEffect(() => {
     const tick = () => {
       setShown((prev) => {
-        const next = prev + (target - prev) * 0.12;
+        // Slow down the progress to feel premium over the 5s window
+        const next = prev + (target - prev) * 0.045;
         return next > target - 0.002 ? target : next;
       });
       raf.current = requestAnimationFrame(tick);
@@ -107,9 +110,16 @@ export function BootSplash() {
   }, [target]);
 
   useEffect(() => {
+    // Minimum duration of 5 seconds (5000ms) from mount.
+    const elapsed = Date.now() - startTime.current;
+    const remaining = Math.max(0, 5000 - elapsed);
+
     if (target < 1 || shown < 0.985) return;
-    setFading(true);
-    const t = setTimeout(() => setVisible(false), 320);
+
+    const t = setTimeout(() => {
+      setFading(true);
+      setTimeout(() => setVisible(false), 320);
+    }, remaining);
     return () => clearTimeout(t);
   }, [target, shown]);
 
@@ -137,8 +147,8 @@ export function BootSplash() {
             return (
               <Icon
                 key={i}
-                className="h-4 w-4 transition-none sm:h-5 sm:w-5"
-                strokeWidth={2.2}
+                className="h-8 w-8 transition-none sm:h-10 sm:w-10"
+                strokeWidth={1.8}
                 style={{
                   color,
                   opacity: 0.18 + level * 0.82,
