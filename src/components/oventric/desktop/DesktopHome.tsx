@@ -345,7 +345,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       />
 
       {/* Hero */}
-      <section className="relative min-h-[92vh] overflow-hidden">
+      <section className="relative min-h-[78vh] overflow-hidden lg:min-h-[92vh]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
