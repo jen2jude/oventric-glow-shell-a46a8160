@@ -11,6 +11,7 @@ import { COUNTRY_META } from "@/lib/currency/africa";
 import { supabase } from "@/integrations/supabase/client";
 
 export function ProductComments({ productId }: { productId: string }) {
+  const isAppShell = useIsAppShell();
   const { require } = useOnboarding();
   const fetchRating = useServerFn(getProductRating);
   const submitReview = useServerFn(rateProduct);
@@ -87,8 +88,8 @@ export function ProductComments({ productId }: { productId: string }) {
 
   return (
     <div className="mt-12 space-y-8">
-      <div className="flex items-center justify-between border-b border-white/10 md:border-slate-200 pb-4">
-        <h2 className="text-xl font-bold text-white md:text-slate-900 flex items-center gap-2">
+      <div className={`flex items-center justify-between border-b ${isAppShell ? "border-white/10" : "border-slate-200"} pb-4`}>
+        <h2 className={`text-xl font-bold ${isAppShell ? "text-white" : "text-slate-900"} flex items-center gap-2`}>
           <MessageSquare className="w-5 h-5" />
           Customer Reviews ({count})
         </h2>
@@ -101,13 +102,13 @@ export function ProductComments({ productId }: { productId: string }) {
               />
             ))}
           </div>
-          <span className="text-lg font-bold text-white md:text-slate-900">{average.toFixed(1)}</span>
+          <span className={`text-lg font-bold ${isAppShell ? "text-white" : "text-slate-900"}`}>{average.toFixed(1)}</span>
         </div>
       </div>
 
       {/* Write a review */}
-      <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-6">
-        <h3 className="text-sm font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-4">
+      <div className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-6`}>
+        <h3 className={`text-sm font-bold uppercase tracking-wider ${isAppShell ? "text-slate-400" : "text-slate-500"} mb-4`}>
           {myRating ? "Update your review" : "Write a review"}
         </h3>
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -117,12 +118,12 @@ export function ProductComments({ productId }: { productId: string }) {
                 key={s}
                 type="button"
                 onClick={() => setRating(s)}
-                className={`p-1 transition-transform hover:scale-110 ${s <= rating ? "text-amber-400" : "text-slate-600 md:text-slate-300"}`}
+                className={`p-1 transition-transform hover:scale-110 ${s <= rating ? "text-amber-400" : isAppShell ? "text-slate-600" : "text-slate-300"}`}
               >
                 <Star className={`w-6 h-6 ${s <= rating ? 'fill-current' : ''}`} />
               </button>
             ))}
-            <span className="ml-2 text-xs text-slate-400 md:text-slate-500">
+            <span className={`ml-2 text-xs ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
               {rating === 5 ? "Excellent" : rating === 4 ? "Very Good" : rating === 3 ? "Good" : rating === 2 ? "Fair" : "Poor"}
             </span>
           </div>
@@ -132,7 +133,7 @@ export function ProductComments({ productId }: { productId: string }) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Tell others what you think about this product and the seller..."
-              className="w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg p-4 text-sm text-white md:text-slate-900 focus:ring-2 focus:ring-emerald-500 min-h-[100px] resize-none"
+              className={`w-full ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg p-4 text-sm focus:ring-2 focus:ring-emerald-500 min-h-[100px] resize-none`}
             />
           </div>
 
@@ -157,16 +158,16 @@ export function ProductComments({ productId }: { productId: string }) {
           reviews.map((rev) => (
             <div 
               key={rev.id} 
-              className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-5"
+              className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-5`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full overflow-hidden bg-white/5 border border-white/10">
+                  <div className={`w-10 h-10 rounded-full overflow-hidden ${isAppShell ? "bg-white/5 border-white/10" : "bg-slate-100 border-slate-200"}`}>
                     <AvatarImage src={rev.user.avatarUrl} alt={rev.user.fullName || "User"} className="w-full h-full object-cover" />
                   </div>
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-bold text-sm text-white md:text-slate-900">
+                      <span className={`font-bold text-sm ${isAppShell ? "text-white" : "text-slate-900"}`}>
                         {rev.user.fullName || "Anonymous User"}
                       </span>
                       {rev.user.country && COUNTRY_META[rev.user.country] && (
@@ -189,7 +190,7 @@ export function ProductComments({ productId }: { productId: string }) {
                   ))}
                 </div>
               </div>
-              <p className="text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap">
+              <p className={`text-sm ${isAppShell ? "text-slate-300" : "text-slate-600"} leading-relaxed whitespace-pre-wrap`}>
                 {rev.comment}
               </p>
             </div>
