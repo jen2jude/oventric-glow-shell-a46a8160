@@ -100,19 +100,8 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
               </button>
             )}
 
-            {/* User Profile & Localization */}
+            {/* User Profile Link */}
             <div className="flex items-center gap-4 ml-auto">
-              {isAuthenticated && (
-                <div className="hidden sm:flex items-center gap-2 px-2 py-1 rounded-full bg-slate-50 border border-slate-100">
-                  {country && COUNTRY_META[country] && (
-                    <span className="text-base leading-none" aria-hidden>{COUNTRY_META[country].flag}</span>
-                  )}
-                  <div className="flex flex-col items-start">
-                    <span className="text-[9px] font-black text-slate-900 uppercase leading-none">{country}</span>
-                    <span className="text-[8px] font-bold text-slate-500 leading-tight uppercase">{currency || baseCurrency}</span>
-                  </div>
-                </div>
-              )}
               <Link 
                 to="/profile/$id"
                 params={{ id: isAuthenticated ? (avatarUrl?.split('/')[avatarUrl?.split('/').length - 2] || "me") : "me" }}
@@ -125,9 +114,6 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, curre
                     <User className="w-5 h-5 text-slate-400" />
                   )}
                 </div>
-                {isAuthenticated && name && (
-                  <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
-                )}
               </Link>
             </div>
 
