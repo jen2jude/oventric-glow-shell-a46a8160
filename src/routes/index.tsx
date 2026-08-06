@@ -304,6 +304,8 @@ function Index() {
               onCreate={handleCreate}
               avatarUrl={avatarUrl}
               name={name}
+              country={country}
+              currency={baseCurrency}
               search={renderNavSearch()}
             />
           )
