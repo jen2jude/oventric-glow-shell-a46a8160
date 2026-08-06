@@ -353,6 +353,41 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       {/* Promo banners */}
       <PromoBanners onSelect={onSelect} />
 
+      {/* Top Users Section */}
+      {topUsers.length > 0 && (
+        <section className="mt-6">
+          <div className="flex items-center justify-between mb-3 px-1">
+            <h2 className="text-sm font-bold text-white">Top Users</h2>
+            <Link to="/discovery" className="text-[11px] font-semibold text-emerald-400">View rankings</Link>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-2 scrollbar-hide px-1">
+            {topUsers.map((u) => (
+              <Link 
+                key={u.userId}
+                to="/profile/\$id" 
+                params={{ id: u.slug }}
+                className="flex flex-col items-center gap-2 shrink-0 group"
+              >
+                <div className="relative">
+                  <div className="w-16 h-16 rounded-full p-[2px] bg-gradient-to-tr from-emerald-500 to-blue-500 shadow-lg shadow-blue-500/10 transition-transform group-active:scale-95">
+                    <div className="w-full h-full rounded-full border-2 border-[#1a1a1a] overflow-hidden">
+                      <AvatarImage src={u.avatarUrl} alt={u.displayName} />
+                    </div>
+                  </div>
+                  <div className="absolute -bottom-1 -right-1 bg-blue-500 text-[10px] font-bold text-white px-1.5 py-0.5 rounded-full border-2 border-[#1a1a1a] shadow-sm">
+                    {u.reputationStars}★
+                  </div>
+                </div>
+                <span className="text-[11px] font-medium text-slate-200 truncate w-16 text-center">
+                  {u.displayName.split(' ')[0]}
+                </span>
+              </Link>
+            ))}
+          </div>
+        </section>
+      )}
+
+
       {/* Feature grid */}
 
       <section>
