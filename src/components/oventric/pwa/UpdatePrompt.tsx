@@ -1,7 +1,11 @@
 import { useEffect, useState } from "react";
 import { RefreshCw, X } from "lucide-react";
 import { haptic } from "@/lib/haptics";
-import { applyServiceWorkerUpdate, onServiceWorkerUpdate } from "@/lib/pwa/register-sw";
+import {
+  applyServiceWorkerUpdate,
+  checkForUpdateNow,
+  onServiceWorkerUpdate,
+} from "@/lib/pwa/register-sw";
 
 /**
  * Shown when a newer build of the app has been downloaded by the service
@@ -12,8 +16,26 @@ export function UpdatePrompt() {
   const [ready, setReady] = useState(false);
   const [dismissed, setDismissed] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => onServiceWorkerUpdate(setReady), []);
+
+  const updateNow = () => {
+    haptic("medium");
+    setBusy(true);
+    applyServiceWorkerUpdate();
+  };
+
+  const checkNow = async () => {
+    haptic("light");
+    setChecking(true);
+    const found = await checkForUpdateNow();
+    if (!found) {
+      // No update waiting yet — just reload to ensure latest version.
+      window.location.reload();
+    }
+    setChecking(false);
+  };
 
   if (!ready || dismissed) return null;
 
@@ -21,35 +43,32 @@ export function UpdatePrompt() {
     <div
       role="status"
       aria-live="polite"
-      className="fixed inset-x-3 z-[80] mx-auto max-w-md rounded-[10px] border border-white/10 bg-[#1E1E24] p-3 text-slate-200 shadow-2xl md:inset-x-auto md:right-6 md:bottom-6 md:w-96"
+      className="fixed inset-x-3 z-[80] mx-auto max-w-md rounded-[10px] border border-emerald-500/30 bg-[#1E1E24] p-3 text-slate-200 shadow-2xl md:inset-x-auto md:right-6 md:bottom-6 md:w-96"
       style={{ bottom: "calc(5.5rem + max(env(safe-area-inset-bottom), 0.5rem))" }}
     >
       <div className="flex items-start gap-3">
         <span className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-[10px] bg-emerald-500/15 text-emerald-400">
-          <RefreshCw className="h-4 w-4" />
+          <RefreshCw className={busy || checking ? "h-4 w-4 animate-spin" : "h-4 w-4"} />
         </span>
         <div className="min-w-0 flex-1">
           <p className="text-sm font-bold text-white">A new version is ready</p>
           <p className="mt-0.5 text-xs text-slate-400">
-            Refresh to get the latest features and fixes.
+            Tap Update now to get the latest features and fixes immediately.
           </p>
           <div className="mt-3 flex items-center gap-2">
             <button
-              onClick={() => {
-                haptic("medium");
-                setBusy(true);
-                applyServiceWorkerUpdate();
-              }}
-              disabled={busy}
+              onClick={updateNow}
+              disabled={busy || checking}
               className="rounded-[10px] bg-emerald-500 px-3 py-2 text-xs font-bold text-[#08130f] active:scale-[.98] disabled:opacity-60"
             >
               {busy ? "Updating…" : "Update now"}
             </button>
             <button
-              onClick={() => setDismissed(true)}
-              className="rounded-[10px] px-3 py-2 text-xs font-semibold text-slate-400"
+              onClick={checkNow}
+              disabled={busy || checking}
+              className="rounded-[10px] px-3 py-2 text-xs font-semibold text-slate-400 hover:text-slate-200 disabled:opacity-60"
             >
-              Later
+              {checking ? "Checking…" : "Check again"}
             </button>
           </div>
         </div>
