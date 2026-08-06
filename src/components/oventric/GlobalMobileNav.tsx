@@ -16,8 +16,12 @@ export function GlobalMobileNav() {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [createOpen, setCreateOpen] = useState(false);
 
-  // Hide on admin routes and on "/" (index renders its own nav with live counters).
+  const { launchCtx } = useLaunchContext();
+  const isAppShell = launchCtx === "native" || launchCtx === "standalone";
+
+  // Hide on admin routes, on "/" (index renders its own nav), and on product pages for browser users.
   if (pathname.startsWith("/admin") || pathname === "/") return null;
+  if (pathname.startsWith("/product/") && !isAppShell) return null;
 
   const goSection = (label: string) => {
     const section = label === "Market" ? "Marketplace" : label;
