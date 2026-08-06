@@ -33,25 +33,43 @@ const PILLARS = [
 
 export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }) {
   return (
-    <section className="mx-auto w-full max-w-[1200px] px-5 pt-14 sm:px-8 sm:pt-20">
-      <div className="relative overflow-hidden rounded-[28px] bg-[linear-gradient(110deg,#6d7cf0_0%,#8b7bf0_45%,#c58ce8_100%)] p-10 pr-[360px]">
-        <h2 className="text-2xl font-black tracking-tight text-white sm:text-4xl">
-          Trade Securely with OventricProtect
-        </h2>
-        <p className="mt-3 max-w-xl text-base text-white/85">
-          Skip the scams and trade safely. We verify sellers and guarantee every purchase.
-        </p>
-        <div className="mt-8 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-3 sm:gap-8">
+    <section className="mx-auto w-full max-w-[1200px] px-4 pt-10 sm:px-8 sm:pt-20">
+      <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(110deg,#6d7cf0_0%,#8b7bf0_45%,#c58ce8_100%)] p-6 sm:rounded-[28px] sm:p-10 lg:pr-[360px]">
+        <div className="flex items-start gap-4">
+          <div className="flex-1">
+            <h2 className="text-xl font-black tracking-tight text-white sm:text-4xl">
+              Trade Securely with OventricProtect
+            </h2>
+            <p className="mt-2 max-w-xl text-sm leading-relaxed text-white/85 sm:mt-3 sm:text-base">
+              Skip the scams and trade safely. We verify sellers and guarantee every purchase.
+            </p>
+          </div>
+
+          {/* Mobile shield art */}
+          <div className="relative grid h-16 w-16 shrink-0 place-items-center sm:h-20 sm:w-20 lg:hidden">
+            <span className="absolute inset-0 rounded-full bg-white/20 blur-xl" />
+            <ShieldCheck
+              className="relative h-10 w-10 text-white drop-shadow-[0_8px_20px_rgba(0,0,0,0.25)] sm:h-12 sm:w-12"
+              strokeWidth={1.5}
+            />
+          </div>
+        </div>
+
+        <div className="mt-6 grid max-w-2xl grid-cols-1 gap-5 sm:mt-8 sm:grid-cols-3 sm:gap-8">
           {PILLARS.map((p) => (
-            <div key={p.title}>
-              <p.Icon className="h-6 w-6 text-white" strokeWidth={2.5} />
-              <div className="mt-3 text-lg font-black text-white">{p.title}</div>
-              <p className="mt-1 text-sm leading-relaxed text-white/85">{p.body}</p>
+            <div key={p.title} className="flex items-start gap-3 sm:block">
+              <div className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-white/15 sm:mb-3 sm:h-auto sm:w-auto sm:bg-transparent">
+                <p.Icon className="h-5 w-5 text-white sm:h-6 sm:w-6" strokeWidth={2.5} />
+              </div>
+              <div>
+                <div className="text-base font-black text-white sm:text-lg">{p.title}</div>
+                <p className="mt-0.5 text-sm leading-relaxed text-white/85 sm:mt-1">{p.body}</p>
+              </div>
             </div>
           ))}
         </div>
 
-        {/* Shield art */}
+        {/* Desktop shield art */}
         <div className="pointer-events-none absolute right-16 top-1/2 hidden -translate-y-1/2 lg:block">
           <div className="relative grid h-44 w-44 place-items-center">
             <span className="absolute inset-0 animate-pulse rounded-full bg-white/20 blur-2xl" />
@@ -65,7 +83,7 @@ export function TradeSecurelyBanner({ onLearnMore }: { onLearnMore: () => void }
         <button
           type="button"
           onClick={onLearnMore}
-          className="absolute bottom-9 right-10 inline-flex h-11 items-center gap-2 rounded-full bg-slate-900 px-6 text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 active:scale-95"
+          className="mt-6 inline-flex h-10 items-center gap-2 rounded-full bg-slate-900 px-5 text-sm font-bold text-white shadow-lg transition-transform hover:-translate-y-0.5 active:scale-95 sm:mt-8 sm:h-11 sm:px-6 lg:absolute lg:bottom-9 lg:right-10"
         >
           Learn More <ArrowRight className="h-4 w-4" strokeWidth={3} />
         </button>
