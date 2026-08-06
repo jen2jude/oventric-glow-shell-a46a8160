@@ -350,13 +350,16 @@ export function BountyEditorModal({
 
   return (
     <div
-      className="modal-light fixed inset-0 z-50 flex items-start justify-center overflow-y-auto p-3 sm:items-center sm:p-4 bg-black/70"
+      className="modal-light fixed inset-0 z-50 flex h-[100dvh] items-start justify-center overflow-hidden p-3 sm:items-center sm:p-4 bg-black/70"
       style={{
         paddingTop: "max(env(safe-area-inset-top), 0.75rem)",
         paddingBottom: "max(env(safe-area-inset-bottom), 0.75rem)",
+        paddingLeft: "max(env(safe-area-inset-left), 0.75rem)",
+        paddingRight: "max(env(safe-area-inset-right), 0.75rem)",
       }}
     >
-      <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[calc(100dvh-1.5rem)] overflow-y-auto sm:max-h-[90vh]">
+      <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-full overflow-y-auto overscroll-contain">
+
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
             <Target className="w-5 h-5 text-emerald-400" /> Post a bounty
