@@ -24,6 +24,8 @@ import { useIsDesktop } from "@/hooks/use-desktop";
 import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
+import { getMyFullProfile } from "@/lib/profiles.functions";
+import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
