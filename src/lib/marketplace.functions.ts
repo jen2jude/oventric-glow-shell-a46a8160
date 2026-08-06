@@ -438,12 +438,18 @@ export const createPhysicalProduct = createServerFn({ method: "POST" })
 export const listMyProducts = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .handler(async ({ context }) => {
-    const { data, error } = await context.supabase
+    // Seller contact columns are not readable by the `authenticated` role
+    // (column-level grants keep them out of bulk scraping). The caller is
+    // verified by the middleware and the query is hard-scoped to their own
+    // rows, so the service client is used strictly for own-row reads.
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin
       .from("products")
       .select(PRODUCT_COLS_OWNER)
       .eq("seller_id", context.userId)
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
+
     const rows = (data ?? []) as Record<string, unknown>[];
     const out: ProductDTO[] = [];
     for (const r of rows) {
