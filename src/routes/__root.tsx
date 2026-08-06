@@ -133,7 +133,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: ReactNode }) {
   return (
-    <html lang="en" style={{ background: "#121214", colorScheme: "dark" }}>
+    <html lang="en" style={{ background: "#121214", colorScheme: "dark" }} className="ov-initial">
       <head>
         <HeadContent />
         <script
@@ -268,7 +268,7 @@ function RootShell({ children }: { children: ReactNode }) {
         <div id="oventric-boot" aria-hidden>
           <div className="ob-logo-container">
             <img
-              src="/__l5e/assets-v1/af72578f-0ebf-4fb6-8bf0-fecd048e9678/oventric-favicon-new.png"
+              src="/__l5e/assets-v1/76613c3c-ea06-4020-8af6-3be5af36e3f6/oventric-ring-glow.jpg"
               className="ob-ring-logo"
               alt=""
               draggable={false}
