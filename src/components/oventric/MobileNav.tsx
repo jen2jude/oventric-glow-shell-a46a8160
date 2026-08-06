@@ -32,19 +32,26 @@ export function MobileNav({
     return (
       <button
         key={it.label}
-        onClick={() => onSelect(it.label)}
-        className={`relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 min-w-0 ${
+        onClick={() => {
+          haptic("select");
+          onSelect(it.label);
+        }}
+        className={`nav-tap relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 min-w-0 ${
           isActive ? "text-emerald-400" : "text-white"
         }`}
       >
         <span className="relative">
-          <it.icon className="w-5 h-5" strokeWidth={2.5} />
+          <it.icon
+            className={`w-5 h-5 transition-transform duration-200 ${isActive ? "scale-110" : ""}`}
+            strokeWidth={2.5}
+          />
           <CountBadge count={count} ariaLabel={`${count} new in ${it.label}`} />
         </span>
         <span className="text-[9px] font-medium">{it.label}</span>
       </button>
     );
   };
+
 
   return (
     <nav
