@@ -33,7 +33,7 @@ export function Sidebar({
       <div className="flex-1 flex flex-col gap-1 p-3 overflow-y-auto">
         <button
           onClick={onCreate}
-          className={`relative group mb-4 mt-2 mx-auto flex items-center justify-center rounded-full rgb-neon-bg ${
+          className={`relative group mb-4 mt-2 mx-auto flex items-center justify-center rounded-full  ${
             collapsed ? "w-12 h-12" : "w-16 h-16"
           }`}
           aria-label="Create"

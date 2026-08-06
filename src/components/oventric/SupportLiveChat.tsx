@@ -37,7 +37,7 @@ export function SupportLiveChat({ open, onClose }: { open: boolean; onClose: () 
       channel = supabase
         .channel(`support-chat-${uid}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "support_chat_messages", filter: `user_id=eq.${uid}` },
           (payload) => {
             const row = payload.new as Partial<Msg> | null;

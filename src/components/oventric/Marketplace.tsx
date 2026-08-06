@@ -722,7 +722,7 @@ function CategoryTicker({ label }: { label: string }) {
     return () => clearInterval(t);
   }, []);
   const base =
-    "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
+ "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div

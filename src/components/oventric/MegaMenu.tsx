@@ -282,7 +282,7 @@ export function MegaMenu({ open, onClose }: Props) {
     >
       <div>
 
-        <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 backdrop-blur-md border-b border-white/10">
+        <div className="sticky top-0 z-10 flex items-center justify-between px-4 h-14 bg-[#0b0b0d]/95 border-b border-white/10">
           <span className="text-sm font-bold text-white">Menu</span>
           <button onClick={onClose} aria-label="Close menu" className="p-2 rounded-lg hover:bg-white/5">
             <X className="w-5 h-5" />

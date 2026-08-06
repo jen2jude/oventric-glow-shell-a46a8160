@@ -214,7 +214,7 @@ export function SellAssetModal({ open, onClose }: { open: boolean; onClose: () =
 
   return (
     <div className="modal-light fixed inset-0 z-[70] grid h-[100dvh] w-screen place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-label="Sell an asset">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={submitting ? undefined : onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={submitting ? undefined : onClose} />
       <div className="slide-up relative my-auto w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#1E1E24] sm:bg-white border border-white/10 sm:border-slate-200 rounded-2xl p-6 shadow-2xl">
         {success ? (
           <div className="py-8 text-center">

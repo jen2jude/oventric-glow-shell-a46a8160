@@ -354,7 +354,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
   if (!open || typeof document === "undefined") return null;
 
   const inputBase =
-    "w-full rounded-xl bg-[#141418] md:bg-white border px-3 py-2.5 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30";
+ "w-full rounded-xl bg-[#141418] md:bg-white border px-3 py-2.5 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30";
 
   return createPortal(
     <div

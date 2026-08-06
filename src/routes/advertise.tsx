@@ -31,9 +31,9 @@ const TIERS = [
     color: "from-slate-500/20 to-slate-500/5",
     ring: "border-slate-500/40",
     features: [
-      "Header + short description + body",
-      "CTA: WhatsApp, Lead form, or Website link",
-      "Great for lead-gen & fast tests",
+ "Header + short description + body",
+ "CTA: WhatsApp, Lead form, or Website link",
+ "Great for lead-gen & fast tests",
     ],
   },
   {
@@ -46,9 +46,9 @@ const TIERS = [
     color: "from-emerald-500/25 to-emerald-500/5",
     ring: "border-emerald-500/60",
     features: [
-      "1:1 image (fits Feed, Marketplace & Academy)",
-      "Up to 5 images as a carousel",
-      "Header, description & CTA included",
+ "1:1 image (fits Feed, Marketplace & Academy)",
+ "Up to 5 images as a carousel",
+ "Header, description & CTA included",
     ],
     highlight: true,
   },
@@ -62,31 +62,31 @@ const TIERS = [
     color: "from-purple-500/25 to-purple-500/5",
     ring: "border-purple-500/40",
     features: [
-      "Up to 5 min video, 100 MB max",
-      "Header + description + body + CTA",
-      "Autoplay in Feed & Discovery rail",
+ "Up to 5 min video, 100 MB max",
+ "Header + description + body + CTA",
+ "Autoplay in Feed & Discovery rail",
     ],
   },
 ];
 
 const NG_STATES = [
-  "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
-  "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
-  "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
-  "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
-  "Taraba","Yobe","Zamfara",
+ "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+ "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
+ "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
+ "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
+ "Taraba","Yobe","Zamfara",
 ];
 
 const GH_REGIONS = [
-  "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
-  "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
-  "Western","Western North",
+ "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
+ "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
+ "Western","Western North",
 ];
 
 const REST_OF_AFRICA = [
-  "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
-  "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
-  "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+ "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
+ "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
+ "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
 ];
 
 const COVERAGE = [
@@ -106,21 +106,21 @@ const STEPS = [
 /* ---------------- Live-looking Ads Dashboard preview ---------------- */
 
 const ALGO_LINES = [
-  "▸ scoring 12,481 candidates for placement=feed",
-  "▸ geo-match: NG · Lagos → boost ×1.4",
-  "▸ tier=image · CPM $0.79 · pacing OK",
-  "▸ freq-cap: 3/user/day · fresh impression ✓",
-  "▸ ranker: relevance 0.87 · budget-left 92%",
-  "▸ serving creative #2 (carousel · 1080²)",
-  "▸ event: impression · session s_9be2",
-  "▸ ranker: relevance 0.91 · pacing accel",
-  "▸ geo-match: GH · Accra → boost ×1.2",
-  "▸ tier=video · CPM $0.99 · autoplay ready",
-  "▸ event: click · placement=marketplace",
-  "▸ retarget bucket: r_hot · size 3,412",
-  "▸ delivery smoothing: 84 imp/min",
-  "▸ safe-brand filter: pass ✓",
-  "▸ event: lead · form=email+whatsapp",
+ "▸ scoring 12,481 candidates for placement=feed",
+ "▸ geo-match: NG · Lagos → boost ×1.4",
+ "▸ tier=image · CPM $0.79 · pacing OK",
+ "▸ freq-cap: 3/user/day · fresh impression ✓",
+ "▸ ranker: relevance 0.87 · budget-left 92%",
+ "▸ serving creative #2 (carousel · 1080²)",
+ "▸ event: impression · session s_9be2",
+ "▸ ranker: relevance 0.91 · pacing accel",
+ "▸ geo-match: GH · Accra → boost ×1.2",
+ "▸ tier=video · CPM $0.99 · autoplay ready",
+ "▸ event: click · placement=marketplace",
+ "▸ retarget bucket: r_hot · size 3,412",
+ "▸ delivery smoothing: 84 imp/min",
+ "▸ safe-brand filter: pass ✓",
+ "▸ event: lead · form=email+whatsapp",
 ];
 
 function useTicker() {

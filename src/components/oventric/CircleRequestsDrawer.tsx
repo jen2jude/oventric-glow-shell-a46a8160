@@ -143,7 +143,7 @@ export function CircleRequestsDrawer({
       <button
         aria-label="Close circle requests"
         onClick={onClose}
-        className="flex-1 bg-black/60 backdrop-blur-sm"
+        className="flex-1 bg-black"
       />
       <aside className="w-full sm:w-[420px] max-w-full bg-[#1E1E24] border-l border-white/10 flex flex-col shadow-2xl">
         <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10">

@@ -1015,7 +1015,7 @@ function KeyCard({
     </>
   );
   const cls =
-    "block w-full text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 transition hover:border-white/20 md:hover:border-slate-300 active:scale-[0.99]";
+ "block w-full text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 transition hover:border-white/20 md:hover:border-slate-300 active:scale-[0.99]";
   if (href) return <Link to={href} className={cls}>{inner}</Link>;
   return <button type="button" onClick={onClick} className={cls}>{inner}</button>;
 }

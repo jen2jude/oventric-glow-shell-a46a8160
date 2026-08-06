@@ -209,7 +209,7 @@ export function CoursePublishWizard({
 
   const body = (
     <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
       <div className="relative w-full max-w-5xl max-h-[95vh] bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 shrink-0">
@@ -354,7 +354,7 @@ function Label({ children }: { children: React.ReactNode }) {
   return <div className="text-[11px] font-bold uppercase tracking-wider text-slate-400 mb-1.5">{children}</div>;
 }
 const inputCls =
-  "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
+ "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
   title: string; setTitle: (v: string) => void;

@@ -49,13 +49,13 @@ import { ReactionPicker, REACTION_META, ReactionGlyph, isImageReaction } from "@
 import { setReaction as setReactionFn, type ReactionType } from "@/lib/posts.functions";
 
 const DEFAULT_CATEGORIES = [
-  "SaaS Builders",
-  "AI Engineering",
-  "Design Systems",
-  "Web3/Crypto",
-  "Mobile Apps",
-  "Infra & DevOps",
-  "Community",
+ "SaaS Builders",
+ "AI Engineering",
+ "Design Systems",
+ "Web3/Crypto",
+ "Mobile Apps",
+ "Infra & DevOps",
+ "Community",
 ];
 
 
@@ -983,7 +983,7 @@ function ForgeCircleModal({
 
   // Code of Conduct rules
   const [pledge, setPledge] = useState(
-    "Be kind, respectful, and constructive. No spam, harassment, or self-promo without value.",
+ "Be kind, respectful, and constructive. No spam, harassment, or self-promo without value.",
   );
   const [rules, setRules] = useState<CocRule[]>([
     { id: crypto.randomUUID(), text: "" },
@@ -1374,7 +1374,7 @@ function CoCAcceptModal({
 
   return (
     <div
-      className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm"
+      className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70"
       onClick={onClose}
     >
       <div

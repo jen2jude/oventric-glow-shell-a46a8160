@@ -281,7 +281,7 @@ export function NotificationsDrawer({
       channelSub = supabase
         .channel(`notif-${userId}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           (payload) => {
             const row = payload.new as DbNotif;
@@ -294,7 +294,7 @@ export function NotificationsDrawer({
 
         )
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           () => {
             void refresh();
@@ -362,7 +362,7 @@ export function NotificationsDrawer({
     <>
       {open && (
         <div
-          className="modal-light fixed inset-0 bg-black/50 backdrop-blur-sm z-40 animate-fade-in"
+          className="modal-light fixed inset-0 bg-black/50 z-40 animate-fade-in"
           onClick={onClose}
           aria-hidden
         />
@@ -523,7 +523,7 @@ export function NotificationsDrawer({
         typeof document !== "undefined" &&
         createPortal(
           <div
-            className="modal-light fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 backdrop-blur-sm animate-fade-in p-4"
+            className="modal-light fixed inset-0 z-[100] flex items-center justify-center overflow-y-auto bg-black/70 animate-fade-in p-4"
             onClick={() => setViewing(null)}
             role="dialog"
             aria-modal="true"
@@ -559,8 +559,8 @@ export function NotificationsDrawer({
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(viewing.body, {
                           ALLOWED_TAGS: [
-                            "a","p","br","strong","em","b","i","u","ul","ol","li",
-                            "h1","h2","h3","h4","blockquote","code","pre","img","hr","span","div",
+ "a","p","br","strong","em","b","i","u","ul","ol","li",
+ "h1","h2","h3","h4","blockquote","code","pre","img","hr","span","div",
                           ],
                           ALLOWED_ATTR: ["href","target","rel","src","alt","title","class","style"],
                           ALLOWED_URI_REGEXP: /^(https?:|mailto:|\/)/i,
@@ -640,7 +640,7 @@ export function useUnreadNotificationsCount() {
       channelSub = supabase
         .channel(`notif-count-${userId}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           () => {
             void load();

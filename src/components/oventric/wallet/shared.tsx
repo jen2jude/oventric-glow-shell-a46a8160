@@ -64,7 +64,7 @@ export function ModalShell({ title, onClose, children }: { title: string; onClos
     };
   }, []);
   return (
-    <div className="modal-light fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4 overscroll-contain" onClick={onClose}>
+    <div className="modal-light fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4 overscroll-contain" onClick={onClose}>
       <div
         className="w-full sm:max-w-lg bg-[#141418] md:bg-white md:shadow-sm border border-[#222226] md:border-slate-200 rounded-t-2xl sm:rounded-2xl shadow-2xl slide-up max-h-[90vh] overflow-y-auto overscroll-contain"
         onClick={(e) => e.stopPropagation()}

@@ -359,7 +359,7 @@ export function ProfileDropdown() {
         return (
           <div className={`grid gap-2 ${showUsdTile ? "grid-cols-2" : "grid-cols-1"}`} aria-label="Wallet balance">
             <div
-              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-[0_0_12px_-4px_rgba(59, 130, 246,0.9)]"
+              className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-sm"
               title={`${baseCurrency} is your locked base currency (from your country)`}
             >
               <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">{baseCurrency} · Base</div>
@@ -459,7 +459,7 @@ export function ProfileDropdown() {
             <div
               aria-hidden
               onClick={() => closeMenu(true)}
-              className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[90]"
+              className="fixed inset-0 bg-black/60 z-[90]"
             />
             <div
               ref={menuRef}
@@ -823,7 +823,7 @@ function ProfileSettingsModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm overflow-y-auto"
+      className="fixed inset-0 z-[110] flex items-center justify-center p-4 bg-black/70 overflow-y-auto"
       onClick={saving ? undefined : onClose}
     >
       <div

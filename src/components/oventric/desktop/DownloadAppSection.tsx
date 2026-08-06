@@ -50,7 +50,7 @@ export function DownloadAppSection() {
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           backgroundImage:
-            "radial-gradient(600px 300px at 80% 20%, rgba(59, 130, 246,0.10), transparent 70%), radial-gradient(500px 250px at 10% 90%, rgba(99,102,241,0.08), transparent 70%)",
+ "radial-gradient(600px 300px at 80% 20%, rgba(59, 130, 246,0.10), transparent 70%), radial-gradient(500px 250px at 10% 90%, rgba(99,102,241,0.08), transparent 70%)",
         }}
       />
 
@@ -146,7 +146,7 @@ export function DownloadAppSection() {
                 className="mt-3 rounded-2xl border border-emerald-500/25 p-3"
                 style={{
                   backgroundImage:
-                    "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+ "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
                 }}
               >
                 <div className="text-[9px] uppercase tracking-wide text-emerald-300/80">Main balance</div>

@@ -461,7 +461,7 @@ function BountiesAdminPage() {
               status === "active" ? "text-slate-100 border-white/20 bg-white/5" :
               status === "paused" ? "text-amber-200 border-amber-500/30 bg-white/5" :
               status === "draft" ? "text-slate-300 border-white/15 bg-white/5" :
-              "text-red-300 border-red-500/30 bg-white/5";
+ "text-red-300 border-red-500/30 bg-white/5";
             return (
               <div key={id} className="bg-[#141418] border border-white/10 rounded-xl p-4 flex items-center gap-3 flex-wrap">
                 <div className="flex-1 min-w-[220px]">
@@ -817,7 +817,7 @@ function BountyDetailModal({ id, onClose, onChanged }: { id: string; onClose: ()
 
   if (!data) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
         <Loader2 className="w-8 h-8 animate-spin text-slate-400" />
         <button className="absolute top-4 right-4 p-2 rounded-lg bg-white/10 text-white" onClick={onClose}><X className="w-4 h-4" /></button>
       </div>
@@ -832,7 +832,7 @@ function BountyDetailModal({ id, onClose, onChanged }: { id: string; onClose: ()
   const isPendingReview = status === "pending_review";
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="w-full max-w-3xl bg-[#121216] border border-white/10 rounded-2xl p-5 max-h-[92vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-3">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
@@ -937,7 +937,7 @@ function BountyDetailModal({ id, onClose, onChanged }: { id: string; onClose: ()
                       <span className={`text-[10px] px-1.5 py-0.5 rounded border uppercase font-bold ${
                         a.status === "accepted" ? "text-emerald-300 border-emerald-500/40 bg-emerald-500/10" :
                         a.status === "rejected" ? "text-red-300 border-red-500/40 bg-red-500/10" :
-                        "text-slate-300 border-white/10 bg-white/5"
+ "text-slate-300 border-white/10 bg-white/5"
                       }`}>{a.status}</span>
                     </div>
                     {a.pitch ? <div className="text-xs text-slate-400 mt-1 whitespace-pre-wrap">{a.pitch}</div> : null}
@@ -954,7 +954,7 @@ function BountyDetailModal({ id, onClose, onChanged }: { id: string; onClose: ()
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+ "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -1019,7 +1019,7 @@ function CategoryManagerModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg flex items-center gap-2"><Tags className="w-5 h-5 text-emerald-400" /> Bounty categories</h2>

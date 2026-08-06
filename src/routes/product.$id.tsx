@@ -406,7 +406,7 @@ function ContactSellerModal({ product, onClose }: { product: ProductDTO; onClose
   const cover = (product.kind === "physical" && product.imageUrls[0]) || product.coverUrl;
   return (
     <div className="fixed inset-0 z-[80] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="slide-up relative w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">

@@ -139,7 +139,7 @@ export function Academy() {
       <AcademyHero />
 
       <div className="max-w-6xl mx-auto w-full">
-        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 md:bg-white/95 md:border-slate-200">
+        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214]/90 border-b border-white/5 md:bg-white md:border-slate-200">
           <div className="flex items-center gap-3 mb-3 flex-wrap">
             <h2 className="text-white md:text-slate-900 font-black text-lg">Browse courses</h2>
             {userId && (
@@ -250,7 +250,7 @@ function CourseCard({ course, currency, onOpen }: { course: CourseDTO; currency:
           )}
           <div className="absolute inset-0 bg-black/20" />
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="w-16 h-16 rounded-full bg-black/50 backdrop-blur border border-white/20 flex items-center justify-center">
+            <span className="w-16 h-16 rounded-full bg-black border border-white/20 flex items-center justify-center">
               <Play className="w-7 h-7 text-white fill-white ml-1" />
             </span>
           </span>

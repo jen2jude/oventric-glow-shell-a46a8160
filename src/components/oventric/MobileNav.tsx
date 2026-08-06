@@ -56,7 +56,7 @@ export function MobileNav({
   return (
     <nav
       data-testid="mobile-nav"
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#1E1E24]/75 backdrop-blur-xl border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2"
+      className="md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#1E1E24]/75 border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2"
       style={{
         height: "calc(4rem + max(env(safe-area-inset-bottom), 0.5rem))",
         paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)",

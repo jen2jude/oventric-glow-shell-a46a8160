@@ -178,7 +178,7 @@ function CampaignRow({
     c.status === "active" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" :
     c.status === "paused" ? "text-amber-400 bg-amber-500/10 border-amber-500/30" :
     c.status === "ended" ? "text-slate-400 bg-slate-500/10 border-slate-500/30" :
-    "text-sky-400 bg-sky-500/10 border-sky-500/30";
+ "text-sky-400 bg-sky-500/10 border-sky-500/30";
   const isTier2 = c.tier === "image";
   const visible = c.status === "active";
   return (

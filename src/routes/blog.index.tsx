@@ -69,7 +69,7 @@ function BlogIndex() {
                 </Link>
                 <button
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); setShareItem(p); }}
-                  className="absolute top-2 right-2 p-2 rounded-full bg-black/60 md:bg-white/90 backdrop-blur border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 hover:bg-black/80 md:hover:bg-white"
+                  className="absolute top-2 right-2 p-2 rounded-full bg-black md:bg-white border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 hover:bg-black md:hover:bg-white"
                   aria-label="Share article"
                 >
                   <Share2 className="w-4 h-4" />

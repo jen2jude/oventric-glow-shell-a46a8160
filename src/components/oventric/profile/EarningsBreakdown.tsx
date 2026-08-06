@@ -96,7 +96,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
               type="button"
               onClick={() => setRange(opt.value)}
               className={cn(
-                "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+ "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                 range === opt.value
                   ? "bg-emerald-500 text-white"
                   : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",
@@ -165,7 +165,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                   type="button"
                   onClick={() => setStatus(opt.value)}
                   className={cn(
-                    "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+ "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                     status === opt.value
                       ? "bg-sky-500 text-white"
                       : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",
@@ -199,7 +199,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                 <li key={item.id} className="relative pl-6">
                   <span
                     className={cn(
-                      "absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#18181d] md:ring-white",
+ "absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#18181d] md:ring-white",
                       STATUS_DOT[item.status] ?? "bg-slate-400",
                     )}
                   />
@@ -209,7 +209,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                     </span>
                     <span
                       className={cn(
-                        "text-xs font-semibold px-2 py-0.5 rounded-full",
+ "text-xs font-semibold px-2 py-0.5 rounded-full",
                         item.status === "paid"
                           ? "bg-emerald-500/15 text-emerald-400"
                           : item.status === "rejected"

@@ -79,7 +79,7 @@ function EmptyChat({ hasThreads }: { hasThreads: boolean }) {
     <div className="flex flex-1 items-center justify-center p-8 text-center">
       <div className="max-w-sm">
         <div className="mx-auto mb-5 relative w-24 h-24">
-          <div className="absolute inset-0 rounded-full rgb-pulse-glow bg-[#1E1E24] md:bg-emerald-50 border border-white/10 md:border-emerald-200" />
+          <div className="absolute inset-0 rounded-full  bg-[#1E1E24] md:bg-emerald-50 border border-white/10 md:border-emerald-200" />
           <div className="absolute inset-0 flex items-center justify-center">
             <MessageSquare className="w-10 h-10 text-emerald-400" />
           </div>
@@ -131,7 +131,7 @@ function ThreadRow({
           </div>
           {online && (
             <span
-              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-[0_0_6px_rgba(96, 165, 250,0.9)]"
+              className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-sm"
               title="Online"
             />
           )}
@@ -458,7 +458,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       .channel(`dm-${me}`)
 
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -472,7 +472,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
 
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -483,7 +483,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -732,7 +732,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                       <span
                         className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] md:border-white ${
                           p.online
-                            ? "bg-emerald-400 shadow-[0_0_6px_rgba(96, 165, 250,0.9)]"
+                            ? "bg-emerald-400 shadow-sm"
                             : "bg-slate-600 md:bg-slate-300"
                         }`}
                       />
@@ -796,7 +796,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 </div>
                 {onlinePeers.has(activeThread.peerId) && (
                   <span
-                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-[0_0_6px_rgba(96, 165, 250,0.9)]"
+                    className="absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full bg-emerald-400 border-2 border-[#16161B] md:border-white shadow-sm"
                     title="Online"
                   />
                 )}

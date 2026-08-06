@@ -44,37 +44,37 @@ const COPY: Record<AuthGateContextKey, { title: string; subtitle: string }> = {
   buyer: {
     title: "Secure your access",
     subtitle:
-      "Verify your profile in 10 seconds to purchase this digital asset and download files.",
+ "Verify your profile in 10 seconds to purchase this digital asset and download files.",
   },
   seller: {
     title: "Claim your storefront",
     subtitle:
-      "Authenticate your email to set up your creator profile and list files for sale.",
+ "Authenticate your email to set up your creator profile and list files for sale.",
   },
   solver: {
     title: "Unlock freelance workspaces",
     subtitle:
-      "Verify your profile to place a bid on this bounty and secure your escrow payout rules.",
+ "Verify your profile to place a bid on this bounty and secure your escrow payout rules.",
   },
   issuer: {
     title: "Find elite talent",
     subtitle:
-      "Sign up instantly to fund your escrow vault and publish your project on the global board.",
+ "Sign up instantly to fund your escrow vault and publish your project on the global board.",
   },
   funding: {
     title: "Initialize banking ledger",
     subtitle:
-      "Verify your account securely to process card, bank, or MoMo ingestion deposits.",
+ "Verify your account securely to process card, bank, or MoMo ingestion deposits.",
   },
   withdraw: {
     title: "Secure currency clearance",
     subtitle:
-      "Verify your identity profile to authorize capital withdrawals to your localized banking networks.",
+ "Verify your identity profile to authorize capital withdrawals to your localized banking networks.",
   },
   interaction: {
     title: "Join the conversation",
     subtitle:
-      "Input your email to drop a technical review, provide code feedback, or upvote your peers.",
+ "Input your email to drop a technical review, provide code feedback, or upvote your peers.",
   },
 };
 
@@ -547,7 +547,7 @@ function AuthGateModal({
         } catch (seedErr) {
           console.error("[AuthGate] seed failed", seedErr);
           const friendly =
-            "We verified your email, but couldn't finish setting up your profile. Please try again in a moment — your sign-in is safe.";
+ "We verified your email, but couldn't finish setting up your profile. Please try again in a moment — your sign-in is safe.";
           setOtpError(friendly);
           toast.error("Profile setup failed", {
             description: "You're signed in, but we couldn't create your profile. Tap resend or try again shortly.",
@@ -617,14 +617,14 @@ function AuthGateModal({
 
   return createPortal(
     <div
-      className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4 backdrop-blur-sm"
+      className="fixed inset-0 bg-black/80 z-[200] flex items-center justify-center p-4"
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
       onClick={(e) => { if (e.target === e.currentTarget && !verifying && !verified) onClose(); }}
     >
       <div className="relative w-full max-w-md">
-        <div className="rgb-neon-bg rounded-2xl p-[1.5px]">
+        <div className=" rounded-2xl p-[1.5px]">
           <div className="bg-[#1E1E24] rounded-2xl p-6 sm:p-8 relative">
             <button
               type="button"
@@ -999,7 +999,7 @@ function AuthGateModal({
                   type="button"
                   onClick={() => void verifyCode(otpDigits.join(""))}
                   disabled={verifying || verified || otpDigits.join("").length !== OTP_LENGTH}
-                  className="rgb-pulse-glow w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
+                  className=" w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {verifying ? (
                     <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</>

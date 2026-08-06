@@ -367,7 +367,7 @@ export function Feed() {
     if (typeof window === "undefined") return;
     try {
       window.localStorage.setItem(
-        "oventric.reported",
+ "oventric.reported",
         JSON.stringify(Object.fromEntries(reported)),
       );
     } catch {
@@ -546,21 +546,21 @@ export function Feed() {
     const channel = supabase
       .channel("feed:live")
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "posts" },
         () => {
           refreshPosts();
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "post_likes" },
         () => {
           refreshPosts();
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "INSERT", schema: "public", table: "post_comments" },
         (payload) => {
           const row = payload.new as FeedComment;
@@ -599,7 +599,7 @@ export function Feed() {
       )
 
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "UPDATE", schema: "public", table: "post_comments" },
         (payload) => {
           const row = payload.new as FeedComment;
@@ -611,7 +611,7 @@ export function Feed() {
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "DELETE", schema: "public", table: "post_comments" },
         (payload) => {
           const oldRow = payload.old as Partial<FeedComment>;
@@ -1290,7 +1290,7 @@ export function Feed() {
                     </Link>
                     <button
                       onClick={(e) => { e.preventDefault(); e.stopPropagation(); setBlogShare(b); }}
-                      className="absolute top-2 right-2 p-2 rounded-full bg-black/60 backdrop-blur border border-white/10 text-slate-200 hover:text-white hover:bg-black/80"
+                      className="absolute top-2 right-2 p-2 rounded-full bg-black border border-white/10 text-slate-200 hover:text-white hover:bg-black"
                       aria-label="Share article"
                     >
                       <Share2 className="w-4 h-4" />
@@ -1491,7 +1491,7 @@ export function Feed() {
                       />
 
                       <div className="absolute inset-0 flex items-center justify-center bg-black/25 group-hover:bg-black/10 transition-colors">
-                        <div className="p-4 rounded-full bg-black/70 border border-white/25 backdrop-blur">
+                        <div className="p-4 rounded-full bg-black border border-white/25">
                           <Play className="w-8 h-8 text-white md:text-slate-900 fill-white" />
                         </div>
                       </div>
@@ -1738,7 +1738,7 @@ export function Feed() {
       />
       {mentionsSheet && (
         <div
-          className="modal-light fixed inset-0 z-[80] bg-black/70 backdrop-blur-sm flex items-center justify-center p-4"
+          className="modal-light fixed inset-0 z-[80] bg-black/70 flex items-center justify-center p-4"
           onClick={() => setMentionsSheet(null)}
         >
           <div

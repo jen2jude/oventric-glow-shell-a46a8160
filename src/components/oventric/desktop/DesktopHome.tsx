@@ -323,7 +323,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
           className="pointer-events-none absolute inset-0"
           style={{
             backgroundImage:
-              "radial-gradient(1000px 480px at 10% -10%, rgba(59, 130, 246,0.12), transparent 70%), radial-gradient(800px 420px at 95% 0%, rgba(99,102,241,0.09), transparent 70%)",
+ "radial-gradient(1000px 480px at 10% -10%, rgba(59, 130, 246,0.12), transparent 70%), radial-gradient(800px 420px at 95% 0%, rgba(99,102,241,0.09), transparent 70%)",
           }}
         />
 
@@ -356,7 +356,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <button
                 type="button"
                 onClick={() => onSelect("Marketplace")}
-                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white/90 px-6 text-sm font-bold text-slate-900 backdrop-blur-sm transition-transform active:scale-95"
+                className="inline-flex h-12 items-center gap-2 rounded-2xl border border-slate-200 bg-white px-6 text-sm font-bold text-slate-900 transition-transform active:scale-95"
               >
                 Explore marketplace
               </button>
@@ -378,7 +378,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
             style={{
               backgroundImage:
-                "radial-gradient(closest-side, rgba(59, 130, 246,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
+ "radial-gradient(closest-side, rgba(59, 130, 246,0.14), transparent 75%), radial-gradient(closest-side at 70% 30%, rgba(99,102,241,0.12), transparent 75%)",
             }}
           />
           <img

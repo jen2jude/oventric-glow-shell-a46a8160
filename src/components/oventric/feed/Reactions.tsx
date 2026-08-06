@@ -67,7 +67,7 @@ export function ReactionGlyph({
         width={size}
         height={size}
         className={[
-          "select-none object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
+ "select-none object-contain drop-shadow-[0_2px_4px_rgba(0,0,0,0.35)]",
           animate ? motion : "",
           className ?? "",
         ].join(" ")}
@@ -108,7 +108,7 @@ export function ReactionButton({
       aria-label={ariaLabel ?? m.label}
       onClick={onClick}
       className={[
-        "inline-flex items-center justify-center transition-transform duration-200 ease-out hover:scale-110 active:scale-90",
+ "inline-flex items-center justify-center transition-transform duration-200 ease-out hover:scale-110 active:scale-90",
         dims,
         className,
       ].join(" ")}

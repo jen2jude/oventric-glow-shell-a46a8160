@@ -52,7 +52,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
     const channel = supabase
       .channel("incoming-follow-requests")
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "follow_requests" },
         () => load(),
       )

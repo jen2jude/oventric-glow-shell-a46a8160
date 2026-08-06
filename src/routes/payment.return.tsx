@@ -154,7 +154,7 @@ function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: 
       className="fixed inset-0 z-[100] flex items-center justify-center overflow-hidden"
       style={{
         background:
-          "radial-gradient(circle at 50% 40%, rgba(59, 130, 246,0.35), rgba(15,23,42,0.9) 55%, rgba(0,0,0,0.95))",
+ "radial-gradient(circle at 50% 40%, rgba(59, 130, 246,0.35), rgba(15,23,42,0.9) 55%, rgba(0,0,0,0.95))",
         animation: "cbFadeIn 220ms ease-out both",
       }}
       aria-live="polite"
@@ -183,10 +183,10 @@ function CashbackSplash({ amountLabel, onDone }: { amountLabel: string; onDone: 
 
       {/* Card */}
       <div
-        className="relative z-10 w-[86%] max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(59, 130, 246,0.55)]"
+        className="relative z-10 w-[86%] max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-sm"
         style={{
           background:
-            "linear-gradient(160deg, rgba(59, 130, 246,0.25), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
+ "linear-gradient(160deg, rgba(59, 130, 246,0.25), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
           backdropFilter: "blur(14px)",
           animation: "cbPop 480ms cubic-bezier(.2,1.4,.4,1) both",
         }}

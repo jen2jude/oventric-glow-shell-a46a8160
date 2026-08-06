@@ -107,12 +107,12 @@ export function RequestsInboxDrawer({ open, onClose, initialTab = "follow" }: Pr
     const ch = supabase
       .channel("requests-inbox-drawer")
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "follow_requests" },
         () => loadFollow(),
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "circle_requests" },
         () => loadCircle(),
       )

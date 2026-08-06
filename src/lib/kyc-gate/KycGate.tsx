@@ -495,7 +495,7 @@ function KycLivenessModal({
             setStep(mode === "enroll" ? "review" : "matching");
           }
         },
-        "image/jpeg",
+ "image/jpeg",
         0.85,
       );
       return;
@@ -681,7 +681,7 @@ function KycLivenessModal({
       aria-modal="true"
       aria-labelledby="kyc-title"
     >
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-md" onClick={busy ? undefined : onClose} />
+      <div className="absolute inset-0 bg-black/85" onClick={busy ? undefined : onClose} />
       <div className="relative w-full sm:max-w-md bg-[#141418] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -753,7 +753,7 @@ function KycLivenessModal({
             </div>
             <button
               onClick={beginId}
-              className="rgb-pulse-glow w-full h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
+              className=" w-full h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
             >
               <IdCard className="w-4 h-4" /> Continue to ID capture
             </button>
@@ -767,7 +767,7 @@ function KycLivenessModal({
                 ? "Face match failed twice. Hold the same government ID you registered during KYC inside the frame — flat, well-lit, no glare."
                 : "Hold your government-issued ID (passport, national ID, or driver's licence) inside the frame. Keep it flat, well-lit, and readable — no glare."}
             </p>
-            <div className="rgb-neon-bg rounded-2xl p-[3px] mb-4 w-full">
+            <div className=" rounded-2xl p-[3px] mb-4 w-full">
               <div className="relative w-full aspect-[16/10] rounded-2xl bg-black overflow-hidden flex items-center justify-center">
                 <video
                   ref={videoRef}
@@ -782,7 +782,7 @@ function KycLivenessModal({
                 )}
                 <div className="pointer-events-none absolute inset-4 border-2 border-dashed border-emerald-400/70 rounded-xl" />
                 {step === "id-capturing" && (
-                  <div className="absolute inset-x-4 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6] animate-pulse" />
+                  <div className="absolute inset-x-4 top-1/2 h-[2px] bg-emerald-400/70 shadow-sm animate-pulse" />
                 )}
                 <IdCard className="absolute w-10 h-10 text-emerald-300/30 pointer-events-none" />
               </div>
@@ -809,7 +809,7 @@ function KycLivenessModal({
 
         {step === "id-review" && idUrl && (
           <div className="space-y-4">
-            <div className="rgb-neon-bg rounded-2xl p-[2px]">
+            <div className=" rounded-2xl p-[2px]">
               <div className="bg-black rounded-2xl overflow-hidden">
                 <ResponsiveImage sizes="(min-width: 640px) 480px, 100vw" src={idUrl} alt="Captured ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
               </div>
@@ -827,7 +827,7 @@ function KycLivenessModal({
               </button>
               <button
                 onClick={() => setStep("selfie-camera")}
-                className="rgb-pulse-glow h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
+                className=" h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2"
               >
                 <ScanFace className="w-4 h-4 text-emerald-300" /> Next: liveness
               </button>
@@ -841,7 +841,7 @@ function KycLivenessModal({
               Stay in bright, even light. Center your face inside the ring — we'll auto-capture on the
               countdown.
             </p>
-            <div className="rgb-neon-bg rounded-full p-[3px] mb-4">
+            <div className=" rounded-full p-[3px] mb-4">
               <div className="relative w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-black overflow-hidden flex items-center justify-center">
                 <video
                   ref={videoRef}
@@ -856,7 +856,7 @@ function KycLivenessModal({
                 )}
                 {step === "selfie-capturing" && (
                   <>
-                    <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6] animate-pulse" />
+                    <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-sm animate-pulse" />
                     <div className="absolute inset-0 border-8 border-emerald-400/50 rounded-full animate-pulse" />
                   </>
                 )}
@@ -923,7 +923,7 @@ function KycLivenessModal({
               <button
                 onClick={submitEnrollment}
                 disabled={busy}
-                className="rgb-pulse-glow h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
+                className=" h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {busy ? (
                   <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
@@ -967,7 +967,7 @@ function KycLivenessModal({
 
         {step === "success" && (
           <div className="flex flex-col items-center py-6">
-            <div className="rgb-neon-bg rounded-full p-[3px] mb-3">
+            <div className=" rounded-full p-[3px] mb-3">
               <div className="w-16 h-16 rounded-full bg-[#0b0b0d] flex items-center justify-center">
                 <Check className="w-8 h-8 text-emerald-300" strokeWidth={3} />
               </div>

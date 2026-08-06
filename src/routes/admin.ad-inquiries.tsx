@@ -118,7 +118,7 @@ function AdInquiriesPage() {
       )}
 
       {selected && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex justify-end" onClick={() => setSelected(null)}>
+        <div className="fixed inset-0 z-50 bg-black/70 flex justify-end" onClick={() => setSelected(null)}>
           <div className="w-full max-w-2xl h-full overflow-y-auto bg-[#141418] border-l border-white/10 p-6" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between mb-4">
               <div>

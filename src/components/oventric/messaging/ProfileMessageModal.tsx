@@ -50,16 +50,16 @@ interface ProfileMessageModalProps {
 const MAX_BODY = 4000;
 const MAX_FILE_BYTES = 10 * 1024 * 1024;
 const ALLOWED_TYPES = [
-  "image/png",
-  "image/jpeg",
-  "image/gif",
-  "image/webp",
-  "application/pdf",
-  "application/zip",
-  "application/x-zip-compressed",
-  "text/plain",
-  "application/msword",
-  "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+ "image/png",
+ "image/jpeg",
+ "image/gif",
+ "image/webp",
+ "application/pdf",
+ "application/zip",
+ "application/x-zip-compressed",
+ "text/plain",
+ "application/msword",
+ "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
 ];
 
 function formatTime(iso: string) {
@@ -167,7 +167,7 @@ export function ProfileMessageModal({
     const channel = supabase
       .channel(`dm-modal-${me}-${recipient.userId}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -177,7 +177,7 @@ export function ProfileMessageModal({
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "INSERT", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -186,7 +186,7 @@ export function ProfileMessageModal({
         },
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
         (payload) => {
           const row = payload.new as DMRow;
@@ -349,7 +349,7 @@ export function ProfileMessageModal({
       <div
         onClick={onClose}
         aria-hidden="true"
-        className="fixed inset-0 z-[70] bg-black/60 backdrop-blur-sm"
+        className="fixed inset-0 z-[70] bg-black/60"
       />
       <div
         ref={dialogRef}

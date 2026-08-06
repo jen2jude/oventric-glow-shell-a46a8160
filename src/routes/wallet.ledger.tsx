@@ -22,17 +22,17 @@ export const Route = createFileRoute("/wallet/ledger")({
 });
 
 const TYPES: ("ALL" | WalletTxType)[] = [
-  "ALL",
-  "Marketplace Purchase",
-  "Marketplace Sale",
-  "Gig Bounty Escrowed",
-  "Ad Injection Charge",
-  "Affiliate Cashback Payout",
-  "Wallet Top-Up",
-  "Payout Withdrawal",
-  "Cashback Earned",
-  "Wallet Transfer Sent",
-  "Wallet Transfer Received",
+ "ALL",
+ "Marketplace Purchase",
+ "Marketplace Sale",
+ "Gig Bounty Escrowed",
+ "Ad Injection Charge",
+ "Affiliate Cashback Payout",
+ "Wallet Top-Up",
+ "Payout Withdrawal",
+ "Cashback Earned",
+ "Wallet Transfer Sent",
+ "Wallet Transfer Received",
 ];
 const STATUSES: ("ALL" | WalletTxStatus)[] = ["ALL", "success", "pending", "failed"];
 const PAGE_SIZE = 15;

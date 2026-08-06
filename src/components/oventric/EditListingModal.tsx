@@ -196,7 +196,7 @@ export function EditListingModal({ product, onClose, onResubmitted }: Props) {
 
   return (
     <div className="modal-light fixed inset-0 z-[70] flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={submitting ? undefined : onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={submitting ? undefined : onClose} />
       <div className="slide-up relative w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
         {success ? (
           <div className="py-8 text-center">

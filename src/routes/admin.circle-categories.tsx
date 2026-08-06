@@ -183,7 +183,7 @@ function Page() {
 }
 
 const inp =
-  "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
+ "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
 function F({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">

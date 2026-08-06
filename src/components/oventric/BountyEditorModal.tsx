@@ -285,7 +285,7 @@ export function BountyEditorModal({
   };
 
   return (
-    <div className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+    <div className="modal-light fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
       <div className="relative w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-white font-black text-lg inline-flex items-center gap-2">
@@ -425,7 +425,7 @@ export function BountyEditorModal({
         </div>
 
         {showFundPrompt && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm rounded-2xl">
+          <div className="absolute inset-0 z-10 flex items-center justify-center p-4 bg-black/80 rounded-2xl">
             <div className="w-full max-w-md bg-[#1a1a20] border border-amber-500/40 rounded-xl p-5 shadow-2xl">
               <div className="flex items-center gap-2 text-amber-300 font-bold">
                 <AlertTriangle className="w-5 h-5" /> Wallet balance too low
@@ -488,7 +488,7 @@ function BountyPublishedSplash({
       className="modal-light fixed inset-0 z-[110] flex items-center justify-center p-4 overflow-hidden"
       style={{
         background:
-          "radial-gradient(circle at 50% 40%, rgba(59, 130, 246,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
+ "radial-gradient(circle at 50% 40%, rgba(59, 130, 246,0.35), rgba(15,23,42,0.92) 55%, rgba(0,0,0,0.96))",
         animation: "bpFadeIn 220ms ease-out both",
       }}
       role="dialog"
@@ -496,10 +496,10 @@ function BountyPublishedSplash({
       aria-label="Bounty published"
     >
       <div
-        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-[0_20px_80px_-10px_rgba(59, 130, 246,0.55)]"
+        className="relative w-full max-w-sm rounded-3xl p-7 text-center border border-white/15 shadow-sm"
         style={{
           background:
-            "linear-gradient(160deg, rgba(59, 130, 246,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
+ "linear-gradient(160deg, rgba(59, 130, 246,0.28), rgba(59,130,246,0.18) 55%, rgba(236,72,153,0.18))",
           animation: "bpPop 480ms cubic-bezier(.2,1.4,.4,1) both",
         }}
       >
@@ -552,7 +552,7 @@ function BountyPublishedSplash({
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+ "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (

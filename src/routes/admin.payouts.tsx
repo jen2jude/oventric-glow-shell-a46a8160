@@ -350,9 +350,9 @@ function PayoutRow({
 }
 
 const AUDIT_LABEL: Record<string, { label: string; tone: string }> = {
-  "payout.approve": { label: "Approved", tone: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
-  "payout.reject": { label: "Rejected", tone: "border-red-500/40 bg-red-500/10 text-red-300" },
-  "payout.mark_paid": { label: "Marked paid", tone: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
+ "payout.approve": { label: "Approved", tone: "border-sky-500/40 bg-sky-500/10 text-sky-300" },
+ "payout.reject": { label: "Rejected", tone: "border-red-500/40 bg-red-500/10 text-red-300" },
+ "payout.mark_paid": { label: "Marked paid", tone: "border-emerald-500/40 bg-emerald-500/10 text-emerald-300" },
 };
 
 function PayoutAuditTrail({ payoutId, expanded }: { payoutId: string; expanded: boolean }) {
@@ -388,7 +388,7 @@ function PayoutAuditTrail({ payoutId, expanded }: { payoutId: string; expanded: 
             const reason =
               (typeof e.meta?.reason === "string" && e.meta.reason) ||
               (typeof e.meta?.note === "string" && e.meta.note) ||
-              "";
+ "";
             return (
               <li key={e.id} className="grid grid-cols-[auto_minmax(0,1fr)] gap-2 text-xs">
                 <span

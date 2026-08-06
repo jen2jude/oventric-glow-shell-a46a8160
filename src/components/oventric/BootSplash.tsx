@@ -150,7 +150,7 @@ export function BootSplash() {
                 strokeWidth={1.8}
                 style={{
                   color,
-                  "--ic": color,
+ "--ic": color,
                   animationDelay: `${i * 0.15}s`,
                   opacity: 0.15,
                 } as any}
@@ -162,10 +162,10 @@ export function BootSplash() {
       <style dangerouslySetInnerHTML={{
         __html: `
           .splash-icon-sweep {
-            animation: splash-icon-ping-pong 3.2s infinite ease-in-out;
+            animation: splash-icon-fade 3.2s infinite ease-in-out;
             will-change: transform, opacity, filter;
           }
-          @keyframes splash-icon-ping-pong {
+          @keyframes splash-icon-fade {
             0%, 20%, 80%, 100% {
               opacity: 0.15;
               transform: translateY(0) scale(0.92);

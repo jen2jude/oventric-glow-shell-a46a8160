@@ -366,17 +366,17 @@ function ProfilePage() {
     const ch = supabase
       .channel(`profile-social-${uid}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "follows", filter: `followee_id=eq.${uid}` },
         () => reloadSocialCounts(),
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "follows", filter: `follower_id=eq.${uid}` },
         () => reloadSocialCounts(),
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "circle_members", filter: `user_id=eq.${uid}` },
         () => reloadSocialCounts(),
       )
@@ -405,7 +405,7 @@ function ProfilePage() {
     const ch = supabase
       .channel(`follow-req-count-${meId}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "follow_requests", filter: `target_id=eq.${meId}` },
         () => load(),
       )
@@ -847,10 +847,10 @@ function ProfilePage() {
 
   return (
     <div className="profile-render-safe relative min-h-screen overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 md:h-screen md:overflow-hidden">
-      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
-      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50 rgb-neon-bg hidden md:block" />
+      <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50  hidden md:block" />
+      <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50  hidden md:block" />
+      <div className="pointer-events-none fixed top-0 bottom-0 left-0 w-[2px] z-50  hidden md:block" />
+      <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
 
       <div className="flex min-h-screen flex-col md:h-full md:min-h-0">
@@ -887,7 +887,7 @@ function ProfilePage() {
                     Follow Requests
                     {pendingFollowReqCount > 0 && (
                       <span
-                        className="rgb-pulse-glow absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
+                        className=" absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
                         aria-hidden
                       >
                         {pendingFollowReqCount > 9 ? "9+" : pendingFollowReqCount}
@@ -1141,7 +1141,7 @@ function ProfilePage() {
                       <button
                         onClick={handleChat}
                         aria-label={`Message ${displayName}`}
-                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-[0_8px_24px_-10px_rgba(59, 130, 246,0.9)] transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
+                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-sm transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
                       >
                         {/* Sheen sweep */}
                         <span

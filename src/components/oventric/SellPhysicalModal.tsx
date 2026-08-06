@@ -260,7 +260,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
 
   return (
     <div className="modal-light fixed inset-0 z-[70] grid h-[100dvh] w-screen place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true">
-      <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" onClick={submitting ? undefined : onClose} />
+      <div className="absolute inset-0 bg-black/70" onClick={submitting ? undefined : onClose} />
       <div className="slide-up relative my-auto w-full max-w-2xl max-h-[92vh] overflow-y-auto bg-[#1E1E24] border border-white/10 rounded-2xl p-6 shadow-2xl">
         {success ? (
           <div className="py-8 text-center">
@@ -472,7 +472,7 @@ export function SellPhysicalModal({ open, onClose, onPublished }: { open: boolea
                 </div>
               </div>
 
-              <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24]/95 backdrop-blur border-t border-white/5">
+              <div className="sticky bottom-0 -mx-6 px-6 pb-1 pt-3 bg-[#1E1E24]/95 border-t border-white/5">
                 {(formError || progress) && (
                   <div
                     className={`mb-3 rounded-lg border px-3 py-2 text-xs ${

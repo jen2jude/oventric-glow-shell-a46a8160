@@ -411,7 +411,7 @@ function UserDetailModal({ userId, onClose, onChanged }: { userId: string; onClo
   ] : [];
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={onClose}>
+    <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
       <div
         className="bg-[#141418] border border-white/10 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
         onClick={(e) => e.stopPropagation()}

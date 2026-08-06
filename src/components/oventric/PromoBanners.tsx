@@ -159,7 +159,7 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
           </span>
           <span className="block text-xs text-slate-400 mt-0.5 truncate">{p.subtitle}</span>
         </span>
-        <span className="relative shrink-0 h-11 min-w-[3.25rem] px-4 justify-center rounded-[10px] bg-white/5 border border-white/20 text-white text-xs font-bold inline-flex items-center backdrop-blur-sm">
+        <span className="relative shrink-0 h-11 min-w-[3.25rem] px-4 justify-center rounded-[10px] bg-white/5 border border-white/20 text-white text-xs font-bold inline-flex items-center">
           GO
         </span>
       </div>

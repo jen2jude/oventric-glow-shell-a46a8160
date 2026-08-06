@@ -78,8 +78,8 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
   const bg = light
     ? "bg-white"
     : safeMobile
-      ? "bg-[#121214] md:bg-[#121214]/90 md:backdrop-blur-md"
-      : "bg-[#121214]/90 backdrop-blur-md";
+      ? "bg-[#121214] md:bg-[#121214]/90"
+      : "bg-[#121214]/90";
   const edge = light ? "border-slate-200" : "border-white/10";
   // Round icon buttons in the right cluster.
   const chip = light
@@ -110,7 +110,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
       role="dialog"
       aria-modal="true"
       aria-label="Search"
-      className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+      className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 flex flex-col"
     >
       <div className="flex items-center gap-2 p-3 border-b border-white/10">
         <div className="flex-1 min-w-0">
@@ -380,7 +380,7 @@ export function Header({ onMenuClick, onOpenMessages, safeMobile = false, showMo
           role="dialog"
           aria-modal="true"
           aria-label="Search"
-          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 backdrop-blur-md flex flex-col"
+          className="sm:hidden fixed inset-0 z-[60] bg-[#0b0b0d]/95 flex flex-col"
         >
           <div className="flex items-center gap-2 p-3 border-b border-white/10">
             <div className="flex-1 min-w-0">
@@ -431,12 +431,12 @@ function useUnreadMessagesCount() {
       channelSub = supabase
         .channel(`dm-count-${userId}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${userId}` },
           () => { void load(); },
         )
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${userId}` },
           () => { void load(); },
         )
@@ -479,7 +479,7 @@ function usePendingFollowRequestsCount() {
       channelSub = supabase
         .channel(`follow-req-count-${uid}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "follow_requests", filter: `target_id=eq.${uid}` },
           () => load(),
         )
@@ -522,12 +522,12 @@ function usePendingCircleRequestsCount() {
       channelSub = supabase
         .channel(`circle-req-count-${uid}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "circle_requests", filter: `target_id=eq.${uid}` },
           () => load(),
         )
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "circle_join_requests" },
           () => load(),
         )

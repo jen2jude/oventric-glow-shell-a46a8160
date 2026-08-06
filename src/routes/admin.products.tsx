@@ -404,7 +404,7 @@ function ProductsPage() {
                     <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
                       status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
                       status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
-                      "bg-red-500/15 border-red-500/40 text-red-300"
+ "bg-red-500/15 border-red-500/40 text-red-300"
                     }`}>{status}</span>
                     <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-white/5 border-white/10 text-slate-400"}`}>{kind}</span>
                     {(p.promoted as boolean) && (
@@ -492,7 +492,7 @@ function ProductsPage() {
       )}
 
       {rejectingId && (
-        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70">
           <div className="w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl p-5">
             <h3 className="text-white font-bold text-lg mb-3">Reject product</h3>
             <label className="block mb-3">
@@ -542,7 +542,7 @@ function ProductsPage() {
 
 
       {modal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
           <div className="w-full max-w-lg bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between mb-4">
               <h2 className="text-white font-black text-lg">
@@ -787,7 +787,7 @@ function ProductsPage() {
 }
 
 const inputCls =
-  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+ "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -825,7 +825,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
   const cur = urls[active];
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70 backdrop-blur-sm" role="dialog" aria-modal="true">
+    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70" role="dialog" aria-modal="true">
       <div className="w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-3 gap-3">
           <div className="min-w-0">
@@ -834,7 +834,7 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
               <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
                 status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
                 status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
-                "bg-red-500/15 border-red-500/40 text-red-300"
+ "bg-red-500/15 border-red-500/40 text-red-300"
               }`}>{status}</span>
               {Boolean(product.promoted) && <span className="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold bg-amber-500/15 border border-amber-500/40 text-amber-200">Promoted</span>}
             </div>

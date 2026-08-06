@@ -128,7 +128,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     const { data: b, error: bErr } = await supabase
       .from("bounties")
       .select(
-        "id, title, description, category, price_usd, original_currency, original_amount, fx_snapshot, cover_path, images, deadline_at, end_at, solved_at, released_at, status, dispute_status, admin_hold, poster_id, accepted_applicant_id, created_at",
+ "id, title, description, category, price_usd, original_currency, original_amount, fx_snapshot, cover_path, images, deadline_at, end_at, solved_at, released_at, status, dispute_status, admin_hold, poster_id, accepted_applicant_id, created_at",
       )
       .eq("id", bountyId)
       .maybeSingle();
@@ -183,12 +183,12 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     const ch = supabase
       .channel(`bounty-detail:${bountyId}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "bounties", filter: `id=eq.${bountyId}` },
         () => load(),
       )
       .on(
-        "postgres_changes",
+ "postgres_changes",
         {
           event: "*",
           schema: "public",
@@ -268,7 +268,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           setBusy(null);
         }
       },
-      "solver",
+ "solver",
     );
   };
 
@@ -468,7 +468,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
       {/* Contract workspace: shown once a solver is accepted */}
       {bounty.accepted_applicant_id && (isPoster || isSolver) && (
-        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-[0_0_40px_-18px_rgba(59, 130, 246,0.7)]">
+        <div className="bg-[#1E1E24] md:bg-white border border-emerald-500/30 md:border-emerald-500/40 rounded-xl p-5 mb-5 shadow-sm">
           <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold tracking-wider mb-3">
             <Lock className="w-3 h-3" /> LIVE ESCROW CONTRACT · {dp.formatted}
           </div>
@@ -785,7 +785,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 Accept{" "}
                 {profiles[acceptTarget]?.display_name ||
                   profiles[acceptTarget]?.username ||
-                  "this applicant"}
+ "this applicant"}
                 ?
               </div>
             </div>

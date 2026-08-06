@@ -19,7 +19,7 @@ export function Icon3D({
     <span
       aria-label={ariaLabel}
       className={[
-        "relative inline-flex items-center justify-center rounded-2xl transition-transform duration-150",
+ "relative inline-flex items-center justify-center rounded-2xl transition-transform duration-150",
         dims,
         active
           ? "bg-gradient-to-b from-emerald-500/90 to-emerald-700 text-white -translate-y-1"

@@ -81,7 +81,7 @@ export function AuthSeeder() {
           seededFor.current = null;
           toast.error("We couldn't finish setting up your account", {
             description:
-              "Your sign-in worked, but profile setup didn't complete. Refresh the page or try again in a moment.",
+ "Your sign-in worked, but profile setup didn't complete. Refresh the page or try again in a moment.",
           });
         }
       }
@@ -110,7 +110,7 @@ export function AuthSeeder() {
       walletChannel = supabase
         .channel(`wallets-root-${uid}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
           () => void refreshBalances(),
         )

@@ -33,7 +33,7 @@ const SLIDES: Slide[] = [
     image: mockFeed,
     title: "Feed",
     description:
-      "Follow creators, join circles, and see what Africa's builders are shipping.",
+ "Follow creators, join circles, and see what Africa's builders are shipping.",
     accent: "#00c2ff",
   },
   {
@@ -73,9 +73,9 @@ const ENTER = "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwar
 const EXIT = "feature-carousel-exit 0.6s cubic-bezier(0.4, 0, 1, 1) forwards";
 const SLIDE_ENTER = "feature-carousel-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 const IN_FROM_RIGHT =
-  "feature-carousel-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+ "feature-carousel-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 const IN_FROM_LEFT =
-  "feature-carousel-in-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+ "feature-carousel-in-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 
 type Phase = "intro" | "slides" | "congrats";
 

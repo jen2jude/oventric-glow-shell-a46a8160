@@ -595,7 +595,7 @@ function CheckoutPage() {
       </main>
 
       {topUpOpen && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4" onClick={() => !topUpBusy && setTopUpOpen(false)}>
+        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => !topUpBusy && setTopUpOpen(false)}>
           <div className="w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-6" onClick={(e) => e.stopPropagation()}>
             <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">Fund your wallet</h3>
             <p className="text-xs text-slate-400 md:text-slate-500 mb-4">

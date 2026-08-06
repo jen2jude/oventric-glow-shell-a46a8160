@@ -245,7 +245,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             <Link
               to="/dashboard"
               aria-label="Open your dashboard"
-              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 hub-glow-blue"
+              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 "
             >
               <AvatarImage src={avatarUrl} alt={name || "You"} loading="eager" />
             </Link>
@@ -273,7 +273,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Wallet card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-[10px] border border-white/10 p-4 md:p-5 hub-card-glass"
+        className="hub-wallet relative overflow-hidden rounded-[10px] border border-white/10 p-4 md:p-5 hub-card-solid"
         style={{
           background: "oklch(0.2 0 0)",
         }}
@@ -341,15 +341,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
+        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} className="hub-card-solid  rounded-[10px]" />
         <QuickAction icon={Plus} label="Post" onClick={() => requireTier(1, () => {
           onSelect("Feed");
           setTimeout(() => {
             window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
           }, 80);
-        })} className="hub-card-glass hub-card-glow rounded-[10px]" />
-        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
-        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} className="hub-card-glass hub-card-glow rounded-[10px]" />
+        })} className="hub-card-solid  rounded-[10px]" />
+        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} className="hub-card-solid  rounded-[10px]" />
+        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} className="hub-card-solid  rounded-[10px]" />
 
 
       </section>
@@ -416,7 +416,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-glass hub-card-glow`}
+                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-solid `}
                 >
                   {t.img ? (
                     <img src={t.img} alt="" aria-hidden className="w-8 h-8 md:w-9 md:h-9 object-contain" loading="eager" />
@@ -722,7 +722,7 @@ function PromoCard({
     </span>
   );
   const cls =
-    "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
+ "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
   const handleClick = () => {
     void trackPromoEvent("click", promo);
     onClick?.();

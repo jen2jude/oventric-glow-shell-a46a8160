@@ -199,7 +199,7 @@ export function Wallet() {
     const channel = supabase
       .channel(`wallet-tx-${userId}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
         (payload) => {
             queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
@@ -216,7 +216,7 @@ export function Wallet() {
     const walletChannel = supabase
       .channel(`wallets-${userId}`)
       .on(
-        "postgres_changes",
+ "postgres_changes",
         { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
         () => {
           queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
@@ -524,13 +524,13 @@ export function Wallet() {
                         {!authReady ? (
                           <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
                         ) : !userId ? (
-                          "Sign in to view your transaction ledger."
+ "Sign in to view your transaction ledger."
                         ) : query.isLoading ? (
                           <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
                         ) : query.isError ? (
                           `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
                         ) : (
-                          "No transactions match your filters."
+ "No transactions match your filters."
                         )}
                       </td>
                     </tr>
@@ -947,35 +947,35 @@ type Rail = {
 };
 
 const NG_BANKS = [
-  "Access Bank",
-  "Fidelity Bank",
-  "First Bank",
-  "First City Monument Bank (FCMB)",
-  "GTBank",
-  "Kuda Bank",
-  "OPay",
-  "Palmpay",
-  "Polaris Bank",
-  "Providus Bank",
-  "Stanbic IBTC",
-  "Sterling Bank",
-  "UBA",
-  "Union Bank",
-  "Unity Bank",
-  "Wema Bank",
-  "Zenith Bank",
+ "Access Bank",
+ "Fidelity Bank",
+ "First Bank",
+ "First City Monument Bank (FCMB)",
+ "GTBank",
+ "Kuda Bank",
+ "OPay",
+ "Palmpay",
+ "Polaris Bank",
+ "Providus Bank",
+ "Stanbic IBTC",
+ "Sterling Bank",
+ "UBA",
+ "Union Bank",
+ "Unity Bank",
+ "Wema Bank",
+ "Zenith Bank",
 ];
 const GH_BANKS = [
-  "Absa Bank Ghana",
-  "Access Bank Ghana",
-  "CalBank",
-  "Ecobank Ghana",
-  "Fidelity Bank Ghana",
-  "GCB Bank",
-  "GT Bank Ghana",
-  "Stanbic Bank Ghana",
-  "Standard Chartered Ghana",
-  "Zenith Bank Ghana",
+ "Absa Bank Ghana",
+ "Access Bank Ghana",
+ "CalBank",
+ "Ecobank Ghana",
+ "Fidelity Bank Ghana",
+ "GCB Bank",
+ "GT Bank Ghana",
+ "Stanbic Bank Ghana",
+ "Standard Chartered Ghana",
+ "Zenith Bank Ghana",
 ];
 
 function PayoutSuccessSplash({
@@ -997,12 +997,12 @@ function PayoutSuccessSplash({
   }, []);
   return (
     <div className="modal-light fixed inset-0 z-[10000] overflow-hidden">
-      <div className="absolute inset-0 bg-black/85 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/85" onClick={onClose} />
       <div
         className="absolute inset-0 pointer-events-none opacity-70"
         style={{
           background:
-            "radial-gradient(circle at 50% 30%, rgba(59, 130, 246,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
+ "radial-gradient(circle at 50% 30%, rgba(59, 130, 246,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
         }}
       />
       <div className="relative h-full w-full flex items-center justify-center p-4">

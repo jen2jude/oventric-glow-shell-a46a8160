@@ -148,7 +148,7 @@ export function ReportModal({
 
 
   return (
-    <div className="modal-light fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm p-0 sm:p-4">
+    <div className="modal-light fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
       <div className="w-full sm:max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl">
         <header className="flex items-center justify-between px-5 py-4 border-b border-white/10">
           <div className="flex items-center gap-2">

@@ -30,7 +30,7 @@ export const EMPTY_BANNER: BannerAdDraft = {
 const PLACEMENTS = ["feed", "marketplace", "academy", "bounties"] as const;
 
 const inputCls =
-  "w-full rounded-lg bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
+ "w-full rounded-lg bg-black/40 md:bg-white border border-white/10 md:border-slate-300 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-500 outline-none focus:border-emerald-500/60";
 
 export function BannerAdModal({
   open,

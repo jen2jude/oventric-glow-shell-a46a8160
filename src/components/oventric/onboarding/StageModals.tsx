@@ -10,7 +10,7 @@ import { completeProfile as completeProfileFn } from "@/lib/onboarding.functions
 function ModalShell({ title, subtitle, onClose, children }: { title: string; subtitle?: string; onClose: () => void; children: React.ReactNode }) {
   return (
     <div className="modal-light fixed inset-0 z-[60] flex items-end justify-center sm:items-center px-0 sm:px-4">
-      <div className="absolute inset-0 bg-black/75 backdrop-blur-md" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
       <div className="slide-up relative w-full max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl p-6 shadow-2xl">
         <div className="flex items-start justify-between mb-4">
           <div>
@@ -28,7 +28,7 @@ function ModalShell({ title, subtitle, onClose, children }: { title: string; sub
 }
 
 const inputCls =
-  "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
+ "w-full h-11 px-3 bg-[#121214] border border-white/10 rounded-lg text-sm text-slate-200 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all";
 const labelCls = "block text-xs font-semibold text-slate-400 uppercase tracking-wide mb-1.5";
 const btnCls = "w-full h-11 bg-emerald-500 hover:bg-emerald-400 text-black font-semibold text-sm rounded-lg transition-colors";
 
@@ -307,7 +307,7 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
       {step === "cam" && (
         <div className="flex flex-col items-center">
-          <div className="rgb-neon-bg rounded-full p-[3px] mb-4">
+          <div className=" rounded-full p-[3px] mb-4">
             <div className="w-52 h-52 rounded-full bg-black relative overflow-hidden flex items-center justify-center">
               {/* Simulated webcam gradient */}
               <div className="absolute inset-0 bg-gradient-to-br from-slate-800 via-slate-900 to-black" />
@@ -315,7 +315,7 @@ function Stage5({ onClose }: { onClose: () => void }) {
               {/* Spinning scanner arc */}
               <Loader2 className="absolute w-52 h-52 text-emerald-400/70 animate-spin" strokeWidth={1} />
               <ScanFace className="relative w-16 h-16 text-emerald-300/80" strokeWidth={1.2} />
-              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-[0_0_12px_#3b82f6]" />
+              <div className="absolute inset-x-0 top-1/2 h-[2px] bg-emerald-400/70 shadow-sm" />
             </div>
           </div>
           <p className="text-sm text-slate-300">Hold still — capturing biometric</p>
@@ -325,9 +325,9 @@ function Stage5({ onClose }: { onClose: () => void }) {
 
       {step === "flash" && (
         <>
-          <div className="modal-light fixed inset-0 z-[70] pointer-events-none rgb-neon-bg opacity-70" />
+          <div className="modal-light fixed inset-0 z-[70] pointer-events-none  opacity-70" />
           <div className="modal-light fixed inset-0 z-[71] pointer-events-none flex items-center justify-center">
-            <div className="bg-black/70 backdrop-blur-md rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
+            <div className="bg-black rounded-2xl px-8 py-6 border border-white/10 flex items-center gap-3">
               <div className="w-10 h-10 rounded-full bg-emerald-500 flex items-center justify-center">
                 <Check className="w-6 h-6 text-black" strokeWidth={3} />
               </div>

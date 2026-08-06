@@ -10,21 +10,21 @@ type Tier = "text" | "image" | "video";
 
 const CITIES: Record<string, string[]> = {
   Nigeria: [
-    "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
-    "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
-    "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
-    "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
-    "Taraba","Yobe","Zamfara",
+ "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
+ "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
+ "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
+ "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
+ "Taraba","Yobe","Zamfara",
   ],
   Ghana: [
-    "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
-    "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
-    "Western","Western North",
+ "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
+ "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
+ "Western","Western North",
   ],
-  "Rest of Africa": [
-    "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
-    "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
-    "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+ "Rest of Africa": [
+ "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
+ "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
+ "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
   ],
 };
 
@@ -194,7 +194,7 @@ export function AdvertInquiryModal({
   if (!open) return null;
 
   return (
-    <div className="modal-light fixed inset-0 z-[2147483000] flex items-end sm:items-center justify-center bg-black/70 backdrop-blur-sm">
+    <div className="modal-light fixed inset-0 z-[2147483000] flex items-end sm:items-center justify-center bg-black/70">
       <div className="relative w-full sm:max-w-3xl max-h-[92vh] overflow-y-auto bg-[#141418] border border-white/10 sm:rounded-2xl rounded-t-2xl">
         <div className="sticky top-0 z-10 flex items-center justify-between px-5 h-14 bg-[#141418]/95 border-b border-white/10">
           <div>

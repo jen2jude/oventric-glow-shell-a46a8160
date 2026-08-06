@@ -15,7 +15,7 @@ function FieldLabel({ children }: { children: React.ReactNode }) {
 }
 
 const inputCls =
-  "w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
+ "w-full bg-[#121214] border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:border-emerald-500/60";
 
 /** Merge error-state ring into the base input class. */
 function fieldCls(hasError: boolean): string {
@@ -55,7 +55,7 @@ export function Admin() {
       </div>
 
       {/* Sub-nav */}
-      <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#121214]/90 backdrop-blur border-b border-white/5 mb-6">
+      <div className="sticky top-0 z-30 -mx-4 px-4 py-3 bg-[#121214]/90 border-b border-white/5 mb-6">
         <div className="flex gap-2 overflow-x-auto scrollbar-none">
           <button
             className={`shrink-0 px-4 py-2 rounded-full text-sm font-semibold border whitespace-nowrap ${
@@ -672,7 +672,7 @@ function MegaBountyIssuer() {
           <InlineError msg={errors.escrow} />
         </div>
 
-        <button type="submit" className="rgb-pulse-glow w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2">
+        <button type="submit" className=" w-full py-2.5 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2">
           <Eye className="w-4 h-4" /> Preview & Deploy Bounty
         </button>
       </form>

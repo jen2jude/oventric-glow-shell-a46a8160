@@ -347,7 +347,7 @@ export function PostComposerModal({
 
   return (
     <div className="modal-light fixed inset-0 z-[60] flex items-stretch sm:items-center justify-center">
-      <div className="absolute inset-0 bg-black/80 backdrop-blur-sm" onClick={onClose} />
+      <div className="absolute inset-0 bg-black/80" onClick={onClose} />
       <div
         ref={shellRef}
         role="dialog"

@@ -128,7 +128,7 @@ export function LiveNotificationToasts() {
               toast.dismiss(id);
               go(row.link);
             }}
-            className="w-full max-w-sm text-left flex items-start gap-3 rounded-2xl border border-border bg-popover/95 backdrop-blur-sm px-3.5 py-3 shadow-lg shadow-black/20 transition-transform active:scale-[0.98]"
+            className="w-full max-w-sm text-left flex items-start gap-3 rounded-2xl border border-border bg-popover px-3.5 py-3 shadow-lg shadow-black/20 transition-transform active:scale-[0.98]"
           >
             <span className="relative shrink-0">
               <span className="block h-10 w-10 rounded-full overflow-hidden">
@@ -181,7 +181,7 @@ export function LiveNotificationToasts() {
       ch = supabase
         .channel(`notif-toast-${uid}`)
         .on(
-          "postgres_changes",
+ "postgres_changes",
           {
             event: "INSERT",
             schema: "public",
