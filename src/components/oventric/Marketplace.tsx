@@ -324,6 +324,43 @@ export function Marketplace() {
     <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
+        {/* ── Lightning Deals Section ─────────────────────────── */}
+        <div className="mb-8 p-4 bg-white border-b-2 border-slate-900">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-3">
+              <span className="text-2xl">⚡</span>
+              <h2 className="text-xl font-black italic tracking-tighter text-slate-900 uppercase">Lightning Deals</h2>
+              <div className="flex items-center gap-1.5 ml-4">
+                <span className="text-xs font-bold text-slate-500">Ends in:</span>
+                <div className="flex gap-1">
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">05</span>
+                  <span className="text-slate-900 font-black">:</span>
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">01</span>
+                  <span className="text-slate-900 font-black">:</span>
+                  <span className="bg-slate-900 text-white text-xs font-black px-1.5 py-0.5 rounded-sm">54</span>
+                </div>
+              </div>
+            </div>
+            <button className="text-xs font-black text-slate-900 hover:underline">View All &gt;</button>
+          </div>
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
+            {hotItems.slice(0, 6).map(p => (
+              <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)}>
+                <div className="aspect-square bg-slate-100 mb-2 overflow-hidden relative">
+                  <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
+                  <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
+                </div>
+                <div className="text-red-600 font-black text-sm">
+                  {displayPriceForProduct(p, baseCurrency).formatted}
+                </div>
+                <div className="text-[10px] text-slate-400 line-through">
+                  {computeDisplayPrice({ price_usd: p.priceUSD * 1.5 }, baseCurrency).formatted}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
         {/* ── Marketplace search ─────────────────────────────────── */}
         <div className="mb-4 sm:mb-5">
           <div className="relative max-w-2xl mx-auto group">
@@ -338,9 +375,9 @@ export function Marketplace() {
               }}
 
               placeholder="I'm looking for..."
-              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
+              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border-2 border-slate-900 text-slate-900 placeholder:text-slate-400 focus:outline-none transition-shadow shadow-sm"
             />
-            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l border-slate-200 bg-slate-50 text-slate-500 group-focus-within:text-emerald-600 group-focus-within:bg-emerald-50 transition-colors pointer-events-none">
+            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l-2 border-slate-900 bg-slate-900 text-white transition-colors pointer-events-none">
               <Search className="w-5 h-5" />
             </div>
           </div>
@@ -382,9 +419,10 @@ export function Marketplace() {
         <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
           <div className="pt-5">
             <div className="flex items-center justify-between mb-3">
-              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+              <h2 className="text-base sm:text-lg font-black uppercase tracking-tight text-slate-900">
                 {mode === "physical" ? "Physical" : "Digital"} categories
               </h2>
+
               {activeCat && (
                 <button
                   onClick={() => {
