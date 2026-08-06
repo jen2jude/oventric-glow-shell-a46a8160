@@ -235,7 +235,7 @@ function ProductPage() {
   };
 
   return (
-    <div className="min-h-screen overflow-x-hidden bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700">
+    <div className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"} md:bg-slate-50 md:text-slate-700`}>
       <Header onOpenMessages={() => {}} />
       <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
         <button
