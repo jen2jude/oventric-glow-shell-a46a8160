@@ -1,51 +1,16 @@
 # Plan: Fix Environment Flash on Initial Load
 
-The user reports that on the first load via URL (both PC and mobile), the "app version" (Fintech HomeHub) is briefly shown before switching to the intended "url page" (Marketing DesktopHome). 
-
-This happens because `useIsAppShell` (which drives the decision in `src/routes/index.tsx`) defaults to `true` while hydration is pending. This was intended to prevent a flash of marketing content on slow-loading native apps, but it causes the inverse flash on browser loads.
+The user reports that on the first load via URL (both PC and mobile), the "app version" (HomeHub) is briefly shown before switching to the intended "url page" (DesktopHome). The user prefers the Marketing view (DesktopHome) as the default during load.
 
 ## Proposed Changes
 
-### `src/hooks/use-launch-context.ts`
+### 1. Update Launch Context Defaults
+In `src/hooks/use-launch-context.ts`, modify `useIsAppShell` to return `false` while the context is still being determined (`null`). This ensures browser visitors see the marketing content immediately instead of the app hub.
 
-- Refactor `useIsAppShell` to return `null` (or an object with a loading state) during hydration so that the consumer can decide how to handle the "unknown" state.
-- Alternatively, and more simply for this architecture: provide a new hook `useIsBrowser` that defaults to `false` but allows the landing page to wait for the real context before rendering.
+### 2. Verify Home Route Logic
+In `src/routes/index.tsx`, the `desktopLanding` logic already relies on `!isAppShell`. By changing the default of `isAppShell` to `false`, `desktopLanding` will default to `true` during hydration, rendering the responsive marketing landing page.
 
-Wait, looking at `useLaunchContext`: it already returns `null` until hydration.
-The problem is `useIsAppShell`:
-```typescript
-export function useIsAppShell(): boolean {
-  const ctx = useLaunchContext();
-  // Unknown (pre-hydration) keeps the existing app markup, avoiding a flash.
-  return ctx === null || ctx === "native" || ctx === "standalone";
-}
-```
-It explicitly treats `null` as `true`.
-
-### `src/routes/index.tsx`
-
-- Use `useLaunchContext` directly instead of the boolean `useIsAppShell`.
-- If `ctx === null` (hydration pending), render a neutral state or the server-safe default.
-- Since we want the Marketing page to be the SEO/Browser default, we should ideally default to the "browser" view during SSR/hydration if we want to avoid the app flash on web.
-
-## Plan
-
-1. **Modify `src/hooks/use-launch-context.ts`**:
-   - Update `useIsAppShell` to be more explicit or add a `useLaunchContext` check that doesn't assume "app" during hydration.
-   - Actually, I will change `useIsAppShell` to return `false` on `null` if we want to favor the web version, OR better: update `src/routes/index.tsx` to handle the `null` state explicitly.
-
-2. **Modify `src/routes/index.tsx`**:
-   - Change `const isAppShell = useIsAppShell();` to use `useLaunchContext()`.
-   - Update the `desktopLanding` logic:
-     ```typescript
-     const launchCtx = useLaunchContext();
-     // If we are still hydrating (null), default to browser view on web URLs to avoid the "App flash".
-     const isApp = launchCtx === "native" || launchCtx === "standalone";
-     const desktopLanding = active === "Home" && (isDesktop || !isApp);
-     ```
-
-3. **Verification**:
-   - Check the preview. Since the preview is a browser, it should now show the `DesktopHome` immediately (after hydration) without flashing `HomeHub`.
-   - Ensure `isDesktop` (which already starts as `false`) doesn't cause a mobile-to-desktop flash on PC.
-
-I will also check if `src/routes/__root.tsx` has any similar logic that needs synchronization.
+## Verification
+- Visit the site in a normal browser tab (desktop and mobile).
+- The `DesktopHome` (Marketing) view should be the first thing painted after hydration, without the `HomeHub` (Fintech) appearing first.
+- The `BootSplash` in `src/routes/__root.tsx` still handles the PWA launch experience by overlaying a splash screen, so PWA users won't see a "Marketing flash" during their load.
