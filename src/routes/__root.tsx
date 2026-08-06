@@ -306,7 +306,9 @@ function RootShell({ children }: { children: ReactNode }) {
           <style
             dangerouslySetInnerHTML={{
               __html: `#oventric-boot{position:fixed;inset:0;z-index:99998;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#121214;transition:opacity .3s}
-#oventric-boot img{height:48px;width:auto;user-select:none}
+#oventric-boot .ob-logo-container{display:flex;flex-direction:column;align-items:center;gap:12px}
+#oventric-boot .ob-ring-logo{height:64px;width:64px;object-fit:contain}
+#oventric-boot .ob-wordmark{height:32px;width:auto;user-select:none}
 #oventric-boot .ob-icons{margin-top:24px;display:flex;align-items:center;gap:18px}
 #oventric-boot svg{width:22px;height:22px;opacity:.18;transform:translateY(0) scale(.92);transition:opacity .25s ease,transform .25s ease,filter .25s ease}
 #oventric-boot svg.ob-lit{opacity:1;transform:translateY(-3px) scale(1.12);filter:drop-shadow(0 0 10px currentColor)}`,
