@@ -114,6 +114,22 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
               </div>
             </div>
 
+            {/* Mobile Profile Clickable Image */}
+            <div className="lg:hidden flex items-center gap-2">
+              <div 
+                className="h-8 w-8 rounded-full overflow-hidden border border-slate-200"
+                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
+              >
+                {isAuthenticated ? (
+                  <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
+                ) : (
+                  <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                    <User className="w-4 h-4 text-slate-400" />
+                  </div>
+                )}
+              </div>
+            </div>
+
             {/* Mobile Menu Toggle */}
             <button
               type="button"
