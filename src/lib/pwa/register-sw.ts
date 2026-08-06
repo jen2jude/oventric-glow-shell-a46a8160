@@ -115,7 +115,10 @@ export function registerAppServiceWorker() {
   window.addEventListener("load", () => {
     navigator.serviceWorker
       .register(SW_URL, { scope: "/" })
-      .then((reg) => track(reg))
+      .then((reg) => {
+        registrationRef = reg;
+        track(reg);
+      })
       .catch(() => {});
   });
 }
