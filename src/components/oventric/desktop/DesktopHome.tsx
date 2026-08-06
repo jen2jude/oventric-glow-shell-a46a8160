@@ -285,7 +285,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             onFocus={() => setSearchOpen(place)}
             placeholder={compact ? "Search Oventric" : "Search products, courses and bounties"}
             aria-label="Search Oventric"
-            className="h-full flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+            className="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
           />
           <button
             type="submit"
@@ -345,7 +345,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       />
 
       {/* Hero */}
-      <section className="relative min-h-[92vh] overflow-hidden">
+      <section className="relative overflow-hidden sm:min-h-[78vh] lg:min-h-[92vh]">
         <div
           className="pointer-events-none absolute inset-0"
           style={{
@@ -355,9 +355,9 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
         />
 
         {/* Left readability gradient — text overlaps the collage */}
-        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-[62%] bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
+        <div className="pointer-events-none absolute inset-y-0 left-0 z-10 w-full bg-gradient-to-r from-white via-white/[0.94] to-transparent sm:w-[56%] lg:w-[50%] xl:w-[46%]" />
 
-        <div className="relative z-20 mx-auto grid h-full min-h-[92vh] w-full max-w-[1400px] grid-cols-1 items-center px-6 py-24 lg:px-8">
+        <div className="relative z-20 mx-auto grid h-full w-full max-w-[1400px] grid-cols-1 items-center px-5 py-10 sm:min-h-[78vh] sm:px-6 sm:py-20 lg:min-h-[92vh] lg:px-8 lg:py-24">
           <div className="max-w-2xl">
             <span className="inline-flex items-center gap-2 rounded-full border border-emerald-200 bg-emerald-50 px-3 py-1.5 text-xs font-semibold text-emerald-600">
               <Sparkles className="h-3.5 w-3.5" /> 2% cashback on every purchase
@@ -397,11 +397,20 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               <span>54 African countries</span>
               <span>Card, bank &amp; mobile money</span>
             </div>
+
+            {/* Mobile hero visual — stacked below the copy instead of behind it */}
+            <img
+              src={heroCollage.url}
+              alt="Oventric members shopping, learning and chatting across the platform"
+              className="mt-10 w-full select-none object-contain sm:hidden"
+              loading="eager"
+              decoding="async"
+            />
           </div>
         </div>
 
         {/* Hero visual — large but contained so the right edge stays visible */}
-        <div className="pointer-events-none absolute right-[-1%] top-1/2 z-0 w-[78vw] max-w-[1080px] -translate-y-1/2">
+        <div className="pointer-events-none absolute right-[-1%] top-1/2 z-0 hidden w-[78vw] max-w-[1080px] -translate-y-1/2 sm:block">
           <div
             className="pointer-events-none absolute -inset-10 -z-10 rounded-full blur-3xl"
             style={{
@@ -421,7 +430,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Stats */}
       <section className="hp-dark border-y border-slate-200">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-8 px-8 py-12">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-2 gap-6 px-5 py-10 sm:px-8 md:grid-cols-4 md:gap-8 md:py-12">
           {[
             { v: counts.products, l: "Live products" },
             { v: counts.courses, l: "Courses to learn" },
@@ -437,7 +446,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Trust strip */}
       <section className="border-b border-slate-200 bg-white">
-        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-4 gap-6 px-8 py-8">
+        <div className="mx-auto grid w-full max-w-[1200px] grid-cols-1 gap-6 px-5 py-8 sm:grid-cols-2 sm:px-8 lg:grid-cols-4">
           {[
             {
               Icon: ShieldCheck,
@@ -469,9 +478,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Explore categories */}
       {catList.length > 0 && (
-        <section className="mx-auto w-full max-w-[1200px] px-8 pt-20">
-          <div className="flex items-end justify-between">
-            <h2 className="text-4xl font-bold tracking-tight text-slate-900">Explore categories</h2>
+        <section className="mx-auto w-full max-w-[1200px] px-5 pt-14 sm:px-8 sm:pt-20">
+          <div className="flex flex-wrap items-end justify-between gap-4">
+            <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+              Explore categories
+            </h2>
             <div className="flex items-center gap-1 rounded-2xl border border-slate-200 bg-white p-1">
               {(["digital", "physical"] as const).map((k) => (
                 <button
@@ -489,7 +500,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
               ))}
             </div>
           </div>
-          <div className="mt-8 grid grid-cols-3 gap-5">
+          <div className="mt-8 grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5 lg:grid-cols-3">
             {catList.slice(0, 6).map((c, i) => (
               <Reveal
                 key={c.id}
@@ -533,7 +544,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Live rails */}
       <section className="hp-dark border-t border-slate-200">
-        <div className="mx-auto w-full max-w-[1200px] space-y-16 px-8 py-24">
+        <div className="mx-auto w-full max-w-[1200px] space-y-12 px-5 py-14 sm:space-y-16 sm:px-8 sm:py-20 lg:py-24">
           <CardGrid
             title="Fresh in the market"
             items={products}
@@ -547,15 +558,15 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
       <TradeSecurelyBanner onLearnMore={() => onSelect("Help")} />
 
       {/* Feature blocks */}
-      <section className="mx-auto w-full max-w-[1200px] px-8 py-24">
-        <h2 className="max-w-2xl text-4xl font-bold leading-tight tracking-tight text-slate-900">
+      <section className="mx-auto w-full max-w-[1200px] px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+        <h2 className="max-w-2xl text-2xl font-bold leading-tight tracking-tight text-slate-900 sm:text-4xl">
           Everything you need to build an income online.
         </h2>
-        <div className="mt-16 space-y-20">
+        <div className="mt-10 space-y-12 sm:mt-16 sm:space-y-20">
           {FEATURES.map((f, i) => (
             <Reveal
               key={f.label}
-              className={`grid grid-cols-2 items-center gap-16 ${i % 2 === 1 ? "[&>*:first-child]:order-2" : ""}`}
+              className={`grid grid-cols-1 items-center gap-8 lg:grid-cols-2 lg:gap-16 ${i % 2 === 1 ? "lg:[&>*:first-child]:order-2" : ""}`}
             >
               <div>
                 <span className="inline-flex items-center gap-2 text-xs font-bold uppercase tracking-wide text-emerald-600">
@@ -590,9 +601,11 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* How it works */}
       <section className="hp-dark border-y border-slate-200">
-        <div className="mx-auto w-full max-w-[1200px] px-8 py-24">
-          <h2 className="text-4xl font-bold tracking-tight text-slate-900">How it works</h2>
-          <div className="mt-12 grid grid-cols-3 gap-6">
+        <div className="mx-auto w-full max-w-[1200px] px-5 py-14 sm:px-8 sm:py-20 lg:py-24">
+          <h2 className="text-2xl font-bold tracking-tight text-slate-900 sm:text-4xl">
+            How it works
+          </h2>
+          <div className="mt-10 grid grid-cols-1 gap-5 sm:mt-12 sm:grid-cols-2 sm:gap-6 lg:grid-cols-3">
             {STEPS.map((s, i) => (
               <Reveal
                 key={s.title}
@@ -608,7 +621,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
             ))}
           </div>
 
-          <Reveal className="mt-16 flex items-center justify-between gap-10 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-10">
+          <Reveal className="mt-12 flex flex-col items-start justify-between gap-6 rounded-3xl border border-emerald-500/30 bg-gradient-to-br from-emerald-500/15 to-transparent p-6 sm:p-10 lg:mt-16 lg:flex-row lg:items-center lg:gap-10">
             <div>
               <h3 className="text-2xl font-bold text-slate-900">
                 Ready to start earning on Oventric?
@@ -636,7 +649,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
       {/* Social connect */}
       <section className="border-t border-slate-200 bg-white">
-        <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-8 py-10 md:flex-row">
+        <div className="mx-auto flex w-full max-w-[1200px] flex-col items-center justify-between gap-6 px-5 py-10 sm:px-8 md:flex-row">
           <div>
             <h3 className="text-lg font-bold text-slate-900">Follow Oventric</h3>
             <p className="mt-1 text-sm text-slate-500">
@@ -782,7 +795,7 @@ function CardGrid({
           See all <ChevronRight className="h-4 w-4" />
         </button>
       </div>
-      <div className="grid grid-cols-4 gap-5">
+      <div className="grid grid-cols-2 gap-4 sm:gap-5 lg:grid-cols-4">
         {items.map((it, i) => (
           <Reveal key={it.id} delay={(i % 4) * 80}>
             <button type="button" onClick={onSeeAll} className="hp-lift group w-full text-left">

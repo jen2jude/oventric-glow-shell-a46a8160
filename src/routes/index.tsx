@@ -18,6 +18,7 @@ import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
 
 import { useIsDesktop } from "@/hooks/use-desktop";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
 
@@ -179,7 +180,10 @@ function Index() {
   }, []);
 
   const isDesktop = useIsDesktop();
-  const desktopLanding = isDesktop && active === "Home";
+  const isAppShell = useIsAppShell();
+  // The marketing site is the home surface for every browser visitor (any
+  // width). Native builds and installed PWAs keep the app-style Home Hub.
+  const desktopLanding = active === "Home" && (isDesktop || !isAppShell);
 
   const view =
     active === "Home" ? (
@@ -240,9 +244,11 @@ function Index() {
         )}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop ? "pt-12 md:pt-[4.5rem]" : ""}`}
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""}`}
         >
-          {!isDesktop && <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />}
+          {!isDesktop && !desktopLanding && (
+            <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
+          )}
           {isDesktop && !desktopLanding && <DesktopAppSidebar onSelect={setActive} />}
 
           <main
@@ -252,18 +258,20 @@ function Index() {
             {view}
           </main>
         </div>
-        <MobileNav
-          onCreate={handleCreate}
-          active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active}
-          onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)}
-          counts={{
-            Feed: feedCount.count,
-            Market: marketCount.count,
-            Academy: academyCount.count,
-            Bounties: bountiesCount.count,
-            Wallet: walletCount.count,
-          }}
-        />
+        {!desktopLanding && (
+          <MobileNav
+            onCreate={handleCreate}
+            active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active}
+            onSelect={(l) => setActive(l === "Market" ? "Marketplace" : l)}
+            counts={{
+              Feed: feedCount.count,
+              Market: marketCount.count,
+              Academy: academyCount.count,
+              Bounties: bountiesCount.count,
+              Wallet: walletCount.count,
+            }}
+          />
+        )}
       </div>
 
       <CreatePanel
