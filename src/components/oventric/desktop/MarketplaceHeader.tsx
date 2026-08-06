@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Search, ShoppingCart, User, Smartphone, Truck, RefreshCcw, Menu, X } from "lucide-react";
+import { Search, User, Smartphone, Truck, RefreshCcw, Menu, X } from "lucide-react";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -79,36 +79,56 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: Marketp
 
           {/* Right Actions */}
           <div className="flex items-center gap-4 lg:gap-6 ml-auto">
-            {/* User Profile */}
-            <div className="hidden lg:flex items-center gap-2 cursor-pointer group">
-              <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200">
+            {/* User Profile & Localization */}
+            <div className="hidden lg:flex items-center gap-4">
+              <div 
+                className="flex items-center gap-3 cursor-pointer group"
+                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
+              >
+                <div className="h-10 w-10 rounded-full overflow-hidden border border-slate-200 ring-2 ring-white ring-offset-2 ring-offset-slate-50 group-hover:ring-emerald-400 transition-all">
+                  {isAuthenticated ? (
+                    <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
+                  ) : (
+                    <div className="w-full h-full bg-slate-100 flex items-center justify-center">
+                      <User className="w-5 h-5 text-slate-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex flex-col text-left">
+                  <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">
+                    {isAuthenticated ? (name?.split(' ')[0] || "My") : "Guest"}
+                  </span>
+                  <span className="text-[12px] font-black text-slate-900 leading-tight">Profile & Shop</span>
+                </div>
+              </div>
+
+              {/* Country & Currency */}
+              <div className="flex flex-col items-end border-l border-slate-100 pl-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-lg leading-none">{flag}</span>
+                  <span className="text-[11px] font-black text-slate-900 uppercase">{country || "NG"}</span>
+                </div>
+                <div className="text-[10px] font-bold text-emerald-600 mt-0.5">
+                  Market: {COUNTRY_META[country || "NG"]?.currency || "NGN"}
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Profile Clickable Image */}
+            <div className="lg:hidden flex items-center gap-2">
+              <div 
+                className="h-8 w-8 rounded-full overflow-hidden border border-slate-200"
+                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
+              >
                 {isAuthenticated ? (
                   <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
                 ) : (
                   <div className="w-full h-full bg-slate-100 flex items-center justify-center">
-                    <User className="w-5 h-5 text-slate-400" />
+                    <User className="w-4 h-4 text-slate-400" />
                   </div>
                 )}
               </div>
-              <div className="flex flex-col text-left" onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}>
-                <span className="text-[10px] font-bold text-slate-500 uppercase leading-none">Orders &</span>
-                <span className="text-[12px] font-black text-slate-900 leading-tight">Account</span>
-              </div>
             </div>
-
-            {/* Country/Flag */}
-            <div className="hidden sm:flex items-center gap-1.5 cursor-pointer">
-              <span className="text-xl">{flag}</span>
-              <span className="text-xs font-bold text-slate-900">English</span>
-            </div>
-
-            {/* Cart */}
-            <button className="relative p-2 text-slate-900 hover:text-emerald-600 transition-colors">
-              <ShoppingCart className="w-6 h-6" />
-              <span className="absolute -top-1 -right-1 min-w-[18px] h-[18px] flex items-center justify-center bg-red-600 text-white text-[10px] font-black rounded-full px-1">
-                99+
-              </span>
-            </button>
 
             {/* Mobile Menu Toggle */}
             <button

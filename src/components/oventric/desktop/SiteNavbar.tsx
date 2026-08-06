@@ -10,10 +10,12 @@ export type SiteNavbarProps = {
   onCreate?: () => void;
   avatarUrl?: string | null;
   name?: string;
+  country?: string;
+  currency?: string;
   search?: React.ReactNode;
 };
 
-export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: SiteNavbarProps) {
+export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, country, currency, search }: SiteNavbarProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const [solid, setSolid] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -93,21 +95,31 @@ export function SiteNavbar({ onSelect, onCreate, avatarUrl, name, search }: Site
               </button>
             )}
 
-            {/* User Profile */}
-            <div 
-              className="flex items-center gap-2 cursor-pointer group p-1 rounded-full hover:bg-slate-100 transition-colors"
-              onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            >
-              <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
-                {isAuthenticated ? (
-                  <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
-                ) : (
-                  <User className="w-5 h-5 text-slate-400" />
+            {/* User Profile & Localization */}
+            <div className="flex items-center gap-4 ml-auto">
+              <div 
+                className="flex items-center gap-2 cursor-pointer group p-1 rounded-full hover:bg-slate-100 transition-colors"
+                onClick={() => (isAuthenticated ? onSelect("profile") : openGate("generic"))}
+              >
+                <div className="h-9 w-9 rounded-full overflow-hidden border border-slate-200 bg-slate-100 flex items-center justify-center">
+                  {isAuthenticated ? (
+                    <AvatarImage src={avatarUrl ?? null} alt={name || "You"} loading="eager" />
+                  ) : (
+                    <User className="w-5 h-5 text-slate-400" />
+                  )}
+                </div>
+                {isAuthenticated && name && (
+                  <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
                 )}
               </div>
-              {isAuthenticated && name && (
-                <span className="hidden md:block text-sm font-bold text-slate-900 pr-2">{name.split(' ')[0]}</span>
-              )}
+              <div className="hidden lg:flex flex-col items-end border-l border-slate-100 pl-4">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[11px] font-black text-slate-900 uppercase">{country || "NG"}</span>
+                </div>
+                <div className="text-[10px] font-bold text-emerald-600 mt-0.5">
+                  {currency || "NGN"}
+                </div>
+              </div>
             </div>
 
             {/* Mobile Menu Toggle */}

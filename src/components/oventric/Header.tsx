@@ -37,6 +37,7 @@ import { listIncomingFollowRequests } from "@/lib/follows.functions";
 import { listIncomingCircleRequests } from "@/lib/circles.functions";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { HeaderWalletChip } from "@/components/oventric/HeaderWalletChip";
+import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 
 const HUB_NAV: { label: string; icon: LucideIcon; section?: string; to?: string }[] = [
   { label: "Market", icon: Store, section: "Marketplace" },
@@ -64,6 +65,7 @@ export function Header({
   light?: boolean;
   desktopNav?: boolean;
 }) {
+  const { country, baseCurrency } = useOnboarding();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -333,14 +335,8 @@ export function Header({
             <HeaderWalletChip align="right" />
           </div>
 
-          {/* Desktop candy-box menu */}
-          <button
-            onClick={() => setMegaOpen(true)}
-            aria-label="Open menu"
-            className={`hidden md:inline-flex p-2.5 rounded-full transition-colors shrink-0 ${chip}`}
-          >
-            <Grip className="w-6 h-6" strokeWidth={2.5} />
-          </button>
+          {/* Desktop candy-box menu hidden here, moved inside profile cluster */}
+
 
           {/* Circles & Guilds */}
           <button
@@ -390,8 +386,27 @@ export function Header({
 
           {/* Profile */}
           {isAuthenticated ? (
-            <div className="shrink-0">
+            <div className="shrink-0 flex items-center gap-3">
+              <div className="hidden lg:flex flex-col items-end mr-1">
+                <div className="flex items-center gap-1">
+                  <span className={`text-xs font-black ${light ? "text-emerald-600" : "text-emerald-400"}`}>
+                    {country || "NG"}
+                  </span>
+                </div>
+                <div className={`text-[10px] font-bold ${light ? "text-slate-500" : "text-slate-400"}`}>
+                  {baseCurrency || "NGN"}
+                </div>
+              </div>
               <ProfileDropdown />
+              
+              {/* Desktop candy-box menu (MegaMenu) */}
+              <button
+                onClick={() => setMegaOpen(true)}
+                aria-label="Open menu"
+                className={`hidden md:inline-flex p-2.5 rounded-full transition-colors shrink-0 ${chip}`}
+              >
+                <Grip className="w-6 h-6" strokeWidth={2.5} />
+              </button>
             </div>
           ) : (
             <button

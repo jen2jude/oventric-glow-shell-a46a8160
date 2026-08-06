@@ -318,24 +318,13 @@ export function ProfileDropdown() {
   };
 
   const avatarBtn = (
-    <button
-      ref={triggerRef}
-      id={triggerId}
-      type="button"
-      onClick={() => setOpen((o) => !o)}
-      onKeyDown={(e) => {
-        if (!open && (e.key === "ArrowDown" || e.key === "Enter" || e.key === " ")) {
-          e.preventDefault();
-          setOpen(true);
-        }
-      }}
-      aria-haspopup="menu"
-      aria-expanded={open}
-      aria-controls={open ? menuId : undefined}
-      aria-label="Open profile menu"
-      className="rgb-static-border relative w-10 h-10 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214]"
+    <Link
+      to="/profile/$id"
+      params={{ id: userId }}
+      aria-label="View profile"
+      className="rgb-static-border relative w-10 h-10 rounded-full flex items-center justify-center focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2 focus-visible:ring-offset-[#121214] overflow-hidden"
     >
-      <span className="absolute inset-[2px] rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
+      <span className="absolute inset-0 flex items-center justify-center bg-neutral-800">
         {profile.avatarDataUrl ? (
           <ResponsiveImage
             sizes="48px"
@@ -349,11 +338,7 @@ export function ProfileDropdown() {
           <User className="w-6 h-6 text-white/85" strokeWidth={1.75} aria-hidden />
         )}
       </span>
-      <span
-        className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#121214] bg-emerald-400 z-10"
-        aria-hidden
-      />
-    </button>
+    </Link>
   );
 
   const identityBanner = (
@@ -480,7 +465,7 @@ export function ProfileDropdown() {
       >
         <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
-          <div className="font-semibold truncate">View Public Profile Workspace</div>
+          <div className="font-semibold truncate">View My Workspace</div>
           <div className="text-[10px] text-slate-500 truncate">
             Your /profile aggregator tab view
           </div>
