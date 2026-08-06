@@ -643,6 +643,9 @@ export function Marketplace() {
       </div>
     </div>
   );
+}
+
+
 
 /** Mobile / tablet filter bottom sheet. Hidden entirely on lg+ (sidebar there). */
 function FilterSheet({
