@@ -361,12 +361,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         <section className="mt-6 mb-2">
           <div className="flex items-center justify-between mb-4 px-1">
             <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Top Users</h2>
-            <Link 
-              to="/discovery"
+            <button 
+              onClick={() => onSelect("Feed")}
               className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
             >
               View all
-            </Link>
+            </button>
+
           </div>
 
           <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
