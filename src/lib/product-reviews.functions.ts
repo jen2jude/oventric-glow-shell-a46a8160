@@ -68,8 +68,8 @@ async function summarize(
     createdAt: r.created_at,
     userId: r.user_id,
     user: {
-      fullName: r.profiles?.full_name ?? "User",
-      avatarUrl: r.profiles?.avatar_url ?? null,
+      fullName: r.profiles?.display_name ?? r.profiles?.full_name ?? "User",
+      avatarUrl: r.profiles?.avatar_path ?? r.profiles?.avatar_url ?? null,
       country: r.profiles?.country ?? null,
     },
   }));
