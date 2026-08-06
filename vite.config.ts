@@ -35,7 +35,11 @@ export default defineConfig({
           navigateFallback: undefined,
           cleanupOutdatedCaches: true,
           clientsClaim: true,
-          skipWaiting: true,
+          // The new worker waits until the user accepts the in-app update
+          // prompt (src/components/oventric/pwa/UpdatePrompt.tsx), which posts
+          // SKIP_WAITING and reloads.
+          skipWaiting: false,
+
           runtimeCaching: [
             {
               // HTML navigations must never be served cache-first.
