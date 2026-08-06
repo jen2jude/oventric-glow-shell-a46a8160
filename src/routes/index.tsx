@@ -302,7 +302,7 @@ function Index() {
               onCreate={handleCreate}
               avatarUrl={avatarUrl}
               name={name}
-              searchSlot={renderNavSearch()}
+              search={renderNavSearch()}
             />
           )
         ) : (
