@@ -1,23 +1,40 @@
-# Plan - Fix non-existent column `full_name` in product reviews
+# Plan: Implement Temu-style Light UI for Product Page on Web
 
-The user is reporting the error `column profiles_1.full_name does not exist`. My investigation confirms that the `profiles` table does NOT have a `full_name` column; it uses `display_name` and `username`. 
-
-While `src/lib/product-reviews.functions.ts` was partially updated in the previous turn, the error message `profiles_1.full_name` often occurs when PostgREST (Supabase) generates an internal alias (like `profiles_1`) during a joined query where it still thinks it needs to fetch a column that doesn't exist. This usually happens if the `.select()` string is not perfectly aligned with the actual schema or if there's a cached schema mismatch.
+The goal is to provide a clean, white "Temu-style" UI for the product page when accessed via a browser (PC/Tablet/Mobile URL), while maintaining the "Premium Dark" theme for the App version (Native/Standalone PWA).
 
 ## Proposed Changes
 
-### Server Functions
-- I will re-examine `src/lib/product-reviews.functions.ts` and ensure the `.select()` call is absolutely clean. I will also check if any other server functions are joining `profiles` and requesting `full_name`.
-- I will check `src/lib/circles.functions.ts` which uses `meta.full_name` from `user_metadata` and ensure it's not accidentally causing a schema error if used in a table join somewhere else.
+### 1. `src/routes/product.$id.tsx`
+- **Hook Integration**: Import and use `useIsAppShell` to detect the environment.
+- **Conditional Styling**:
+    - Update the main container background and text colors.
+    - Update the "Back to Marketplace" button styling.
+    - Update the product image gallery container and thumbnail borders.
+    - Update the product name, category, and vendor link colors.
+    - Update the physical product attribute badges (location, condition, etc.).
+    - Update the price display block (background, borders, and currency text).
+    - Update the quantity input field styling.
+- **Prop Propagation**: Pass `isAppShell` to the `ProductRating` component.
 
-### Codebase Cleanup
-- I will search for any other instances where `profiles` is joined (e.g., `profiles(...)` in a select string) to ensure `full_name` is not being requested.
+### 2. `ProductRating` component (internal to `product.$id.tsx`)
+- **UI Adjustments**: Update star colors and review count text to be readable on both light and dark backgrounds.
+
+### 3. `src/components/oventric/ProductComments.tsx`
+- **Hook Integration**: Import and use `useIsAppShell`.
+- **Conditional Styling**:
+    - Update the section header colors.
+    - Update the "Write a review" form container (background and border).
+    - Update the review textarea and "Post Review" button styling.
+    - Update the individual review list cards (background, borders, and text colors).
+    - Ensure avatars and flags remain clearly visible.
+
+## Visual Tokens for "Temu Style" (Web)
+- **Background**: `bg-[#F7F8FA]` or `bg-white`
+- **Text**: `text-slate-900` or `text-slate-700`
+- **Cards/Sections**: `bg-white` with `border-slate-200`
+- **Accents**: Keep emerald for actions but ensure high contrast.
 
 ## Verification Plan
-
-### Automated Verification
-- I will run a Playwright script to navigate to a product page and trigger the `getProductRating` server function call. I will monitor the browser console and network responses for the `500` error containing `profiles_1.full_name`.
-- I will also attempt to post a review to verify the `rateProduct` function (which calls `summarize`) works end-to-end.
-
-### Manual Verification
-- View the screenshots from the Playwright run to ensure the "Customer Reviews" section renders correctly with names and avatars.
+- **Manual Verification**: Check the product page in a normal browser tab to ensure the light UI is active.
+- **App Emulation**: Verify that the dark theme is preserved when `isAppShell` is true (e.g., in a standalone window or native build).
+- **Component Integrity**: Ensure all functionality (rating, comments, checkout navigation) remains intact across both themes.
