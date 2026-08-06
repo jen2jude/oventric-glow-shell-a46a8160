@@ -429,9 +429,10 @@ export function Marketplace() {
                     setActiveCat(null);
                     setActiveSub(null);
                   }}
-                  className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+                  className="text-xs text-slate-900 hover:underline font-black uppercase tracking-tighter"
                 >
                   Clear category
+
                 </button>
               )}
             </div>
