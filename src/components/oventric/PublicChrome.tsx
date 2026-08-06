@@ -15,7 +15,11 @@ export function PublicChrome({
   children,
   active: _active = "",
   lightDesktop = false,
-}: { children: ReactNode; active?: string; lightDesktop?: boolean }) {
+}: {
+  children: ReactNode;
+  active?: string;
+  lightDesktop?: boolean;
+}) {
   const [messagesOpen, setMessagesOpen] = useState(false);
   const isDesktop = useIsDesktop();
 
@@ -30,7 +34,9 @@ export function PublicChrome({
         light={lightDesktop && isDesktop}
         desktopNav={isDesktop}
       />
-      <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">{children}</main>
+      <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">
+        {children}
+      </main>
       <MessagesDrawer open={messagesOpen} onClose={() => setMessagesOpen(false)} />
     </div>
   );

@@ -23,12 +23,18 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
   const PEEK_KEY = "oventric:lightbox:peek-disabled";
   const [peekDisabled, setPeekDisabled] = useState<boolean>(() => {
     if (typeof window === "undefined") return false;
-    try { return window.localStorage.getItem(PEEK_KEY) === "1"; } catch { return false; }
+    try {
+      return window.localStorage.getItem(PEEK_KEY) === "1";
+    } catch {
+      return false;
+    }
   });
   const togglePeek = () => {
     setPeekDisabled((v) => {
       const next = !v;
-      try { window.localStorage.setItem(PEEK_KEY, next ? "1" : "0"); } catch {}
+      try {
+        window.localStorage.setItem(PEEK_KEY, next ? "1" : "0");
+      } catch {}
       return next;
     });
   };
@@ -64,7 +70,9 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     if (Math.abs(el.scrollLeft - targetLeft) < 2) return;
     isProgrammaticScroll.current = true;
     el.scrollTo({ left: targetLeft, behavior });
-    window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
+    window.setTimeout(() => {
+      isProgrammaticScroll.current = false;
+    }, 500);
   };
 
   // Initial position (no animation) and on resize
@@ -72,17 +80,21 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
     const el = trackRef.current;
     if (!el) return;
     el.scrollLeft = index * el.clientWidth;
-    const onResize = () => { el.scrollLeft = index * el.clientWidth; };
+    const onResize = () => {
+      el.scrollLeft = index * el.clientWidth;
+    };
     window.addEventListener("resize", onResize);
     return () => window.removeEventListener("resize", onResize);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (skipNextSnap.current) { skipNextSnap.current = false; return; }
+    if (skipNextSnap.current) {
+      skipNextSnap.current = false;
+      return;
+    }
     snapToIndex(index);
   }, [index]);
-
 
   // Idle peek: after 10s viewing an image, slowly reveal the next image halfway, then return.
   // Cancels on user interaction (scroll/touch/wheel/key) or when the index changes.
@@ -102,7 +114,9 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       returnTimer = window.setTimeout(() => {
         isProgrammaticScroll.current = true;
         el.scrollTo({ left: base, behavior: "smooth" });
-        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 500);
+        window.setTimeout(() => {
+          isProgrammaticScroll.current = false;
+        }, 500);
       }, 1400);
     }, 10000);
 
@@ -139,7 +153,9 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
         // User swiped past the neighbor — clamp scroll back to the allowed neighbor.
         isProgrammaticScroll.current = true;
         el.scrollTo({ left: limited * w, behavior: "smooth" });
-        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 300);
+        window.setTimeout(() => {
+          isProgrammaticScroll.current = false;
+        }, 300);
       }
       if (limited !== index) {
         skipNextSnap.current = true;
@@ -157,11 +173,12 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       if (Math.abs(el.scrollLeft - target) > 1) {
         isProgrammaticScroll.current = true;
         el.scrollTo({ left: target, behavior: "smooth" });
-        window.setTimeout(() => { isProgrammaticScroll.current = false; }, 400);
+        window.setTimeout(() => {
+          isProgrammaticScroll.current = false;
+        }, 400);
       }
     }, 120);
   };
-
 
   // Translate vertical wheel to horizontal scroll for smooth desktop navigation
   useEffect(() => {
@@ -196,7 +213,10 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
       {total > 1 && (
         <button
           type="button"
-          onClick={(e) => { e.stopPropagation(); togglePeek(); }}
+          onClick={(e) => {
+            e.stopPropagation();
+            togglePeek();
+          }}
           aria-label={peekDisabled ? "Enable auto peek" : "Disable auto peek"}
           title={peekDisabled ? "Auto peek: off" : "Auto peek: on"}
           className="absolute top-4 right-16 z-10 p-2 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 flex items-center gap-1 text-xs"
@@ -210,7 +230,10 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
         <>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setIndex((i) => clamp(i - 1)); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIndex((i) => clamp(i - 1));
+            }}
             aria-label="Previous image"
             className="hidden sm:flex absolute left-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 disabled:opacity-30"
             disabled={index === 0}
@@ -219,7 +242,10 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
           </button>
           <button
             type="button"
-            onClick={(e) => { e.stopPropagation(); setIndex((i) => clamp(i + 1)); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              setIndex((i) => clamp(i + 1));
+            }}
             aria-label="Next image"
             className="hidden sm:flex absolute right-3 top-1/2 -translate-y-1/2 z-10 p-2 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 disabled:opacity-30"
             disabled={index === total - 1}
@@ -237,10 +263,17 @@ export function ImageLightbox(props: GalleryProps | LegacyProps) {
         onScroll={onScroll}
         onClick={(e) => e.stopPropagation()}
         className="w-full h-full overflow-x-auto overflow-y-hidden flex snap-x snap-mandatory scroll-smooth overscroll-x-contain"
-        style={{ scrollbarWidth: "none", WebkitOverflowScrolling: "touch", scrollBehavior: "smooth" }}
+        style={{
+          scrollbarWidth: "none",
+          WebkitOverflowScrolling: "touch",
+          scrollBehavior: "smooth",
+        }}
       >
         {images.map((src, i) => (
-          <div key={src + i} className="w-full h-full shrink-0 snap-center flex items-center justify-center p-4">
+          <div
+            key={src + i}
+            className="w-full h-full shrink-0 snap-center flex items-center justify-center p-4"
+          >
             <ResponsiveImage
               src={src}
               alt={alt ?? `Image ${i + 1}`}

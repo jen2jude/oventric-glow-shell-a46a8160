@@ -1,6 +1,18 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { toast } from "sonner";
-import { X, Image as ImageIcon, Video as VideoIcon, AtSign, Users, Globe2, UsersRound, ChevronDown, Check, Loader2, AlertCircle } from "lucide-react";
+import {
+  X,
+  Image as ImageIcon,
+  Video as VideoIcon,
+  AtSign,
+  Users,
+  Globe2,
+  UsersRound,
+  ChevronDown,
+  Check,
+  Loader2,
+  AlertCircle,
+} from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
@@ -77,7 +89,9 @@ export function PostComposerModal({
   const [circles, setCircles] = useState<CircleOpt[]>([]);
   const [audienceOpen, setAudienceOpen] = useState(false);
   // Multiple images OR a single video. Can never mix kinds.
-  const [attachments, setAttachments] = useState<{ file: File; previewUrl: string; kind: "image" | "video" }[]>([]);
+  const [attachments, setAttachments] = useState<
+    { file: File; previewUrl: string; kind: "image" | "video" }[]
+  >([]);
   const [mentionPickerOpen, setMentionPickerOpen] = useState(false);
   const [mentionQuery, setMentionQuery] = useState("");
   const [mentionResults, setMentionResults] = useState<Mention[]>([]);
@@ -173,10 +187,19 @@ export function PostComposerModal({
     for (const file of files) {
       const isImage = file.type.startsWith("image/");
       const isVideo = file.type.startsWith("video/");
-      if (!isImage && !isVideo) { err = "Only images or videos are allowed."; continue; }
-      if (file.size > MAX_MEDIA_BYTES) { err = "One or more files exceed 50 MB."; continue; }
+      if (!isImage && !isVideo) {
+        err = "Only images or videos are allowed.";
+        continue;
+      }
+      if (file.size > MAX_MEDIA_BYTES) {
+        err = "One or more files exceed 50 MB.";
+        continue;
+      }
       if (isVideo) {
-        if (nextAttachments.length > 0) { err = "Post a video by itself."; continue; }
+        if (nextAttachments.length > 0) {
+          err = "Post a video by itself.";
+          continue;
+        }
         nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "video" });
         break;
       }
@@ -185,7 +208,10 @@ export function PostComposerModal({
         err = "Post a video by itself.";
         continue;
       }
-      if (nextAttachments.length >= MAX_IMAGES) { err = `Up to ${MAX_IMAGES} images per post.`; break; }
+      if (nextAttachments.length >= MAX_IMAGES) {
+        err = `Up to ${MAX_IMAGES} images per post.`;
+        break;
+      }
       nextAttachments.push({ file, previewUrl: URL.createObjectURL(file), kind: "image" });
     }
     setAttachments(nextAttachments);
@@ -205,8 +231,7 @@ export function PostComposerModal({
     setTimeout(() => textareaRef.current?.focus(), 30);
   };
 
-  const removeMention = (id: string) =>
-    setMentions((prev) => prev.filter((m) => m.userId !== id));
+  const removeMention = (id: string) => setMentions((prev) => prev.filter((m) => m.userId !== id));
 
   const audienceLabel = useMemo(() => {
     if (audience === "public") return "Public";
@@ -222,7 +247,8 @@ export function PostComposerModal({
       return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
     return null;
   }, [trimmed]);
-  const audienceError = !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
+  const audienceError =
+    !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
   const hasBlockingError = !!(textError || audienceError);
   const showTextError = submitAttempted && !!textError;
   const showAudienceError = submitAttempted && !!audienceError;
@@ -293,18 +319,19 @@ export function PostComposerModal({
             // can paint instantly without downloading the clip.
             if (a.kind === "video") {
               try {
-                const { generateVideoPoster, posterPathFor } = await import("@/lib/media/videoPoster");
+                const { generateVideoPoster, posterPathFor } =
+                  await import("@/lib/media/videoPoster");
                 const poster = await generateVideoPoster(a.file);
                 if (poster) {
-                  await supabase.storage
-                    .from("post-media")
-                    .upload(posterPathFor(path), poster, {
-                      contentType: "image/jpeg",
-                      cacheControl: "31536000",
-                      upsert: true,
-                    });
+                  await supabase.storage.from("post-media").upload(posterPathFor(path), poster, {
+                    contentType: "image/jpeg",
+                    cacheControl: "31536000",
+                    upsert: true,
+                  });
                 }
-              } catch { /* poster is best-effort */ }
+              } catch {
+                /* poster is best-effort */
+              }
             }
           }
           const isVideo = snapshot.attachments[0].kind === "video";
@@ -342,7 +369,6 @@ export function PostComposerModal({
     })();
   };
 
-
   if (!open) return null;
 
   return (
@@ -365,7 +391,11 @@ export function PostComposerModal({
             <X className="w-5 h-5" />
           </button>
           <div className="text-sm font-semibold text-white truncate max-w-[70%]">
-            {isWall ? (wallOwnerName ? `Post on ${wallOwnerName}'s wall` : "Post on wall") : "Drop a post"}
+            {isWall
+              ? wallOwnerName
+                ? `Post on ${wallOwnerName}'s wall`
+                : "Post on wall"
+              : "Drop a post"}
           </div>
           <button
             onClick={doPost}
@@ -388,78 +418,86 @@ export function PostComposerModal({
             </div>
           </div>
         ) : (
-        <div className="px-4 pt-3">
-          <div className="relative inline-block">
-            <button
-              type="button"
-              onClick={() => setAudienceOpen((v) => !v)}
-              className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-200 hover:bg-white/10"
-            >
-              {audience === "public" ? <Globe2 className="w-3.5 h-3.5" /> : audience === "followers" ? <UsersRound className="w-3.5 h-3.5" /> : <Users className="w-3.5 h-3.5" />}
-              <span>{audienceLabel}</span>
-              <ChevronDown className="w-3.5 h-3.5 opacity-70" />
-            </button>
-            {audienceOpen && (
-              <div className="absolute left-0 mt-2 w-64 max-h-72 overflow-auto z-10 bg-[#1a1a20] border border-white/10 rounded-xl shadow-xl p-1">
-                <AudienceOption
-                  icon={<Globe2 className="w-4 h-4" />}
-                  title="Public"
-                  desc="Anyone on Oventric can see"
-                  active={audience === "public"}
-                  onClick={() => {
-                    setAudience("public");
-                    setCircleId(null);
-                    setAudienceOpen(false);
-                  }}
-                />
-                <AudienceOption
-                  icon={<UsersRound className="w-4 h-4" />}
-                  title="Followers"
-                  desc="Only people who follow you"
-                  active={audience === "followers"}
-                  onClick={() => {
-                    setAudience("followers");
-                    setCircleId(null);
-                    setAudienceOpen(false);
-                  }}
-                />
-                <div className="pt-1 mt-1 border-t border-white/5">
-                  <div className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-500">Circle</div>
-                  {circles.length === 0 ? (
-                    <div className="px-3 py-2 text-xs text-slate-500">
-                      Join a circle to share here.
+          <div className="px-4 pt-3">
+            <div className="relative inline-block">
+              <button
+                type="button"
+                onClick={() => setAudienceOpen((v) => !v)}
+                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-200 hover:bg-white/10"
+              >
+                {audience === "public" ? (
+                  <Globe2 className="w-3.5 h-3.5" />
+                ) : audience === "followers" ? (
+                  <UsersRound className="w-3.5 h-3.5" />
+                ) : (
+                  <Users className="w-3.5 h-3.5" />
+                )}
+                <span>{audienceLabel}</span>
+                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+              </button>
+              {audienceOpen && (
+                <div className="absolute left-0 mt-2 w-64 max-h-72 overflow-auto z-10 bg-[#1a1a20] border border-white/10 rounded-xl shadow-xl p-1">
+                  <AudienceOption
+                    icon={<Globe2 className="w-4 h-4" />}
+                    title="Public"
+                    desc="Anyone on Oventric can see"
+                    active={audience === "public"}
+                    onClick={() => {
+                      setAudience("public");
+                      setCircleId(null);
+                      setAudienceOpen(false);
+                    }}
+                  />
+                  <AudienceOption
+                    icon={<UsersRound className="w-4 h-4" />}
+                    title="Followers"
+                    desc="Only people who follow you"
+                    active={audience === "followers"}
+                    onClick={() => {
+                      setAudience("followers");
+                      setCircleId(null);
+                      setAudienceOpen(false);
+                    }}
+                  />
+                  <div className="pt-1 mt-1 border-t border-white/5">
+                    <div className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-500">
+                      Circle
                     </div>
-                  ) : (
-                    circles.map((c) => (
-                      <button
-                        key={c.id}
-                        type="button"
-                        onClick={() => {
-                          setAudience("circle");
-                          setCircleId(c.id);
-                          setAudienceOpen(false);
-                        }}
-                        className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm ${
-                          audience === "circle" && circleId === c.id ? "bg-white/5" : ""
-                        }`}
-                      >
-                        <span className="flex items-center gap-2 text-slate-200">
-                          <Users className="w-4 h-4 text-emerald-400" />
-                          {c.name}
-                        </span>
-                        {audience === "circle" && circleId === c.id && <Check className="w-4 h-4 text-emerald-400" />}
-                      </button>
-                    ))
-                  )}
+                    {circles.length === 0 ? (
+                      <div className="px-3 py-2 text-xs text-slate-500">
+                        Join a circle to share here.
+                      </div>
+                    ) : (
+                      circles.map((c) => (
+                        <button
+                          key={c.id}
+                          type="button"
+                          onClick={() => {
+                            setAudience("circle");
+                            setCircleId(c.id);
+                            setAudienceOpen(false);
+                          }}
+                          className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm ${
+                            audience === "circle" && circleId === c.id ? "bg-white/5" : ""
+                          }`}
+                        >
+                          <span className="flex items-center gap-2 text-slate-200">
+                            <Users className="w-4 h-4 text-emerald-400" />
+                            {c.name}
+                          </span>
+                          {audience === "circle" && circleId === c.id && (
+                            <Check className="w-4 h-4 text-emerald-400" />
+                          )}
+                        </button>
+                      ))
+                    )}
+                  </div>
                 </div>
-              </div>
-            )}
+              )}
+            </div>
+            {showAudienceError && <FieldError>{audienceError}</FieldError>}
           </div>
-          {showAudienceError && <FieldError>{audienceError}</FieldError>}
-        </div>
         )}
-
-
 
         {/* Scroll area */}
         <div className="flex-1 min-h-0 overflow-y-auto px-4 pb-4">
@@ -479,12 +517,13 @@ export function PostComposerModal({
               {showTextError && <FieldError>{textError}</FieldError>}
             </div>
             {trimmed.length > MAX_TEXT * 0.8 && (
-              <span className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}>
+              <span
+                className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}
+              >
                 {trimmed.length.toLocaleString()}/{MAX_TEXT.toLocaleString()}
               </span>
             )}
           </div>
-
 
           {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
           <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
@@ -609,17 +648,18 @@ export function PostComposerModal({
             </div>
           )}
 
-
           {mediaError && <FieldError>{mediaError}</FieldError>}
           {error && <FieldError>{error}</FieldError>}
         </div>
-
       </div>
 
       {/* Mention picker overlay */}
       {mentionPickerOpen && (
         <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center px-4">
-          <div className="absolute inset-0 bg-black/80" onClick={() => setMentionPickerOpen(false)} />
+          <div
+            className="absolute inset-0 bg-black/80"
+            onClick={() => setMentionPickerOpen(false)}
+          />
           <div className="relative w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-white/10">
               <AtSign className="w-4 h-4 text-emerald-400" />
@@ -669,7 +709,9 @@ export function PostComposerModal({
                   <span className="flex-1 min-w-0">
                     <span className="block text-sm text-slate-100 truncate">{u.name}</span>
                     {u.username && (
-                      <span className="block text-[11px] text-slate-500 truncate">@{u.username}</span>
+                      <span className="block text-[11px] text-slate-500 truncate">
+                        @{u.username}
+                      </span>
                     )}
                   </span>
                 </button>

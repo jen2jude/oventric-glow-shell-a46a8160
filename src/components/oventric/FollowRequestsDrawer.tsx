@@ -51,10 +51,8 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
     if (!open) return;
     const channel = supabase
       .channel("incoming-follow-requests")
-      .on(
- "postgres_changes",
-        { event: "*", schema: "public", table: "follow_requests" },
-        () => load(),
+      .on("postgres_changes", { event: "*", schema: "public", table: "follow_requests" }, () =>
+        load(),
       )
       .subscribe();
     return () => {
@@ -141,11 +139,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   aria-label={`Open ${r.requesterName}'s profile`}
                 >
                   {r.avatarUrl ? (
-                    <img
-                      src={r.avatarUrl}
-                      alt=""
-                      className="w-10 h-10 rounded-full object-cover"
-                    />
+                    <img src={r.avatarUrl} alt="" className="w-10 h-10 rounded-full object-cover" />
                   ) : (
                     <div className="w-10 h-10 rounded-full bg-emerald-500/20 text-emerald-300 flex items-center justify-center">
                       <UserIcon className="w-4 h-4" />
@@ -153,9 +147,7 @@ export function FollowRequestsDrawer({ open, onClose }: Props) {
                   )}
                 </button>
                 <div className="min-w-0 flex-1">
-                  <div className="text-sm text-white font-semibold truncate">
-                    {r.requesterName}
-                  </div>
+                  <div className="text-sm text-white font-semibold truncate">{r.requesterName}</div>
                   <div className="text-[11px] text-slate-500">wants to follow you</div>
                 </div>
                 <div className="flex items-center gap-1.5 shrink-0">

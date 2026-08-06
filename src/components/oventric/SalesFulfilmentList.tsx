@@ -1,7 +1,17 @@
 import { useEffect, useMemo, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import { Search, Truck, MessageCircle, Loader2, PackageCheck, X, ChevronLeft, ChevronRight, ArrowUpDown } from "lucide-react";
+import {
+  Search,
+  Truck,
+  MessageCircle,
+  Loader2,
+  PackageCheck,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  ArrowUpDown,
+} from "lucide-react";
 import { toast } from "sonner";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
 import { OrderFulfilmentRoadmap } from "@/components/oventric/OrderFulfilmentRoadmap";
@@ -35,12 +45,19 @@ export function saleBucket(s: SaleDTO): Exclude<SaleFilter, "all"> {
 }
 
 export function saleBadge(s: SaleDTO): { label: string; cls: string } {
-  if (s.disputeStatus === "open") return { label: "Disputed", cls: "bg-red-500/15 text-red-300 md:text-red-700" };
-  if (s.escrowStatus === "released") return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700" };
-  if (s.deliveredAt) return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300 md:text-amber-700" };
+  if (s.disputeStatus === "open")
+    return { label: "Disputed", cls: "bg-red-500/15 text-red-300 md:text-red-700" };
+  if (s.escrowStatus === "released")
+    return { label: "Settled", cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700" };
+  if (s.deliveredAt)
+    return { label: "Awaiting buyer", cls: "bg-amber-500/15 text-amber-300 md:text-amber-700" };
   if (overdue(s)) return { label: "Overdue 24h+", cls: "bg-red-500 text-white" };
-  if (s.requiresManualDelivery) return { label: "Deliver now", cls: "bg-white text-black md:bg-slate-900 md:text-white" };
-  return { label: "In escrow", cls: "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700" };
+  if (s.requiresManualDelivery)
+    return { label: "Deliver now", cls: "bg-white text-black md:bg-slate-900 md:text-white" };
+  return {
+    label: "In escrow",
+    cls: "bg-white/10 md:bg-slate-100 text-slate-200 md:text-slate-700",
+  };
 }
 
 export type SaleSort = "newest" | "oldest" | "value" | "urgency";
@@ -78,7 +95,13 @@ export function SalesFulfilmentList({
   const deliverFn = useServerFn(markOrderDelivered);
 
   const counts = useMemo(() => {
-    const c: Record<SaleFilter, number> = { all: rows.length, deliver: 0, awaiting: 0, disputed: 0, settled: 0 };
+    const c: Record<SaleFilter, number> = {
+      all: rows.length,
+      deliver: 0,
+      awaiting: 0,
+      disputed: 0,
+      settled: 0,
+    };
     for (const s of rows) c[saleBucket(s)] += 1;
     return c;
   }, [rows]);
@@ -121,10 +144,15 @@ export function SalesFulfilmentList({
 
   // Filters/search/sort change the result set — go back to the first page,
   // but keep the active filter and query intact.
-  useEffect(() => { setPage(1); }, [filter, q, sort]);
+  useEffect(() => {
+    setPage(1);
+  }, [filter, q, sort]);
 
   const openSale = useMemo(() => rows.find((s) => s.orderId === openId) ?? null, [rows, openId]);
-  const confirmSale = useMemo(() => rows.find((s) => s.orderId === confirmId) ?? null, [rows, confirmId]);
+  const confirmSale = useMemo(
+    () => rows.find((s) => s.orderId === confirmId) ?? null,
+    [rows, confirmId],
+  );
 
   const markDelivered = async (s: SaleDTO) => {
     setDeliveringId(s.orderId);
@@ -144,7 +172,6 @@ export function SalesFulfilmentList({
     }
   };
 
-
   const messageBuyer = (buyerId: string) => {
     if (typeof window === "undefined") return;
     window.location.href = `/?dm=${buyerId}`;
@@ -154,7 +181,11 @@ export function SalesFulfilmentList({
     <div className="space-y-3">
       {/* Filters */}
       <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex gap-1.5 overflow-x-auto no-scrollbar" role="tablist" aria-label="Order filters">
+        <div
+          className="flex gap-1.5 overflow-x-auto no-scrollbar"
+          role="tablist"
+          aria-label="Order filters"
+        >
           {FILTERS.map((f) => {
             const active = filter === f.id;
             return (
@@ -177,39 +208,41 @@ export function SalesFulfilmentList({
           })}
         </div>
         <div className="flex items-center gap-2">
-        <div className="relative flex-1 sm:w-64">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
-          <input
-            value={q}
-            onChange={(e) => setQ(e.target.value)}
-            placeholder="Search product, buyer, order id"
-            aria-label="Search orders"
-            className="w-full pl-9 pr-8 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-          />
-          {q && (
-            <button
-              type="button"
-              onClick={() => setQ("")}
-              aria-label="Clear search"
-              className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900"
+          <div className="relative flex-1 sm:w-64">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+            <input
+              value={q}
+              onChange={(e) => setQ(e.target.value)}
+              placeholder="Search product, buyer, order id"
+              aria-label="Search orders"
+              className="w-full pl-9 pr-8 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-sm text-white md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
+            />
+            {q && (
+              <button
+                type="button"
+                onClick={() => setQ("")}
+                aria-label="Clear search"
+                className="absolute right-2 top-1/2 -translate-y-1/2 p-1 rounded-md text-slate-400 hover:text-white md:hover:text-slate-900"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+          <div className="relative shrink-0">
+            <ArrowUpDown className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
+            <select
+              value={sort}
+              onChange={(e) => setSort(e.target.value as SaleSort)}
+              aria-label="Sort orders"
+              className="appearance-none pl-8 pr-7 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-xs font-semibold text-white md:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
             >
-              <X className="w-3.5 h-3.5" />
-            </button>
-          )}
-        </div>
-        <div className="relative shrink-0">
-          <ArrowUpDown className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-500" />
-          <select
-            value={sort}
-            onChange={(e) => setSort(e.target.value as SaleSort)}
-            aria-label="Sort orders"
-            className="appearance-none pl-8 pr-7 py-2 rounded-xl bg-white/5 md:bg-white border border-white/10 md:border-slate-200 text-xs font-semibold text-white md:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/50"
-          >
-            {SORTS.map((o) => (
-              <option key={o.id} value={o.id} className="text-slate-900">{o.label}</option>
-            ))}
-          </select>
-        </div>
+              {SORTS.map((o) => (
+                <option key={o.id} value={o.id} className="text-slate-900">
+                  {o.label}
+                </option>
+              ))}
+            </select>
+          </div>
         </div>
       </div>
 
@@ -217,13 +250,16 @@ export function SalesFulfilmentList({
         <div className="rounded-2xl border border-dashed border-white/15 md:border-slate-300 p-6 text-center">
           <Truck className="w-6 h-6 mx-auto text-slate-500 mb-2" />
           <p className="text-sm font-semibold text-white md:text-slate-900">No orders match</p>
-          <p className="text-xs text-slate-500 mt-1">Try a different filter or clear your search.</p>
+          <p className="text-xs text-slate-500 mt-1">
+            Try a different filter or clear your search.
+          </p>
         </div>
       ) : (
         <div className="space-y-2">
           {paged.map((s) => {
             const b = saleBadge(s);
-            const canDeliver = !s.deliveredAt && s.escrowStatus === "held" && s.disputeStatus !== "open";
+            const canDeliver =
+              !s.deliveredAt && s.escrowStatus === "held" && s.disputeStatus !== "open";
             return (
               <div
                 key={s.orderId}
@@ -235,23 +271,30 @@ export function SalesFulfilmentList({
                     onClick={() => setOpenId(s.orderId)}
                     className="min-w-0 text-left"
                   >
-                    <div className="text-sm font-bold text-white md:text-slate-900 truncate">{s.productName}</div>
+                    <div className="text-sm font-bold text-white md:text-slate-900 truncate">
+                      {s.productName}
+                    </div>
                     <div className="text-xs text-slate-400 md:text-slate-500 truncate">
-                      {s.buyerName} · Qty {s.quantity} · {new Date(s.createdAt).toLocaleDateString()}
+                      {s.buyerName} · Qty {s.quantity} ·{" "}
+                      {new Date(s.createdAt).toLocaleDateString()}
                     </div>
                     {s.deliveredAt && (
                       <div className="mt-0.5 inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-300 md:text-emerald-700">
-                        <PackageCheck className="w-3 h-3" /> Delivered {new Date(s.deliveredAt).toLocaleString()}
+                        <PackageCheck className="w-3 h-3" /> Delivered{" "}
+                        {new Date(s.deliveredAt).toLocaleString()}
                       </div>
                     )}
                   </button>
-                  <span className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}>
+                  <span
+                    className={`shrink-0 text-[10px] font-bold uppercase tracking-widest px-2 py-1 rounded ${b.cls}`}
+                  >
                     {b.label}
                   </span>
                 </div>
                 <div className="mt-2 flex flex-wrap items-center justify-between gap-2">
                   <div className="text-xs text-slate-400 md:text-slate-500">
-                    {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ ${s.sellerShareUSD.toFixed(2)}
+                    {formatMoney(s.displayTotal, s.displayCurrency)} gross · your 80% ≈ $
+                    {s.sellerShareUSD.toFixed(2)}
                   </div>
                   <div className="flex items-center gap-2">
                     {canDeliver && (
@@ -291,7 +334,8 @@ export function SalesFulfilmentList({
       {sorted.length > 0 && (
         <div className="flex items-center justify-between gap-3 pt-1">
           <div className="text-[11px] text-slate-400 md:text-slate-500">
-            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sorted.length)} of {sorted.length}
+            Showing {(safePage - 1) * PAGE_SIZE + 1}–{Math.min(safePage * PAGE_SIZE, sorted.length)}{" "}
+            of {sorted.length}
           </div>
           {totalPages > 1 && (
             <div className="flex items-center gap-1.5">
@@ -338,16 +382,27 @@ export function SalesFulfilmentList({
                 <div className="rounded-xl border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 p-3 space-y-1.5 text-xs">
                   <Row label="Buyer" value={openSale.buyerName} />
                   <Row label="Quantity" value={String(openSale.quantity)} />
-                  <Row label="Gross" value={formatMoney(openSale.displayTotal, openSale.displayCurrency)} />
+                  <Row
+                    label="Gross"
+                    value={formatMoney(openSale.displayTotal, openSale.displayCurrency)}
+                  />
                   <Row label="Your share" value={`$${openSale.sellerShareUSD.toFixed(2)}`} />
                   <Row label="Placed" value={new Date(openSale.createdAt).toLocaleString()} />
                   <Row
                     label="Delivered"
-                    value={openSale.deliveredAt ? new Date(openSale.deliveredAt).toLocaleString() : "Not yet"}
+                    value={
+                      openSale.deliveredAt
+                        ? new Date(openSale.deliveredAt).toLocaleString()
+                        : "Not yet"
+                    }
                   />
                   <Row
                     label="Auto-release"
-                    value={openSale.autoReleaseAt ? new Date(openSale.autoReleaseAt).toLocaleString() : "—"}
+                    value={
+                      openSale.autoReleaseAt
+                        ? new Date(openSale.autoReleaseAt).toLocaleString()
+                        : "—"
+                    }
                   />
                   <Row label="Order id" value={openSale.orderId.slice(0, 8)} />
                 </div>
@@ -377,15 +432,24 @@ export function SalesFulfilmentList({
 
       {/* Mark delivered confirmation */}
       {confirmSale && (
-        <div className="modal-light fixed inset-0 z-[90] flex items-end sm:items-center justify-center" role="dialog" aria-modal="true">
-          <div className="absolute inset-0 bg-black/70" onClick={() => deliveringId === null && setConfirmId(null)} />
+        <div
+          className="modal-light fixed inset-0 z-[90] flex items-end sm:items-center justify-center"
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="absolute inset-0 bg-black/70"
+            onClick={() => deliveringId === null && setConfirmId(null)}
+          />
           <div className="slide-up relative w-full max-w-sm rounded-t-2xl sm:rounded-2xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-5 shadow-2xl">
             <div className="flex items-start justify-between gap-3 mb-3">
               <div className="flex items-center gap-2">
                 <span className="w-9 h-9 rounded-xl bg-emerald-500/15 flex items-center justify-center">
                   <PackageCheck className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
                 </span>
-                <h3 className="text-base font-bold text-white md:text-slate-900">Mark as delivered?</h3>
+                <h3 className="text-base font-bold text-white md:text-slate-900">
+                  Mark as delivered?
+                </h3>
               </div>
               <button
                 type="button"
@@ -397,10 +461,18 @@ export function SalesFulfilmentList({
               </button>
             </div>
             <p className="text-xs leading-relaxed text-slate-400 md:text-slate-600 mb-3">
-              Confirm you have delivered <span className="font-semibold text-white md:text-slate-900">{confirmSale.productName}</span> to {confirmSale.buyerName} inside Oventric chat. The buyer has 48 hours to confirm before escrow auto-releases.
+              Confirm you have delivered{" "}
+              <span className="font-semibold text-white md:text-slate-900">
+                {confirmSale.productName}
+              </span>{" "}
+              to {confirmSale.buyerName} inside Oventric chat. The buyer has 48 hours to confirm
+              before escrow auto-releases.
             </p>
             <div className="rounded-lg border border-white/10 md:border-slate-200 bg-white/5 md:bg-slate-50 px-3 py-2 text-[11px] text-slate-400 md:text-slate-600 mb-4">
-              Delivery will be timestamped <span className="font-semibold text-white md:text-slate-900">{new Date().toLocaleString()}</span>
+              Delivery will be timestamped{" "}
+              <span className="font-semibold text-white md:text-slate-900">
+                {new Date().toLocaleString()}
+              </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -417,7 +489,11 @@ export function SalesFulfilmentList({
                 disabled={deliveringId !== null}
                 className="inline-flex items-center justify-center gap-1.5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-60"
               >
-                {deliveringId ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <PackageCheck className="w-3.5 h-3.5" />}
+                {deliveringId ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <PackageCheck className="w-3.5 h-3.5" />
+                )}
                 Yes, delivered
               </button>
             </div>
@@ -432,7 +508,9 @@ function Row({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex items-center justify-between gap-3">
       <span className="text-slate-400 md:text-slate-500">{label}</span>
-      <span className="font-semibold text-white md:text-slate-900 truncate max-w-[60%] text-right">{value}</span>
+      <span className="font-semibold text-white md:text-slate-900 truncate max-w-[60%] text-right">
+        {value}
+      </span>
     </div>
   );
 }

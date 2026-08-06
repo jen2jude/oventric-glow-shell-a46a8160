@@ -18,7 +18,14 @@ interface Props {
  * Renders the visible frame to a canvas so we upload an already-cropped,
  * compressed JPEG instead of the raw camera file.
  */
-export function AvatarCropper({ src, size = 512, aspect = 1, title = "Crop image", onCancel, onCropped }: Props) {
+export function AvatarCropper({
+  src,
+  size = 512,
+  aspect = 1,
+  title = "Crop image",
+  onCancel,
+  onCropped,
+}: Props) {
   const frameRef = useRef<HTMLDivElement | null>(null);
   const imgRef = useRef<HTMLImageElement | null>(null);
   const [zoom, setZoom] = useState(1);
@@ -88,7 +95,9 @@ export function AvatarCropper({ src, size = 512, aspect = 1, title = "Crop image
   return (
     <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-slate-50 p-3">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">{title}</p>
+        <p className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+          {title}
+        </p>
         <button
           type="button"
           onClick={onCancel}

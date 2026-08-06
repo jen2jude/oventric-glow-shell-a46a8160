@@ -12,18 +12,48 @@ import {
 } from "@/lib/system-wallets.functions";
 
 export const Route = createFileRoute("/admin/system-wallets")({
-  head: () => ({ meta: [{ title: "System Wallets · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({
+    meta: [{ title: "System Wallets · Admin" }, { name: "robots", content: "noindex, nofollow" }],
+  }),
   component: SystemWalletsPage,
 });
 
-const META: Record<SystemWalletKind, { label: string; sub: string; icon: React.ComponentType<{ className?: string }>; hue: string }> = {
-  marketplace: { label: "Marketplace Revenue", sub: "20% of every marketplace sale", icon: ShoppingBag, hue: "from-emerald-500/25 to-teal-700/10 border-emerald-500/30" },
-  bounty:      { label: "Bounty Revenue",      sub: "20% of every bounty payout",   icon: Target,      hue: "from-amber-500/25 to-orange-700/10 border-amber-500/30" },
-  ads:         { label: "Ads & Promo Revenue", sub: "Advertising and promoted posts", icon: Megaphone, hue: "from-sky-500/25 to-indigo-700/10 border-sky-500/30" },
-  academy:     { label: "Academy Revenue",     sub: "Course sales and enrollments",   icon: GraduationCap, hue: "from-fuchsia-500/25 to-purple-700/10 border-fuchsia-500/30" },
+const META: Record<
+  SystemWalletKind,
+  { label: string; sub: string; icon: React.ComponentType<{ className?: string }>; hue: string }
+> = {
+  marketplace: {
+    label: "Marketplace Revenue",
+    sub: "20% of every marketplace sale",
+    icon: ShoppingBag,
+    hue: "from-emerald-500/25 to-teal-700/10 border-emerald-500/30",
+  },
+  bounty: {
+    label: "Bounty Revenue",
+    sub: "20% of every bounty payout",
+    icon: Target,
+    hue: "from-amber-500/25 to-orange-700/10 border-amber-500/30",
+  },
+  ads: {
+    label: "Ads & Promo Revenue",
+    sub: "Advertising and promoted posts",
+    icon: Megaphone,
+    hue: "from-sky-500/25 to-indigo-700/10 border-sky-500/30",
+  },
+  academy: {
+    label: "Academy Revenue",
+    sub: "Course sales and enrollments",
+    icon: GraduationCap,
+    hue: "from-fuchsia-500/25 to-purple-700/10 border-fuchsia-500/30",
+  },
 };
 const KINDS: SystemWalletKind[] = ["marketplace", "bounty", "ads", "academy"];
-const FALLBACK_META = { label: "Other Revenue", sub: "", icon: ShoppingBag, hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30" } as const;
+const FALLBACK_META = {
+  label: "Other Revenue",
+  sub: "",
+  icon: ShoppingBag,
+  hue: "from-slate-500/25 to-slate-700/10 border-slate-500/30",
+} as const;
 const metaFor = (k: string) => (META as Record<string, typeof FALLBACK_META>)[k] ?? FALLBACK_META;
 
 type ViewCur = "NGN" | "USD" | "GHS";
@@ -48,7 +78,10 @@ function SystemWalletsPage() {
     let cancelled = false;
     (async () => {
       try {
-        const [w, t] = await Promise.all([loadWallets(), loadTx({ data: { kind: filter, limit: 50 } })]);
+        const [w, t] = await Promise.all([
+          loadWallets(),
+          loadTx({ data: { kind: filter, limit: 50 } }),
+        ]);
         if (cancelled) return;
         setWallets(w);
         setTx(t);
@@ -56,7 +89,9 @@ function SystemWalletsPage() {
         if (!cancelled) setErr(e instanceof Error ? e.message : "Failed to load");
       }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [loadWallets, loadTx, filter]);
 
   return (
@@ -64,16 +99,20 @@ function SystemWalletsPage() {
       <header className="mb-6 flex items-start justify-between gap-4">
         <div>
           <h1 className="text-white text-2xl font-black">System Wallets</h1>
-          <p className="text-sm text-slate-400">Admin-only revenue held from marketplace, bounties, and ads.</p>
+          <p className="text-sm text-slate-400">
+            Admin-only revenue held from marketplace, bounties, and ads.
+          </p>
         </div>
         <div className="flex items-center gap-2 shrink-0">
           <div className="inline-flex rounded-lg overflow-hidden border border-white/10 bg-[#0b0b0d]">
-            {(["NGN","USD","GHS"] as ViewCur[]).map((c) => (
+            {(["NGN", "USD", "GHS"] as ViewCur[]).map((c) => (
               <button
                 key={c}
                 onClick={() => setView(c)}
-                className={`px-3 py-1.5 text-xs font-bold ${view===c ? "bg-emerald-500/25 text-emerald-200" : "text-slate-400 hover:text-white"}`}
-              >{c}</button>
+                className={`px-3 py-1.5 text-xs font-bold ${view === c ? "bg-emerald-500/25 text-emerald-200" : "text-slate-400 hover:text-white"}`}
+              >
+                {c}
+              </button>
             ))}
           </div>
           <Link
@@ -85,8 +124,11 @@ function SystemWalletsPage() {
         </div>
       </header>
 
-
-      {err && <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">{err}</div>}
+      {err && (
+        <div className="mb-4 text-sm text-red-300 bg-red-500/10 border border-red-500/40 rounded-lg p-3">
+          {err}
+        </div>
+      )}
 
       {!wallets ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500" />
@@ -104,10 +146,16 @@ function SystemWalletsPage() {
                   </div>
                   <ArrowUpRight className="w-4 h-4 text-white/50" />
                 </div>
-                <div className="text-[11px] uppercase tracking-widest text-slate-300 font-bold">{m.label}</div>
-                <div className="text-white text-3xl font-black tracking-tight mt-1">{fmtCur(w?.balanceUSD ?? 0, view)}</div>
+                <div className="text-[11px] uppercase tracking-widest text-slate-300 font-bold">
+                  {m.label}
+                </div>
+                <div className="text-white text-3xl font-black tracking-tight mt-1">
+                  {fmtCur(w?.balanceUSD ?? 0, view)}
+                </div>
                 {view !== "USD" && (
-                  <div className="text-[10px] text-slate-500 mt-0.5">≈ {fmtCur(w?.balanceUSD ?? 0, "USD")}</div>
+                  <div className="text-[10px] text-slate-500 mt-0.5">
+                    ≈ {fmtCur(w?.balanceUSD ?? 0, "USD")}
+                  </div>
                 )}
                 <div className="text-xs text-slate-400 mt-1">{m.sub}</div>
               </div>
@@ -133,7 +181,9 @@ function SystemWalletsPage() {
         </div>
         <div className="divide-y divide-white/5">
           {!tx ? (
-            <div className="p-6 text-center"><Loader2 className="w-5 h-5 animate-spin text-slate-500 inline" /></div>
+            <div className="p-6 text-center">
+              <Loader2 className="w-5 h-5 animate-spin text-slate-500 inline" />
+            </div>
           ) : tx.length === 0 ? (
             <div className="p-6 text-sm text-slate-500 text-center">No revenue yet.</div>
           ) : (
@@ -141,11 +191,17 @@ function SystemWalletsPage() {
               <div key={t.id} className="p-4 flex items-center justify-between text-sm">
                 <div>
                   <div className="text-white font-semibold">{metaFor(t.kind).label}</div>
-                  <div className="text-[11px] text-slate-500 font-mono">{t.source} · {new Date(t.createdAt).toLocaleString()}</div>
+                  <div className="text-[11px] text-slate-500 font-mono">
+                    {t.source} · {new Date(t.createdAt).toLocaleString()}
+                  </div>
                 </div>
                 <div className="text-emerald-300 font-mono font-bold text-right">
                   + {fmtCur(t.amountUSD, view)}
-                  {view !== "USD" && <div className="text-[10px] text-slate-500 font-normal">≈ {fmtCur(t.amountUSD, "USD")}</div>}
+                  {view !== "USD" && (
+                    <div className="text-[10px] text-slate-500 font-normal">
+                      ≈ {fmtCur(t.amountUSD, "USD")}
+                    </div>
+                  )}
                 </div>
               </div>
             ))

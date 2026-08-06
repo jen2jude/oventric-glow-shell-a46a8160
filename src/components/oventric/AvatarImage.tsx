@@ -20,13 +20,7 @@ type Props = {
  * scramble on refresh). When there's no image (or it errors), a plain
  * white person icon is shown — never initials.
  */
-export function AvatarImage({
-  src,
-  alt,
-  className,
-  loading = "lazy",
-  fetchPriority,
-}: Props) {
+export function AvatarImage({ src, alt, className, loading = "lazy", fetchPriority }: Props) {
   const [loaded, setLoaded] = useState(false);
   const [errored, setErrored] = useState(false);
   const showImage = !!src && !errored;
@@ -37,17 +31,11 @@ export function AvatarImage({
     >
       {/* Skeleton shimmer while the image is still decoding. */}
       {showImage && !loaded && (
-        <span
-          aria-hidden
-          className="absolute inset-0 bg-white/5 animate-pulse"
-        />
+        <span aria-hidden className="absolute inset-0 bg-white/5 animate-pulse" />
       )}
       {/* Fallback: plain white person icon on a dark-grey circle, no ring. */}
       {!showImage && (
-        <span
-          aria-hidden
-          className="absolute inset-0 flex items-center justify-center"
-        >
+        <span aria-hidden className="absolute inset-0 flex items-center justify-center">
           <User className="w-3/5 h-3/5 text-white/85" strokeWidth={1.75} />
         </span>
       )}

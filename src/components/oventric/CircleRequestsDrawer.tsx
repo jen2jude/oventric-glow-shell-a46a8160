@@ -34,13 +34,7 @@ function initialsFrom(label: string) {
   );
 }
 
-export function CircleRequestsDrawer({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function CircleRequestsDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [requests, setRequests] = useState<IncomingCircleRequest[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -140,11 +134,7 @@ export function CircleRequestsDrawer({
 
   return (
     <div className="modal-light fixed inset-0 z-[60] flex justify-end">
-      <button
-        aria-label="Close circle requests"
-        onClick={onClose}
-        className="flex-1 bg-black"
-      />
+      <button aria-label="Close circle requests" onClick={onClose} className="flex-1 bg-black" />
       <aside className="w-full sm:w-[420px] max-w-full bg-[#1E1E24] border-l border-white/10 flex flex-col shadow-2xl">
         <header className="flex items-center gap-3 px-4 py-3 border-b border-white/10">
           <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-300 shrink-0">
@@ -263,15 +253,7 @@ export function CircleRequestsDrawer({
   );
 }
 
-function EmptyState({
-  icon,
-  title,
-  body,
-}: {
-  icon: React.ReactNode;
-  title: string;
-  body: string;
-}) {
+function EmptyState({ icon, title, body }: { icon: React.ReactNode; title: string; body: string }) {
   return (
     <div className="flex flex-col items-center justify-center text-center px-6 py-14">
       <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 grid place-items-center mb-3">

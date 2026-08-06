@@ -164,13 +164,14 @@ export function IncomingCircleInbox() {
                 {requests.map((r) => {
                   const busy = busyId === r.requesterId;
                   const label = r.requesterName || r.requesterSlug || "Unknown user";
-                  const initials = label
-                    .split(/[\s-]+/)
-                    .map((w) => w[0])
-                    .filter(Boolean)
-                    .slice(0, 2)
-                    .join("")
-                    .toUpperCase() || "??";
+                  const initials =
+                    label
+                      .split(/[\s-]+/)
+                      .map((w) => w[0])
+                      .filter(Boolean)
+                      .slice(0, 2)
+                      .join("")
+                      .toUpperCase() || "??";
                   return (
                     <li key={r.requesterId} className="flex items-center gap-3 px-3 py-3">
                       <div className="w-9 h-9 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center text-black font-bold text-xs shrink-0">
@@ -189,7 +190,9 @@ export function IncomingCircleInbox() {
                         ) : (
                           <div className="text-sm font-semibold text-white truncate">{label}</div>
                         )}
-                        <div className="text-[10px] text-slate-500">{relativeTime(r.createdAt)}</div>
+                        <div className="text-[10px] text-slate-500">
+                          {relativeTime(r.createdAt)}
+                        </div>
                       </div>
                       <div className="flex items-center gap-1 shrink-0">
                         <button
@@ -198,7 +201,11 @@ export function IncomingCircleInbox() {
                           aria-label={`Accept request from ${label}`}
                           className="p-1.5 rounded-md bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-40"
                         >
-                          {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Check className="w-3.5 h-3.5" />}
+                          {busy ? (
+                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                          ) : (
+                            <Check className="w-3.5 h-3.5" />
+                          )}
                         </button>
                         <button
                           onClick={() => handleDecline(r)}

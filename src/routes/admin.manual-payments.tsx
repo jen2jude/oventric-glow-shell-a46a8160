@@ -17,7 +17,9 @@ export const Route = createFileRoute("/admin/manual-payments")({
     <div className="p-6 text-red-300">
       <div className="font-bold mb-2">MiniPay queue error</div>
       <div className="text-sm text-red-200/80 mb-3">{error.message}</div>
-      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">Retry</button>
+      <button onClick={reset} className="px-3 py-1.5 rounded-lg border border-red-500/40 text-sm">
+        Retry
+      </button>
     </div>
   ),
 });
@@ -40,7 +42,9 @@ function AdminManualPaymentsPage() {
   });
 
   const review = async (id: string, approve: boolean) => {
-    const reason = approve ? null : window.prompt("Reason for rejection (shown to the payer)") ?? "";
+    const reason = approve
+      ? null
+      : (window.prompt("Reason for rejection (shown to the payer)") ?? "");
     if (!approve && !reason) return;
     setBusyId(id);
     try {
@@ -79,7 +83,9 @@ function AdminManualPaymentsPage() {
             key={s}
             onClick={() => setStatus(s)}
             className={`px-3 py-1.5 rounded-lg text-xs font-bold uppercase tracking-wider border ${
-              status === s ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-[#1E1E24] border-white/10 text-slate-400"
+              status === s
+                ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                : "bg-[#1E1E24] border-white/10 text-slate-400"
             }`}
           >
             {s}
@@ -102,14 +108,18 @@ function AdminManualPaymentsPage() {
           <div key={r.id} className="rounded-xl border border-white/10 bg-[#1E1E24] p-4 space-y-3">
             <div className="flex flex-wrap items-start justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-sm text-white font-bold truncate">{r.targetLabel ?? r.purpose}</div>
+                <div className="text-sm text-white font-bold truncate">
+                  {r.targetLabel ?? r.purpose}
+                </div>
                 <div className="text-[11px] text-slate-500 font-mono">{r.reference}</div>
                 <div className="text-xs text-slate-400 mt-1">
                   {r.payerName ?? r.payerUsername ?? r.userId.slice(0, 8)} · {r.purpose}
                 </div>
               </div>
               <div className="text-right">
-                <div className="text-base font-black text-white">{formatMoney(r.amount, r.currency)}</div>
+                <div className="text-base font-black text-white">
+                  {formatMoney(r.amount, r.currency)}
+                </div>
                 <div className="text-[11px] text-slate-500">≈ ${r.amountUsd.toFixed(2)}</div>
               </div>
             </div>
@@ -136,7 +146,11 @@ function AdminManualPaymentsPage() {
                     disabled={busyId === r.id}
                     className="px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 disabled:opacity-60 text-black text-xs font-black inline-flex items-center gap-1.5"
                   >
-                    {busyId === r.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />}
+                    {busyId === r.id ? (
+                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                    ) : (
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                    )}
                     Approve &amp; settle
                   </button>
                   <button
@@ -150,7 +164,9 @@ function AdminManualPaymentsPage() {
               )}
 
               {r.status !== "pending" && (
-                <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400">{r.status}</span>
+                <span className="text-[11px] uppercase tracking-wider font-bold text-slate-400">
+                  {r.status}
+                </span>
               )}
             </div>
           </div>

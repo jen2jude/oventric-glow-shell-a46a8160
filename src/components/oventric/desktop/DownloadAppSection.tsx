@@ -50,7 +50,7 @@ export function DownloadAppSection() {
         className="pointer-events-none absolute inset-0 opacity-40"
         style={{
           backgroundImage:
- "radial-gradient(600px 300px at 80% 20%, rgba(59, 130, 246,0.10), transparent 70%), radial-gradient(500px 250px at 10% 90%, rgba(99,102,241,0.08), transparent 70%)",
+            "radial-gradient(600px 300px at 80% 20%, rgba(59, 130, 246,0.10), transparent 70%), radial-gradient(500px 250px at 10% 90%, rgba(99,102,241,0.08), transparent 70%)",
         }}
       />
 
@@ -69,7 +69,8 @@ export function DownloadAppSection() {
             Your fintech hub, <span className="text-emerald-600">in your pocket.</span>
           </h2>
           <p className="mt-4 text-lg leading-relaxed text-slate-500">
-            Download the app to manage your wallet, shop the marketplace, post bounties, and chat with your circles — all priced in your home currency.
+            Download the app to manage your wallet, shop the marketplace, post bounties, and chat
+            with your circles — all priced in your home currency.
           </p>
 
           <div className="mt-8 flex flex-wrap gap-4">
@@ -95,8 +96,18 @@ export function DownloadAppSection() {
           <div className="app-float-card absolute -left-4 top-8 z-30 hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-xl md:block">
             <div className="flex items-center gap-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500 text-white">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
                 </svg>
               </span>
               <div>
@@ -109,8 +120,18 @@ export function DownloadAppSection() {
           <div className="app-float-card app-float-card-delayed absolute -right-2 bottom-16 z-30 hidden rounded-2xl border border-slate-200 bg-white p-3 shadow-xl md:block">
             <div className="flex items-center gap-3">
               <span className="inline-flex h-9 w-9 items-center justify-center rounded-xl bg-slate-900 text-white">
-                <svg className="h-5 w-5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+                <svg
+                  className="h-5 w-5"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2.5"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z"
+                  />
                 </svg>
               </span>
               <div>
@@ -133,7 +154,9 @@ export function DownloadAppSection() {
                   <User className="h-4 w-4 text-white" strokeWidth={2.5} />
                 </span>
                 <div className="min-w-0 flex-1">
-                  <div className="text-[9px] uppercase tracking-wide text-slate-500">Good morning</div>
+                  <div className="text-[9px] uppercase tracking-wide text-slate-500">
+                    Good morning
+                  </div>
                   <div className="truncate text-xs font-semibold text-white">Welcome back</div>
                 </div>
                 <span className="inline-flex h-6 items-center rounded-full bg-[#1E1E24] border border-white/10 px-2 text-[10px] font-semibold text-slate-200">
@@ -146,10 +169,12 @@ export function DownloadAppSection() {
                 className="mt-3 rounded-2xl border border-emerald-500/25 p-3"
                 style={{
                   backgroundImage:
- "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
+                    "linear-gradient(135deg, rgba(59, 130, 246,0.22) 0%, rgba(20,20,26,0.95) 55%, rgba(20,20,26,1) 100%)",
                 }}
               >
-                <div className="text-[9px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
+                <div className="text-[9px] uppercase tracking-wide text-emerald-300/80">
+                  Main balance
+                </div>
                 <div className="mt-1 text-lg font-bold text-white tabular-nums">$0.00</div>
                 <div className="mt-2 grid grid-cols-3 gap-1">
                   {["Cashback", "Bounty", "Escrow"].map((l) => (
@@ -160,8 +185,12 @@ export function DownloadAppSection() {
                   ))}
                 </div>
                 <div className="mt-2 flex gap-1">
-                  <span className="flex-1 rounded-xl bg-emerald-500 py-1.5 text-center text-[9px] font-bold text-[#08130f]">Add</span>
-                  <span className="flex-1 rounded-xl border border-white/15 bg-[#1E1E24] py-1.5 text-center text-[9px] font-bold text-white">Withdraw</span>
+                  <span className="flex-1 rounded-xl bg-emerald-500 py-1.5 text-center text-[9px] font-bold text-[#08130f]">
+                    Add
+                  </span>
+                  <span className="flex-1 rounded-xl border border-white/15 bg-[#1E1E24] py-1.5 text-center text-[9px] font-bold text-white">
+                    Withdraw
+                  </span>
                 </div>
               </div>
 
@@ -185,12 +214,19 @@ export function DownloadAppSection() {
                     <div key={t.label} className="flex flex-col items-center gap-1">
                       <span className="flex h-8 w-8 items-center justify-center rounded-xl bg-gradient-to-b from-emerald-500/25 to-emerald-500/5 border border-white/10">
                         {t.img ? (
-                          <img src={t.img} alt="" className="h-5 w-5 object-contain" loading="lazy" />
+                          <img
+                            src={t.img}
+                            alt=""
+                            className="h-5 w-5 object-contain"
+                            loading="lazy"
+                          />
                         ) : Icon ? (
                           <Icon className="h-4 w-4 text-white" strokeWidth={2.5} />
                         ) : null}
                       </span>
-                      <span className="text-[7px] font-semibold text-slate-300 text-center leading-none">{t.label}</span>
+                      <span className="text-[7px] font-semibold text-slate-300 text-center leading-none">
+                        {t.label}
+                      </span>
                     </div>
                   );
                 })}
@@ -204,7 +240,10 @@ export function DownloadAppSection() {
                 </div>
                 <div className="flex gap-2 overflow-hidden">
                   {[1, 2, 3].map((i) => (
-                    <div key={i} className="h-16 w-20 shrink-0 rounded-xl bg-[#1E1E24] border border-white/10" />
+                    <div
+                      key={i}
+                      className="h-16 w-20 shrink-0 rounded-xl bg-[#1E1E24] border border-white/10"
+                    />
                   ))}
                 </div>
               </div>

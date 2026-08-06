@@ -9,10 +9,34 @@ type ChoiceKey = "post" | "bounty" | "sell" | "course";
 type Choice = { key: ChoiceKey; icon: typeof PenSquare; title: string; desc: string; tier: Tier };
 
 const choices: Choice[] = [
-  { key: "post", icon: PenSquare, title: "Drop a Post", desc: "Share updates with the community", tier: 1 },
-  { key: "bounty", icon: Target, title: "Post a Bounty ($)", desc: "Get expert help, pay on delivery", tier: 2 },
-  { key: "sell", icon: ShoppingBag, title: "Sell", desc: "List digital assets or physical goods", tier: 2 },
-  { key: "course", icon: GraduationCap, title: "Publish a Course", desc: "Teach with video modules, free or paid", tier: 2 },
+  {
+    key: "post",
+    icon: PenSquare,
+    title: "Drop a Post",
+    desc: "Share updates with the community",
+    tier: 1,
+  },
+  {
+    key: "bounty",
+    icon: Target,
+    title: "Post a Bounty ($)",
+    desc: "Get expert help, pay on delivery",
+    tier: 2,
+  },
+  {
+    key: "sell",
+    icon: ShoppingBag,
+    title: "Sell",
+    desc: "List digital assets or physical goods",
+    tier: 2,
+  },
+  {
+    key: "course",
+    icon: GraduationCap,
+    title: "Publish a Course",
+    desc: "Teach with video modules, free or paid",
+    tier: 2,
+  },
 ];
 
 export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -91,15 +115,23 @@ export function CreatePanel({ open, onClose }: { open: boolean; onClose: () => v
         </div>
       )}
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
-      <CoursePublishWizard open={courseOpen} onClose={() => setCourseOpen(false)} onSaved={() => {
-        setCourseOpen(false);
-        window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }));
-      }} />
+      <CoursePublishWizard
+        open={courseOpen}
+        onClose={() => setCourseOpen(false)}
+        onSaved={() => {
+          setCourseOpen(false);
+          window.dispatchEvent(
+            new CustomEvent("oventric:navigate", { detail: { section: "Academy" } }),
+          );
+        }}
+      />
       <BountyEditorModal
         open={bountyOpen}
         onClose={() => setBountyOpen(false)}
         onPublished={() => {
-          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
+          window.dispatchEvent(
+            new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }),
+          );
         }}
       />
     </>

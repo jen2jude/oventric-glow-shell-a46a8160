@@ -10,7 +10,11 @@ export const Route = createFileRoute("/wallet/history")({
   head: () => ({
     meta: [
       { title: "Top-Up History — Oventric" },
-      { name: "description", content: "Review every wallet top-up you started through Paystack — initialized, paid, and failed transactions." },
+      {
+        name: "description",
+        content:
+          "Review every wallet top-up you started through Paystack — initialized, paid, and failed transactions.",
+      },
     ],
   }),
   component: TopupHistoryPage,
@@ -27,9 +31,15 @@ function TopupHistoryPage() {
   useEffect(() => {
     let alive = true;
     fetchTopups()
-      .then((data) => { if (alive) setRows(data); })
-      .catch((e) => { if (alive) setError(e instanceof Error ? e.message : "Failed to load history"); });
-    return () => { alive = false; };
+      .then((data) => {
+        if (alive) setRows(data);
+      })
+      .catch((e) => {
+        if (alive) setError(e instanceof Error ? e.message : "Failed to load history");
+      });
+    return () => {
+      alive = false;
+    };
   }, [fetchTopups]);
 
   const filtered = useMemo(() => {
@@ -40,7 +50,9 @@ function TopupHistoryPage() {
 
   const counts = useMemo(() => {
     const c = { all: rows?.length ?? 0, pending: 0, success: 0, failed: 0 };
-    rows?.forEach((r) => { c[r.status] += 1; });
+    rows?.forEach((r) => {
+      c[r.status] += 1;
+    });
     return c;
   }, [rows]);
 
@@ -59,12 +71,14 @@ function TopupHistoryPage() {
         </div>
 
         <div className="flex gap-2 mb-4 overflow-x-auto no-scrollbar">
-          {([
-            ["all", "All"],
-            ["pending", "Initialized"],
-            ["success", "Paid"],
-            ["failed", "Failed"],
-          ] as [Filter, string][]).map(([k, label]) => (
+          {(
+            [
+              ["all", "All"],
+              ["pending", "Initialized"],
+              ["success", "Paid"],
+              ["failed", "Failed"],
+            ] as [Filter, string][]
+          ).map(([k, label]) => (
             <button
               key={k}
               type="button"
@@ -109,10 +123,18 @@ function TopupHistoryPage() {
 function TopupRow({ row }: { row: PaystackTopupRow }) {
   const badge =
     row.status === "success"
-      ? { label: "Paid", icon: CheckCircle2, cls: "text-emerald-300 border-emerald-500/30 bg-emerald-500/10" }
+      ? {
+          label: "Paid",
+          icon: CheckCircle2,
+          cls: "text-emerald-300 border-emerald-500/30 bg-emerald-500/10",
+        }
       : row.status === "failed"
         ? { label: "Failed", icon: XCircle, cls: "text-red-300 border-red-500/30 bg-red-500/10" }
-        : { label: "Initialized", icon: Clock, cls: "text-amber-300 border-amber-500/30 bg-amber-500/10" };
+        : {
+            label: "Initialized",
+            icon: Clock,
+            cls: "text-amber-300 border-amber-500/30 bg-amber-500/10",
+          };
   const Icon = badge.icon;
   const dt = new Date(row.occurredAt || row.createdAt);
   return (
@@ -123,16 +145,24 @@ function TopupRow({ row }: { row: PaystackTopupRow }) {
       <div className="min-w-0 flex-1">
         <div className="flex items-baseline gap-2">
           <div className="font-medium text-sm">
-            {row.currency} {row.amount.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+            {row.currency}{" "}
+            {row.amount.toLocaleString(undefined, {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2,
+            })}
           </div>
-          <span className={`text-[11px] px-1.5 py-0.5 rounded border ${badge.cls}`}>{badge.label}</span>
+          <span className={`text-[11px] px-1.5 py-0.5 rounded border ${badge.cls}`}>
+            {badge.label}
+          </span>
         </div>
         <div className="text-xs text-white/50 md:text-slate-500 flex items-center gap-2 mt-0.5">
           <span className="truncate">{row.reference}</span>
           <button
             type="button"
             onClick={() => {
-              navigator.clipboard.writeText(row.reference).then(() => toast.success("Reference copied"));
+              navigator.clipboard
+                .writeText(row.reference)
+                .then(() => toast.success("Reference copied"));
             }}
             className="p-1 rounded hover:bg-white/10 md:hover:bg-slate-100"
             aria-label="Copy reference"
@@ -142,7 +172,8 @@ function TopupRow({ row }: { row: PaystackTopupRow }) {
         </div>
       </div>
       <div className="text-xs text-white/50 md:text-slate-500 whitespace-nowrap">
-        {dt.toLocaleDateString()} · {dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+        {dt.toLocaleDateString()} ·{" "}
+        {dt.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
       </div>
     </li>
   );

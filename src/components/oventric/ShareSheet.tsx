@@ -16,14 +16,18 @@ export async function nativeShare(url: string, title = "Oventric", text?: string
       await (navigator as any).share({ title, text, url });
       return true;
     }
-  } catch { /* cancelled */ }
+  } catch {
+    /* cancelled */
+  }
   return false;
 }
 
 export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Props) {
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => { if (e.key === "Escape") onClose(); };
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+    };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
@@ -32,12 +36,36 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
 
   const enc = encodeURIComponent;
   const shareTargets = [
-    { label: "X", href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}`, bg: "bg-black" },
-    { label: "Facebook", href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`, bg: "bg-[#1877F2]" },
-    { label: "LinkedIn", href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`, bg: "bg-[#0A66C2]" },
-    { label: "WhatsApp", href: `https://wa.me/?text=${enc(`${title} ${url}`)}`, bg: "bg-[#25D366]" },
-    { label: "Telegram", href: `https://t.me/share/url?url=${enc(url)}&text=${enc(title)}`, bg: "bg-[#229ED9]" },
-    { label: "Reddit", href: `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(title)}`, bg: "bg-[#FF4500]" },
+    {
+      label: "X",
+      href: `https://twitter.com/intent/tweet?url=${enc(url)}&text=${enc(title)}`,
+      bg: "bg-black",
+    },
+    {
+      label: "Facebook",
+      href: `https://www.facebook.com/sharer/sharer.php?u=${enc(url)}`,
+      bg: "bg-[#1877F2]",
+    },
+    {
+      label: "LinkedIn",
+      href: `https://www.linkedin.com/sharing/share-offsite/?url=${enc(url)}`,
+      bg: "bg-[#0A66C2]",
+    },
+    {
+      label: "WhatsApp",
+      href: `https://wa.me/?text=${enc(`${title} ${url}`)}`,
+      bg: "bg-[#25D366]",
+    },
+    {
+      label: "Telegram",
+      href: `https://t.me/share/url?url=${enc(url)}&text=${enc(title)}`,
+      bg: "bg-[#229ED9]",
+    },
+    {
+      label: "Reddit",
+      href: `https://www.reddit.com/submit?url=${enc(url)}&title=${enc(title)}`,
+      bg: "bg-[#FF4500]",
+    },
   ];
 
   const copy = async () => {
@@ -66,8 +94,14 @@ export function ShareSheet({ open, onClose, url, title = "Oventric", text }: Pro
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-white font-bold flex items-center gap-2"><Share2 className="w-4 h-4" /> Share</h3>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400" aria-label="Close">
+          <h3 className="text-white font-bold flex items-center gap-2">
+            <Share2 className="w-4 h-4" /> Share
+          </h3>
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/5 text-slate-400"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>

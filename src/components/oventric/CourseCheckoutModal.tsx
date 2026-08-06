@@ -1,6 +1,16 @@
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { X, Loader2, CreditCard, Building2, Smartphone, CheckCircle2, Tag, Sparkles, Gift } from "lucide-react";
+import {
+  X,
+  Loader2,
+  CreditCard,
+  Building2,
+  Smartphone,
+  CheckCircle2,
+  Tag,
+  Sparkles,
+  Gift,
+} from "lucide-react";
 import { toast } from "sonner";
 import { enrollPaid, type EnrollCurrency, type EnrollPaymentMethod } from "@/lib/academy.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
@@ -12,10 +22,30 @@ import { AlertTriangle } from "lucide-react";
 // Course checkout is card / bank / mobile-money only. Wallet is intentionally
 // excluded — users pay directly and receive cashback (2%) to their cashback
 // wallet, which can then be spent on other transactions.
-const METHODS: { key: Exclude<EnrollPaymentMethod, "wallet">; label: string; icon: typeof CreditCard; hint: string }[] = [
-  { key: "card", label: "Debit / Credit card", icon: CreditCard, hint: "Visa, Mastercard, Verve · Instant" },
-  { key: "bank_transfer", label: "Bank transfer", icon: Building2, hint: "Local bank rails · Instant" },
-  { key: "mobile_money", label: "Mobile money", icon: Smartphone, hint: "MTN, Airtel, MoMo · Instant" },
+const METHODS: {
+  key: Exclude<EnrollPaymentMethod, "wallet">;
+  label: string;
+  icon: typeof CreditCard;
+  hint: string;
+}[] = [
+  {
+    key: "card",
+    label: "Debit / Credit card",
+    icon: CreditCard,
+    hint: "Visa, Mastercard, Verve · Instant",
+  },
+  {
+    key: "bank_transfer",
+    label: "Bank transfer",
+    icon: Building2,
+    hint: "Local bank rails · Instant",
+  },
+  {
+    key: "mobile_money",
+    label: "Mobile money",
+    icon: Smartphone,
+    hint: "MTN, Airtel, MoMo · Instant",
+  },
 ];
 
 interface Course {
@@ -59,12 +89,20 @@ export function CourseCheckoutModal({
   useEffect(() => {
     if (!open) return;
     setMethod("card");
-    setCouponInput(""); setCouponPct(0); setCouponCode(null);
-    setBusy(false); setDone(false); setEarnedDisplay("");
+    setCouponInput("");
+    setCouponPct(0);
+    setCouponCode(null);
+    setBusy(false);
+    setDone(false);
+    setEarnedDisplay("");
     setUseCashback(false);
     runBalances()
-      .then((b) => { setCashbackUSD(b.cashback ?? 0); })
-      .catch(() => { setCashbackUSD(0); });
+      .then((b) => {
+        setCashbackUSD(b.cashback ?? 0);
+      })
+      .catch(() => {
+        setCashbackUSD(0);
+      });
   }, [open, runBalances, baseCurrency]);
 
   // Snapshot-aware display for the course price. Falls back safely inside
@@ -154,7 +192,8 @@ export function CourseCheckoutModal({
         setCouponCode(res.code);
         toast.success(`Coupon applied — ${res.discountPct}% off`);
       } else {
-        setCouponPct(0); setCouponCode(null);
+        setCouponPct(0);
+        setCouponCode(null);
         toast.error("Invalid or inactive coupon");
       }
     } finally {
@@ -182,7 +221,12 @@ export function CourseCheckoutModal({
       const earnedLocal = earnedUSD * usdToDisplay;
       setEarnedDisplay(earnedLocal > 0 ? formatMoney(earnedLocal, baseCurrency) : "");
       setDone(true);
-      setTimeout(() => { onEnrolled(); }, earnedLocal > 0 ? 2400 : 1200);
+      setTimeout(
+        () => {
+          onEnrolled();
+        },
+        earnedLocal > 0 ? 2400 : 1200,
+      );
     } catch (e) {
       toast.error(e instanceof Error ? e.message : "Enrollment failed");
     } finally {
@@ -198,10 +242,18 @@ export function CourseCheckoutModal({
       <div className="relative w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl shadow-2xl max-h-[92vh] overflow-y-auto">
         <div className="sticky top-0 flex items-center justify-between px-5 py-4 bg-[#1E1E24] border-b border-white/10">
           <div>
-            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">Enroll in course</div>
-            <h3 className="text-white font-black text-lg leading-tight mt-0.5 truncate">{course.title}</h3>
+            <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300">
+              Enroll in course
+            </div>
+            <h3 className="text-white font-black text-lg leading-tight mt-0.5 truncate">
+              {course.title}
+            </h3>
           </div>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            aria-label="Close"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -221,16 +273,19 @@ export function CourseCheckoutModal({
                     <Gift className="w-3.5 h-3.5" /> Cashback earned
                   </div>
                   <div className="mt-1 text-white font-black text-2xl">+ {earnedDisplay}</div>
-                  <div className="text-[11px] text-slate-400 mt-1">Credited to your Cashback Wallet — spend on any future purchase.</div>
+                  <div className="text-[11px] text-slate-400 mt-1">
+                    Credited to your Cashback Wallet — spend on any future purchase.
+                  </div>
                 </div>
               )}
               <p className="text-sm text-slate-400 mt-3">Redirecting you to the course…</p>
             </div>
           ) : (
             <>
-
               <div>
-                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">Payment method</div>
+                <div className="text-[11px] font-bold uppercase tracking-wider text-slate-500 mb-2">
+                  Payment method
+                </div>
                 <div className="grid grid-cols-1 gap-2">
                   {METHODS.map((m) => {
                     const active = method === m.key;
@@ -245,7 +300,9 @@ export function CourseCheckoutModal({
                         }`}
                       >
                         <div className="flex items-center gap-2">
-                          <m.icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`} />
+                          <m.icon
+                            className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
+                          />
                           <div className="text-sm font-semibold text-white">{m.label}</div>
                         </div>
                         <div className="text-[11px] text-slate-500 mt-1">{m.hint}</div>
@@ -301,20 +358,34 @@ export function CourseCheckoutModal({
                 />
                 <div className="flex-1 min-w-0">
                   <div className="text-sm font-semibold text-white">Use Cashback</div>
-                  <div className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}>
-                    Available: {formatMoney(cashbackAvailableDisplay, baseCurrency)} · spend-only, not withdrawable
+                  <div
+                    className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}
+                  >
+                    Available: {formatMoney(cashbackAvailableDisplay, baseCurrency)} · spend-only,
+                    not withdrawable
                   </div>
                   <div className="text-[11px] text-slate-400 mt-0.5">
-                    You'll earn back: + {formatMoney(cashbackEarnDisplay, baseCurrency)} (Oventric Bonus)
+                    You'll earn back: + {formatMoney(cashbackEarnDisplay, baseCurrency)} (Oventric
+                    Bonus)
                   </div>
                 </div>
               </label>
 
               <div className="p-4 rounded-lg bg-[#121214] border border-white/10 space-y-1.5">
                 <Row label="Course price" value={grossFormatted} />
-                {discountDisplay > 0 && <Row label="Coupon discount" value={`- ${formatMoney(discountDisplay, baseCurrency)}`} accent="text-emerald-300" />}
+                {discountDisplay > 0 && (
+                  <Row
+                    label="Coupon discount"
+                    value={`- ${formatMoney(discountDisplay, baseCurrency)}`}
+                    accent="text-emerald-300"
+                  />
+                )}
                 {cashbackApplyDisplay > 0 && (
-                  <Row label="Cashback applied" value={`- ${formatMoney(cashbackApplyDisplay, baseCurrency)}`} accent="text-emerald-300" />
+                  <Row
+                    label="Cashback applied"
+                    value={`- ${formatMoney(cashbackApplyDisplay, baseCurrency)}`}
+                    accent="text-emerald-300"
+                  />
                 )}
                 <div className="pt-2 mt-2 border-t border-white/5 flex items-center justify-between">
                   <span className="text-white font-bold">Total due</span>
@@ -355,7 +426,8 @@ export function CourseCheckoutModal({
                 Continue to payment · {totalFormatted}
               </button>
               <p className="text-[10px] text-slate-600 text-center leading-relaxed">
-                80% goes to the instructor · 20% to platform academy revenue · Secure ledgered payment.
+                80% goes to the instructor · 20% to platform academy revenue · Secure ledgered
+                payment.
               </p>
             </>
           )}

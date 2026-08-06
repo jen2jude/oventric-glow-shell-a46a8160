@@ -3,18 +3,42 @@ import { useEffect, useState } from "react";
 import { PublicChrome } from "@/components/oventric/PublicChrome";
 import { AdvertInquiryModal } from "@/components/oventric/AdvertInquiryModal";
 import {
-  Megaphone, Image as ImageIcon, Video, Sparkles, MapPin,
-  Users, BarChart3, Target as TargetIcon, ShieldCheck, Rocket, ChevronRight, CheckCircle2,
-  Activity, Eye, MousePointerClick, TrendingUp, Radio, Cpu, Layers,
+  Megaphone,
+  Image as ImageIcon,
+  Video,
+  Sparkles,
+  MapPin,
+  Users,
+  BarChart3,
+  Target as TargetIcon,
+  ShieldCheck,
+  Rocket,
+  ChevronRight,
+  CheckCircle2,
+  Activity,
+  Eye,
+  MousePointerClick,
+  TrendingUp,
+  Radio,
+  Cpu,
+  Layers,
 } from "lucide-react";
 
 export const Route = createFileRoute("/advertise")({
   head: () => ({
     meta: [
       { title: "Advertise on Oventric — Reach builders across Africa" },
-      { name: "description", content: "Text, image, and video ad tiers from $0.50/day. Target every state in Nigeria, every region in Ghana, and the rest of Africa." },
+      {
+        name: "description",
+        content:
+          "Text, image, and video ad tiers from $0.50/day. Target every state in Nigeria, every region in Ghana, and the rest of Africa.",
+      },
       { property: "og:title", content: "Advertise on Oventric" },
-      { property: "og:description", content: "Text $0.50/day, Image $0.79/day, Video $0.99/day. City & state level targeting across Africa." },
+      {
+        property: "og:description",
+        content:
+          "Text $0.50/day, Image $0.79/day, Video $0.99/day. City & state level targeting across Africa.",
+      },
     ],
   }),
   component: AdvertisePage,
@@ -31,9 +55,9 @@ const TIERS = [
     color: "from-slate-500/20 to-slate-500/5",
     ring: "border-slate-500/40",
     features: [
- "Header + short description + body",
- "CTA: WhatsApp, Lead form, or Website link",
- "Great for lead-gen & fast tests",
+      "Header + short description + body",
+      "CTA: WhatsApp, Lead form, or Website link",
+      "Great for lead-gen & fast tests",
     ],
   },
   {
@@ -46,9 +70,9 @@ const TIERS = [
     color: "from-emerald-500/25 to-emerald-500/5",
     ring: "border-emerald-500/60",
     features: [
- "1:1 image (fits Feed, Marketplace & Academy)",
- "Up to 5 images as a carousel",
- "Header, description & CTA included",
+      "1:1 image (fits Feed, Marketplace & Academy)",
+      "Up to 5 images as a carousel",
+      "Header, description & CTA included",
     ],
     highlight: true,
   },
@@ -62,31 +86,93 @@ const TIERS = [
     color: "from-purple-500/25 to-purple-500/5",
     ring: "border-purple-500/40",
     features: [
- "Up to 5 min video, 100 MB max",
- "Header + description + body + CTA",
- "Autoplay in Feed & Discovery rail",
+      "Up to 5 min video, 100 MB max",
+      "Header + description + body + CTA",
+      "Autoplay in Feed & Discovery rail",
     ],
   },
 ];
 
 const NG_STATES = [
- "Abia","Adamawa","Akwa Ibom","Anambra","Bauchi","Bayelsa","Benue","Borno",
- "Cross River","Delta","Ebonyi","Edo","Ekiti","Enugu","FCT (Abuja)","Gombe",
- "Imo","Jigawa","Kaduna","Kano","Katsina","Kebbi","Kogi","Kwara","Lagos",
- "Nasarawa","Niger","Ogun","Ondo","Osun","Oyo","Plateau","Rivers","Sokoto",
- "Taraba","Yobe","Zamfara",
+  "Abia",
+  "Adamawa",
+  "Akwa Ibom",
+  "Anambra",
+  "Bauchi",
+  "Bayelsa",
+  "Benue",
+  "Borno",
+  "Cross River",
+  "Delta",
+  "Ebonyi",
+  "Edo",
+  "Ekiti",
+  "Enugu",
+  "FCT (Abuja)",
+  "Gombe",
+  "Imo",
+  "Jigawa",
+  "Kaduna",
+  "Kano",
+  "Katsina",
+  "Kebbi",
+  "Kogi",
+  "Kwara",
+  "Lagos",
+  "Nasarawa",
+  "Niger",
+  "Ogun",
+  "Ondo",
+  "Osun",
+  "Oyo",
+  "Plateau",
+  "Rivers",
+  "Sokoto",
+  "Taraba",
+  "Yobe",
+  "Zamfara",
 ];
 
 const GH_REGIONS = [
- "Ahafo","Ashanti","Bono","Bono East","Central","Eastern","Greater Accra",
- "North East","Northern","Oti","Savannah","Upper East","Upper West","Volta",
- "Western","Western North",
+  "Ahafo",
+  "Ashanti",
+  "Bono",
+  "Bono East",
+  "Central",
+  "Eastern",
+  "Greater Accra",
+  "North East",
+  "Northern",
+  "Oti",
+  "Savannah",
+  "Upper East",
+  "Upper West",
+  "Volta",
+  "Western",
+  "Western North",
 ];
 
 const REST_OF_AFRICA = [
- "Kenya","South Africa","Egypt","Morocco","Ethiopia","Uganda","Tanzania",
- "Rwanda","Senegal","Côte d'Ivoire","Cameroon","Zambia","Zimbabwe","Angola",
- "Algeria","Tunisia","DR Congo","Botswana","Namibia","Mozambique",
+  "Kenya",
+  "South Africa",
+  "Egypt",
+  "Morocco",
+  "Ethiopia",
+  "Uganda",
+  "Tanzania",
+  "Rwanda",
+  "Senegal",
+  "Côte d'Ivoire",
+  "Cameroon",
+  "Zambia",
+  "Zimbabwe",
+  "Angola",
+  "Algeria",
+  "Tunisia",
+  "DR Congo",
+  "Botswana",
+  "Namibia",
+  "Mozambique",
 ];
 
 const COVERAGE = [
@@ -96,31 +182,51 @@ const COVERAGE = [
 ];
 
 const STEPS = [
-  { icon: Rocket, title: "Pick a tier", body: "Text, image, or video — you choose the level of impact." },
-  { icon: ImageIcon, title: "Send your creative", body: "Upload copy, images, and video specs through our secure form." },
-  { icon: TargetIcon, title: "Target audience", body: "Choose countries, states/regions, duration and daily budget." },
-  { icon: ShieldCheck, title: "Admin reviews", body: "Our team contacts you to finalise creative, pricing and go-live date." },
-  { icon: BarChart3, title: "Fund & launch", body: "Fund your wallet with the exact campaign total. Ad goes live on approval." },
+  {
+    icon: Rocket,
+    title: "Pick a tier",
+    body: "Text, image, or video — you choose the level of impact.",
+  },
+  {
+    icon: ImageIcon,
+    title: "Send your creative",
+    body: "Upload copy, images, and video specs through our secure form.",
+  },
+  {
+    icon: TargetIcon,
+    title: "Target audience",
+    body: "Choose countries, states/regions, duration and daily budget.",
+  },
+  {
+    icon: ShieldCheck,
+    title: "Admin reviews",
+    body: "Our team contacts you to finalise creative, pricing and go-live date.",
+  },
+  {
+    icon: BarChart3,
+    title: "Fund & launch",
+    body: "Fund your wallet with the exact campaign total. Ad goes live on approval.",
+  },
 ];
 
 /* ---------------- Live-looking Ads Dashboard preview ---------------- */
 
 const ALGO_LINES = [
- "▸ scoring 12,481 candidates for placement=feed",
- "▸ geo-match: NG · Lagos → boost ×1.4",
- "▸ tier=image · CPM $0.79 · pacing OK",
- "▸ freq-cap: 3/user/day · fresh impression ✓",
- "▸ ranker: relevance 0.87 · budget-left 92%",
- "▸ serving creative #2 (carousel · 1080²)",
- "▸ event: impression · session s_9be2",
- "▸ ranker: relevance 0.91 · pacing accel",
- "▸ geo-match: GH · Accra → boost ×1.2",
- "▸ tier=video · CPM $0.99 · autoplay ready",
- "▸ event: click · placement=marketplace",
- "▸ retarget bucket: r_hot · size 3,412",
- "▸ delivery smoothing: 84 imp/min",
- "▸ safe-brand filter: pass ✓",
- "▸ event: lead · form=email+whatsapp",
+  "▸ scoring 12,481 candidates for placement=feed",
+  "▸ geo-match: NG · Lagos → boost ×1.4",
+  "▸ tier=image · CPM $0.79 · pacing OK",
+  "▸ freq-cap: 3/user/day · fresh impression ✓",
+  "▸ ranker: relevance 0.87 · budget-left 92%",
+  "▸ serving creative #2 (carousel · 1080²)",
+  "▸ event: impression · session s_9be2",
+  "▸ ranker: relevance 0.91 · pacing accel",
+  "▸ geo-match: GH · Accra → boost ×1.2",
+  "▸ tier=video · CPM $0.99 · autoplay ready",
+  "▸ event: click · placement=marketplace",
+  "▸ retarget bucket: r_hot · size 3,412",
+  "▸ delivery smoothing: 84 imp/min",
+  "▸ safe-brand filter: pass ✓",
+  "▸ event: lead · form=email+whatsapp",
 ];
 
 function useTicker() {
@@ -160,10 +266,34 @@ function LiveDashboardPreview() {
   const cpm = t.imp ? ((t.spend / t.imp) * 1000).toFixed(2) : "0";
 
   const stats = [
-    { icon: Eye, label: "Impressions", value: t.imp.toLocaleString(), tint: "text-sky-300", ring: "border-sky-500/30" },
-    { icon: MousePointerClick, label: "Clicks", value: t.clk.toLocaleString(), tint: "text-emerald-300", ring: "border-emerald-500/30" },
-    { icon: Users, label: "Leads", value: t.ld.toString(), tint: "text-fuchsia-300", ring: "border-fuchsia-500/30" },
-    { icon: TrendingUp, label: "Spend", value: `$${t.spend.toFixed(2)}`, tint: "text-amber-300", ring: "border-amber-500/30" },
+    {
+      icon: Eye,
+      label: "Impressions",
+      value: t.imp.toLocaleString(),
+      tint: "text-sky-300",
+      ring: "border-sky-500/30",
+    },
+    {
+      icon: MousePointerClick,
+      label: "Clicks",
+      value: t.clk.toLocaleString(),
+      tint: "text-emerald-300",
+      ring: "border-emerald-500/30",
+    },
+    {
+      icon: Users,
+      label: "Leads",
+      value: t.ld.toString(),
+      tint: "text-fuchsia-300",
+      ring: "border-fuchsia-500/30",
+    },
+    {
+      icon: TrendingUp,
+      label: "Spend",
+      value: `$${t.spend.toFixed(2)}`,
+      tint: "text-amber-300",
+      ring: "border-amber-500/30",
+    },
   ];
 
   return (
@@ -172,9 +302,12 @@ function LiveDashboardPreview() {
         <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
           <Activity className="w-3.5 h-3.5" /> Live dashboard preview
         </span>
-        <h2 className="mt-3 text-2xl md:text-3xl font-black text-white md:text-slate-900">See the algorithm work in real time</h2>
+        <h2 className="mt-3 text-2xl md:text-3xl font-black text-white md:text-slate-900">
+          See the algorithm work in real time
+        </h2>
         <p className="text-sm text-slate-400 mt-2 max-w-2xl mx-auto md:text-slate-500">
-          A peek at the ranker that powers your ads — targeting, pacing, frequency capping and event tracking, all running live.
+          A peek at the ranker that powers your ads — targeting, pacing, frequency capping and event
+          tracking, all running live.
         </p>
       </div>
 
@@ -195,13 +328,18 @@ function LiveDashboardPreview() {
           <div className="md:col-span-2 space-y-4">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
               {stats.map((s) => (
-                <div key={s.label} className={`p-3 rounded-xl bg-[#141418] md:bg-white border ${s.ring}`}>
+                <div
+                  key={s.label}
+                  className={`p-3 rounded-xl bg-[#141418] md:bg-white border ${s.ring}`}
+                >
                   <div className="flex items-center justify-between">
                     <s.icon className={`w-4 h-4 ${s.tint}`} />
                     <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
                   </div>
                   <div className={`mt-2 text-xl font-black ${s.tint} tabular-nums`}>{s.value}</div>
-                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">{s.label}</div>
+                  <div className="text-[10px] text-slate-500 uppercase tracking-wider mt-0.5">
+                    {s.label}
+                  </div>
                 </div>
               ))}
             </div>
@@ -210,7 +348,9 @@ function LiveDashboardPreview() {
             <div className="p-4 rounded-xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-300 md:text-slate-600">
                 <Layers className="w-4 h-4 text-emerald-400" /> Delivery funnel
-                <span className="ml-auto text-[10px] text-slate-500">CTR {ctr}% · CPM ${cpm}</span>
+                <span className="ml-auto text-[10px] text-slate-500">
+                  CTR {ctr}% · CPM ${cpm}
+                </span>
               </div>
               <div className="mt-3 space-y-2">
                 {[
@@ -222,10 +362,14 @@ function LiveDashboardPreview() {
                 ].map((r) => (
                   <div key={r.k}>
                     <div className="flex items-center justify-between text-[11px] text-slate-400 md:text-slate-500">
-                      <span>{r.k}</span><span className="tabular-nums">{r.v}%</span>
+                      <span>{r.k}</span>
+                      <span className="tabular-nums">{r.v}%</span>
                     </div>
                     <div className="mt-1 h-2 rounded-full bg-white/5 overflow-hidden md:bg-slate-100">
-                      <div className={`h-full ${r.c} transition-all duration-700`} style={{ width: `${r.v}%` }} />
+                      <div
+                        className={`h-full ${r.c} transition-all duration-700`}
+                        style={{ width: `${r.v}%` }}
+                      />
                     </div>
                   </div>
                 ))}
@@ -236,7 +380,9 @@ function LiveDashboardPreview() {
             <div className="p-4 rounded-xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
               <div className="flex items-center gap-2 text-xs font-bold text-slate-300 md:text-slate-600">
                 <Radio className="w-4 h-4 text-emerald-400" /> Impressions / minute
-                <span className="ml-auto text-[10px] text-emerald-300">+{Math.floor(60 + Math.random() * 40)} last min</span>
+                <span className="ml-auto text-[10px] text-emerald-300">
+                  +{Math.floor(60 + Math.random() * 40)} last min
+                </span>
               </div>
               <svg viewBox="0 0 400 80" className="w-full h-20 mt-3">
                 <defs>
@@ -245,8 +391,16 @@ function LiveDashboardPreview() {
                     <stop offset="100%" stopColor="rgb(59, 130, 246)" stopOpacity="0" />
                   </linearGradient>
                 </defs>
-                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8 L400,80 L0,80 Z" fill="url(#g1)" />
-                <path d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8" fill="none" stroke="rgb(59, 130, 246)" strokeWidth="2" />
+                <path
+                  d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8 L400,80 L0,80 Z"
+                  fill="url(#g1)"
+                />
+                <path
+                  d="M0,60 L30,52 L60,58 L90,40 L120,45 L150,30 L180,38 L210,22 L240,28 L270,18 L300,24 L330,12 L360,18 L400,8"
+                  fill="none"
+                  stroke="rgb(59, 130, 246)"
+                  strokeWidth="2"
+                />
               </svg>
             </div>
           </div>
@@ -261,8 +415,13 @@ function LiveDashboardPreview() {
             </div>
             <div className="space-y-1">
               {rows.map((r, i) => (
-                <div key={`${r}-${i}`} className={i === 0 ? "text-emerald-300" : "text-emerald-200/70"}>
-                  <span className="text-slate-500">[{new Date().toLocaleTimeString([], { hour12: false })}]</span>{" "}
+                <div
+                  key={`${r}-${i}`}
+                  className={i === 0 ? "text-emerald-300" : "text-emerald-200/70"}
+                >
+                  <span className="text-slate-500">
+                    [{new Date().toLocaleTimeString([], { hour12: false })}]
+                  </span>{" "}
                   {r}
                 </div>
               ))}
@@ -285,15 +444,16 @@ function useSimplifyAdvertise() {
       const coarse = window.matchMedia("(pointer: coarse)").matches;
       const narrow = window.matchMedia("(max-width: 1023px)").matches;
       return coarse || narrow;
-    } catch { return false; }
+    } catch {
+      return false;
+    }
   });
   useEffect(() => {
     const mq1 = window.matchMedia("(pointer: coarse)");
     const mq2 = window.matchMedia("(max-width: 1023px)");
     const update = () => {
       setSimple(
-        document.documentElement.classList.contains("low-gpu") ||
-        mq1.matches || mq2.matches
+        document.documentElement.classList.contains("low-gpu") || mq1.matches || mq2.matches,
       );
     };
     update();
@@ -329,18 +489,19 @@ function AdvertisePage() {
   return (
     <PublicChrome>
       <div className="mx-auto w-full max-w-6xl px-4 py-8 md:py-14">
-
         {/* Hero */}
         <section className="text-center">
           <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-xs font-bold uppercase tracking-wider">
             <Sparkles className="w-3.5 h-3.5" /> Advertise on Oventric
           </span>
           <h1 className="mt-4 text-3xl md:text-5xl font-black text-white leading-tight md:text-slate-900">
-            Put your brand in front of<br className="hidden md:block" /> builders across Africa
+            Put your brand in front of
+            <br className="hidden md:block" /> builders across Africa
           </h1>
           <p className="mt-4 max-w-2xl mx-auto text-sm md:text-base text-slate-400 md:text-slate-500">
-            From <span className="text-emerald-300 font-bold">$0.50/day</span>. Three simple ad tiers, transparent pricing,
-            state-level targeting in Nigeria & Ghana plus the rest of Africa — wallet-funded budgets, no auctions.
+            From <span className="text-emerald-300 font-bold">$0.50/day</span>. Three simple ad
+            tiers, transparent pricing, state-level targeting in Nigeria & Ghana plus the rest of
+            Africa — wallet-funded budgets, no auctions.
           </p>
           <div className="mt-6 flex flex-col sm:flex-row gap-3 justify-center">
             <button
@@ -366,7 +527,10 @@ function AdvertisePage() {
             { icon: BarChart3, k: "3", v: "Placements: Feed, Market, Academy" },
             { icon: ShieldCheck, k: "24h", v: "Avg admin review" },
           ].map((s) => (
-            <div key={s.v} className="p-4 rounded-2xl bg-[#141418] border border-white/10 text-center md:bg-white md:border-slate-200">
+            <div
+              key={s.v}
+              className="p-4 rounded-2xl bg-[#141418] border border-white/10 text-center md:bg-white md:border-slate-200"
+            >
               <s.icon className="w-5 h-5 text-emerald-400 mx-auto mb-2" />
               <div className="text-lg font-black text-white md:text-slate-900">{s.k}</div>
               <div className="text-[11px] text-slate-500 uppercase tracking-wider">{s.v}</div>
@@ -377,8 +541,12 @@ function AdvertisePage() {
         {/* Tiers */}
         <section id="tiers" className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Three tiers. One goal.</h2>
-            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Choose the format that fits your budget and message.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">
+              Three tiers. One goal.
+            </h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">
+              Choose the format that fits your budget and message.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {TIERS.map((t) => (
@@ -392,15 +560,24 @@ function AdvertisePage() {
                   </span>
                 )}
                 <t.icon className="w-8 h-8 text-white md:text-slate-900" />
-                <div className="mt-4 text-xs uppercase tracking-wider text-slate-400 font-bold md:text-slate-500">{t.tagline}</div>
-                <div className="text-2xl font-black text-white mt-1 md:text-slate-900">{t.name} ads</div>
+                <div className="mt-4 text-xs uppercase tracking-wider text-slate-400 font-bold md:text-slate-500">
+                  {t.tagline}
+                </div>
+                <div className="text-2xl font-black text-white mt-1 md:text-slate-900">
+                  {t.name} ads
+                </div>
                 <div className="mt-2 flex items-baseline gap-1">
-                  <span className="text-3xl font-black text-white md:text-slate-900">{t.price}</span>
+                  <span className="text-3xl font-black text-white md:text-slate-900">
+                    {t.price}
+                  </span>
                   <span className="text-xs text-slate-400 md:text-slate-500">{t.per}</span>
                 </div>
                 <ul className="mt-4 space-y-2 flex-1">
                   {t.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2 text-xs text-slate-300 md:text-slate-600">
+                    <li
+                      key={f}
+                      className="flex items-start gap-2 text-xs text-slate-300 md:text-slate-600"
+                    >
                       <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
                       <span>{f}</span>
                     </li>
@@ -416,7 +593,8 @@ function AdvertisePage() {
             ))}
           </div>
           <p className="text-[11px] text-slate-500 text-center mt-4">
-            Prices are daily minimums. Total = daily budget × duration. Admin confirms final quote before you fund.
+            Prices are daily minimums. Total = daily budget × duration. Admin confirms final quote
+            before you fund.
           </p>
         </section>
 
@@ -426,16 +604,26 @@ function AdvertisePage() {
         {/* Coverage */}
         <section className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Where your ads run</h2>
-            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Every state in Nigeria, every region in Ghana, plus the rest of Africa.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">
+              Where your ads run
+            </h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">
+              Every state in Nigeria, every region in Ghana, plus the rest of Africa.
+            </p>
           </div>
           <div className="grid md:grid-cols-3 gap-4">
             {COVERAGE.map((c) => (
-              <div key={c.country} className="p-5 rounded-2xl bg-black border border-white/10 md:border-slate-200">
+              <div
+                key={c.country}
+                className="p-5 rounded-2xl bg-black border border-white/10 md:border-slate-200"
+              >
                 <div className="text-lg font-black text-white md:text-slate-900">{c.country}</div>
                 <div className="mt-3 flex flex-wrap gap-2 max-h-64 overflow-y-auto pr-1">
                   {c.cities.map((city) => (
-                    <span key={city} className="px-2.5 py-1 rounded-full bg-black border border-white/20 text-white text-[11px] font-medium">
+                    <span
+                      key={city}
+                      className="px-2.5 py-1 rounded-full bg-black border border-white/20 text-white text-[11px] font-medium"
+                    >
                       {city}
                     </span>
                   ))}
@@ -448,16 +636,27 @@ function AdvertisePage() {
         {/* How it works */}
         <section className="mt-14">
           <div className="text-center mb-8">
-            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">How it works</h2>
-            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">Simple, transparent, and fully human-reviewed.</p>
+            <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">
+              How it works
+            </h2>
+            <p className="text-sm text-slate-400 mt-2 md:text-slate-500">
+              Simple, transparent, and fully human-reviewed.
+            </p>
           </div>
           <div className="grid md:grid-cols-5 gap-3">
             {STEPS.map((s, i) => (
-              <div key={s.title} className="p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200">
-                <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-300 text-xs font-black">{i + 1}</div>
+              <div
+                key={s.title}
+                className="p-4 rounded-2xl bg-[#141418] border border-white/10 md:bg-white md:border-slate-200"
+              >
+                <div className="w-8 h-8 rounded-full bg-emerald-500/15 border border-emerald-500/40 grid place-items-center text-emerald-300 text-xs font-black">
+                  {i + 1}
+                </div>
                 <s.icon className="w-5 h-5 text-white mt-3 md:text-slate-900" />
                 <div className="mt-2 text-sm font-bold text-white md:text-slate-900">{s.title}</div>
-                <div className="text-xs text-slate-400 mt-1 leading-relaxed md:text-slate-500">{s.body}</div>
+                <div className="text-xs text-slate-400 mt-1 leading-relaxed md:text-slate-500">
+                  {s.body}
+                </div>
               </div>
             ))}
           </div>
@@ -500,10 +699,15 @@ function AdvertisePage() {
         </section>
 
         {/* CTA */}
-        <section className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] md:bg-white border-white/10 md:border-slate-200" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}>
-          <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">Ready to launch your first campaign?</h2>
+        <section
+          className={`mt-14 text-center p-8 rounded-2xl border ${simple ? "bg-[#141418] md:bg-white border-white/10 md:border-slate-200" : "bg-gradient-to-br from-emerald-500/15 to-transparent border-emerald-500/30"}`}
+        >
+          <h2 className="text-2xl md:text-3xl font-black text-white md:text-slate-900">
+            Ready to launch your first campaign?
+          </h2>
           <p className="text-sm text-slate-300 mt-2 max-w-lg mx-auto md:text-slate-600">
-            Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to confirm pricing and go live.
+            Submit your brief in under 3 minutes. Our team gets back to you within 24 hours to
+            confirm pricing and go live.
           </p>
           <button
             onClick={() => start("image")}

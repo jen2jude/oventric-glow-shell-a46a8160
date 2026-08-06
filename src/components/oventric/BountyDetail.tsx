@@ -21,7 +21,11 @@ import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { BountySolveForm } from "@/components/oventric/BountySolveForm";
 import { BountyTimeline } from "@/components/oventric/bounty/BountyTimeline";
-import { ProposalSortDropdown, sortProposals, type ProposalSortKey } from "@/components/oventric/bounty/ProposalSort";
+import {
+  ProposalSortDropdown,
+  sortProposals,
+  type ProposalSortKey,
+} from "@/components/oventric/bounty/ProposalSort";
 import {
   applyToBounty,
   acceptApplicant,
@@ -111,7 +115,6 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const [appFilter, setAppFilter] = useState<"all" | "pending" | "accepted" | "rejected">("all");
   const [appSort, setAppSort] = useState<ProposalSortKey>("newest");
 
-
   const applyFn = useServerFn(applyToBounty);
   const acceptFn = useServerFn(acceptApplicant);
   const solvedFn = useServerFn(markBountySolved);
@@ -128,7 +131,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     const { data: b, error: bErr } = await supabase
       .from("bounties")
       .select(
- "id, title, description, category, price_usd, original_currency, original_amount, fx_snapshot, cover_path, images, deadline_at, end_at, solved_at, released_at, status, dispute_status, admin_hold, poster_id, accepted_applicant_id, created_at",
+        "id, title, description, category, price_usd, original_currency, original_amount, fx_snapshot, cover_path, images, deadline_at, end_at, solved_at, released_at, status, dispute_status, admin_hold, poster_id, accepted_applicant_id, created_at",
       )
       .eq("id", bountyId)
       .maybeSingle();
@@ -183,12 +186,12 @@ export function BountyDetail({ bountyId, onBack }: Props) {
     const ch = supabase
       .channel(`bounty-detail:${bountyId}`)
       .on(
- "postgres_changes",
+        "postgres_changes",
         { event: "*", schema: "public", table: "bounties", filter: `id=eq.${bountyId}` },
         () => load(),
       )
       .on(
- "postgres_changes",
+        "postgres_changes",
         {
           event: "*",
           schema: "public",
@@ -204,7 +207,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   }, [bountyId, load]);
 
   const myApp = useMemo(
-    () => (me ? apps.find((a) => a.applicant_id === me) ?? null : null),
+    () => (me ? (apps.find((a) => a.applicant_id === me) ?? null) : null),
     [apps, me],
   );
 
@@ -254,22 +257,18 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
   const doApply = async () => {
     if (!pitch.trim()) return;
-    require(
-      2,
-      async () => {
-        setBusy("apply");
-        try {
-          await applyFn({ data: { bounty_id: bountyId, pitch: pitch.trim() } });
-          setPitch("");
-          await load();
-        } catch (e) {
-          alert((e as Error).message);
-        } finally {
-          setBusy(null);
-        }
-      },
- "solver",
-    );
+    require(2, async () => {
+      setBusy("apply");
+      try {
+        await applyFn({ data: { bounty_id: bountyId, pitch: pitch.trim() } });
+        setPitch("");
+        await load();
+      } catch (e) {
+        alert((e as Error).message);
+      } finally {
+        setBusy(null);
+      }
+    }, "solver");
   };
 
   const doAccept = async (applicantId: string) => {
@@ -338,7 +337,10 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         cls: "bg-sky-500/15 border-sky-500/40 text-sky-300",
       };
     if (bounty.accepted_applicant_id)
-      return { label: "In progress", cls: "bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300" };
+      return {
+        label: "In progress",
+        cls: "bg-fuchsia-500/15 border-fuchsia-500/40 text-fuchsia-300",
+      };
     return { label: "Open", cls: "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" };
   })();
 
@@ -346,7 +348,8 @@ export function BountyDetail({ bountyId, onBack }: Props) {
   const solvedAgeH = bounty.solved_at
     ? Math.max(0, (Date.now() - new Date(bounty.solved_at).getTime()) / 3_600_000)
     : 0;
-  const autoReleaseIn = bounty.solved_at && bounty.status === "solved" ? Math.max(0, 48 - solvedAgeH) : null;
+  const autoReleaseIn =
+    bounty.solved_at && bounty.status === "solved" ? Math.max(0, 48 - solvedAgeH) : null;
 
   return (
     <div className="max-w-4xl mx-auto w-full px-4 py-6 md:text-slate-700">
@@ -407,7 +410,11 @@ export function BountyDetail({ bountyId, onBack }: Props) {
           {/* Poster */}
           <div className="mt-4 flex items-center gap-3 pt-4 border-t border-white/5 md:border-slate-200">
             <div className="w-9 h-9 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
-              <AvatarImage src={posterProfile?.avatar_path ?? null} alt={posterProfile?.display_name ?? "Poster"} className="w-full h-full" />
+              <AvatarImage
+                src={posterProfile?.avatar_path ?? null}
+                alt={posterProfile?.display_name ?? "Poster"}
+                className="w-full h-full"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-white md:text-slate-900 text-sm font-semibold truncate">
@@ -450,12 +457,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
         </div>
       </div>
 
-
       <BountyTimeline
         bounty={{
           created_at: bounty.created_at,
           accepted_applicant_id: bounty.accepted_applicant_id,
-          accepted_at: apps.find((a) => a.applicant_id === bounty.accepted_applicant_id && a.status === "accepted")?.updated_at ?? null,
+          accepted_at:
+            apps.find(
+              (a) => a.applicant_id === bounty.accepted_applicant_id && a.status === "accepted",
+            )?.updated_at ?? null,
           solved_at: bounty.solved_at,
           released_at: bounty.released_at,
           dispute_status: bounty.dispute_status,
@@ -489,9 +498,7 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                   : posterProfile?.display_name || posterProfile?.username || "Poster"}
               </div>
               <div className="text-xs text-slate-500">
-                {isPoster
-                  ? "Working on your task"
-                  : "You accepted this bounty"}
+                {isPoster ? "Working on your task" : "You accepted this bounty"}
               </div>
             </div>
             <button
@@ -504,7 +511,8 @@ export function BountyDetail({ bountyId, onBack }: Props) {
 
           {bounty.dispute_status === "open" && (
             <div className="mb-3 flex items-center gap-2 px-3 py-2 rounded-lg bg-amber-500/10 border border-amber-500/50 text-amber-200 text-xs font-semibold">
-              <AlertTriangle className="w-4 h-4" /> Dispute open — admin will review. Auto-release paused.
+              <AlertTriangle className="w-4 h-4" /> Dispute open — admin will review. Auto-release
+              paused.
             </div>
           )}
           {bounty.admin_hold && (
@@ -517,7 +525,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <div className="mb-3 flex items-start gap-2 px-3 py-2 rounded-lg bg-sky-500/10 border border-sky-500/40 text-sky-200 text-xs font-semibold">
               <ShieldCheck className="w-4 h-4 mt-0.5 shrink-0" />
               <div>
-                Waiting for the poster to confirm the work was delivered okay. Your funds will be released to your wallet within 48 hours{autoReleaseIn !== null ? ` (~${Math.ceil(autoReleaseIn)}h remaining)` : ""}.
+                Waiting for the poster to confirm the work was delivered okay. Your funds will be
+                released to your wallet within 48 hours
+                {autoReleaseIn !== null ? ` (~${Math.ceil(autoReleaseIn)}h remaining)` : ""}.
               </div>
             </div>
           )}
@@ -547,7 +557,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             {isPoster && !bounty.released_at && (
               <button
                 onClick={() => setConfirmRelease(true)}
-                disabled={busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold}
+                disabled={
+                  busy === "release" || bounty.dispute_status === "open" || bounty.admin_hold
+                }
                 className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50"
               >
                 <CheckCircle2 className="w-4 h-4" /> Confirm &amp; release {dp.formatted}
@@ -574,12 +586,12 @@ export function BountyDetail({ bountyId, onBack }: Props) {
       {/* Solve submission form / submitted solution */}
       {bounty.accepted_applicant_id && (isSolver || isPoster) && (
         <div id="bounty-solve-form">
-        <BountySolveForm
-          bountyId={bountyId}
-          canSubmit={isSolver}
-          delivered={bounty.status === "solved" || !!bounty.solved_at}
-          onDelivered={doMarkSolved}
-        />
+          <BountySolveForm
+            bountyId={bountyId}
+            canSubmit={isSolver}
+            delivered={bounty.status === "solved" || !!bounty.solved_at}
+            onDelivered={doMarkSolved}
+          />
         </div>
       )}
 
@@ -590,8 +602,8 @@ export function BountyDetail({ bountyId, onBack }: Props) {
             <Star className="w-4 h-4 text-emerald-400" /> Apply for this bounty
           </div>
           <p className="text-xs text-slate-400 md:text-slate-500 mb-3">
-            Tell the poster why you're the right solver. Your pitch will be sent as a direct
-            message so they can chat with you immediately.
+            Tell the poster why you're the right solver. Your pitch will be sent as a direct message
+            so they can chat with you immediately.
           </p>
           {myApp ? (
             <div className="rounded-lg border border-emerald-500/40 bg-emerald-500/10 text-emerald-200 p-3 text-sm">
@@ -602,7 +614,9 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               ) : (
                 <>Your application is pending review. The poster has been notified.</>
               )}
-              <div className="mt-2 text-xs text-slate-300 md:text-slate-600 whitespace-pre-wrap">{myApp.pitch}</div>
+              <div className="mt-2 text-xs text-slate-300 md:text-slate-600 whitespace-pre-wrap">
+                {myApp.pitch}
+              </div>
               <button
                 onClick={() => openDM(bounty.poster_id)}
                 className="mt-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
@@ -650,24 +664,24 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <div className="flex flex-wrap items-center gap-2">
                 <ProposalSortDropdown value={appSort} onChange={setAppSort} />
                 <div className="flex flex-wrap gap-1.5">
-                {(["all", "pending", "accepted", "rejected"] as const).map((f) => {
-                  const count =
-                    f === "all" ? apps.length : apps.filter((a) => a.status === f).length;
-                  const on = appFilter === f;
-                  return (
-                    <button
-                      key={f}
-                      onClick={() => setAppFilter(f)}
-                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold capitalize border transition-colors ${
-                        on
-                          ? "bg-emerald-500/20 md:bg-emerald-50 border-emerald-500/50 text-emerald-300 md:text-emerald-700"
-                          : "bg-white/5 md:bg-slate-100 border-white/10 md:border-slate-200 text-slate-400 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
-                      }`}
-                    >
-                      {f} ({count})
-                    </button>
-                  );
-                })}
+                  {(["all", "pending", "accepted", "rejected"] as const).map((f) => {
+                    const count =
+                      f === "all" ? apps.length : apps.filter((a) => a.status === f).length;
+                    const on = appFilter === f;
+                    return (
+                      <button
+                        key={f}
+                        onClick={() => setAppFilter(f)}
+                        className={`px-2.5 py-1 rounded-lg text-[11px] font-bold capitalize border transition-colors ${
+                          on
+                            ? "bg-emerald-500/20 md:bg-emerald-50 border-emerald-500/50 text-emerald-300 md:text-emerald-700"
+                            : "bg-white/5 md:bg-slate-100 border-white/10 md:border-slate-200 text-slate-400 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
+                        }`}
+                      >
+                        {f} ({count})
+                      </button>
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -688,78 +702,78 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                   </div>
                 );
               return (
-            <div className="space-y-3">
-              {shown.map((a) => {
-                const p = profiles[a.applicant_id];
-                const accepted = a.status === "accepted";
-                const rejected = a.status === "rejected";
-                const canAccept = !bounty.accepted_applicant_id && !bounty.released_at;
-                const pill = accepted
-                  ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 md:text-emerald-700 md:bg-emerald-50"
-                  : rejected
-                    ? "bg-white/5 border-white/10 text-slate-400 md:text-slate-500 md:bg-slate-100 md:border-slate-200"
-                    : "bg-sky-500/15 border-sky-500/40 text-sky-300 md:text-sky-700 md:bg-sky-50";
-                return (
-                  <div
-                    key={a.id}
-                    className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5 md:bg-emerald-50" : rejected ? "border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100 opacity-60" : "border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50"}`}
-                  >
-                    <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
-                      <AvatarImage
-                        src={p?.avatar_path ?? null}
-                        alt={p?.display_name ?? "Applicant"}
-                        className="w-full h-full"
-                      />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-white md:text-slate-900 text-sm font-semibold">
-                          {p?.display_name || p?.username || "Applicant"}
-                        </span>
-                        <span className="text-xs text-slate-500">
-                          @{p?.username || p?.slug || "user"}
-                        </span>
-                        <span
-                          className={`px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${pill}`}
-                        >
-                          {accepted ? "Accepted" : rejected ? "Rejected" : "Pending"}
-                        </span>
-                        <span className="text-[11px] text-slate-500">
-                          {new Date(a.created_at).toLocaleDateString()}
-                        </span>
-                      </div>
-                      {a.pitch && (
-                        <div className="mt-1 text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap">
-                          {a.pitch}
-                        </div>
-                      )}
-                    </div>
-                    <div className="flex gap-2 shrink-0">
-                      <button
-                        onClick={() => openDM(a.applicant_id)}
-                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
+                <div className="space-y-3">
+                  {shown.map((a) => {
+                    const p = profiles[a.applicant_id];
+                    const accepted = a.status === "accepted";
+                    const rejected = a.status === "rejected";
+                    const canAccept = !bounty.accepted_applicant_id && !bounty.released_at;
+                    const pill = accepted
+                      ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300 md:text-emerald-700 md:bg-emerald-50"
+                      : rejected
+                        ? "bg-white/5 border-white/10 text-slate-400 md:text-slate-500 md:bg-slate-100 md:border-slate-200"
+                        : "bg-sky-500/15 border-sky-500/40 text-sky-300 md:text-sky-700 md:bg-sky-50";
+                    return (
+                      <div
+                        key={a.id}
+                        className={`rounded-lg border p-4 flex flex-col md:flex-row md:items-center gap-3 ${accepted ? "border-emerald-500/50 bg-emerald-500/5 md:bg-emerald-50" : rejected ? "border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100 opacity-60" : "border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50"}`}
                       >
-                        <MessageCircle className="w-3.5 h-3.5" /> Chat
-                      </button>
-                      {canAccept && !accepted && !rejected && (
-                        <button
-                          onClick={() => setAcceptTarget(a.applicant_id)}
-                          disabled={busy === `accept:${a.applicant_id}`}
-                          className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
-                        >
-                          {busy === `accept:${a.applicant_id}` ? (
-                            <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                          ) : (
-                            <CheckCircle2 className="w-3.5 h-3.5" />
+                        <div className="w-10 h-10 rounded-full overflow-hidden border border-white/10 md:border-slate-200 shrink-0">
+                          <AvatarImage
+                            src={p?.avatar_path ?? null}
+                            alt={p?.display_name ?? "Applicant"}
+                            className="w-full h-full"
+                          />
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="text-white md:text-slate-900 text-sm font-semibold">
+                              {p?.display_name || p?.username || "Applicant"}
+                            </span>
+                            <span className="text-xs text-slate-500">
+                              @{p?.username || p?.slug || "user"}
+                            </span>
+                            <span
+                              className={`px-2 py-0.5 rounded-md border text-[10px] font-bold uppercase tracking-wider ${pill}`}
+                            >
+                              {accepted ? "Accepted" : rejected ? "Rejected" : "Pending"}
+                            </span>
+                            <span className="text-[11px] text-slate-500">
+                              {new Date(a.created_at).toLocaleDateString()}
+                            </span>
+                          </div>
+                          {a.pitch && (
+                            <div className="mt-1 text-sm text-slate-300 md:text-slate-700 whitespace-pre-wrap">
+                              {a.pitch}
+                            </div>
                           )}
-                          Accept
-                        </button>
-                      )}
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                        </div>
+                        <div className="flex gap-2 shrink-0">
+                          <button
+                            onClick={() => openDM(a.applicant_id)}
+                            className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/5 md:bg-slate-100 hover:bg-white/10 md:hover:bg-slate-200 border border-white/10 md:border-slate-200 text-white md:text-slate-800 text-xs font-semibold"
+                          >
+                            <MessageCircle className="w-3.5 h-3.5" /> Chat
+                          </button>
+                          {canAccept && !accepted && !rejected && (
+                            <button
+                              onClick={() => setAcceptTarget(a.applicant_id)}
+                              disabled={busy === `accept:${a.applicant_id}`}
+                              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold disabled:opacity-50"
+                            >
+                              {busy === `accept:${a.applicant_id}` ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <CheckCircle2 className="w-3.5 h-3.5" />
+                              )}
+                              Accept
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
               );
             })()
           )}
@@ -785,13 +799,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 Accept{" "}
                 {profiles[acceptTarget]?.display_name ||
                   profiles[acceptTarget]?.username ||
- "this applicant"}
+                  "this applicant"}
                 ?
               </div>
             </div>
             <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
-              They become the assigned solver for {dp.formatted} in escrow, a chat opens with
-              them, and all other proposals are rejected.
+              They become the assigned solver for {dp.formatted} in escrow, a chat opens with them,
+              and all other proposals are rejected.
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -827,11 +841,14 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
                 <Send className="w-4 h-4 text-sky-300" />
               </div>
-              <div className="text-white md:text-slate-900 font-bold text-base">Mark work delivered?</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">
+                Mark work delivered?
+              </div>
             </div>
             <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
               The poster will be notified to review your delivery. If they don't confirm within
-              <span className="text-white md:text-slate-900 font-semibold"> 48 hours</span>, funds will auto-release to your wallet.
+              <span className="text-white md:text-slate-900 font-semibold"> 48 hours</span>, funds
+              will auto-release to your wallet.
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -845,7 +862,11 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 disabled={busy === "solved"}
                 className="px-4 py-2 rounded-lg bg-sky-500 hover:bg-sky-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
-                {busy === "solved" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {busy === "solved" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
                 Yes, mark delivered
               </button>
             </div>
@@ -868,12 +889,16 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <div className="w-9 h-9 rounded-full bg-sky-500/15 border border-sky-500/40 flex items-center justify-center">
                 <Clock className="w-4 h-4 text-sky-300" />
               </div>
-              <div className="text-white md:text-slate-900 font-bold text-base">Awaiting poster confirmation</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">
+                Awaiting poster confirmation
+              </div>
             </div>
             <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
-              Your delivery is submitted. Waiting for the poster to confirm and approve.
-              You can contact the poster via chat to nudge them to approve.
-              {autoReleaseIn !== null ? ` Funds auto-release in ~${Math.ceil(autoReleaseIn)}h if no response.` : ""}
+              Your delivery is submitted. Waiting for the poster to confirm and approve. You can
+              contact the poster via chat to nudge them to approve.
+              {autoReleaseIn !== null
+                ? ` Funds auto-release in ~${Math.ceil(autoReleaseIn)}h if no response.`
+                : ""}
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -911,10 +936,13 @@ export function BountyDetail({ bountyId, onBack }: Props) {
               <div className="w-9 h-9 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
                 <CheckCircle2 className="w-4 h-4 text-emerald-300" />
               </div>
-              <div className="text-white md:text-slate-900 font-bold text-base">Release {dp.formatted} to the solver?</div>
+              <div className="text-white md:text-slate-900 font-bold text-base">
+                Release {dp.formatted} to the solver?
+              </div>
             </div>
             <p className="text-white/70 md:text-slate-600 text-sm leading-relaxed mb-4">
-              This confirms the work was delivered okay and releases escrow to the solver's wallet. This action cannot be undone.
+              This confirms the work was delivered okay and releases escrow to the solver's wallet.
+              This action cannot be undone.
             </p>
             <div className="flex justify-end gap-2">
               <button
@@ -928,7 +956,11 @@ export function BountyDetail({ bountyId, onBack }: Props) {
                 disabled={busy === "release"}
                 className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-50 inline-flex items-center gap-1.5"
               >
-                {busy === "release" ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4" />}
+                {busy === "release" ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <CheckCircle2 className="w-4 h-4" />
+                )}
                 Confirm &amp; release
               </button>
             </div>

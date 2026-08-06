@@ -25,7 +25,10 @@ import {
 } from "@/lib/fulfilment.functions";
 import { formatMoney } from "@/lib/fx-display";
 
-const REASONS: Array<{ value: "not_delivered" | "wrong_item" | "not_working" | "seller_unreachable" | "other"; label: string }> = [
+const REASONS: Array<{
+  value: "not_delivered" | "wrong_item" | "not_working" | "seller_unreachable" | "other";
+  label: string;
+}> = [
   { value: "not_delivered", label: "I paid but never received the item" },
   { value: "wrong_item", label: "I received the wrong item" },
   { value: "not_working", label: "The item doesn't work as described" },
@@ -69,7 +72,9 @@ export function OrderFulfilmentRoadmap({
     }
   }, [loadFn, orderId]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const act = async (kind: "deliver" | "receive") => {
     setBusy(kind);
@@ -104,7 +109,11 @@ export function OrderFulfilmentRoadmap({
   };
 
   if (err) {
-    return <div className="rounded-lg border border-red-500/40 bg-[#1E1E24] md:bg-white p-4 text-sm text-red-300">{err}</div>;
+    return (
+      <div className="rounded-lg border border-red-500/40 bg-[#1E1E24] md:bg-white p-4 text-sm text-red-300">
+        {err}
+      </div>
+    );
   }
   if (!data) {
     return (
@@ -115,9 +124,15 @@ export function OrderFulfilmentRoadmap({
   }
 
   const auto = timeLeft(data.autoReleaseAt);
-  const canDeliver = data.role === "seller" && data.requiresManualDelivery && !data.deliveredAt && data.escrowStatus === "held";
-  const canConfirm = data.role === "buyer" && data.escrowStatus === "held" && data.disputeStatus !== "open";
-  const canDispute = data.role === "buyer" && data.disputeStatus === "none" && data.escrowStatus !== "refunded";
+  const canDeliver =
+    data.role === "seller" &&
+    data.requiresManualDelivery &&
+    !data.deliveredAt &&
+    data.escrowStatus === "held";
+  const canConfirm =
+    data.role === "buyer" && data.escrowStatus === "held" && data.disputeStatus !== "open";
+  const canDispute =
+    data.role === "buyer" && data.disputeStatus === "none" && data.escrowStatus !== "refunded";
 
   return (
     <div className="rounded-lg border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white p-4">
@@ -125,7 +140,8 @@ export function OrderFulfilmentRoadmap({
         <div className="min-w-0">
           <h2 className="text-white md:text-slate-900 font-bold text-base">Payment fulfilment</h2>
           <p className="text-xs text-slate-500 truncate">
-            {data.productName} · {formatMoney(data.displayTotal, data.displayCurrency)} · Order {data.orderId.slice(0, 8)}
+            {data.productName} · {formatMoney(data.displayTotal, data.displayCurrency)} · Order{" "}
+            {data.orderId.slice(0, 8)}
           </p>
         </div>
         <span
@@ -133,11 +149,15 @@ export function OrderFulfilmentRoadmap({
             data.disputeStatus === "open"
               ? "bg-red-500/15 text-red-300"
               : data.escrowStatus === "released"
-              ? "bg-emerald-500/15 text-emerald-300"
-              : "bg-amber-500/15 text-amber-300"
+                ? "bg-emerald-500/15 text-emerald-300"
+                : "bg-amber-500/15 text-amber-300"
           }`}
         >
-          {data.disputeStatus === "open" ? "Disputed" : data.escrowStatus === "released" ? "Complete" : "In escrow"}
+          {data.disputeStatus === "open"
+            ? "Disputed"
+            : data.escrowStatus === "released"
+              ? "Complete"
+              : "In escrow"}
         </span>
       </div>
 
@@ -169,12 +189,18 @@ export function OrderFulfilmentRoadmap({
           <div className="text-[11px] font-bold uppercase tracking-widest text-red-300 mb-1">
             Dispute · {data.dispute.status}
           </div>
-          <div className="text-xs text-slate-300 md:text-slate-600 whitespace-pre-wrap">{data.dispute.details}</div>
+          <div className="text-xs text-slate-300 md:text-slate-600 whitespace-pre-wrap">
+            {data.dispute.details}
+          </div>
           {data.dispute.imageUrls.length > 0 && (
             <div className="flex gap-2 mt-2 flex-wrap">
               {data.dispute.imageUrls.map((u) => (
                 <a key={u} href={u} target="_blank" rel="noreferrer">
-                  <img src={u} alt="Dispute evidence" className="w-16 h-16 object-cover rounded border border-white/10 md:border-slate-200" />
+                  <img
+                    src={u}
+                    alt="Dispute evidence"
+                    className="w-16 h-16 object-cover rounded border border-white/10 md:border-slate-200"
+                  />
                 </a>
               ))}
             </div>
@@ -186,8 +212,9 @@ export function OrderFulfilmentRoadmap({
       )}
 
       <div className="rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 mb-3 text-[11px] text-emerald-100 leading-relaxed">
-        <strong className="text-emerald-200">Keep this trade on Oventric.</strong> Payments are held in escrow and we can only
-        refund or mediate deals completed in-app. Deliver, chat and confirm here — never on WhatsApp or any other app.
+        <strong className="text-emerald-200">Keep this trade on Oventric.</strong> Payments are held
+        in escrow and we can only refund or mediate deals completed in-app. Deliver, chat and
+        confirm here — never on WhatsApp or any other app.
       </div>
 
       {/* Actions */}
@@ -229,14 +256,21 @@ export function OrderFulfilmentRoadmap({
 
       {confirmModal && (
         <ConfirmModal
-          title={confirmModal === "deliver" ? "Mark this order delivered?" : "Confirm you received this item?"}
+          title={
+            confirmModal === "deliver"
+              ? "Mark this order delivered?"
+              : "Confirm you received this item?"
+          }
           body={
             confirmModal === "deliver"
               ? "We'll post your delivery note in the buyer's chat. They get 48 hours to confirm — after that funds auto-release to your wallet."
               : "This releases the escrowed payment to the seller immediately. Only confirm if you have the item."
           }
           busy={busy !== null}
-          onCancel={() => { setConfirmModal(null); setDeliveryNote(""); }}
+          onCancel={() => {
+            setConfirmModal(null);
+            setDeliveryNote("");
+          }}
           onConfirm={() => act(confirmModal)}
         >
           {confirmModal === "deliver" && (
@@ -261,7 +295,11 @@ export function OrderFulfilmentRoadmap({
         <DisputeModal
           orderId={orderId}
           onClose={() => setShowDispute(false)}
-          onSubmitted={() => { setShowDispute(false); void load(); onChanged?.(); }}
+          onSubmitted={() => {
+            setShowDispute(false);
+            void load();
+            onChanged?.();
+          }}
         />
       )}
     </div>
@@ -279,16 +317,26 @@ function StepNode({ step }: { step: FulfilmentStep }) {
           done
             ? "bg-emerald-500/20 text-emerald-300"
             : blocked
-            ? "bg-red-500/15 text-red-300"
-            : active
-            ? "bg-amber-500/15 text-amber-300"
-            : "bg-white/5 md:bg-slate-50 text-slate-500"
+              ? "bg-red-500/15 text-red-300"
+              : active
+                ? "bg-amber-500/15 text-amber-300"
+                : "bg-white/5 md:bg-slate-50 text-slate-500"
         }`}
       >
-        {done ? <CheckCircle2 className="w-4 h-4" /> : blocked ? <ShieldAlert className="w-3.5 h-3.5" /> : active ? <Clock className="w-3.5 h-3.5" /> : <Circle className="w-3 h-3" />}
+        {done ? (
+          <CheckCircle2 className="w-4 h-4" />
+        ) : blocked ? (
+          <ShieldAlert className="w-3.5 h-3.5" />
+        ) : active ? (
+          <Clock className="w-3.5 h-3.5" />
+        ) : (
+          <Circle className="w-3 h-3" />
+        )}
       </span>
       <span className="min-w-0">
-        <span className={`block text-[11px] font-bold leading-tight truncate ${done ? "text-emerald-200" : active ? "text-white md:text-slate-900" : "text-slate-400 md:text-slate-500"}`}>
+        <span
+          className={`block text-[11px] font-bold leading-tight truncate ${done ? "text-emerald-200" : active ? "text-white md:text-slate-900" : "text-slate-400 md:text-slate-500"}`}
+        >
           {step.label}
         </span>
         <span className="block text-[10px] text-slate-500 truncate">
@@ -321,7 +369,10 @@ function ConfirmModal({
         <p className="text-xs text-slate-400 md:text-slate-500 mb-4">{body}</p>
         {children}
         <div className="flex gap-2 justify-end">
-          <button onClick={onCancel} className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200">
+          <button
+            onClick={onCancel}
+            className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
+          >
             Cancel
           </button>
           <button
@@ -349,7 +400,7 @@ function DisputeModal({
 }) {
   const openFn = useServerFn(openOrderDispute);
   const uploadUrlFn = useServerFn(getDisputeUploadUrl);
-  const [reason, setReason] = useState<typeof REASONS[number]["value"]>("not_delivered");
+  const [reason, setReason] = useState<(typeof REASONS)[number]["value"]>("not_delivered");
   const [details, setDetails] = useState("");
   const [paths, setPaths] = useState<string[]>([]);
   const [previews, setPreviews] = useState<string[]>([]);
@@ -362,7 +413,9 @@ function DisputeModal({
     try {
       for (const f of list) {
         const { path, token } = await uploadUrlFn({ data: { filename: f.name } });
-        const { error } = await supabase.storage.from("post-media").uploadToSignedUrl(path, token, f);
+        const { error } = await supabase.storage
+          .from("post-media")
+          .uploadToSignedUrl(path, token, f);
         if (error) throw new Error(error.message);
         setPaths((p) => [...p, path]);
         setPreviews((p) => [...p, URL.createObjectURL(f)]);
@@ -397,25 +450,37 @@ function DisputeModal({
         <div className="flex items-start justify-between gap-3 mb-3">
           <div>
             <h3 className="text-white md:text-slate-900 font-bold text-base">Open a dispute</h3>
-            <p className="text-xs text-slate-500">Admin will review your case and mediate with the seller.</p>
+            <p className="text-xs text-slate-500">
+              Admin will review your case and mediate with the seller.
+            </p>
           </div>
-          <button onClick={onClose} aria-label="Close" className="p-1.5 rounded-md text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100">
+          <button
+            onClick={onClose}
+            aria-label="Close"
+            className="p-1.5 rounded-md text-slate-400 md:text-slate-500 hover:text-white md:hover:text-slate-900 hover:bg-white/5 md:bg-slate-50 md:hover:bg-slate-100"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
 
-        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">What went wrong?</label>
+        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">
+          What went wrong?
+        </label>
         <select
           value={reason}
           onChange={(e) => setReason(e.target.value as typeof reason)}
           className="w-full mb-3 rounded-md bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-sm text-white md:text-slate-900"
         >
           {REASONS.map((r) => (
-            <option key={r.value} value={r.value}>{r.label}</option>
+            <option key={r.value} value={r.value}>
+              {r.label}
+            </option>
           ))}
         </select>
 
-        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">Details</label>
+        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">
+          Details
+        </label>
         <textarea
           value={details}
           onChange={(e) => setDetails(e.target.value)}
@@ -424,21 +489,37 @@ function DisputeModal({
           className="w-full mb-3 rounded-md bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-sm text-white md:text-slate-900 placeholder:text-slate-600"
         />
 
-        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">Evidence (up to 5 images)</label>
+        <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1">
+          Evidence (up to 5 images)
+        </label>
         <label className="inline-flex items-center gap-2 px-3 py-2 rounded-md text-sm text-slate-200 md:text-slate-700 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200 cursor-pointer mb-3">
           <Upload className="w-4 h-4" /> Add screenshots
-          <input type="file" accept="image/*" multiple hidden onChange={(e) => void onFiles(e.target.files)} />
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            hidden
+            onChange={(e) => void onFiles(e.target.files)}
+          />
         </label>
         {previews.length > 0 && (
           <div className="flex flex-wrap gap-2 mb-3">
             {previews.map((u) => (
-              <img key={u} src={u} alt="Evidence preview" className="w-16 h-16 object-cover rounded border border-white/10 md:border-slate-200" />
+              <img
+                key={u}
+                src={u}
+                alt="Evidence preview"
+                className="w-16 h-16 object-cover rounded border border-white/10 md:border-slate-200"
+              />
             ))}
           </div>
         )}
 
         <div className="flex justify-end gap-2">
-          <button onClick={onClose} className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200">
+          <button
+            onClick={onClose}
+            className="px-3 py-2 rounded-md text-sm text-slate-300 md:text-slate-600 bg-[#2A2A31] md:bg-slate-100 border border-white/10 md:border-slate-200"
+          >
             Cancel
           </button>
           <button

@@ -48,7 +48,9 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
     setErr(null);
     try {
       const r = await join({ data: { circleId: c.id } });
-      setCircles((prev) => prev?.map((x) => (x.id === c.id ? { ...x, myStatus: r.status } : x)) ?? prev);
+      setCircles(
+        (prev) => prev?.map((x) => (x.id === c.id ? { ...x, myStatus: r.status } : x)) ?? prev,
+      );
     } catch (e: any) {
       setErr(e?.message ?? "Failed");
     } finally {
@@ -61,7 +63,9 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
     setErr(null);
     try {
       await cancel({ data: { circleId: c.id } });
-      setCircles((prev) => prev?.map((x) => (x.id === c.id ? { ...x, myStatus: "none" } : x)) ?? prev);
+      setCircles(
+        (prev) => prev?.map((x) => (x.id === c.id ? { ...x, myStatus: "none" } : x)) ?? prev,
+      );
     } catch (e: any) {
       setErr(e?.message ?? "Failed");
     } finally {
@@ -77,7 +81,11 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
             <h2 className="text-white text-lg font-black">Join a Circle</h2>
             <p className="text-xs text-slate-400 mt-0.5">Circles {userName} belongs to</p>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-md text-slate-400 hover:text-white hover:bg-white/5"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -101,12 +109,25 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
               className="flex items-center gap-3 p-3 rounded-lg bg-[#1E1E24] border border-white/10 hover:border-emerald-500/40 transition-colors"
             >
               <div className="w-11 h-11 rounded-lg bg-gradient-to-br from-emerald-500 to-sky-500 flex items-center justify-center text-black font-black overflow-hidden shrink-0">
-                {c.avatarUrl ? <ResponsiveImage sizes="48px" src={c.avatarUrl} alt={c.name} className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : c.name.slice(0, 2).toUpperCase()}
+                {c.avatarUrl ? (
+                  <ResponsiveImage
+                    sizes="48px"
+                    src={c.avatarUrl}
+                    alt={c.name}
+                    className="w-full h-full object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
+                ) : (
+                  c.name.slice(0, 2).toUpperCase()
+                )}
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
                   <div className="text-white font-bold text-sm truncate">{c.name}</div>
-                  {c.isPrivate && <Lock className="w-3 h-3 text-slate-500 shrink-0" aria-label="Private circle" />}
+                  {c.isPrivate && (
+                    <Lock className="w-3 h-3 text-slate-500 shrink-0" aria-label="Private circle" />
+                  )}
                 </div>
                 <div className="text-xs text-slate-500 mt-0.5">
                   {c.memberCount} member{c.memberCount === 1 ? "" : "s"}
@@ -123,7 +144,11 @@ export function JoinCirclePickerModal({ open, onClose, userId, userName }: Props
                   disabled={busyId === c.id}
                   className="text-xs font-semibold text-yellow-300 px-3 py-1.5 rounded-md bg-yellow-500/10 border border-yellow-500/40 hover:bg-yellow-500/20 disabled:opacity-50 inline-flex items-center gap-1"
                 >
-                  {busyId === c.id ? <Loader2 className="w-3 h-3 animate-spin" /> : <Clock className="w-3 h-3" />}
+                  {busyId === c.id ? (
+                    <Loader2 className="w-3 h-3 animate-spin" />
+                  ) : (
+                    <Clock className="w-3 h-3" />
+                  )}
                   Requested
                 </button>
               ) : (

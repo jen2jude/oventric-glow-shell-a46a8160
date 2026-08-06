@@ -87,7 +87,9 @@ function rasterize(
   const { data } = ctx.getImageData(0, 0, size, size);
   const gray = new Uint8Array(size * size);
   for (let i = 0; i < size * size; i++) {
-    const r = data[i * 4], g = data[i * 4 + 1], b = data[i * 4 + 2];
+    const r = data[i * 4],
+      g = data[i * 4 + 1],
+      b = data[i * 4 + 2];
     gray[i] = (0.299 * r + 0.587 * g + 0.114 * b) | 0;
   }
   // Percentile-based contrast stretch → lighting invariance.
@@ -118,9 +120,11 @@ function aHashFrom(gray: Uint8Array): Uint8Array {
  * invariant to global brightness because it compares neighbours.
  */
 function dHashFrom(img: HTMLImageElement, offset = { dx: 0, dy: 0 }): Uint8Array {
-  const w = 17, h = 16;
+  const w = 17,
+    h = 16;
   const c = document.createElement("canvas");
-  c.width = w; c.height = h;
+  c.width = w;
+  c.height = h;
   const ctx = c.getContext("2d");
   if (!ctx) throw new Error("no 2d ctx");
   const iw = img.naturalWidth || img.width;
@@ -136,7 +140,8 @@ function dHashFrom(img: HTMLImageElement, offset = { dx: 0, dy: 0 }): Uint8Array
   let k = 0;
   for (let y = 0; y < h; y++) {
     for (let x = 0; x < w - 1; x++) {
-      const i0 = (y * w + x) * 4, i1 = (y * w + x + 1) * 4;
+      const i0 = (y * w + x) * 4,
+        i1 = (y * w + x + 1) * 4;
       const g0 = 0.299 * data[i0] + 0.587 * data[i0 + 1] + 0.114 * data[i0 + 2];
       const g1 = 0.299 * data[i1] + 0.587 * data[i1 + 1] + 0.114 * data[i1 + 2];
       bits[k++] = g1 > g0 ? 1 : 0;
@@ -157,8 +162,10 @@ async function computeFaceHash(src: string | Blob): Promise<FaceHash> {
   const size = 16;
   const primary = { a: aHashFrom(rasterize(img, size)), d: dHashFrom(img) };
   const offsets = [
-    { dx: -1, dy: 0 }, { dx: 1, dy: 0 },
-    { dx: 0, dy: -1 }, { dx: 0, dy: 1 },
+    { dx: -1, dy: 0 },
+    { dx: 1, dy: 0 },
+    { dx: 0, dy: -1 },
+    { dx: 0, dy: 1 },
   ];
   const variants = offsets.map((o) => ({
     a: aHashFrom(rasterize(img, size, o)),
@@ -209,7 +216,6 @@ function evaluateMatch(ref: FaceHash, live: FaceHash) {
   const dSim = 1 - hamming(ref.d, live.d) / ref.d.length;
   return { score, dSim, ok: score >= FACE_MATCH_MIN_SCORE && dSim >= FACE_DHASH_MIN_SIM };
 }
-
 
 // ---------------------------------------------------------------------------
 // Context
@@ -288,20 +294,17 @@ export function KycGateProvider({ children }: { children: ReactNode }) {
     [kycCompleted],
   );
 
-  const handleComplete = useCallback(
-    (paths?: { selfie: string; id: string }) => {
-      setMode(null);
-      if (paths) {
-        setKycCompleted(true);
-        setReferencePath(paths.selfie);
-        setIdPath(paths.id);
-      }
-      const cb = pendingRef.current;
-      pendingRef.current = null;
-      window.setTimeout(() => cb?.(), 40);
-    },
-    [],
-  );
+  const handleComplete = useCallback((paths?: { selfie: string; id: string }) => {
+    setMode(null);
+    if (paths) {
+      setKycCompleted(true);
+      setReferencePath(paths.selfie);
+      setIdPath(paths.id);
+    }
+    const cb = pendingRef.current;
+    pendingRef.current = null;
+    window.setTimeout(() => cb?.(), 40);
+  }, []);
 
   const handleClose = useCallback(() => {
     pendingRef.current = null;
@@ -399,7 +402,6 @@ function KycLivenessModal({
     };
   }, []);
 
-
   useEffect(() => {
     if (mode !== "match") return;
     if (referencePath) {
@@ -495,7 +497,7 @@ function KycLivenessModal({
             setStep(mode === "enroll" ? "review" : "matching");
           }
         },
- "image/jpeg",
+        "image/jpeg",
         0.85,
       );
       return;
@@ -603,10 +605,11 @@ function KycLivenessModal({
       await saveKyc({ data: { phone: phone.trim(), selfiePath, idPath } });
       try {
         window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       setStep("success");
       setTimeout(() => onComplete({ selfie: selfiePath, id: idPath }), 1100);
-
     } catch (e) {
       setError(e instanceof Error ? e.message : "Could not save KYC");
     } finally {
@@ -689,9 +692,7 @@ function KycLivenessModal({
               {mode === "enroll" ? "Stage 3 · KYC Verification" : "Liveness Check"}
             </div>
             <h2 id="kyc-title" className="text-lg font-black text-white">
-              {mode === "enroll"
-                ? "Verify your identity to unlock wallet"
-                : "Confirm it's you"}
+              {mode === "enroll" ? "Verify your identity to unlock wallet" : "Confirm it's you"}
             </h2>
           </div>
           <button
@@ -707,7 +708,15 @@ function KycLivenessModal({
         {mode === "enroll" && step !== "success" && (
           <div className="flex items-center gap-1.5 mb-5">
             {(["phone", "id-camera", "selfie-camera", "review"] as Step[]).map((s, i) => {
-              const order: Step[] = ["phone", "id-camera", "id-capturing", "id-review", "selfie-camera", "selfie-capturing", "review"];
+              const order: Step[] = [
+                "phone",
+                "id-camera",
+                "id-capturing",
+                "id-review",
+                "selfie-camera",
+                "selfie-capturing",
+                "review",
+              ];
               const doneUpTo = order.indexOf(step);
               const stageIndex = order.indexOf(s);
               const active = doneUpTo >= stageIndex;
@@ -730,7 +739,10 @@ function KycLivenessModal({
               Photos from your gallery are not accepted.
             </p>
             <div>
-              <label htmlFor="kyc-phone" className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+              <label
+                htmlFor="kyc-phone"
+                className="flex items-center gap-1.5 text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5"
+              >
                 <Phone className="w-3.5 h-3.5 text-emerald-300" /> Phone (with country code)
               </label>
               <input
@@ -746,7 +758,10 @@ function KycLivenessModal({
                 }`}
               />
               {phoneError && (
-                <p role="alert" className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                <p
+                  role="alert"
+                  className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2"
+                >
                   {phoneError}
                 </p>
               )}
@@ -788,7 +803,10 @@ function KycLivenessModal({
               </div>
             </div>
             {error ? (
-              <div role="alert" className="text-sm text-red-400 mb-3 text-center inline-flex items-start gap-2">
+              <div
+                role="alert"
+                className="text-sm text-red-400 mb-3 text-center inline-flex items-start gap-2"
+              >
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -811,12 +829,19 @@ function KycLivenessModal({
           <div className="space-y-4">
             <div className=" rounded-2xl p-[2px]">
               <div className="bg-black rounded-2xl overflow-hidden">
-                <ResponsiveImage sizes="(min-width: 640px) 480px, 100vw" src={idUrl} alt="Captured ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
+                <ResponsiveImage
+                  sizes="(min-width: 640px) 480px, 100vw"
+                  src={idUrl}
+                  alt="Captured ID document"
+                  className="w-full aspect-[16/10] object-cover"
+                  loading="lazy"
+                  decoding="async"
+                />
               </div>
             </div>
             <p className="text-xs text-slate-400 text-center">
-              Check the ID is readable and the country matches your profile. This ID locks your country
-              — you'll need to contact admin to change it later.
+              Check the ID is readable and the country matches your profile. This ID locks your
+              country — you'll need to contact admin to change it later.
             </p>
             <div className="grid grid-cols-2 gap-2">
               <button
@@ -838,8 +863,8 @@ function KycLivenessModal({
         {(step === "selfie-camera" || step === "selfie-capturing") && (
           <div className="flex flex-col items-center">
             <p className="text-[11px] text-slate-400 text-center mb-3 max-w-xs">
-              Stay in bright, even light. Center your face inside the ring — we'll auto-capture on the
-              countdown.
+              Stay in bright, even light. Center your face inside the ring — we'll auto-capture on
+              the countdown.
             </p>
             <div className=" rounded-full p-[3px] mb-4">
               <div className="relative w-60 h-60 sm:w-72 sm:h-72 rounded-full bg-black overflow-hidden flex items-center justify-center">
@@ -864,7 +889,10 @@ function KycLivenessModal({
               </div>
             </div>
             {error ? (
-              <div role="alert" className="text-sm text-red-400 mb-3 text-center inline-flex items-start gap-2">
+              <div
+                role="alert"
+                className="text-sm text-red-400 mb-3 text-center inline-flex items-start gap-2"
+              >
                 <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                 <span>{error}</span>
               </div>
@@ -892,20 +920,39 @@ function KycLivenessModal({
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-2">
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">Government ID</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">
+                  Government ID
+                </div>
                 <div className="rounded-lg overflow-hidden border border-white/10 bg-black">
-                  <ResponsiveImage sizes="(min-width: 640px) 240px, 50vw" src={idUrl} alt="ID document" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
+                  <ResponsiveImage
+                    sizes="(min-width: 640px) 240px, 50vw"
+                    src={idUrl}
+                    alt="ID document"
+                    className="w-full aspect-square object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">Liveness</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">
+                  Liveness
+                </div>
                 <div className="rounded-lg overflow-hidden border border-emerald-500/40 bg-black">
-                  <ResponsiveImage sizes="(min-width: 640px) 240px, 50vw" src={selfieUrl} alt="Captured selfie" className="w-full aspect-square object-cover"  loading="lazy" decoding="async" />
+                  <ResponsiveImage
+                    sizes="(min-width: 640px) 240px, 50vw"
+                    src={selfieUrl}
+                    alt="Captured selfie"
+                    className="w-full aspect-square object-cover"
+                    loading="lazy"
+                    decoding="async"
+                  />
                 </div>
               </div>
             </div>
             <p className="text-xs text-slate-400 text-center">
-              We'll match against your liveness before every payout. Your country is now locked to your ID.
+              We'll match against your liveness before every payout. Your country is now locked to
+              your ID.
             </p>
             {error && (
               <p role="alert" className="text-xs text-red-400 border-l-2 border-red-500 pl-2">
@@ -926,9 +973,13 @@ function KycLivenessModal({
                 className=" h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
               >
                 {busy ? (
-                  <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" /> Saving…
+                  </>
                 ) : (
-                  <><ShieldCheck className="w-4 h-4 text-emerald-300" /> Save & unlock wallet</>
+                  <>
+                    <ShieldCheck className="w-4 h-4 text-emerald-300" /> Save & unlock wallet
+                  </>
                 )}
               </button>
             </div>
@@ -939,10 +990,19 @@ function KycLivenessModal({
           <div className="flex flex-col items-center py-4">
             <div className="grid grid-cols-2 gap-3 mb-4 w-full">
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">Reference</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-slate-500 mb-1.5 text-center">
+                  Reference
+                </div>
                 <div className="aspect-square rounded-lg overflow-hidden border border-white/10 bg-black">
                   {referenceUrl ? (
-                    <ResponsiveImage sizes="(min-width: 640px) 240px, 50vw" src={referenceUrl} alt="Stored reference" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+                    <ResponsiveImage
+                      sizes="(min-width: 640px) 240px, 50vw"
+                      src={referenceUrl}
+                      alt="Stored reference"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <div className="w-full h-full flex items-center justify-center">
                       <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
@@ -951,10 +1011,19 @@ function KycLivenessModal({
                 </div>
               </div>
               <div>
-                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">Live capture</div>
+                <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-1.5 text-center">
+                  Live capture
+                </div>
                 <div className="aspect-square rounded-lg overflow-hidden border border-emerald-500/40 bg-black">
                   {selfieUrl ? (
-                    <ResponsiveImage sizes="(min-width: 640px) 240px, 50vw" src={selfieUrl} alt="Live capture" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
+                    <ResponsiveImage
+                      sizes="(min-width: 640px) 240px, 50vw"
+                      src={selfieUrl}
+                      alt="Live capture"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : null}
                 </div>
               </div>
@@ -1065,7 +1134,14 @@ function FallbackIdPreview({ path }: { path: string }) {
         Your stored ID on file
       </div>
       <div className="rounded-lg overflow-hidden border border-white/10 bg-black">
-        <ResponsiveImage sizes="(min-width: 640px) 480px, 100vw" src={url} alt="Stored ID document" className="w-full aspect-[16/10] object-cover"  loading="lazy" decoding="async" />
+        <ResponsiveImage
+          sizes="(min-width: 640px) 480px, 100vw"
+          src={url}
+          alt="Stored ID document"
+          className="w-full aspect-[16/10] object-cover"
+          loading="lazy"
+          decoding="async"
+        />
       </div>
     </div>
   );
@@ -1142,8 +1218,8 @@ function FallbackSupport({
         <div>
           <div className="text-white font-black text-sm">Manual review needed</div>
           <p className="text-[11px] text-slate-400 leading-snug">
-            Face match failed {selfieAttempts}× and ID match failed {idAttempts}×.
-            Contact an admin to verify your identity.
+            Face match failed {selfieAttempts}× and ID match failed {idAttempts}×. Contact an admin
+            to verify your identity.
           </p>
         </div>
       </div>
@@ -1163,9 +1239,7 @@ function FallbackSupport({
           rows={3}
           className="w-full px-3 py-2 bg-[#121214] border border-white/10 rounded-lg text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/40 focus:border-emerald-500/60 resize-none"
         />
-        {matchDebug && (
-          <p className="text-[10px] text-slate-500">Diagnostics: {matchDebug}</p>
-        )}
+        {matchDebug && <p className="text-[10px] text-slate-500">Diagnostics: {matchDebug}</p>}
         {err && (
           <p role="alert" className="text-[11px] text-red-400 border-l-2 border-red-500 pl-2">
             {err}
@@ -1186,9 +1260,13 @@ function FallbackSupport({
           className="h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-xs inline-flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {busy ? (
-            <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+            <>
+              <Loader2 className="w-4 h-4 animate-spin" /> Sending…
+            </>
           ) : (
-            <><LifeBuoy className="w-4 h-4" /> Contact admin</>
+            <>
+              <LifeBuoy className="w-4 h-4" /> Contact admin
+            </>
           )}
         </button>
       </div>

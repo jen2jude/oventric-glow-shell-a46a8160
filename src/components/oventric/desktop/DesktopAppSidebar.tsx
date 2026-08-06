@@ -61,7 +61,15 @@ function Row({
   );
 }
 
-function MoreToggle({ open, onToggle, label }: { open: boolean; onToggle: () => void; label: string }) {
+function MoreToggle({
+  open,
+  onToggle,
+  label,
+}: {
+  open: boolean;
+  onToggle: () => void;
+  label: string;
+}) {
   return (
     <button
       type="button"
@@ -69,14 +77,24 @@ function MoreToggle({ open, onToggle, label }: { open: boolean; onToggle: () => 
       className="flex w-full items-center gap-3 rounded-xl px-3 py-2 text-left text-sm font-semibold text-slate-500 transition-colors hover:bg-slate-100 hover:text-slate-900"
     >
       <span className="flex h-7 w-7 items-center justify-center rounded-full bg-slate-100">
-        <ChevronDown className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
+        <ChevronDown
+          className={`h-4 w-4 transition-transform duration-200 ${open ? "rotate-180" : ""}`}
+        />
       </span>
       {open ? "Show less" : label}
     </button>
   );
 }
 
-function CircleRow({ c, onOpen, collapsed }: { c: CircleSummary; onOpen: (slug: string) => void; collapsed?: boolean }) {
+function CircleRow({
+  c,
+  onOpen,
+  collapsed,
+}: {
+  c: CircleSummary;
+  onOpen: (slug: string) => void;
+  collapsed?: boolean;
+}) {
   return (
     <Row onClick={() => onOpen(c.slug)} title={c.name} collapsed={collapsed}>
       <span className="h-7 w-7 shrink-0 overflow-hidden rounded-lg">
@@ -97,7 +115,9 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
   const profileFn = useServerFn(getProfileByIdOrSlug);
   const catalogFn = useServerFn(getCircleCatalog);
 
-  const [me, setMe] = useState<{ name: string; slug: string; avatarUrl: string | null } | null>(null);
+  const [me, setMe] = useState<{ name: string; slug: string; avatarUrl: string | null } | null>(
+    null,
+  );
   const [mine, setMine] = useState<CircleSummary[]>([]);
   const [recs, setRecs] = useState<CircleSummary[]>([]);
 
@@ -186,7 +206,9 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <AvatarImage src={me?.avatarUrl ?? null} alt={me?.name || "You"} loading="eager" />
         </span>
         {!collapsed && (
-          <span className="truncate text-sm font-bold text-slate-900">{me?.name || "Your profile"}</span>
+          <span className="truncate text-sm font-bold text-slate-900">
+            {me?.name || "Your profile"}
+          </span>
         )}
       </Link>
 
@@ -194,11 +216,18 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
       {/* Main sections */}
       {!collapsed && (
-        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Explore</p>
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          Explore
+        </p>
       )}
       <nav className="flex flex-col">
         {DASH_ITEMS.map((it) => (
-          <Row key={it.section} onClick={() => onSelect(it.section)} title={it.label} collapsed={collapsed}>
+          <Row
+            key={it.section}
+            onClick={() => onSelect(it.section)}
+            title={it.label}
+            collapsed={collapsed}
+          >
             <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
               <it.icon className="h-4 w-4" strokeWidth={2.5} />
             </span>
@@ -211,7 +240,9 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
       {/* My circles */}
       {!collapsed && (
-        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Your circles</p>
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          Your circles
+        </p>
       )}
       <nav className="flex flex-col">
         {mineVisible.map((c) => (
@@ -221,7 +252,11 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <p className="px-3 py-2 text-xs text-slate-500">You haven't joined a circle yet.</p>
         )}
         {mine.length > 3 && !collapsed && (
-          <MoreToggle open={moreMine} onToggle={() => setMoreMine((v) => !v)} label={`See all ${mine.length}`} />
+          <MoreToggle
+            open={moreMine}
+            onToggle={() => setMoreMine((v) => !v)}
+            label={`See all ${mine.length}`}
+          />
         )}
         <Row onClick={() => onSelect("Circles")} title="Browse circles" collapsed={collapsed}>
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
@@ -235,7 +270,9 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
 
       {/* Recommended circles */}
       {!collapsed && (
-        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">Discover circles</p>
+        <p className="px-3 pb-1 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+          Discover circles
+        </p>
       )}
       <nav className="flex flex-col">
         {recsVisible.map((c) => (
@@ -245,7 +282,11 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <p className="px-3 py-2 text-xs text-slate-500">No recommendations right now.</p>
         )}
         {recs.length > 3 && !collapsed && (
-          <MoreToggle open={moreRecs} onToggle={() => setMoreRecs((v) => !v)} label={`See all ${recs.length}`} />
+          <MoreToggle
+            open={moreRecs}
+            onToggle={() => setMoreRecs((v) => !v)}
+            label={`See all ${recs.length}`}
+          />
         )}
         <Row onClick={() => onSelect("Circles")} title="Explore all circles" collapsed={collapsed}>
           <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-700">
@@ -260,11 +301,17 @@ export function DesktopAppSidebar({ onSelect }: { onSelect: (section: string) =>
           <div className="my-3 h-px bg-slate-200" />
           <div className="flex flex-wrap gap-x-3 gap-y-1 px-3 pb-4">
             {LEGAL.map((l) => (
-              <Link key={l.to} to={l.to} className="text-[11px] font-medium text-slate-500 hover:text-slate-900">
+              <Link
+                key={l.to}
+                to={l.to}
+                className="text-[11px] font-medium text-slate-500 hover:text-slate-900"
+              >
                 {l.label}
               </Link>
             ))}
-            <span className="w-full pt-1 text-[11px] text-slate-400">© {new Date().getFullYear()} Oventric</span>
+            <span className="w-full pt-1 text-[11px] text-slate-400">
+              © {new Date().getFullYear()} Oventric
+            </span>
           </div>
         </>
       )}

@@ -5,7 +5,9 @@ import { Loader2, Plus, Trash2 } from "lucide-react";
 import { listCategories, upsertCategory, deleteCategory } from "@/lib/admin.functions";
 
 export const Route = createFileRoute("/admin/categories")({
-  head: () => ({ meta: [{ title: "Categories · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({
+    meta: [{ title: "Categories · Admin" }, { name: "robots", content: "noindex, nofollow" }],
+  }),
   component: CategoriesPage,
 });
 
@@ -32,9 +34,14 @@ function CategoriesPage() {
   const refresh = useCallback(() => {
     listFn().then((r) => setRows(r as Row[]));
   }, [listFn]);
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
 
-  const filtered = useMemo(() => (rows ?? []).filter((r) => (r.kind ?? "digital") === tab), [rows, tab]);
+  const filtered = useMemo(
+    () => (rows ?? []).filter((r) => (r.kind ?? "digital") === tab),
+    [rows, tab],
+  );
   const parents = useMemo(() => filtered.filter((r) => !r.parent_id), [filtered]);
   const childrenByParent = useMemo(() => {
     const m = new Map<string, Row[]>();
@@ -71,10 +78,14 @@ function CategoriesPage() {
       <header className="mb-4 flex items-center justify-between gap-3">
         <div>
           <h1 className="text-white text-2xl font-black">Marketplace Categories</h1>
-          <p className="text-sm text-slate-400">{filtered.length} {tab} categories · manage both digital & physical</p>
+          <p className="text-sm text-slate-400">
+            {filtered.length} {tab} categories · manage both digital & physical
+          </p>
         </div>
         <button
-          onClick={() => setEditing({ enabled: true, sort_order: parents.length, kind: tab, parent_id: null })}
+          onClick={() =>
+            setEditing({ enabled: true, sort_order: parents.length, kind: tab, parent_id: null })
+          }
           className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-emerald-500 text-black text-sm font-bold hover:bg-emerald-400"
         >
           <Plus className="w-4 h-4" /> New
@@ -103,17 +114,40 @@ function CategoriesPage() {
         <div className="grid gap-3">
           {parents.map((c) => (
             <div key={c.id} className="bg-[#141418] border border-white/10 rounded-xl p-4">
-              <CategoryRow row={c} onEdit={() => setEditing(c)} onDelete={async () => {
-                if (confirm("Delete category and all its subcategories?")) { await delFn({ data: { id: c.id } }); refresh(); }
-              }} />
+              <CategoryRow
+                row={c}
+                onEdit={() => setEditing(c)}
+                onDelete={async () => {
+                  if (confirm("Delete category and all its subcategories?")) {
+                    await delFn({ data: { id: c.id } });
+                    refresh();
+                  }
+                }}
+              />
               <div className="mt-3 pl-4 border-l border-white/10 grid gap-2">
                 {(childrenByParent.get(c.id) ?? []).map((sub) => (
-                  <CategoryRow key={sub.id} row={sub} sub onEdit={() => setEditing(sub)} onDelete={async () => {
-                    if (confirm("Delete subcategory?")) { await delFn({ data: { id: sub.id } }); refresh(); }
-                  }} />
+                  <CategoryRow
+                    key={sub.id}
+                    row={sub}
+                    sub
+                    onEdit={() => setEditing(sub)}
+                    onDelete={async () => {
+                      if (confirm("Delete subcategory?")) {
+                        await delFn({ data: { id: sub.id } });
+                        refresh();
+                      }
+                    }}
+                  />
                 ))}
                 <button
-                  onClick={() => setEditing({ enabled: true, sort_order: (childrenByParent.get(c.id)?.length ?? 0), kind: tab, parent_id: c.id })}
+                  onClick={() =>
+                    setEditing({
+                      enabled: true,
+                      sort_order: childrenByParent.get(c.id)?.length ?? 0,
+                      kind: tab,
+                      parent_id: c.id,
+                    })
+                  }
                   className="mt-1 self-start inline-flex items-center gap-1 px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
                 >
                   <Plus className="w-3 h-3" /> Add subcategory
@@ -125,10 +159,20 @@ function CategoriesPage() {
       )}
 
       {editing && (
-        <div className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4" onClick={() => setEditing(null)}>
-          <div className="bg-[#141418] border border-white/10 rounded-2xl p-6 w-full max-w-md" onClick={(e) => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 bg-black/70 flex items-center justify-center p-4"
+          onClick={() => setEditing(null)}
+        >
+          <div
+            className="bg-[#141418] border border-white/10 rounded-2xl p-6 w-full max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h2 className="text-white text-lg font-black mb-4">
-              {editing.id ? "Edit category" : editing.parent_id ? "New subcategory" : "New category"}
+              {editing.id
+                ? "Edit category"
+                : editing.parent_id
+                  ? "New subcategory"
+                  : "New category"}
             </h2>
             <div className="grid gap-3">
               <div className="grid grid-cols-2 gap-3">
@@ -136,7 +180,9 @@ function CategoriesPage() {
                   <select
                     value={editing.kind ?? tab}
                     disabled={!!editing.parent_id}
-                    onChange={(e) => setEditing({ ...editing, kind: e.target.value as Kind, parent_id: null })}
+                    onChange={(e) =>
+                      setEditing({ ...editing, kind: e.target.value as Kind, parent_id: null })
+                    }
                     className={inp}
                   >
                     <option value="digital">Digital</option>
@@ -151,26 +197,77 @@ function CategoriesPage() {
                   >
                     <option value="">— None (top-level) —</option>
                     {(rows ?? [])
-                      .filter((r) => (r.kind ?? "digital") === (editing.kind ?? tab) && !r.parent_id && r.id !== editing.id)
-                      .map((p) => <option key={p.id} value={p.id}>{p.name}</option>)}
+                      .filter(
+                        (r) =>
+                          (r.kind ?? "digital") === (editing.kind ?? tab) &&
+                          !r.parent_id &&
+                          r.id !== editing.id,
+                      )
+                      .map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name}
+                        </option>
+                      ))}
                   </select>
                 </F>
               </div>
-              <F label="Slug"><input value={editing.slug ?? ""} onChange={(e) => setEditing({ ...editing, slug: e.target.value })} className={inp} placeholder="phones" /></F>
-              <F label="Name"><input value={editing.name ?? ""} onChange={(e) => setEditing({ ...editing, name: e.target.value })} className={inp} placeholder="Phones" /></F>
-              <F label="Description"><input value={editing.description ?? ""} onChange={(e) => setEditing({ ...editing, description: e.target.value })} className={inp} /></F>
+              <F label="Slug">
+                <input
+                  value={editing.slug ?? ""}
+                  onChange={(e) => setEditing({ ...editing, slug: e.target.value })}
+                  className={inp}
+                  placeholder="phones"
+                />
+              </F>
+              <F label="Name">
+                <input
+                  value={editing.name ?? ""}
+                  onChange={(e) => setEditing({ ...editing, name: e.target.value })}
+                  className={inp}
+                  placeholder="Phones"
+                />
+              </F>
+              <F label="Description">
+                <input
+                  value={editing.description ?? ""}
+                  onChange={(e) => setEditing({ ...editing, description: e.target.value })}
+                  className={inp}
+                />
+              </F>
               <div className="grid grid-cols-2 gap-3">
-                <F label="Sort order"><input type="number" value={editing.sort_order ?? 0} onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })} className={inp} /></F>
+                <F label="Sort order">
+                  <input
+                    type="number"
+                    value={editing.sort_order ?? 0}
+                    onChange={(e) => setEditing({ ...editing, sort_order: Number(e.target.value) })}
+                    className={inp}
+                  />
+                </F>
                 <F label="Enabled">
-                  <select value={editing.enabled ? "y" : "n"} onChange={(e) => setEditing({ ...editing, enabled: e.target.value === "y" })} className={inp}>
-                    <option value="y">Yes</option><option value="n">No</option>
+                  <select
+                    value={editing.enabled ? "y" : "n"}
+                    onChange={(e) => setEditing({ ...editing, enabled: e.target.value === "y" })}
+                    className={inp}
+                  >
+                    <option value="y">Yes</option>
+                    <option value="n">No</option>
                   </select>
                 </F>
               </div>
             </div>
             <div className="flex justify-end gap-2 mt-5">
-              <button onClick={() => setEditing(null)} className="px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm">Cancel</button>
-              <button onClick={save} className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold">Save</button>
+              <button
+                onClick={() => setEditing(null)}
+                className="px-3 py-2 rounded-lg text-slate-300 hover:bg-white/5 text-sm"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={save}
+                className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold"
+              >
+                Save
+              </button>
             </div>
           </div>
         </div>
@@ -179,7 +276,17 @@ function CategoriesPage() {
   );
 }
 
-function CategoryRow({ row, sub = false, onEdit, onDelete }: { row: Row; sub?: boolean; onEdit: () => void; onDelete: () => void }) {
+function CategoryRow({
+  row,
+  sub = false,
+  onEdit,
+  onDelete,
+}: {
+  row: Row;
+  sub?: boolean;
+  onEdit: () => void;
+  onDelete: () => void;
+}) {
   return (
     <div className="flex items-center gap-3">
       <div className="flex-1">
@@ -190,8 +297,16 @@ function CategoryRow({ row, sub = false, onEdit, onDelete }: { row: Row; sub?: b
           {row.description || "—"} · sort {row.sort_order} · {row.enabled ? "enabled" : "disabled"}
         </div>
       </div>
-      <button onClick={onEdit} className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200">Edit</button>
-      <button onClick={onDelete} className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300">
+      <button
+        onClick={onEdit}
+        className="px-2 py-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-slate-200"
+      >
+        Edit
+      </button>
+      <button
+        onClick={onDelete}
+        className="p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 border border-red-500/30 text-red-300"
+      >
         <Trash2 className="w-4 h-4" />
       </button>
     </div>
@@ -200,5 +315,12 @@ function CategoryRow({ row, sub = false, onEdit, onDelete }: { row: Row; sub?: b
 
 const inp = "w-full bg-[#0b0b0d] border border-white/10 rounded-lg px-3 py-2 text-sm text-white";
 function F({ label, children }: { label: string; children: React.ReactNode }) {
-  return <label className="block"><div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">{label}</div>{children}</label>;
+  return (
+    <label className="block">
+      <div className="text-[10px] uppercase tracking-wider text-slate-500 font-bold mb-1">
+        {label}
+      </div>
+      {children}
+    </label>
+  );
 }

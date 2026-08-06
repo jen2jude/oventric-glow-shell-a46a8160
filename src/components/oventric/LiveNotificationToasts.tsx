@@ -181,7 +181,7 @@ export function LiveNotificationToasts() {
       ch = supabase
         .channel(`notif-toast-${uid}`)
         .on(
- "postgres_changes",
+          "postgres_changes",
           {
             event: "INSERT",
             schema: "public",

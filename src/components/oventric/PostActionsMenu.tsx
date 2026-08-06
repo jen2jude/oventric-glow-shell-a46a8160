@@ -1,5 +1,14 @@
 import { useEffect, useRef, useState } from "react";
-import { MoreHorizontal, ThumbsUp, ThumbsDown, EyeOff, Bookmark, Share2, Flag, Link2 } from "lucide-react";
+import {
+  MoreHorizontal,
+  ThumbsUp,
+  ThumbsDown,
+  EyeOff,
+  Bookmark,
+  Share2,
+  Flag,
+  Link2,
+} from "lucide-react";
 import { toast } from "sonner";
 
 type Action = "interested" | "not_interested" | "hide" | "save" | "share" | "report" | "copy_link";
@@ -13,7 +22,9 @@ export function shareUrl(url: string, title = "Oventric") {
         await navigator.clipboard.writeText(url);
         toast.success("Link copied");
       }
-    } catch { /* user cancelled */ }
+    } catch {
+      /* user cancelled */
+    }
   })();
 }
 
@@ -25,22 +36,35 @@ const LS = {
 
 function readSet(key: string): Set<string> {
   if (typeof window === "undefined") return new Set();
-  try { return new Set(JSON.parse(window.localStorage.getItem(key) ?? "[]")); } catch { return new Set(); }
+  try {
+    return new Set(JSON.parse(window.localStorage.getItem(key) ?? "[]"));
+  } catch {
+    return new Set();
+  }
 }
 function writeSet(key: string, s: Set<string>) {
-  try { window.localStorage.setItem(key, JSON.stringify(Array.from(s))); } catch { /* ignore */ }
+  try {
+    window.localStorage.setItem(key, JSON.stringify(Array.from(s)));
+  } catch {
+    /* ignore */
+  }
 }
 
 export function togglePostSet(kind: "saved" | "hidden" | "interested", id: string, on: boolean) {
   const key = LS[kind];
   const s = readSet(key);
-  if (on) s.add(id); else s.delete(id);
+  if (on) s.add(id);
+  else s.delete(id);
   writeSet(key, s);
   window.dispatchEvent(new CustomEvent("oventric:posts-updated"));
 }
 
-export function getHiddenPosts(): Set<string> { return readSet(LS.hidden); }
-export function getSavedPosts(): Set<string> { return readSet(LS.saved); }
+export function getHiddenPosts(): Set<string> {
+  return readSet(LS.hidden);
+}
+export function getSavedPosts(): Set<string> {
+  return readSet(LS.saved);
+}
 
 export function PostActionsMenu({
   postId,
@@ -137,7 +161,10 @@ export function PostActionsMenu({
           {item(Flag, "Report", "report", true)}
           {isOwn && onDelete && (
             <button
-              onClick={() => { setOpen(false); onDelete(); }}
+              onClick={() => {
+                setOpen(false);
+                onDelete();
+              }}
               className="w-full flex items-center gap-2.5 px-3 py-2 text-left text-sm text-red-300 md:text-red-600 hover:bg-red-500/10 rounded-md"
             >
               <Flag className="w-4 h-4" /> Delete

@@ -2,7 +2,11 @@ import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { useNavigate } from "@tanstack/react-router";
 import { AlertTriangle, Bell, Check, ExternalLink, Loader2 } from "lucide-react";
-import { myNotifications, markNotificationRead, markAllNotificationsRead } from "@/lib/communications.functions";
+import {
+  myNotifications,
+  markNotificationRead,
+  markAllNotificationsRead,
+} from "@/lib/communications.functions";
 
 interface NotifRow {
   id: string;
@@ -43,18 +47,34 @@ export function NotificationsPanel() {
     }
   }, [fetchFn]);
 
-  useEffect(() => { void load(); }, [load]);
+  useEffect(() => {
+    void load();
+  }, [load]);
 
   const unreadCount = items?.filter((n) => !n.read_at).length ?? 0;
 
   const handleMarkRead = async (id: string) => {
-    setItems((prev) => (prev ? prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n)) : prev));
-    try { await markOne({ data: { id } }); } catch { /* ignore */ }
+    setItems((prev) =>
+      prev
+        ? prev.map((n) => (n.id === id ? { ...n, read_at: new Date().toISOString() } : n))
+        : prev,
+    );
+    try {
+      await markOne({ data: { id } });
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleMarkAll = async () => {
-    setItems((prev) => (prev ? prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })) : prev));
-    try { await markAll({}); } catch { /* ignore */ }
+    setItems((prev) =>
+      prev ? prev.map((n) => ({ ...n, read_at: n.read_at ?? new Date().toISOString() })) : prev,
+    );
+    try {
+      await markAll({});
+    } catch {
+      /* ignore */
+    }
   };
 
   const handleOpen = async (n: NotifRow) => {
@@ -89,7 +109,9 @@ export function NotificationsPanel() {
         <div className="flex flex-col items-center gap-2 text-xs text-red-400 py-8" role="alert">
           <AlertTriangle className="w-5 h-5" />
           {error}
-          <button onClick={() => void load()} className="text-white underline underline-offset-2">Try again</button>
+          <button onClick={() => void load()} className="text-white underline underline-offset-2">
+            Try again
+          </button>
         </div>
       ) : items === null ? (
         <div className="flex items-center justify-center py-8">
@@ -112,9 +134,17 @@ export function NotificationsPanel() {
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <p className="text-xs font-bold text-white md:text-slate-900 truncate">{n.title}</p>
-                  {n.body && <p className="text-[11px] text-slate-400 md:text-slate-500 mt-0.5 line-clamp-2">{n.body}</p>}
-                  <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">{timeAgo(n.created_at)} ago</p>
+                  <p className="text-xs font-bold text-white md:text-slate-900 truncate">
+                    {n.title}
+                  </p>
+                  {n.body && (
+                    <p className="text-[11px] text-slate-400 md:text-slate-500 mt-0.5 line-clamp-2">
+                      {n.body}
+                    </p>
+                  )}
+                  <p className="text-[10px] text-slate-500 mt-1 uppercase tracking-wider">
+                    {timeAgo(n.created_at)} ago
+                  </p>
                 </div>
                 <div className="flex items-center gap-1 shrink-0">
                   {!n.read_at && (

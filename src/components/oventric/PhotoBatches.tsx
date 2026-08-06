@@ -16,8 +16,10 @@ function groupPhotos(photos: UserPhoto[]): Batch[] {
   const posts = photos.filter((p) => p.source === "post");
 
   const batches: Batch[] = [];
-  if (avatars.length) batches.push({ id: "avatar", kind: "avatar", label: "Profile photos", photos: avatars });
-  if (covers.length) batches.push({ id: "cover", kind: "cover", label: "Cover photos", photos: covers });
+  if (avatars.length)
+    batches.push({ id: "avatar", kind: "avatar", label: "Profile photos", photos: avatars });
+  if (covers.length)
+    batches.push({ id: "cover", kind: "cover", label: "Cover photos", photos: covers });
 
   // Combine all post images into a single "Posts" batch regardless of source post
   if (posts.length) {
@@ -118,7 +120,9 @@ function BatchTileOverlay({
         <div className="inline-flex items-center gap-2 text-sm text-white md:text-slate-900 font-semibold">
           <ImagesIcon className="w-4 h-4 text-emerald-300" />
           <span>{batch.label}</span>
-          <span className="text-slate-400 md:text-slate-500 font-normal">· {batch.photos.length}</span>
+          <span className="text-slate-400 md:text-slate-500 font-normal">
+            · {batch.photos.length}
+          </span>
         </div>
         <button
           type="button"
@@ -129,10 +133,7 @@ function BatchTileOverlay({
           <X className="w-5 h-5" />
         </button>
       </div>
-      <div
-        className="flex-1 overflow-y-auto p-3 sm:p-4"
-        onClick={(e) => e.stopPropagation()}
-      >
+      <div className="flex-1 overflow-y-auto p-3 sm:p-4" onClick={(e) => e.stopPropagation()}>
         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-2 sm:gap-3">
           {batch.photos.map((p, i) => (
             <button

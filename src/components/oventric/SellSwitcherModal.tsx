@@ -21,19 +21,46 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
   if (!open) return null;
 
   if (mode === "digital") {
-    return <SellAssetModal open onClose={() => { setMode(null); onClose(); }} />;
+    return (
+      <SellAssetModal
+        open
+        onClose={() => {
+          setMode(null);
+          onClose();
+        }}
+      />
+    );
   }
   if (mode === "physical") {
-    return <SellPhysicalModal open onClose={() => { setMode(null); onClose(); }} />;
+    return (
+      <SellPhysicalModal
+        open
+        onClose={() => {
+          setMode(null);
+          onClose();
+        }}
+      />
+    );
   }
 
   return createPortal(
-    <div className="modal-light fixed inset-0 z-[100] grid h-[100dvh] w-screen place-items-center overflow-y-auto p-4" role="dialog" aria-modal="true" aria-labelledby="sell-switcher-title">
+    <div
+      className="modal-light fixed inset-0 z-[100] grid h-[100dvh] w-screen place-items-center overflow-y-auto p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="sell-switcher-title"
+    >
       <div className="absolute inset-0 bg-black/70" onClick={onClose} />
       <div className="slide-up relative my-auto w-full max-w-lg bg-[#1E1E24] border border-white/10 rounded-2xl p-6 shadow-2xl">
         <div className="flex items-center justify-between mb-2">
-          <h2 id="sell-switcher-title" className="text-xl font-bold text-white">What are you selling?</h2>
-          <button onClick={onClose} className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white" aria-label="Close">
+          <h2 id="sell-switcher-title" className="text-xl font-bold text-white">
+            What are you selling?
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/5 text-slate-400 hover:text-white"
+            aria-label="Close"
+          >
             <X className="w-5 h-5" />
           </button>
         </div>
@@ -47,7 +74,9 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
               <Cpu className="w-5 h-5 text-emerald-400" />
             </div>
             <div className="font-semibold text-white">Digital Assets</div>
-            <div className="text-xs text-slate-400 mt-1">Themes, plugins, code, downloads. Goes live instantly.</div>
+            <div className="text-xs text-slate-400 mt-1">
+              Themes, plugins, code, downloads. Goes live instantly.
+            </div>
           </button>
           <button
             onClick={() => setMode("physical")}
@@ -57,7 +86,9 @@ export function SellSwitcherModal({ open, onClose }: { open: boolean; onClose: (
               <Package className="w-5 h-5 text-sky-400" />
             </div>
             <div className="font-semibold text-white">Physical Goods</div>
-            <div className="text-xs text-slate-400 mt-1">Sell directly — buyers contact you. Reviewed by admin.</div>
+            <div className="text-xs text-slate-400 mt-1">
+              Sell directly — buyers contact you. Reviewed by admin.
+            </div>
           </button>
         </div>
       </div>

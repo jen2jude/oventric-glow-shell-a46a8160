@@ -13,8 +13,7 @@ interface ReportError {
 }
 
 function classifyError(e: unknown): ReportError {
-  const raw =
-    e instanceof Error ? e.message : typeof e === "string" ? e : "Unexpected error";
+  const raw = e instanceof Error ? e.message : typeof e === "string" ? e : "Unexpected error";
   const msg = raw.toLowerCase();
 
   if (typeof navigator !== "undefined" && navigator.onLine === false) {
@@ -66,11 +65,14 @@ function classifyError(e: unknown): ReportError {
   };
 }
 
-
 const REASONS = [
   { id: "spam", label: "Spam", desc: "Unsolicited promotions, mass posting, or bots." },
   { id: "harassment", label: "Harassment", desc: "Hate speech, targeted abuse, or threats." },
-  { id: "ip", label: "Intellectual Property", desc: "Copyright, trademark, or code license violation." },
+  {
+    id: "ip",
+    label: "Intellectual Property",
+    desc: "Copyright, trademark, or code license violation.",
+  },
   { id: "scam", label: "Scam", desc: "Phishing, fake bounties, or fraudulent listings." },
 ] as const;
 
@@ -89,7 +91,10 @@ export function ReportModal({
   target?: string;
   targetId?: string;
   targetKind?: string;
-  onReported?: (targetId: string, details: { reason: string; reasonLabel: string; note: string | null }) => void;
+  onReported?: (
+    targetId: string,
+    details: { reason: string; reasonLabel: string; note: string | null },
+  ) => void;
 }) {
   const submit = useServerFn(submitReport);
   const [reason, setReason] = useState<ReasonId | "">("");
@@ -146,7 +151,6 @@ export function ReportModal({
     }
   };
 
-
   return (
     <div className="modal-light fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 p-0 sm:p-4">
       <div className="w-full sm:max-w-md bg-[#1E1E24] border border-white/10 rounded-t-2xl sm:rounded-2xl overflow-hidden shadow-2xl">
@@ -166,11 +170,15 @@ export function ReportModal({
               <Flag className="w-5 h-5 text-emerald-400" />
             </div>
             <div className="text-white font-semibold text-sm">Report submitted</div>
-            <p className="text-xs text-slate-400 mt-1">Our trust &amp; safety team will review within 24h.</p>
+            <p className="text-xs text-slate-400 mt-1">
+              Our trust &amp; safety team will review within 24h.
+            </p>
           </div>
         ) : (
           <div className="p-5 space-y-4">
-            <p className="text-xs text-slate-400">Choose the reason that best describes the issue.</p>
+            <p className="text-xs text-slate-400">
+              Choose the reason that best describes the issue.
+            </p>
             <div className="grid gap-2">
               {REASONS.map((r) => (
                 <button
@@ -195,7 +203,9 @@ export function ReportModal({
               ))}
             </div>
             <div>
-              <label className="block text-xs text-slate-400 mb-1.5">Add a short custom reason (optional)</label>
+              <label className="block text-xs text-slate-400 mb-1.5">
+                Add a short custom reason (optional)
+              </label>
               <textarea
                 rows={3}
                 maxLength={280}

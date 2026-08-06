@@ -29,7 +29,6 @@ import { useServerFn } from "@tanstack/react-start";
 import { listMyBountyApplicationIds } from "@/lib/bounties.functions";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
-
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
 const FILTERS: Array<{ key: Category; label: string }> = [
@@ -126,19 +125,23 @@ export function Bounties() {
 
   // Load ids of bounties the current user already applied to.
   useEffect(() => {
-    if (!isAuthenticated) { setAppliedIds(new Set()); return; }
+    if (!isAuthenticated) {
+      setAppliedIds(new Set());
+      return;
+    }
     let cancelled = false;
     fetchMyApps()
       .then((rows) => {
         if (cancelled) return;
         setAppliedIds(new Set((rows ?? []).map((r) => r.bounty_id)));
       })
-      .catch(() => { if (!cancelled) setAppliedIds(new Set()); });
-    return () => { cancelled = true; };
+      .catch(() => {
+        if (!cancelled) setAppliedIds(new Set());
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [isAuthenticated, fetchMyApps, refreshTick]);
-
-
-
 
   // Allow other flows (e.g. resuming after a wallet top-up) to open the bounty editor.
   useEffect(() => {
@@ -155,8 +158,6 @@ export function Bounties() {
     };
   }, []);
 
-
-
   useEffect(() => {
     let cancelled = false;
     supabase
@@ -170,7 +171,7 @@ export function Bounties() {
           // eslint-disable-next-line no-console
           console.error("Bounty ads fetch error:", error);
         }
-        setBountyAds(((data ?? []) as BountyAd[]));
+        setBountyAds((data ?? []) as BountyAd[]);
         setAdsLoading(false);
       });
     return () => {
@@ -187,7 +188,9 @@ export function Bounties() {
     setBountiesError(null);
     supabase
       .from("bounties")
-      .select("id, title, category, price_usd, original_currency, original_amount, fx_snapshot, deadline_at, end_at, created_at, status")
+      .select(
+        "id, title, category, price_usd, original_currency, original_amount, fx_snapshot, deadline_at, end_at, created_at, status",
+      )
       .eq("status", "active")
       .order("created_at", { ascending: false })
       .then(({ data, error }) => {
@@ -202,11 +205,13 @@ export function Bounties() {
           // their home currency. Anon viewers still see everything (USD preview).
           .filter((b) => {
             if (!isAuthenticated) return true;
-            const oc = String((b as { original_currency?: string | null }).original_currency ?? "USD").toUpperCase();
+            const oc = String(
+              (b as { original_currency?: string | null }).original_currency ?? "USD",
+            ).toUpperCase();
             return oc === baseCurrency;
           })
           .map((b) => {
-            const cat = (b.category as string) as Exclude<Category, "all">;
+            const cat = b.category as string as Exclude<Category, "all">;
             const expiresAt = b.deadline_at
               ? new Date(b.deadline_at as string).getTime()
               : b.end_at
@@ -215,7 +220,8 @@ export function Bounties() {
             const dp = computeDisplayPrice(
               {
                 price_usd: Number(b.price_usd ?? 0),
-                original_currency: (b as { original_currency?: string | null }).original_currency ?? null,
+                original_currency:
+                  (b as { original_currency?: string | null }).original_currency ?? null,
                 original_amount: (b as { original_amount?: number | null }).original_amount ?? null,
                 fx_snapshot: (b as { fx_snapshot?: unknown }).fx_snapshot ?? null,
               },
@@ -224,7 +230,9 @@ export function Bounties() {
             return {
               id: b.id as string,
               title: (b.title as string) ?? "",
-              category: (["frontend", "database", "api", "uiux"] as const).includes(cat) ? cat : "api",
+              category: (["frontend", "database", "api", "uiux"] as const).includes(cat)
+                ? cat
+                : "api",
               rewardValue: dp.value,
               rewardCurrency: dp.currency,
               displayFormatted: dp.formatted,
@@ -237,17 +245,17 @@ export function Bounties() {
         setDbBounties(rows);
         setBountiesLoading(false);
       });
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [refreshTick, baseCurrency, isAuthenticated]);
 
   // Realtime: auto-refresh when any bounty is inserted/updated/deleted
   useEffect(() => {
     const channel = supabase
       .channel("bounties-board")
-      .on(
- "postgres_changes",
-        { event: "*", schema: "public", table: "bounties" },
-        () => setRefreshTick((t) => t + 1),
+      .on("postgres_changes", { event: "*", schema: "public", table: "bounties" }, () =>
+        setRefreshTick((t) => t + 1),
       )
       .subscribe();
     return () => {
@@ -276,156 +284,166 @@ export function Bounties() {
 
   // ------- Live bounty detail (real backend) -------
   if (selectedId) {
-    return (
-      <BountyDetail
-        bountyId={selectedId}
-        onBack={() => setSelectedId(null)}
-      />
-    );
+    return <BountyDetail bountyId={selectedId} onBack={() => setSelectedId(null)} />;
   }
-
-
 
   // ------- Public board -------
   return (
     <div className="md:bg-white md:min-h-screen">
-    <div className="max-w-5xl mx-auto w-full px-4 py-6">
-      <div className="flex items-end justify-between mb-5 gap-3 flex-wrap">
-        <div>
-          <h1 className="text-white md:text-slate-900 text-2xl md:text-3xl font-black inline-flex items-center gap-2">
-            <Target className="w-6 h-6 text-emerald-400 md:text-emerald-600" /> Bounty & Escrow Board
-          </h1>
-          <p className="text-sm text-slate-400 md:text-slate-600 mt-1">
-            Post work, evaluate applicants, run escrow-protected contracts end-to-end.
-          </p>
-        </div>
-        <button
-          onClick={() => require(1, () => setPostOpen(true), "issuer")}
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
-        >
-          <Plus className="w-4 h-4" /> Post a bounty
-        </button>
-      </div>
-
-      {/* Metric grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
-        <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-sm md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
-            <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
-          </div>
-          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
-            {formatMoney(totalLocked, baseCurrency)}
-          </div>
-          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Across {activeCount} live contracts in {baseCurrency}</div>
-        </div>
-        <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:border-slate-200 md:shadow-sm">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 inline-flex items-center gap-1.5">
-            <Target className="w-3 h-3" /> Active Tasks Seeking Solvers
-          </div>
-          <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">{activeCount}</div>
-          <div className="text-xs text-slate-500 md:text-slate-600 mt-1">Filtered live from open bounties</div>
-        </div>
-      </div>
-
-      {/* Filters */}
-      <div className="flex gap-2 overflow-x-auto scrollbar-none pb-2 mb-4">
-        {FILTERS.map((f) => {
-          const active = filter === f.key;
-          return (
-            <button
-              key={f.key}
-              onClick={() => setFilter(f.key)}
-              className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                active
-                  ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
-                  : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
-              }`}
-            >
-              {f.label}
-            </button>
-          );
-        })}
-      </div>
-
-
-      {/* Bounty stream */}
-      <div className="space-y-3">
-        {bountiesLoading ? (
-          <div className="space-y-3">
-            <BountySkeleton />
-            <BountySkeleton />
-            <BountySkeleton />
-            <BountySkeleton />
-            <BountySkeleton />
-          </div>
-        ) : bountiesError ? (
-          <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100 md:border-red-200 md:bg-red-50 md:text-red-700">
-            {bountiesError}
-          </div>
-        ) : dbBounties.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
-            <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 md:bg-emerald-50 flex items-center justify-center mb-4">
-              <Target className="w-7 h-7 text-emerald-400 md:text-emerald-600" />
-            </div>
-            <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">No live bounties yet</h3>
-            <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
-              The board is clear right now. Be the first to post a task and start attracting verified solvers.
+      <div className="max-w-5xl mx-auto w-full px-4 py-6">
+        <div className="flex items-end justify-between mb-5 gap-3 flex-wrap">
+          <div>
+            <h1 className="text-white md:text-slate-900 text-2xl md:text-3xl font-black inline-flex items-center gap-2">
+              <Target className="w-6 h-6 text-emerald-400 md:text-emerald-600" /> Bounty & Escrow
+              Board
+            </h1>
+            <p className="text-sm text-slate-400 md:text-slate-600 mt-1">
+              Post work, evaluate applicants, run escrow-protected contracts end-to-end.
             </p>
-            <button
-              onClick={() => require(1, () => setPostOpen(true), "issuer")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold transition-colors"
-            >
-              <Plus className="w-4 h-4" /> Post the first bounty
-            </button>
           </div>
-        ) : filtered.length === 0 ? (
-          <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
-            <div className="w-14 h-14 mx-auto rounded-full bg-slate-500/10 md:bg-slate-100 flex items-center justify-center mb-4">
-              <Clock className="w-7 h-7 text-slate-400 md:text-slate-500" />
+          <button
+            onClick={() => require(1, () => setPostOpen(true), "issuer")}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold shadow-sm md:shadow-sm"
+          >
+            <Plus className="w-4 h-4" /> Post a bounty
+          </button>
+        </div>
+
+        {/* Metric grid */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6">
+          <div className="bg-[#1E1E24] border border-emerald-500/30 rounded-xl p-4 shadow-sm md:bg-emerald-50 md:border-emerald-200 md:shadow-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-700 inline-flex items-center gap-1.5">
+              <WalletIcon className="w-3 h-3" /> Total Locked in Escrow
             </div>
-            <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">No matches for this filter</h3>
-            <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
-              No active bounties in this category right now. Try another filter or post a new task.
-            </p>
-            <button
-              onClick={() => setFilter("all")}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white md:bg-white md:hover:bg-slate-50 md:border-slate-200 md:text-slate-700 text-sm font-bold transition-colors"
-            >
-              <ArrowLeft className="w-4 h-4" /> Show all bounties
-            </button>
+            <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
+              {formatMoney(totalLocked, baseCurrency)}
+            </div>
+            <div className="text-xs text-slate-500 md:text-slate-600 mt-1">
+              Across {activeCount} live contracts in {baseCurrency}
+            </div>
           </div>
+          <div className="bg-[#1E1E24] border border-white/10 rounded-xl p-4 md:bg-white md:border-slate-200 md:shadow-sm">
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 inline-flex items-center gap-1.5">
+              <Target className="w-3 h-3" /> Active Tasks Seeking Solvers
+            </div>
+            <div className="mt-2 text-white md:text-slate-900 text-2xl md:text-3xl font-black">
+              {activeCount}
+            </div>
+            <div className="text-xs text-slate-500 md:text-slate-600 mt-1">
+              Filtered live from open bounties
+            </div>
+          </div>
+        </div>
 
-        ) : (
-          filtered.map((b, idx) => {
-            const rows: React.ReactNode[] = [
-              <BountyRow
-                key={b.id}
-                bounty={b}
-                currency={baseCurrency}
-                onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
-                isNew={highlightId === b.id}
-                alreadyApplied={appliedIds.has(b.id)}
-              />,
-            ];
-            if ((idx + 1) % 4 === 0) {
-              rows.push(<LiveAdSlot key={`ad-${b.id}`} index={idx} ads={bountyAds} loading={adsLoading} />);
-            }
-            return rows;
-          })
-        )}
+        {/* Filters */}
+        <div className="flex gap-2 overflow-x-auto scrollbar-none pb-2 mb-4">
+          {FILTERS.map((f) => {
+            const active = filter === f.key;
+            return (
+              <button
+                key={f.key}
+                onClick={() => setFilter(f.key)}
+                className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                  active
+                    ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                    : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
+                }`}
+              >
+                {f.label}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bounty stream */}
+        <div className="space-y-3">
+          {bountiesLoading ? (
+            <div className="space-y-3">
+              <BountySkeleton />
+              <BountySkeleton />
+              <BountySkeleton />
+              <BountySkeleton />
+              <BountySkeleton />
+            </div>
+          ) : bountiesError ? (
+            <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100 md:border-red-200 md:bg-red-50 md:text-red-700">
+              {bountiesError}
+            </div>
+          ) : dbBounties.length === 0 ? (
+            <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
+              <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 md:bg-emerald-50 flex items-center justify-center mb-4">
+                <Target className="w-7 h-7 text-emerald-400 md:text-emerald-600" />
+              </div>
+              <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">
+                No live bounties yet
+              </h3>
+              <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
+                The board is clear right now. Be the first to post a task and start attracting
+                verified solvers.
+              </p>
+              <button
+                onClick={() => require(1, () => setPostOpen(true), "issuer")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-sm font-bold transition-colors"
+              >
+                <Plus className="w-4 h-4" /> Post the first bounty
+              </button>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-2xl p-8 md:p-12 text-center md:bg-white md:border-slate-300">
+              <div className="w-14 h-14 mx-auto rounded-full bg-slate-500/10 md:bg-slate-100 flex items-center justify-center mb-4">
+                <Clock className="w-7 h-7 text-slate-400 md:text-slate-500" />
+              </div>
+              <h3 className="text-white md:text-slate-900 text-lg font-bold mb-2">
+                No matches for this filter
+              </h3>
+              <p className="text-slate-400 md:text-slate-600 text-sm max-w-md mx-auto mb-6">
+                No active bounties in this category right now. Try another filter or post a new
+                task.
+              </p>
+              <button
+                onClick={() => setFilter("all")}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-white md:bg-white md:hover:bg-slate-50 md:border-slate-200 md:text-slate-700 text-sm font-bold transition-colors"
+              >
+                <ArrowLeft className="w-4 h-4" /> Show all bounties
+              </button>
+            </div>
+          ) : (
+            filtered.map((b, idx) => {
+              const rows: React.ReactNode[] = [
+                <BountyRow
+                  key={b.id}
+                  bounty={b}
+                  currency={baseCurrency}
+                  onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
+                  isNew={highlightId === b.id}
+                  alreadyApplied={appliedIds.has(b.id)}
+                />,
+              ];
+              if ((idx + 1) % 4 === 0) {
+                rows.push(
+                  <LiveAdSlot
+                    key={`ad-${b.id}`}
+                    index={idx}
+                    ads={bountyAds}
+                    loading={adsLoading}
+                  />,
+                );
+              }
+              return rows;
+            })
+          )}
+        </div>
+
+        <BountyEditorModal
+          open={postOpen}
+          onClose={() => setPostOpen(false)}
+          onPublished={(id) => {
+            setRefreshTick((t) => t + 1);
+            setHighlightId(id);
+          }}
+        />
       </div>
-
-      <BountyEditorModal
-        open={postOpen}
-        onClose={() => setPostOpen(false)}
-        onPublished={(id) => {
-          setRefreshTick((t) => t + 1);
-          setHighlightId(id);
-        }}
-      />
     </div>
-    </div>
-
   );
 }
 
@@ -441,7 +459,6 @@ function BountySkeleton() {
         </div>
       </div>
       <div className="h-10 w-32 rounded-lg bg-slate-700 md:bg-slate-200 shrink-0" />
-
     </div>
   );
 }
@@ -461,8 +478,9 @@ function BountyRow({
 }) {
   const remaining = bounty.expiresAt - Date.now();
   return (
-    <div className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? 'border-2 border-emerald-400/80 shadow-sm md:border-emerald-500' : 'border border-white/5 md:border-slate-200'}`}>
-
+    <div
+      className={`bg-[#1E1E24] md:bg-white rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 transition-all duration-700 md:shadow-sm md:hover:shadow-md ${isNew ? "border-2 border-emerald-400/80 shadow-sm md:border-emerald-500" : "border border-white/5 md:border-slate-200"}`}
+    >
       <div className="flex-1 min-w-0">
         <div className="inline-flex items-center gap-1.5 px-2 py-1 rounded-md bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700 text-[10px] font-bold tracking-wider">
           <Target className="w-3 h-3" />
@@ -477,10 +495,12 @@ function BountyRow({
             Expires in {formatCountdown(remaining)}
           </span>
           <span className="inline-flex items-center gap-1">
-            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
+            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length}{" "}
+            {bounty.applicants.length === 1 ? "Applicant" : "Applicants"}
           </span>
           <span className="inline-flex items-center gap-1 text-emerald-300/90 md:text-emerald-700">
-            Solver {formatMoney(bounty.rewardValue * 0.8, bounty.rewardCurrency)} · Fee {formatMoney(bounty.rewardValue * 0.2, bounty.rewardCurrency)}
+            Solver {formatMoney(bounty.rewardValue * 0.8, bounty.rewardCurrency)} · Fee{" "}
+            {formatMoney(bounty.rewardValue * 0.2, bounty.rewardCurrency)}
           </span>
         </div>
       </div>
@@ -492,7 +512,6 @@ function BountyRow({
             : "bg-emerald-500 hover:bg-emerald-400 text-black md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white"
         }`}
       >
-
         {alreadyApplied ? (
           <>
             <CheckCircle2 className="w-4 h-4" />
@@ -506,15 +525,7 @@ function BountyRow({
   );
 }
 
-function LiveAdSlot({
-  index,
-  ads,
-  loading,
-}: {
-  index: number;
-  ads: BountyAd[];
-  loading: boolean;
-}) {
+function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; loading: boolean }) {
   const isEven = index % 2 === 0;
 
   if (loading) {
@@ -549,7 +560,9 @@ function LiveAdSlot({
         <div className="bg-[#1E1E24] border border-dashed border-white/10 rounded-xl px-4 py-3 flex items-center justify-between md:bg-white md:border-slate-300">
           <div className="inline-flex items-center gap-2 text-xs text-slate-500">
             <Megaphone className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Sponsored · Available</span>
+            <span className="text-[10px] font-bold uppercase tracking-wider">
+              Sponsored · Available
+            </span>
             <span>Promote your brand to top developers.</span>
           </div>
           <span className="text-xs font-semibold text-emerald-400/70">Inquire →</span>
@@ -560,7 +573,9 @@ function LiveAdSlot({
       <div className="rounded-xl overflow-hidden border border-dashed border-white/10 bg-gradient-to-r from-slate-800/50 via-slate-900/50 to-black/50 md:border-slate-300 md:from-slate-50 md:via-white md:to-slate-50">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0">
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sponsored · Available</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+              Sponsored · Available
+            </div>
             <div className="mt-1 text-slate-400 md:text-slate-700 font-bold text-sm md:text-base">
               Your brand could appear here. Reach builders across Oventric.
             </div>
@@ -587,8 +602,12 @@ function LiveAdSlot({
       >
         <div className="inline-flex items-center gap-2 text-xs text-slate-400">
           <Megaphone className="w-3.5 h-3.5" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">Sponsored</span>
-          <span className="text-slate-300 md:text-slate-700">{ad.advertiser} · {ad.description || ad.title}</span>
+          <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
+            Sponsored
+          </span>
+          <span className="text-slate-300 md:text-slate-700">
+            {ad.advertiser} · {ad.description || ad.title}
+          </span>
         </div>
         <span className="text-xs font-semibold text-emerald-400">{ctaLabel} →</span>
       </a>
@@ -605,7 +624,9 @@ function LiveAdSlot({
     >
       <div className="flex items-center justify-between px-5 py-4 gap-4">
         <div className="min-w-0">
-          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">Sponsored</div>
+          <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+            Sponsored
+          </div>
           <div className="mt-1 text-white md:text-slate-900 font-bold text-sm md:text-base">
             {ad.advertiser} · {ad.title}
           </div>
@@ -621,7 +642,6 @@ function LiveAdSlot({
             className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/10"
             loading="lazy"
           />
-
         ) : (
           <span className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold">
             {ctaLabel}
@@ -659,10 +679,16 @@ function ApplicantEvaluation({
           <Target className="w-3 h-3" />
           ACTIVE BOUNTY · {bounty.displayFormatted}
         </div>
-        <h2 className="mt-2 text-white text-xl md:text-2xl font-black leading-tight">{bounty.title}</h2>
+        <h2 className="mt-2 text-white text-xl md:text-2xl font-black leading-tight">
+          {bounty.title}
+        </h2>
         <div className="mt-2 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400">
-          <span className="inline-flex items-center gap-1"><Clock className="w-3.5 h-3.5 text-amber-400" /> Expires in {formatCountdown(remaining)}</span>
-          <span className="inline-flex items-center gap-1"><Users className="w-3.5 h-3.5" /> {bounty.applicants.length} pitches</span>
+          <span className="inline-flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5 text-amber-400" /> Expires in {formatCountdown(remaining)}
+          </span>
+          <span className="inline-flex items-center gap-1">
+            <Users className="w-3.5 h-3.5" /> {bounty.applicants.length} pitches
+          </span>
         </div>
       </div>
 
@@ -672,9 +698,17 @@ function ApplicantEvaluation({
 
       <div className="space-y-3">
         {bounty.applicants.map((a) => (
-          <div key={a.id} className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 flex flex-col md:flex-row gap-4">
-            <div className={`shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${a.hue} flex items-center justify-center text-white font-black text-lg`}>
-              {a.name.split(" ").map((p) => p[0]).join("")}
+          <div
+            key={a.id}
+            className="bg-[#1E1E24] border border-white/10 rounded-xl p-5 flex flex-col md:flex-row gap-4"
+          >
+            <div
+              className={`shrink-0 w-14 h-14 rounded-xl bg-gradient-to-br ${a.hue} flex items-center justify-center text-white font-black text-lg`}
+            >
+              {a.name
+                .split(" ")
+                .map((p) => p[0])
+                .join("")}
             </div>
             <div className="flex-1 min-w-0">
               <div className="flex items-center gap-2 flex-wrap">
@@ -770,7 +804,12 @@ function ContractWorkspace({
       reviewDeadline: Date.now() + 72 * H,
       messages: [
         ...contract.messages,
-        { id: `m${Date.now()}`, from: "system", text: "Developer submitted work. 72-hour review window started." , ts: Date.now() },
+        {
+          id: `m${Date.now()}`,
+          from: "system",
+          text: "Developer submitted work. 72-hour review window started.",
+          ts: Date.now(),
+        },
       ],
     });
   };
@@ -783,7 +822,12 @@ function ContractWorkspace({
       status: "released",
       messages: [
         ...contract.messages,
-        { id: `m${Date.now()}`, from: "system", text: `Funds released — ${bounty.displayFormatted} paid to ${applicant.name}.`, ts: Date.now() },
+        {
+          id: `m${Date.now()}`,
+          from: "system",
+          text: `Funds released — ${bounty.displayFormatted} paid to ${applicant.name}.`,
+          ts: Date.now(),
+        },
       ],
     });
     setTimeout(() => setReleaseFlash(false), 2400);
@@ -797,7 +841,12 @@ function ContractWorkspace({
       reviewDeadline: null,
       messages: [
         ...contract.messages,
-        { id: `m${Date.now()}`, from: "system", text: `Delivery rejected. Bug log:\n${rejectText.trim()}` , ts: Date.now() },
+        {
+          id: `m${Date.now()}`,
+          from: "system",
+          text: `Delivery rejected. Bug log:\n${rejectText.trim()}`,
+          ts: Date.now(),
+        },
       ],
     });
     setRejectText("");
@@ -810,7 +859,12 @@ function ContractWorkspace({
       disputed: true,
       messages: [
         ...contract.messages,
-        { id: `m${Date.now()}`, from: "system", text: "⚖️ Dispute escalated to arbiter. All actions frozen pending admin review.", ts: Date.now() },
+        {
+          id: `m${Date.now()}`,
+          from: "system",
+          text: "⚖️ Dispute escalated to arbiter. All actions frozen pending admin review.",
+          ts: Date.now(),
+        },
       ],
     });
   };
@@ -841,7 +895,9 @@ function ContractWorkspace({
             <div className="bg-black border border-white/20 rounded-2xl px-8 py-6 text-center">
               <CheckCircle2 className="w-10 h-10 text-emerald-300 mx-auto" />
               <div className="mt-2 text-white font-black text-xl">Payout Released</div>
-              <div className="text-emerald-300 text-sm">{bounty.displayFormatted} → {applicant.name}</div>
+              <div className="text-emerald-300 text-sm">
+                {bounty.displayFormatted} → {applicant.name}
+              </div>
             </div>
           </div>
         </div>
@@ -885,14 +941,17 @@ function ContractWorkspace({
         </div>
         <h2 className="mt-2 text-white font-bold text-lg leading-snug">{bounty.title}</h2>
         <div className="mt-1 text-xs text-slate-400">
-          Sealed with <span className="text-white font-semibold">{applicant.name}</span> {applicant.handle}
+          Sealed with <span className="text-white font-semibold">{applicant.name}</span>{" "}
+          {applicant.handle}
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-4">
         {/* Left pane: chat */}
         <div className="bg-[#1E1E24] border border-white/10 rounded-xl flex flex-col h-[560px] overflow-hidden">
-          <div className="px-4 py-3 border-b border-white/5 text-white font-bold text-sm">Peer Chat</div>
+          <div className="px-4 py-3 border-b border-white/5 text-white font-bold text-sm">
+            Peer Chat
+          </div>
           <div className="flex-1 overflow-y-auto px-4 py-3 space-y-3">
             {contract.messages.map((m) => (
               <ChatBubble key={m.id} msg={m} viewerRole={role} />
@@ -935,7 +994,9 @@ function ContractWorkspace({
               {formatCountdown(projectRemaining)}
             </div>
             <div className="text-[11px] text-slate-500 mt-0.5">
-              {status === "revisions" ? "Paused — revisions requested" : "Ticking until penalty clauses activate"}
+              {status === "revisions"
+                ? "Paused — revisions requested"
+                : "Ticking until penalty clauses activate"}
             </div>
           </div>
 
@@ -952,7 +1013,9 @@ function ContractWorkspace({
 
           {/* Stage tracker */}
           <div>
-            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">Contract Status</div>
+            <div className="text-[10px] font-bold uppercase tracking-wider text-slate-400 mb-2">
+              Contract Status
+            </div>
             <div className="flex items-center gap-1">
               {stages.map((s, i) => {
                 const active = i <= stageIndex;
@@ -990,14 +1053,16 @@ function ContractWorkspace({
           <div className="flex-1 min-h-0" />
 
           <div className="space-y-2">
-            {role === "developer" && (status === "escrow" || status === "revisions") && !isDisputed && (
-              <button
-                onClick={submitWork}
-                className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
-              >
-                <Rocket className="w-4 h-4" /> Submit Work &amp; Request Release
-              </button>
-            )}
+            {role === "developer" &&
+              (status === "escrow" || status === "revisions") &&
+              !isDisputed && (
+                <button
+                  onClick={submitWork}
+                  className="w-full py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm transition-colors inline-flex items-center justify-center gap-2"
+                >
+                  <Rocket className="w-4 h-4" /> Submit Work &amp; Request Release
+                </button>
+              )}
 
             {role === "poster" && status === "review" && !isDisputed && (
               <div className="grid grid-cols-1 gap-2">
@@ -1057,13 +1122,7 @@ function ContractWorkspace({
   );
 }
 
-function ChatBubble({
-  msg,
-  viewerRole,
-}: {
-  msg: ChatMsg;
-  viewerRole: "poster" | "developer";
-}) {
+function ChatBubble({ msg, viewerRole }: { msg: ChatMsg; viewerRole: "poster" | "developer" }) {
   if (msg.from === "system") {
     return (
       <div className="text-center">

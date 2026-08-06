@@ -199,7 +199,9 @@ export function AdminHistory() {
                   <p className="text-[11px] text-slate-500 mt-0.5 truncate">{r.meta}</p>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-[11px] font-semibold text-slate-300">{relative(r.createdAt, now)}</div>
+                  <div className="text-[11px] font-semibold text-slate-300">
+                    {relative(r.createdAt, now)}
+                  </div>
                   <div className="text-[10px] text-slate-600">{formatTimestamp(r.createdAt)}</div>
                 </div>
               </li>

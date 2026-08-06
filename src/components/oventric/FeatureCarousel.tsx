@@ -32,8 +32,7 @@ const SLIDES: Slide[] = [
     id: "feed",
     image: mockFeed,
     title: "Feed",
-    description:
- "Follow creators, join circles, and see what Africa's builders are shipping.",
+    description: "Follow creators, join circles, and see what Africa's builders are shipping.",
     accent: "#00c2ff",
   },
   {
@@ -72,10 +71,8 @@ const CONGRATS_MS = 2400;
 const ENTER = "feature-carousel-enter 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 const EXIT = "feature-carousel-exit 0.6s cubic-bezier(0.4, 0, 1, 1) forwards";
 const SLIDE_ENTER = "feature-carousel-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards";
-const IN_FROM_RIGHT =
- "feature-carousel-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
-const IN_FROM_LEFT =
- "feature-carousel-in-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+const IN_FROM_RIGHT = "feature-carousel-in-right 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
+const IN_FROM_LEFT = "feature-carousel-in-left 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards";
 
 type Phase = "intro" | "slides" | "congrats";
 
@@ -237,7 +234,9 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <div
               aria-hidden
               className="absolute inset-0 m-auto h-40 w-40 rounded-full blur-3xl opacity-60"
-              style={{ background: "radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%)" }}
+              style={{
+                background: "radial-gradient(circle, rgba(59,130,246,0.45), transparent 70%)",
+              }}
             />
             <img
               src={heroCollageMobile.url}
@@ -276,9 +275,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
             <Check className="w-9 h-9 text-emerald-400" strokeWidth={3} />
           </div>
           <h2 className="text-3xl font-black mb-3">Congratulations!</h2>
-          <p className="text-base text-slate-300">
-            You're all set — taking you into Oventric.
-          </p>
+          <p className="text-base text-slate-300">You're all set — taking you into Oventric.</p>
         </div>
       )}
 
@@ -337,9 +334,7 @@ export function FeatureCarousel({ onComplete }: { onComplete: () => void }) {
                 style={{ backgroundColor: slide.accent }}
               />
 
-              <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">
-                {slide.title}
-              </h2>
+              <h2 className="text-3xl sm:text-4xl font-black text-white mb-3">{slide.title}</h2>
               <p className="text-base sm:text-lg text-slate-300 leading-relaxed max-w-sm">
                 {slide.description}
               </p>

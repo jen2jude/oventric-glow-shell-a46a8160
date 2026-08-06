@@ -41,14 +41,32 @@ const MAX_BYTES = 10 * 1024 * 1024;
 
 function StatusPill({ status }: { status: Status }) {
   const map: Record<Status, { label: string; cls: string; Icon: typeof Clock }> = {
-    queued: { label: "Queued", cls: "bg-amber-500/15 text-amber-300 md:text-amber-700 border-amber-500/30", Icon: Clock },
-    uploading: { label: "Uploading", cls: "bg-sky-500/15 text-sky-300 md:text-sky-700 border-sky-500/30", Icon: Loader2 },
-    ready: { label: "Ready", cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border-emerald-500/30", Icon: CheckCircle2 },
-    failed: { label: "Failed", cls: "bg-rose-500/15 text-rose-300 md:text-rose-700 border-rose-500/30", Icon: AlertTriangle },
+    queued: {
+      label: "Queued",
+      cls: "bg-amber-500/15 text-amber-300 md:text-amber-700 border-amber-500/30",
+      Icon: Clock,
+    },
+    uploading: {
+      label: "Uploading",
+      cls: "bg-sky-500/15 text-sky-300 md:text-sky-700 border-sky-500/30",
+      Icon: Loader2,
+    },
+    ready: {
+      label: "Ready",
+      cls: "bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border-emerald-500/30",
+      Icon: CheckCircle2,
+    },
+    failed: {
+      label: "Failed",
+      cls: "bg-rose-500/15 text-rose-300 md:text-rose-700 border-rose-500/30",
+      Icon: AlertTriangle,
+    },
   };
   const { label, cls, Icon } = map[status];
   return (
-    <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${cls}`}>
+    <span
+      className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-full border text-[10px] font-bold uppercase tracking-wider ${cls}`}
+    >
       <Icon className={`w-3 h-3 ${status === "uploading" ? "animate-spin" : ""}`} />
       {label}
     </span>
@@ -68,7 +86,9 @@ function ProgressBar({ value }: { value: number }) {
 
 export function PhotoBatchManager() {
   const [batches, setBatches] = useState<BatchRow[] | null>(null);
-  const [counts, setCounts] = useState<Record<string, { total: number; ready: number; failed: number }>>({});
+  const [counts, setCounts] = useState<
+    Record<string, { total: number; ready: number; failed: number }>
+  >({});
   const [openId, setOpenId] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -90,7 +110,10 @@ export function PhotoBatchManager() {
       const { data: items } = await supabase
         .from("photo_batch_items")
         .select("batch_id, status")
-        .in("batch_id", list.map((b) => b.id));
+        .in(
+          "batch_id",
+          list.map((b) => b.id),
+        );
       const next: Record<string, { total: number; ready: number; failed: number }> = {};
       for (const b of list) next[b.id] = { total: 0, ready: 0, failed: 0 };
       for (const it of (items ?? []) as Array<{ batch_id: string; status: Status }>) {
@@ -112,7 +135,9 @@ export function PhotoBatchManager() {
 
   const onPickFiles = async (files: FileList | null) => {
     if (!files || files.length === 0) return;
-    const picked = Array.from(files).slice(0, MAX_FILES).filter((f) => f.type.startsWith("image/"));
+    const picked = Array.from(files)
+      .slice(0, MAX_FILES)
+      .filter((f) => f.type.startsWith("image/"));
     if (picked.length === 0) {
       toast.error("Pick image files only");
       return;
@@ -166,7 +191,10 @@ export function PhotoBatchManager() {
         if (itemRow?.id) {
           await supabase
             .from("photo_batch_items")
-            .update({ status: upErr ? "failed" : "ready", error: upErr ? upErr.message.slice(0, 300) : null })
+            .update({
+              status: upErr ? "failed" : "ready",
+              error: upErr ? upErr.message.slice(0, 300) : null,
+            })
             .eq("id", itemRow.id);
         }
         if (upErr) failed += 1;
@@ -179,7 +207,9 @@ export function PhotoBatchManager() {
         .eq("id", batchId);
 
       toast.success(
-        failed === 0 ? `Uploaded ${picked.length} photo${picked.length === 1 ? "" : "s"}` : `Uploaded with ${failed} failure${failed === 1 ? "" : "s"}`,
+        failed === 0
+          ? `Uploaded ${picked.length} photo${picked.length === 1 ? "" : "s"}`
+          : `Uploaded with ${failed} failure${failed === 1 ? "" : "s"}`,
       );
       await load();
       setOpenId(batchId);
@@ -193,7 +223,10 @@ export function PhotoBatchManager() {
   };
 
   const removeBatch = async (id: string) => {
-    const { data: items } = await supabase.from("photo_batch_items").select("path").eq("batch_id", id);
+    const { data: items } = await supabase
+      .from("photo_batch_items")
+      .select("path")
+      .eq("batch_id", id);
     const paths = ((items ?? []) as Array<{ path: string }>).map((i) => i.path);
     if (paths.length) await supabase.storage.from("user-photos").remove(paths);
     const { error } = await supabase.from("photo_batches").delete().eq("id", id);
@@ -260,7 +293,9 @@ export function PhotoBatchManager() {
       {progress && (
         <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 space-y-2">
           <div className="flex items-center justify-between text-xs text-slate-300 md:text-slate-600">
-            <span>Uploading {progress.done} of {progress.total}</span>
+            <span>
+              Uploading {progress.done} of {progress.total}
+            </span>
             <span>{Math.round((progress.done / progress.total) * 100)}%</span>
           </div>
           <ProgressBar value={(progress.done / progress.total) * 100} />
@@ -277,7 +312,9 @@ export function PhotoBatchManager() {
         <div className="rounded-2xl border border-dashed border-white/15 md:border-slate-300 p-6 text-center">
           <ImagesIcon className="w-6 h-6 mx-auto text-slate-500 mb-2" />
           <p className="text-sm text-slate-300 md:text-slate-700 font-semibold">No batches yet</p>
-          <p className="text-xs text-slate-500 mt-1">Upload a set of photos and track its progress here.</p>
+          <p className="text-xs text-slate-500 mt-1">
+            Upload a set of photos and track its progress here.
+          </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
@@ -293,12 +330,17 @@ export function PhotoBatchManager() {
                 className="text-left rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-3 space-y-2 hover:border-emerald-500/40 transition-colors"
               >
                 <div className="flex items-center justify-between gap-2">
-                  <span className="text-sm font-semibold text-white md:text-slate-900 truncate">{b.title}</span>
+                  <span className="text-sm font-semibold text-white md:text-slate-900 truncate">
+                    {b.title}
+                  </span>
                   <StatusPill status={b.status} />
                 </div>
                 <ProgressBar value={pct} />
                 <div className="flex items-center justify-between text-[11px] text-slate-400 md:text-slate-500">
-                  <span>{c.ready}/{Math.max(c.total, b.expected_count)} uploaded{c.failed ? ` · ${c.failed} failed` : ""}</span>
+                  <span>
+                    {c.ready}/{Math.max(c.total, b.expected_count)} uploaded
+                    {c.failed ? ` · ${c.failed} failed` : ""}
+                  </span>
                   <span>{new Date(b.created_at).toLocaleDateString()}</span>
                 </div>
               </button>
@@ -335,7 +377,9 @@ function BatchDetail({
     setItems(rows);
     const ready = rows.filter((r) => r.status === "ready").map((r) => r.path);
     if (ready.length) {
-      const { data: signed } = await supabase.storage.from("user-photos").createSignedUrls(ready, 60 * 60 * 6);
+      const { data: signed } = await supabase.storage
+        .from("user-photos")
+        .createSignedUrls(ready, 60 * 60 * 6);
       const map: Record<string, string> = {};
       for (const s of signed ?? []) {
         if (s.path && s.signedUrl) map[s.path] = s.signedUrl;
@@ -351,7 +395,8 @@ function BatchDetail({
   }, [load]);
 
   const readyUrls = useMemo(
-    () => (items ?? []).filter((i) => i.status === "ready" && urls[i.path]).map((i) => urls[i.path]!),
+    () =>
+      (items ?? []).filter((i) => i.status === "ready" && urls[i.path]).map((i) => urls[i.path]!),
     [items, urls],
   );
 
@@ -393,7 +438,9 @@ function BatchDetail({
 
       <div className="rounded-2xl border border-white/10 md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-4 space-y-2">
         <div className="flex items-center justify-between gap-2">
-          <h3 className="text-base font-bold text-white md:text-slate-900 truncate">{batch.title}</h3>
+          <h3 className="text-base font-bold text-white md:text-slate-900 truncate">
+            {batch.title}
+          </h3>
           <StatusPill status={batch.status} />
         </div>
         <ProgressBar value={total ? (ready / total) * 100 : 0} />
@@ -405,7 +452,10 @@ function BatchDetail({
       {items === null ? (
         <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 gap-1.5">
           {Array.from({ length: 6 }).map((_, i) => (
-            <div key={i} className="aspect-square rounded-xl bg-white/5 md:bg-slate-100 animate-pulse" />
+            <div
+              key={i}
+              className="aspect-square rounded-xl bg-white/5 md:bg-slate-100 animate-pulse"
+            />
           ))}
         </div>
       ) : items.length === 0 ? (
@@ -427,7 +477,13 @@ function BatchDetail({
                     className="absolute inset-0"
                     aria-label={`Open ${item.file_name ?? "photo"}`}
                   >
-                    <img src={url} alt="" loading="lazy" decoding="async" className="w-full h-full object-cover" />
+                    <img
+                      src={url}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-full object-cover"
+                    />
                   </button>
                 ) : (
                   <div className="absolute inset-0 flex flex-col items-center justify-center gap-1 text-[10px] text-slate-400">

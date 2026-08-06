@@ -2,7 +2,6 @@ import { useEffect, useRef, useState } from "react";
 import { Download, ShoppingBag, GraduationCap, type LucideIcon } from "lucide-react";
 import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
 
-
 type Promo = {
   id: string;
   title: string;
@@ -60,7 +59,10 @@ export function PromoBanners({ onSelect }: { onSelect: (section: string) => void
 
   // Auto-advance (skipped when the user prefers reduced motion)
   useEffect(() => {
-    if (typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    if (
+      typeof window !== "undefined" &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches
+    ) {
       return;
     }
     const t = setInterval(() => {
@@ -166,4 +168,3 @@ function PromoSlide({ promo: p, onSelect }: { promo: Promo; onSelect: (section: 
     </button>
   );
 }
-

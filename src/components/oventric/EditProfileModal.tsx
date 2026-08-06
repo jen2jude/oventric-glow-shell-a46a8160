@@ -35,12 +35,47 @@ const LINK_FIELDS: Array<{
   host?: RegExp;
   icon: React.ReactNode;
 }> = [
-  { key: "website", label: "Website", placeholder: "https://yoursite.com", icon: <Globe className="w-4 h-4" /> },
-  { key: "x", label: "X (Twitter)", placeholder: "https://x.com/username", host: /(^|\.)(x\.com|twitter\.com)$/i, icon: <Twitter className="w-4 h-4" /> },
-  { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/username", host: /(^|\.)instagram\.com$/i, icon: <Instagram className="w-4 h-4" /> },
-  { key: "linkedin", label: "LinkedIn", placeholder: "https://linkedin.com/in/username", host: /(^|\.)linkedin\.com$/i, icon: <Linkedin className="w-4 h-4" /> },
-  { key: "github", label: "GitHub", placeholder: "https://github.com/username", host: /(^|\.)github\.com$/i, icon: <Github className="w-4 h-4" /> },
-  { key: "youtube", label: "YouTube", placeholder: "https://youtube.com/@channel", host: /(^|\.)(youtube\.com|youtu\.be)$/i, icon: <Youtube className="w-4 h-4" /> },
+  {
+    key: "website",
+    label: "Website",
+    placeholder: "https://yoursite.com",
+    icon: <Globe className="w-4 h-4" />,
+  },
+  {
+    key: "x",
+    label: "X (Twitter)",
+    placeholder: "https://x.com/username",
+    host: /(^|\.)(x\.com|twitter\.com)$/i,
+    icon: <Twitter className="w-4 h-4" />,
+  },
+  {
+    key: "instagram",
+    label: "Instagram",
+    placeholder: "https://instagram.com/username",
+    host: /(^|\.)instagram\.com$/i,
+    icon: <Instagram className="w-4 h-4" />,
+  },
+  {
+    key: "linkedin",
+    label: "LinkedIn",
+    placeholder: "https://linkedin.com/in/username",
+    host: /(^|\.)linkedin\.com$/i,
+    icon: <Linkedin className="w-4 h-4" />,
+  },
+  {
+    key: "github",
+    label: "GitHub",
+    placeholder: "https://github.com/username",
+    host: /(^|\.)github\.com$/i,
+    icon: <Github className="w-4 h-4" />,
+  },
+  {
+    key: "youtube",
+    label: "YouTube",
+    placeholder: "https://youtube.com/@channel",
+    host: /(^|\.)(youtube\.com|youtu\.be)$/i,
+    icon: <Youtube className="w-4 h-4" />,
+  },
 ];
 
 export interface UrlCheck {
@@ -58,7 +93,8 @@ export interface UrlCheck {
 export function normaliseSocialUrl(raw: string, field?: { key: LinkKey; host?: RegExp }): UrlCheck {
   const v = raw.trim();
   if (!v) return { url: null, error: null };
-  if (/^(javascript|data|file|mailto):/i.test(v)) return { url: null, error: "That link type isn't allowed." };
+  if (/^(javascript|data|file|mailto):/i.test(v))
+    return { url: null, error: "That link type isn't allowed." };
 
   let candidate = v;
   if (v.startsWith("@") && field && field.key !== "website") {
@@ -84,7 +120,8 @@ export function normaliseSocialUrl(raw: string, field?: { key: LinkKey; host?: R
   } catch {
     return { url: null, error: "Enter a valid link (e.g. https://…)." };
   }
-  if (u.protocol !== "http:" && u.protocol !== "https:") return { url: null, error: "Links must start with https://." };
+  if (u.protocol !== "http:" && u.protocol !== "https:")
+    return { url: null, error: "Links must start with https://." };
 
   u.protocol = "https:";
   u.username = "";
@@ -96,13 +133,24 @@ export function normaliseSocialUrl(raw: string, field?: { key: LinkKey; host?: R
   if (!u.hostname.includes(".") || u.hostname === "localhost") {
     return { url: null, error: "Enter a real domain (e.g. example.com)." };
   }
-  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(u.hostname)) return { url: null, error: "IP addresses aren't allowed." };
+  if (/^\d{1,3}(\.\d{1,3}){3}$/.test(u.hostname))
+    return { url: null, error: "IP addresses aren't allowed." };
   if (field?.host && !field.host.test(u.hostname)) {
     return { url: null, error: `That's not a ${field.key === "x" ? "X" : field.key} link.` };
   }
 
   // Strip common tracking params, then any trailing slash.
-  const drop = ["utm_source", "utm_medium", "utm_campaign", "utm_term", "utm_content", "fbclid", "igshid", "ref", "ref_src"];
+  const drop = [
+    "utm_source",
+    "utm_medium",
+    "utm_campaign",
+    "utm_term",
+    "utm_content",
+    "fbclid",
+    "igshid",
+    "ref",
+    "ref_src",
+  ];
   drop.forEach((p) => u.searchParams.delete(p));
   let out = u.toString();
   out = out.replace(/\?$/, "");
@@ -337,7 +385,8 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
         onClose();
       } catch (err) {
         console.error("[EditProfileModal] save failed", err);
-        const message = err instanceof Error ? err.message : "Could not save your profile. Try again.";
+        const message =
+          err instanceof Error ? err.message : "Could not save your profile. Try again.";
         // Map known server validation messages back onto their field so the
         // inline error replaces any stale one.
         if (/username/i.test(message)) setErrors({ displayName: message });
@@ -348,13 +397,25 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
         setSaving(false);
       }
     },
-    [displayName, bio, links, skills, avatarBlob, coverBlob, uploadImage, userId, save, onSaved, onClose],
+    [
+      displayName,
+      bio,
+      links,
+      skills,
+      avatarBlob,
+      coverBlob,
+      uploadImage,
+      userId,
+      save,
+      onSaved,
+      onClose,
+    ],
   );
 
   if (!open || typeof document === "undefined") return null;
 
   const inputBase =
- "w-full rounded-xl bg-[#141418] md:bg-white border px-3 py-2.5 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30";
+    "w-full rounded-xl bg-[#141418] md:bg-white border px-3 py-2.5 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 outline-none transition-colors focus:border-emerald-400 focus:ring-2 focus:ring-emerald-500/30";
 
   return createPortal(
     <div
@@ -387,13 +448,26 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
 
         <form onSubmit={handleSubmit} className="px-4 py-4 space-y-5" noValidate>
           {/* Live preview */}
-          <section aria-label="Live preview" className="rounded-2xl overflow-hidden border border-white/10 md:border-slate-200">
+          <section
+            aria-label="Live preview"
+            className="rounded-2xl overflow-hidden border border-white/10 md:border-slate-200"
+          >
             <div className="relative h-24 bg-gradient-to-r from-emerald-600/40 via-cyan-500/25 to-emerald-400/30">
-              {coverPreview && <img src={coverPreview} alt="" className="absolute inset-0 w-full h-full object-cover" />}
+              {coverPreview && (
+                <img
+                  src={coverPreview}
+                  alt=""
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+              )}
             </div>
             <div className="bg-[#141418] md:bg-slate-50 px-4 pb-4 -mt-8">
               <div className="w-16 h-16 rounded-full overflow-hidden border-4 border-[#1a1a1f] md:border-white bg-emerald-500 flex items-center justify-center text-black font-black">
-                {avatarPreview ? <img src={avatarPreview} alt="" className="w-full h-full object-cover" /> : initials}
+                {avatarPreview ? (
+                  <img src={avatarPreview} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  initials
+                )}
               </div>
               <p className="mt-2 text-sm font-black text-white md:text-slate-900 truncate">
                 {displayName.trim() || "Your name"}
@@ -473,7 +547,9 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
                   if (e.target) e.target.value = "";
                 }}
               />
-              {errors.avatar && <p className="mt-1 text-xs font-semibold text-red-400">{errors.avatar}</p>}
+              {errors.avatar && (
+                <p className="mt-1 text-xs font-semibold text-red-400">{errors.avatar}</p>
+              )}
             </div>
             <div>
               <button
@@ -493,14 +569,21 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
                   if (e.target) e.target.value = "";
                 }}
               />
-              {errors.cover && <p className="mt-1 text-xs font-semibold text-red-400">{errors.cover}</p>}
+              {errors.cover && (
+                <p className="mt-1 text-xs font-semibold text-red-400">{errors.cover}</p>
+              )}
             </div>
           </div>
-          <p className="-mt-3 text-[11px] text-slate-500">JPG, PNG, WEBP or GIF · up to 8MB · crop before saving.</p>
+          <p className="-mt-3 text-[11px] text-slate-500">
+            JPG, PNG, WEBP or GIF · up to 8MB · crop before saving.
+          </p>
 
           {/* Display name */}
           <div>
-            <label htmlFor="ep-name" className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
+            <label
+              htmlFor="ep-name"
+              className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5"
+            >
               Display name
             </label>
             <input
@@ -527,10 +610,15 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
           {/* Bio */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="ep-bio" className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+              <label
+                htmlFor="ep-bio"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500"
+              >
                 Bio
               </label>
-              <span className={`text-[11px] font-semibold ${bioLeft < 0 ? "text-red-400" : "text-slate-500"}`}>
+              <span
+                className={`text-[11px] font-semibold ${bioLeft < 0 ? "text-red-400" : "text-slate-500"}`}
+              >
                 {bioLeft}
               </span>
             </div>
@@ -553,7 +641,10 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
           {/* Skills / tags */}
           <div>
             <div className="flex items-center justify-between mb-1.5">
-              <label htmlFor="ep-skill" className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+              <label
+                htmlFor="ep-skill"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500"
+              >
                 Skills &amp; tags
               </label>
               <span className="text-[11px] font-semibold text-slate-500">
@@ -607,12 +698,16 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
                 <Plus className="w-4 h-4" />
               </button>
             </div>
-            {errors.skills && <p className="mt-1 text-xs font-semibold text-red-400">{errors.skills}</p>}
+            {errors.skills && (
+              <p className="mt-1 text-xs font-semibold text-red-400">{errors.skills}</p>
+            )}
           </div>
 
           {/* Social links */}
           <div className="space-y-2.5">
-            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">Social links</p>
+            <p className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+              Social links
+            </p>
             {LINK_FIELDS.map((f) => (
               <div key={f.key}>
                 <div
@@ -639,7 +734,9 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
                     className="flex-1 min-w-0 bg-transparent py-2.5 text-sm text-white md:text-slate-900 placeholder:text-slate-500 md:placeholder:text-slate-400 outline-none"
                   />
                 </div>
-                {errors[f.key] && <p className="mt-1 text-xs font-semibold text-red-400">{errors[f.key]}</p>}
+                {errors[f.key] && (
+                  <p className="mt-1 text-xs font-semibold text-red-400">{errors[f.key]}</p>
+                )}
               </div>
             ))}
           </div>

@@ -122,12 +122,20 @@ function ThreadRow({
     >
       <div
         className={`flex items-start gap-3 px-3 py-3 rounded-md ${
-          active ? "" : unread ? "bg-[#1E1E24] md:bg-white hover:bg-white/5 md:hover:bg-slate-50" : "hover:bg-white/5 md:hover:bg-slate-50"
+          active
+            ? ""
+            : unread
+              ? "bg-[#1E1E24] md:bg-white hover:bg-white/5 md:hover:bg-slate-50"
+              : "hover:bg-white/5 md:hover:bg-slate-50"
         }`}
       >
         <div className="relative shrink-0">
           <div className="w-10 h-10 rounded-full overflow-hidden">
-            <AvatarImage src={thread.peerAvatarUrl} alt={thread.peerName} className="rounded-full" />
+            <AvatarImage
+              src={thread.peerAvatarUrl}
+              alt={thread.peerName}
+              className="rounded-full"
+            />
           </div>
           {online && (
             <span
@@ -138,12 +146,18 @@ function ThreadRow({
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-1.5">
-            <span className="text-sm font-semibold text-white md:text-slate-900 truncate">{thread.peerName}</span>
-            <span className="ml-auto shrink-0 text-[10px] text-slate-500 md:text-slate-400">{formatTime(thread.lastAt)}</span>
+            <span className="text-sm font-semibold text-white md:text-slate-900 truncate">
+              {thread.peerName}
+            </span>
+            <span className="ml-auto shrink-0 text-[10px] text-slate-500 md:text-slate-400">
+              {formatTime(thread.lastAt)}
+            </span>
           </div>
 
           <div className="flex items-center gap-2 mt-0.5">
-            <div className="text-xs text-slate-400 md:text-slate-500 truncate flex-1">{thread.preview}</div>
+            <div className="text-xs text-slate-400 md:text-slate-500 truncate flex-1">
+              {thread.preview}
+            </div>
             {unread && (
               <span className="shrink-0 inline-flex items-center justify-center min-w-5 h-5 px-1.5 rounded-full bg-red-600 text-white text-[10px] font-black">
                 {thread.unread}
@@ -167,15 +181,17 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
         }`}
       >
         {stripProductLink(msg.body) && (
-          <div className="leading-relaxed whitespace-pre-wrap break-words">{stripProductLink(msg.body)}</div>
+          <div className="leading-relaxed whitespace-pre-wrap break-words">
+            {stripProductLink(msg.body)}
+          </div>
         )}
         {extractProductId(msg.body) && (
           <ProductBubbleCard productId={extractProductId(msg.body)!} mine={mine} />
         )}
-        {msg.media_path && (
-          <div className="mt-1 text-[11px] italic opacity-80">📎 attachment</div>
-        )}
-        <div className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-emerald-100/80 justify-end" : "text-slate-500 md:text-slate-400"}`}>
+        {msg.media_path && <div className="mt-1 text-[11px] italic opacity-80">📎 attachment</div>}
+        <div
+          className={`text-[10px] mt-1 flex items-center gap-1 ${mine ? "text-emerald-100/80 justify-end" : "text-slate-500 md:text-slate-400"}`}
+        >
           <span>{formatTime(msg.created_at)}</span>
           {mine && !msg.id.startsWith("tmp-") && (
             <span
@@ -192,7 +208,12 @@ function MessageBubble({ msg, mine }: { msg: DMRow; mine: boolean }) {
   );
 }
 
-export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onOpenEscrow, onClose }: MessagesProps) {
+export function Messages({
+  variant = "page",
+  initialThreadId,
+  onOpenEscrow: _onOpenEscrow,
+  onClose,
+}: MessagesProps) {
   const { session, openGate } = useAuthGate();
   const me = session?.user?.id ?? null;
 
@@ -222,9 +243,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   const typingChanRef = useRef<ReturnType<typeof supabase.channel> | null>(null);
   const lastTypingSentRef = useRef(0);
   const peerTypingTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-
-
 
   const activeThread = useMemo(
     () => threads.find((t) => t.peerId === activePeer) ?? null,
@@ -331,7 +349,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           .maybeSingle();
         if (cancelled) return;
         const name = p?.display_name || p?.username || "Peer";
-        await channel.track({ user_id: me, name, slug: p?.slug || me, online_at: new Date().toISOString() });
+        await channel.track({
+          user_id: me,
+          name,
+          slug: p?.slug || me,
+          online_at: new Date().toISOString(),
+        });
       });
 
     return () => {
@@ -339,7 +362,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       supabase.removeChannel(channel);
     };
   }, [me, fetchPeerProfiles]);
-
 
   // Sync activePeer when initialThreadId changes (e.g., opening chat from a new profile)
   useEffect(() => {
@@ -382,7 +404,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       cancel = true;
     };
   }, [me, activePeer, threads, fetchPeerProfiles]);
-
 
   // Load latest page of messages for active peer
   useEffect(() => {
@@ -458,8 +479,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
       .channel(`dm-${me}`)
 
       .on(
- "postgres_changes",
-        { event: "INSERT", schema: "public", table: "direct_messages", filter: `recipient_id=eq.${me}` },
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `recipient_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
           playNotificationSound("message");
@@ -469,11 +495,15 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
           }
           void reloadThreads();
         },
-
       )
       .on(
- "postgres_changes",
-        { event: "INSERT", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
           if (row.recipient_id === activePeer) {
@@ -483,11 +513,18 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         },
       )
       .on(
- "postgres_changes",
-        { event: "UPDATE", schema: "public", table: "direct_messages", filter: `sender_id=eq.${me}` },
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "direct_messages",
+          filter: `sender_id=eq.${me}`,
+        },
         (payload) => {
           const row = payload.new as DMRow;
-          setMessages((prev) => prev.map((m) => (m.id === row.id ? { ...m, read_at: row.read_at } : m)));
+          setMessages((prev) =>
+            prev.map((m) => (m.id === row.id ? { ...m, read_at: row.read_at } : m)),
+          );
         },
       )
       .subscribe();
@@ -549,8 +586,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
         // Also fan out to the recipient's inbox channel so their Header can
         // surface an unobtrusive toast / badge when the chat isn't visible.
         const inbox = supabase.channel(`dm-typing-inbox:${activePeer}`);
-        void inbox.send({ type: "broadcast", event: "typing", payload: { from: me } })
-          .finally(() => { supabase.removeChannel(inbox); });
+        void inbox
+          .send({ type: "broadcast", event: "typing", payload: { from: me } })
+          .finally(() => {
+            supabase.removeChannel(inbox);
+          });
       } else {
         lastTypingSentRef.current = 0;
         void chan.send({ type: "broadcast", event: "stop", payload: { from: me } });
@@ -569,7 +609,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     };
   }, [activePeer]);
 
-
   const lastMsgId = messages[messages.length - 1]?.id ?? null;
   useEffect(() => {
     if (scrollRef.current) {
@@ -579,7 +618,10 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
 
   const orderCtxFn = useServerFn(getPeerOrderContext);
   const refreshOrderCtx = useCallback(async () => {
-    if (!me || !activePeer) { setOrderCtx(null); return; }
+    if (!me || !activePeer) {
+      setOrderCtx(null);
+      return;
+    }
     try {
       setOrderCtx(await orderCtxFn({ data: { peerId: activePeer } }));
     } catch {
@@ -587,7 +629,9 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
     }
   }, [me, activePeer, orderCtxFn]);
 
-  useEffect(() => { void refreshOrderCtx(); }, [refreshOrderCtx]);
+  useEffect(() => {
+    void refreshOrderCtx();
+  }, [refreshOrderCtx]);
 
   const selectThread = (peerId: string) => {
     setActivePeer(peerId);
@@ -640,9 +684,12 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
             <div className="mx-auto mb-5 w-20 h-20 rounded-full bg-[#1E1E24] md:bg-emerald-50 border border-white/10 md:border-emerald-200 flex items-center justify-center">
               <MessageSquare className="w-8 h-8 text-emerald-400" />
             </div>
-            <div className="text-white md:text-slate-900 font-black text-lg">Sign in to open Messages</div>
+            <div className="text-white md:text-slate-900 font-black text-lg">
+              Sign in to open Messages
+            </div>
             <p className="text-sm text-slate-400 md:text-slate-500 mt-2">
-              Direct messages are encrypted between verified peers. Connect your account to start chatting.
+              Direct messages are encrypted between verified peers. Connect your account to start
+              chatting.
             </p>
             <button
               onClick={() => openGate("interaction")}
@@ -731,9 +778,7 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                       </div>
                       <span
                         className={`absolute -bottom-0.5 -right-0.5 w-3 h-3 rounded-full border-2 border-[#16161B] md:border-white ${
-                          p.online
-                            ? "bg-emerald-400 shadow-sm"
-                            : "bg-slate-600 md:bg-slate-300"
+                          p.online ? "bg-emerald-400 shadow-sm" : "bg-slate-600 md:bg-slate-300"
                         }`}
                       />
                     </div>
@@ -767,7 +812,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
             ))
           )}
         </div>
-
       </aside>
 
       {/* RIGHT — Active Chat */}
@@ -803,7 +847,9 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               </div>
               <div className="min-w-0 flex-1">
                 <div className="flex items-center gap-1.5">
-                  <span className="text-white md:text-slate-900 font-semibold text-sm truncate">{activeThread.peerName}</span>
+                  <span className="text-white md:text-slate-900 font-semibold text-sm truncate">
+                    {activeThread.peerName}
+                  </span>
                   <span className="inline-flex items-center gap-0.5 text-[11px] text-slate-500 md:text-slate-400 ml-1">
                     <Star className="w-3 h-3" />
                     peer
@@ -811,14 +857,17 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                 </div>
                 <div className="text-[11px] text-slate-500 md:text-slate-400">
                   {peerTyping ? (
-                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">typing…</span>
+                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">
+                      typing…
+                    </span>
                   ) : onlinePeers.has(activeThread.peerId) ? (
-                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">● Online now</span>
+                    <span className="text-emerald-400 md:text-emerald-600 font-semibold">
+                      ● Online now
+                    </span>
                   ) : (
                     <>last active {relative(activeThread.lastAt)}</>
                   )}
                 </div>
-
               </div>
 
               <Link
@@ -860,7 +909,9 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                       </button>
                     </div>
                   )}
-                  {messages.map((m) => <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />)}
+                  {messages.map((m) => (
+                    <MessageBubble key={m.id} msg={m} mine={m.sender_id === me} />
+                  ))}
                 </>
               )}
               {peerTyping && activeThread && (
@@ -879,14 +930,13 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
               )}
             </div>
 
-
             <div className="border-t border-white/10 md:border-slate-200 bg-[#16161B] md:bg-white p-3">
               {OFF_PLATFORM_RE.test(draft) && (
                 <div className="mb-2 flex items-start gap-2 rounded-md border border-amber-500/40 md:border-amber-300 bg-amber-500/5 md:bg-amber-50 px-3 py-2 text-[11px] text-amber-100 md:text-amber-800">
                   <AlertTriangle className="w-3.5 h-3.5 mt-0.5 shrink-0" />
                   <span>
-                    Heads up — trades finished off Oventric aren't covered by escrow, refunds or dispute mediation. Keep the
-                    conversation and the delivery right here.
+                    Heads up — trades finished off Oventric aren't covered by escrow, refunds or
+                    dispute mediation. Keep the conversation and the delivery right here.
                   </span>
                 </div>
               )}
@@ -899,7 +949,6 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                     if (v.trim().length > 0) emitTyping(true);
                     else emitTyping(false);
                   }}
-
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && !e.shiftKey) {
                       e.preventDefault();
@@ -916,7 +965,11 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
                   className="shrink-0 inline-flex items-center justify-center w-10 h-10 rounded-lg bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 text-black md:text-white disabled:opacity-40 disabled:cursor-not-allowed"
                   aria-label="Send message"
                 >
-                  {sending ? <Loader2 className="w-4 h-4 animate-spin" /> : <Send className="w-4 h-4" />}
+                  {sending ? (
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                  ) : (
+                    <Send className="w-4 h-4" />
+                  )}
                 </button>
               </div>
             </div>
@@ -927,16 +980,24 @@ export function Messages({ variant = "page", initialThreadId, onOpenEscrow: _onO
   );
 }
 
-const OFF_PLATFORM_RE = /(whats\s?app|telegram|signal app|\bwa\.me\b|\bt\.me\b|\+?\d[\d\s().-]{8,}\d)/i;
+const OFF_PLATFORM_RE =
+  /(whats\s?app|telegram|signal app|\bwa\.me\b|\bt\.me\b|\+?\d[\d\s().-]{8,}\d)/i;
 
-function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; onChanged: () => void }) {
+function OrderTradeBanner({
+  ctx,
+  onChanged,
+}: {
+  ctx: PeerOrderContext | null;
+  onChanged: () => void;
+}) {
   const deliverFn = useServerFn(markOrderDelivered);
   const confirmFn = useServerFn(buyerConfirmReceipt);
   const [busy, setBusy] = useState(false);
   if (!ctx) return null;
 
   const disputed = ctx.disputeStatus === "open";
-  const sellerCanDeliver = ctx.role === "seller" && ctx.requiresManualDelivery && !ctx.deliveredAt && !disputed;
+  const sellerCanDeliver =
+    ctx.role === "seller" && ctx.requiresManualDelivery && !ctx.deliveredAt && !disputed;
   const buyerCanConfirm = ctx.role === "buyer" && !disputed;
 
   const run = async (kind: "deliver" | "confirm") => {
@@ -962,11 +1023,18 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
       <div className="flex items-start justify-between gap-3 flex-wrap">
         <div className="min-w-0">
           <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 md:text-emerald-700 mb-0.5">
-            {disputed ? "Disputed trade" : ctx.deliveredAt ? "Delivered — awaiting confirmation" : "Active trade in escrow"}
+            {disputed
+              ? "Disputed trade"
+              : ctx.deliveredAt
+                ? "Delivered — awaiting confirmation"
+                : "Active trade in escrow"}
           </div>
-          <div className="text-sm text-white md:text-slate-900 font-semibold truncate">{ctx.productName}</div>
+          <div className="text-sm text-white md:text-slate-900 font-semibold truncate">
+            {ctx.productName}
+          </div>
           <div className="text-[11px] text-slate-500 md:text-slate-600">
-            {ctx.displayCurrency} {ctx.displayTotal.toLocaleString()} held in escrow · Order {ctx.orderId.slice(0, 8)}
+            {ctx.displayCurrency} {ctx.displayTotal.toLocaleString()} held in escrow · Order{" "}
+            {ctx.orderId.slice(0, 8)}
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -976,7 +1044,12 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
               disabled={busy}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black md:text-white bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 disabled:opacity-60"
             >
-              {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Truck className="w-3.5 h-3.5" />} Mark delivered
+              {busy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <Truck className="w-3.5 h-3.5" />
+              )}{" "}
+              Mark delivered
             </button>
           )}
           {buyerCanConfirm && (
@@ -985,7 +1058,12 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
               disabled={busy}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-bold text-black md:text-white bg-emerald-500 md:bg-emerald-600 hover:bg-emerald-400 md:hover:bg-emerald-700 disabled:opacity-60"
             >
-              {busy ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <CheckCircle2 className="w-3.5 h-3.5" />} Confirm receipt
+              {busy ? (
+                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              ) : (
+                <CheckCircle2 className="w-3.5 h-3.5" />
+              )}{" "}
+              Confirm receipt
             </button>
           )}
           <Link
@@ -993,12 +1071,14 @@ function OrderTradeBanner({ ctx, onChanged }: { ctx: PeerOrderContext | null; on
             params={{ id: ctx.orderId }}
             className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-md text-xs font-semibold text-slate-200 md:text-slate-700 bg-[#2A2A31] md:bg-white border border-white/10 md:border-slate-200 md:hover:bg-slate-50"
           >
-            <ShieldAlert className="w-3.5 h-3.5" /> {ctx.role === "buyer" ? "Order & disputes" : "Order details"}
+            <ShieldAlert className="w-3.5 h-3.5" />{" "}
+            {ctx.role === "buyer" ? "Order & disputes" : "Order details"}
           </Link>
         </div>
       </div>
       <div className="mt-2 text-[11px] text-emerald-100/80 md:text-emerald-800/80">
-        Deliver and confirm here. Escrow, refunds and dispute mediation only cover trades completed on Oventric.
+        Deliver and confirm here. Escrow, refunds and dispute mediation only cover trades completed
+        on Oventric.
       </div>
     </div>
   );

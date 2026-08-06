@@ -13,10 +13,12 @@ export function SiteFooter({ onSelect, currency, flag }: SiteFooterProps) {
     <footer className="border-t border-slate-200 bg-[#F7F8FA]">
       <div className="mx-auto grid w-full max-w-[1200px] grid-cols-[1.4fr_1fr_1fr_1fr_1fr] gap-10 px-8 py-14">
         <div>
-          <span className="inline-flex items-center"><img src={logo} alt="Oventric" className="h-6 w-auto object-contain" /></span>
+          <span className="inline-flex items-center">
+            <img src={logo} alt="Oventric" className="h-6 w-auto object-contain" />
+          </span>
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-slate-400">
-            One platform for African builders — buy and sell, learn and earn, post bounties, and move money in your own
-            currency.
+            One platform for African builders — buy and sell, learn and earn, post bounties, and
+            move money in your own currency.
           </p>
           <span className="mt-5 inline-flex h-8 items-center gap-1.5 rounded-full border border-slate-200 bg-white px-3 text-xs font-semibold text-slate-700">
             {flag && <span aria-hidden>{flag}</span>}
@@ -83,7 +85,11 @@ function FooterLink({ to, label }: { to: string; label: string }) {
 function FooterAction({ label, onClick }: { label: string; onClick: () => void }) {
   return (
     <li>
-      <button type="button" onClick={onClick} className="text-sm text-slate-400 transition-colors hover:text-slate-900">
+      <button
+        type="button"
+        onClick={onClick}
+        className="text-sm text-slate-400 transition-colors hover:text-slate-900"
+      >
         {label}
       </button>
     </li>

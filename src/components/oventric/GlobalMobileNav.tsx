@@ -24,14 +24,10 @@ export function GlobalMobileNav() {
     if (pathname !== "/") {
       navigate({ to: "/" });
       setTimeout(() => {
-        window.dispatchEvent(
-          new CustomEvent("oventric:navigate", { detail: { section } }),
-        );
+        window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
       }, 30);
     } else {
-      window.dispatchEvent(
-        new CustomEvent("oventric:navigate", { detail: { section } }),
-      );
+      window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
     }
   };
 

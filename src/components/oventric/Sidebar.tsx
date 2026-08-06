@@ -1,4 +1,15 @@
-import { Home, Target, Wallet, Plus, ChevronLeft, MessageSquare, Users, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
+import {
+  Home,
+  Target,
+  Wallet,
+  Plus,
+  ChevronLeft,
+  MessageSquare,
+  Users,
+  ShoppingBag,
+  GraduationCap,
+  Newspaper,
+} from "lucide-react";
 import { useState } from "react";
 
 const items = [
@@ -11,7 +22,6 @@ const items = [
   { icon: Target, label: "Bounties" },
   { icon: Wallet, label: "Wallet" },
 ] as Array<{ icon: typeof Home; label: string }>;
-
 
 export function Sidebar({
   onCreate,

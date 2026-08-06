@@ -53,8 +53,6 @@ import {
 import { PromoBanners } from "@/components/oventric/PromoBanners";
 import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
 
-
-
 import homeIcon from "@/assets/home-3d.png.asset.json";
 import walletIcon from "@/assets/wallet-3d.webp.asset.json";
 import marketIcon from "@/assets/marketplace-3d.png.asset.json";
@@ -84,18 +82,95 @@ type Tile = {
 };
 
 const TILES: Tile[] = [
-  { label: "Feed", caption: "What's new", img: homeIcon.url, section: "Feed", countKey: "Feed", tint: "from-sky-500/25 to-sky-500/5" },
-  { label: "Market", caption: "Buy & sell", img: marketIcon.url, section: "Marketplace", countKey: "Market", tint: "from-emerald-500/25 to-emerald-500/5" },
-  { label: "Academy", caption: "Learn & earn", img: academyIcon.url, section: "Academy", countKey: "Academy", tint: "from-violet-500/25 to-violet-500/5" },
-  { label: "Bounties", caption: "Get paid", img: bountiesIcon.url, section: "Bounties", countKey: "Bounties", tint: "from-amber-500/25 to-amber-500/5" },
-  { label: "Wallet", caption: "Money", img: walletIcon.url, section: "Wallet", countKey: "Wallet", tint: "from-emerald-500/25 to-teal-500/5" },
-  { label: "Circles", caption: "Communities", img: circlesIcon.url, section: "Circles", tint: "from-pink-500/25 to-pink-500/5" },
-  { label: "Messages", caption: "Chat", img: messageIcon.url, section: "Messages", tint: "from-cyan-500/25 to-cyan-500/5" },
-  { label: "Dashboard", caption: "Your hub", icon: LayoutDashboard, to: "/dashboard", tint: "from-indigo-500/25 to-indigo-500/5" },
-  { label: "Advertise", caption: "Promote", icon: Megaphone, to: "/advertise", tint: "from-orange-500/25 to-orange-500/5" },
-  { label: "Affiliate", caption: "Refer & earn", icon: Gift, to: "/affiliate", tint: "from-rose-500/25 to-rose-500/5" },
-  { label: "Blog", caption: "Stories", icon: BookOpen, to: "/blog", tint: "from-slate-400/25 to-slate-400/5" },
-  { label: "Help", caption: "Support", icon: LifeBuoy, to: "/help", tint: "from-teal-500/25 to-teal-500/5" },
+  {
+    label: "Feed",
+    caption: "What's new",
+    img: homeIcon.url,
+    section: "Feed",
+    countKey: "Feed",
+    tint: "from-sky-500/25 to-sky-500/5",
+  },
+  {
+    label: "Market",
+    caption: "Buy & sell",
+    img: marketIcon.url,
+    section: "Marketplace",
+    countKey: "Market",
+    tint: "from-emerald-500/25 to-emerald-500/5",
+  },
+  {
+    label: "Academy",
+    caption: "Learn & earn",
+    img: academyIcon.url,
+    section: "Academy",
+    countKey: "Academy",
+    tint: "from-violet-500/25 to-violet-500/5",
+  },
+  {
+    label: "Bounties",
+    caption: "Get paid",
+    img: bountiesIcon.url,
+    section: "Bounties",
+    countKey: "Bounties",
+    tint: "from-amber-500/25 to-amber-500/5",
+  },
+  {
+    label: "Wallet",
+    caption: "Money",
+    img: walletIcon.url,
+    section: "Wallet",
+    countKey: "Wallet",
+    tint: "from-emerald-500/25 to-teal-500/5",
+  },
+  {
+    label: "Circles",
+    caption: "Communities",
+    img: circlesIcon.url,
+    section: "Circles",
+    tint: "from-pink-500/25 to-pink-500/5",
+  },
+  {
+    label: "Messages",
+    caption: "Chat",
+    img: messageIcon.url,
+    section: "Messages",
+    tint: "from-cyan-500/25 to-cyan-500/5",
+  },
+  {
+    label: "Dashboard",
+    caption: "Your hub",
+    icon: LayoutDashboard,
+    to: "/dashboard",
+    tint: "from-indigo-500/25 to-indigo-500/5",
+  },
+  {
+    label: "Advertise",
+    caption: "Promote",
+    icon: Megaphone,
+    to: "/advertise",
+    tint: "from-orange-500/25 to-orange-500/5",
+  },
+  {
+    label: "Affiliate",
+    caption: "Refer & earn",
+    icon: Gift,
+    to: "/affiliate",
+    tint: "from-rose-500/25 to-rose-500/5",
+  },
+  {
+    label: "Blog",
+    caption: "Stories",
+    icon: BookOpen,
+    to: "/blog",
+    tint: "from-slate-400/25 to-slate-400/5",
+  },
+  {
+    label: "Help",
+    caption: "Support",
+    icon: LifeBuoy,
+    to: "/help",
+    tint: "from-teal-500/25 to-teal-500/5",
+  },
 ];
 
 function fromUSD(usd: number, target: Currency): number {
@@ -106,7 +181,15 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const { isAuthenticated, openGate } = useAuthGate();
   // Same live unread counters the header shows, mirrored onto the hub tiles.
   const unread = useUnreadCounts();
-  const { baseCurrency, country, balancesHidden, toggleBalancesHidden, fullName, storeName, require: requireTier } = useOnboarding();
+  const {
+    baseCurrency,
+    country,
+    balancesHidden,
+    toggleBalancesHidden,
+    fullName,
+    storeName,
+    require: requireTier,
+  } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
   const [bountyOpen, setBountyOpen] = useState(false);
@@ -136,7 +219,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   const [bounties, setBounties] = useState<
     Array<{ id: string; title: string; coverUrl: string | null; amountUsd: number }>
   >([]);
-
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -175,7 +257,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       if (!uid || cancelled) return;
       ch = supabase
         .channel(`hub-wallet-${uid}`)
-        .on("postgres_changes", { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` }, () => load())
+        .on(
+          "postgres_changes",
+          { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
+          () => load(),
+        )
         .subscribe();
     })();
 
@@ -208,7 +294,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       })
       .catch(() => {});
     loadCourses()
-
       .then((rows) => {
         if (cancelled) return;
         setCourses(
@@ -227,14 +312,13 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
     };
   }, [loadDiscovery, loadCourses]);
 
-
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
   const [greeting, setGreeting] = useState("Welcome");
   useEffect(() => {
     const h = new Date().getHours();
     setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
   }, []);
-  const flag = country ? COUNTRY_META[country]?.flag ?? "" : "";
+  const flag = country ? (COUNTRY_META[country]?.flag ?? "") : "";
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
@@ -278,10 +362,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           background: "oklch(0.2 0 0)",
         }}
       >
-
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">Main balance</div>
+            <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">
+              Main balance
+            </div>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-2xl md:text-3xl font-bold text-white tabular-nums truncate">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
@@ -308,9 +393,32 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </div>
 
         <div className="mt-3 grid grid-cols-3 gap-2">
-          <SubChip label="Cashback" value={isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(cashback, currency), currency)) : "—"} />
-          <SubChip label="Bounty" value={isAuthenticated ? (balancesHidden ? "••••" : formatMoney(fromUSD(bounty, currency), currency)) : "—"} />
-          <SubChip label="Escrow" value={isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : "—"} />
+          <SubChip
+            label="Cashback"
+            value={
+              isAuthenticated
+                ? balancesHidden
+                  ? "••••"
+                  : formatMoney(fromUSD(cashback, currency), currency)
+                : "—"
+            }
+          />
+          <SubChip
+            label="Bounty"
+            value={
+              isAuthenticated
+                ? balancesHidden
+                  ? "••••"
+                  : formatMoney(fromUSD(bounty, currency), currency)
+                : "—"
+            }
+          />
+          <SubChip
+            label="Escrow"
+            value={
+              isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : "—"
+            }
+          />
         </div>
 
         <div className="mt-4 flex gap-2">
@@ -319,7 +427,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
             className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-slate-500 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-black/20"
           >
-            <ArrowDownToLine className="w-4 h-4 text-[#ff0000]" strokeWidth={3} /> <span style={{ color: "white" }}>Add</span>
+            <ArrowDownToLine className="w-4 h-4 text-[#ff0000]" strokeWidth={3} />{" "}
+            <span style={{ color: "white" }}>Add</span>
           </button>
           <button
             type="button"
@@ -336,22 +445,43 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             <Send className="w-4 h-4" strokeWidth={3} /> Send
           </button>
         </div>
-
       </section>
 
       {/* Quick actions */}
       <section className="grid grid-cols-4 gap-2">
-        <QuickAction icon={Store} label="Sell" onClick={() => requireTier(2, () => setSellOpen(true))} className="hub-card-solid  rounded-[10px]" />
-        <QuickAction icon={Plus} label="Post" onClick={() => requireTier(1, () => {
-          onSelect("Feed");
-          setTimeout(() => {
-            window.dispatchEvent(new CustomEvent("oventric:create", { detail: { kind: "post" } }));
-          }, 80);
-        })} className="hub-card-solid  rounded-[10px]" />
-        <QuickAction icon={GraduationCap} label="Course" onClick={() => requireTier(2, () => setCourseOpen(true))} className="hub-card-solid  rounded-[10px]" />
-        <QuickAction icon={Target} label="Bounty" onClick={() => requireTier(2, () => setBountyOpen(true))} className="hub-card-solid  rounded-[10px]" />
-
-
+        <QuickAction
+          icon={Store}
+          label="Sell"
+          onClick={() => requireTier(2, () => setSellOpen(true))}
+          className="hub-card-solid  rounded-[10px]"
+        />
+        <QuickAction
+          icon={Plus}
+          label="Post"
+          onClick={() =>
+            requireTier(1, () => {
+              onSelect("Feed");
+              setTimeout(() => {
+                window.dispatchEvent(
+                  new CustomEvent("oventric:create", { detail: { kind: "post" } }),
+                );
+              }, 80);
+            })
+          }
+          className="hub-card-solid  rounded-[10px]"
+        />
+        <QuickAction
+          icon={GraduationCap}
+          label="Course"
+          onClick={() => requireTier(2, () => setCourseOpen(true))}
+          className="hub-card-solid  rounded-[10px]"
+        />
+        <QuickAction
+          icon={Target}
+          label="Bounty"
+          onClick={() => requireTier(2, () => setBountyOpen(true))}
+          className="hub-card-solid  rounded-[10px]"
+        />
       </section>
 
       {/* Promo banners */}
@@ -361,21 +491,22 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       {topUsers.length > 0 && (
         <section className="mt-6 mb-2">
           <div className="flex items-center justify-between mb-4 px-1">
-            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">Top Users</h2>
-            <button 
+            <h2 className="text-[11px] font-bold uppercase tracking-wider text-slate-500">
+              Top Users
+            </h2>
+            <button
               onClick={() => onSelect("Feed")}
               className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
             >
               View all
             </button>
-
           </div>
 
           <div className="flex gap-5 overflow-x-auto pb-4 scrollbar-hide px-1 snap-x snap-mandatory">
             {topUsers.map((u) => (
-              <Link 
+              <Link
                 key={u.userId}
-                to="/profile/$id" 
+                to="/profile/$id"
                 params={{ id: u.slug }}
                 className="flex flex-col items-center gap-2.5 shrink-0 group snap-start"
               >
@@ -390,7 +521,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                 </div>
                 <div className="flex flex-col items-center gap-0.5">
                   <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-blue-400 transition-colors">
-                    {u.displayName.split(' ')[0]}
+                    {u.displayName.split(" ")[0]}
                   </span>
                   <div className="w-1 h-1 rounded-full bg-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
@@ -399,8 +530,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </div>
         </section>
       )}
-
-
 
       {/* Feature grid */}
 
@@ -411,25 +540,36 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             const sectionUnread =
               t.label === "Messages"
                 ? unread.messages + (unread.sections["Messages"] ?? 0)
-                : unread.sections[t.label] ?? 0;
-            const count = (t.countKey ? counts?.[t.countKey] ?? 0 : 0) + sectionUnread;
+                : (unread.sections[t.label] ?? 0);
+            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
             const inner = (
               <span className="flex flex-col items-center gap-1.5">
                 <span
                   className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-solid `}
                 >
                   {t.img ? (
-                    <img src={t.img} alt="" aria-hidden className="w-8 h-8 md:w-9 md:h-9 object-contain" loading="eager" />
+                    <img
+                      src={t.img}
+                      alt=""
+                      aria-hidden
+                      className="w-8 h-8 md:w-9 md:h-9 object-contain"
+                      loading="eager"
+                    />
                   ) : t.icon ? (
                     <t.icon className="w-6 h-6 text-white" strokeWidth={2.5} />
                   ) : null}
                   <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
                 </span>
-                <span className="text-[11px] font-semibold text-white leading-tight text-center">{t.label}</span>
-                <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">{t.caption}</span>
+                <span className="text-[11px] font-semibold text-white leading-tight text-center">
+                  {t.label}
+                </span>
+                <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">
+                  {t.caption}
+                </span>
               </span>
             );
-            const cls = "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
+            const cls =
+              "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
 
             const style = { animationDelay: `${Math.min(i, 11) * 28}ms` } as const;
             return t.to ? (
@@ -488,9 +628,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           art={promoAdvertiseArt}
           gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
         />
-
       </section>
-
 
       {/* Live strips */}
       <MiniRail
@@ -528,7 +666,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           onClick: () => onSelect("Bounties"),
         }))}
       />
-
 
       {!isAuthenticated && (
         <button
@@ -619,7 +756,12 @@ function MiniRail({
           >
             <span className="block w-32 h-24 rounded-none overflow-hidden bg-[#1E1E24] border border-white/10">
               {it.coverUrl ? (
-                <img src={it.coverUrl} alt={it.title} className="w-full h-full object-cover" loading="lazy" />
+                <img
+                  src={it.coverUrl}
+                  alt={it.title}
+                  className="w-full h-full object-cover"
+                  loading="lazy"
+                />
               ) : (
                 <span className="w-full h-full flex items-center justify-center text-slate-600">
                   <Newspaper className="w-6 h-6" />
@@ -636,7 +778,6 @@ function MiniRail({
     </section>
   );
 }
-
 
 function SubChip({ label, value }: { label: string; value: string }) {
   return (
@@ -672,7 +813,6 @@ function QuickAction({
   );
 }
 
-
 function PromoCard({
   id,
   title,
@@ -704,9 +844,15 @@ function PromoCard({
       style={{ backgroundImage: gradient }}
     >
       <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
-      <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">{title}</span>
-      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">{highlight}</span>
-      <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">{body}</span>
+      <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">
+        {title}
+      </span>
+      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">
+        {highlight}
+      </span>
+      <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">
+        {body}
+      </span>
       <span className="promo-tile-cta relative mt-3 inline-flex min-h-[2.25rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-[11px] font-bold text-white">
         {cta} <ChevronRight className="w-3.5 h-3.5" />
       </span>
@@ -722,7 +868,7 @@ function PromoCard({
     </span>
   );
   const cls =
- "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
+    "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
   const handleClick = () => {
     void trackPromoEvent("click", promo);
     onClick?.();
@@ -747,7 +893,4 @@ function PromoCard({
       {content}
     </button>
   );
-
 }
-
-

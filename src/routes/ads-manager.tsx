@@ -1,15 +1,28 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BarChart3, Megaphone, ChevronRight, Plus, Pencil, Eye, EyeOff, Loader2 } from "lucide-react";
+import {
+  ArrowLeft,
+  BarChart3,
+  Megaphone,
+  ChevronRight,
+  Plus,
+  Pencil,
+  Eye,
+  EyeOff,
+  Loader2,
+} from "lucide-react";
 import { toast } from "sonner";
 import { AdsManagerSkeleton } from "@/components/oventric/skeletons";
 
 import { supabase } from "@/integrations/supabase/client";
 import { listMyCampaigns, getMyCampaign, type MyCampaignSummary } from "@/lib/my-ads.functions";
 import { setMyBannerAdVisibility } from "@/lib/my-ads-write.functions";
-import { BannerAdModal, EMPTY_BANNER, type BannerAdDraft } from "@/components/oventric/ads/BannerAdModal";
-
+import {
+  BannerAdModal,
+  EMPTY_BANNER,
+  type BannerAdDraft,
+} from "@/components/oventric/ads/BannerAdModal";
 
 export const Route = createFileRoute("/ads-manager")({
   ssr: false,
@@ -37,15 +50,23 @@ function AdsManagerPage() {
     let alive = true;
     supabase.auth.getUser().then(({ data }) => {
       if (!alive) return;
-      if (!data.user) { navigate({ to: "/" }); return; }
+      if (!data.user) {
+        navigate({ to: "/" });
+        return;
+      }
       setReady(true);
     });
-    return () => { alive = false; };
+    return () => {
+      alive = false;
+    };
   }, [navigate]);
 
   const reload = useCallback(async () => {
-    try { setRows(await listFn()); }
-    catch { setRows([]); }
+    try {
+      setRows(await listFn());
+    } catch {
+      setRows([]);
+    }
   }, [listFn]);
 
   useEffect(() => {
@@ -53,7 +74,10 @@ function AdsManagerPage() {
     void reload();
   }, [ready, reload]);
 
-  const openCreate = () => { setDraft(EMPTY_BANNER); setModalOpen(true); };
+  const openCreate = () => {
+    setDraft(EMPTY_BANNER);
+    setModalOpen(true);
+  };
 
   const openEdit = async (id: string) => {
     setBusyId(id);
@@ -111,7 +135,9 @@ function AdsManagerPage() {
           </div>
           <div className="flex-1 min-w-0">
             <h1 className="text-white text-2xl md:text-3xl font-black">Ads Manager</h1>
-            <p className="text-slate-400 mt-1 text-sm">Manage and track the performance of your ads.</p>
+            <p className="text-slate-400 mt-1 text-sm">
+              Manage and track the performance of your ads.
+            </p>
           </div>
           <button
             onClick={openCreate}
@@ -130,10 +156,16 @@ function AdsManagerPage() {
               reach, clicks and lead capture show up here in real time.
             </p>
             <div className="flex flex-wrap items-center justify-center gap-2 mt-4">
-              <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 text-black px-4 py-2 text-sm font-semibold hover:bg-emerald-400">
+              <button
+                onClick={openCreate}
+                className="inline-flex items-center gap-2 rounded-lg bg-emerald-500 text-black px-4 py-2 text-sm font-semibold hover:bg-emerald-400"
+              >
                 <Plus className="w-4 h-4" /> New banner ad
               </button>
-              <Link to="/advertise" className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white">
+              <Link
+                to="/advertise"
+                className="inline-flex items-center gap-2 rounded-lg border border-white/15 px-4 py-2 text-sm font-semibold text-slate-300 hover:text-white"
+              >
                 Start a campaign
               </Link>
             </div>
@@ -175,10 +207,13 @@ function CampaignRow({
   onToggle: () => void;
 }) {
   const statusColor =
-    c.status === "active" ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30" :
-    c.status === "paused" ? "text-amber-400 bg-amber-500/10 border-amber-500/30" :
-    c.status === "ended" ? "text-slate-400 bg-slate-500/10 border-slate-500/30" :
- "text-sky-400 bg-sky-500/10 border-sky-500/30";
+    c.status === "active"
+      ? "text-emerald-400 bg-emerald-500/10 border-emerald-500/30"
+      : c.status === "paused"
+        ? "text-amber-400 bg-amber-500/10 border-amber-500/30"
+        : c.status === "ended"
+          ? "text-slate-400 bg-slate-500/10 border-slate-500/30"
+          : "text-sky-400 bg-sky-500/10 border-sky-500/30";
   const isTier2 = c.tier === "image";
   const visible = c.status === "active";
   return (
@@ -187,13 +222,18 @@ function CampaignRow({
         <Link to="/ads-manager/$id" params={{ id: c.id }} className="min-w-0 block">
           <div className="flex items-center gap-2 flex-wrap">
             <div className="text-white font-semibold truncate">{c.title}</div>
-            <span className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border ${statusColor}`}>{c.status}</span>
+            <span
+              className={`text-[10px] uppercase tracking-widest px-2 py-0.5 rounded-full border ${statusColor}`}
+            >
+              {c.status}
+            </span>
             <span className="text-[10px] uppercase tracking-widest text-slate-500">
               {isTier2 ? "tier 2 banner" : c.tier} · {c.cta_type.replace("_", " ")}
             </span>
           </div>
           <div className="text-xs text-slate-400 mt-1">
-            {c.placements.join(", ") || "no placements"} · {c.cities.length || 0} cities · {c.countries.join("/") || "global"}
+            {c.placements.join(", ") || "no placements"} · {c.cities.length || 0} cities ·{" "}
+            {c.countries.join("/") || "global"}
           </div>
         </Link>
         <div className="flex items-center gap-1.5 shrink-0">
@@ -206,7 +246,13 @@ function CampaignRow({
                 aria-label={visible ? "Hide ad" : "Make ad visible"}
                 className="p-2 rounded-lg border border-white/10 text-slate-300 hover:text-white hover:border-white/25 disabled:opacity-50"
               >
-                {busy ? <Loader2 className="w-4 h-4 animate-spin" /> : visible ? <Eye className="w-4 h-4 text-emerald-400" /> : <EyeOff className="w-4 h-4" />}
+                {busy ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : visible ? (
+                  <Eye className="w-4 h-4 text-emerald-400" />
+                ) : (
+                  <EyeOff className="w-4 h-4" />
+                )}
               </button>
               <button
                 onClick={onEdit}
@@ -219,7 +265,12 @@ function CampaignRow({
               </button>
             </>
           )}
-          <Link to="/ads-manager/$id" params={{ id: c.id }} className="p-2 text-slate-500 hover:text-white" aria-label="Open campaign">
+          <Link
+            to="/ads-manager/$id"
+            params={{ id: c.id }}
+            className="p-2 text-slate-500 hover:text-white"
+            aria-label="Open campaign"
+          >
             <ChevronRight className="w-4 h-4" />
           </Link>
         </div>
@@ -233,7 +284,6 @@ function CampaignRow({
     </div>
   );
 }
-
 
 function Cell({ label, value }: { label: string; value: string }) {
   return (

@@ -3,7 +3,26 @@ import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tansta
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { toast } from "sonner";
-import { ArrowLeft, Users, Award, Target, ShoppingBag, ExternalLink, MessageCircle, RefreshCw, AlertTriangle, Compass, Heart, Share2, Check, Bookmark, Gavel, Hammer, Sparkles, Link2 } from "lucide-react";
+import {
+  ArrowLeft,
+  Users,
+  Award,
+  Target,
+  ShoppingBag,
+  ExternalLink,
+  MessageCircle,
+  RefreshCw,
+  AlertTriangle,
+  Compass,
+  Heart,
+  Share2,
+  Check,
+  Bookmark,
+  Gavel,
+  Hammer,
+  Sparkles,
+  Link2,
+} from "lucide-react";
 import { Header } from "@/components/oventric/Header";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
@@ -64,7 +83,9 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
           itemId: params.itemId,
         },
       }),
-      getProfileByIdOrSlug({ data: { idOrSlug: params.id } }).catch(() => ({ profile: null as RealProfileView | null })),
+      getProfileByIdOrSlug({ data: { idOrSlug: params.id } }).catch(() => ({
+        profile: null as RealProfileView | null,
+      })),
     ]);
 
     if (!item) throw notFound();
@@ -84,19 +105,19 @@ export const Route = createFileRoute("/profile/$id/item/$kind/$itemId")({
             : `${label} — @${params.id}`
       : `${label} — @${params.id}`;
     return {
-      meta: [
-        { title },
-        { name: "robots", content: "noindex" },
-      ],
+      meta: [{ title }, { name: "robots", content: "noindex" }],
     };
   },
   pendingMs: 0,
   pendingMinMs: 300,
   pendingComponent: () => {
     // Params aren't reliably typed here — use window location as a best-effort hint.
-    const kind = (typeof window !== "undefined"
-      ? (window.location.pathname.split("/item/")[1]?.split("/")[0] as ProfileItemKind | undefined)
-      : undefined) ?? "post";
+    const kind =
+      (typeof window !== "undefined"
+        ? (window.location.pathname.split("/item/")[1]?.split("/")[0] as
+            | ProfileItemKind
+            | undefined)
+        : undefined) ?? "post";
     return (
       <Shell>
         <ItemSkeleton kind={kind} />
@@ -198,7 +219,15 @@ function ItemSkeleton({ kind }: { kind: ProfileItemKind }) {
   );
 }
 
-function ErrorPanel({ title, message, onRetry }: { title: string; message: string; onRetry: () => void }) {
+function ErrorPanel({
+  title,
+  message,
+  onRetry,
+}: {
+  title: string;
+  message: string;
+  onRetry: () => void;
+}) {
   const router = useRouter();
   const [retrying, setRetrying] = useState(false);
   const handleRetry = async () => {
@@ -330,7 +359,7 @@ function ItemDetail() {
   const isUuidId = UUID_RE.test(id);
   const realName = (realProfile?.displayName ?? "").trim() || (realProfile?.username ?? "").trim();
   const displayName = realName || (isUuidId ? "Member" : mock.name);
-  const displayRole = realProfile ? (realName || "Member") : isUuidId ? "" : mock.role;
+  const displayRole = realProfile ? realName || "Member" : isUuidId ? "" : mock.role;
 
   const displayInitials = (() => {
     const source = realName || (isUuidId ? "" : mock.name);
@@ -343,7 +372,8 @@ function ItemDetail() {
 
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
-  const price = (usd: number) => `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
+  const price = (usd: number) =>
+    `${sym}${(usd * fx).toLocaleString(undefined, { maximumFractionDigits: 0 })}`;
 
   const tabLabel = TAB_LABELS[backSearch.tab] ?? "Profile";
 
@@ -366,22 +396,25 @@ function ItemDetail() {
         <span className="text-slate-500">{tabLabel}</span>
       </Link>
 
-
       {/* Author strip */}
-      <Link
-        to="/profile/$id"
-        params={{ id }}
-        className="flex items-center gap-3 mb-4 group"
-      >
+      <Link to="/profile/$id" params={{ id }} className="flex items-center gap-3 mb-4 group">
         {realProfile?.avatarUrl ? (
-          <img src={realProfile.avatarUrl} alt={displayName} className="w-10 h-10 rounded-full object-cover shrink-0" />
+          <img
+            src={realProfile.avatarUrl}
+            alt={displayName}
+            className="w-10 h-10 rounded-full object-cover shrink-0"
+          />
         ) : (
-          <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}>
+          <div
+            className={`w-10 h-10 rounded-full bg-gradient-to-br ${profile.avatarGradient} flex items-center justify-center text-white font-bold text-xs shrink-0`}
+          >
             {displayInitials}
           </div>
         )}
         <div className="min-w-0">
-          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">{displayName}</div>
+          <div className="text-white font-semibold text-sm truncate group-hover:text-emerald-300">
+            {displayName}
+          </div>
           <div className="text-[11px] text-slate-500 truncate">{displayRole}</div>
         </div>
       </Link>
@@ -390,7 +423,9 @@ function ItemDetail() {
         {labelFor(kind as ProfileItemKind)}
       </div>
 
-      {kind === "post" && <PostView post={item as ProfilePost} authorName={displayName} require={require} />}
+      {kind === "post" && (
+        <PostView post={item as ProfilePost} authorName={displayName} require={require} />
+      )}
       {kind === "group" && <GroupView group={item as ProfileGroup} require={require} />}
       {kind === "listing" && (
         <ListingView
@@ -399,8 +434,12 @@ function ItemDetail() {
           onBuy={() => require(2, () => alert("Proceed to checkout (mock)"))}
         />
       )}
-      {kind === "bounty" && <BountyView bounty={item as ProfileBounty} price={price} require={require} />}
-      {kind === "solved" && <SolvedView bounty={item as ProfileBounty} price={price} require={require} />}
+      {kind === "bounty" && (
+        <BountyView bounty={item as ProfileBounty} price={price} require={require} />
+      )}
+      {kind === "solved" && (
+        <SolvedView bounty={item as ProfileBounty} price={price} require={require} />
+      )}
     </Shell>
   );
 }
@@ -415,7 +454,15 @@ function copyCurrentUrl() {
   );
 }
 
-function PostView({ post, authorName, require }: { post: ProfilePost; authorName: string; require: Require }) {
+function PostView({
+  post,
+  authorName,
+  require,
+}: {
+  post: ProfilePost;
+  authorName: string;
+  require: Require;
+}) {
   const [liked, setLiked] = useState(false);
   const [likes, setLikes] = useState(post.likes);
   const toggleLike = () =>
@@ -423,7 +470,11 @@ function PostView({ post, authorName, require }: { post: ProfilePost; authorName
       setLiked((prev) => {
         const next = !prev;
         setLikes((n) => n + (next ? 1 : -1));
-        if (next) toast("Liked", { description: `You liked @${authorName}'s post.`, icon: <Heart className="w-4 h-4 text-rose-400" /> });
+        if (next)
+          toast("Liked", {
+            description: `You liked @${authorName}'s post.`,
+            icon: <Heart className="w-4 h-4 text-rose-400" />,
+          });
         return next;
       });
     });
@@ -447,7 +498,9 @@ function PostView({ post, authorName, require }: { post: ProfilePost; authorName
           {liked ? "Liked" : "Like"} · {likes}
         </button>
         <button
-          onClick={() => require(1, () => toast("Comments", { description: "Threaded replies open soon." }))}
+          onClick={() =>
+            require(1, () => toast("Comments", { description: "Threaded replies open soon." }))
+          }
           className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold border border-white/10 text-slate-300 hover:bg-white/5"
         >
           <MessageCircle className="w-3.5 h-3.5" /> Comment · {post.comments}
@@ -490,8 +543,8 @@ function GroupView({ group, require }: { group: ProfileGroup; require: Require }
         </div>
       </div>
       <p className="text-sm text-slate-300 leading-relaxed">
-        A working community of practitioners shipping in the {group.tag.toLowerCase()} space.
-        Weekly threads, live jams, and open bounties.
+        A working community of practitioners shipping in the {group.tag.toLowerCase()} space. Weekly
+        threads, live jams, and open bounties.
       </p>
       <div className="mt-5 flex gap-2 flex-wrap">
         <button
@@ -503,10 +556,19 @@ function GroupView({ group, require }: { group: ProfileGroup; require: Require }
               : "bg-emerald-500 hover:bg-emerald-400 text-black"
           }`}
         >
-          {joined ? <><Check className="w-4 h-4" /> Joined</> : <>Join group</>}
+          {joined ? (
+            <>
+              <Check className="w-4 h-4" /> Joined
+            </>
+          ) : (
+            <>Join group</>
+          )}
         </button>
         <button
-          onClick={() => require(2, () => toast("Message sent to admins", { description: "They'll respond in-thread." }))}
+          onClick={() =>
+            require(2, () =>
+              toast("Message sent to admins", { description: "They'll respond in-thread." }))
+          }
           className="px-4 py-2 rounded-lg border border-white/15 text-white hover:bg-white/5 text-sm font-semibold inline-flex items-center gap-2"
         >
           <MessageCircle className="w-4 h-4" /> Message admins
@@ -522,11 +584,21 @@ function GroupView({ group, require }: { group: ProfileGroup; require: Require }
   );
 }
 
-function ListingView({ listing, price, onBuy }: { listing: ProfileListing; price: (u: number) => string; onBuy: () => void }) {
+function ListingView({
+  listing,
+  price,
+  onBuy,
+}: {
+  listing: ProfileListing;
+  price: (u: number) => string;
+  onBuy: () => void;
+}) {
   const [saved, setSaved] = useState(false);
   return (
     <article className="bg-[#1E1E24] border border-white/10 rounded-xl p-6">
-      <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">{listing.category}</div>
+      <div className="text-[10px] font-semibold text-emerald-400 uppercase tracking-wider">
+        {listing.category}
+      </div>
       <h1 className="text-white text-2xl font-black mt-1">{listing.title}</h1>
       <div className="mt-4 flex items-end gap-4">
         <div className="text-white font-black text-3xl">{price(listing.priceUsd)}</div>
@@ -554,7 +626,9 @@ function ListingView({ listing, price, onBuy }: { listing: ProfileListing; price
           }}
           aria-pressed={saved}
           className={`px-3 py-2.5 rounded-lg border text-sm font-semibold inline-flex items-center gap-2 ${
-            saved ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300" : "border-white/15 text-white hover:bg-white/5"
+            saved
+              ? "bg-emerald-500/15 border-emerald-400/40 text-emerald-300"
+              : "border-white/15 text-white hover:bg-white/5"
           }`}
         >
           <Bookmark className={`w-4 h-4 ${saved ? "fill-emerald-400 text-emerald-400" : ""}`} />
@@ -565,7 +639,15 @@ function ListingView({ listing, price, onBuy }: { listing: ProfileListing; price
   );
 }
 
-function BountyView({ bounty, price, require }: { bounty: ProfileBounty; price: (u: number) => string; require: Require }) {
+function BountyView({
+  bounty,
+  price,
+  require,
+}: {
+  bounty: ProfileBounty;
+  price: (u: number) => string;
+  require: Require;
+}) {
   const [applied, setApplied] = useState(false);
   const [watching, setWatching] = useState(false);
   const [bidOpen, setBidOpen] = useState(false);
@@ -613,7 +695,9 @@ function BountyView({ bounty, price, require }: { bounty: ProfileBounty; price: 
 
       {bidOpen && (
         <div className="mt-5 bg-black/40 border border-white/10 rounded-lg p-3">
-          <label className="text-[10px] uppercase tracking-wider text-slate-400">Your bid (USD)</label>
+          <label className="text-[10px] uppercase tracking-wider text-slate-400">
+            Your bid (USD)
+          </label>
           <div className="mt-2 flex gap-2">
             <input
               type="number"
@@ -657,7 +741,15 @@ function BountyView({ bounty, price, require }: { bounty: ProfileBounty; price: 
               : "bg-emerald-500 hover:bg-emerald-400 text-black"
           }`}
         >
-          {applied ? <><Check className="w-4 h-4" /> Applied</> : <><Hammer className="w-4 h-4" /> Apply to solve</>}
+          {applied ? (
+            <>
+              <Check className="w-4 h-4" /> Applied
+            </>
+          ) : (
+            <>
+              <Hammer className="w-4 h-4" /> Apply to solve
+            </>
+          )}
         </button>
         <button
           onClick={() => setBidOpen((o) => !o)}
@@ -687,7 +779,15 @@ function BountyView({ bounty, price, require }: { bounty: ProfileBounty; price: 
   );
 }
 
-function SolvedView({ bounty, price, require }: { bounty: ProfileBounty; price: (u: number) => string; require: Require }) {
+function SolvedView({
+  bounty,
+  price,
+  require,
+}: {
+  bounty: ProfileBounty;
+  price: (u: number) => string;
+  require: Require;
+}) {
   return (
     <article className="bg-[#1E1E24] border border-white/10 rounded-xl p-6">
       <div className="flex items-center gap-2 text-[11px] font-bold text-purple-300 mb-2">
@@ -701,7 +801,9 @@ function SolvedView({ bounty, price, require }: { bounty: ProfileBounty; price: 
           </div>
           <p className="text-sm text-slate-200 leading-relaxed">{bounty.proof}</p>
           <button
-            onClick={() => toast("Opening artifact", { description: "Artifact viewer launching soon." })}
+            onClick={() =>
+              toast("Opening artifact", { description: "Artifact viewer launching soon." })
+            }
             className="mt-3 inline-flex items-center gap-1 text-xs text-emerald-400 hover:text-emerald-300"
           >
             View artifact <ExternalLink className="w-3 h-3" />
@@ -715,8 +817,7 @@ function SolvedView({ bounty, price, require }: { bounty: ProfileBounty; price: 
               toast("Tip sent", {
                 description: `You tipped the solver ${price(Math.max(5, Math.round(bounty.amountUsd * 0.05)))}.`,
                 icon: <Sparkles className="w-4 h-4 text-purple-300" />,
-              }),
-            )
+              }))
           }
           className="flex-1 min-w-[180px] px-4 py-2.5 rounded-lg bg-purple-500 hover:bg-purple-400 text-black font-semibold text-sm inline-flex items-center justify-center gap-2"
         >
@@ -729,9 +830,7 @@ function SolvedView({ bounty, price, require }: { bounty: ProfileBounty; price: 
           <Share2 className="w-4 h-4" /> Share proof
         </button>
       </div>
-      <div className="mt-5 text-xs text-slate-500">
-        Payout released and dispute window cleared.
-      </div>
+      <div className="mt-5 text-xs text-slate-500">Payout released and dispute window cleared.</div>
     </article>
   );
 }

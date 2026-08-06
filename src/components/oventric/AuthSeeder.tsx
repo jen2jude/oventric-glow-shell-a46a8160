@@ -7,7 +7,12 @@ import {
   getOnboardingStatus as getOnboardingStatusFn,
 } from "@/lib/onboarding.functions";
 import { getWalletBalances } from "@/lib/wallet.functions";
-import { useOnboarding, countryToCurrency, parseCountry, type Country } from "@/lib/onboarding/OnboardingContext";
+import {
+  useOnboarding,
+  countryToCurrency,
+  parseCountry,
+  type Country,
+} from "@/lib/onboarding/OnboardingContext";
 
 /**
  * Mounts once at the app root. Whenever a user session is established
@@ -25,7 +30,6 @@ export function AuthSeeder() {
   const fetchStatus = useServerFn(getOnboardingStatusFn);
   const { setBalances, advanceTo, setBaseCurrency } = useOnboarding();
   const seededFor = useRef<string | null>(null);
-
 
   useEffect(() => {
     let cancelled = false;
@@ -81,12 +85,11 @@ export function AuthSeeder() {
           seededFor.current = null;
           toast.error("We couldn't finish setting up your account", {
             description:
- "Your sign-in worked, but profile setup didn't complete. Refresh the page or try again in a moment.",
+              "Your sign-in worked, but profile setup didn't complete. Refresh the page or try again in a moment.",
           });
         }
       }
     };
-
 
     // Initial session (page load with existing tokens)
     supabase.auth.getSession().then(({ data }) => {
@@ -110,7 +113,7 @@ export function AuthSeeder() {
       walletChannel = supabase
         .channel(`wallets-root-${uid}`)
         .on(
- "postgres_changes",
+          "postgres_changes",
           { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${uid}` },
           () => void refreshBalances(),
         )
@@ -126,4 +129,3 @@ export function AuthSeeder() {
 
   return null;
 }
-

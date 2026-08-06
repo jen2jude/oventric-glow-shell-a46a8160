@@ -21,11 +21,7 @@ import { toast } from "sonner";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
-import {
-  isSoundMuted,
-  playNotificationSound,
-  setSoundMuted,
-} from "@/lib/notification-sound";
+import { isSoundMuted, playNotificationSound, setSoundMuted } from "@/lib/notification-sound";
 import {
   disablePush,
   enablePush,
@@ -38,7 +34,6 @@ import {
   markNotificationRead,
   markAllNotificationsRead,
 } from "@/lib/communications.functions";
-
 
 type Channel = "all" | "financials" | "circles" | "bounties" | "system";
 
@@ -102,7 +97,11 @@ function isHtml(s: string | null | undefined): boolean {
 function plainPreview(s: string | null | undefined): string {
   if (!s) return "";
   if (!isHtml(s)) return s;
-  if (typeof document === "undefined") return s.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+  if (typeof document === "undefined")
+    return s
+      .replace(/<[^>]+>/g, " ")
+      .replace(/\s+/g, " ")
+      .trim();
   const div = document.createElement("div");
   div.innerHTML = DOMPurify.sanitize(s);
   return (div.textContent || div.innerText || "").replace(/\s+/g, " ").trim();
@@ -147,15 +146,7 @@ function renderLinkified(text: string) {
   });
 }
 
-
-
-export function NotificationsDrawer({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose: () => void }) {
   const { isAuthenticated } = useAuthGate();
   const [channel, setChannel] = useState<Channel>("all");
   const [items, setItems] = useState<DbNotif[]>([]);
@@ -187,7 +178,9 @@ export function NotificationsDrawer({
           setPushOn(true);
           toast.success("Background alerts on for this device.");
         } else if (res.reason === "install-required") {
-          toast.error("On iPhone, add Oventric to your Home Screen first, then open it from the icon.");
+          toast.error(
+            "On iPhone, add Oventric to your Home Screen first, then open it from the icon.",
+          );
         } else if (res.reason === "denied") {
           toast.error("Notifications are blocked in your browser settings.");
         } else {
@@ -207,8 +200,6 @@ export function NotificationsDrawer({
     setSoundMuted(next);
     if (!next) playNotificationSound("success");
   };
-
-
 
   const fetchList = useServerFn(myNotifications);
   const markOne = useServerFn(markNotificationRead);
@@ -281,21 +272,32 @@ export function NotificationsDrawer({
       channelSub = supabase
         .channel(`notif-${userId}`)
         .on(
- "postgres_changes",
-          { event: "INSERT", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          "postgres_changes",
+          {
+            event: "INSERT",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${userId}`,
+          },
           (payload) => {
             const row = payload.new as DbNotif;
             playNotificationSound(
-              row.kind === "direct_message" || row.kind === "order_message" ? "message" : "notification",
+              row.kind === "direct_message" || row.kind === "order_message"
+                ? "message"
+                : "notification",
             );
             raisePush(row);
             void refresh();
           },
-
         )
         .on(
- "postgres_changes",
-          { event: "UPDATE", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
+          "postgres_changes",
+          {
+            event: "UPDATE",
+            schema: "public",
+            table: "notifications",
+            filter: `user_id=eq.${userId}`,
+          },
           () => {
             void refresh();
           },
@@ -309,7 +311,6 @@ export function NotificationsDrawer({
     };
   }, [isAuthenticated, refresh]);
 
-
   const filtered = useMemo(
     () => (channel === "all" ? items : items.filter((n) => channelForKind(n.kind) === channel)),
     [items, channel],
@@ -317,7 +318,9 @@ export function NotificationsDrawer({
 
   const handleOpenItem = async (n: DbNotif) => {
     if (!n.read_at) {
-      setItems((prev) => prev.map((p) => (p.id === n.id ? { ...p, read_at: new Date().toISOString() } : p)));
+      setItems((prev) =>
+        prev.map((p) => (p.id === n.id ? { ...p, read_at: new Date().toISOString() } : p)),
+      );
       try {
         await markOne({ data: { id: n.id } });
       } catch {
@@ -326,7 +329,6 @@ export function NotificationsDrawer({
     }
     setViewing({ ...n, read_at: n.read_at ?? new Date().toISOString() });
   };
-
 
   const handleMarkAll = async () => {
     setItems((prev) => prev.map((p) => ({ ...p, read_at: p.read_at ?? new Date().toISOString() })));
@@ -357,7 +359,6 @@ export function NotificationsDrawer({
     }
   };
 
-
   return (
     <>
       {open && (
@@ -379,7 +380,9 @@ export function NotificationsDrawer({
           <div>
             <h2 className="text-white font-bold text-sm">Notifications</h2>
             <p className="text-[11px] text-slate-500">
-              {isAuthenticated ? "Live activity across your workspace" : "Connect your account to receive alerts"}
+              {isAuthenticated
+                ? "Live activity across your workspace"
+                : "Connect your account to receive alerts"}
             </p>
           </div>
           <div className="flex items-center gap-1">
@@ -414,7 +417,6 @@ export function NotificationsDrawer({
               <X className="w-4 h-4" />
             </button>
           </div>
-
         </div>
 
         <div className="px-4 pt-3 pb-2 flex items-center gap-2 overflow-x-auto no-scrollbar border-b border-white/5">
@@ -450,8 +452,10 @@ export function NotificationsDrawer({
           })}
         </div>
 
-
-        <div className="overflow-y-auto px-4 py-3" style={{ maxHeight: "calc(100vh - 8.5rem - 3.25rem)" }}>
+        <div
+          className="overflow-y-auto px-4 py-3"
+          style={{ maxHeight: "calc(100vh - 8.5rem - 3.25rem)" }}
+        >
           {!isAuthenticated ? (
             <div className="text-center text-xs text-slate-500 py-10">
               Sign in to view your notifications.
@@ -473,22 +477,27 @@ export function NotificationsDrawer({
                     : "bg-[#121214] border border-white/5 hover:border-white/10 p-3"
                 }`}
               >
-                <div className={`bg-[#121214] w-full text-left ${!n.read_at ? "rounded-[10px] p-3" : ""}`}>
+                <div
+                  className={`bg-[#121214] w-full text-left ${!n.read_at ? "rounded-[10px] p-3" : ""}`}
+                >
                   <div className="flex items-start gap-3">
-                    <div
-                      className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10"
-                    >
+                    <div className="w-8 h-8 shrink-0 rounded-lg flex items-center justify-center bg-[#1E1E24] border border-white/10">
                       {iconForKind(n.kind)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2">
                         <p className="text-[13px] font-semibold text-white truncate">{n.title}</p>
                         {!n.read_at && (
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0" aria-hidden />
+                          <span
+                            className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"
+                            aria-hidden
+                          />
                         )}
                       </div>
                       {n.body && (
-                        <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">{plainPreview(n.body)}</p>
+                        <p className="text-[12px] leading-snug text-slate-400 mt-0.5 line-clamp-3">
+                          {plainPreview(n.body)}
+                        </p>
                       )}
                       <div className="mt-1.5 flex items-center justify-between">
                         <span className="text-[10px] text-slate-500 uppercase tracking-wider">
@@ -559,10 +568,39 @@ export function NotificationsDrawer({
                       dangerouslySetInnerHTML={{
                         __html: DOMPurify.sanitize(viewing.body, {
                           ALLOWED_TAGS: [
- "a","p","br","strong","em","b","i","u","ul","ol","li",
- "h1","h2","h3","h4","blockquote","code","pre","img","hr","span","div",
+                            "a",
+                            "p",
+                            "br",
+                            "strong",
+                            "em",
+                            "b",
+                            "i",
+                            "u",
+                            "ul",
+                            "ol",
+                            "li",
+                            "h1",
+                            "h2",
+                            "h3",
+                            "h4",
+                            "blockquote",
+                            "code",
+                            "pre",
+                            "img",
+                            "hr",
+                            "span",
+                            "div",
                           ],
-                          ALLOWED_ATTR: ["href","target","rel","src","alt","title","class","style"],
+                          ALLOWED_ATTR: [
+                            "href",
+                            "target",
+                            "rel",
+                            "src",
+                            "alt",
+                            "title",
+                            "class",
+                            "style",
+                          ],
                           ALLOWED_URI_REGEXP: /^(https?:|mailto:|\/)/i,
                         }),
                       }}
@@ -598,11 +636,10 @@ export function NotificationsDrawer({
               )}
             </div>
           </div>,
-          document.body
+          document.body,
         )}
     </>
   );
-
 }
 
 /**
@@ -640,7 +677,7 @@ export function useUnreadNotificationsCount() {
       channelSub = supabase
         .channel(`notif-count-${userId}`)
         .on(
- "postgres_changes",
+          "postgres_changes",
           { event: "*", schema: "public", table: "notifications", filter: `user_id=eq.${userId}` },
           () => {
             void load();

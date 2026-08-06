@@ -96,7 +96,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
               type="button"
               onClick={() => setRange(opt.value)}
               className={cn(
- "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                 range === opt.value
                   ? "bg-emerald-500 text-white"
                   : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",
@@ -141,7 +141,10 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                     </div>
                     <div className="h-2 w-full rounded-full bg-black/30 md:bg-slate-100 overflow-hidden">
                       <div
-                        className={cn("h-full rounded-full", SOURCE_BAR[row.source] ?? "bg-slate-400")}
+                        className={cn(
+                          "h-full rounded-full",
+                          SOURCE_BAR[row.source] ?? "bg-slate-400",
+                        )}
                         style={{ width: `${Math.min(100, row.pct)}%` }}
                       />
                     </div>
@@ -165,7 +168,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                   type="button"
                   onClick={() => setStatus(opt.value)}
                   className={cn(
- "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
+                    "px-2.5 py-1 text-xs font-medium rounded-md transition-colors",
                     status === opt.value
                       ? "bg-sky-500 text-white"
                       : "text-slate-400 md:text-slate-500 hover:text-slate-100 md:hover:text-slate-900",
@@ -199,7 +202,7 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                 <li key={item.id} className="relative pl-6">
                   <span
                     className={cn(
- "absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#18181d] md:ring-white",
+                      "absolute left-0 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#18181d] md:ring-white",
                       STATUS_DOT[item.status] ?? "bg-slate-400",
                     )}
                   />
@@ -209,21 +212,22 @@ export function EarningsBreakdown({ isOwner }: EarningsBreakdownProps) {
                     </span>
                     <span
                       className={cn(
- "text-xs font-semibold px-2 py-0.5 rounded-full",
+                        "text-xs font-semibold px-2 py-0.5 rounded-full",
                         item.status === "paid"
                           ? "bg-emerald-500/15 text-emerald-400"
                           : item.status === "rejected"
-                          ? "bg-rose-500/15 text-rose-400"
-                          : item.status === "pending"
-                          ? "bg-amber-500/15 text-amber-400"
-                          : "bg-slate-500/15 text-slate-400",
+                            ? "bg-rose-500/15 text-rose-400"
+                            : item.status === "pending"
+                              ? "bg-amber-500/15 text-amber-400"
+                              : "bg-slate-500/15 text-slate-400",
                       )}
                     >
                       {STATUS_TEXT[item.status] ?? item.status}
                     </span>
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5 capitalize">
-                    {item.method} · {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
+                    {item.method} ·{" "}
+                    {formatDistanceToNow(new Date(item.createdAt), { addSuffix: true })}
                   </div>
                 </li>
               ))}

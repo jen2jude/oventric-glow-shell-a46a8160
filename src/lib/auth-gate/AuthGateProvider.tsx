@@ -11,7 +11,18 @@ import {
 import { createPortal } from "react-dom";
 import { useServerFn } from "@tanstack/react-start";
 import type { Session } from "@supabase/supabase-js";
-import { Mail, ShieldCheck, ArrowRight, Loader2, RotateCw, ArrowLeft, X, AlertTriangle, Eye, EyeOff } from "lucide-react";
+import {
+  Mail,
+  ShieldCheck,
+  ArrowRight,
+  Loader2,
+  RotateCw,
+  ArrowLeft,
+  X,
+  AlertTriangle,
+  Eye,
+  EyeOff,
+} from "lucide-react";
 import { z } from "zod";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
@@ -44,37 +55,35 @@ const COPY: Record<AuthGateContextKey, { title: string; subtitle: string }> = {
   buyer: {
     title: "Secure your access",
     subtitle:
- "Verify your profile in 10 seconds to purchase this digital asset and download files.",
+      "Verify your profile in 10 seconds to purchase this digital asset and download files.",
   },
   seller: {
     title: "Claim your storefront",
-    subtitle:
- "Authenticate your email to set up your creator profile and list files for sale.",
+    subtitle: "Authenticate your email to set up your creator profile and list files for sale.",
   },
   solver: {
     title: "Unlock freelance workspaces",
     subtitle:
- "Verify your profile to place a bid on this bounty and secure your escrow payout rules.",
+      "Verify your profile to place a bid on this bounty and secure your escrow payout rules.",
   },
   issuer: {
     title: "Find elite talent",
     subtitle:
- "Sign up instantly to fund your escrow vault and publish your project on the global board.",
+      "Sign up instantly to fund your escrow vault and publish your project on the global board.",
   },
   funding: {
     title: "Initialize banking ledger",
-    subtitle:
- "Verify your account securely to process card, bank, or MoMo ingestion deposits.",
+    subtitle: "Verify your account securely to process card, bank, or MoMo ingestion deposits.",
   },
   withdraw: {
     title: "Secure currency clearance",
     subtitle:
- "Verify your identity profile to authorize capital withdrawals to your localized banking networks.",
+      "Verify your identity profile to authorize capital withdrawals to your localized banking networks.",
   },
   interaction: {
     title: "Join the conversation",
     subtitle:
- "Input your email to drop a technical review, provide code feedback, or upvote your peers.",
+      "Input your email to drop a technical review, provide code feedback, or upvote your peers.",
   },
 };
 
@@ -128,7 +137,8 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     if (code.includes("otp_expired") || code.includes("expired")) {
       message = "This sign-in link has expired. Send a new link to continue.";
     } else if (code.includes("access_denied") || code.includes("used")) {
-      message = "This sign-in link has already been used or was denied. Send a new link to continue.";
+      message =
+        "This sign-in link has already been used or was denied. Send a new link to continue.";
     } else if (errDesc) {
       message = decodeURIComponent(errDesc.replace(/\+/g, " "));
     }
@@ -144,7 +154,6 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-
   useEffect(() => {
     let alive = true;
     supabase.auth.getSession().then(({ data }) => {
@@ -158,7 +167,8 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
         event !== "SIGNED_OUT" &&
         event !== "USER_UPDATED" &&
         event !== "INITIAL_SESSION"
-      ) return;
+      )
+        return;
       setSession(next);
       setChecked(true);
       if (event === "SIGNED_IN" && next) {
@@ -229,7 +239,6 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
           }}
         />
       )}
-
     </AuthGateContext.Provider>
   );
 }
@@ -280,14 +289,15 @@ function NeonSuccessSplash({ onDone }: { onDone: () => void }) {
         </div>
         <div className="text-center">
           <div className="text-foreground font-semibold tracking-tight text-lg">Verified.</div>
-          <div className="text-muted-foreground font-medium tracking-tight text-base">Welcome to Oventric</div>
+          <div className="text-muted-foreground font-medium tracking-tight text-base">
+            Welcome to Oventric
+          </div>
         </div>
       </div>
     </div>,
     document.body,
   );
 }
-
 
 // ---------------------------------------------------------------------------
 // Modal — the shared OTP flow, portalled at z-[200]
@@ -324,7 +334,6 @@ function AuthGateModal({
   linkError: string | null;
   onClearLinkError: () => void;
 }) {
-
   const [mode, setMode] = useState<Mode>("new");
   const [stage, setStage] = useState<Stage>("email");
   const [returningMethod, setReturningMethod] = useState<"password" | "otp">("password");
@@ -352,10 +361,14 @@ function AuthGateModal({
 
   const humanizeError = (msg: string): string => {
     const m = msg.toLowerCase();
-    if (m.includes("token has expired") || m.includes("expired")) return "That login link expired. Tap Resend to get a fresh one.";
-    if (m.includes("invalid") && m.includes("token")) return "That login link isn't valid. Try the code from the email or tap Resend.";
-    if (m.includes("rate limit") || m.includes("too many")) return "Too many attempts. Wait a moment before trying again.";
-    if (m.includes("network") || m.includes("fetch")) return "Network hiccup. Check your connection and retry.";
+    if (m.includes("token has expired") || m.includes("expired"))
+      return "That login link expired. Tap Resend to get a fresh one.";
+    if (m.includes("invalid") && m.includes("token"))
+      return "That login link isn't valid. Try the code from the email or tap Resend.";
+    if (m.includes("rate limit") || m.includes("too many"))
+      return "Too many attempts. Wait a moment before trying again.";
+    if (m.includes("network") || m.includes("fetch"))
+      return "Network hiccup. Check your connection and retry.";
     return msg;
   };
 
@@ -378,7 +391,9 @@ function AuthGateModal({
   useEffect(() => {
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, []);
 
   // Escape closes
@@ -510,9 +525,6 @@ function AuthGateModal({
     }
   }, [identifier, password, signInWithIdentifierPassword]);
 
-
-
-
   const verifyCode = useCallback(
     async (token: string) => {
       setOtpError(null);
@@ -547,10 +559,11 @@ function AuthGateModal({
         } catch (seedErr) {
           console.error("[AuthGate] seed failed", seedErr);
           const friendly =
- "We verified your email, but couldn't finish setting up your profile. Please try again in a moment — your sign-in is safe.";
+            "We verified your email, but couldn't finish setting up your profile. Please try again in a moment — your sign-in is safe.";
           setOtpError(friendly);
           toast.error("Profile setup failed", {
-            description: "You're signed in, but we couldn't create your profile. Tap resend or try again shortly.",
+            description:
+              "You're signed in, but we couldn't create your profile. Tap resend or try again shortly.",
           });
           return;
         }
@@ -570,25 +583,37 @@ function AuthGateModal({
   const setDigit = (idx: number, raw: string) => {
     const clean = raw.replace(/\D/g, "");
     if (!clean) {
-      setOtpDigits((prev) => { const n = [...prev]; n[idx] = ""; return n; });
+      setOtpDigits((prev) => {
+        const n = [...prev];
+        n[idx] = "";
+        return n;
+      });
       return;
     }
     if (clean.length > 1) {
       const chars = clean.slice(0, OTP_LENGTH - idx).split("");
       setOtpDigits((prev) => {
         const n = [...prev];
-        chars.forEach((c, i) => { n[idx + i] = c; });
+        chars.forEach((c, i) => {
+          n[idx + i] = c;
+        });
         return n;
       });
       const nextFocus = Math.min(idx + chars.length, OTP_LENGTH - 1);
       window.setTimeout(() => otpRefs.current[nextFocus]?.focus(), 0);
       const combined = [...otpDigits];
-      chars.forEach((c, i) => { combined[idx + i] = c; });
+      chars.forEach((c, i) => {
+        combined[idx + i] = c;
+      });
       const full = combined.join("");
       if (full.length === OTP_LENGTH && !full.includes("")) void verifyCode(full);
       return;
     }
-    setOtpDigits((prev) => { const n = [...prev]; n[idx] = clean; return n; });
+    setOtpDigits((prev) => {
+      const n = [...prev];
+      n[idx] = clean;
+      return n;
+    });
     if (idx < OTP_LENGTH - 1) {
       window.setTimeout(() => otpRefs.current[idx + 1]?.focus(), 0);
     }
@@ -601,7 +626,11 @@ function AuthGateModal({
   const onKeyDownDigit = (idx: number, e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Backspace" && !otpDigits[idx] && idx > 0) {
       e.preventDefault();
-      setOtpDigits((prev) => { const n = [...prev]; n[idx - 1] = ""; return n; });
+      setOtpDigits((prev) => {
+        const n = [...prev];
+        n[idx - 1] = "";
+        return n;
+      });
       otpRefs.current[idx - 1]?.focus();
     } else if (e.key === "ArrowLeft" && idx > 0) {
       otpRefs.current[idx - 1]?.focus();
@@ -621,7 +650,9 @@ function AuthGateModal({
       role="dialog"
       aria-modal="true"
       aria-label={copy.title}
-      onClick={(e) => { if (e.target === e.currentTarget && !verifying && !verified) onClose(); }}
+      onClick={(e) => {
+        if (e.target === e.currentTarget && !verifying && !verified) onClose();
+      }}
     >
       <div className="relative w-full max-w-md">
         <div className=" rounded-2xl p-[1.5px]">
@@ -670,9 +701,7 @@ function AuthGateModal({
                   <p className="text-[12px] font-bold text-red-300 leading-snug">
                     Sign-in link failed
                   </p>
-                  <p className="text-[11px] text-red-200/80 mt-0.5 leading-relaxed">
-                    {linkError}
-                  </p>
+                  <p className="text-[11px] text-red-200/80 mt-0.5 leading-relaxed">{linkError}</p>
                   <button
                     type="button"
                     onClick={onClearLinkError}
@@ -685,7 +714,6 @@ function AuthGateModal({
             )}
 
             {stage === "email" && (
-
               <div
                 role="tablist"
                 aria-label="Account access"
@@ -695,7 +723,10 @@ function AuthGateModal({
                   type="button"
                   role="tab"
                   aria-selected={mode === "new"}
-                  onClick={() => { setMode("new"); setIdentifierError(null); }}
+                  onClick={() => {
+                    setMode("new");
+                    setIdentifierError(null);
+                  }}
                   className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
                     mode === "new"
                       ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
@@ -708,7 +739,11 @@ function AuthGateModal({
                   type="button"
                   role="tab"
                   aria-selected={mode === "returning"}
-                  onClick={() => { setMode("returning"); setEmailError(null); setUsernameError(null); }}
+                  onClick={() => {
+                    setMode("returning");
+                    setEmailError(null);
+                    setUsernameError(null);
+                  }}
                   className={`flex-1 min-h-9 rounded-md text-[12px] font-bold uppercase tracking-wide transition-colors ${
                     mode === "returning"
                       ? "bg-[#1E1E24] text-white shadow-[0_0_0_1px_rgba(59, 130, 246,0.35)]"
@@ -728,13 +763,19 @@ function AuthGateModal({
                 >
                   {/* --- New user form --- */}
                   <form
-                    onSubmit={(e) => { e.preventDefault(); if (mode === "new") void sendCode(); }}
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      if (mode === "new") void sendCode();
+                    }}
                     noValidate
                     className="w-1/2 shrink-0 space-y-4 pr-1"
                     aria-hidden={mode !== "new"}
                   >
                     <div>
-                      <label htmlFor="gate-email" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                      <label
+                        htmlFor="gate-email"
+                        className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5"
+                      >
                         Email address
                       </label>
                       <input
@@ -743,12 +784,17 @@ function AuthGateModal({
                         inputMode="email"
                         autoComplete="email"
                         value={email}
-                        onChange={(e) => { setEmail(e.target.value); setEmailError(null); }}
+                        onChange={(e) => {
+                          setEmail(e.target.value);
+                          setEmailError(null);
+                        }}
                         placeholder="you@builder.io"
                         aria-invalid={!!emailError}
                         tabIndex={mode === "new" ? 0 : -1}
                         className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                          emailError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                          emailError
+                            ? "border-red-500/70"
+                            : "border-white/10 focus:border-emerald-500/60"
                         }`}
                       />
                       {emailError && (
@@ -759,20 +805,29 @@ function AuthGateModal({
                     </div>
 
                     <div>
-                      <label htmlFor="gate-username" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
-                        Username <span className="text-slate-600 font-normal normal-case">(optional)</span>
+                      <label
+                        htmlFor="gate-username"
+                        className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5"
+                      >
+                        Username{" "}
+                        <span className="text-slate-600 font-normal normal-case">(optional)</span>
                       </label>
                       <input
                         id="gate-username"
                         type="text"
                         autoComplete="username"
                         value={username}
-                        onChange={(e) => { setUsername(e.target.value); setUsernameError(null); }}
+                        onChange={(e) => {
+                          setUsername(e.target.value);
+                          setUsernameError(null);
+                        }}
                         placeholder="sovereign_architect"
                         aria-invalid={!!usernameError}
                         tabIndex={mode === "new" ? 0 : -1}
                         className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                          usernameError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                          usernameError
+                            ? "border-red-500/70"
+                            : "border-white/10 focus:border-emerald-500/60"
                         }`}
                       />
                       {usernameError && (
@@ -789,9 +844,13 @@ function AuthGateModal({
                       className="w-full min-h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
                     >
                       {sending && mode === "new" ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> Sending…</>
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" /> Sending…
+                        </>
                       ) : (
-                        <>Send login link <ArrowRight className="w-4 h-4" /></>
+                        <>
+                          Send login link <ArrowRight className="w-4 h-4" />
+                        </>
                       )}
                     </button>
 
@@ -828,7 +887,10 @@ function AuthGateModal({
                         type="button"
                         role="tab"
                         aria-selected={returningMethod === "password"}
-                        onClick={() => { setReturningMethod("password"); setPasswordError(null); }}
+                        onClick={() => {
+                          setReturningMethod("password");
+                          setPasswordError(null);
+                        }}
                         tabIndex={mode === "returning" ? 0 : -1}
                         className={`flex-1 h-8 rounded-md text-[11px] font-bold uppercase tracking-wide transition-colors ${
                           returningMethod === "password"
@@ -855,7 +917,10 @@ function AuthGateModal({
                     </div>
 
                     <div>
-                      <label htmlFor="gate-identifier" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                      <label
+                        htmlFor="gate-identifier"
+                        className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5"
+                      >
                         Email or username
                       </label>
                       <input
@@ -863,12 +928,17 @@ function AuthGateModal({
                         type="text"
                         autoComplete="username"
                         value={identifier}
-                        onChange={(e) => { setIdentifier(e.target.value); setIdentifierError(null); }}
+                        onChange={(e) => {
+                          setIdentifier(e.target.value);
+                          setIdentifierError(null);
+                        }}
                         placeholder="you@builder.io or sovereign_architect"
                         aria-invalid={!!identifierError}
                         tabIndex={mode === "returning" ? 0 : -1}
                         className={`w-full min-h-11 bg-[#121214] rounded-lg px-3 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                          identifierError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                          identifierError
+                            ? "border-red-500/70"
+                            : "border-white/10 focus:border-emerald-500/60"
                         }`}
                       />
                       {identifierError && (
@@ -880,7 +950,10 @@ function AuthGateModal({
 
                     {returningMethod === "password" && (
                       <div>
-                        <label htmlFor="gate-password" className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5">
+                        <label
+                          htmlFor="gate-password"
+                          className="block text-[11px] font-bold uppercase tracking-widest text-slate-400 mb-1.5"
+                        >
                           Password
                         </label>
                         <div className="relative">
@@ -889,12 +962,17 @@ function AuthGateModal({
                             type={showPassword ? "text" : "password"}
                             autoComplete="current-password"
                             value={password}
-                            onChange={(e) => { setPassword(e.target.value); setPasswordError(null); }}
+                            onChange={(e) => {
+                              setPassword(e.target.value);
+                              setPasswordError(null);
+                            }}
                             placeholder="••••••••"
                             aria-invalid={!!passwordError}
                             tabIndex={mode === "returning" ? 0 : -1}
                             className={`w-full min-h-11 bg-[#121214] rounded-lg pl-3 pr-10 py-2.5 text-sm text-white placeholder:text-slate-600 focus:outline-none focus:ring-2 focus:ring-emerald-500/60 border ${
-                              passwordError ? "border-red-500/70" : "border-white/10 focus:border-emerald-500/60"
+                              passwordError
+                                ? "border-red-500/70"
+                                : "border-white/10 focus:border-emerald-500/60"
                             }`}
                           />
                           <button
@@ -905,7 +983,11 @@ function AuthGateModal({
                             aria-pressed={showPassword}
                             className="absolute inset-y-0 right-0 flex items-center px-3 text-slate-400 hover:text-white"
                           >
-                            {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                            {showPassword ? (
+                              <EyeOff className="w-4 h-4" />
+                            ) : (
+                              <Eye className="w-4 h-4" />
+                            )}
                           </button>
                         </div>
                         {passwordError && (
@@ -923,11 +1005,18 @@ function AuthGateModal({
                       className="w-full min-h-11 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60 transition-colors"
                     >
                       {sending && mode === "returning" ? (
-                        <><Loader2 className="w-4 h-4 animate-spin" /> {returningMethod === "password" ? "Signing in…" : "Sending…"}</>
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />{" "}
+                          {returningMethod === "password" ? "Signing in…" : "Sending…"}
+                        </>
                       ) : returningMethod === "password" ? (
-                        <>Sign in <ArrowRight className="w-4 h-4" /></>
+                        <>
+                          Sign in <ArrowRight className="w-4 h-4" />
+                        </>
                       ) : (
-                        <>Send login link <ArrowRight className="w-4 h-4" /></>
+                        <>
+                          Send login link <ArrowRight className="w-4 h-4" />
+                        </>
                       )}
                     </button>
 
@@ -947,13 +1036,20 @@ function AuthGateModal({
             ) : (
               <div className="space-y-4">
                 <p className="text-[11px] text-slate-500 text-center">
-                  Didn&apos;t receive the link? You can enter the 6-digit code from the email instead.
+                  Didn&apos;t receive the link? You can enter the 6-digit code from the email
+                  instead.
                 </p>
-                <div className="flex justify-between gap-2" role="group" aria-label="6-digit verification code">
+                <div
+                  className="flex justify-between gap-2"
+                  role="group"
+                  aria-label="6-digit verification code"
+                >
                   {otpDigits.map((d, i) => (
                     <input
                       key={i}
-                      ref={(el) => { otpRefs.current[i] = el; }}
+                      ref={(el) => {
+                        otpRefs.current[i] = el;
+                      }}
                       type="text"
                       inputMode="numeric"
                       autoComplete="one-time-code"
@@ -986,7 +1082,10 @@ function AuthGateModal({
                     <span className="font-semibold">Email verified. Signing you in…</span>
                   </div>
                 ) : otpError ? (
-                  <p role="alert" className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+                  <p
+                    role="alert"
+                    className="text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2"
+                  >
                     {otpError}
                   </p>
                 ) : verifying ? (
@@ -1002,18 +1101,28 @@ function AuthGateModal({
                   className=" w-full min-h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-50"
                 >
                   {verifying ? (
-                    <><Loader2 className="w-4 h-4 animate-spin" /> Verifying…</>
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" /> Verifying…
+                    </>
                   ) : verified ? (
-                    <><ShieldCheck className="w-4 h-4 text-emerald-300" /> Verified</>
+                    <>
+                      <ShieldCheck className="w-4 h-4 text-emerald-300" /> Verified
+                    </>
                   ) : (
-                    <>Verify code <ArrowRight className="w-4 h-4" /></>
+                    <>
+                      Verify code <ArrowRight className="w-4 h-4" />
+                    </>
                   )}
                 </button>
 
                 <div className="flex items-center justify-between text-[12px]">
                   <button
                     type="button"
-                    onClick={() => { setStage("email"); setOtpError(null); setFlash(null); }}
+                    onClick={() => {
+                      setStage("email");
+                      setOtpError(null);
+                      setFlash(null);
+                    }}
                     disabled={verifying || verified}
                     className="inline-flex items-center gap-1 text-slate-400 hover:text-white min-h-11 px-1 disabled:opacity-40"
                   >
@@ -1021,7 +1130,10 @@ function AuthGateModal({
                   </button>
                   <button
                     type="button"
-                    onClick={() => { if (resendIn === 0) void (mode === "returning" ? sendReturningCode() : sendCode()); }}
+                    onClick={() => {
+                      if (resendIn === 0)
+                        void (mode === "returning" ? sendReturningCode() : sendCode());
+                    }}
                     disabled={resendIn > 0 || sending || verifying || verified}
                     className="inline-flex items-center gap-1 font-semibold text-emerald-300 hover:text-emerald-200 disabled:text-slate-500 min-h-11 px-1"
                   >

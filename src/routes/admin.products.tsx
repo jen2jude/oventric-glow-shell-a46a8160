@@ -1,7 +1,21 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState, useCallback, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { Loader2, Star, Trash2, Pencil, Plus, X, ImagePlus, FileArchive, Check, XCircle, Eye, MapPin, RefreshCw } from "lucide-react";
+import {
+  Loader2,
+  Star,
+  Trash2,
+  Pencil,
+  Plus,
+  X,
+  ImagePlus,
+  FileArchive,
+  Check,
+  XCircle,
+  Eye,
+  MapPin,
+  RefreshCw,
+} from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import {
@@ -21,7 +35,9 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 
 const PRICE_CURRENCIES: Currency[] = ["USD", "NGN", "GHS"];
 export const Route = createFileRoute("/admin/products")({
-  head: () => ({ meta: [{ title: "Products · Admin" }, { name: "robots", content: "noindex, nofollow" }] }),
+  head: () => ({
+    meta: [{ title: "Products · Admin" }, { name: "robots", content: "noindex, nofollow" }],
+  }),
   component: ProductsPage,
 });
 
@@ -93,7 +109,9 @@ function ProductsPage() {
   const [busy, setBusy] = useState<string | null>(null);
   const [modal, setModal] = useState<FormState | null>(null);
   const [saving, setSaving] = useState(false);
-  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "active" | "rejected">("pending");
+  const [statusFilter, setStatusFilter] = useState<"all" | "pending" | "active" | "rejected">(
+    "pending",
+  );
   const [kindFilter, setKindFilter] = useState<"all" | "digital" | "physical">("all");
   const [rejectingId, setRejectingId] = useState<string | null>(null);
   const [rejectReason, setRejectReason] = useState("");
@@ -115,7 +133,9 @@ function ProductsPage() {
       setRefreshing(false);
     }
   }, [listFn]);
-  useEffect(() => { refresh(); }, [refresh]);
+  useEffect(() => {
+    refresh();
+  }, [refresh]);
   useEffect(() => {
     if (!autoRefresh) return;
     const id = setInterval(() => {
@@ -128,8 +148,13 @@ function ProductsPage() {
   // so switching to a tab (e.g. Physical) never looks empty when rows actually exist.
   useEffect(() => {
     if (!rows || statusFilter === "all") return;
-    const inKind = rows.filter((r) => kindFilter === "all" ? true : ((r.kind as string) ?? "digital") === kindFilter);
-    if (inKind.length > 0 && inKind.filter((r) => (r.status as string) === statusFilter).length === 0) {
+    const inKind = rows.filter((r) =>
+      kindFilter === "all" ? true : ((r.kind as string) ?? "digital") === kindFilter,
+    );
+    if (
+      inKind.length > 0 &&
+      inKind.filter((r) => (r.status as string) === statusFilter).length === 0
+    ) {
       setStatusFilter("all");
     }
   }, [rows, kindFilter, statusFilter]);
@@ -139,7 +164,6 @@ function ProductsPage() {
     if (kindFilter !== "all" && ((p.kind as string) ?? "digital") !== kindFilter) return false;
     return true;
   });
-
 
   const openCreate = () => setShowSellSwitcher(true);
   const openEdit = async (p: Row) => {
@@ -155,7 +179,7 @@ function ProductsPage() {
     const filePath = (p.file_path as string) ?? null;
     setModal({
       id: p.id as string,
-      kind: ((p.kind as string) === "physical" ? "physical" : "digital"),
+      kind: (p.kind as string) === "physical" ? "physical" : "digital",
       name: (p.name as string) ?? "",
       category: (p.category as string) ?? "themes",
       subcategory: (p.subcategory as string) ?? "",
@@ -167,7 +191,7 @@ function ProductsPage() {
       cover_path: coverPath,
       cover_preview: coverPreview,
       file_path: filePath,
-      file_name: filePath ? filePath.split("/").pop() ?? null : null,
+      file_name: filePath ? (filePath.split("/").pop() ?? null) : null,
       brand: (p.brand as string) ?? "",
       condition: (p.condition as string) ?? "Brand New",
       location: (p.location as string) ?? "",
@@ -201,7 +225,9 @@ function ProductsPage() {
       const { data: signed } = await supabase.storage
         .from("product-covers")
         .createSignedUrl(path, 60 * 60);
-      setModal((m) => m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m);
+      setModal((m) =>
+        m ? { ...m, cover_path: path, cover_preview: signed?.signedUrl ?? null } : m,
+      );
       toast.success("Image uploaded");
     } catch (e) {
       toast.error((e as Error).message);
@@ -223,7 +249,7 @@ function ProductsPage() {
         .from("product-files")
         .upload(path, file, { contentType: file.type || undefined, upsert: false });
       if (error) throw error;
-      setModal((m) => m ? { ...m, file_path: path, file_name: file.name } : m);
+      setModal((m) => (m ? { ...m, file_path: path, file_name: file.name } : m));
       toast.success("Product file uploaded");
     } catch (e) {
       toast.error((e as Error).message);
@@ -240,40 +266,44 @@ function ProductsPage() {
     setSaving(true);
     try {
       if (modal.id) {
-        await updateFn({ data: {
-          id: modal.id,
-          name: modal.name,
-          category: modal.category,
-          description: modal.description,
-          price_usd: price,
-          vendor: modal.vendor,
-          subcategory: modal.subcategory || null,
-          external_url: modal.external_url || null,
-          cover_path: modal.cover_path,
-          file_path: modal.file_path,
-          promoted: modal.promoted,
-          brand: modal.kind === "physical" ? modal.brand || null : undefined,
-          condition: modal.kind === "physical" ? modal.condition || null : undefined,
-          location: modal.kind === "physical" ? modal.location || null : undefined,
-          negotiable: modal.kind === "physical" ? modal.negotiable || null : undefined,
-          delivery: modal.kind === "physical" ? modal.delivery || null : undefined,
-          seller_phone: modal.kind === "physical" ? modal.seller_phone || null : undefined,
-          whatsapp_number: modal.kind === "physical" ? modal.whatsapp_number || null : undefined,
-          social_link: modal.kind === "physical" ? modal.social_link || null : undefined,
-        } });
+        await updateFn({
+          data: {
+            id: modal.id,
+            name: modal.name,
+            category: modal.category,
+            description: modal.description,
+            price_usd: price,
+            vendor: modal.vendor,
+            subcategory: modal.subcategory || null,
+            external_url: modal.external_url || null,
+            cover_path: modal.cover_path,
+            file_path: modal.file_path,
+            promoted: modal.promoted,
+            brand: modal.kind === "physical" ? modal.brand || null : undefined,
+            condition: modal.kind === "physical" ? modal.condition || null : undefined,
+            location: modal.kind === "physical" ? modal.location || null : undefined,
+            negotiable: modal.kind === "physical" ? modal.negotiable || null : undefined,
+            delivery: modal.kind === "physical" ? modal.delivery || null : undefined,
+            seller_phone: modal.kind === "physical" ? modal.seller_phone || null : undefined,
+            whatsapp_number: modal.kind === "physical" ? modal.whatsapp_number || null : undefined,
+            social_link: modal.kind === "physical" ? modal.social_link || null : undefined,
+          },
+        });
         toast.success("Product updated");
       } else {
-        await createFn({ data: {
-          name: modal.name,
-          category: modal.category,
-          description: modal.description,
-          price_usd: price,
-          vendor: modal.vendor,
-          external_url: modal.external_url || null,
-          cover_path: modal.cover_path,
-          file_path: modal.file_path,
-          promoted: modal.promoted,
-        } });
+        await createFn({
+          data: {
+            name: modal.name,
+            category: modal.category,
+            description: modal.description,
+            price_usd: price,
+            vendor: modal.vendor,
+            external_url: modal.external_url || null,
+            cover_path: modal.cover_path,
+            file_path: modal.file_path,
+            promoted: modal.promoted,
+          },
+        });
         toast.success("Product created");
       }
       setModal(null);
@@ -285,9 +315,13 @@ function ProductsPage() {
     }
   };
 
-  const byKind = (rows ?? []).filter((p) => kindFilter === "all" ? true : ((p.kind as string) ?? "digital") === kindFilter);
+  const byKind = (rows ?? []).filter((p) =>
+    kindFilter === "all" ? true : ((p.kind as string) ?? "digital") === kindFilter,
+  );
   const kindCount = (k: "all" | "digital" | "physical") =>
-    k === "all" ? (rows?.length ?? 0) : (rows ?? []).filter((r) => ((r.kind as string) ?? "digital") === k).length;
+    k === "all"
+      ? (rows?.length ?? 0)
+      : (rows ?? []).filter((r) => ((r.kind as string) ?? "digital") === k).length;
   const statusCountInKind = (s: "all" | "pending" | "active" | "rejected") =>
     s === "all" ? byKind.length : byKind.filter((r) => (r.status as string) === s).length;
 
@@ -299,18 +333,27 @@ function ProductsPage() {
           <p className="text-sm text-slate-400">
             {filtered.length} of {rows?.length ?? 0} listings
             {lastRefreshAt && (
-              <span className="text-slate-600"> · updated {new Date(lastRefreshAt).toLocaleTimeString()}</span>
+              <span className="text-slate-600">
+                {" "}
+                · updated {new Date(lastRefreshAt).toLocaleTimeString()}
+              </span>
             )}
           </p>
         </div>
         <div className="flex items-center gap-2 flex-wrap">
-          <div className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-0.5" role="group" aria-label="Price currency">
+          <div
+            className="inline-flex rounded-lg bg-[#141418] border border-white/10 p-0.5"
+            role="group"
+            aria-label="Price currency"
+          >
             {PRICE_CURRENCIES.map((c) => (
               <button
                 key={c}
                 onClick={() => setPriceCurrency(c)}
                 className={`px-2.5 py-1 rounded-md text-xs font-bold transition ${
-                  priceCurrency === c ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
+                  priceCurrency === c
+                    ? "bg-emerald-500 text-black"
+                    : "text-slate-300 hover:text-white"
                 }`}
                 aria-pressed={priceCurrency === c}
               >
@@ -346,7 +389,6 @@ function ProductsPage() {
         </div>
       </header>
 
-
       {/* Primary: product type */}
       <div className="mb-3 inline-flex rounded-xl bg-[#141418] border border-white/10 p-1">
         {(["all", "digital", "physical"] as const).map((k) => (
@@ -354,13 +396,15 @@ function ProductsPage() {
             key={k}
             onClick={() => setKindFilter(k)}
             className={`px-4 py-2 rounded-lg text-sm font-semibold transition ${
-              kindFilter === k
-                ? "bg-emerald-500 text-black"
-                : "text-slate-300 hover:text-white"
+              kindFilter === k ? "bg-emerald-500 text-black" : "text-slate-300 hover:text-white"
             }`}
           >
             {k === "all" ? "All" : k === "digital" ? "Digital Products" : "Physical Products"}
-            <span className={`ml-2 text-[11px] font-bold ${kindFilter === k ? "text-black/70" : "text-slate-500"}`}>{kindCount(k)}</span>
+            <span
+              className={`ml-2 text-[11px] font-bold ${kindFilter === k ? "text-black/70" : "text-slate-500"}`}
+            >
+              {kindCount(k)}
+            </span>
           </button>
         ))}
       </div>
@@ -373,18 +417,21 @@ function ProductsPage() {
             onClick={() => setStatusFilter(s)}
             className={`px-3 py-1.5 rounded-full text-xs font-medium border ${
               statusFilter === s
-                ? s === "pending" ? "bg-amber-500/15 border-amber-500/50 text-amber-200"
-                : s === "active" ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
-                : s === "rejected" ? "bg-red-500/15 border-red-500/50 text-red-300"
-                : "bg-white/10 border-white/20 text-white"
+                ? s === "pending"
+                  ? "bg-amber-500/15 border-amber-500/50 text-amber-200"
+                  : s === "active"
+                    ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300"
+                    : s === "rejected"
+                      ? "bg-red-500/15 border-red-500/50 text-red-300"
+                      : "bg-white/10 border-white/20 text-white"
                 : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white"
             }`}
           >
-            {s === "pending" ? "Pending Approval" : s.charAt(0).toUpperCase() + s.slice(1)} ({statusCountInKind(s)})
+            {s === "pending" ? "Pending Approval" : s.charAt(0).toUpperCase() + s.slice(1)} (
+            {statusCountInKind(s)})
           </button>
         ))}
       </div>
-
 
       {!rows ? (
         <Loader2 className="w-5 h-5 animate-spin text-slate-500 mx-auto mt-10" />
@@ -397,16 +444,30 @@ function ProductsPage() {
             const status = (p.status as string) ?? "active";
             const kind = (p.kind as string) ?? "digital";
             return (
-              <div key={id} data-admin-product-row className="bg-[#141418] border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3">
+              <div
+                key={id}
+                data-admin-product-row
+                className="bg-[#141418] border border-white/10 rounded-xl p-4 flex flex-wrap items-center gap-3"
+              >
                 <div className="flex-1 min-w-[220px]">
                   <div className="flex flex-wrap items-center gap-2">
                     <span className="text-white font-bold truncate">{p.name as string}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
-                      status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
-                      status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
- "bg-red-500/15 border-red-500/40 text-red-300"
-                    }`}>{status}</span>
-                    <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-white/5 border-white/10 text-slate-400"}`}>{kind}</span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
+                        status === "active"
+                          ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+                          : status === "pending"
+                            ? "bg-amber-500/15 border-amber-500/40 text-amber-200"
+                            : "bg-red-500/15 border-red-500/40 text-red-300"
+                      }`}
+                    >
+                      {status}
+                    </span>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-white/5 border-white/10 text-slate-400"}`}
+                    >
+                      {kind}
+                    </span>
                     {(p.promoted as boolean) && (
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-amber-500/15 border border-amber-500/40 text-amber-200 uppercase font-bold">
                         Promoted
@@ -414,16 +475,25 @@ function ProductsPage() {
                     )}
                   </div>
                   <div className="text-xs text-slate-500 mt-0.5">
-                    {p.category as string} · {computeDisplayPrice({
-                      price_usd: Number(p.price_usd) || 0,
-                      original_currency: (p.original_currency as string) ?? "USD",
-                      original_amount: Number(p.original_amount ?? p.price_usd) || 0,
-                      fx_snapshot: p.fx_snapshot,
-                    }, priceCurrency).formatted} · by {(p.vendor as string) ?? "—"}
+                    {p.category as string} ·{" "}
+                    {
+                      computeDisplayPrice(
+                        {
+                          price_usd: Number(p.price_usd) || 0,
+                          original_currency: (p.original_currency as string) ?? "USD",
+                          original_amount: Number(p.original_amount ?? p.price_usd) || 0,
+                          fx_snapshot: p.fx_snapshot,
+                        },
+                        priceCurrency,
+                      ).formatted
+                    }{" "}
+                    · by {(p.vendor as string) ?? "—"}
                     {p.location ? ` · ${p.location as string}` : ""}
                   </div>
                   {status === "rejected" && Boolean(p.reject_reason) && (
-                    <div className="text-[11px] text-red-300 mt-1 truncate">Reason: {p.reject_reason as string}</div>
+                    <div className="text-[11px] text-red-300 mt-1 truncate">
+                      Reason: {p.reject_reason as string}
+                    </div>
                   )}
                 </div>
                 <div className="w-full sm:w-auto flex flex-wrap items-center justify-start sm:justify-end gap-2">
@@ -431,31 +501,51 @@ function ProductsPage() {
                     onClick={() => setPreviewId(id)}
                     className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
                     aria-label={`View ${kind} product`}
-                  ><Eye className="w-3.5 h-3.5" /> View</button>
+                  >
+                    <Eye className="w-3.5 h-3.5" /> View
+                  </button>
                   {status !== "active" && (
                     <button
                       onClick={async () => {
                         setBusy(id);
-                        try { await approveFn({ data: { id } }); toast.success("Approved"); refresh(); }
-                        catch (e) { toast.error((e as Error).message); }
+                        try {
+                          await approveFn({ data: { id } });
+                          toast.success("Approved");
+                          refresh();
+                        } catch (e) {
+                          toast.error((e as Error).message);
+                        }
                         setBusy(null);
                       }}
                       disabled={busy === id}
                       className="px-3 py-2 rounded-lg bg-emerald-500 text-black text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
-                    ><Check className="w-3.5 h-3.5" /> Approve</button>
+                    >
+                      <Check className="w-3.5 h-3.5" /> Approve
+                    </button>
                   )}
                   {status !== "rejected" && (
                     <button
-                      onClick={() => { setRejectingId(id); setRejectReason(""); setRejectHint(""); }}
+                      onClick={() => {
+                        setRejectingId(id);
+                        setRejectReason("");
+                        setRejectHint("");
+                      }}
                       disabled={busy === id}
                       className="px-3 py-2 rounded-lg bg-red-500/15 border border-red-500/40 text-red-300 text-xs font-bold flex items-center gap-1.5 disabled:opacity-50"
-                    ><XCircle className="w-3.5 h-3.5" /> Reject</button>
+                    >
+                      <XCircle className="w-3.5 h-3.5" /> Reject
+                    </button>
                   )}
                   <button
                     onClick={async () => {
                       setBusy(id);
-                      try { await promFn({ data: { id, promoted: !(p.promoted as boolean) } }); refresh(); toast.success((p.promoted as boolean) ? "Promotion removed" : "Promoted"); }
-                      catch (e) { toast.error((e as Error).message); }
+                      try {
+                        await promFn({ data: { id, promoted: !(p.promoted as boolean) } });
+                        refresh();
+                        toast.success((p.promoted as boolean) ? "Promotion removed" : "Promoted");
+                      } catch (e) {
+                        toast.error((e as Error).message);
+                      }
                       setBusy(null);
                     }}
                     disabled={busy === id}
@@ -468,14 +558,21 @@ function ProductsPage() {
                     onClick={() => openEdit(p)}
                     className="px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 text-xs font-bold flex items-center gap-1.5"
                     aria-label={`Edit ${kind} product`}
-                  ><Pencil className="w-3.5 h-3.5" /> Edit</button>
+                  >
+                    <Pencil className="w-3.5 h-3.5" /> Edit
+                  </button>
 
                   <button
                     onClick={async () => {
                       if (!confirm(`Delete "${p.name}"? This cannot be undone.`)) return;
                       setBusy(id);
-                      try { await delFn({ data: { id } }); refresh(); toast.success("Deleted"); }
-                      catch (e) { toast.error((e as Error).message); }
+                      try {
+                        await delFn({ data: { id } });
+                        refresh();
+                        toast.success("Deleted");
+                      } catch (e) {
+                        toast.error((e as Error).message);
+                      }
                       setBusy(null);
                     }}
                     disabled={busy === id}
@@ -497,49 +594,75 @@ function ProductsPage() {
             <h3 className="text-white font-bold text-lg mb-3">Reject product</h3>
             <label className="block mb-3">
               <span className="text-xs text-slate-300">Reason (sent to seller)</span>
-              <textarea rows={3} value={rejectReason} onChange={(e) => setRejectReason(e.target.value)}
-                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white" />
+              <textarea
+                rows={3}
+                value={rejectReason}
+                onChange={(e) => setRejectReason(e.target.value)}
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white"
+              />
             </label>
             <label className="block mb-4">
               <span className="text-xs text-slate-300">Recommendation (optional)</span>
-              <textarea rows={2} value={rejectHint} onChange={(e) => setRejectHint(e.target.value)}
-                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white" />
+              <textarea
+                rows={2}
+                value={rejectHint}
+                onChange={(e) => setRejectHint(e.target.value)}
+                className="mt-1 w-full bg-[#0F0F12] border border-white/10 rounded-lg p-2 text-sm text-white"
+              />
             </label>
             <div className="flex justify-end gap-2">
-              <button onClick={() => setRejectingId(null)} className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 text-sm">Cancel</button>
+              <button
+                onClick={() => setRejectingId(null)}
+                className="px-4 py-2 rounded-lg border border-white/10 text-slate-300 text-sm"
+              >
+                Cancel
+              </button>
               <button
                 onClick={async () => {
                   if (!rejectReason.trim()) return toast.error("Reason is required");
                   const id = rejectingId;
                   setBusy(id);
                   try {
-                    await rejectFn({ data: { id, reason: rejectReason.trim(), recommendation: rejectHint.trim() || undefined } });
+                    await rejectFn({
+                      data: {
+                        id,
+                        reason: rejectReason.trim(),
+                        recommendation: rejectHint.trim() || undefined,
+                      },
+                    });
                     toast.success("Rejected — seller notified");
                     setRejectingId(null);
                     refresh();
-                  } catch (e) { toast.error((e as Error).message); }
+                  } catch (e) {
+                    toast.error((e as Error).message);
+                  }
                   setBusy(null);
                 }}
                 className="px-4 py-2 rounded-lg bg-red-500 text-white text-sm font-bold"
-              >Send rejection</button>
+              >
+                Send rejection
+              </button>
             </div>
           </div>
         </div>
       )}
 
-      {previewId && (() => {
-        const p = (rows ?? []).find((r) => r.id === previewId);
-        if (!p) return null;
-        return <ProductPreviewModal product={p} onClose={() => setPreviewId(null)} />;
-      })()}
+      {previewId &&
+        (() => {
+          const p = (rows ?? []).find((r) => r.id === previewId);
+          if (!p) return null;
+          return <ProductPreviewModal product={p} onClose={() => setPreviewId(null)} />;
+        })()}
 
       {showSellSwitcher && (
         <SellSwitcherModal
           open
-          onClose={() => { setShowSellSwitcher(false); refresh(); }}
+          onClose={() => {
+            setShowSellSwitcher(false);
+            refresh();
+          }}
         />
       )}
-
 
       {modal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70">
@@ -558,14 +681,22 @@ function ProductsPage() {
             </div>
             <div className="space-y-3">
               <div>
-                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product image</span>
-                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Shown as the cover on marketplace cards. PNG/JPG/WebP, up to 5MB.</p>
+                <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
+                  Product image
+                </span>
+                <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">
+                  Shown as the cover on marketplace cards. PNG/JPG/WebP, up to 5MB.
+                </p>
                 <input
                   ref={fileInputRef}
                   type="file"
                   accept="image/png,image/jpeg,image/webp,image/gif"
                   className="hidden"
-                  onChange={(e) => { const f = e.target.files?.[0]; if (f) handleCoverPick(f); e.target.value = ""; }}
+                  onChange={(e) => {
+                    const f = e.target.files?.[0];
+                    if (f) handleCoverPick(f);
+                    e.target.value = "";
+                  }}
                 />
                 <button
                   type="button"
@@ -574,7 +705,14 @@ function ProductsPage() {
                   className="w-full flex items-center gap-3 p-3 rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-black/20 hover:bg-black/30 disabled:opacity-50 text-left"
                 >
                   {modal.cover_preview ? (
-                    <ResponsiveImage sizes="80px" src={modal.cover_preview} alt="Cover preview" className="w-20 h-20 object-cover rounded-md border border-white/10"  loading="lazy" decoding="async" />
+                    <ResponsiveImage
+                      sizes="80px"
+                      src={modal.cover_preview}
+                      alt="Cover preview"
+                      className="w-20 h-20 object-cover rounded-md border border-white/10"
+                      loading="lazy"
+                      decoding="async"
+                    />
                   ) : (
                     <div className="w-20 h-20 rounded-md border border-white/10 bg-white/5 flex items-center justify-center text-slate-500">
                       <ImagePlus className="w-6 h-6" />
@@ -582,22 +720,36 @@ function ProductsPage() {
                   )}
                   <div className="flex-1 min-w-0 text-xs">
                     {uploadingCover ? (
-                      <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                      <div className="flex items-center gap-2 text-slate-300">
+                        <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
+                      </div>
                     ) : modal.cover_preview ? (
                       <>
                         <div className="text-slate-200 font-medium">Image attached</div>
                         <div className="text-slate-500 mt-0.5">Click to replace</div>
                       </>
                     ) : (
-                      <div className="text-slate-400">Click to upload a cover image (recommended 4:3).</div>
+                      <div className="text-slate-400">
+                        Click to upload a cover image (recommended 4:3).
+                      </div>
                     )}
                   </div>
                   {modal.cover_preview && !uploadingCover && (
                     <span
                       role="button"
                       tabIndex={0}
-                      onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); }}
-                      onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, cover_path: null, cover_preview: null } : m); } }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setModal((m) => (m ? { ...m, cover_path: null, cover_preview: null } : m));
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.stopPropagation();
+                          setModal((m) =>
+                            m ? { ...m, cover_path: null, cover_preview: null } : m,
+                          );
+                        }
+                      }}
                       className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
                       aria-label="Remove image"
                     >
@@ -616,17 +768,25 @@ function ProductsPage() {
               </Field>
               <div className="grid grid-cols-2 gap-3">
                 <Field label="Category">
-                  {modal.kind === "digital" ? <select
-                    value={modal.category}
-                    onChange={(e) => setModal({ ...modal, category: e.target.value })}
-                    className={inputCls}
-                  >
-                    {CATEGORIES.map((c) => <option key={c} value={c}>{c}</option>)}
-                  </select> : <input
-                    value={modal.category}
-                    onChange={(e) => setModal({ ...modal, category: e.target.value })}
-                    className={inputCls}
-                  />}
+                  {modal.kind === "digital" ? (
+                    <select
+                      value={modal.category}
+                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                      className={inputCls}
+                    >
+                      {CATEGORIES.map((c) => (
+                        <option key={c} value={c}>
+                          {c}
+                        </option>
+                      ))}
+                    </select>
+                  ) : (
+                    <input
+                      value={modal.category}
+                      onChange={(e) => setModal({ ...modal, category: e.target.value })}
+                      className={inputCls}
+                    />
+                  )}
                 </Field>
                 <Field label="Price (USD)">
                   <input
@@ -666,34 +826,83 @@ function ProductsPage() {
               {modal.kind === "physical" ? (
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                   <Field label="Location">
-                    <input value={modal.location} onChange={(e) => setModal({ ...modal, location: e.target.value })} className={inputCls} />
+                    <input
+                      value={modal.location}
+                      onChange={(e) => setModal({ ...modal, location: e.target.value })}
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Brand">
-                    <input value={modal.brand} onChange={(e) => setModal({ ...modal, brand: e.target.value })} className={inputCls} />
+                    <input
+                      value={modal.brand}
+                      onChange={(e) => setModal({ ...modal, brand: e.target.value })}
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Condition">
-                    <select value={modal.condition} onChange={(e) => setModal({ ...modal, condition: e.target.value })} className={inputCls}>
-                      {(["Brand New", "Used", "Refurbished"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    <select
+                      value={modal.condition}
+                      onChange={(e) => setModal({ ...modal, condition: e.target.value })}
+                      className={inputCls}
+                    >
+                      {(["Brand New", "Used", "Refurbished"] as const).map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
                     </select>
                   </Field>
                   <Field label="Negotiable">
-                    <select value={modal.negotiable} onChange={(e) => setModal({ ...modal, negotiable: e.target.value })} className={inputCls}>
-                      {(["Yes", "No", "Maybe"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    <select
+                      value={modal.negotiable}
+                      onChange={(e) => setModal({ ...modal, negotiable: e.target.value })}
+                      className={inputCls}
+                    >
+                      {(["Yes", "No", "Maybe"] as const).map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
                     </select>
                   </Field>
                   <Field label="Delivery">
-                    <select value={modal.delivery} onChange={(e) => setModal({ ...modal, delivery: e.target.value })} className={inputCls}>
-                      {(["Yes", "No", "Maybe"] as const).map((v) => <option key={v} value={v}>{v}</option>)}
+                    <select
+                      value={modal.delivery}
+                      onChange={(e) => setModal({ ...modal, delivery: e.target.value })}
+                      className={inputCls}
+                    >
+                      {(["Yes", "No", "Maybe"] as const).map((v) => (
+                        <option key={v} value={v}>
+                          {v}
+                        </option>
+                      ))}
                     </select>
                   </Field>
                   <Field label="Seller phone">
-                    <input value={modal.seller_phone} onChange={(e) => setModal({ ...modal, seller_phone: e.target.value.replace(/\D/g, "") })} className={inputCls} />
+                    <input
+                      value={modal.seller_phone}
+                      onChange={(e) =>
+                        setModal({ ...modal, seller_phone: e.target.value.replace(/\D/g, "") })
+                      }
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="WhatsApp">
-                    <input value={modal.whatsapp_number} onChange={(e) => setModal({ ...modal, whatsapp_number: e.target.value.replace(/\D/g, "") })} className={inputCls} />
+                    <input
+                      value={modal.whatsapp_number}
+                      onChange={(e) =>
+                        setModal({ ...modal, whatsapp_number: e.target.value.replace(/\D/g, "") })
+                      }
+                      className={inputCls}
+                    />
                   </Field>
                   <Field label="Social link">
-                    <input value={modal.social_link} onChange={(e) => setModal({ ...modal, social_link: e.target.value })} placeholder="https://…" className={inputCls} />
+                    <input
+                      value={modal.social_link}
+                      onChange={(e) => setModal({ ...modal, social_link: e.target.value })}
+                      placeholder="https://…"
+                      className={inputCls}
+                    />
                   </Field>
                 </div>
               ) : (
@@ -707,14 +916,23 @@ function ProductsPage() {
                     />
                   </Field>
                   <div>
-                    <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">Product file (.zip)</span>
-                    <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB. Optional if you set an external URL above.</p>
+                    <span className="text-xs uppercase tracking-wider text-slate-500 mb-1 block">
+                      Product file (.zip)
+                    </span>
+                    <p className="text-[11px] text-slate-500 -mt-0.5 mb-2">
+                      Digital asset buyers download. ZIP/RAR/7Z or any file, up to {MAX_ASSET_MB}MB.
+                      Optional if you set an external URL above.
+                    </p>
                     <input
                       ref={assetInputRef}
                       type="file"
                       accept=".zip,.rar,.7z,.tar,.gz,application/zip,application/x-zip-compressed,application/x-rar-compressed,application/x-7z-compressed"
                       className="hidden"
-                      onChange={(e) => { const f = e.target.files?.[0]; if (f) handleAssetPick(f); e.target.value = ""; }}
+                      onChange={(e) => {
+                        const f = e.target.files?.[0];
+                        if (f) handleAssetPick(f);
+                        e.target.value = "";
+                      }}
                     />
                     <button
                       type="button"
@@ -727,22 +945,36 @@ function ProductsPage() {
                       </div>
                       <div className="flex-1 min-w-0 text-xs">
                         {uploadingAsset ? (
-                          <div className="flex items-center gap-2 text-slate-300"><Loader2 className="w-4 h-4 animate-spin" /> Uploading…</div>
+                          <div className="flex items-center gap-2 text-slate-300">
+                            <Loader2 className="w-4 h-4 animate-spin" /> Uploading…
+                          </div>
                         ) : modal.file_name ? (
                           <>
-                            <div className="text-slate-200 font-medium truncate">{modal.file_name}</div>
+                            <div className="text-slate-200 font-medium truncate">
+                              {modal.file_name}
+                            </div>
                             <div className="text-slate-500 mt-0.5">Click to replace</div>
                           </>
                         ) : (
-                          <div className="text-slate-400">Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).</div>
+                          <div className="text-slate-400">
+                            Click to upload the product ZIP file (max {MAX_ASSET_MB}MB).
+                          </div>
                         )}
                       </div>
                       {modal.file_name && !uploadingAsset && (
                         <span
                           role="button"
                           tabIndex={0}
-                          onClick={(e) => { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); }}
-                          onKeyDown={(e) => { if (e.key === "Enter") { e.stopPropagation(); setModal((m) => m ? { ...m, file_path: null, file_name: null } : m); } }}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setModal((m) => (m ? { ...m, file_path: null, file_name: null } : m));
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter") {
+                              e.stopPropagation();
+                              setModal((m) => (m ? { ...m, file_path: null, file_name: null } : m));
+                            }
+                          }}
                           className="p-1.5 rounded-md bg-white/5 hover:bg-red-500/20 border border-white/10 text-red-300"
                           aria-label="Remove file"
                         >
@@ -787,7 +1019,7 @@ function ProductsPage() {
 }
 
 const inputCls =
- "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
+  "w-full bg-black/30 border border-white/10 rounded-lg px-3 py-2 text-sm text-white placeholder:text-slate-500 focus:border-emerald-500/60 outline-none";
 
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
@@ -808,16 +1040,26 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
     const cover = (product.cover_path as string) ?? null;
     const imgs = Array.isArray(product.image_paths) ? (product.image_paths as string[]) : [];
     const paths = Array.from(new Set([cover, ...imgs].filter(Boolean))) as string[];
-    if (paths.length === 0) { setLoading(false); return; }
+    if (paths.length === 0) {
+      setLoading(false);
+      return;
+    }
     (async () => {
       const signed: string[] = [];
       for (const path of paths) {
-        const { data } = await supabase.storage.from("product-covers").createSignedUrl(path, 60 * 60);
+        const { data } = await supabase.storage
+          .from("product-covers")
+          .createSignedUrl(path, 60 * 60);
         if (data?.signedUrl) signed.push(data.signedUrl);
       }
-      if (!cancelled) { setUrls(signed); setLoading(false); }
+      if (!cancelled) {
+        setUrls(signed);
+        setLoading(false);
+      }
     })();
-    return () => { cancelled = true; };
+    return () => {
+      cancelled = true;
+    };
   }, [product]);
 
   const kind = String(product.kind ?? "digital");
@@ -825,25 +1067,49 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
   const cur = urls[active];
 
   return (
-    <div className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70" role="dialog" aria-modal="true">
+    <div
+      className="fixed inset-0 z-[80] flex items-center justify-center p-4 bg-black/70"
+      role="dialog"
+      aria-modal="true"
+    >
       <div className="w-full max-w-2xl bg-[#141418] border border-white/10 rounded-2xl p-5 max-h-[90vh] overflow-y-auto">
         <div className="flex items-start justify-between mb-3 gap-3">
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap mb-1">
-              <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}>{kind}</span>
-              <span className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
-                status === "active" ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300" :
-                status === "pending" ? "bg-amber-500/15 border-amber-500/40 text-amber-200" :
- "bg-red-500/15 border-red-500/40 text-red-300"
-              }`}>{status}</span>
-              {Boolean(product.promoted) && <span className="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold bg-amber-500/15 border border-amber-500/40 text-amber-200">Promoted</span>}
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${kind === "physical" ? "bg-sky-500/15 border-sky-500/40 text-sky-300" : "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"}`}
+              >
+                {kind}
+              </span>
+              <span
+                className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold border ${
+                  status === "active"
+                    ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+                    : status === "pending"
+                      ? "bg-amber-500/15 border-amber-500/40 text-amber-200"
+                      : "bg-red-500/15 border-red-500/40 text-red-300"
+                }`}
+              >
+                {status}
+              </span>
+              {Boolean(product.promoted) && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded uppercase font-bold bg-amber-500/15 border border-amber-500/40 text-amber-200">
+                  Promoted
+                </span>
+              )}
             </div>
             <h3 className="text-white font-bold text-lg truncate">{product.name as string}</h3>
             <div className="text-xs text-slate-400 mt-0.5">
-              {String(product.category ?? "")}{product.subcategory ? ` · ${product.subcategory as string}` : ""} · by {(product.vendor as string) ?? "—"}
+              {String(product.category ?? "")}
+              {product.subcategory ? ` · ${product.subcategory as string}` : ""} · by{" "}
+              {(product.vendor as string) ?? "—"}
             </div>
           </div>
-          <button onClick={onClose} className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0" aria-label="Close">
+          <button
+            onClick={onClose}
+            className="p-1.5 rounded-lg hover:bg-white/10 text-slate-400 shrink-0"
+            aria-label="Close"
+          >
             <X className="w-4 h-4" />
           </button>
         </div>
@@ -853,7 +1119,14 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
             {loading ? (
               <Loader2 className="w-6 h-6 animate-spin text-slate-500" />
             ) : cur ? (
-              <ResponsiveImage src={cur} alt={product.name as string} sizes="(min-width:768px) 640px, 100vw" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+              <ResponsiveImage
+                src={cur}
+                alt={product.name as string}
+                sizes="(min-width:768px) 640px, 100vw"
+                className="w-full h-full object-cover"
+                loading="lazy"
+                decoding="async"
+              />
             ) : (
               <div className="text-xs text-slate-500">No images</div>
             )}
@@ -861,45 +1134,95 @@ function ProductPreviewModal({ product, onClose }: { product: Row; onClose: () =
           {urls.length > 1 && (
             <div className="mt-2 flex gap-2 overflow-x-auto">
               {urls.map((u, i) => (
-                <button key={u} onClick={() => setActive(i)} className={`shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${i === active ? "border-emerald-500" : "border-white/10"}`}>
+                <button
+                  key={u}
+                  onClick={() => setActive(i)}
+                  className={`shrink-0 w-16 h-16 rounded-md overflow-hidden border-2 ${i === active ? "border-emerald-500" : "border-white/10"}`}
+                >
                   <img src={u} alt="" className="w-full h-full object-cover" />
                 </button>
               ))}
             </div>
           )}
-          {!loading && urls.length > 0 && <div className="mt-1 text-[10px] text-slate-500">{urls.length} image{urls.length === 1 ? "" : "s"}</div>}
+          {!loading && urls.length > 0 && (
+            <div className="mt-1 text-[10px] text-slate-500">
+              {urls.length} image{urls.length === 1 ? "" : "s"}
+            </div>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-3 mb-4 text-xs">
           <div className="bg-black/30 border border-white/10 rounded-lg p-3">
             <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">Price</div>
-            <div className="text-white font-bold text-lg">${Number(product.price_usd).toFixed(2)}</div>
+            <div className="text-white font-bold text-lg">
+              ${Number(product.price_usd).toFixed(2)}
+            </div>
             {product.original_amount && product.original_currency ? (
-              <div className="text-slate-500 text-[11px] mt-0.5">Locked at {String(product.original_currency)} {String(product.original_amount)}</div>
+              <div className="text-slate-500 text-[11px] mt-0.5">
+                Locked at {String(product.original_currency)} {String(product.original_amount)}
+              </div>
             ) : null}
           </div>
           {product.location ? (
             <div className="bg-black/30 border border-white/10 rounded-lg p-3">
-              <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">Location</div>
-              <div className="text-slate-200 inline-flex items-center gap-1"><MapPin className="w-3 h-3" /> {product.location as string}</div>
+              <div className="text-slate-500 uppercase tracking-wider text-[10px] mb-1">
+                Location
+              </div>
+              <div className="text-slate-200 inline-flex items-center gap-1">
+                <MapPin className="w-3 h-3" /> {product.location as string}
+              </div>
             </div>
           ) : null}
         </div>
 
         {Boolean(product.description) && (
           <div className="mb-4">
-            <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">Description</div>
-            <p className="text-sm text-slate-300 whitespace-pre-wrap">{product.description as string}</p>
+            <div className="text-[10px] uppercase tracking-wider text-slate-500 mb-1">
+              Description
+            </div>
+            <p className="text-sm text-slate-300 whitespace-pre-wrap">
+              {product.description as string}
+            </p>
           </div>
         )}
 
         <dl className="grid grid-cols-2 gap-x-4 gap-y-2 text-xs">
-          {product.brand ? <><dt className="text-slate-500">Brand</dt><dd className="text-slate-200">{product.brand as string}</dd></> : null}
-          {product.condition ? <><dt className="text-slate-500">Condition</dt><dd className="text-slate-200">{product.condition as string}</dd></> : null}
-          {product.negotiable ? <><dt className="text-slate-500">Negotiable</dt><dd className="text-slate-200">{product.negotiable as string}</dd></> : null}
-          {product.delivery ? <><dt className="text-slate-500">Delivery</dt><dd className="text-slate-200">{product.delivery as string}</dd></> : null}
-          {product.seller_phone ? <><dt className="text-slate-500">Phone</dt><dd className="text-slate-200">+{product.seller_phone as string}</dd></> : null}
-          {product.whatsapp_number ? <><dt className="text-slate-500">WhatsApp</dt><dd className="text-slate-200">+{product.whatsapp_number as string}</dd></> : null}
+          {product.brand ? (
+            <>
+              <dt className="text-slate-500">Brand</dt>
+              <dd className="text-slate-200">{product.brand as string}</dd>
+            </>
+          ) : null}
+          {product.condition ? (
+            <>
+              <dt className="text-slate-500">Condition</dt>
+              <dd className="text-slate-200">{product.condition as string}</dd>
+            </>
+          ) : null}
+          {product.negotiable ? (
+            <>
+              <dt className="text-slate-500">Negotiable</dt>
+              <dd className="text-slate-200">{product.negotiable as string}</dd>
+            </>
+          ) : null}
+          {product.delivery ? (
+            <>
+              <dt className="text-slate-500">Delivery</dt>
+              <dd className="text-slate-200">{product.delivery as string}</dd>
+            </>
+          ) : null}
+          {product.seller_phone ? (
+            <>
+              <dt className="text-slate-500">Phone</dt>
+              <dd className="text-slate-200">+{product.seller_phone as string}</dd>
+            </>
+          ) : null}
+          {product.whatsapp_number ? (
+            <>
+              <dt className="text-slate-500">WhatsApp</dt>
+              <dd className="text-slate-200">+{product.whatsapp_number as string}</dd>
+            </>
+          ) : null}
         </dl>
 
         {status === "rejected" && Boolean(product.reject_reason) && (

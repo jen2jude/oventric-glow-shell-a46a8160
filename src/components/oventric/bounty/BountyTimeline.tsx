@@ -1,4 +1,12 @@
-import { CheckCircle2, Clock, FileCheck2, ShieldCheck, UserCheck2, Wallet, AlertTriangle } from "lucide-react";
+import {
+  CheckCircle2,
+  Clock,
+  FileCheck2,
+  ShieldCheck,
+  UserCheck2,
+  Wallet,
+  AlertTriangle,
+} from "lucide-react";
 
 export interface TimelineProfile {
   display_name: string | null;
@@ -44,7 +52,12 @@ function who(p: TimelineProfile | null | undefined) {
   return p?.display_name || p?.username || "the solver";
 }
 
-export function BountyTimeline({ bounty, applicationsCount, firstApplicationAt, acceptedProfile }: Props) {
+export function BountyTimeline({
+  bounty,
+  applicationsCount,
+  firstApplicationAt,
+  acceptedProfile,
+}: Props) {
   const steps: Step[] = [
     {
       key: "created",
@@ -56,7 +69,10 @@ export function BountyTimeline({ bounty, applicationsCount, firstApplicationAt, 
     },
     {
       key: "proposals",
-      label: applicationsCount > 0 ? `${applicationsCount} proposal${applicationsCount === 1 ? "" : "s"} received` : "Waiting for proposals",
+      label:
+        applicationsCount > 0
+          ? `${applicationsCount} proposal${applicationsCount === 1 ? "" : "s"} received`
+          : "Waiting for proposals",
       at: firstApplicationAt,
       icon: <Clock className="w-3.5 h-3.5" />,
       done: applicationsCount > 0,
@@ -64,7 +80,9 @@ export function BountyTimeline({ bounty, applicationsCount, firstApplicationAt, 
     },
     {
       key: "accepted",
-      label: bounty.accepted_applicant_id ? `Solver accepted — ${who(acceptedProfile)}` : "Solver not yet assigned",
+      label: bounty.accepted_applicant_id
+        ? `Solver accepted — ${who(acceptedProfile)}`
+        : "Solver not yet assigned",
       at: bounty.accepted_at,
       icon: <UserCheck2 className="w-3.5 h-3.5" />,
       done: !!bounty.accepted_applicant_id,
@@ -86,11 +104,12 @@ export function BountyTimeline({ bounty, applicationsCount, firstApplicationAt, 
           ? "In dispute — resolution pending"
           : "Awaiting release",
       at: bounty.released_at,
-      icon: bounty.dispute_status === "open" && !bounty.released_at ? (
-        <AlertTriangle className="w-3.5 h-3.5" />
-      ) : (
-        <Wallet className="w-3.5 h-3.5" />
-      ),
+      icon:
+        bounty.dispute_status === "open" && !bounty.released_at ? (
+          <AlertTriangle className="w-3.5 h-3.5" />
+        ) : (
+          <Wallet className="w-3.5 h-3.5" />
+        ),
       done: !!bounty.released_at,
       tone: bounty.released_at ? "emerald" : bounty.dispute_status === "open" ? "amber" : "slate",
     },
@@ -117,11 +136,15 @@ export function BountyTimeline({ bounty, applicationsCount, firstApplicationAt, 
                   s.done ? tone.dot : "bg-transparent border-white/20 md:border-slate-300"
                 }`}
               />
-              <div className={`text-sm font-semibold ${s.done ? "text-white md:text-slate-900" : "text-slate-500"}`}>
+              <div
+                className={`text-sm font-semibold ${s.done ? "text-white md:text-slate-900" : "text-slate-500"}`}
+              >
                 {s.label}
               </div>
               {s.at && (
-                <div className="text-[11px] text-slate-500 mt-0.5">{new Date(s.at).toLocaleString()}</div>
+                <div className="text-[11px] text-slate-500 mt-0.5">
+                  {new Date(s.at).toLocaleString()}
+                </div>
               )}
             </li>
           );

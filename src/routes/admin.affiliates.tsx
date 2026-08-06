@@ -2,10 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, Search, Download, Users } from "lucide-react";
-import {
-  listAffiliateReservations,
-  type AffiliateReservationDTO,
-} from "@/lib/affiliate.functions";
+import { listAffiliateReservations, type AffiliateReservationDTO } from "@/lib/affiliate.functions";
 
 export const Route = createFileRoute("/admin/affiliates")({
   head: () => ({
@@ -81,8 +78,8 @@ function AffiliateReservationsPage() {
             <Users className="w-6 h-6 text-fuchsia-300" /> Affiliate Reservations
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            Users who have reserved a spot in the upcoming affiliate program. Use
-            this list to notify them at launch.
+            Users who have reserved a spot in the upcoming affiliate program. Use this list to
+            notify them at launch.
           </p>
         </div>
         <button
@@ -123,9 +120,7 @@ function AffiliateReservationsPage() {
             <Loader2 className="w-5 h-5 animate-spin text-slate-500 inline" />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-sm text-slate-500 text-center">
-            No reservations yet.
-          </div>
+          <div className="p-8 text-sm text-slate-500 text-center">No reservations yet.</div>
         ) : (
           <div className="divide-y divide-white/5">
             {filtered.map((r) => (
@@ -136,9 +131,7 @@ function AffiliateReservationsPage() {
                 <div className="text-white truncate" title={r.email}>
                   {r.email}
                 </div>
-                <div className="text-slate-300 truncate">
-                  {r.displayName ?? "—"}
-                </div>
+                <div className="text-slate-300 truncate">{r.displayName ?? "—"}</div>
                 <div className="text-slate-400">{r.country ?? "—"}</div>
                 <div className="text-slate-400 text-xs">
                   {new Date(r.createdAt).toLocaleDateString()}

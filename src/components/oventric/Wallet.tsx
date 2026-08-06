@@ -29,7 +29,12 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { supabase } from "@/integrations/supabase/client";
-import { listWalletTransactions, getWalletBalances, getWalletEarnings, transferBountyToMain } from "@/lib/wallet.functions";
+import {
+  listWalletTransactions,
+  getWalletBalances,
+  getWalletEarnings,
+  transferBountyToMain,
+} from "@/lib/wallet.functions";
 import { initPayment } from "@/lib/payments.functions";
 import { paystackFee } from "@/lib/paystack-fees";
 import {
@@ -45,7 +50,12 @@ import {
 } from "@/lib/payouts.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { currencySymbol, formatMoney, usdRate } from "@/lib/fx-display";
-import { CURRENCY_CODES, CURRENCY_META, currencyDecimals, fallbackRateTable } from "@/lib/currency/africa";
+import {
+  CURRENCY_CODES,
+  CURRENCY_META,
+  currencyDecimals,
+  fallbackRateTable,
+} from "@/lib/currency/africa";
 import { ModalShell, StatusBadge, currencyMeta } from "@/components/oventric/wallet/shared";
 import { TransferModal } from "@/components/oventric/wallet/TransferModal";
 import { downloadWalletCsv, printWalletPdf } from "@/components/oventric/wallet/export";
@@ -90,7 +100,17 @@ function fmtTs(iso: string) {
 const FX_FROM_USD: Record<Currency, number> = fallbackRateTable();
 
 export function Wallet() {
-  const { balances, escrow, cashback, balancesHidden: hide, toggleBalancesHidden, require, setBalances, baseCurrency, country } = useOnboarding();
+  const {
+    balances,
+    escrow,
+    cashback,
+    balancesHidden: hide,
+    toggleBalancesHidden,
+    require,
+    setBalances,
+    baseCurrency,
+    country,
+  } = useOnboarding();
   const { ensureKyc, verifyLiveness } = useKycGate();
   const [addOpen, setAddOpen] = useState(false);
   const [addPrefillUsd, setAddPrefillUsd] = useState<number | null>(null);
@@ -129,14 +149,25 @@ export function Wallet() {
   // with a suggested amount already filled in.
   useEffect(() => {
     const onTopup = (e: Event) => {
-      const detail = (e as CustomEvent<{ amountUsd?: number; amountLocal?: number; currency?: string; reason?: string; returnTo?: string }>).detail;
+      const detail = (
+        e as CustomEvent<{
+          amountUsd?: number;
+          amountLocal?: number;
+          currency?: string;
+          reason?: string;
+          returnTo?: string;
+        }>
+      ).detail;
       // Prefer the new base-currency payload; fall back to the legacy amountUsd
       // for any old event dispatchers still in the wild.
       const local = Number(detail?.amountLocal ?? 0);
       const usd = Number(detail?.amountUsd ?? 0);
       if (local > 0) setAddPrefillLocal(local);
       else if (usd > 0) setAddPrefillUsd(usd);
-      const explicitReturn = typeof detail?.returnTo === "string" && detail.returnTo.startsWith("/") ? detail.returnTo : null;
+      const explicitReturn =
+        typeof detail?.returnTo === "string" && detail.returnTo.startsWith("/")
+          ? detail.returnTo
+          : null;
       const inferredReturn = detail?.reason === "bounty-escrow" ? "/?resume=bounty" : null;
       setAddReturnTo(explicitReturn ?? inferredReturn);
       setAddOpen(true);
@@ -182,7 +213,13 @@ export function Wallet() {
     queryFn: () => fetchEarnings(),
     staleTime: 15_000,
   });
-  const earnings = earningsQuery.data ?? { cashbackUSD: 0, marketplaceHome: 0, marketplaceCurrency: baseCurrency, bountyUSD: 0, affiliateUSD: 0 };
+  const earnings = earningsQuery.data ?? {
+    cashbackUSD: 0,
+    marketplaceHome: 0,
+    marketplaceCurrency: baseCurrency,
+    bountyUSD: 0,
+    affiliateUSD: 0,
+  };
 
   const fetchAffiliate = useServerFn(getMyAffiliateReservation);
   const affiliateQuery = useQuery({
@@ -199,11 +236,16 @@ export function Wallet() {
     const channel = supabase
       .channel(`wallet-tx-${userId}`)
       .on(
- "postgres_changes",
-        { event: "*", schema: "public", table: "wallet_transactions", filter: `user_id=eq.${userId}` },
+        "postgres_changes",
+        {
+          event: "*",
+          schema: "public",
+          table: "wallet_transactions",
+          filter: `user_id=eq.${userId}`,
+        },
         (payload) => {
-            queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
-            queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
+          queryClient.invalidateQueries({ queryKey: ["wallet-tx", userId] });
+          queryClient.invalidateQueries({ queryKey: ["wallet-earnings", userId] });
           if (payload.eventType === "INSERT") {
             toast("New transaction recorded", {
               description: "Your ledger has been updated with a new entry.",
@@ -216,7 +258,7 @@ export function Wallet() {
     const walletChannel = supabase
       .channel(`wallets-${userId}`)
       .on(
- "postgres_changes",
+        "postgres_changes",
         { event: "*", schema: "public", table: "wallets", filter: `user_id=eq.${userId}` },
         () => {
           queryClient.invalidateQueries({ queryKey: ["wallet-balances", userId] });
@@ -235,7 +277,12 @@ export function Wallet() {
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE));
   const pageSafe = Math.min(page, totalPages);
 
-  const tier = spend < 1000 ? { pct: 2, label: "Baseline" } : spend <= 5000 ? { pct: 3.5, label: "Elite Tier" } : { pct: 5, label: "Apex Architect" };
+  const tier =
+    spend < 1000
+      ? { pct: 2, label: "Baseline" }
+      : spend <= 5000
+        ? { pct: 3.5, label: "Elite Tier" }
+        : { pct: 5, label: "Apex Architect" };
   const annualSavings = (spend * 12 * tier.pct) / 100;
 
   const mask = "••••••";
@@ -335,23 +382,33 @@ export function Wallet() {
           return (
             <>
               {/* Big main card with USD equivalent inline (bottom-right snippet). */}
-              <div className={`relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 sm:p-7 ${m.glow}`}>
+              <div
+                className={`relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-6 sm:p-7 ${m.glow}`}
+              >
                 <div className={`absolute inset-x-0 top-0 h-[2px] ${m.dot}/50`} />
                 <div className="flex items-center justify-between mb-5">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className={`w-11 h-11 rounded-xl border ${m.ring} bg-black/40 flex items-center justify-center text-white text-base font-bold shrink-0`}>
+                    <div
+                      className={`w-11 h-11 rounded-xl border ${m.ring} bg-black/40 flex items-center justify-center text-white text-base font-bold shrink-0`}
+                    >
                       {m.symbol}
                     </div>
                     <div className="min-w-0">
-                      <div className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold">{baseCurrency} · Main Balance</div>
-                      <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">{m.label} · locked to {country ?? "profile"}</div>
+                      <div className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold">
+                        {baseCurrency} · Main Balance
+                      </div>
+                      <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">
+                        {m.label} · locked to {country ?? "profile"}
+                      </div>
                     </div>
                   </div>
                   <span className={`w-2 h-2 rounded-full ${m.dot} animate-pulse`} />
                 </div>
                 <div className="flex flex-wrap items-end justify-between gap-x-6 gap-y-3">
                   <div className="min-w-0">
-                    <div className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}>
+                    <div
+                      className={`text-4xl sm:text-5xl font-black tabular-nums ${m.text} ${hide ? "blur-sm select-none" : ""}`}
+                    >
                       {hide ? mask : fmt(bal, baseCurrency)}
                     </div>
                     <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 uppercase tracking-wider">
@@ -365,8 +422,12 @@ export function Wallet() {
                     <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 font-semibold">
                       ≈ USD Equivalent
                     </div>
-                    <div className={`text-base sm:text-lg font-bold tabular-nums text-sky-300/90 ${hide ? "blur-sm select-none" : ""}`}>
-                      {hide ? "•••" : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
+                    <div
+                      className={`text-base sm:text-lg font-bold tabular-nums text-sky-300/90 ${hide ? "blur-sm select-none" : ""}`}
+                    >
+                      {hide
+                        ? "•••"
+                        : `$${usdEq.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}
                     </div>
                     <div className="text-[9px] text-slate-600 md:text-slate-400 uppercase tracking-wider">
                       Preview · not spendable
@@ -375,7 +436,6 @@ export function Wallet() {
                 </div>
               </div>
 
-
               {/* Dropdown toggle: reveals sub-wallet tiles with animation */}
               <button
                 onClick={() => setMoreOpen((v) => !v)}
@@ -383,7 +443,9 @@ export function Wallet() {
                 className="w-full inline-flex items-center justify-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm px-4 py-2.5 text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 hover:border-emerald-500/50 hover:text-emerald-300 transition-all"
               >
                 <span>{moreOpen ? "Hide" : "Show"} sub-wallets</span>
-                <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`} />
+                <ChevronDown
+                  className={`w-4 h-4 transition-transform duration-300 ${moreOpen ? "rotate-180" : ""}`}
+                />
               </button>
 
               <div
@@ -401,15 +463,23 @@ export function Wallet() {
                           className={`relative overflow-hidden rounded-xl border ${t.ring} bg-[#141418] md:bg-white md:shadow-sm p-4 text-left ${clickable ? "hover:border-amber-400/60 transition-colors" : ""}`}
                         >
                           <div className="flex items-center gap-2 mb-2.5">
-                            <div className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}>
+                            <div
+                              className={`w-7 h-7 rounded-md ${t.accent} ${t.text} flex items-center justify-center shrink-0`}
+                            >
                               {t.icon}
                             </div>
-                            <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold truncate">{t.label}</div>
+                            <div className="text-[10px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold truncate">
+                              {t.label}
+                            </div>
                           </div>
-                          <div className={`text-lg sm:text-xl font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}>
+                          <div
+                            className={`text-lg sm:text-xl font-black tabular-nums ${t.text} ${hide ? "blur-sm select-none" : ""}`}
+                          >
                             {hide ? "•••" : fmt(t.value, t.currency)}
                           </div>
-                          <div className="mt-1 text-[10px] text-slate-500 md:text-slate-500 truncate">{t.sub}</div>
+                          <div className="mt-1 text-[10px] text-slate-500 md:text-slate-500 truncate">
+                            {t.sub}
+                          </div>
                         </TileEl>
                       );
                     })}
@@ -420,7 +490,6 @@ export function Wallet() {
           );
         })()}
       </section>
-
 
       {/* 3. Transaction Ledger (collapsible) */}
       <section className="rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm overflow-hidden">
@@ -438,7 +507,9 @@ export function Wallet() {
             <span className="text-[11px] text-slate-500 md:text-slate-500 normal-case tracking-normal">
               ({total})
             </span>
-            <ChevronDown className={`w-4 h-4 text-slate-400 md:text-slate-500 transition-transform ${ledgerOpen ? "rotate-180" : ""}`} />
+            <ChevronDown
+              className={`w-4 h-4 text-slate-400 md:text-slate-500 transition-transform ${ledgerOpen ? "rotate-180" : ""}`}
+            />
           </button>
           {ledgerOpen && (
             <div className="flex items-center gap-2 flex-wrap">
@@ -458,7 +529,9 @@ export function Wallet() {
               >
                 <option value="ALL">All currencies</option>
                 {CURRENCY_CODES.map((c) => (
-                  <option key={c} value={c}>{c}</option>
+                  <option key={c} value={c}>
+                    {c}
+                  </option>
                 ))}
               </select>
               <button
@@ -508,29 +581,50 @@ export function Wallet() {
                 </thead>
                 <tbody>
                   {items.map((t) => (
-                    <tr key={t.id} className="border-t border-[#1c1c20] md:border-slate-200 hover:bg-white/[0.02]">
-                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 md:text-slate-500 whitespace-nowrap">{t.txHash}</td>
-                      <td className="px-4 py-3 text-slate-200 md:text-slate-700 whitespace-nowrap">{t.type}</td>
-                      <td className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300 md:text-slate-600"}`}>
-                        {t.inflow ? "+" : "-"}{fmt(t.amount, t.currency)}
+                    <tr
+                      key={t.id}
+                      className="border-t border-[#1c1c20] md:border-slate-200 hover:bg-white/[0.02]"
+                    >
+                      <td className="px-4 py-3 font-mono text-[11px] text-slate-400 md:text-slate-500 whitespace-nowrap">
+                        {t.txHash}
                       </td>
-                      <td className="px-4 py-3 text-xs text-slate-500 md:text-slate-500 whitespace-nowrap">{fmtTs(t.occurredAt)}</td>
-                      <td className="px-4 py-3"><StatusBadge status={t.status} /></td>
+                      <td className="px-4 py-3 text-slate-200 md:text-slate-700 whitespace-nowrap">
+                        {t.type}
+                      </td>
+                      <td
+                        className={`px-4 py-3 text-right tabular-nums font-semibold whitespace-nowrap ${t.inflow ? "text-emerald-400" : "text-slate-300 md:text-slate-600"}`}
+                      >
+                        {t.inflow ? "+" : "-"}
+                        {fmt(t.amount, t.currency)}
+                      </td>
+                      <td className="px-4 py-3 text-xs text-slate-500 md:text-slate-500 whitespace-nowrap">
+                        {fmtTs(t.occurredAt)}
+                      </td>
+                      <td className="px-4 py-3">
+                        <StatusBadge status={t.status} />
+                      </td>
                     </tr>
                   ))}
                   {items.length === 0 && (
                     <tr>
-                      <td colSpan={5} className="px-4 py-10 text-center text-sm text-slate-500 md:text-slate-500">
+                      <td
+                        colSpan={5}
+                        className="px-4 py-10 text-center text-sm text-slate-500 md:text-slate-500"
+                      >
                         {!authReady ? (
-                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Loading session…</span>
+                          <span className="inline-flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" /> Loading session…
+                          </span>
                         ) : !userId ? (
- "Sign in to view your transaction ledger."
+                          "Sign in to view your transaction ledger."
                         ) : query.isLoading ? (
-                          <span className="inline-flex items-center gap-2"><Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…</span>
+                          <span className="inline-flex items-center gap-2">
+                            <Loader2 className="w-4 h-4 animate-spin" /> Fetching ledger…
+                          </span>
                         ) : query.isError ? (
                           `Failed to load: ${(query.error as Error)?.message ?? "unknown error"}`
                         ) : (
- "No transactions match your filters."
+                          "No transactions match your filters."
                         )}
                       </td>
                     </tr>
@@ -541,7 +635,9 @@ export function Wallet() {
 
             <div className="flex items-center justify-between p-3 border-t border-[#222226] md:border-slate-200 text-xs text-slate-400 md:text-slate-500">
               <div>
-                Page <span className="text-slate-200 md:text-slate-700 font-semibold">{pageSafe}</span> of {totalPages} · {total} entries
+                Page{" "}
+                <span className="text-slate-200 md:text-slate-700 font-semibold">{pageSafe}</span>{" "}
+                of {totalPages} · {total} entries
               </div>
               <div className="flex items-center gap-2">
                 <button
@@ -564,7 +660,6 @@ export function Wallet() {
         )}
       </section>
 
-
       {/* Affiliate — single card (coming soon / reserve) */}
       <section className="relative overflow-hidden rounded-2xl border border-fuchsia-500/30 bg-[#141418] md:bg-white md:shadow-sm p-5">
         <div className="absolute inset-x-0 top-0 h-[2px] bg-fuchsia-500/60" />
@@ -575,10 +670,16 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="flex items-center gap-2">
-                <div className="font-bold text-white md:text-slate-900 truncate">Affiliate Program</div>
-                <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">Coming soon</span>
+                <div className="font-bold text-white md:text-slate-900 truncate">
+                  Affiliate Program
+                </div>
+                <span className="text-[9px] uppercase tracking-wider px-1.5 py-0.5 rounded bg-fuchsia-500/20 text-fuchsia-300 border border-fuchsia-500/30">
+                  Coming soon
+                </span>
               </div>
-              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5 truncate">Refer & earn — reserve your spot on the launch list.</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5 truncate">
+                Refer & earn — reserve your spot on the launch list.
+              </div>
             </div>
           </div>
           <Link
@@ -607,12 +708,20 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white md:text-slate-900">↗ Send to User</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">Transfer instantly by username</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">
+                Transfer instantly by username
+              </div>
             </div>
           </div>
         </button>
         <button
-          onClick={() => require(2, () => ensureKyc(() => { setAddReturnTo("/?section=Wallet"); setAddOpen(true); }), "funding")}
+          onClick={() =>
+            require(2, () =>
+              ensureKyc(() => {
+                setAddReturnTo("/?section=Wallet");
+                setAddOpen(true);
+              }), "funding")
+          }
           className="group relative overflow-hidden rounded-2xl border border-[#222226] md:border-slate-200 bg-[#141418] md:bg-white md:shadow-sm p-5 text-left hover:border-emerald-500/50 transition-all"
         >
           <div className="flex items-center gap-3">
@@ -621,7 +730,9 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white md:text-slate-900">➕ Fund Wallet</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">For bounties & ad campaigns</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">
+                For bounties & ad campaigns
+              </div>
             </div>
           </div>
         </button>
@@ -635,7 +746,9 @@ export function Wallet() {
             </div>
             <div className="min-w-0">
               <div className="font-bold text-white md:text-slate-900">📤 Request Payout</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">Direct to your bank · fee auto-deducted</div>
+              <div className="text-xs text-slate-400 md:text-slate-500 mt-0.5">
+                Direct to your bank · fee auto-deducted
+              </div>
             </div>
           </div>
         </button>
@@ -651,12 +764,11 @@ export function Wallet() {
         </div>
 
         <p className="text-xs text-slate-400 md:text-slate-500 leading-relaxed">
-          A planning tool. Drag the slider to the amount you expect to spend
-          or earn through Oventric each month — marketplace purchases, gig
-          bounties funded, ad injections, course sales. The estimator shows
-          which cashback tier that volume unlocks (2%, 3.5%, or 5%) and how
-          much you'd earn back over a year at that rate. Use it to decide
-          how much activity to route through your wallet.
+          A planning tool. Drag the slider to the amount you expect to spend or earn through
+          Oventric each month — marketplace purchases, gig bounties funded, ad injections, course
+          sales. The estimator shows which cashback tier that volume unlocks (2%, 3.5%, or 5%) and
+          how much you'd earn back over a year at that rate. Use it to decide how much activity to
+          route through your wallet.
         </p>
 
         {(() => {
@@ -671,7 +783,8 @@ export function Wallet() {
               <div className="flex items-center justify-between text-xs text-slate-400 md:text-slate-500">
                 <span>Projected Monthly Spend / Gig Volume</span>
                 <span className="tabular-nums text-slate-200 md:text-slate-700 font-semibold">
-                  {fmt(spendLocal, baseCurrency)}{spend >= 10000 ? "+" : ""}
+                  {fmt(spendLocal, baseCurrency)}
+                  {spend >= 10000 ? "+" : ""}
                 </span>
               </div>
               <input
@@ -684,9 +797,21 @@ export function Wallet() {
                 className="w-full accent-emerald-500"
               />
               <div className="grid grid-cols-3 gap-2 text-[11px]">
-                <TierPill active={tier.label === "Baseline"} label="Baseline" desc={`< ${fmt(t1Local, baseCurrency)} · 2%`} />
-                <TierPill active={tier.label === "Elite Tier"} label="Elite Tier" desc={`${fmt(t1Local, baseCurrency)}–${fmt(t2Local, baseCurrency)} · 3.5%`} />
-                <TierPill active={tier.label === "Apex Architect"} label="Apex" desc={`> ${fmt(t2Local, baseCurrency)} · 5%`} />
+                <TierPill
+                  active={tier.label === "Baseline"}
+                  label="Baseline"
+                  desc={`< ${fmt(t1Local, baseCurrency)} · 2%`}
+                />
+                <TierPill
+                  active={tier.label === "Elite Tier"}
+                  label="Elite Tier"
+                  desc={`${fmt(t1Local, baseCurrency)}–${fmt(t2Local, baseCurrency)} · 3.5%`}
+                />
+                <TierPill
+                  active={tier.label === "Apex Architect"}
+                  label="Apex"
+                  desc={`> ${fmt(t2Local, baseCurrency)} · 5%`}
+                />
               </div>
 
               <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-5 text-center">
@@ -697,14 +822,14 @@ export function Wallet() {
                   {fmt(annualLocal, baseCurrency)}
                 </div>
                 <div className="mt-1 text-xs text-slate-400 md:text-slate-500">
-                  at <span className="text-emerald-300 font-semibold">{tier.pct}%</span> {tier.label} multiplier
+                  at <span className="text-emerald-300 font-semibold">{tier.pct}%</span>{" "}
+                  {tier.label} multiplier
                 </div>
               </div>
             </div>
           );
         })()}
       </section>
-
 
       {/* Modals */}
       {addOpen && (
@@ -763,8 +888,17 @@ function TierPill({ active, label, desc }: { active: boolean; label: string; des
   );
 }
 
-
-export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLocalProp, returnTo }: { onClose: () => void; prefillUsd?: number | null; prefillLocal?: number | null; returnTo?: string | null }) {
+export function AddCapitalModal({
+  onClose,
+  prefillUsd,
+  prefillLocal: prefillLocalProp,
+  returnTo,
+}: {
+  onClose: () => void;
+  prefillUsd?: number | null;
+  prefillLocal?: number | null;
+  returnTo?: string | null;
+}) {
   const { baseCurrency } = useOnboarding();
   const [pick, setPick] = useState<"card" | "bank" | "momo">("card");
 
@@ -783,7 +917,9 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
   // to a USD-derived value for legacy callers that still pass prefillUsd.
   const prefillLocal =
     prefillLocalProp && prefillLocalProp > 0
-      ? (currencyDecimals(baseCurrency) === 2 ? prefillLocalProp.toFixed(2) : String(Math.round(prefillLocalProp)))
+      ? currencyDecimals(baseCurrency) === 2
+        ? prefillLocalProp.toFixed(2)
+        : String(Math.round(prefillLocalProp))
       : prefillUsd && prefillUsd > 0
         ? currencyDecimals(baseCurrency) === 2
           ? (prefillUsd * FX_FROM_USD_LOCAL(baseCurrency)).toFixed(2)
@@ -794,11 +930,34 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
   const [busy, setBusy] = useState(false);
   const initCharge = useServerFn(initPayment);
   const options = [
-    { id: "card" as const, icon: CreditCard, title: "Card Processing Node", sub: "Visa / Mastercard / Verve · secured by Paystack", disabled: false },
-    { id: "bank" as const, icon: Building2, title: "Direct Bank Transfer", sub: "NIP · dynamic virtual account · secured by Paystack", disabled: false },
-    { id: "momo" as const, icon: Smartphone, title: "Mobile Money", sub: momoAvailable ? "MTN · Vodafone · AirtelTigo (Ghana)" : "Available for Ghana (GHS) accounts only", disabled: !momoAvailable },
+    {
+      id: "card" as const,
+      icon: CreditCard,
+      title: "Card Processing Node",
+      sub: "Visa / Mastercard / Verve · secured by Paystack",
+      disabled: false,
+    },
+    {
+      id: "bank" as const,
+      icon: Building2,
+      title: "Direct Bank Transfer",
+      sub: "NIP · dynamic virtual account · secured by Paystack",
+      disabled: false,
+    },
+    {
+      id: "momo" as const,
+      icon: Smartphone,
+      title: "Mobile Money",
+      sub: momoAvailable
+        ? "MTN · Vodafone · AirtelTigo (Ghana)"
+        : "Available for Ghana (GHS) accounts only",
+      disabled: !momoAvailable,
+    },
   ];
-  const hasPrefill = !!((prefillLocalProp && prefillLocalProp > 0) || (prefillUsd && prefillUsd > 0));
+  const hasPrefill = !!(
+    (prefillLocalProp && prefillLocalProp > 0) ||
+    (prefillUsd && prefillUsd > 0)
+  );
   const numericAmount = Number(amount);
   const feeCurrency = baseCurrency;
   const { fee: paystackFeeAmount, charge: paystackCharge } =
@@ -829,7 +988,9 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
       });
       window.location.href = init.authorizationUrl;
     } catch (e) {
-      toast.error("Could not start payment", { description: e instanceof Error ? e.message : "Try again." });
+      toast.error("Could not start payment", {
+        description: e instanceof Error ? e.message : "Try again.",
+      });
       setBusy(false);
     }
   };
@@ -842,12 +1003,15 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
           </div>
           <div className="mt-1 text-xs text-slate-300 md:text-slate-600 leading-relaxed">
             Your saved bounty draft needs{" "}
-            <span className="text-emerald-300 font-bold">{symbol}{prefillLocal || "0"}</span>{" "}
-            to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger buffer.
+            <span className="text-emerald-300 font-bold">
+              {symbol}
+              {prefillLocal || "0"}
+            </span>{" "}
+            to publish. We&apos;ve prefilled the amount below — adjust it if you want a bigger
+            buffer.
           </div>
         </div>
       )}
-
 
       <div>
         <label className="text-[11px] uppercase tracking-wider text-slate-400 md:text-slate-500 font-semibold">
@@ -868,13 +1032,15 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
         </div>
         {numericAmount > 0 && (
           <div className="mt-1 text-[11px] text-slate-500 md:text-slate-500 leading-relaxed">
-            You&apos;ll be charged via Paystack — your top-up amount plus a Paystack transaction fee.
-            Your wallet is credited with the full top-up amount.
+            You&apos;ll be charged via Paystack — your top-up amount plus a Paystack transaction
+            fee. Your wallet is credited with the full top-up amount.
           </div>
         )}
       </div>
 
-      <p className="text-xs text-slate-400 md:text-slate-500">Select a payment channel — Paystack will handle the secure checkout.</p>
+      <p className="text-xs text-slate-400 md:text-slate-500">
+        Select a payment channel — Paystack will handle the secure checkout.
+      </p>
       <div className="space-y-2">
         {options.map((o) => {
           const Icon = o.icon;
@@ -882,7 +1048,9 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
           return (
             <button
               key={o.id}
-              onClick={() => { if (!o.disabled) setPick(o.id); }}
+              onClick={() => {
+                if (!o.disabled) setPick(o.id);
+              }}
               disabled={o.disabled}
               className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left transition-all ${
                 o.disabled
@@ -892,15 +1060,23 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
                     : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white hover:border-white/20"
               }`}
             >
-              <div className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}>
-                <Icon className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500"}`} />
+              <div
+                className={`w-10 h-10 rounded-lg border flex items-center justify-center shrink-0 ${active ? "border-emerald-500/40 bg-emerald-500/10" : "border-[#222226] md:border-slate-200 bg-black/40"}`}
+              >
+                <Icon
+                  className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400 md:text-slate-500"}`}
+                />
               </div>
               <div className="min-w-0">
-                <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{o.title}</div>
+                <div className="font-semibold text-white md:text-slate-900 text-sm truncate">
+                  {o.title}
+                </div>
                 <div className="text-xs text-slate-400 md:text-slate-500 truncate">{o.sub}</div>
               </div>
               {o.disabled ? (
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500 shrink-0">N/A</span>
+                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500 shrink-0">
+                  N/A
+                </span>
               ) : active ? (
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" aria-label="Selected" />
               ) : (
@@ -914,7 +1090,7 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
         onClick={fund}
         disabled={!numericAmount || numericAmount <= 0 || busy}
         style={{
-          background: (!numericAmount || busy) ? undefined : "#3b82f6",
+          background: !numericAmount || busy ? undefined : "#3b82f6",
           color: "#ffffff",
           borderColor: "rgba(255,255,255,0.35)",
           boxShadow: "0 6px 20px rgba(0,0,0,0.45), 0 0 0 1px rgba(255,255,255,0.08) inset",
@@ -922,9 +1098,15 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
         className="w-full mt-3 rounded-xl bg-emerald-500 hover:brightness-110 disabled:bg-white/10 disabled:text-slate-400 md:text-slate-500 disabled:cursor-not-allowed text-white font-extrabold py-3.5 text-base border-2 inline-flex items-center justify-center gap-2 transition-all"
       >
         {busy ? (
-          <><Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…</>
+          <>
+            <Loader2 className="w-5 h-5 animate-spin" /> Redirecting to Paystack…
+          </>
         ) : (
-          <>Continue with {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}{numericAmount > 0 ? ` · ${symbol}${formattedCharge}` : ""}</>
+          <>
+            Continue with{" "}
+            {pick === "card" ? "Card" : pick === "bank" ? "Bank Transfer" : "Mobile Money"}
+            {numericAmount > 0 ? ` · ${symbol}${formattedCharge}` : ""}
+          </>
         )}
       </button>
 
@@ -934,8 +1116,6 @@ export function AddCapitalModal({ onClose, prefillUsd, prefillLocal: prefillLoca
     </ModalShell>
   );
 }
-
-
 
 type Rail = {
   c: Currency;
@@ -947,35 +1127,35 @@ type Rail = {
 };
 
 const NG_BANKS = [
- "Access Bank",
- "Fidelity Bank",
- "First Bank",
- "First City Monument Bank (FCMB)",
- "GTBank",
- "Kuda Bank",
- "OPay",
- "Palmpay",
- "Polaris Bank",
- "Providus Bank",
- "Stanbic IBTC",
- "Sterling Bank",
- "UBA",
- "Union Bank",
- "Unity Bank",
- "Wema Bank",
- "Zenith Bank",
+  "Access Bank",
+  "Fidelity Bank",
+  "First Bank",
+  "First City Monument Bank (FCMB)",
+  "GTBank",
+  "Kuda Bank",
+  "OPay",
+  "Palmpay",
+  "Polaris Bank",
+  "Providus Bank",
+  "Stanbic IBTC",
+  "Sterling Bank",
+  "UBA",
+  "Union Bank",
+  "Unity Bank",
+  "Wema Bank",
+  "Zenith Bank",
 ];
 const GH_BANKS = [
- "Absa Bank Ghana",
- "Access Bank Ghana",
- "CalBank",
- "Ecobank Ghana",
- "Fidelity Bank Ghana",
- "GCB Bank",
- "GT Bank Ghana",
- "Stanbic Bank Ghana",
- "Standard Chartered Ghana",
- "Zenith Bank Ghana",
+  "Absa Bank Ghana",
+  "Access Bank Ghana",
+  "CalBank",
+  "Ecobank Ghana",
+  "Fidelity Bank Ghana",
+  "GCB Bank",
+  "GT Bank Ghana",
+  "Stanbic Bank Ghana",
+  "Standard Chartered Ghana",
+  "Zenith Bank Ghana",
 ];
 
 function PayoutSuccessSplash({
@@ -993,7 +1173,9 @@ function PayoutSuccessSplash({
   const digits = currency === "NGN" ? 0 : 2;
   useEffect(() => {
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = ""; };
+    return () => {
+      document.body.style.overflow = "";
+    };
   }, []);
   return (
     <div className="modal-light fixed inset-0 z-[10000] overflow-hidden">
@@ -1002,7 +1184,7 @@ function PayoutSuccessSplash({
         className="absolute inset-0 pointer-events-none opacity-70"
         style={{
           background:
- "radial-gradient(circle at 50% 30%, rgba(59, 130, 246,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
+            "radial-gradient(circle at 50% 30%, rgba(59, 130, 246,0.35) 0%, transparent 60%), radial-gradient(circle at 20% 70%, rgba(56,189,248,0.25) 0%, transparent 55%), radial-gradient(circle at 80% 75%, rgba(168,85,247,0.25) 0%, transparent 55%)",
         }}
       />
       <div className="relative h-full w-full flex items-center justify-center p-4">
@@ -1010,17 +1192,26 @@ function PayoutSuccessSplash({
           <div className="mx-auto w-20 h-20 rounded-full bg-gradient-to-br from-emerald-400 to-emerald-600 flex items-center justify-center mb-4">
             <CheckCircle2 className="w-10 h-10 text-black" strokeWidth={3} />
           </div>
-          <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">Withdrawal Requested</div>
-          <div className="text-3xl font-black text-white md:text-slate-900 tabular-nums mb-1">
-            {sym}{amount.toLocaleString(undefined, { minimumFractionDigits: digits, maximumFractionDigits: digits })}
+          <div className="text-[10px] uppercase tracking-[0.2em] text-emerald-300/80 font-bold mb-1">
+            Withdrawal Requested
           </div>
-          <div className="text-xs text-slate-400 md:text-slate-500 mb-4 truncate">to {destinationLabel}</div>
+          <div className="text-3xl font-black text-white md:text-slate-900 tabular-nums mb-1">
+            {sym}
+            {amount.toLocaleString(undefined, {
+              minimumFractionDigits: digits,
+              maximumFractionDigits: digits,
+            })}
+          </div>
+          <div className="text-xs text-slate-400 md:text-slate-500 mb-4 truncate">
+            to {destinationLabel}
+          </div>
           <div className="rounded-xl border border-emerald-500/25 bg-emerald-500/5 p-3 text-left text-xs text-emerald-100/90 mb-4">
             <div className="font-bold text-emerald-200 mb-1 flex items-center gap-1.5">
               <Sparkles className="w-3.5 h-3.5" /> You're all set
             </div>
             <p className="text-[11px] leading-relaxed text-emerald-100/80">
-              Our admin team will review and process your payout shortly. You'll receive your money soon — this can take a few hours. We'll notify you the moment it's approved.
+              Our admin team will review and process your payout shortly. You'll receive your money
+              soon — this can take a few hours. We'll notify you the moment it's approved.
             </p>
           </div>
           <button
@@ -1041,9 +1232,17 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
 
   const [step, setStep] = useState<"pick" | "destination" | "amount" | "wire">("pick");
   const [chosenRecipientId, setChosenRecipientId] = useState<string | null>(null);
-  const [splash, setSplash] = useState<{ amount: number; currency: "NGN" | "GHS" | "USD"; destinationLabel: string } | null>(null);
+  const [splash, setSplash] = useState<{
+    amount: number;
+    currency: "NGN" | "GHS" | "USD";
+    destinationLabel: string;
+  } | null>(null);
 
-  const finalizeWithSplash = (payload: { amount: number; currency: "NGN" | "GHS" | "USD"; destinationLabel: string }) => {
+  const finalizeWithSplash = (payload: {
+    amount: number;
+    currency: "NGN" | "GHS" | "USD";
+    destinationLabel: string;
+  }) => {
     void qc.invalidateQueries({ queryKey: ["wallet-balances"] });
     void qc.invalidateQueries({ queryKey: ["wallet-tx"] });
     void qc.invalidateQueries({ queryKey: ["wallet-earnings"] });
@@ -1070,12 +1269,40 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
 
   const railFor = (c: Currency): Rail =>
     c === "NGN"
-      ? { c: "NGN", method: "bank", label: "NGN Instant Bank Transfer", eta: "< 5 mins", tone: "emerald", hint: "Direct to your Nigerian bank · Paystack" }
+      ? {
+          c: "NGN",
+          method: "bank",
+          label: "NGN Instant Bank Transfer",
+          eta: "< 5 mins",
+          tone: "emerald",
+          hint: "Direct to your Nigerian bank · Paystack",
+        }
       : c === "GHS"
-        ? { c: "GHS", method: "momo", label: "GHS Bank / Mobile Money", eta: "< 15 mins", tone: "amber", hint: "MTN · Vodafone · AirtelTigo · GH bank" }
+        ? {
+            c: "GHS",
+            method: "momo",
+            label: "GHS Bank / Mobile Money",
+            eta: "< 15 mins",
+            tone: "amber",
+            hint: "MTN · Vodafone · AirtelTigo · GH bank",
+          }
         : c === "USD"
-          ? { c: "USD", method: "wire", label: "USD International Wire", eta: "24–48 hours", tone: "sky", hint: "SWIFT · manual review" }
-          : { c, method: "wire", label: `${c} Bank Transfer`, eta: "24–48 hours", tone: "sky", hint: `Local ${CURRENCY_META[c]?.name ?? c} bank payout · manual review` };
+          ? {
+              c: "USD",
+              method: "wire",
+              label: "USD International Wire",
+              eta: "24–48 hours",
+              tone: "sky",
+              hint: "SWIFT · manual review",
+            }
+          : {
+              c,
+              method: "wire",
+              label: `${c} Bank Transfer`,
+              eta: "24–48 hours",
+              tone: "sky",
+              hint: `Local ${CURRENCY_META[c]?.name ?? c} bank payout · manual review`,
+            };
 
   const rail = railFor(baseCurrency);
   const baseBal = balances[baseCurrency] ?? 0;
@@ -1087,14 +1314,17 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
         <div className="flex items-start gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3">
           <ShieldCheck className="w-4 h-4 text-emerald-300 shrink-0 mt-0.5" />
           <p className="text-xs text-emerald-200/90">
-            Identity verified. Withdrawals are locked to your home currency ({baseCurrency}). Other currencies are shown for reference only.
+            Identity verified. Withdrawals are locked to your home currency ({baseCurrency}). Other
+            currencies are shown for reference only.
           </p>
         </div>
         <div className="space-y-2">
           {/* Active rail — user's base currency */}
           <div
             className={`w-full grid grid-cols-[auto_minmax(0,1fr)_auto] items-center gap-3 rounded-xl border p-3 text-left ${
-              baseBal > 0 ? "border-sky-500/60 bg-sky-500/5" : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white opacity-70"
+              baseBal > 0
+                ? "border-sky-500/60 bg-sky-500/5"
+                : "border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white opacity-70"
             }`}
           >
             <div
@@ -1109,14 +1339,23 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
               <Zap className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <div className="font-semibold text-white md:text-slate-900 text-sm truncate">{rail.label}</div>
-              <div className="text-xs text-slate-400 md:text-slate-500 truncate">{rail.hint} · {rail.eta}</div>
+              <div className="font-semibold text-white md:text-slate-900 text-sm truncate">
+                {rail.label}
+              </div>
+              <div className="text-xs text-slate-400 md:text-slate-500 truncate">
+                {rail.hint} · {rail.eta}
+              </div>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">Available</div>
+              <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
+                Available
+              </div>
               <div className="text-xs font-bold text-slate-200 md:text-slate-700 tabular-nums">
                 {currencyMeta[rail.c].symbol}
-                {baseBal.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(rail.c), maximumFractionDigits: 2 })}
+                {baseBal.toLocaleString("en-US", {
+                  minimumFractionDigits: currencyDecimals(rail.c),
+                  maximumFractionDigits: 2,
+                })}
               </div>
             </div>
           </div>
@@ -1136,14 +1375,23 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
                   <Zap className="w-4 h-4" />
                 </div>
                 <div className="min-w-0">
-                  <div className="font-semibold text-slate-300 md:text-slate-600 text-sm truncate">{r.label}</div>
-                  <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">Reference equivalent · not withdrawable</div>
+                  <div className="font-semibold text-slate-300 md:text-slate-600 text-sm truncate">
+                    {r.label}
+                  </div>
+                  <div className="text-[11px] text-slate-500 md:text-slate-500 truncate">
+                    Reference equivalent · not withdrawable
+                  </div>
                 </div>
                 <div className="shrink-0 text-right">
-                  <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">≈</div>
+                  <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
+                    ≈
+                  </div>
                   <div className="text-xs font-bold text-slate-400 md:text-slate-500 tabular-nums">
                     {currencyMeta[c].symbol}
-                    {equiv.toLocaleString("en-US", { minimumFractionDigits: currencyDecimals(c), maximumFractionDigits: 2 })}
+                    {equiv.toLocaleString("en-US", {
+                      minimumFractionDigits: currencyDecimals(c),
+                      maximumFractionDigits: 2,
+                    })}
                   </div>
                 </div>
               </div>
@@ -1167,7 +1415,9 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
         onClose={onClose}
         onBack={() => setStep("pick")}
         max={balances.USD ?? 0}
-        onSubmitted={(amt, label) => finalizeWithSplash({ amount: amt, currency: "USD", destinationLabel: label })}
+        onSubmitted={(amt, label) =>
+          finalizeWithSplash({ amount: amt, currency: "USD", destinationLabel: label })
+        }
       />
     );
   }
@@ -1206,11 +1456,16 @@ export function PayoutModal({ onClose }: { onClose: () => void }) {
       recipientId={chosenRecipientId}
       max={balances[baseCurrency] ?? 0}
       onBack={() => setStep("destination")}
-      onSubmitted={(amt, label) => finalizeWithSplash({ amount: amt, currency: baseCurrency as "NGN" | "GHS", destinationLabel: label })}
+      onSubmitted={(amt, label) =>
+        finalizeWithSplash({
+          amount: amt,
+          currency: baseCurrency as "NGN" | "GHS",
+          destinationLabel: label,
+        })
+      }
     />
   );
 }
-
 
 function feeFor(currency: "NGN" | "GHS", method: "bank" | "momo", amount: number): number {
   if (currency === "NGN") {
@@ -1274,11 +1529,19 @@ function DestinationPicker({
 
   return (
     <ModalShell title={`${currency} payout destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider"
+      >
         ← Change currency
       </button>
       <div className="space-y-2">
-        {items === null && <div className="text-xs text-slate-500 md:text-slate-500">Loading saved destinations…</div>}
+        {items === null && (
+          <div className="text-xs text-slate-500 md:text-slate-500">
+            Loading saved destinations…
+          </div>
+        )}
         {items !== null && items.length === 0 && (
           <div className="text-xs text-slate-500 md:text-slate-500">
             No saved {currency} destinations yet — add one to continue.
@@ -1289,11 +1552,7 @@ function DestinationPicker({
             key={r.id}
             className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-2 rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3"
           >
-            <button
-              type="button"
-              onClick={() => onPick(r.id)}
-              className="text-left min-w-0"
-            >
+            <button type="button" onClick={() => onPick(r.id)} className="text-left min-w-0">
               <div className="text-sm font-semibold text-white md:text-slate-900 truncate">
                 {r.account_name}
               </div>
@@ -1376,7 +1635,8 @@ function AddRecipientForm({
         if (!cancelled) setAcctName((r as { account_name: string }).account_name);
       })
       .catch((e) => {
-        if (!cancelled) toast.error("Couldn't verify account", { description: (e as Error).message });
+        if (!cancelled)
+          toast.error("Couldn't verify account", { description: (e as Error).message });
       })
       .finally(() => !cancelled && setResolving(false));
     return () => {
@@ -1386,7 +1646,8 @@ function AddRecipientForm({
 
   const canSave = () => {
     if (!acctName.trim()) return false;
-    if (method === "bank") return !!bankCode && (currency === "NGN" ? /^\d{10}$/.test(acctNum) : acctNum.length >= 6);
+    if (method === "bank")
+      return !!bankCode && (currency === "NGN" ? /^\d{10}$/.test(acctNum) : acctNum.length >= 6);
     return phone.length >= 9;
   };
 
@@ -1417,7 +1678,11 @@ function AddRecipientForm({
 
   return (
     <ModalShell title={`Add ${currency} destination`} onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider"
+      >
         ← Back
       </button>
 
@@ -1449,10 +1714,16 @@ function AddRecipientForm({
               className="w-full rounded-lg border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white px-3 py-2 text-sm text-white md:text-slate-900 focus:outline-none focus:border-emerald-500/50"
             >
               <option value="">{banks.length ? "Select bank…" : "Loading banks…"}</option>
-              {banks.map((b) => <option key={b.code} value={b.code}>{b.name}</option>)}
+              {banks.map((b) => (
+                <option key={b.code} value={b.code}>
+                  {b.name}
+                </option>
+              ))}
             </select>
           </Field>
-          <Field label={currency === "NGN" ? "Account number (10 digits, NUBAN)" : "Account number"}>
+          <Field
+            label={currency === "NGN" ? "Account number (10 digits, NUBAN)" : "Account number"}
+          >
             <TxtInput
               value={acctNum}
               onChange={(v) => setAcctNum(v.replace(/\D/g, ""))}
@@ -1460,11 +1731,21 @@ function AddRecipientForm({
               maxLength={currency === "NGN" ? 10 : 20}
             />
           </Field>
-          <Field label={resolving ? "Verifying account name…" : currency === "NGN" ? "Account name (auto-verified)" : "Account name"}>
+          <Field
+            label={
+              resolving
+                ? "Verifying account name…"
+                : currency === "NGN"
+                  ? "Account name (auto-verified)"
+                  : "Account name"
+            }
+          >
             <TxtInput
               value={acctName}
               onChange={setAcctName}
-              placeholder={currency === "NGN" ? "Will fill after verification" : "Full account holder name"}
+              placeholder={
+                currency === "NGN" ? "Will fill after verification" : "Full account holder name"
+              }
             />
           </Field>
         </>
@@ -1482,10 +1763,18 @@ function AddRecipientForm({
             </select>
           </Field>
           <Field label="Mobile number">
-            <TxtInput value={phone} onChange={(v) => setPhone(v.replace(/\D/g, ""))} placeholder="233 20 000 0000" />
+            <TxtInput
+              value={phone}
+              onChange={(v) => setPhone(v.replace(/\D/g, ""))}
+              placeholder="233 20 000 0000"
+            />
           </Field>
           <Field label="Registered wallet name">
-            <TxtInput value={acctName} onChange={setAcctName} placeholder="Full name on the mobile wallet" />
+            <TxtInput
+              value={acctName}
+              onChange={setAcctName}
+              placeholder="Full name on the mobile wallet"
+            />
           </Field>
         </>
       )}
@@ -1578,7 +1867,8 @@ function AmountStep({
             }
           : {
               account_name: rec.account_name,
-              network: (rec.momo_network as "MTN" | "Vodafone" | "AirtelTigo" | undefined) ?? undefined,
+              network:
+                (rec.momo_network as "MTN" | "Vodafone" | "AirtelTigo" | undefined) ?? undefined,
               phone: rec.phone ?? undefined,
             };
 
@@ -1589,7 +1879,6 @@ function AmountStep({
           amount: amt,
           destination,
         },
-
       });
       const label =
         rec.method === "bank"
@@ -1609,19 +1898,28 @@ function AmountStep({
     }
   };
 
-
   return (
     <ModalShell title="Confirm payout" onClose={onBack}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider"
+      >
         ← Change destination
       </button>
 
       {rec && (
         <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
-          <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Sending to</div>
-          <div className="text-sm font-semibold text-white md:text-slate-900 truncate">{rec.account_name}</div>
+          <div className="text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">
+            Sending to
+          </div>
+          <div className="text-sm font-semibold text-white md:text-slate-900 truncate">
+            {rec.account_name}
+          </div>
           <div className="text-[11px] text-slate-400 md:text-slate-500 truncate">
-            {rec.method === "bank" ? `${rec.bank_name} · ${rec.account_number}` : `${rec.momo_network} · ${rec.phone}`}
+            {rec.method === "bank"
+              ? `${rec.bank_name} · ${rec.account_number}`
+              : `${rec.momo_network} · ${rec.phone}`}
           </div>
         </div>
       )}
@@ -1634,7 +1932,8 @@ function AmountStep({
             onClick={() => setAmount(String(max))}
             className="text-emerald-400 hover:text-emerald-300 normal-case tracking-normal"
           >
-            Max {sym}{max.toLocaleString()}
+            Max {sym}
+            {max.toLocaleString()}
           </button>
         </div>
         <div className="flex items-center gap-2">
@@ -1656,15 +1955,33 @@ function AmountStep({
         <div className="rounded-xl border border-emerald-500/30 bg-emerald-500/5 p-3 space-y-1 text-xs">
           <div className="flex items-center justify-between text-slate-300 md:text-slate-600">
             <span>You requested</span>
-            <span className="tabular-nums">{sym}{amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="tabular-nums">
+              {sym}
+              {amt.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </div>
           <div className="flex items-center justify-between text-slate-400 md:text-slate-500">
             <span>Paystack transfer fee</span>
-            <span className="tabular-nums">− {sym}{fee.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="tabular-nums">
+              − {sym}
+              {fee.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </div>
           <div className="mt-1 pt-1 border-t border-emerald-500/20 flex items-center justify-between font-bold text-emerald-200">
             <span>Bank receives</span>
-            <span className="tabular-nums">{sym}{net.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+            <span className="tabular-nums">
+              {sym}
+              {net.toLocaleString(undefined, {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+              })}
+            </span>
           </div>
         </div>
       )}
@@ -1678,7 +1995,9 @@ function AmountStep({
         {busy ? "Sending…" : `Send ${sym}${net > 0 ? net.toLocaleString() : "0"} to bank`}
       </button>
       <p className="text-[11px] text-slate-500 md:text-slate-500 text-center">
-        {sym}{amt > 0 ? amt.toLocaleString() : "0"} is debited from your wallet. Paystack's fee is deducted before the bank receives.
+        {sym}
+        {amt > 0 ? amt.toLocaleString() : "0"} is debited from your wallet. Paystack's fee is
+        deducted before the bank receives.
       </p>
     </ModalShell>
   );
@@ -1736,7 +2055,6 @@ function WireForm({
         },
       });
       onSubmitted(Number(amount), `${wireBank} · ${wireAcct}`);
-
     } catch (e) {
       toast.error("Payout failed", { description: (e as Error).message });
     } finally {
@@ -1746,11 +2064,17 @@ function WireForm({
 
   return (
     <ModalShell title="USD International Wire · Payout" onClose={onClose}>
-      <button type="button" onClick={onBack} className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider">
+      <button
+        type="button"
+        onClick={onBack}
+        className="text-[11px] text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900 uppercase tracking-wider"
+      >
         ← Change currency
       </button>
       <div className="rounded-xl border border-[#222226] md:border-slate-200 bg-[#0A0A0C] md:bg-white p-3">
-        <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">Amount (USD)</div>
+        <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 mb-1">
+          Amount (USD)
+        </div>
         <div className="flex items-center gap-2">
           <span className="text-lg font-bold text-slate-400 md:text-slate-500">$</span>
           <input
@@ -1764,17 +2088,37 @@ function WireForm({
             className="w-full bg-transparent text-2xl font-black text-white md:text-slate-900 tabular-nums focus:outline-none"
           />
         </div>
-        <div className="text-[11px] text-slate-500 md:text-slate-500 mt-1">Available: ${max.toLocaleString()}</div>
+        <div className="text-[11px] text-slate-500 md:text-slate-500 mt-1">
+          Available: ${max.toLocaleString()}
+        </div>
       </div>
-      <Field label="Beneficiary name"><TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" /></Field>
-      <Field label="Beneficiary address"><TxtInput value={wireAddress} onChange={setWireAddress} placeholder="Street, city, country" /></Field>
-      <Field label="Bank name"><TxtInput value={wireBank} onChange={setWireBank} placeholder="e.g. Chase, HSBC" /></Field>
-      <Field label="Account number / IBAN"><TxtInput value={wireAcct} onChange={setWireAcct} placeholder="Account or IBAN" /></Field>
+      <Field label="Beneficiary name">
+        <TxtInput value={wireBene} onChange={setWireBene} placeholder="Full legal name" />
+      </Field>
+      <Field label="Beneficiary address">
+        <TxtInput
+          value={wireAddress}
+          onChange={setWireAddress}
+          placeholder="Street, city, country"
+        />
+      </Field>
+      <Field label="Bank name">
+        <TxtInput value={wireBank} onChange={setWireBank} placeholder="e.g. Chase, HSBC" />
+      </Field>
+      <Field label="Account number / IBAN">
+        <TxtInput value={wireAcct} onChange={setWireAcct} placeholder="Account or IBAN" />
+      </Field>
       <div className="grid grid-cols-2 gap-2">
-        <Field label="SWIFT / BIC"><TxtInput value={wireSwift} onChange={setWireSwift} placeholder="ABCDUSXX" /></Field>
-        <Field label="Routing / Sort (optional)"><TxtInput value={wireRouting} onChange={setWireRouting} placeholder="If applicable" /></Field>
+        <Field label="SWIFT / BIC">
+          <TxtInput value={wireSwift} onChange={setWireSwift} placeholder="ABCDUSXX" />
+        </Field>
+        <Field label="Routing / Sort (optional)">
+          <TxtInput value={wireRouting} onChange={setWireRouting} placeholder="If applicable" />
+        </Field>
       </div>
-      <Field label="Bank country"><TxtInput value={wireCountry} onChange={setWireCountry} placeholder="e.g. United States" /></Field>
+      <Field label="Bank country">
+        <TxtInput value={wireCountry} onChange={setWireCountry} placeholder="e.g. United States" />
+      </Field>
       <button
         onClick={submit}
         disabled={busy}
@@ -1784,17 +2128,19 @@ function WireForm({
         {busy ? "Submitting…" : `Request $${amount || "0"} wire`}
       </button>
       <p className="text-[11px] text-slate-500 md:text-slate-500 text-center">
-        USD wires are processed manually — admin sends via Wise / correspondent bank within 24–48 hours.
+        USD wires are processed manually — admin sends via Wise / correspondent bank within 24–48
+        hours.
       </p>
     </ModalShell>
   );
 }
 
-
 function Field({ label, children }: { label: string; children: React.ReactNode }) {
   return (
     <label className="block">
-      <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 font-semibold mb-1">{label}</div>
+      <div className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500 font-semibold mb-1">
+        {label}
+      </div>
       {children}
     </label>
   );
@@ -1823,7 +2169,10 @@ function TxtInput({
 }
 
 function BountyWalletModal({
-  balanceUSD, onClose, onTransferred, onWithdraw,
+  balanceUSD,
+  onClose,
+  onTransferred,
+  onWithdraw,
 }: {
   balanceUSD: number;
   onClose: () => void;
@@ -1840,30 +2189,44 @@ function BountyWalletModal({
 
   const sendToMain = async () => {
     if (!valid) return;
-    setBusy("send"); setErr(null);
+    setBusy("send");
+    setErr(null);
     try {
       await transfer({ data: { amount: parsed } });
       onTransferred();
       toast.success(`Moved $${parsed.toFixed(2)} to Main Wallet`);
       onClose();
-    } catch (e) { setErr((e as Error).message); }
-    finally { setBusy(null); }
+    } catch (e) {
+      setErr((e as Error).message);
+    } finally {
+      setBusy(null);
+    }
   };
 
   const withdrawAll = async () => {
     if (balanceUSD <= 0) return;
-    setBusy("withdraw"); setErr(null);
+    setBusy("withdraw");
+    setErr(null);
     try {
       await transfer({ data: { amount: balanceUSD } });
       onTransferred();
       toast.success("Bounty funds moved to Main Wallet");
       onWithdraw();
-    } catch (e) { setErr((e as Error).message); setBusy(null); }
+    } catch (e) {
+      setErr((e as Error).message);
+      setBusy(null);
+    }
   };
 
   return (
-    <div className="modal-light fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4" onClick={onClose}>
-      <div className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] md:bg-white md:shadow-sm p-5 space-y-4" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="modal-light fixed inset-0 z-[1000] bg-black/70 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div
+        className="w-full max-w-md rounded-2xl border border-amber-500/40 bg-[#141418] md:bg-white md:shadow-sm p-5 space-y-4"
+        onClick={(e) => e.stopPropagation()}
+      >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-9 h-9 rounded-lg bg-amber-500/15 flex items-center justify-center">
@@ -1871,28 +2234,50 @@ function BountyWalletModal({
             </div>
             <div>
               <div className="text-white md:text-slate-900 font-black">Bounty Wallet</div>
-              <div className="text-[11px] text-slate-400 md:text-slate-500">Earnings from solved gigs</div>
+              <div className="text-[11px] text-slate-400 md:text-slate-500">
+                Earnings from solved gigs
+              </div>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900"><X className="w-5 h-5" /></button>
+          <button
+            onClick={onClose}
+            className="text-slate-400 md:text-slate-500 hover:text-white md:text-slate-900"
+          >
+            <X className="w-5 h-5" />
+          </button>
         </div>
 
         <div className="rounded-xl bg-black/40 border border-white/10 p-4">
-          <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">Available</div>
-          <div className="text-white md:text-slate-900 text-2xl font-black tabular-nums">${balanceUSD.toFixed(2)} <span className="text-xs text-slate-400 md:text-slate-500 font-normal">USD</span></div>
+          <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500">
+            Available
+          </div>
+          <div className="text-white md:text-slate-900 text-2xl font-black tabular-nums">
+            ${balanceUSD.toFixed(2)}{" "}
+            <span className="text-xs text-slate-400 md:text-slate-500 font-normal">USD</span>
+          </div>
         </div>
 
         <div>
-          <label className="text-[10px] uppercase text-slate-500 md:text-slate-500 tracking-wider">Amount to move (USD)</label>
+          <label className="text-[10px] uppercase text-slate-500 md:text-slate-500 tracking-wider">
+            Amount to move (USD)
+          </label>
           <input
-            type="number" min={0} step="0.01" max={balanceUSD}
-            value={amount} onChange={(e) => setAmount(e.target.value)}
+            type="number"
+            min={0}
+            step="0.01"
+            max={balanceUSD}
+            value={amount}
+            onChange={(e) => setAmount(e.target.value)}
             className="w-full bg-black/40 border border-white/10 rounded-lg px-3 py-2 text-white mt-1"
             placeholder="0.00"
           />
         </div>
 
-        {err && <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded p-2">{err}</div>}
+        {err && (
+          <div className="text-xs text-red-300 bg-red-500/10 border border-red-500/40 rounded p-2">
+            {err}
+          </div>
+        )}
 
         <div className="grid grid-cols-2 gap-2">
           <button
@@ -1900,7 +2285,11 @@ function BountyWalletModal({
             disabled={!valid || busy !== null}
             className="rounded-lg border border-emerald-500/40 bg-emerald-500/15 text-emerald-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
           >
-            {busy === "send" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowDownToLine className="w-4 h-4" />}
+            {busy === "send" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ArrowDownToLine className="w-4 h-4" />
+            )}
             Send to Main
           </button>
           <button
@@ -1908,12 +2297,17 @@ function BountyWalletModal({
             disabled={balanceUSD <= 0 || busy !== null}
             className="rounded-lg border border-sky-500/40 bg-sky-500/15 text-sky-200 font-bold text-sm py-2.5 disabled:opacity-50 inline-flex items-center justify-center gap-2"
           >
-            {busy === "withdraw" ? <Loader2 className="w-4 h-4 animate-spin" /> : <ArrowUpFromLine className="w-4 h-4" />}
+            {busy === "withdraw" ? (
+              <Loader2 className="w-4 h-4 animate-spin" />
+            ) : (
+              <ArrowUpFromLine className="w-4 h-4" />
+            )}
             Withdraw
           </button>
         </div>
         <div className="text-[11px] text-slate-500 md:text-slate-500">
-          Withdraw moves your full bounty balance to Main Wallet, then opens the payout flow (KYC + liveness required).
+          Withdraw moves your full bounty balance to Main Wallet, then opens the payout flow (KYC +
+          liveness required).
         </div>
       </div>
     </div>

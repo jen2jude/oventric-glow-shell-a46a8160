@@ -3,11 +3,30 @@ import { createPortal } from "react-dom";
 import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
-import { Star, ShieldCheck, LogOut, Settings, UserCircle2, X, Upload, Eye, EyeOff, LayoutDashboard, User } from "lucide-react";
+import {
+  Star,
+  ShieldCheck,
+  LogOut,
+  Settings,
+  UserCircle2,
+  X,
+  Upload,
+  Eye,
+  EyeOff,
+  LayoutDashboard,
+  User,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { useFocusTrap } from "@/hooks/useFocusTrap";
-import { getProfileByIdOrSlug, updateMyProfile, getMyFullProfile, deleteMyAccount, getLiveReputation, type MyFullProfile } from "@/lib/profiles.functions";
+import {
+  getProfileByIdOrSlug,
+  updateMyProfile,
+  getMyFullProfile,
+  deleteMyAccount,
+  getLiveReputation,
+  type MyFullProfile,
+} from "@/lib/profiles.functions";
 import { snapshotFxRates } from "@/lib/fx.functions";
 import { useKycGate } from "@/lib/kyc-gate/KycGate";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -19,10 +38,14 @@ const CURRENCY_SYMBOL = new Proxy({} as Record<Currency, string>, {
   get: (_t, key: string) => currencySymbol(key),
 });
 
-
-
 function slugify(v: string): string {
-  return v.toLowerCase().trim().replace(/[^a-z0-9]+/g, "").slice(0, 24) || "architect";
+  return (
+    v
+      .toLowerCase()
+      .trim()
+      .replace(/[^a-z0-9]+/g, "")
+      .slice(0, 24) || "architect"
+  );
 }
 
 function fmtBalance(n: number, c: Currency): string {
@@ -42,7 +65,8 @@ interface ProfileState {
 const PROFILE_KEY = "oventric.profile";
 
 function loadProfile(fallbackName: string): ProfileState {
-  if (typeof window === "undefined") return { displayName: fallbackName, bio: "", avatarDataUrl: null };
+  if (typeof window === "undefined")
+    return { displayName: fallbackName, bio: "", avatarDataUrl: null };
   try {
     const raw = window.localStorage.getItem(PROFILE_KEY);
     if (raw) return { displayName: fallbackName, bio: "", avatarDataUrl: null, ...JSON.parse(raw) };
@@ -73,10 +97,19 @@ export function ProfileDropdown() {
     return () => mq.removeEventListener("change", update);
   }, []);
 
+  const {
+    tier,
+    balances,
+    balancesHidden,
+    toggleBalancesHidden,
+    fullName,
+    storeName,
+    baseCurrency,
+  } = useOnboarding();
 
-  const { tier, balances, balancesHidden, toggleBalancesHidden, fullName, storeName, baseCurrency } = useOnboarding();
-
-  const [profile, setProfile] = useState<ProfileState>(() => loadProfile(fullName || storeName || ""));
+  const [profile, setProfile] = useState<ProfileState>(() =>
+    loadProfile(fullName || storeName || ""),
+  );
 
   useEffect(() => {
     let alive = true;
@@ -88,7 +121,10 @@ export function ProfileDropdown() {
     const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
       if (session?.user?.id) setUserId(session.user.id);
     });
-    return () => { alive = false; sub.subscription.unsubscribe(); };
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
@@ -139,13 +175,12 @@ export function ProfileDropdown() {
     };
   }, [userId, fetchRealProfile, fetchReputation, fetchFx]);
 
-
-
-
   const getMenuItems = (): HTMLElement[] => {
     if (!menuRef.current) return [];
     return Array.from(
-      menuRef.current.querySelectorAll<HTMLElement>('[role="menuitem"]:not([aria-disabled="true"])'),
+      menuRef.current.querySelectorAll<HTMLElement>(
+        '[role="menuitem"]:not([aria-disabled="true"])',
+      ),
     );
   };
 
@@ -232,12 +267,13 @@ export function ProfileDropdown() {
     }
   };
 
-  const initials = profile.displayName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((w) => w[0]?.toUpperCase() ?? "")
-    .join("") || "OV";
+  const initials =
+    profile.displayName
+      .split(/\s+/)
+      .filter(Boolean)
+      .slice(0, 2)
+      .map((w) => w[0]?.toUpperCase() ?? "")
+      .join("") || "OV";
 
   const handle = "@" + slugify(profile.displayName);
 
@@ -250,13 +286,14 @@ export function ProfileDropdown() {
     }
     return tier;
   })();
-  const tierLabel = tierNumeric === 0
-    ? "Tier 0 · Guest"
-    : tierNumeric >= 5
-      ? "Tier 5 · Fully verified"
-      : tierNumeric >= 2
-        ? "Tier 2 · Commerce ready"
-        : "Tier 1 · Email verified";
+  const tierLabel =
+    tierNumeric === 0
+      ? "Tier 0 · Guest"
+      : tierNumeric >= 5
+        ? "Tier 5 · Fully verified"
+        : tierNumeric >= 2
+          ? "Tier 2 · Commerce ready"
+          : "Tier 1 · Email verified";
   const reputation = (liveStars ?? 0).toFixed(1);
 
   const onSignOut = async () => {
@@ -264,10 +301,14 @@ export function ProfileDropdown() {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
-      toast.success("Signed out", { description: "Session tokens cleared. Returning to the auth gateway." });
+      toast.success("Signed out", {
+        description: "Session tokens cleared. Returning to the auth gateway.",
+      });
       navigate({ to: "/" });
     } catch (err) {
-      toast.error("Sign-out failed", { description: err instanceof Error ? err.message : "Could not clear session. Try again." });
+      toast.error("Sign-out failed", {
+        description: err instanceof Error ? err.message : "Could not clear session. Try again.",
+      });
     }
   };
 
@@ -296,29 +337,52 @@ export function ProfileDropdown() {
     >
       <span className="absolute inset-[2px] rounded-full bg-neutral-800 flex items-center justify-center overflow-hidden">
         {profile.avatarDataUrl ? (
-          <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover" loading="lazy" decoding="async" />
+          <ResponsiveImage
+            sizes="48px"
+            src={profile.avatarDataUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
         ) : (
           <User className="w-6 h-6 text-white/85" strokeWidth={1.75} aria-hidden />
         )}
       </span>
-      <span className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#121214] bg-emerald-400 z-10" aria-hidden />
+      <span
+        className="absolute -bottom-0.5 -right-0.5 w-3.5 h-3.5 rounded-full border-2 border-[#121214] bg-emerald-400 z-10"
+        aria-hidden
+      />
     </button>
   );
 
   const identityBanner = (
     <div className="flex items-center gap-3">
       <div className="w-12 h-12 rounded-full bg-neutral-800 text-white/85 flex items-center justify-center shrink-0 overflow-hidden">
-        {profile.avatarDataUrl ? <ResponsiveImage sizes="48px" src={profile.avatarDataUrl} alt="" className="w-full h-full object-cover"  loading="lazy" decoding="async" /> : <User className="w-6 h-6" strokeWidth={1.75} aria-hidden />}
+        {profile.avatarDataUrl ? (
+          <ResponsiveImage
+            sizes="48px"
+            src={profile.avatarDataUrl}
+            alt=""
+            className="w-full h-full object-cover"
+            loading="lazy"
+            decoding="async"
+          />
+        ) : (
+          <User className="w-6 h-6" strokeWidth={1.75} aria-hidden />
+        )}
       </div>
       <div className="min-w-0 flex-1">
         <div className="text-white font-black text-sm truncate">{profile.displayName}</div>
         <div className="text-[11px] text-slate-500 font-mono truncate">{handle}</div>
         <div className="flex items-center gap-2 mt-1.5 flex-wrap">
-          <span className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
-            tierNumeric > 0
-              ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
-              : "bg-slate-500/15 border-slate-500/40 text-slate-300"
-          }`}>
+          <span
+            className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full border ${
+              tierNumeric > 0
+                ? "bg-emerald-500/15 border-emerald-500/40 text-emerald-300"
+                : "bg-slate-500/15 border-slate-500/40 text-slate-300"
+            }`}
+          >
             <ShieldCheck className="w-3 h-3" /> {tierLabel}
           </span>
           <span className="inline-flex items-center gap-1 text-[10px] font-bold text-amber-300">
@@ -332,7 +396,9 @@ export function ProfileDropdown() {
   const walletSnapshot = (
     <div>
       <div className="flex items-center justify-between mb-2">
-        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">Wallet Snapshot</span>
+        <span className="text-[10px] font-bold uppercase tracking-widest text-slate-500">
+          Wallet Snapshot
+        </span>
         <button
           type="button"
           role="menuitem"
@@ -341,7 +407,11 @@ export function ProfileDropdown() {
           className="text-slate-500 hover:text-slate-300 inline-flex items-center gap-1 text-[10px] font-semibold px-1.5 py-0.5 rounded focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:text-slate-200"
           aria-label={balancesHidden ? "Show balances" : "Hide balances"}
         >
-          {balancesHidden ? <EyeOff className="w-3 h-3" aria-hidden /> : <Eye className="w-3 h-3" aria-hidden />}
+          {balancesHidden ? (
+            <EyeOff className="w-3 h-3" aria-hidden />
+          ) : (
+            <Eye className="w-3 h-3" aria-hidden />
+          )}
           {balancesHidden ? "Hidden" : "Visible"}
         </button>
       </div>
@@ -357,14 +427,23 @@ export function ProfileDropdown() {
         }
         const showUsdTile = baseCurrency !== "USD";
         return (
-          <div className={`grid gap-2 ${showUsdTile ? "grid-cols-2" : "grid-cols-1"}`} aria-label="Wallet balance">
+          <div
+            className={`grid gap-2 ${showUsdTile ? "grid-cols-2" : "grid-cols-1"}`}
+            aria-label="Wallet balance"
+          >
             <div
               className="rounded-lg px-2 py-2 text-center bg-emerald-500/15 border border-emerald-400/60 shadow-sm"
               title={`${baseCurrency} is your locked base currency (from your country)`}
             >
-              <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">{baseCurrency} · Base</div>
-              <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-emerald-100"}`}>
-                {balancesHidden ? "••••••" : `${CURRENCY_SYMBOL[baseCurrency]}${fmtBalance(baseBal, baseCurrency)}`}
+              <div className="text-[9px] font-bold uppercase tracking-widest text-emerald-300">
+                {baseCurrency} · Base
+              </div>
+              <div
+                className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-emerald-100"}`}
+              >
+                {balancesHidden
+                  ? "••••••"
+                  : `${CURRENCY_SYMBOL[baseCurrency]}${fmtBalance(baseBal, baseCurrency)}`}
               </div>
             </div>
             {showUsdTile && (
@@ -372,8 +451,12 @@ export function ProfileDropdown() {
                 className="rounded-lg px-2 py-2 text-center bg-[#121214] border border-white/5"
                 title="USD equivalent — display only, not withdrawable"
               >
-                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">USD · Equivalent</div>
-                <div className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-slate-200"}`}>
+                <div className="text-[9px] font-bold uppercase tracking-widest text-slate-400">
+                  USD · Equivalent
+                </div>
+                <div
+                  className={`text-xs font-black tabular-nums mt-0.5 ${balancesHidden ? "text-slate-600" : "text-slate-200"}`}
+                >
                   {balancesHidden ? "••••••" : `≈ $${fmtBalance(usdEquivalent, "USD")}`}
                 </div>
                 <div className="text-[8px] text-slate-500 mt-0.5">Not withdrawable</div>
@@ -398,7 +481,9 @@ export function ProfileDropdown() {
         <UserCircle2 className="w-4 h-4 text-emerald-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">View Public Profile Workspace</div>
-          <div className="text-[10px] text-slate-500 truncate">Your /profile aggregator tab view</div>
+          <div className="text-[10px] text-slate-500 truncate">
+            Your /profile aggregator tab view
+          </div>
         </div>
       </Link>
       <button
@@ -411,20 +496,27 @@ export function ProfileDropdown() {
         <Settings className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">Profile Settings & KYC Edit</div>
-          <div className="text-[10px] text-slate-500 truncate">Name, bio, avatar, verification docs</div>
+          <div className="text-[10px] text-slate-500 truncate">
+            Name, bio, avatar, verification docs
+          </div>
         </div>
       </button>
       <button
         type="button"
         role="menuitem"
         tabIndex={-1}
-        onClick={() => { closeMenu(false); navigate({ to: "/dashboard" }); }}
+        onClick={() => {
+          closeMenu(false);
+          navigate({ to: "/dashboard" });
+        }}
         className="w-full flex items-center gap-3 px-2 py-2 rounded-lg text-sm text-slate-200 hover:bg-white/5 hover:text-white transition-colors text-left focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus:bg-white/5 focus:text-white"
       >
         <LayoutDashboard className="w-4 h-4 text-sky-300 shrink-0" aria-hidden />
         <div className="min-w-0">
           <div className="font-semibold truncate">My Dashboard</div>
-          <div className="text-[10px] text-slate-500 truncate">Digital downloads · contacted sellers</div>
+          <div className="text-[10px] text-slate-500 truncate">
+            Digital downloads · contacted sellers
+          </div>
         </div>
       </button>
     </div>
@@ -513,7 +605,6 @@ export function ProfileDropdown() {
   );
 }
 
-
 // ============================================================================
 // Settings modal
 // ============================================================================
@@ -562,7 +653,11 @@ function ProfileSettingsModal({
   const [dangerOpen, setDangerOpen] = useState(false);
   const [deleteConfirmEmail, setDeleteConfirmEmail] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const [notifPrefs, setNotifPrefs] = useState<{ email_digest: boolean; dm_pings: boolean; bounty_invites: boolean }>({
+  const [notifPrefs, setNotifPrefs] = useState<{
+    email_digest: boolean;
+    dm_pings: boolean;
+    bounty_invites: boolean;
+  }>({
     email_digest: true,
     dm_pings: true,
     bounty_invites: true,
@@ -601,7 +696,6 @@ function ProfileSettingsModal({
           setAvatar(p.avatarUrl ?? profile.avatarDataUrl);
           setNotifPrefs(p.notificationPreferences);
         }
-
       })
       .catch((e) => {
         console.error("[ProfileSettingsModal] load failed", e);
@@ -703,7 +797,9 @@ function ProfileSettingsModal({
       onSave({ displayName: displayName.trim(), bio: bio.trim(), avatarDataUrl: avatar });
       try {
         window.dispatchEvent(new CustomEvent("oventric:profile-updated", { detail: { userId } }));
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       toast.success("Profile updated", { description: "Your workspace identity is synced." });
       setAvatarFile(null);
 
@@ -742,7 +838,9 @@ function ProfileSettingsModal({
       }
       const { error: updErr } = await supabase.auth.updateUser({ password: pwNext });
       if (updErr) throw updErr;
-      toast.success("Password saved", { description: "You can now sign in with email + password." });
+      toast.success("Password saved", {
+        description: "You can now sign in with email + password.",
+      });
       setPwCurrent("");
       setPwNext("");
       setPwConfirm("");
@@ -777,7 +875,9 @@ function ProfileSettingsModal({
       return;
     }
     if (deleteConfirmEmail.trim().toLowerCase() !== full.email.toLowerCase()) {
-      toast.error("Email doesn't match", { description: "Type your account email exactly to confirm." });
+      toast.error("Email doesn't match", {
+        description: "Type your account email exactly to confirm.",
+      });
       return;
     }
     setDeleting(true);
@@ -796,8 +896,6 @@ function ProfileSettingsModal({
       setDeleting(false);
     }
   };
-
-
 
   const tierLabel = (t?: string) => {
     switch (t) {
@@ -838,10 +936,14 @@ function ProfileSettingsModal({
       >
         <header className="flex items-start justify-between gap-3 p-5 border-b border-white/5">
           <div>
-            <div className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-1.5 ${tierClasses[tier.tone]}`}>
+            <div
+              className={`inline-flex items-center gap-1 text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border mb-1.5 ${tierClasses[tier.tone]}`}
+            >
               <ShieldCheck className="w-3 h-3" aria-hidden /> {tier.label}
             </div>
-            <h2 id={titleId} className="text-white font-black text-base">Identity & KYC Edit</h2>
+            <h2 id={titleId} className="text-white font-black text-base">
+              Identity & KYC Edit
+            </h2>
             <p id={descId} className="text-[11px] text-slate-500 mt-0.5">
               Live workspace identity. Fields sync to your public profile immediately.
             </p>
@@ -858,9 +960,17 @@ function ProfileSettingsModal({
           </button>
         </header>
 
-        <form onSubmit={onSubmit} noValidate className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 scrollbar-thin">
+        <form
+          onSubmit={onSubmit}
+          noValidate
+          className="flex-1 min-h-0 overflow-y-auto p-6 space-y-5 scrollbar-thin"
+        >
           {loading && (
-            <div className="text-center py-8 text-xs text-slate-500" role="status" aria-live="polite">
+            <div
+              className="text-center py-8 text-xs text-slate-500"
+              role="status"
+              aria-live="polite"
+            >
               Loading your identity…
             </div>
           )}
@@ -870,411 +980,599 @@ function ProfileSettingsModal({
             </div>
           )}
           {!loading && (
-          <>
-          {/* Avatar */}
-          <div className="flex items-center gap-4">
-            <div className="w-16 h-16 rounded-full bg-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
-              {avatar ? (
-                <ResponsiveImage sizes="96px" src={avatar} alt="Avatar preview" className="w-full h-full object-cover"  loading="lazy" decoding="async" />
-              ) : (
-                <User className="w-8 h-8 text-white/85" strokeWidth={1.75} aria-hidden />
-              )}
-            </div>
-            <label className="flex-1 cursor-pointer">
-              <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
-                <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" aria-hidden />
-                <div className="text-[11px] font-semibold text-slate-300">Upload avatar</div>
-                <div className="text-[10px] text-slate-500">PNG · JPG · WebP · max 2MB</div>
+            <>
+              {/* Avatar */}
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-neutral-800 overflow-hidden shrink-0 flex items-center justify-center">
+                  {avatar ? (
+                    <ResponsiveImage
+                      sizes="96px"
+                      src={avatar}
+                      alt="Avatar preview"
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                      decoding="async"
+                    />
+                  ) : (
+                    <User className="w-8 h-8 text-white/85" strokeWidth={1.75} aria-hidden />
+                  )}
+                </div>
+                <label className="flex-1 cursor-pointer">
+                  <div className="rounded-lg border border-dashed border-white/15 hover:border-emerald-500/50 bg-[#121214] px-3 py-3 text-center transition-colors focus-within:border-emerald-400 focus-within:ring-2 focus-within:ring-emerald-400/70 focus-within:ring-offset-2 focus-within:ring-offset-[#1A1A1E]">
+                    <Upload className="w-4 h-4 text-slate-400 mx-auto mb-1" aria-hidden />
+                    <div className="text-[11px] font-semibold text-slate-300">Upload avatar</div>
+                    <div className="text-[10px] text-slate-500">PNG · JPG · WebP · max 2MB</div>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    aria-label="Upload avatar image"
+                    className="sr-only"
+                    onChange={(e) => onAvatarPick(e.target.files?.[0] ?? null)}
+                  />
+                </label>
               </div>
-              <input
-                type="file"
-                accept="image/*"
-                aria-label="Upload avatar image"
-                className="sr-only"
-                onChange={(e) => onAvatarPick(e.target.files?.[0] ?? null)}
-              />
-            </label>
-          </div>
 
-          {/* Display name */}
-          <div>
-            <label htmlFor={`${titleId}-name`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Display Name</label>
-            <input
-              id={`${titleId}-name`}
-              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
-                errors.displayName ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-              }`}
-              value={displayName}
-              maxLength={40}
-              onChange={(e) => { setDisplayName(e.target.value); setErrors((p) => ({ ...p, displayName: "" })); }}
-              aria-invalid={!!errors.displayName}
-              aria-describedby={errors.displayName ? `${titleId}-name-err` : undefined}
-            />
-            {errors.displayName && <p id={`${titleId}-name-err`} className="text-[11px] font-semibold text-red-400 mt-1">{errors.displayName}</p>}
-          </div>
+              {/* Display name */}
+              <div>
+                <label
+                  htmlFor={`${titleId}-name`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5"
+                >
+                  Display Name
+                </label>
+                <input
+                  id={`${titleId}-name`}
+                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                    errors.displayName
+                      ? "border-red-500/60"
+                      : "border-white/10 focus:border-emerald-500/60"
+                  }`}
+                  value={displayName}
+                  maxLength={40}
+                  onChange={(e) => {
+                    setDisplayName(e.target.value);
+                    setErrors((p) => ({ ...p, displayName: "" }));
+                  }}
+                  aria-invalid={!!errors.displayName}
+                  aria-describedby={errors.displayName ? `${titleId}-name-err` : undefined}
+                />
+                {errors.displayName && (
+                  <p
+                    id={`${titleId}-name-err`}
+                    className="text-[11px] font-semibold text-red-400 mt-1"
+                  >
+                    {errors.displayName}
+                  </p>
+                )}
+              </div>
 
-          {/* Username */}
-          <div>
-            <label htmlFor={`${titleId}-username`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Username <span className="text-slate-500 font-normal normal-case">· your public handle</span></label>
-            <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">@</span>
-              <input
-                id={`${titleId}-username`}
-                className={`w-full bg-[#121214] border rounded-lg pl-7 pr-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
-                  errors.username ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-                }`}
-                value={username}
-                maxLength={24}
-                placeholder="jane_doe"
-                onChange={(e) => { setUsername(e.target.value); setErrors((p) => ({ ...p, username: "" })); }}
-                aria-invalid={!!errors.username}
-                aria-describedby={errors.username ? `${titleId}-username-err` : `${titleId}-username-help`}
-              />
-            </div>
-            {errors.username ? (
-              <p id={`${titleId}-username-err`} className="text-[11px] font-semibold text-red-400 mt-1">{errors.username}</p>
-            ) : (
-              <p id={`${titleId}-username-help`} className="text-[10px] text-slate-500 mt-1">
-                Public URL: <span className="text-slate-400">/profile/{username.trim() || full?.slug || "your-handle"}</span>
-              </p>
-            )}
-          </div>
+              {/* Username */}
+              <div>
+                <label
+                  htmlFor={`${titleId}-username`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5"
+                >
+                  Username{" "}
+                  <span className="text-slate-500 font-normal normal-case">
+                    · your public handle
+                  </span>
+                </label>
+                <div className="relative">
+                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 text-sm">
+                    @
+                  </span>
+                  <input
+                    id={`${titleId}-username`}
+                    className={`w-full bg-[#121214] border rounded-lg pl-7 pr-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                      errors.username
+                        ? "border-red-500/60"
+                        : "border-white/10 focus:border-emerald-500/60"
+                    }`}
+                    value={username}
+                    maxLength={24}
+                    placeholder="jane_doe"
+                    onChange={(e) => {
+                      setUsername(e.target.value);
+                      setErrors((p) => ({ ...p, username: "" }));
+                    }}
+                    aria-invalid={!!errors.username}
+                    aria-describedby={
+                      errors.username ? `${titleId}-username-err` : `${titleId}-username-help`
+                    }
+                  />
+                </div>
+                {errors.username ? (
+                  <p
+                    id={`${titleId}-username-err`}
+                    className="text-[11px] font-semibold text-red-400 mt-1"
+                  >
+                    {errors.username}
+                  </p>
+                ) : (
+                  <p id={`${titleId}-username-help`} className="text-[10px] text-slate-500 mt-1">
+                    Public URL:{" "}
+                    <span className="text-slate-400">
+                      /profile/{username.trim() || full?.slug || "your-handle"}
+                    </span>
+                  </p>
+                )}
+              </div>
 
-          {/* Bio */}
-          <div>
-            <label htmlFor={`${titleId}-bio`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Bio</label>
-            <textarea
-              id={`${titleId}-bio`}
-              rows={3}
-              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
-                errors.bio ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-              }`}
-              value={bio}
-              maxLength={280}
-              onChange={(e) => { setBio(e.target.value); setErrors((p) => ({ ...p, bio: "" })); }}
-              placeholder="Payments infra, distributed systems, RLS zealot…"
-              aria-invalid={!!errors.bio}
-              aria-describedby={errors.bio ? `${titleId}-bio-err` : undefined}
-            />
-            <div className="flex justify-between mt-1">
-              {errors.bio ? (
-                <p id={`${titleId}-bio-err`} className="text-[11px] font-semibold text-red-400">{errors.bio}</p>
-              ) : (
-                <span className="text-[10px] text-slate-500">Displayed on your public workspace.</span>
-              )}
-              <span className="text-[10px] text-slate-500 tabular-nums" aria-live="polite">{bio.length}/280</span>
-            </div>
-          </div>
+              {/* Bio */}
+              <div>
+                <label
+                  htmlFor={`${titleId}-bio`}
+                  className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5"
+                >
+                  Bio
+                </label>
+                <textarea
+                  id={`${titleId}-bio`}
+                  rows={3}
+                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#1A1A1E] ${
+                    errors.bio ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
+                  }`}
+                  value={bio}
+                  maxLength={280}
+                  onChange={(e) => {
+                    setBio(e.target.value);
+                    setErrors((p) => ({ ...p, bio: "" }));
+                  }}
+                  placeholder="Payments infra, distributed systems, RLS zealot…"
+                  aria-invalid={!!errors.bio}
+                  aria-describedby={errors.bio ? `${titleId}-bio-err` : undefined}
+                />
+                <div className="flex justify-between mt-1">
+                  {errors.bio ? (
+                    <p id={`${titleId}-bio-err`} className="text-[11px] font-semibold text-red-400">
+                      {errors.bio}
+                    </p>
+                  ) : (
+                    <span className="text-[10px] text-slate-500">
+                      Displayed on your public workspace.
+                    </span>
+                  )}
+                  <span className="text-[10px] text-slate-500 tabular-nums" aria-live="polite">
+                    {bio.length}/280
+                  </span>
+                </div>
+              </div>
 
-          {/* Contact grid */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <div>
-              <label htmlFor={`${titleId}-phone`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">Phone</label>
-              <input
-                id={`${titleId}-phone`}
-                inputMode="tel"
-                autoComplete="tel"
-                className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
-                  errors.phone ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-                }`}
-                value={phone}
-                placeholder="+234 801 234 5678"
-                onChange={(e) => { setPhone(e.target.value); setErrors((p) => ({ ...p, phone: "" })); }}
-                aria-invalid={!!errors.phone}
-              />
-              {errors.phone && <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.phone}</p>}
-            </div>
-            <div>
-              <label htmlFor={`${titleId}-country`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5">
-                Country {country.trim() && <span className="text-slate-500 font-normal normal-case">· locked</span>}
-              </label>
-              {(() => {
-                const locked = !!country.trim();
-                const known = !!COUNTRY_META[country.toUpperCase()] && country.toUpperCase() !== "OTHER";
-                const selectValue = locked
-                  ? (known ? country.toUpperCase() : "OTHER")
-                  : (countryOther ? "OTHER" : "");
-                return (
-                  <>
-                    <select
-                      id={`${titleId}-country`}
-                      disabled={locked}
-                      value={selectValue}
-                      onChange={(e) => {
-                        const v = e.target.value;
-                        if (v === "OTHER") {
-                          setCountryOther(true);
-                          setCountry("");
-                        } else {
-                          setCountryOther(false);
-                          setCountry(v);
-                        }
-                        setErrors((p) => ({ ...p, country: "" }));
-                      }}
-                      className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
-                        errors.country ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-                      } ${locked ? "opacity-60 cursor-not-allowed" : ""}`}
+              {/* Contact grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label
+                    htmlFor={`${titleId}-phone`}
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5"
+                  >
+                    Phone
+                  </label>
+                  <input
+                    id={`${titleId}-phone`}
+                    inputMode="tel"
+                    autoComplete="tel"
+                    className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                      errors.phone
+                        ? "border-red-500/60"
+                        : "border-white/10 focus:border-emerald-500/60"
+                    }`}
+                    value={phone}
+                    placeholder="+234 801 234 5678"
+                    onChange={(e) => {
+                      setPhone(e.target.value);
+                      setErrors((p) => ({ ...p, phone: "" }));
+                    }}
+                    aria-invalid={!!errors.phone}
+                  />
+                  {errors.phone && (
+                    <p className="text-[11px] font-semibold text-red-400 mt-1">{errors.phone}</p>
+                  )}
+                </div>
+                <div>
+                  <label
+                    htmlFor={`${titleId}-country`}
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-400 mb-1.5"
+                  >
+                    Country{" "}
+                    {country.trim() && (
+                      <span className="text-slate-500 font-normal normal-case">· locked</span>
+                    )}
+                  </label>
+                  {(() => {
+                    const locked = !!country.trim();
+                    const known =
+                      !!COUNTRY_META[country.toUpperCase()] && country.toUpperCase() !== "OTHER";
+                    const selectValue = locked
+                      ? known
+                        ? country.toUpperCase()
+                        : "OTHER"
+                      : countryOther
+                        ? "OTHER"
+                        : "";
+                    return (
+                      <>
+                        <select
+                          id={`${titleId}-country`}
+                          disabled={locked}
+                          value={selectValue}
+                          onChange={(e) => {
+                            const v = e.target.value;
+                            if (v === "OTHER") {
+                              setCountryOther(true);
+                              setCountry("");
+                            } else {
+                              setCountryOther(false);
+                              setCountry(v);
+                            }
+                            setErrors((p) => ({ ...p, country: "" }));
+                          }}
+                          className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                            errors.country
+                              ? "border-red-500/60"
+                              : "border-white/10 focus:border-emerald-500/60"
+                          } ${locked ? "opacity-60 cursor-not-allowed" : ""}`}
+                        >
+                          <option value="" disabled>
+                            Select a country
+                          </option>
+                          {AFRICA_COUNTRIES.map((c) => (
+                            <option key={c.code} value={c.code}>
+                              {c.flag} {c.name} · {c.currency}
+                            </option>
+                          ))}
+                          <option value="OTHER">🌍 Other (type your country)</option>
+                        </select>
+                        {!locked && countryOther && (
+                          <input
+                            className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
+                            placeholder="Type your country"
+                            maxLength={60}
+                            autoFocus
+                            value={country}
+                            onChange={(e) => setCountry(e.target.value)}
+                          />
+                        )}
+                        {locked && !known && (
+                          <div className="mt-1 text-xs text-slate-300">{country}</div>
+                        )}
+                        {locked && (
+                          <p className="mt-1 text-[11px] text-slate-500">
+                            Contact admin to change your country.
+                          </p>
+                        )}
+                      </>
+                    );
+                  })()}
+                </div>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <label
+                    htmlFor={`${titleId}-address`}
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-400"
+                  >
+                    Address{" "}
+                    <span className="text-slate-500 font-normal normal-case">
+                      · optional, for payouts
+                    </span>
+                  </label>
+                  <VisibilityToggle
+                    on={addressPublic}
+                    label="address"
+                    onToggle={() => setAddressPublic((v) => !v)}
+                  />
+                </div>
+                <input
+                  id={`${titleId}-address`}
+                  autoComplete="street-address"
+                  className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
+                    errors.address
+                      ? "border-red-500/60"
+                      : "border-white/10 focus:border-emerald-500/60"
+                  }`}
+                  value={address}
+                  maxLength={200}
+                  placeholder="Street, City"
+                  onChange={(e) => {
+                    setAddress(e.target.value);
+                    setErrors((p) => ({ ...p, address: "" }));
+                  }}
+                />
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {addressPublic
+                    ? "Visible on your public profile."
+                    : "Private — only you can see this."}
+                </p>
+              </div>
+
+              <div>
+                <div className="flex items-center justify-between gap-2 mb-1.5">
+                  <label
+                    htmlFor={`${titleId}-dob`}
+                    className="block text-xs font-semibold uppercase tracking-wider text-slate-400"
+                  >
+                    Date of birth
+                  </label>
+                  <VisibilityToggle
+                    on={dobPublic}
+                    label="date of birth"
+                    onToggle={() => setDobPublic((v) => !v)}
+                  />
+                </div>
+                <input
+                  id={`${titleId}-dob`}
+                  type="date"
+                  autoComplete="bday"
+                  className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                  value={dateOfBirth}
+                  onChange={(e) => setDateOfBirth(e.target.value)}
+                />
+                <p className="mt-1 text-[11px] text-slate-500">
+                  {dobPublic
+                    ? "Visible on your public profile."
+                    : "Private — only you can see this."}
+                </p>
+              </div>
+
+              {/* Notification preferences */}
+              <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
+                <div className="text-xs font-bold text-white uppercase tracking-widest">
+                  Notifications
+                </div>
+                <div className="text-[11px] text-slate-400 -mt-1">
+                  Choose which alerts we send. Changes save instantly.
+                </div>
+                {[
+                  {
+                    key: "email_digest" as const,
+                    label: "Weekly email digest",
+                    desc: "Summary of activity, sales and bounty wins.",
+                  },
+                  {
+                    key: "dm_pings" as const,
+                    label: "Direct message pings",
+                    desc: "Notify me when someone messages me.",
+                  },
+                  {
+                    key: "bounty_invites" as const,
+                    label: "Bounty invite alerts",
+                    desc: "Ping me when I'm invited to a bounty.",
+                  },
+                ].map((item) => {
+                  const on = notifPrefs[item.key];
+                  const busy = notifSaving === item.key;
+                  return (
+                    <div key={item.key} className="flex items-center justify-between gap-3 py-1.5">
+                      <div className="min-w-0">
+                        <div className="text-xs font-semibold text-white">{item.label}</div>
+                        <div className="text-[11px] text-slate-400 truncate">{item.desc}</div>
+                      </div>
+                      <button
+                        type="button"
+                        role="switch"
+                        aria-checked={on}
+                        aria-label={item.label}
+                        disabled={busy || loading}
+                        onClick={() => toggleNotifPref(item.key)}
+                        className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${on ? "bg-emerald-500" : "bg-slate-700"} disabled:opacity-60`}
+                      >
+                        <span
+                          className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0"}`}
+                        />
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
+
+              {/* Account & security */}
+
+              <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-bold text-white">Account email</div>
+                    <div className="text-[11px] text-slate-400 break-all">{full?.email ?? "—"}</div>
+                  </div>
+                  <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">
+                    Verified
+                  </span>
+                </div>
+                <div className="border-t border-white/5 pt-3">
+                  <div className="flex items-center justify-between gap-2">
+                    <div>
+                      <div className="text-xs font-bold text-white">Password</div>
+                      <div className="text-[11px] text-slate-500">
+                        Change the password used to sign in.
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPwOpen((v) => !v)}
+                      className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-white/10 bg-[#1E1E24] text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                      aria-expanded={pwOpen}
                     >
-                      <option value="" disabled>Select a country</option>
-                      {AFRICA_COUNTRIES.map((c) => (
-                        <option key={c.code} value={c.code}>
-                          {c.flag} {c.name} · {c.currency}
-                        </option>
-                      ))}
-                      <option value="OTHER">🌍 Other (type your country)</option>
-                    </select>
-                    {!locked && countryOther && (
+                      {pwOpen ? "Cancel" : "Change"}
+                    </button>
+                  </div>
+                  {pwOpen && (
+                    <div className="mt-3 space-y-2">
+                      <div className="relative">
+                        <input
+                          type={pwShow ? "text" : "password"}
+                          autoComplete="current-password"
+                          placeholder="Current password (leave blank if none)"
+                          value={pwCurrent}
+                          onChange={(e) => setPwCurrent(e.target.value)}
+                          className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setPwShow((v) => !v)}
+                          className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
+                          aria-label={pwShow ? "Hide password" : "Show password"}
+                        >
+                          {pwShow ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
                       <input
-                        className="mt-2 w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white"
-                        placeholder="Type your country"
-                        maxLength={60}
-                        autoFocus
-                        value={country}
-                        onChange={(e) => setCountry(e.target.value)}
+                        type={pwShow ? "text" : "password"}
+                        autoComplete="new-password"
+                        placeholder="New password (min 8 chars)"
+                        value={pwNext}
+                        onChange={(e) => setPwNext(e.target.value)}
+                        className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
                       />
-                    )}
-                    {locked && !known && (
-                      <div className="mt-1 text-xs text-slate-300">{country}</div>
-                    )}
-                    {locked && (
-                      <p className="mt-1 text-[11px] text-slate-500">Contact admin to change your country.</p>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-          </div>
+                      <input
+                        type={pwShow ? "text" : "password"}
+                        autoComplete="new-password"
+                        placeholder="Confirm new password"
+                        value={pwConfirm}
+                        onChange={(e) => setPwConfirm(e.target.value)}
+                        className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                      />
+                      <button
+                        type="button"
+                        onClick={onChangePassword}
+                        disabled={pwSaving || !pwNext || !pwConfirm}
+                        className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
+                      >
+                        {pwSaving ? "Updating…" : "Update password"}
+                      </button>
+                    </div>
+                  )}
+                </div>
+              </div>
 
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-1.5">
-              <label htmlFor={`${titleId}-address`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Address <span className="text-slate-500 font-normal normal-case">· optional, for payouts</span></label>
-              <VisibilityToggle
-                on={addressPublic}
-                label="address"
-                onToggle={() => setAddressPublic((v) => !v)}
-              />
-            </div>
-            <input
-              id={`${titleId}-address`}
-              autoComplete="street-address"
-              className={`w-full bg-[#121214] border rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${
-                errors.address ? "border-red-500/60" : "border-white/10 focus:border-emerald-500/60"
-              }`}
-              value={address}
-              maxLength={200}
-              placeholder="Street, City"
-              onChange={(e) => { setAddress(e.target.value); setErrors((p) => ({ ...p, address: "" })); }}
-            />
-            <p className="mt-1 text-[11px] text-slate-500">
-              {addressPublic ? "Visible on your public profile." : "Private — only you can see this."}
-            </p>
-          </div>
+              {/* Live KYC status */}
+              <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
+                <div className="flex items-center justify-between gap-2 mb-2">
+                  <div className="flex items-center gap-2">
+                    <ShieldCheck
+                      className={`w-4 h-4 ${kycCompleted || full?.kycCompletedAt ? "text-emerald-400" : "text-amber-400"}`}
+                      aria-hidden
+                    />
+                    <span className="text-xs font-bold text-white">Verification status</span>
+                  </div>
+                  <span
+                    className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${tierClasses[tier.tone]}`}
+                  >
+                    {tier.label.split("·")[0].trim()}
+                  </span>
+                </div>
+                <ul className="text-[11px] text-slate-400 space-y-1 mb-3">
+                  <li className="flex items-center justify-between">
+                    <span>Selfie liveness</span>
+                    <span
+                      className={
+                        full?.kycSelfieUploaded
+                          ? "text-emerald-300 font-semibold"
+                          : "text-slate-500"
+                      }
+                    >
+                      {full?.kycSelfieUploaded ? "Captured" : "Missing"}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span>Government ID</span>
+                    <span
+                      className={
+                        full?.kycIdUploaded ? "text-emerald-300 font-semibold" : "text-slate-500"
+                      }
+                    >
+                      {full?.kycIdUploaded ? "Uploaded" : "Missing"}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span>Completed</span>
+                    <span
+                      className={
+                        full?.kycCompletedAt ? "text-emerald-300 font-semibold" : "text-slate-500"
+                      }
+                    >
+                      {full?.kycCompletedAt
+                        ? new Date(full.kycCompletedAt).toLocaleDateString()
+                        : "Not yet"}
+                    </span>
+                  </li>
+                  <li className="flex items-center justify-between">
+                    <span>Joined</span>
+                    <span className="text-slate-300 tabular-nums">
+                      {full?.joined ? new Date(full.joined).toLocaleDateString() : "—"}
+                    </span>
+                  </li>
+                </ul>
+                <button
+                  type="button"
+                  onClick={() => {
+                    onClose();
+                    ensureKyc(() => {
+                      toast.success("Verification updated");
+                    });
+                  }}
+                  className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                >
+                  {full?.kycCompletedAt
+                    ? "Re-run liveness check →"
+                    : "Start identity verification →"}
+                </button>
+              </div>
 
-          <div>
-            <div className="flex items-center justify-between gap-2 mb-1.5">
-              <label htmlFor={`${titleId}-dob`} className="block text-xs font-semibold uppercase tracking-wider text-slate-400">Date of birth</label>
-              <VisibilityToggle
-                on={dobPublic}
-                label="date of birth"
-                onToggle={() => setDobPublic((v) => !v)}
-              />
-            </div>
-            <input
-              id={`${titleId}-dob`}
-              type="date"
-              autoComplete="bday"
-              className="w-full bg-[#121214] border border-white/10 focus:border-emerald-500/60 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-              value={dateOfBirth}
-              onChange={(e) => setDateOfBirth(e.target.value)}
-            />
-            <p className="mt-1 text-[11px] text-slate-500">
-              {dobPublic ? "Visible on your public profile." : "Private — only you can see this."}
-            </p>
-          </div>
-
-
-          {/* Notification preferences */}
-          <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-2">
-            <div className="text-xs font-bold text-white uppercase tracking-widest">Notifications</div>
-            <div className="text-[11px] text-slate-400 -mt-1">Choose which alerts we send. Changes save instantly.</div>
-            {([
-              { key: "email_digest" as const, label: "Weekly email digest", desc: "Summary of activity, sales and bounty wins." },
-              { key: "dm_pings" as const, label: "Direct message pings", desc: "Notify me when someone messages me." },
-              { key: "bounty_invites" as const, label: "Bounty invite alerts", desc: "Ping me when I'm invited to a bounty." },
-            ]).map((item) => {
-              const on = notifPrefs[item.key];
-              const busy = notifSaving === item.key;
-              return (
-                <div key={item.key} className="flex items-center justify-between gap-3 py-1.5">
-                  <div className="min-w-0">
-                    <div className="text-xs font-semibold text-white">{item.label}</div>
-                    <div className="text-[11px] text-slate-400 truncate">{item.desc}</div>
+              {/* Danger zone */}
+              <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
+                <div className="flex items-center justify-between gap-2">
+                  <div>
+                    <div className="text-xs font-bold text-red-300 uppercase tracking-widest">
+                      Danger zone
+                    </div>
+                    <div className="text-[11px] text-slate-400 mt-0.5">
+                      Soft-delete this account. Restorable for 30 days via support.
+                    </div>
                   </div>
                   <button
                     type="button"
-                    role="switch"
-                    aria-checked={on}
-                    aria-label={item.label}
-                    disabled={busy || loading}
-                    onClick={() => toggleNotifPref(item.key)}
-                    className={`relative shrink-0 w-11 h-6 rounded-full transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70 ${on ? "bg-emerald-500" : "bg-slate-700"} disabled:opacity-60`}
+                    onClick={() => setDangerOpen((v) => !v)}
+                    className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
+                    aria-expanded={dangerOpen}
                   >
-                    <span className={`absolute top-0.5 left-0.5 w-5 h-5 rounded-full bg-white shadow transition-transform ${on ? "translate-x-5" : "translate-x-0"}`} />
+                    {dangerOpen ? "Cancel" : "Delete account"}
                   </button>
                 </div>
-              );
-            })}
-          </div>
-
-          {/* Account & security */}
-
-          <div className="rounded-lg border border-white/10 bg-[#121214] p-3 space-y-3">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <div className="text-xs font-bold text-white">Account email</div>
-                <div className="text-[11px] text-slate-400 break-all">{full?.email ?? "—"}</div>
-              </div>
-              <span className="text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border bg-emerald-500/10 border-emerald-500/30 text-emerald-300">Verified</span>
-            </div>
-            <div className="border-t border-white/5 pt-3">
-              <div className="flex items-center justify-between gap-2">
-                <div>
-                  <div className="text-xs font-bold text-white">Password</div>
-                  <div className="text-[11px] text-slate-500">Change the password used to sign in.</div>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setPwOpen((v) => !v)}
-                  className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-white/10 bg-[#1E1E24] text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-                  aria-expanded={pwOpen}
-                >
-                  {pwOpen ? "Cancel" : "Change"}
-                </button>
-              </div>
-              {pwOpen && (
-                <div className="mt-3 space-y-2">
-                  <div className="relative">
+                {dangerOpen && (
+                  <div className="mt-3 space-y-2">
+                    <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-0.5">
+                      <li>Your sign-in access is revoked immediately.</li>
+                      <li>
+                        Profile is anonymized; public content stays attributed to{" "}
+                        <em>[deleted user]</em>.
+                      </li>
+                      <li>Auth row is soft-deleted and purged after 30 days.</li>
+                    </ul>
+                    <label className="block text-[11px] font-semibold text-slate-400">
+                      Type <span className="text-red-300">{full?.email ?? "your email"}</span> to
+                      confirm
+                    </label>
                     <input
-                      type={pwShow ? "text" : "password"}
-                      autoComplete="current-password"
-                      placeholder="Current password (leave blank if none)"
-                      value={pwCurrent}
-                      onChange={(e) => setPwCurrent(e.target.value)}
-                      className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 pr-10 text-sm text-white focus:outline-none focus:border-emerald-500/60"
+                      type="email"
+                      autoComplete="off"
+                      value={deleteConfirmEmail}
+                      onChange={(e) => setDeleteConfirmEmail(e.target.value)}
+                      placeholder={full?.email ?? ""}
+                      className="w-full bg-[#0F0F12] border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/70"
                     />
                     <button
                       type="button"
-                      onClick={() => setPwShow((v) => !v)}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-1"
-                      aria-label={pwShow ? "Hide password" : "Show password"}
+                      onClick={onDeleteAccount}
+                      disabled={deleting || !deleteConfirmEmail}
+                      className="w-full text-xs font-black py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
                     >
-                      {pwShow ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                      {deleting ? "Deleting…" : "Permanently delete my account"}
                     </button>
                   </div>
-                  <input
-                    type={pwShow ? "text" : "password"}
-                    autoComplete="new-password"
-                    placeholder="New password (min 8 chars)"
-                    value={pwNext}
-                    onChange={(e) => setPwNext(e.target.value)}
-                    className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
-                  />
-                  <input
-                    type={pwShow ? "text" : "password"}
-                    autoComplete="new-password"
-                    placeholder="Confirm new password"
-                    value={pwConfirm}
-                    onChange={(e) => setPwConfirm(e.target.value)}
-                    className="w-full bg-[#0F0F12] border border-white/10 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-emerald-500/60"
-                  />
-                  <button
-                    type="button"
-                    onClick={onChangePassword}
-                    disabled={pwSaving || !pwNext || !pwConfirm}
-                    className="w-full text-xs font-black py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black disabled:opacity-60"
-                  >
-                    {pwSaving ? "Updating…" : "Update password"}
-                  </button>
-                </div>
-              )}
-            </div>
-          </div>
-
-
-          {/* Live KYC status */}
-          <div className="rounded-lg border border-white/10 bg-[#121214] p-3">
-            <div className="flex items-center justify-between gap-2 mb-2">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className={`w-4 h-4 ${kycCompleted || full?.kycCompletedAt ? "text-emerald-400" : "text-amber-400"}`} aria-hidden />
-                <span className="text-xs font-bold text-white">Verification status</span>
+                )}
               </div>
-              <span className={`text-[10px] font-bold uppercase tracking-widest px-2 py-0.5 rounded-full border ${tierClasses[tier.tone]}`}>{tier.label.split("·")[0].trim()}</span>
-            </div>
-            <ul className="text-[11px] text-slate-400 space-y-1 mb-3">
-              <li className="flex items-center justify-between"><span>Selfie liveness</span><span className={full?.kycSelfieUploaded ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycSelfieUploaded ? "Captured" : "Missing"}</span></li>
-              <li className="flex items-center justify-between"><span>Government ID</span><span className={full?.kycIdUploaded ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycIdUploaded ? "Uploaded" : "Missing"}</span></li>
-              <li className="flex items-center justify-between"><span>Completed</span><span className={full?.kycCompletedAt ? "text-emerald-300 font-semibold" : "text-slate-500"}>{full?.kycCompletedAt ? new Date(full.kycCompletedAt).toLocaleDateString() : "Not yet"}</span></li>
-              <li className="flex items-center justify-between"><span>Joined</span><span className="text-slate-300 tabular-nums">{full?.joined ? new Date(full.joined).toLocaleDateString() : "—"}</span></li>
-            </ul>
-            <button
-              type="button"
-              onClick={() => {
-                onClose();
-                ensureKyc(() => { toast.success("Verification updated"); });
-              }}
-              className="w-full text-xs font-bold py-2 rounded-lg bg-[#1E1E24] border border-white/10 text-slate-300 hover:border-emerald-500/40 hover:text-emerald-300 transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-            >
-              {full?.kycCompletedAt ? "Re-run liveness check →" : "Start identity verification →"}
-            </button>
-          </div>
-
-          {/* Danger zone */}
-          <div className="rounded-lg border border-red-500/30 bg-red-500/5 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <div>
-                <div className="text-xs font-bold text-red-300 uppercase tracking-widest">Danger zone</div>
-                <div className="text-[11px] text-slate-400 mt-0.5">Soft-delete this account. Restorable for 30 days via support.</div>
-              </div>
-              <button
-                type="button"
-                onClick={() => setDangerOpen((v) => !v)}
-                className="text-[11px] font-bold px-3 py-1.5 rounded-lg border border-red-500/40 bg-red-500/10 text-red-300 hover:bg-red-500/20 focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/70"
-                aria-expanded={dangerOpen}
-              >
-                {dangerOpen ? "Cancel" : "Delete account"}
-              </button>
-            </div>
-            {dangerOpen && (
-              <div className="mt-3 space-y-2">
-                <ul className="text-[11px] text-slate-400 list-disc pl-4 space-y-0.5">
-                  <li>Your sign-in access is revoked immediately.</li>
-                  <li>Profile is anonymized; public content stays attributed to <em>[deleted user]</em>.</li>
-                  <li>Auth row is soft-deleted and purged after 30 days.</li>
-                </ul>
-                <label className="block text-[11px] font-semibold text-slate-400">
-                  Type <span className="text-red-300">{full?.email ?? "your email"}</span> to confirm
-                </label>
-                <input
-                  type="email"
-                  autoComplete="off"
-                  value={deleteConfirmEmail}
-                  onChange={(e) => setDeleteConfirmEmail(e.target.value)}
-                  placeholder={full?.email ?? ""}
-                  className="w-full bg-[#0F0F12] border border-red-500/30 rounded-lg px-3 py-2 text-sm text-white focus:outline-none focus:border-red-500/70"
-                />
-                <button
-                  type="button"
-                  onClick={onDeleteAccount}
-                  disabled={deleting || !deleteConfirmEmail}
-                  className="w-full text-xs font-black py-2 rounded-lg bg-red-600 hover:bg-red-500 text-white disabled:opacity-60"
-                >
-                  {deleting ? "Deleting…" : "Permanently delete my account"}
-                </button>
-              </div>
-            )}
-          </div>
-          </>
-
+            </>
           )}
         </form>
 
@@ -1325,11 +1623,12 @@ function VisibilityToggle({
           : "border-white/10 bg-white/5 text-slate-400 hover:text-white"
       }`}
     >
-      {on ? <Eye className="w-3.5 h-3.5" aria-hidden /> : <EyeOff className="w-3.5 h-3.5" aria-hidden />}
+      {on ? (
+        <Eye className="w-3.5 h-3.5" aria-hidden />
+      ) : (
+        <EyeOff className="w-3.5 h-3.5" aria-hidden />
+      )}
       {on ? "Public" : "Private"}
     </button>
   );
 }
-
-
-

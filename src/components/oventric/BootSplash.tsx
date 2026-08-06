@@ -30,8 +30,7 @@ function isStandaloneLaunch() {
   if (typeof w.__oventricStandalone === "boolean") return w.__oventricStandalone;
   try {
     const standalone =
-      window.matchMedia?.("(display-mode: standalone)").matches ||
-      w.navigator.standalone === true;
+      window.matchMedia?.("(display-mode: standalone)").matches || w.navigator.standalone === true;
     // Mobile only — no splash on desktop or tablet.
     return standalone && window.matchMedia?.("(max-width: 767px)").matches;
   } catch {
@@ -74,7 +73,9 @@ export function BootSplash() {
     const markAssets = () => {
       const ric = (window as unknown as { requestIdleCallback?: typeof setTimeout })
         .requestIdleCallback;
-      idle = (ric ? ric(() => setAssetsReady(true)) : setTimeout(() => setAssetsReady(true), 120)) as unknown as number;
+      idle = (ric
+        ? ric(() => setAssetsReady(true))
+        : setTimeout(() => setAssetsReady(true), 120)) as unknown as number;
     };
     const fonts = (document as Document & { fonts?: { ready: Promise<unknown> } }).fonts;
     if (fonts?.ready) fonts.ready.then(markAssets).catch(markAssets);
@@ -148,19 +149,22 @@ export function BootSplash() {
                 key={i}
                 className="h-8 w-8 transition-none sm:h-10 sm:w-10 splash-icon-sweep"
                 strokeWidth={1.8}
-                style={{
-                  color,
- "--ic": color,
-                  animationDelay: `${i * 0.15}s`,
-                  opacity: 0.15,
-                } as any}
+                style={
+                  {
+                    color,
+                    "--ic": color,
+                    animationDelay: `${i * 0.15}s`,
+                    opacity: 0.15,
+                  } as any
+                }
               />
             );
           })}
         </div>
       </div>
-      <style dangerouslySetInnerHTML={{
-        __html: `
+      <style
+        dangerouslySetInnerHTML={{
+          __html: `
           .splash-icon-sweep {
             animation: splash-icon-fade 3.2s infinite ease-in-out;
             will-change: transform, opacity, filter;
@@ -177,8 +181,9 @@ export function BootSplash() {
               filter: drop-shadow(0 0 16px var(--ic)) drop-shadow(0 0 8px var(--ic));
             }
           }
-        `
-      }} />
+        `,
+        }}
+      />
     </div>
   );
 }

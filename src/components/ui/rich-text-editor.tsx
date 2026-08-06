@@ -5,7 +5,9 @@ import { toast } from "sonner";
 import { getCourseMediaUploadUrl, getCourseMediaSignedUrl } from "@/lib/academy.functions";
 import { supabase } from "@/integrations/supabase/client";
 
-type UploadFn = (args: { data: { filename: string; kind?: "image" | "video" } }) => Promise<{ path: string; token: string; signedUrl: string }>;
+type UploadFn = (args: {
+  data: { filename: string; kind?: "image" | "video" };
+}) => Promise<{ path: string; token: string; signedUrl: string }>;
 type SignFn = (args: { data: { path: string } }) => Promise<{ url: string | null }>;
 
 /**
@@ -38,7 +40,6 @@ export function RichTextEditor({
   const defaultSign = useServerFn(getCourseMediaSignedUrl);
   const getUpload = (uploadFn ?? defaultUpload) as UploadFn;
   const getSigned = (signFn ?? defaultSign) as SignFn;
-
 
   const saveSelection = () => {
     const sel = window.getSelection();
@@ -127,7 +128,15 @@ export function RichTextEditor({
     }
   };
 
-  const Btn = ({ onClick, title, children }: { onClick: () => void; title: string; children: React.ReactNode }) => (
+  const Btn = ({
+    onClick,
+    title,
+    children,
+  }: {
+    onClick: () => void;
+    title: string;
+    children: React.ReactNode;
+  }) => (
     <button
       type="button"
       onMouseDown={(e) => e.preventDefault()}
@@ -142,17 +151,34 @@ export function RichTextEditor({
   return (
     <div className="rounded-lg border border-white/10 bg-[#121214] overflow-hidden">
       <div className="flex items-center gap-1 px-2 py-1.5 border-b border-white/10 bg-black/30">
-        <Btn onClick={() => exec("bold")} title="Bold"><Bold className="w-3.5 h-3.5" /></Btn>
-        <Btn onClick={() => exec("italic")} title="Italic"><Italic className="w-3.5 h-3.5" /></Btn>
-        <Btn onClick={() => exec("formatBlock", "H2")} title="Heading"><Heading2 className="w-3.5 h-3.5" /></Btn>
-        <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list"><List className="w-3.5 h-3.5" /></Btn>
-        <Btn onClick={insertLink} title="Insert link"><Link2 className="w-3.5 h-3.5" /></Btn>
+        <Btn onClick={() => exec("bold")} title="Bold">
+          <Bold className="w-3.5 h-3.5" />
+        </Btn>
+        <Btn onClick={() => exec("italic")} title="Italic">
+          <Italic className="w-3.5 h-3.5" />
+        </Btn>
+        <Btn onClick={() => exec("formatBlock", "H2")} title="Heading">
+          <Heading2 className="w-3.5 h-3.5" />
+        </Btn>
+        <Btn onClick={() => exec("insertUnorderedList")} title="Bulleted list">
+          <List className="w-3.5 h-3.5" />
+        </Btn>
+        <Btn onClick={insertLink} title="Insert link">
+          <Link2 className="w-3.5 h-3.5" />
+        </Btn>
         <label
           className="p-1.5 rounded hover:bg-white/10 text-slate-300 hover:text-white cursor-pointer"
           title="Insert image"
-          onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+          onMouseDown={(e) => {
+            e.preventDefault();
+            saveSelection();
+          }}
         >
-          {uploading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <ImageIcon className="w-3.5 h-3.5" />}
+          {uploading ? (
+            <Loader2 className="w-3.5 h-3.5 animate-spin" />
+          ) : (
+            <ImageIcon className="w-3.5 h-3.5" />
+          )}
           <input
             type="file"
             accept="image/*"
@@ -172,7 +198,10 @@ export function RichTextEditor({
         contentEditable
         suppressContentEditableWarning
         onInput={(e) => onChange((e.target as HTMLDivElement).innerHTML)}
-        onBlur={(e) => { saveSelection(); onChange((e.target as HTMLDivElement).innerHTML); }}
+        onBlur={(e) => {
+          saveSelection();
+          onChange((e.target as HTMLDivElement).innerHTML);
+        }}
         onKeyUp={saveSelection}
         onMouseUp={saveSelection}
         onTouchEnd={saveSelection}

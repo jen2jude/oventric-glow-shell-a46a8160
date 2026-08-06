@@ -15,7 +15,11 @@ export const Route = createFileRoute("/admin/support")({
   head: () => ({
     meta: [
       { title: "Support desk — Oventric admin" },
-      { name: "description", content: "Review disputes, feedback and live chat conversations from the Oventric help board." },
+      {
+        name: "description",
+        content:
+          "Review disputes, feedback and live chat conversations from the Oventric help board.",
+      },
       { property: "og:title", content: "Oventric support desk" },
       { property: "og:description", content: "Admin queue for disputes, feedback and live chat." },
     ],
@@ -23,8 +27,22 @@ export const Route = createFileRoute("/admin/support")({
   component: AdminSupportPage,
 });
 
-type Ticket = { id: string; user_id: string; category: string; subject: string; details: string; status: string; created_at: string };
-type Feedback = { id: string; rating: number; message: string; topic: string | null; created_at: string };
+type Ticket = {
+  id: string;
+  user_id: string;
+  category: string;
+  subject: string;
+  details: string;
+  status: string;
+  created_at: string;
+};
+type Feedback = {
+  id: string;
+  rating: number;
+  message: string;
+  topic: string | null;
+  created_at: string;
+};
 type ChatUser = { user_id: string; name: string; last: string; sender: string; created_at: string };
 type Msg = { id: string; sender: string; body: string; created_at: string };
 
@@ -50,13 +68,19 @@ function AdminSupportPage() {
         if (tab === "disputes") setTickets((await listTickets()) as Ticket[]);
         if (tab === "feedback") setFeedback((await listFeedback()) as Feedback[]);
         if (tab === "chat") setUsers((await listChatUsers()) as ChatUser[]);
-      } catch { /* forbidden or offline */ }
+      } catch {
+        /* forbidden or offline */
+      }
     })();
   }, [tab, listTickets, listFeedback, listChatUsers]);
 
   const openThread = async (userId: string) => {
     setActiveUser(userId);
-    try { setMessages((await listChat({ data: { userId } })) as Msg[]); } catch { setMessages([]); }
+    try {
+      setMessages((await listChat({ data: { userId } })) as Msg[]);
+    } catch {
+      setMessages([]);
+    }
   };
 
   const send = async () => {
@@ -68,8 +92,11 @@ function AdminSupportPage() {
   };
 
   const advance = async (t: Ticket) => {
-    const next = t.status === "open" ? "in_review" : t.status === "in_review" ? "resolved" : "closed";
-    await setStatus({ data: { id: t.id, status: next as "open" | "in_review" | "resolved" | "closed" } });
+    const next =
+      t.status === "open" ? "in_review" : t.status === "in_review" ? "resolved" : "closed";
+    await setStatus({
+      data: { id: t.id, status: next as "open" | "in_review" | "resolved" | "closed" },
+    });
     setTickets((await listTickets()) as Ticket[]);
   };
 
@@ -94,12 +121,19 @@ function AdminSupportPage() {
           {tickets.map((t) => (
             <div key={t.id} className="p-4 rounded-2xl bg-[#141418] border border-white/10">
               <div className="flex items-center gap-2">
-                <span className="text-xs uppercase tracking-wide text-emerald-300">{t.category.replace("_", " ")}</span>
-                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-300">{t.status}</span>
+                <span className="text-xs uppercase tracking-wide text-emerald-300">
+                  {t.category.replace("_", " ")}
+                </span>
+                <span className="ml-auto text-xs px-2 py-0.5 rounded-full bg-white/5 text-slate-300">
+                  {t.status}
+                </span>
               </div>
               <p className="mt-1 font-bold text-white">{t.subject}</p>
               <p className="mt-1 text-sm text-slate-300 whitespace-pre-wrap">{t.details}</p>
-              <button onClick={() => void advance(t)} className="mt-3 px-3 py-1.5 rounded-full bg-[#1E1E24] border border-white/10 text-xs font-semibold text-white">
+              <button
+                onClick={() => void advance(t)}
+                className="mt-3 px-3 py-1.5 rounded-full bg-[#1E1E24] border border-white/10 text-xs font-semibold text-white"
+              >
                 Move to next status
               </button>
             </div>
@@ -114,7 +148,10 @@ function AdminSupportPage() {
             <div key={f.id} className="p-4 rounded-2xl bg-[#141418] border border-white/10">
               <div className="flex items-center gap-1">
                 {[1, 2, 3, 4, 5].map((n) => (
-                  <Star key={n} className={`w-4 h-4 ${n <= f.rating ? "text-amber-300 fill-amber-300" : "text-slate-600"}`} />
+                  <Star
+                    key={n}
+                    className={`w-4 h-4 ${n <= f.rating ? "text-amber-300 fill-amber-300" : "text-slate-600"}`}
+                  />
                 ))}
               </div>
               <p className="mt-2 text-sm text-slate-200 whitespace-pre-wrap">{f.message}</p>
@@ -142,8 +179,13 @@ function AdminSupportPage() {
             <div className="flex-1 overflow-y-auto p-4 space-y-3">
               {!activeUser && <p className="text-sm text-slate-400">Pick a conversation.</p>}
               {messages.map((m) => (
-                <div key={m.id} className={m.sender === "admin" ? "flex justify-end" : "flex justify-start"}>
-                  <div className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm ${m.sender === "admin" ? "bg-emerald-500 text-black font-medium" : "bg-[#1E1E24] text-slate-100 border border-white/10"}`}>
+                <div
+                  key={m.id}
+                  className={m.sender === "admin" ? "flex justify-end" : "flex justify-start"}
+                >
+                  <div
+                    className={`max-w-[80%] px-3.5 py-2.5 rounded-2xl text-sm ${m.sender === "admin" ? "bg-emerald-500 text-black font-medium" : "bg-[#1E1E24] text-slate-100 border border-white/10"}`}
+                  >
                     {m.body}
                   </div>
                 </div>
@@ -154,11 +196,16 @@ function AdminSupportPage() {
                 <input
                   value={text}
                   onChange={(e) => setText(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter") void send(); }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") void send();
+                  }}
                   placeholder="Reply to user…"
                   className="flex-1 rounded-xl bg-[#1E1E24] border border-white/10 px-3 py-2.5 text-sm text-white placeholder:text-slate-500 outline-none focus:border-emerald-500/50"
                 />
-                <button onClick={() => void send()} className="w-11 h-11 grid place-items-center rounded-full bg-emerald-500 text-black">
+                <button
+                  onClick={() => void send()}
+                  className="w-11 h-11 grid place-items-center rounded-full bg-emerald-500 text-black"
+                >
                   <Send className="w-5 h-5" />
                 </button>
               </div>

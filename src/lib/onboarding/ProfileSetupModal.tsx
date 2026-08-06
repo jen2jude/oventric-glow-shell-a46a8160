@@ -131,10 +131,11 @@ function ProfileSetupSlide({
       });
       try {
         window.dispatchEvent(new CustomEvent("oventric:profile-updated"));
-      } catch { /* noop */ }
+      } catch {
+        /* noop */
+      }
       setDone(true);
       setTimeout(() => onSaved(parsed.data.fullName, parsed.data.country), 900);
-
     } catch (err) {
       setGlobalError(err instanceof Error ? err.message : "Could not save profile");
     } finally {
@@ -212,9 +213,13 @@ function ProfileSetupSlide({
               disabled={saving || done}
               className={inputCls(errors.country)}
             >
-              <option value="" disabled>Select a country</option>
+              <option value="" disabled>
+                Select a country
+              </option>
               {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>{c.label}</option>
+                <option key={c.code} value={c.code}>
+                  {c.label}
+                </option>
               ))}
             </select>
           </Field>
@@ -288,11 +293,15 @@ function ProfileSetupSlide({
             className=" w-full h-11 rounded-lg bg-[#121214] text-white font-black text-sm inline-flex items-center justify-center gap-2 disabled:opacity-60"
           >
             {saving ? (
-              <><Loader2 className="w-4 h-4 animate-spin" /> Saving…</>
+              <>
+                <Loader2 className="w-4 h-4 animate-spin" /> Saving…
+              </>
             ) : done ? (
-              <><Check className="w-4 h-4 text-emerald-300" /> Done</>
+              <>
+                <Check className="w-4 h-4 text-emerald-300" /> Done
+              </>
             ) : (
- "Save & enter Oventric"
+              "Save & enter Oventric"
             )}
           </button>
           <p className="text-[11px] text-slate-500 text-center">
@@ -337,7 +346,10 @@ function Field({
       {children}
       {hint && !error && <p className="mt-1 text-[11px] text-slate-500">{hint}</p>}
       {error && (
-        <p role="alert" className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2">
+        <p
+          role="alert"
+          className="mt-1.5 text-[11px] font-semibold text-red-400 border-l-2 border-red-500 pl-2"
+        >
           {error}
         </p>
       )}

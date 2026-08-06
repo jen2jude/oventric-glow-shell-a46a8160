@@ -39,11 +39,17 @@ function OrderPage() {
         setOrder(r.order);
         setDownloadUrl(r.downloadUrl);
       })
-      .catch((e: Error) => { if (!cancelled) setErr(e.message || "Order not found"); });
-    return () => { cancelled = true; };
+      .catch((e: Error) => {
+        if (!cancelled) setErr(e.message || "Order not found");
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [id, load]);
 
-  const displayAmount = order ? order.displayTotal * (FX_FROM_USD[baseCurrency] / FX_FROM_USD[order.displayCurrency]) : 0;
+  const displayAmount = order
+    ? order.displayTotal * (FX_FROM_USD[baseCurrency] / FX_FROM_USD[order.displayCurrency])
+    : 0;
   const href = downloadUrl ?? order?.externalUrl ?? null;
 
   return (
@@ -57,12 +63,17 @@ function OrderPage() {
           willChange: "transform",
         }}
       >
-        <Link to="/" className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-5">
+        <Link
+          to="/"
+          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-5"
+        >
           <ArrowLeft className="w-4 h-4" /> Back to Marketplace
         </Link>
 
         {err && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-lg p-4 text-sm text-red-300">{err}</div>
+          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-lg p-4 text-sm text-red-300">
+            {err}
+          </div>
         )}
         {!order && !err && (
           <div className="flex items-center gap-2 text-slate-400 md:text-slate-500 text-sm">
@@ -76,27 +87,52 @@ function OrderPage() {
               <div className="w-12 h-12 rounded-full bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center mx-auto mb-3">
                 <CheckCircle2 className="w-6 h-6 text-emerald-300" />
               </div>
-              <h1 className="text-xl font-bold text-white md:text-slate-900 mb-1">Thank you for your purchase</h1>
-              <p className="text-xs text-slate-400 md:text-slate-500">A receipt has been sent to your email.</p>
+              <h1 className="text-xl font-bold text-white md:text-slate-900 mb-1">
+                Thank you for your purchase
+              </h1>
+              <p className="text-xs text-slate-400 md:text-slate-500">
+                A receipt has been sent to your email.
+              </p>
             </div>
 
             <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg p-4 mb-4">
               <div className="flex items-start justify-between gap-3 mb-3">
                 <div className="min-w-0">
-                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">{order.category}</div>
-                  <div className="text-white md:text-slate-900 font-bold text-base truncate">{order.productName}</div>
-                  <div className="text-xs text-slate-500 md:text-slate-500 truncate">by {order.vendor} · Qty {order.quantity}</div>
+                  <div className="text-[10px] font-bold uppercase tracking-widest text-emerald-400 mb-0.5">
+                    {order.category}
+                  </div>
+                  <div className="text-white md:text-slate-900 font-bold text-base truncate">
+                    {order.productName}
+                  </div>
+                  <div className="text-xs text-slate-500 md:text-slate-500 truncate">
+                    by {order.vendor} · Qty {order.quantity}
+                  </div>
                 </div>
                 <div className="text-right shrink-0">
-                  <div className="text-white md:text-slate-900 font-bold">{fmt(displayAmount, baseCurrency)}</div>
-                  <div className="text-[10px] text-slate-500 md:text-slate-500 font-mono uppercase">{order.paymentMethod.replace("_", " ")}</div>
+                  <div className="text-white md:text-slate-900 font-bold">
+                    {fmt(displayAmount, baseCurrency)}
+                  </div>
+                  <div className="text-[10px] text-slate-500 md:text-slate-500 font-mono uppercase">
+                    {order.paymentMethod.replace("_", " ")}
+                  </div>
                 </div>
               </div>
 
               <div className="border-t border-white/5 md:border-slate-200 pt-3 space-y-1.5 text-xs text-slate-400 md:text-slate-500">
-                <div className="flex justify-between"><span>Order ID</span><span className="font-mono text-slate-300 md:text-slate-600">{order.id.slice(0, 8)}…</span></div>
-                <div className="flex justify-between"><span>Status</span><span className="text-emerald-300 font-semibold uppercase">{order.status}</span></div>
-                <div className="flex justify-between"><span>Placed</span><span>{new Date(order.createdAt).toLocaleString()}</span></div>
+                <div className="flex justify-between">
+                  <span>Order ID</span>
+                  <span className="font-mono text-slate-300 md:text-slate-600">
+                    {order.id.slice(0, 8)}…
+                  </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Status</span>
+                  <span className="text-emerald-300 font-semibold uppercase">{order.status}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Placed</span>
+                  <span>{new Date(order.createdAt).toLocaleString()}</span>
+                </div>
               </div>
             </div>
 
@@ -104,33 +140,46 @@ function OrderPage() {
               <OrderFulfilmentRoadmap orderId={order.id} />
             </div>
 
-
             {order.requiresManualDelivery ? (
               <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-amber-500/40 rounded-lg p-4">
-                <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">Manual delivery</h2>
+                <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">
+                  Manual delivery
+                </h2>
                 <p className="text-xs text-slate-400 md:text-slate-500 mb-3">
-                  Payment received and held in escrow. The seller delivers this asset to you inside your Oventric chat. Expect contact within 24 hours.
+                  Payment received and held in escrow. The seller delivers this asset to you inside
+                  your Oventric chat. Expect contact within 24 hours.
                 </p>
                 <div className="rounded-md border border-amber-500/40 bg-amber-500/5 p-3 text-[11px] text-amber-100 leading-relaxed mb-3">
-                  <strong className="text-amber-200">Keep the whole trade on Oventric.</strong> The seller sends the file, link, or setup instructions through your in-app chat. Once you have the goods, tap <em>Confirm receipt</em> to release payment. <span className="text-amber-300 font-semibold">Never continue on WhatsApp, Telegram or email</span> — escrow, refunds and dispute mediation only cover deals completed here.
+                  <strong className="text-amber-200">Keep the whole trade on Oventric.</strong> The
+                  seller sends the file, link, or setup instructions through your in-app chat. Once
+                  you have the goods, tap <em>Confirm receipt</em> to release payment.{" "}
+                  <span className="text-amber-300 font-semibold">
+                    Never continue on WhatsApp, Telegram or email
+                  </span>{" "}
+                  — escrow, refunds and dispute mediation only cover deals completed here.
                 </div>
                 <div className="text-xs">
                   <div className="bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-md px-3 py-2">
-                    <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500 mb-0.5">Receipt email</div>
-                    <div className="text-white md:text-slate-900 font-mono truncate">{order.deliveryEmail ?? "—"}</div>
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500 mb-0.5">
+                      Receipt email
+                    </div>
+                    <div className="text-white md:text-slate-900 font-mono truncate">
+                      {order.deliveryEmail ?? "—"}
+                    </div>
                   </div>
                 </div>
               </div>
-
             ) : (
               <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-emerald-500/40 rounded-lg p-4">
-                <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">Your download</h2>
+                <h2 className="text-white md:text-slate-900 font-bold text-base mb-1">
+                  Your download
+                </h2>
                 <p className="text-xs text-slate-400 md:text-slate-500 mb-3">
                   {downloadUrl
                     ? "Signed download link valid for 60 minutes."
                     : order.externalUrl
-                    ? "Delivered from the seller's hosted link."
-                    : "The seller hasn't attached a downloadable file for this listing."}
+                      ? "Delivered from the seller's hosted link."
+                      : "The seller hasn't attached a downloadable file for this listing."}
                 </p>
                 {href ? (
                   <a
@@ -139,7 +188,15 @@ function OrderPage() {
                     rel="noreferrer"
                     className="inline-flex items-center gap-2 px-4 py-2.5 rounded-md bg-emerald-500 text-black font-bold text-sm"
                   >
-                    {downloadUrl ? <><Download className="w-4 h-4" /> Download now</> : <><ExternalLink className="w-4 h-4" /> Open delivery link</>}
+                    {downloadUrl ? (
+                      <>
+                        <Download className="w-4 h-4" /> Download now
+                      </>
+                    ) : (
+                      <>
+                        <ExternalLink className="w-4 h-4" /> Open delivery link
+                      </>
+                    )}
                   </a>
                 ) : (
                   <div className="text-xs text-slate-500 md:text-slate-500 inline-flex items-center gap-2">

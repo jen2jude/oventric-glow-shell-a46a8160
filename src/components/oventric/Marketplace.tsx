@@ -21,11 +21,15 @@ import {
 } from "lucide-react";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
-import { listProducts, listMarketplaceCategories, type ProductDTO, type CategoryNode } from "@/lib/marketplace.functions";
+import {
+  listProducts,
+  listMarketplaceCategories,
+  type ProductDTO,
+  type CategoryNode,
+} from "@/lib/marketplace.functions";
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { MarketplaceBanner } from "@/components/oventric/MarketplaceBanner";
-
 
 type CategoryKey = "themes" | "plugins" | "blocks" | "scripts";
 
@@ -40,7 +44,10 @@ const CATEGORY_META: Record<
 };
 
 function categoryIcon(cat: string): React.ComponentType<{ className?: string }> {
-  return (CATEGORY_META as Record<string, { Icon: React.ComponentType<{ className?: string }> }>)[cat]?.Icon ?? Package;
+  return (
+    (CATEGORY_META as Record<string, { Icon: React.ComponentType<{ className?: string }> }>)[cat]
+      ?.Icon ?? Package
+  );
 }
 
 function displayPriceForProduct(p: ProductDTO, viewer: Currency) {
@@ -97,23 +104,36 @@ export function Marketplace() {
   }, [loadCats]);
 
   const onOpenProduct = (p: ProductDTO) => {
-    require(1, () => navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
+    require(1, () =>
+      navigate({ to: "/product/$id", params: { id: p.id }, search: { qty: 1 } }), "buyer");
   };
 
   // Global catalogue: every shopper sees every active listing. Prices are
   // converted into the viewer's home currency for display and checkout.
   const currencyScoped = products;
 
-
-  const digital = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind !== "physical"), [currencyScoped]);
-  const physical = useMemo(() => (currencyScoped ?? []).filter((p) => p.kind === "physical"), [currencyScoped]);
+  const digital = useMemo(
+    () => (currencyScoped ?? []).filter((p) => p.kind !== "physical"),
+    [currencyScoped],
+  );
+  const physical = useMemo(
+    () => (currencyScoped ?? []).filter((p) => p.kind === "physical"),
+    [currencyScoped],
+  );
 
   const modeItems = mode === "physical" ? physical : mode === "digital" ? digital : [];
 
   // Category cards for the active mode: DB categories that have products, plus
   // any product category not defined in the DB. AI Platform pinned first.
   const categories = useMemo(() => {
-    if (!mode) return [] as Array<{ slug: string; name: string; count: number; cover: string | null; subs: CategoryNode[] }>;
+    if (!mode)
+      return [] as Array<{
+        slug: string;
+        name: string;
+        count: number;
+        cover: string | null;
+        subs: CategoryNode[];
+      }>;
     const roots = catRoots.filter((c) => c.kind === mode);
     const counts = new Map<string, ProductDTO[]>();
     modeItems.forEach((p) => {
@@ -122,7 +142,13 @@ export function Marketplace() {
       arr.push(p);
       counts.set(key, arr);
     });
-    const out: Array<{ slug: string; name: string; count: number; cover: string | null; subs: CategoryNode[] }> = [];
+    const out: Array<{
+      slug: string;
+      name: string;
+      count: number;
+      cover: string | null;
+      subs: CategoryNode[];
+    }> = [];
     const push = (slug: string, name: string, subs: CategoryNode[]) => {
       const items = counts.get(slug) ?? [];
       counts.delete(slug);
@@ -158,7 +184,8 @@ export function Marketplace() {
     if (activeSub) list = list.filter((p) => norm(p.subcategory) === activeSub);
     if (searchTerm) {
       list = list.filter((p) => {
-        const hay = `${p.name} ${p.category} ${p.subcategory ?? ""} ${p.vendor ?? ""}`.toLowerCase();
+        const hay =
+          `${p.name} ${p.category} ${p.subcategory ?? ""} ${p.vendor ?? ""}`.toLowerCase();
         return hay.includes(searchTerm);
       });
     }
@@ -174,16 +201,35 @@ export function Marketplace() {
     });
     const sorted = [...list];
     if (sort === "price-asc") {
-      sorted.sort((a, b) => displayPriceForProduct(a, baseCurrency).value - displayPriceForProduct(b, baseCurrency).value);
+      sorted.sort(
+        (a, b) =>
+          displayPriceForProduct(a, baseCurrency).value -
+          displayPriceForProduct(b, baseCurrency).value,
+      );
     } else if (sort === "price-desc") {
-      sorted.sort((a, b) => displayPriceForProduct(b, baseCurrency).value - displayPriceForProduct(a, baseCurrency).value);
+      sorted.sort(
+        (a, b) =>
+          displayPriceForProduct(b, baseCurrency).value -
+          displayPriceForProduct(a, baseCurrency).value,
+      );
     } else if (sort === "rating") {
       sorted.sort((a, b) => b.rating - a.rating);
     } else {
       sorted.sort((a, b) => Number(b.promoted) - Number(a.promoted));
     }
     return sorted;
-  }, [modeItems, activeCat, activeSub, searchTerm, minPrice, maxPrice, minRating, promotedOnly, sort, baseCurrency]);
+  }, [
+    modeItems,
+    activeCat,
+    activeSub,
+    searchTerm,
+    minPrice,
+    maxPrice,
+    minRating,
+    promotedOnly,
+    sort,
+    baseCurrency,
+  ]);
 
   // Sales proxy: review volume first, then rating, then promotion.
   const salesScore = (p: ProductDTO) => p.reviews * 10 + p.rating;
@@ -198,10 +244,13 @@ export function Marketplace() {
   /** Grid with promoted listings woven in after every few cards. */
   const gridItems = useMemo(() => {
     const regular = filtered.filter((p) => !p.promoted);
-    const catScope = activeCat ? modeItems.filter((p) => norm(p.category) === activeCat) : modeItems;
-    const promos = (filtered.filter((p) => p.promoted).length > 0
-      ? filtered.filter((p) => p.promoted)
-      : catScope.filter((p) => p.promoted));
+    const catScope = activeCat
+      ? modeItems.filter((p) => norm(p.category) === activeCat)
+      : modeItems;
+    const promos =
+      filtered.filter((p) => p.promoted).length > 0
+        ? filtered.filter((p) => p.promoted)
+        : catScope.filter((p) => p.promoted);
     if (promotedOnly || promos.length === 0) return filtered;
     const out: ProductDTO[] = [];
     let pi = 0;
@@ -227,8 +276,11 @@ export function Marketplace() {
   }, [currencyScoped]);
 
   const activeFilterCount =
-    (minPrice ? 1 : 0) + (maxPrice ? 1 : 0) + (minRating ? 1 : 0) + (promotedOnly ? 1 : 0) + (sort !== "featured" ? 1 : 0);
-
+    (minPrice ? 1 : 0) +
+    (maxPrice ? 1 : 0) +
+    (minRating ? 1 : 0) +
+    (promotedOnly ? 1 : 0) +
+    (sort !== "featured" ? 1 : 0);
 
   const resetFilters = () => {
     setMinPrice("");
@@ -255,7 +307,12 @@ export function Marketplace() {
         <div className="bg-white border border-red-200 rounded-2xl p-8 shadow-sm">
           <div className="text-red-600 font-bold mb-1">Couldn't load marketplace</div>
           <div className="text-sm text-slate-500 mb-4">{error}</div>
-          <button onClick={refresh} className="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-full">Try again</button>
+          <button
+            onClick={refresh}
+            className="px-4 py-2 bg-emerald-600 text-white font-semibold text-sm rounded-full"
+          >
+            Try again
+          </button>
         </div>
       </div>
     );
@@ -267,247 +324,310 @@ export function Marketplace() {
     <div className="marketplace-render-safe bg-[#F7F8FA] text-slate-700 min-h-full">
       <MarketplaceBanner />
       <div className="max-w-7xl mx-auto w-full px-3 sm:px-4 py-4 sm:py-6">
-
-      {/* ── Marketplace search ─────────────────────────────────── */}
-      <div className="mb-4 sm:mb-5">
-        <div className="relative max-w-2xl mx-auto group">
-          <input
-            type="search"
-            role="searchbox"
-            aria-label="Search marketplace products"
-            value={searchQuery}
-            onChange={(e) => {
-              setSearchQuery(e.target.value);
-              if (!mode) setMode("digital");
-              setFiltersOpen(true);
-            }}
-            onFocus={() => setFiltersOpen(true)}
-            placeholder="I'm looking for..."
-            className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
-          />
-          <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l border-slate-200 bg-slate-50 text-slate-500 group-focus-within:text-emerald-600 group-focus-within:bg-emerald-50 transition-colors pointer-events-none">
-            <Search className="w-5 h-5" />
-          </div>
-        </div>
-      </div>
-
-      {/* ── Mode cards ─────────────────────────────────────────── */}
-      <div className="grid grid-cols-2 gap-3 sm:gap-4">
-        <ModeCard
-          label="Digital Products"
-          sub="Themes, plugins, scripts & AI tools"
-          Icon={Cloud}
-          count={digital.length}
-          covers={digital.map((p) => p.coverUrl).filter(Boolean).slice(0, 4) as string[]}
-          active={mode === "digital"}
-          onClick={() => selectMode("digital")}
-        />
-        <ModeCard
-          label="Physical Products"
-          sub="Goods you can see, touch & collect"
-          Icon={Truck}
-          count={physical.length}
-          covers={physical.map((p) => p.coverUrl).filter(Boolean).slice(0, 4) as string[]}
-          active={mode === "physical"}
-          onClick={() => selectMode("physical")}
-        />
-      </div>
-
-      {/* ── Category slider (drops down under the selected mode) ── */}
-      <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
-        <div className="pt-5">
-          <div className="flex items-center justify-between mb-3">
-            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
-              {mode === "physical" ? "Physical" : "Digital"} categories
-            </h2>
-            {activeCat && (
-              <button onClick={() => { setActiveCat(null); setActiveSub(null); }} className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold">
-                Clear category
-              </button>
-            )}
-          </div>
-          <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
-            {categories.map((c) => {
-              const Icon = categoryIcon(c.slug);
-              const active = activeCat === c.slug;
-              return (
-                <button
-                  key={c.slug}
-                  onClick={() => selectCat(c.slug)}
-                  className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
-                    active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
-                  }`}
-                >
-                  <div className="relative h-20 sm:h-24 bg-slate-100">
-                    {c.cover ? (
-                      <ResponsiveImage
-                        sizes="200px"
-                        src={c.cover}
-                        alt={c.name}
-                        className="absolute inset-0 w-full h-full object-cover"
-                        loading="eager"
-                        decoding="async"
-                      />
-                    ) : null}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
-                    <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
-                    <span className="absolute right-2 top-2 text-[10px] font-black bg-red-600 text-white rounded-none px-1.5 py-0.5 shadow-sm ring-1 ring-white/70">
-                      {c.count}
-                    </span>
-                  </div>
-                  <div className="px-3 py-2">
-                    <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">{c.name}</div>
-                    {c.subs.length > 0 && (
-                      <div className="text-[11px] font-semibold text-red-600 mt-0.5 inline-flex items-center gap-1">
-                        {c.subs.length} subcategories <ChevronDown className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`} />
-                      </div>
-                    )}
-                  </div>
-                </button>
-              );
-            })}
-          </div>
-        </div>
-      </Collapse>
-
-      {/* ── Subcategory drop-down ────────────────────────────────── */}
-      <Collapse open={!!activeCatNode && activeCatNode.subs.length > 0}>
-        <div className="pt-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
-          <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} />
-          {(activeCatNode?.subs ?? []).map((s) => (
-            <SubPill
-              key={s.id}
-              label={s.name}
-              active={activeSub === norm(s.slug)}
-              onClick={() => setActiveSub((prev) => (prev === norm(s.slug) ? null : norm(s.slug)))}
+        {/* ── Marketplace search ─────────────────────────────────── */}
+        <div className="mb-4 sm:mb-5">
+          <div className="relative max-w-2xl mx-auto group">
+            <input
+              type="search"
+              role="searchbox"
+              aria-label="Search marketplace products"
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (!mode) setMode("digital");
+                setFiltersOpen(true);
+              }}
+              onFocus={() => setFiltersOpen(true)}
+              placeholder="I'm looking for..."
+              className="w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base bg-white border border-slate-200 text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500/20 transition-shadow shadow-sm"
             />
-          ))}
-        </div>
-      </Collapse>
-
-      {/* ── Hot products (top sellers in this section) ───────────── */}
-      <Collapse open={!!mode && hotItems.length > 0 && !searchTerm}>
-        <div className="pt-5">
-          <div className="flex items-center gap-2 mb-3">
-            <Flame className="w-4 h-4 text-orange-400" />
-            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
-              Hot {mode === "physical" ? "physical" : "digital"} products
-            </h2>
+            <div className="absolute right-0 top-0 h-full px-3 sm:px-4 flex items-center justify-center border-l border-slate-200 bg-slate-50 text-slate-500 group-focus-within:text-emerald-600 group-focus-within:bg-emerald-50 transition-colors pointer-events-none">
+              <Search className="w-5 h-5" />
+            </div>
           </div>
-          <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
-            {hotItems.map((p) => (
-              <MiniProductCard key={`hot-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} />
+        </div>
+
+        {/* ── Mode cards ─────────────────────────────────────────── */}
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
+          <ModeCard
+            label="Digital Products"
+            sub="Themes, plugins, scripts & AI tools"
+            Icon={Cloud}
+            count={digital.length}
+            covers={
+              digital
+                .map((p) => p.coverUrl)
+                .filter(Boolean)
+                .slice(0, 4) as string[]
+            }
+            active={mode === "digital"}
+            onClick={() => selectMode("digital")}
+          />
+          <ModeCard
+            label="Physical Products"
+            sub="Goods you can see, touch & collect"
+            Icon={Truck}
+            count={physical.length}
+            covers={
+              physical
+                .map((p) => p.coverUrl)
+                .filter(Boolean)
+                .slice(0, 4) as string[]
+            }
+            active={mode === "physical"}
+            onClick={() => selectMode("physical")}
+          />
+        </div>
+
+        {/* ── Category slider (drops down under the selected mode) ── */}
+        <Collapse open={!!mode && categories.length > 0 && !searchTerm}>
+          <div className="pt-5">
+            <div className="flex items-center justify-between mb-3">
+              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+                {mode === "physical" ? "Physical" : "Digital"} categories
+              </h2>
+              {activeCat && (
+                <button
+                  onClick={() => {
+                    setActiveCat(null);
+                    setActiveSub(null);
+                  }}
+                  className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+                >
+                  Clear category
+                </button>
+              )}
+            </div>
+            <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+              {categories.map((c) => {
+                const Icon = categoryIcon(c.slug);
+                const active = activeCat === c.slug;
+                return (
+                  <button
+                    key={c.slug}
+                    onClick={() => selectCat(c.slug)}
+                    className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
+                      active
+                        ? "border-emerald-500 bg-emerald-50 shadow-sm"
+                        : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+                    }`}
+                  >
+                    <div className="relative h-20 sm:h-24 bg-slate-100">
+                      {c.cover ? (
+                        <ResponsiveImage
+                          sizes="200px"
+                          src={c.cover}
+                          alt={c.name}
+                          className="absolute inset-0 w-full h-full object-cover"
+                          loading="eager"
+                          decoding="async"
+                        />
+                      ) : null}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/35 to-transparent" />
+                      <Icon className="absolute left-2 bottom-2 w-5 h-5 text-white" />
+                      <span className="absolute right-2 top-2 text-[10px] font-black bg-red-600 text-white rounded-none px-1.5 py-0.5 shadow-sm ring-1 ring-white/70">
+                        {c.count}
+                      </span>
+                    </div>
+                    <div className="px-3 py-2">
+                      <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+                        {c.name}
+                      </div>
+                      {c.subs.length > 0 && (
+                        <div className="text-[11px] font-semibold text-red-600 mt-0.5 inline-flex items-center gap-1">
+                          {c.subs.length} subcategories{" "}
+                          <ChevronDown
+                            className={`w-3 h-3 transition-transform ${active ? "rotate-180" : ""}`}
+                          />
+                        </div>
+                      )}
+                    </div>
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        </Collapse>
+
+        {/* ── Subcategory drop-down ────────────────────────────────── */}
+        <Collapse open={!!activeCatNode && activeCatNode.subs.length > 0}>
+          <div className="pt-3 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+            <SubPill label="All" active={!activeSub} onClick={() => setActiveSub(null)} />
+            {(activeCatNode?.subs ?? []).map((s) => (
+              <SubPill
+                key={s.id}
+                label={s.name}
+                active={activeSub === norm(s.slug)}
+                onClick={() =>
+                  setActiveSub((prev) => (prev === norm(s.slug) ? null : norm(s.slug)))
+                }
+              />
             ))}
           </div>
-        </div>
-      </Collapse>
+        </Collapse>
 
-
-
-      {/* ── Toolbar + grid with side filter ──────────────────────── */}
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <div className="text-sm text-slate-500">
-          {searchTerm ? (
-            <>
-              <span className="text-slate-900 font-bold">{filtered.length}</span> result{filtered.length === 1 ? "" : "s"} for “<span className="text-emerald-600">{searchTerm}</span>”
-            </>
-          ) : (
-            <>
-              <span className="text-slate-900 font-bold">{filtered.length}</span> item{filtered.length === 1 ? "" : "s"}
-              {activeCatNode ? <> in <span className="text-emerald-600">{activeCatNode.name}</span></> : null}
-            </>
-          )}
-        </div>
-        <button
-          onClick={() => setFiltersOpen((v) => !v)}
-          className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
-        >
-          <SlidersHorizontal className="w-4 h-4" /> Filters
-          {activeFilterCount > 0 && (
-            <span className="text-[10px] font-bold bg-emerald-600 text-white rounded-full px-1.5">{activeFilterCount}</span>
-          )}
-        </button>
-      </div>
-
-      <div className="mt-4 flex gap-6 items-start">
-        <aside className="hidden lg:block w-64 shrink-0 sticky top-4">
-          <FilterPanel
-            currency={baseCurrency}
-            minPrice={minPrice} setMinPrice={setMinPrice}
-            maxPrice={maxPrice} setMaxPrice={setMaxPrice}
-            minRating={minRating} setMinRating={setMinRating}
-            promotedOnly={promotedOnly} setPromotedOnly={setPromotedOnly}
-            sort={sort} setSort={setSort}
-            onReset={resetFilters}
-          />
-        </aside>
-
-        <div className="flex-1 min-w-0">
-          <Collapse open={filtersOpen}>
-            <div className="lg:hidden mb-4">
-              <FilterPanel
-                currency={baseCurrency}
-                minPrice={minPrice} setMinPrice={setMinPrice}
-                maxPrice={maxPrice} setMaxPrice={setMaxPrice}
-                minRating={minRating} setMinRating={setMinRating}
-                promotedOnly={promotedOnly} setPromotedOnly={setPromotedOnly}
-                sort={sort} setSort={setSort}
-                onReset={resetFilters}
-                onClose={() => setFiltersOpen(false)}
-              />
+        {/* ── Hot products (top sellers in this section) ───────────── */}
+        <Collapse open={!!mode && hotItems.length > 0 && !searchTerm}>
+          <div className="pt-5">
+            <div className="flex items-center gap-2 mb-3">
+              <Flame className="w-4 h-4 text-orange-400" />
+              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+                Hot {mode === "physical" ? "physical" : "digital"} products
+              </h2>
             </div>
-          </Collapse>
-
-          {!mode ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
-              <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
-              <div className="text-sm text-slate-500">Choose Digital or Physical products above to browse.</div>
-            </div>
-          ) : filtered.length === 0 ? (
-            <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
-              <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
-              <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
-              <div className="text-sm text-slate-500">Try clearing the category or price filters.</div>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-              {gridItems.map((p, i) => (
-                <ProductCard key={`${p.id}-${i}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
+            <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+              {hotItems.map((p) => (
+                <MiniProductCard
+                  key={`hot-${p.id}`}
+                  p={p}
+                  currency={baseCurrency}
+                  onClick={() => onOpenProduct(p)}
+                />
               ))}
             </div>
-          )}
+          </div>
+        </Collapse>
 
-          <div className="mt-6">
-            <AdSlot placement="marketplace" variant="grid" index={0} />
+        {/* ── Toolbar + grid with side filter ──────────────────────── */}
+        <div className="mt-6 flex items-center justify-between gap-3">
+          <div className="text-sm text-slate-500">
+            {searchTerm ? (
+              <>
+                <span className="text-slate-900 font-bold">{filtered.length}</span> result
+                {filtered.length === 1 ? "" : "s"} for “
+                <span className="text-emerald-600">{searchTerm}</span>”
+              </>
+            ) : (
+              <>
+                <span className="text-slate-900 font-bold">{filtered.length}</span> item
+                {filtered.length === 1 ? "" : "s"}
+                {activeCatNode ? (
+                  <>
+                    {" "}
+                    in <span className="text-emerald-600">{activeCatNode.name}</span>
+                  </>
+                ) : null}
+              </>
+            )}
+          </div>
+          <button
+            onClick={() => setFiltersOpen((v) => !v)}
+            className="lg:hidden inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white border border-slate-200 text-sm text-slate-700 shadow-sm"
+          >
+            <SlidersHorizontal className="w-4 h-4" /> Filters
+            {activeFilterCount > 0 && (
+              <span className="text-[10px] font-bold bg-emerald-600 text-white rounded-full px-1.5">
+                {activeFilterCount}
+              </span>
+            )}
+          </button>
+        </div>
+
+        <div className="mt-4 flex gap-6 items-start">
+          <aside className="hidden lg:block w-64 shrink-0 sticky top-4">
+            <FilterPanel
+              currency={baseCurrency}
+              minPrice={minPrice}
+              setMinPrice={setMinPrice}
+              maxPrice={maxPrice}
+              setMaxPrice={setMaxPrice}
+              minRating={minRating}
+              setMinRating={setMinRating}
+              promotedOnly={promotedOnly}
+              setPromotedOnly={setPromotedOnly}
+              sort={sort}
+              setSort={setSort}
+              onReset={resetFilters}
+            />
+          </aside>
+
+          <div className="flex-1 min-w-0">
+            <Collapse open={filtersOpen}>
+              <div className="lg:hidden mb-4">
+                <FilterPanel
+                  currency={baseCurrency}
+                  minPrice={minPrice}
+                  setMinPrice={setMinPrice}
+                  maxPrice={maxPrice}
+                  setMaxPrice={setMaxPrice}
+                  minRating={minRating}
+                  setMinRating={setMinRating}
+                  promotedOnly={promotedOnly}
+                  setPromotedOnly={setPromotedOnly}
+                  sort={sort}
+                  setSort={setSort}
+                  onReset={resetFilters}
+                  onClose={() => setFiltersOpen(false)}
+                />
+              </div>
+            </Collapse>
+
+            {!mode ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+                <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <div className="text-slate-900 font-semibold mb-1">Pick a section</div>
+                <div className="text-sm text-slate-500">
+                  Choose Digital or Physical products above to browse.
+                </div>
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="bg-white border border-slate-200 rounded-2xl p-10 text-center">
+                <PackageOpen className="w-10 h-10 text-slate-300 mx-auto mb-3" />
+                <div className="text-slate-900 font-semibold mb-1">Nothing matches</div>
+                <div className="text-sm text-slate-500">
+                  Try clearing the category or price filters.
+                </div>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+                {gridItems.map((p, i) => (
+                  <ProductCard
+                    key={`${p.id}-${i}`}
+                    p={p}
+                    currency={baseCurrency}
+                    onClick={() => onOpenProduct(p)}
+                    index={i}
+                  />
+                ))}
+              </div>
+            )}
+
+            <div className="mt-6">
+              <AdSlot placement="marketplace" variant="grid" index={0} />
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* ── Recommended: best sellers + promoted ─────────────────── */}
-      {recommended.length > 0 && !searchTerm && (
-        <section className="mt-10">
-          <div className="flex items-center gap-2 mb-3">
-            <Star className="w-4 h-4 text-amber-300 fill-current" />
-            <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">Recommended for you</h2>
-          </div>
-          <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
-            {recommended.map((p, i) => (
-              <ProductCard key={`reco-${p.id}`} p={p} currency={baseCurrency} onClick={() => onOpenProduct(p)} index={i} />
-            ))}
-          </div>
-        </section>
-      )}
-      {/* Clears the floating bottom nav + device safe area on mobile. */}
-      <div
-        className="md:hidden"
-        style={{ height: "calc(5rem + max(env(safe-area-inset-bottom), 0.5rem))" }}
-        aria-hidden
-      />
+        {/* ── Recommended: best sellers + promoted ─────────────────── */}
+        {recommended.length > 0 && !searchTerm && (
+          <section className="mt-10">
+            <div className="flex items-center gap-2 mb-3">
+              <Star className="w-4 h-4 text-amber-300 fill-current" />
+              <h2 className="text-base sm:text-lg font-extrabold tracking-tight text-slate-900">
+                Recommended for you
+              </h2>
+            </div>
+            <div className="grid grid-cols-2 xl:grid-cols-4 gap-3 sm:gap-4">
+              {recommended.map((p, i) => (
+                <ProductCard
+                  key={`reco-${p.id}`}
+                  p={p}
+                  currency={baseCurrency}
+                  onClick={() => onOpenProduct(p)}
+                  index={i}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+        {/* Clears the floating bottom nav + device safe area on mobile. */}
+        <div
+          className="md:hidden"
+          style={{ height: "calc(5rem + max(env(safe-area-inset-bottom), 0.5rem))" }}
+          aria-hidden
+        />
       </div>
     </div>
-
-
   );
 }
 
@@ -525,7 +645,13 @@ function Collapse({ open, children }: { open: boolean; children: React.ReactNode
 }
 
 function ModeCard({
-  label, sub, Icon, count, covers, active, onClick,
+  label,
+  sub,
+  Icon,
+  count,
+  covers,
+  active,
+  onClick,
 }: {
   label: string;
   sub: string;
@@ -540,14 +666,23 @@ function ModeCard({
       onClick={onClick}
       aria-expanded={active}
       className={`text-left rounded-[10px] overflow-hidden border transition-colors ${
-        active ? "border-emerald-500 bg-emerald-50 shadow-sm" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+        active
+          ? "border-emerald-500 bg-emerald-50 shadow-sm"
+          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
       <div className="relative h-28 sm:h-36 grid grid-cols-2 grid-rows-2 gap-px bg-slate-100">
         {Array.from({ length: 4 }).map((_, i) => (
           <div key={i} className="relative overflow-hidden bg-slate-100">
             {covers[i] ? (
-              <img src={covers[i]} alt="" loading="eager" fetchPriority="high" decoding="async" className="w-full h-full object-cover" />
+              <img
+                src={covers[i]}
+                alt=""
+                loading="eager"
+                fetchPriority="high"
+                decoding="async"
+                className="w-full h-full object-cover"
+              />
             ) : null}
           </div>
         ))}
@@ -559,8 +694,12 @@ function ModeCard({
       </div>
       <div className="px-3 sm:px-4 py-3">
         <div className="flex items-center justify-between gap-2">
-          <h2 className="text-slate-900 font-extrabold text-[13px] sm:text-base leading-tight">{label}</h2>
-          <ChevronDown className={`w-4 h-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180" : ""}`} />
+          <h2 className="text-slate-900 font-extrabold text-[13px] sm:text-base leading-tight">
+            {label}
+          </h2>
+          <ChevronDown
+            className={`w-4 h-4 shrink-0 text-slate-400 transition-transform ${active ? "rotate-180" : ""}`}
+          />
         </div>
         <p className="text-[11px] sm:text-xs text-slate-500 mt-1 leading-snug">{sub}</p>
       </div>
@@ -570,7 +709,9 @@ function ModeCard({
 
 /** Compact hot-product card — matches the category card footprint. */
 function MiniProductCard({
-  p, currency, onClick,
+  p,
+  currency,
+  onClick,
 }: {
   p: ProductDTO;
   currency: Currency;
@@ -583,7 +724,9 @@ function MiniProductCard({
     <button
       onClick={onClick}
       className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
-        p.promoted ? "border-emerald-400 bg-emerald-50/60" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
+        p.promoted
+          ? "border-emerald-400 bg-emerald-50/60"
+          : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md"
       }`}
     >
       <div className="relative h-20 sm:h-24 bg-slate-100">
@@ -594,7 +737,6 @@ function MiniProductCard({
             alt={p.name}
             className="absolute inset-0 w-full h-full object-cover"
             loading="eager"
-
             decoding="async"
           />
         ) : null}
@@ -605,20 +747,27 @@ function MiniProductCard({
             Promoted
           </span>
         )}
-        <span className={`absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 rounded-none px-1.5 py-0.5 shadow-sm ${p.rating > 0 ? "text-amber-600" : "text-slate-400"}`}>
-          <Star className={`w-2.5 h-2.5 ${p.rating > 0 ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-300"}`} />
+        <span
+          className={`absolute right-2 top-2 inline-flex items-center gap-0.5 text-[10px] font-bold bg-white/90 rounded-none px-1.5 py-0.5 shadow-sm ${p.rating > 0 ? "text-amber-600" : "text-slate-400"}`}
+        >
+          <Star
+            className={`w-2.5 h-2.5 ${p.rating > 0 ? "fill-amber-400 text-amber-400" : "fill-slate-200 text-slate-300"}`}
+          />
           {(p.rating || 0).toFixed(1)}
         </span>
       </div>
       <div className="px-3 py-2">
         {p.kind === "physical" ? (
           <div className="text-[10px] font-black uppercase tracking-wider text-emerald-600 sm:text-red-600 truncate">
-            {p.category}{p.subcategory ? ` · ${p.subcategory}` : ""}
+            {p.category}
+            {p.subcategory ? ` · ${p.subcategory}` : ""}
           </div>
         ) : (
           <CategoryTicker label={`${p.category}${p.subcategory ? ` · ${p.subcategory}` : ""}`} />
         )}
-        <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">{p.name}</div>
+        <div className="text-slate-900 text-xs font-semibold leading-snug line-clamp-2">
+          {p.name}
+        </div>
         <div className="mt-1 flex items-center justify-between gap-2">
           <span className="text-red-600 font-extrabold text-xs truncate">{miniPrice}</span>
           <span className="text-[10px] text-slate-500 shrink-0">{p.reviews} sold</span>
@@ -628,8 +777,15 @@ function MiniProductCard({
   );
 }
 
-function SubPill({ label, active, onClick }: { label: string; active: boolean; onClick: () => void }) {
-
+function SubPill({
+  label,
+  active,
+  onClick,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+}) {
   return (
     <button
       onClick={onClick}
@@ -645,19 +801,36 @@ function SubPill({ label, active, onClick }: { label: string; active: boolean; o
 }
 
 function FilterPanel({
-  currency, minPrice, setMinPrice, maxPrice, setMaxPrice, minRating, setMinRating,
-  promotedOnly, setPromotedOnly, sort, setSort, onReset, onClose,
+  currency,
+  minPrice,
+  setMinPrice,
+  maxPrice,
+  setMaxPrice,
+  minRating,
+  setMinRating,
+  promotedOnly,
+  setPromotedOnly,
+  sort,
+  setSort,
+  onReset,
+  onClose,
 }: {
   currency: Currency;
-  minPrice: string; setMinPrice: (v: string) => void;
-  maxPrice: string; setMaxPrice: (v: string) => void;
-  minRating: number; setMinRating: (v: number) => void;
-  promotedOnly: boolean; setPromotedOnly: (v: boolean) => void;
-  sort: SortKey; setSort: (v: SortKey) => void;
+  minPrice: string;
+  setMinPrice: (v: string) => void;
+  maxPrice: string;
+  setMaxPrice: (v: string) => void;
+  minRating: number;
+  setMinRating: (v: number) => void;
+  promotedOnly: boolean;
+  setPromotedOnly: (v: boolean) => void;
+  sort: SortKey;
+  setSort: (v: SortKey) => void;
   onReset: () => void;
   onClose?: () => void;
 }) {
-  const input = "w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
+  const input =
+    "w-full bg-white border border-slate-200 rounded-lg px-2.5 py-2 text-sm text-slate-900 placeholder:text-slate-400 focus:outline-none focus:border-emerald-500";
   return (
     <div className="bg-white border border-slate-200 rounded-2xl p-4">
       <div className="flex items-center justify-between mb-4">
@@ -665,36 +838,67 @@ function FilterPanel({
           <SlidersHorizontal className="w-4 h-4" /> Filters
         </div>
         <div className="flex items-center gap-2">
-          <button onClick={onReset} className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold">Reset</button>
+          <button
+            onClick={onReset}
+            className="text-xs text-emerald-600 hover:text-emerald-700 font-semibold"
+          >
+            Reset
+          </button>
           {onClose && (
-            <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-slate-900"><X className="w-4 h-4" /></button>
+            <button onClick={onClose} className="p-1 rounded text-slate-400 hover:text-slate-900">
+              <X className="w-4 h-4" />
+            </button>
           )}
         </div>
       </div>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Price ({currency})</label>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">
+        Price ({currency})
+      </label>
       <div className="flex items-center gap-2 mb-4">
-        <input inputMode="numeric" value={minPrice} onChange={(e) => setMinPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Min" className={input} />
+        <input
+          inputMode="numeric"
+          value={minPrice}
+          onChange={(e) => setMinPrice(e.target.value.replace(/[^\d.]/g, ""))}
+          placeholder="Min"
+          className={input}
+        />
         <span className="text-slate-400">–</span>
-        <input inputMode="numeric" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d.]/g, ""))} placeholder="Max" className={input} />
+        <input
+          inputMode="numeric"
+          value={maxPrice}
+          onChange={(e) => setMaxPrice(e.target.value.replace(/[^\d.]/g, ""))}
+          placeholder="Max"
+          className={input}
+        />
       </div>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Sort by</label>
-      <select value={sort} onChange={(e) => setSort(e.target.value as SortKey)} className={`${input} mb-4`}>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">
+        Sort by
+      </label>
+      <select
+        value={sort}
+        onChange={(e) => setSort(e.target.value as SortKey)}
+        className={`${input} mb-4`}
+      >
         <option value="featured">Featured</option>
         <option value="price-asc">Price: low to high</option>
         <option value="price-desc">Price: high to low</option>
         <option value="rating">Top rated</option>
       </select>
 
-      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">Minimum rating</label>
+      <label className="block text-[11px] uppercase tracking-widest text-slate-500 mb-1.5">
+        Minimum rating
+      </label>
       <div className="flex gap-2 mb-4">
         {[0, 3, 4, 4.5].map((r) => (
           <button
             key={r}
             onClick={() => setMinRating(r)}
             className={`flex-1 py-1.5 rounded-lg text-xs font-semibold border transition-colors ${
-              minRating === r ? "bg-emerald-600 border-emerald-600 text-white" : "bg-slate-50 border-slate-200 text-slate-600"
+              minRating === r
+                ? "bg-emerald-600 border-emerald-600 text-white"
+                : "bg-slate-50 border-slate-200 text-slate-600"
             }`}
           >
             {r === 0 ? "Any" : `${r}+`}
@@ -705,7 +909,9 @@ function FilterPanel({
       <button
         onClick={() => setPromotedOnly(!promotedOnly)}
         className={`w-full inline-flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold border transition-colors ${
-          promotedOnly ? "bg-emerald-600 border-emerald-600 text-white" : "bg-slate-50 border-slate-200 text-slate-600"
+          promotedOnly
+            ? "bg-emerald-600 border-emerald-600 text-white"
+            : "bg-slate-50 border-slate-200 text-slate-600"
         }`}
       >
         <Flame className="w-3.5 h-3.5" /> Promoted only
@@ -722,7 +928,7 @@ function CategoryTicker({ label }: { label: string }) {
     return () => clearInterval(t);
   }, []);
   const base =
- "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
+    "absolute inset-x-0 top-0 truncate text-[10px] font-black uppercase tracking-wider transition-all duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform";
   return (
     <div className="relative h-[13px] overflow-hidden">
       <div
@@ -742,7 +948,6 @@ function CategoryTicker({ label }: { label: string }) {
     </div>
   );
 }
-
 
 function ProductCard({
   p,
@@ -774,9 +979,13 @@ function ProductCard({
             decoding="async"
           />
         ) : (
-          <div className="absolute inset-0 opacity-30" style={{
-            backgroundImage: "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)"
-          }} />
+          <div
+            className="absolute inset-0 opacity-30"
+            style={{
+              backgroundImage:
+                "radial-gradient(circle at 30% 30%, rgba(255,255,255,0.4), transparent 50%)",
+            }}
+          />
         )}
         <Icon className="absolute right-2 bottom-2 w-5 h-5 text-white drop-shadow" />
         {p.promoted && (
@@ -785,9 +994,11 @@ function ProductCard({
             Promoted
           </span>
         )}
-        <span className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider rounded-none px-1.5 py-0.5 ${
-          p.kind === "physical" ? "bg-sky-600 text-white" : "bg-slate-900/80 text-white"
-        }`}>
+        <span
+          className={`absolute top-2 right-2 text-[9px] font-bold uppercase tracking-wider rounded-none px-1.5 py-0.5 ${
+            p.kind === "physical" ? "bg-sky-600 text-white" : "bg-slate-900/80 text-white"
+          }`}
+        >
           {p.kind === "physical" ? "Physical" : "Digital"}
         </span>
       </div>
@@ -799,7 +1010,9 @@ function ProductCard({
         ) : (
           <CategoryTicker label={catLabel} />
         )}
-        <h3 className="text-slate-900 text-xs sm:text-[13px] font-semibold leading-snug line-clamp-2">{p.name}</h3>
+        <h3 className="text-slate-900 text-xs sm:text-[13px] font-semibold leading-snug line-clamp-2">
+          {p.name}
+        </h3>
         <div className="text-[10px] text-slate-500 truncate mt-0.5">{p.vendor}</div>
         {p.kind === "physical" && p.location && (
           <div className="flex items-center gap-1 text-[10px] text-slate-500 mt-0.5 truncate">
@@ -811,17 +1024,23 @@ function ProductCard({
             <Star
               key={s}
               className={`w-3 h-3 ${
-                s <= Math.round(p.rating || 0) ? "text-amber-400 fill-amber-400" : "text-slate-300 fill-slate-200"
+                s <= Math.round(p.rating || 0)
+                  ? "text-amber-400 fill-amber-400"
+                  : "text-slate-300 fill-slate-200"
               }`}
             />
           ))}
-          <span className={`font-semibold ml-0.5 ${p.rating > 0 ? "text-slate-700" : "text-slate-400"}`}>
+          <span
+            className={`font-semibold ml-0.5 ${p.rating > 0 ? "text-slate-700" : "text-slate-400"}`}
+          >
             {(p.rating || 0).toFixed(1)}
           </span>
         </div>
       </div>
       <div className="flex items-center justify-between gap-2 pt-3 mt-2 border-t border-slate-100">
-        <div className="text-red-600 font-extrabold text-sm truncate">{isFree ? "FREE" : price.formatted}</div>
+        <div className="text-red-600 font-extrabold text-sm truncate">
+          {isFree ? "FREE" : price.formatted}
+        </div>
         <button
           onClick={onClick}
           className="shrink-0 flex items-center gap-1 px-2.5 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs rounded-none transition-colors"
@@ -837,7 +1056,6 @@ function ProductCard({
   }
   return cardInner;
 }
-
 
 function SkeletonCard() {
   return (
@@ -855,21 +1073,26 @@ function SkeletonCard() {
 
 function MarketplaceSkeleton() {
   return (
-    <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full"><div className="max-w-7xl mx-auto w-full px-4 py-5">
-      <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
-        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
-        <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+    <div className="marketplace-render-safe bg-[#F7F8FA] min-h-full max-w-full">
+      <div className="max-w-7xl mx-auto w-full px-4 py-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4 mb-6">
+          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+          <div className="h-44 rounded-none bg-slate-100 animate-pulse" />
+        </div>
+        <div className="flex gap-3 mb-6 overflow-hidden">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse"
+            />
+          ))}
+        </div>
+        <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
+          {Array.from({ length: 6 }).map((_, i) => (
+            <SkeletonCard key={i} />
+          ))}
+        </div>
       </div>
-      <div className="flex gap-3 mb-6 overflow-hidden">
-        {Array.from({ length: 5 }).map((_, i) => (
-          <div key={i} className="shrink-0 w-[160px] sm:w-[190px] h-36 rounded-none bg-slate-100 animate-pulse" />
-        ))}
-      </div>
-      <div className="grid grid-cols-2 xl:grid-cols-3 gap-3 sm:gap-4">
-        {Array.from({ length: 6 }).map((_, i) => (
-          <SkeletonCard key={i} />
-        ))}
-      </div>
-    </div></div>
+    </div>
   );
 }

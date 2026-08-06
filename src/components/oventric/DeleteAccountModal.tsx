@@ -34,7 +34,9 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
     });
     const prev = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    return () => { document.body.style.overflow = prev; };
+    return () => {
+      document.body.style.overflow = prev;
+    };
   }, [open]);
 
   const stopCam = useCallback(() => {
@@ -43,7 +45,10 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
   }, []);
 
   useEffect(() => {
-    if (phase !== "camera") { stopCam(); return; }
+    if (phase !== "camera") {
+      stopCam();
+      return;
+    }
     let cancelled = false;
     (async () => {
       try {
@@ -51,7 +56,10 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
           video: { facingMode: "user", width: { ideal: 1280 }, height: { ideal: 720 } },
           audio: false,
         });
-        if (cancelled) { s.getTracks().forEach((t) => t.stop()); return; }
+        if (cancelled) {
+          s.getTracks().forEach((t) => t.stop());
+          return;
+        }
         streamRef.current = s;
         if (videoRef.current) {
           videoRef.current.srcObject = s;
@@ -62,26 +70,36 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
         setPhase("form");
       }
     })();
-    return () => { cancelled = true; stopCam(); };
+    return () => {
+      cancelled = true;
+      stopCam();
+    };
   }, [phase, stopCam]);
 
   useEffect(() => () => stopCam(), [stopCam]);
 
   const capture = useCallback(() => {
-    const v = videoRef.current, c = canvasRef.current;
+    const v = videoRef.current,
+      c = canvasRef.current;
     if (!v || !c) return;
-    const w = v.videoWidth, h = v.videoHeight;
-    c.width = w; c.height = h;
+    const w = v.videoWidth,
+      h = v.videoHeight;
+    c.width = w;
+    c.height = h;
     const ctx = c.getContext("2d");
     if (!ctx) return;
     ctx.drawImage(v, 0, 0, w, h);
-    c.toBlob((b) => {
-      if (!b) return;
-      setSelfie(b);
-      setSelfieUrl(URL.createObjectURL(b));
-      stopCam();
-      setPhase("confirm");
-    }, "image/jpeg", 0.85);
+    c.toBlob(
+      (b) => {
+        if (!b) return;
+        setSelfie(b);
+        setSelfieUrl(URL.createObjectURL(b));
+        stopCam();
+        setPhase("confirm");
+      },
+      "image/jpeg",
+      0.85,
+    );
   }, [stopCam]);
 
   const submit = useCallback(async () => {
@@ -129,11 +147,12 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
           {phase === "form" && (
             <>
               <div className="rounded-2xl bg-red-500/10 border border-red-500/30 p-3 text-xs text-red-200/90">
-                Your account will be scheduled for deletion. You have <b>30 days</b> to sign in
-                and reactivate. After that, all data is permanently removed and cannot be recovered.
+                Your account will be scheduled for deletion. You have <b>30 days</b> to sign in and
+                reactivate. After that, all data is permanently removed and cannot be recovered.
               </div>
               <label className="block text-xs font-semibold text-slate-300">
-                Why are you leaving? <span className="text-slate-500">(required, helps us improve)</span>
+                Why are you leaving?{" "}
+                <span className="text-slate-500">(required, helps us improve)</span>
                 <textarea
                   value={reason}
                   onChange={(e) => setReason(e.target.value)}
@@ -155,8 +174,14 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
               </label>
               {error && <p className="text-xs text-red-400">{error}</p>}
               <button
-                disabled={reason.trim().length < 4 || confirmEmail.trim().toLowerCase() !== email.toLowerCase()}
-                onClick={() => { setError(null); setPhase("camera"); }}
+                disabled={
+                  reason.trim().length < 4 ||
+                  confirmEmail.trim().toLowerCase() !== email.toLowerCase()
+                }
+                onClick={() => {
+                  setError(null);
+                  setPhase("camera");
+                }}
                 className="w-full h-11 rounded-full bg-red-500/20 border border-red-500/50 text-red-100 text-sm font-bold hover:bg-red-500/30 disabled:opacity-40"
               >
                 Continue to liveness check
@@ -166,7 +191,9 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
 
           {phase === "camera" && (
             <>
-              <p className="text-xs text-slate-300">Position your face inside the frame and take a selfie to confirm it's you.</p>
+              <p className="text-xs text-slate-300">
+                Position your face inside the frame and take a selfie to confirm it's you.
+              </p>
               <div className="relative rounded-2xl overflow-hidden bg-black aspect-[3/4]">
                 <video ref={videoRef} playsInline muted className="w-full h-full object-cover" />
               </div>
@@ -182,10 +209,18 @@ export function DeleteAccountModal({ open, onClose, onDeleted }: Props) {
           {phase === "confirm" && selfieUrl && (
             <>
               <p className="text-xs text-slate-300">Use this photo?</p>
-              <img src={selfieUrl} alt="Liveness selfie" className="w-full rounded-2xl border border-white/10" />
+              <img
+                src={selfieUrl}
+                alt="Liveness selfie"
+                className="w-full rounded-2xl border border-white/10"
+              />
               <div className="flex gap-2">
                 <button
-                  onClick={() => { setSelfie(null); setSelfieUrl(null); setPhase("camera"); }}
+                  onClick={() => {
+                    setSelfie(null);
+                    setSelfieUrl(null);
+                    setPhase("camera");
+                  }}
                   className="flex-1 h-11 rounded-full bg-[#141418] border border-white/10 text-slate-200 text-sm font-semibold flex items-center justify-center gap-2"
                 >
                   <RotateCcw className="w-4 h-4" /> Retake
