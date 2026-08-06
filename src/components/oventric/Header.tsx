@@ -335,14 +335,8 @@ export function Header({
             <HeaderWalletChip align="right" />
           </div>
 
-          {/* Desktop candy-box menu */}
-          <button
-            onClick={() => setMegaOpen(true)}
-            aria-label="Open menu"
-            className={`hidden md:inline-flex p-2.5 rounded-full transition-colors shrink-0 ${chip}`}
-          >
-            <Grip className="w-6 h-6" strokeWidth={2.5} />
-          </button>
+          {/* Desktop candy-box menu hidden here, moved inside profile cluster */}
+
 
           {/* Circles & Guilds */}
           <button
