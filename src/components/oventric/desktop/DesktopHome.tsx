@@ -336,13 +336,7 @@ export function DesktopHome({ onSelect, onCreate }: DesktopHomeProps) {
 
   return (
     <div className="min-h-full bg-white text-slate-700">
-      <SiteNavbar
-        onSelect={onSelect}
-        onCreate={onCreate}
-        avatarUrl={avatarUrl}
-        name={name}
-        search={renderSearch("nav")}
-      />
+      {/* SiteNavbar is now handled at the route level to support universal vs marketplace headers */}
 
       {/* Hero */}
       <section className="relative overflow-hidden sm:min-h-[78vh] lg:min-h-[92vh]">

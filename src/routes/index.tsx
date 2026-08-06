@@ -1,5 +1,6 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/oventric/Header";
 import { Sidebar } from "@/components/oventric/Sidebar";
 import { MobileNav } from "@/components/oventric/MobileNav";
@@ -16,11 +17,16 @@ import { CirclesHub } from "@/components/oventric/CirclesHub";
 import { HomeHub } from "@/components/oventric/HomeHub";
 import { DesktopHome } from "@/components/oventric/desktop/DesktopHome";
 import { DesktopAppSidebar } from "@/components/oventric/desktop/DesktopAppSidebar";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { MarketplaceHeader } from "@/components/oventric/desktop/MarketplaceHeader";
+import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
 
 import { useIsDesktop } from "@/hooks/use-desktop";
 import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { useSectionLiveCounter } from "@/lib/useSectionLiveCounter";
+import { getMyFullProfile } from "@/lib/profiles.functions";
+import { Search } from "lucide-react";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -53,9 +59,60 @@ function Index() {
   const [createChoice, setCreateChoice] = useState<ChoiceKey | null>(null);
   const [messagesOpen, setMessagesOpen] = useState(false);
   const [messagesPeer, setMessagesPeer] = useState<string | undefined>(undefined);
-  const [active, setActive] = useState("Home");
+  const [active, setActive] = useState<string>("Home");
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [name, setName] = useState<string>("");
+  const [q, setQ] = useState("");
 
-  const { require } = useOnboarding();
+  const { require, fullName, storeName } = useOnboarding();
+  const { isAuthenticated } = useAuthGate();
+  const loadProfile = useServerFn(getMyFullProfile);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!isAuthenticated) {
+      setAvatarUrl(null);
+      setName("");
+      return;
+    }
+    let cancelled = false;
+    loadProfile()
+      .then((r) => {
+        if (cancelled || !r?.profile) return;
+        setAvatarUrl(r.profile.avatarUrl ?? null);
+        setName(r.profile.displayName || fullName || storeName || "");
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [isAuthenticated, fullName, storeName, loadProfile]);
+
+  const renderNavSearch = () => (
+    <div className="relative w-full">
+      <form
+        onSubmit={(e) => {
+          e.preventDefault();
+          setActive("Marketplace");
+        }}
+        className="flex items-center rounded-full border border-slate-200 bg-slate-50 h-10 gap-2 pl-3 pr-1 shadow-sm"
+      >
+        <Search className="shrink-0 text-slate-400 h-4 w-4" />
+        <input
+          value={q}
+          onChange={(e) => setQ(e.target.value)}
+          placeholder="Search Oventric"
+          className="h-full min-w-0 flex-1 bg-transparent text-sm text-slate-900 outline-none placeholder:text-slate-400"
+        />
+        <button
+          type="submit"
+          className="inline-flex items-center bg-slate-900 font-bold text-white transition-transform active:scale-95 h-7 rounded-lg px-3 text-xs"
+        >
+          Search
+        </button>
+      </form>
+    </div>
+  );
 
   // Create flow: auth-gate for anonymous visitors, then open the create panel.
   const handleCreate = (choice?: ChoiceKey) =>
@@ -181,9 +238,11 @@ function Index() {
 
   const isDesktop = useIsDesktop();
   const isAppShell = useIsAppShell();
+  
   // The marketing site is the home surface for every browser visitor (any
   // width). Native builds and installed PWAs keep the app-style Home Hub.
-  const desktopLanding = active === "Home" && (isDesktop || !isAppShell);
+  // We now extend desktopLanding to Marketplace for browser visitors to use the specialized header.
+  const desktopLanding = (active === "Home" || active === "Marketplace") && (isDesktop || !isAppShell);
 
   const view =
     active === "Home" ? (
@@ -230,7 +289,25 @@ function Index() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
       <div className="flex h-full flex-col">
-        {!desktopLanding && (
+        {/* Managed Header (Desktop Landing/Browser Context vs App Shell) */}
+        {desktopLanding ? (
+          active === "Marketplace" ? (
+            <MarketplaceHeader
+              onSelect={setActive}
+              avatarUrl={avatarUrl}
+              name={name}
+              search={renderNavSearch()}
+            />
+          ) : (
+            <SiteNavbar
+              onSelect={setActive}
+              onCreate={handleCreate}
+              avatarUrl={avatarUrl}
+              name={name}
+              search={renderNavSearch()}
+            />
+          )
+        ) : (
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow
@@ -244,7 +321,7 @@ function Index() {
         )}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""}`}
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""}`}
         >
           {!isDesktop && !desktopLanding && (
             <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
@@ -253,7 +330,7 @@ function Index() {
 
           <main
             id={desktopLanding ? "desktop-home-scroll" : undefined}
-            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${isDesktop && (active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed" || active === "Messages") ? "bg-white" : ""}`}
+            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${isDesktop && (active === "Marketplace" || active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed" || active === "Messages") ? "bg-white" : ""}`}
           >
             {view}
           </main>
