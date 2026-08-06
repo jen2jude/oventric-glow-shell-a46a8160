@@ -646,16 +646,18 @@ function QuickAction({
   icon: Icon,
   label,
   onClick,
+  className,
 }: {
   icon: typeof Store;
   label: string;
   onClick: () => void;
+  className?: string;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className="flex flex-col items-center gap-1.5 py-2 rounded-2xl hover:bg-white/5 active:scale-95 transition-transform"
+      className={`flex flex-col items-center gap-1.5 py-2 rounded-2xl active:scale-95 transition-transform ${className || "hover:bg-white/5"}`}
     >
       <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white">
         <Icon className="w-5 h-5" strokeWidth={2.5} />
@@ -664,6 +666,7 @@ function QuickAction({
     </button>
   );
 }
+
 
 function PromoCard({
   id,
