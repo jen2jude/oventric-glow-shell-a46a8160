@@ -1,5 +1,5 @@
 import { useIsAppShell } from "@/hooks/use-launch-context";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
+import { MarketplaceHeader } from "@/components/oventric/desktop/MarketplaceHeader";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import {
@@ -235,37 +236,82 @@ function ProductPage() {
   };
 
   return (
-    <div className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"} md:bg-slate-50 md:text-slate-700`}>
-      <Header onOpenMessages={() => {}} />
-      <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
-        <button
-          type="button"
-          onClick={() => {
-            if (typeof window !== "undefined" && window.history.length > 1) {
-              window.history.back();
-              // Fire nav event so index route selects Marketplace if we land there.
-              setTimeout(
-                () =>
-                  window.dispatchEvent(
-                    new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                  ),
-                40,
-              );
-            } else {
-              navigate({ to: "/" });
-              setTimeout(
-                () =>
-                  window.dispatchEvent(
-                    new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                  ),
-                40,
-              );
-            }
+    <div
+      className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"}`}
+    >
+      {!isAppShell ? (
+        <MarketplaceHeader
+          onSelect={(section) => {
+            navigate({ to: "/" });
+            setTimeout(() => {
+              window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
+            }, 30);
           }}
-          className={`inline-flex items-center gap-2 text-sm ${isAppShell ? "text-slate-300 bg-[#1E1E24] border-white/10 hover:text-white" : "text-slate-600 bg-white border-slate-200 hover:text-slate-900 shadow-sm"} md:text-slate-600 md:shadow-sm md:bg-white border md:border-slate-200 rounded-lg px-3 py-2 mb-6`}
-        >
-          <ArrowLeft className="w-4 h-4" /> Back to Marketplace
-        </button>
+          name={product?.vendor}
+        />
+      ) : (
+        <Header onOpenMessages={() => {}} />
+      )}
+      <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
+        {!isAppShell && (
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+                setTimeout(
+                  () =>
+                    window.dispatchEvent(
+                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                    ),
+                  40,
+                );
+              } else {
+                navigate({ to: "/" });
+                setTimeout(
+                  () =>
+                    window.dispatchEvent(
+                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                    ),
+                  40,
+                );
+              }
+            }}
+            className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-lg px-3 py-2 mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
+          </button>
+        )}
+
+        {isAppShell && (
+          <button
+            type="button"
+            onClick={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+                setTimeout(
+                  () =>
+                    window.dispatchEvent(
+                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                    ),
+                  40,
+                );
+              } else {
+                navigate({ to: "/" });
+                setTimeout(
+                  () =>
+                    window.dispatchEvent(
+                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                    ),
+                  40,
+                );
+              }
+            }}
+            className="inline-flex items-center gap-2 text-sm text-slate-300 bg-[#1E1E24] border border-white/10 hover:text-white rounded-lg px-3 py-2 mb-6"
+          >
+            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
+          </button>
+        )}
 
         {error && (
           <div className={`${isAppShell ? "bg-[#1E1E24] border-red-500/40" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
