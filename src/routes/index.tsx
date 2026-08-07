@@ -243,7 +243,7 @@ function Index() {
   // width). Native builds and installed PWAs keep the app-style Home Hub.
   // We now extend desktopLanding to Marketplace for browser visitors to use the specialized header.
   const desktopLanding =
-    (active === "Home" || active === "Marketplace" || active === "Academy" || active === "Bounties") &&
+    (active === "Home" || active === "Marketplace" || active === "Academy" || active === "Bounties" || active === "Circles") &&
     (isDesktop || !isAppShell);
   const isMarketplace = active === "Marketplace";
 
