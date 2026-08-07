@@ -511,10 +511,6 @@ function CheckoutPage() {
                               : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                       }`}
                     >
-                            ? "bg-emerald-500/10 border-emerald-500/50"
-                            : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
-                      }`}
-                    >
                       <span
                         className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}
                       >
