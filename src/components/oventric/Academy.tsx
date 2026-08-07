@@ -628,8 +628,8 @@ function CourseDetail({
             </div>
           )}
 
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
-            <div className="px-4 py-3 border-b border-white/10 md:border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+          <div className={`border rounded-xl overflow-hidden ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
+            <div className={`px-4 py-3 border-b text-xs font-bold uppercase tracking-wider ${!isAppShell ? "border-slate-200 text-slate-500" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500"}`}>
               Curriculum
             </div>
             <div className="max-h-[60vh] overflow-y-auto">
@@ -640,10 +640,14 @@ function CourseDetail({
                   <button
                     key={m.id}
                     onClick={() => setActiveIdx(i)}
-                    className={`w-full text-left px-4 py-3 border-b border-white/5 md:border-slate-100 flex items-start gap-3 transition-colors ${
+                    className={`w-full text-left px-4 py-3 border-b flex items-start gap-3 transition-colors ${
                       i === activeIdx
-                        ? "bg-emerald-500/10 md:bg-emerald-50"
-                        : "hover:bg-white/5 md:hover:bg-slate-50"
+                        ? !isAppShell
+                          ? "bg-emerald-50 border-emerald-100"
+                          : "bg-emerald-500/10 md:bg-emerald-50"
+                        : !isAppShell
+                          ? "hover:bg-slate-50 border-slate-100"
+                          : "hover:bg-white/5 border-white/5 md:hover:bg-slate-50 md:border-slate-100"
                     }`}
                   >
                     {done ? (
