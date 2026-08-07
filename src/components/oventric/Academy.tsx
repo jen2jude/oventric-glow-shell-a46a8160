@@ -1026,7 +1026,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 
 function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: string }) {
   return (
-    <div className="shrink-0 w-40 h-24 relative rounded-xl overflow-hidden border border-white/5 shadow-lg group">
+    <div className="shrink-0 w-40 md:w-full h-24 relative rounded-xl overflow-hidden border border-white/5 md:border-slate-200 shadow-lg group">
       <img src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
       <div className="absolute inset-0 p-3 flex flex-col justify-between">
