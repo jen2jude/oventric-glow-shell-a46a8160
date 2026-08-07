@@ -242,7 +242,7 @@ function Index() {
   // The marketing site is the home surface for every browser visitor (any
   // width). Native builds and installed PWAs keep the app-style Home Hub.
   // We now extend desktopLanding to Marketplace for browser visitors to use the specialized header.
-  const desktopLanding = (active === "Home" || active === "Marketplace") && (isDesktop || !isAppShell);
+  const desktopLanding = (active === "Home" || active === "Marketplace" || active === "Academy") && (isDesktop || !isAppShell);
   const isMarketplace = active === "Marketplace";
 
   const view =
@@ -282,7 +282,7 @@ function Index() {
   const isMessages = active === "Messages";
 
   return (
-    <div className="relative h-screen overflow-hidden bg-[#121214] text-slate-200">
+    <div className={`relative h-screen overflow-hidden ${!isAppShell ? "bg-white" : "bg-[#121214]"} text-slate-200`}>
       <div className="pointer-events-none fixed top-0 inset-x-0 h-[2px] z-50  hidden md:block" />
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50  hidden md:block" />
 
@@ -292,12 +292,13 @@ function Index() {
       <div className="flex h-full flex-col">
         {/* Managed Header (Desktop Landing/Browser Context vs App Shell) */}
         {desktopLanding ? (
-          active === "Marketplace" ? (
+          active === "Marketplace" || active === "Academy" ? (
             <MarketplaceHeader
               onSelect={setActive}
               avatarUrl={avatarUrl}
               name={name}
               search={renderNavSearch()}
+              activeSection={active}
             />
           ) : (
             <SiteNavbar
@@ -325,7 +326,7 @@ function Index() {
         )}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""}`}
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""} ${!isAppShell && !desktopLanding ? "pt-16" : ""}`}
         >
           {!isDesktop && !desktopLanding && (
             <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
@@ -334,7 +335,7 @@ function Index() {
 
           <main
             id={desktopLanding ? "desktop-home-scroll" : undefined}
-            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${isDesktop && (active === "Marketplace" || active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed" || active === "Messages") ? "bg-white" : ""}`}
+            className={`flex-1 min-w-0 min-h-0 ${isMessages ? "overflow-hidden" : "overflow-y-auto"} ${desktopLanding ? "" : "pb-20 md:pb-0"} ${(!isAppShell || (isDesktop && (active === "Marketplace" || active === "Academy" || active === "Bounties" || active === "Circles" || active === "Feed" || active === "Messages"))) ? "bg-white" : ""}`}
           >
             {view}
           </main>

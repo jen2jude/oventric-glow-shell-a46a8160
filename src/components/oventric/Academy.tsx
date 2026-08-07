@@ -37,6 +37,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { CourseEditorModal } from "./CourseEditorModal";
 import { CoursePublishWizard } from "./CoursePublishWizard";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -44,7 +45,7 @@ import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AcademyRecommendations } from "@/components/oventric/AcademyRecommendations";
 
 function courseDisplayPrice(
-  c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown },
+  c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: any },
   viewer: Currency,
 ) {
   return computeDisplayPrice(
@@ -84,6 +85,7 @@ function embedUrl(m: ModuleDTO): string {
 
 export function Academy() {
   const { baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
   const fetchList = useServerFn(listCourses);
   const [view, setView] = useState<"catalog" | "course">("catalog");
   const [category, setCategory] = useState<CategoryKey>("all");
@@ -116,6 +118,7 @@ export function Academy() {
       <CourseDetail
         courseId={selectedId}
         userId={userId}
+        isAppShell={isAppShell}
         onBack={() => setView("catalog")}
         onEdit={(id) => {
           setEditingId(id);
@@ -137,13 +140,13 @@ export function Academy() {
     }) ?? [];
 
   return (
-    <div className="w-full md:bg-white md:min-h-screen">
-      <AcademyHero />
+    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
+      <AcademyHero isAppShell={isAppShell} />
 
       <div className="max-w-6xl mx-auto w-full">
-        <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214] border-b border-white/5 md:bg-white md:border-slate-200">
+        <div className={`sticky top-0 z-30 px-4 py-3 border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#121214] border-white/5 md:bg-white md:border-slate-200"}`}>
           <div className="flex items-center gap-3 mb-3 flex-wrap">
-            <h2 className="text-white md:text-slate-900 font-black text-lg">Browse courses</h2>
+            <h2 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-lg`}>Browse courses</h2>
             {userId && (
               <button
                 onClick={() => {
@@ -165,8 +168,12 @@ export function Academy() {
                   onClick={() => setCategory(c.key)}
                   className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                     active
-                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
-                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
+                      ? !isAppShell
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                      : !isAppShell
+                        ? "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                        : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
                   }`}
                 >
                   {c.label}
@@ -183,13 +190,13 @@ export function Academy() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse md:bg-white md:border-slate-200"
+                  className={`${!isAppShell ? "bg-white border-slate-200" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200"} rounded-xl overflow-hidden animate-pulse`}
                 >
-                  <div className="aspect-video bg-white/5 md:bg-slate-100" />
+                  <div className={`aspect-video ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"}`} />
                   <div className="p-4 space-y-2">
-                    <div className="h-4 bg-white/10 md:bg-slate-200 rounded w-3/4" />
-                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-1/2" />
-                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-2/3 mt-3" />
+                    <div className={`h-4 ${!isAppShell ? "bg-slate-200" : "bg-white/10 md:bg-slate-200"} rounded w-3/4`} />
+                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-1/2`} />
+                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-2/3 mt-3`} />
                   </div>
                 </div>
               ))}
@@ -197,9 +204,9 @@ export function Academy() {
           )}
 
           {courses !== null && filtered.length === 0 && (
-            <div className="text-center py-16 border border-dashed border-white/10 md:border-slate-300 rounded-xl">
-              <GraduationCap className="w-10 h-10 text-slate-600 md:text-slate-400 mx-auto mb-3" />
-              <div className="text-white md:text-slate-900 font-bold">No courses yet</div>
+            <div className={`text-center py-16 border border-dashed ${!isAppShell ? "border-slate-300" : "border-white/10 md:border-slate-300"} rounded-xl`}>
+              <GraduationCap className={`w-10 h-10 ${!isAppShell ? "text-slate-400" : "text-slate-600 md:text-slate-400"} mx-auto mb-3`} />
+              <div className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-bold`}>No courses yet</div>
               <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
               {userId && (
                 <button
@@ -220,6 +227,7 @@ export function Academy() {
                 key={course.id}
                 course={course}
                 currency={baseCurrency}
+                isAppShell={isAppShell}
                 onOpen={() => {
                   setSelectedId(course.id);
                   setView("course");
@@ -264,14 +272,16 @@ export function Academy() {
 function CourseCard({
   course,
   currency,
+  isAppShell,
   onOpen,
 }: {
   course: CourseDTO;
   currency: Currency;
+  isAppShell: boolean;
   onOpen: () => void;
 }) {
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-all md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-lg md:hover:border-emerald-300 md:hover:-translate-y-0.5">
+    <div className={`${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-300" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-lg md:hover:border-emerald-300"} rounded-xl overflow-hidden transition-all md:hover:-translate-y-0.5`}>
       <button onClick={onOpen} className="block w-full text-left">
         <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40 overflow-hidden">
           {course.coverUrl ? (
@@ -318,7 +328,7 @@ function CourseCard({
         </div>
       </button>
       <div className="p-5">
-        <h3 className="text-white md:text-slate-900 font-black text-lg leading-snug">
+        <h3 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-lg leading-snug`}>
           {course.title}
         </h3>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -328,7 +338,7 @@ function CourseCard({
           </span>
         </div>
         {course.description && (
-          <p className="mt-3 text-sm text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">
+          <p className={`mt-3 text-sm leading-relaxed line-clamp-2 ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
             {course.description}
           </p>
         )}
@@ -347,11 +357,13 @@ function CourseCard({
 function CourseDetail({
   courseId,
   userId,
+  isAppShell,
   onBack,
   onEdit,
 }: {
   courseId: string;
   userId: string | null;
+  isAppShell: boolean;
   onBack: () => void;
   onEdit: (id: string) => void;
 }) {
@@ -471,11 +483,11 @@ function CourseDetail({
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-4 md:bg-white md:min-h-screen">
+    <div className={`max-w-6xl mx-auto w-full px-4 py-4 ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"
+          className={`inline-flex items-center gap-2 text-sm rounded-lg px-3 py-1.5 border ${!isAppShell ? "text-slate-600 bg-white border-slate-200 hover:text-slate-900" : "text-slate-300 hover:text-white bg-[#1E1E24] border-white/10 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"}`}
         >
           <ArrowLeft className="w-4 h-4" /> Catalog
         </button>
@@ -491,7 +503,7 @@ function CourseDetail({
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <div className="min-w-0">
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
+          <div className={`border rounded-xl overflow-hidden ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
             <div className="aspect-video bg-black relative">
               {activeModule && canWatch ? (
                 <iframe
@@ -514,7 +526,7 @@ function CourseDetail({
               )}
             </div>
             <div className="p-5">
-              <h1 className="text-white md:text-slate-900 font-black text-2xl leading-tight">
+              <h1 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-2xl leading-tight`}>
                 {course.title}
               </h1>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 flex-wrap">
@@ -526,19 +538,19 @@ function CourseDetail({
                 </span>
               </div>
               {course.description && (
-                <p className="mt-4 text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap">
+                <p className={`mt-4 text-sm leading-relaxed whitespace-pre-wrap ${!isAppShell ? "text-slate-600" : "text-slate-300 md:text-slate-600"}`}>
                   {course.description}
                 </p>
               )}
 
               {activeModule && (
-                <div className="mt-6 p-4 rounded-lg bg-[#121214] border border-white/10 md:bg-slate-50 md:border-slate-200">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-600 mb-1">
+                <div className={`mt-6 p-4 rounded-lg border ${!isAppShell ? "bg-slate-50 border-slate-200" : "bg-[#121214] border-white/10 md:bg-slate-50 md:border-slate-200"}`}>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!isAppShell ? "text-emerald-600" : "text-emerald-300 md:text-emerald-600"}`}>
                     Module {activeIdx + 1} of {totalModules}
                   </div>
-                  <div className="text-white md:text-slate-900 font-bold">{activeModule.title}</div>
+                  <div className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-bold`}>{activeModule.title}</div>
                   {activeModule.description && (
-                    <p className="text-sm text-slate-400 md:text-slate-600 mt-2">
+                    <p className={`text-sm mt-2 ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
                       {activeModule.description}
                     </p>
                   )}
@@ -595,16 +607,16 @@ function CourseDetail({
           )}
 
           {enrollment && (
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-white/10 md:bg-white md:border-slate-200 md:shadow-sm">
+            <div className={`p-4 rounded-lg border ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+                <span className={`text-xs font-bold uppercase tracking-wider ${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
                   Your Progress
                 </span>
-                <span className="text-xs text-emerald-300 md:text-emerald-600 font-bold">
+                <span className={`text-xs font-bold ${!isAppShell ? "text-emerald-600" : "text-emerald-300 md:text-emerald-600"}`}>
                   {progressPct}%
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-white/5 md:bg-slate-200 rounded-full overflow-hidden">
+              <div className={`w-full h-1.5 rounded-full overflow-hidden ${!isAppShell ? "bg-slate-200" : "bg-white/5 md:bg-slate-200"}`}>
                 <div
                   className="h-full bg-emerald-500 transition-all"
                   style={{ width: `${progressPct}%` }}
@@ -616,8 +628,8 @@ function CourseDetail({
             </div>
           )}
 
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
-            <div className="px-4 py-3 border-b border-white/10 md:border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+          <div className={`border rounded-xl overflow-hidden ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
+            <div className={`px-4 py-3 border-b text-xs font-bold uppercase tracking-wider ${!isAppShell ? "border-slate-200 text-slate-500" : "border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500"}`}>
               Curriculum
             </div>
             <div className="max-h-[60vh] overflow-y-auto">
@@ -628,10 +640,14 @@ function CourseDetail({
                   <button
                     key={m.id}
                     onClick={() => setActiveIdx(i)}
-                    className={`w-full text-left px-4 py-3 border-b border-white/5 md:border-slate-100 flex items-start gap-3 transition-colors ${
+                    className={`w-full text-left px-4 py-3 border-b flex items-start gap-3 transition-colors ${
                       i === activeIdx
-                        ? "bg-emerald-500/10 md:bg-emerald-50"
-                        : "hover:bg-white/5 md:hover:bg-slate-50"
+                        ? !isAppShell
+                          ? "bg-emerald-50 border-emerald-100"
+                          : "bg-emerald-500/10 md:bg-emerald-50"
+                        : !isAppShell
+                          ? "hover:bg-slate-50 border-slate-100"
+                          : "hover:bg-white/5 border-white/5 md:hover:bg-slate-50 md:border-slate-100"
                     }`}
                   >
                     {done ? (
@@ -642,7 +658,7 @@ function CourseDetail({
                       <Circle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white md:text-slate-900 font-semibold truncate">
+                      <div className={`text-sm font-semibold truncate ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>
                         {m.title}
                       </div>
                       <div className="text-[11px] text-slate-500 mt-0.5">
@@ -688,45 +704,48 @@ function CourseDetail({
   );
 }
 
-function AcademyHero() {
+function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className="relative overflow-hidden border-b border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white">
+    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#0A0A0B] border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
         <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200 text-xs font-semibold tracking-wide mb-6 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700">
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border ${!isAppShell ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/5 border-white/10 text-slate-200 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700"}`}>
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white md:text-slate-900 leading-[1.08] tracking-tight">
+            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>
               Master High-End Digital Skills.
               <br />
-              <span className="text-slate-400 md:text-slate-500">
+              <span className={`${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
                 Learn From Real Builders.
               </span>{" "}
-              <span className="text-white md:text-emerald-600">Earn Certificates.</span>
+              <span className={`${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`}>Earn Certificates.</span>
             </h1>
-            <p className="mt-5 text-slate-400 md:text-slate-600 text-base md:text-lg leading-relaxed max-w-xl">
+            <p className={`mt-5 text-base md:text-lg leading-relaxed max-w-xl ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
               Video-first courses from working practitioners. Track your progress across sessions,
               resume any time, and earn a certificate when you complete a course.
             </p>
             <div className="mt-7 flex flex-wrap gap-6">
-              <HeroStat value="100%" label="Online & self-paced" />
-              <HeroStat value="Free" label="Courses available" />
-              <HeroStat value="Certificate" label="On completion" />
+              <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
+              <HeroStat isAppShell={isAppShell} value="Free" label="Courses available" />
+              <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
             </div>
           </div>
           <div className="grid gap-3">
             <ValueCard
+              isAppShell={isAppShell}
               Icon={Video}
               title="Video-First Delivery"
               body="Every module is a hosted video. Press play and learn — no downloads, no plugins."
             />
             <ValueCard
+              isAppShell={isAppShell}
               Icon={RotateCcw}
               title="Auto-Resume"
               body="Your progress is saved per module. Pick up exactly where you left off."
             />
             <ValueCard
+              isAppShell={isAppShell}
               Icon={ScrollText}
               title="Certificate on Completion"
               body="Finish every module and generate a signed digital certificate."
@@ -738,32 +757,34 @@ function AcademyHero() {
   );
 }
 
-function HeroStat({ value, label }: { value: string; label: string }) {
+function HeroStat({ isAppShell, value, label }: { isAppShell: boolean; value: string; label: string }) {
   return (
     <div>
-      <div className="text-xl font-black text-white md:text-slate-900">{value}</div>
-      <div className="text-xs text-slate-500 md:text-slate-500">{label}</div>
+      <div className={`text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
+      <div className="text-xs text-slate-500">{label}</div>
     </div>
   );
 }
 
 function ValueCard({
+  isAppShell,
   Icon,
   title,
   body,
 }: {
+  isAppShell: boolean;
   Icon: React.ComponentType<{ className?: string }>;
   title: string;
   body: string;
 }) {
   return (
-    <div className="bg-[#141418] border border-white/10 rounded-xl p-5 md:bg-white md:border-slate-200 md:shadow-sm flex gap-4">
-      <div className="w-11 h-11 shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center md:bg-emerald-50 md:border-emerald-100">
-        <Icon className="w-5 h-5 text-white md:text-emerald-600" />
+    <div className={`p-4 rounded-xl border transition-all ${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-white/5 border-white/10 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-md"} flex gap-4`}>
+      <div className={`w-11 h-11 shrink-0 rounded-lg border flex items-center justify-center ${!isAppShell ? "bg-emerald-50 border-emerald-100" : "bg-white/5 border-white/10 md:bg-emerald-50 md:border-emerald-100"}`}>
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-white md:text-slate-900 font-bold text-base mb-1">{title}</h3>
-        <p className="text-sm text-slate-400 md:text-slate-600 leading-relaxed">{body}</p>
+        <h3 className={`font-bold text-base mb-1 ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
+        <p className={`text-sm leading-relaxed ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>{body}</p>
       </div>
     </div>
   );
