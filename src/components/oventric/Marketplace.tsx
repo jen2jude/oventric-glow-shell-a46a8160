@@ -844,12 +844,15 @@ function MiniProductCard({
   return (
     <button
       onClick={onClick}
-      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
+      className={`snap-start text-left rounded-[10px] overflow-hidden border transition-colors ${
+        isAppShell ? "shrink-0 w-[160px] sm:w-[190px]" : "w-full"
+      } ${
         p.promoted
           ? (isAppShell ? "border-emerald-500 bg-emerald-500/10" : "border-emerald-400 bg-emerald-50/60")
           : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
+
       <div className={`relative h-20 sm:h-24 ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
