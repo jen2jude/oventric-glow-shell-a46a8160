@@ -257,18 +257,14 @@ function ProductPage() {
           <button
             type="button"
             onClick={() => {
-              if (typeof window !== "undefined" && window.history.length > 1) {
-                window.history.back();
-              } else {
-                navigate({ to: "/" });
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
-              }
+              navigate({ to: "/" });
+              setTimeout(
+                () =>
+                  window.dispatchEvent(
+                    new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                  ),
+                100,
+              );
             }}
             className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-lg px-3 py-2 mb-6"
           >
@@ -280,18 +276,14 @@ function ProductPage() {
           <button
             type="button"
             onClick={() => {
-              if (typeof window !== "undefined" && window.history.length > 1) {
-                window.history.back();
-              } else {
-                navigate({ to: "/" });
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
-              }
+              navigate({ to: "/" });
+              setTimeout(
+                () =>
+                  window.dispatchEvent(
+                    new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                  ),
+                100,
+              );
             }}
             className="inline-flex items-center gap-2 text-sm text-slate-300 bg-[#1E1E24] border border-white/10 hover:text-white rounded-lg px-3 py-2 mb-6"
           >
