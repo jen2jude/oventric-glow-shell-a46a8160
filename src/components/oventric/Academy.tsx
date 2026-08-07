@@ -1042,9 +1042,9 @@ function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: st
 
 function HeroStat({ isAppShell, value, label }: { isAppShell: boolean; value: string; label: string }) {
   return (
-    <div>
-      <div className={`text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
-      <div className="text-xs text-slate-500">{label}</div>
+    <div className="flex flex-col items-center md:items-start">
+      <div className={`text-lg md:text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
+      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{label}</div>
     </div>
   );
 }
