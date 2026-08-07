@@ -714,10 +714,14 @@ function CheckoutPage() {
                   Cashback Wallet
                 </div>
                 <label
-                  className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border ${
+                  className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border transition-all ${
                     cashbackUSD > 0
-                      ? "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
-                      : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
+                      ? isAppShell
+                        ? "bg-emerald-500/5 border-emerald-500/20 cursor-pointer"
+                        : "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
+                      : isAppShell
+                        ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
+                        : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
                   <input
