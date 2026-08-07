@@ -622,7 +622,13 @@ function CheckoutPage() {
               )}
 
               {needsDelivery && (
-                <div className="mt-2 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white p-4">
+                <div
+                  className={`mt-2 rounded-xl border p-4 ${
+                    isAppShell
+                      ? "border-white/5 bg-[#16161A]"
+                      : "border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white"
+                  }`}
+                >
                   <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">
                     Delivery details
                   </div>
