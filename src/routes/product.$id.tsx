@@ -260,24 +260,6 @@ function ProductPage() {
           </button>
         )}
 
-        {!isAppShell && (
-          <button
-            type="button"
-            onClick={() => {
-              navigate({ to: "/" });
-              setTimeout(
-                () =>
-                  window.dispatchEvent(
-                    new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                  ),
-                100,
-              );
-            }}
-            className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-lg px-3 py-2 mb-6"
-          >
-            <ArrowLeft className="w-4 h-4" /> Back to Marketplace
-          </button>
-        )}
 
         {error && (
           <div className={`${isAppShell ? "bg-[#16161A] border-red-500/20" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
