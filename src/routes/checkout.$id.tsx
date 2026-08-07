@@ -388,7 +388,7 @@ function CheckoutPage() {
       <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} forceSiteNavbar={!isAppShell} />
       <main
         className={`max-w-4xl mx-auto w-full min-w-0 ${
-          isAppShell ? "px-0 py-0 pb-32" : "px-4 py-12 pb-24"
+          isAppShell ? "px-0 py-0 pb-32 pt-2" : "px-4 py-12 pb-24"
         }`}
       >
         <Link
@@ -397,7 +397,7 @@ function CheckoutPage() {
           search={{ qty }}
           className={`inline-flex items-center gap-2 text-sm transition-all ${
             isAppShell
-              ? "absolute top-4 left-4 z-20 w-10 h-10 items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white"
+              ? "relative ml-4 mt-2 mb-4 z-20 w-10 h-10 items-center justify-center bg-white/10 backdrop-blur-md border border-white/10 rounded-full text-white hover:bg-white/20"
               : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-lg px-3 py-2 mb-6"
           }`}
         >
