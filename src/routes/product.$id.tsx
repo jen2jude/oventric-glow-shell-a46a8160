@@ -252,7 +252,7 @@ function ProductPage() {
       ) : (
         <Header onOpenMessages={() => {}} />
       )}
-      <main className={`max-w-6xl mx-auto w-full px-4 ${isAppShell ? "py-4 gap-5" : "py-6"} pb-24`}>
+      <main className={`max-w-6xl mx-auto w-full ${isAppShell ? "px-0 py-0 gap-0" : "px-4 py-6"} pb-24`}>
         {!isAppShell && (
           <button
             type="button"
@@ -393,7 +393,7 @@ function ProductPage() {
               )}
             </div>
 
-            <div>
+            <div className={isAppShell ? "p-4 pt-6" : ""}>
               <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
