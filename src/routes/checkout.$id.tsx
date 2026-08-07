@@ -644,7 +644,11 @@ function CheckoutPage() {
                       value={deliveryEmail}
                       onChange={(e) => setDeliveryEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="mt-1 w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 outline-none focus:border-emerald-500/60"
+                      className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
+                        isAppShell
+                          ? "bg-[#0A0A0B] border-white/10 text-white"
+                          : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                      }`}
                     />
                   </label>
                   {!deliveryValid && deliveryEmail && (
