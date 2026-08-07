@@ -409,11 +409,7 @@ function CheckoutPage() {
           )}
         </Link>
 
-        {!isAppShell && (
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-6">
-            Checkout
-          </h1>
-        )}
+        {/* No H1 needed as Header provides context */}
 
         {loadErr && (
           <div className={`${isAppShell ? "bg-[#16161A] border-white/5 mx-4" : "bg-white shadow-sm border-red-200"} border rounded-xl p-6 text-sm text-red-500`}>
