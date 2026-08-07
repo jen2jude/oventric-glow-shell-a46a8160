@@ -152,63 +152,134 @@ export function Academy() {
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
   return (
-    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
-      <AcademyHero isAppShell={isAppShell} />
-
-      <div className="max-w-6xl mx-auto w-full">
-        <div className={`sticky top-0 z-30 px-4 py-3 border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#121214] border-white/5 md:bg-white md:border-slate-200"}`}>
-          <div className="flex items-center gap-3 mb-3 flex-wrap">
-            <h2 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-lg`}>Browse courses</h2>
-            {userId && (
-              <button
-                onClick={() => {
-                  setEditingId(undefined);
-                  setEditorOpen(true);
-                }}
-                className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
-              >
-                <GraduationCap className="w-4 h-4" /> Publish a Course
-              </button>
-            )}
+    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-[#F8F9FB] min-h-screen"}`}>
+      {!isAppShell ? (
+        <AcademyHero isAppShell={isAppShell} />
+      ) : (
+        <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-40">
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center gap-2">
+              <div className="w-8 h-8 rounded-lg bg-pink-500 flex items-center justify-center">
+                <GraduationCap className="w-5 h-5 text-white" />
+              </div>
+              <div className="flex items-center gap-1 bg-pink-50 text-pink-500 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-100">
+                🎓 <ArrowRight className="w-2.5 h-2.5" />
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="relative">
+                <Users className="w-6 h-6 text-slate-700" />
+                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">6</span>
+              </div>
+              <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
+                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId || 'anon'}`} alt="" />
+              </div>
+            </div>
           </div>
-          <div className="flex gap-2 overflow-x-auto scrollbar-none">
-            {CATEGORIES.map((c) => {
-              const active = category === c.key;
-              return (
-                <button
-                  key={c.key}
-                  onClick={() => setCategory(c.key)}
-                  className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
-                    active
-                      ? !isAppShell
-                        ? "bg-emerald-600 border-emerald-600 text-white"
-                        : "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
-                      : !isAppShell
-                        ? "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
-                        : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
-                  }`}
-                >
-                  {c.label}
-                </button>
-              );
-            })}
+          
+          <div className="flex gap-2">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+              <input 
+                type="text" 
+                placeholder="What do you want to learn?"
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-slate-50 border border-slate-100 rounded-md py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-pink-500/20"
+              />
+            </div>
+            <button className="w-12 h-12 bg-pink-500 rounded-md flex items-center justify-center shrink-0">
+              <Settings2 className="w-6 h-6 text-white" />
+            </button>
           </div>
         </div>
+      )}
 
-        <div className="px-4 py-6 space-y-4">
+      <div className="max-w-6xl mx-auto w-full">
+        {!isAppShell && (
+          <div className="sticky top-0 z-30 px-4 py-3 border-b bg-white border-slate-200">
+            <div className="flex items-center gap-3 mb-3 flex-wrap">
+              <h2 className="text-slate-900 font-black text-lg">Browse courses</h2>
+              {userId && (
+                <button
+                  onClick={() => {
+                    setEditingId(undefined);
+                    setEditorOpen(true);
+                  }}
+                  className="ml-auto inline-flex items-center gap-2 text-sm text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
+                >
+                  <GraduationCap className="w-4 h-4" /> Publish a Course
+                </button>
+              )}
+            </div>
+            <div className="flex gap-2 overflow-x-auto scrollbar-none">
+              {CATEGORIES.map((c) => {
+                const active = category === c.key;
+                return (
+                  <button
+                    key={c.key}
+                    onClick={() => setCategory(c.key)}
+                    className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
+                      active
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-4"}`}>
+          {isAppShell && filtered.length > 0 && category === 'all' && searchQuery === "" && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-800 text-lg">My Enrolled Courses</h3>
+              </div>
+              <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
+                {filtered.slice(0, 3).map(course => (
+                  <div key={course.id} className="shrink-0 w-64 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
+                    <h4 className="font-bold text-slate-800 text-sm line-clamp-1 mb-4">{course.title}</h4>
+                    <div className="flex flex-col items-center py-4">
+                      <div className="relative w-24 h-24 flex items-center justify-center">
+                        <svg className="w-full h-full -rotate-90">
+                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100" />
+                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-pink-500" strokeDasharray={264} strokeDashoffset={264 * (1 - 0.05)} strokeLinecap="round" />
+                        </svg>
+                        <div className="absolute inset-0 flex flex-col items-center justify-center">
+                          <span className="text-lg font-bold text-slate-800">5%</span>
+                          <span className="text-[9px] text-slate-400 uppercase font-bold">Completed</span>
+                        </div>
+                      </div>
+                    </div>
+                    <button 
+                      onClick={() => { setSelectedId(course.id); setView("course"); }}
+                      className="w-full py-2 border border-pink-500 text-pink-500 rounded-md text-xs font-bold hover:bg-pink-50 transition-colors mt-2"
+                    >
+                      Resume Learning
+                    </button>
+                  </div>
+                ))}
+              </div>
+            </section>
+          )}
+
           <AdSlot placement="academy" variant="banner" />
+          
           {courses === null && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className={`${!isAppShell ? "bg-white border-slate-200" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200"} rounded-xl overflow-hidden animate-pulse`}
+                  className="bg-white border-slate-200 rounded-xl overflow-hidden animate-pulse"
                 >
-                  <div className={`aspect-video ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"}`} />
+                  <div className="aspect-video bg-slate-100" />
                   <div className="p-4 space-y-2">
-                    <div className={`h-4 ${!isAppShell ? "bg-slate-200" : "bg-white/10 md:bg-slate-200"} rounded w-3/4`} />
-                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-1/2`} />
-                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-2/3 mt-3`} />
+                    <div className="h-4 bg-slate-200 rounded w-3/4" />
+                    <div className="h-3 bg-slate-100 rounded w-1/2" />
                   </div>
                 </div>
               ))}
@@ -216,46 +287,110 @@ export function Academy() {
           )}
 
           {courses !== null && filtered.length === 0 && (
-            <div className={`text-center py-16 border border-dashed ${!isAppShell ? "border-slate-300" : "border-white/10 md:border-slate-300"} rounded-xl`}>
-              <GraduationCap className={`w-10 h-10 ${!isAppShell ? "text-slate-400" : "text-slate-600 md:text-slate-400"} mx-auto mb-3`} />
-              <div className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-bold`}>No courses yet</div>
+            <div className="text-center py-16 border border-dashed border-slate-300 rounded-xl">
+              <GraduationCap className="w-10 h-10 text-slate-400 mx-auto mb-3" />
+              <div className="text-slate-900 font-bold">No courses yet</div>
               <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
-              {userId && (
-                <button
-                  onClick={() => {
-                    setEditingId(undefined);
-                    setEditorOpen(true);
-                  }}
-                  className="mt-4 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold text-sm"
-                >
-                  Publish a Course
-                </button>
-              )}
             </div>
           )}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {filtered.map((course) => (
-              <CourseCard
-                key={course.id}
-                course={course}
-                currency={baseCurrency}
-                isAppShell={isAppShell}
-                onOpen={() => {
-                  setSelectedId(course.id);
-                  setView("course");
-                }}
-              />
-            ))}
-          </div>
 
-          <AcademyRecommendations
-            onOpenCourse={(id) => {
-              setSelectedId(id);
-              setView("course");
-            }}
-          />
+          {isAppShell && searchQuery === "" && category === 'all' && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-800 text-lg">Trending</h3>
+                <button className="text-pink-500 text-xs font-bold">View All</button>
+              </div>
+              <div className="relative rounded-2xl overflow-hidden aspect-[16/9] shadow-lg group">
+                <img 
+                  src="https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80" 
+                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+                  alt="Trending"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
+                <div className="absolute bottom-6 left-6 right-6 text-white">
+                  <h4 className="text-xl font-bold mb-1">Diploma in Environment Health ...</h4>
+                  <div className="text-xs text-white/70 mb-3">UniAthena</div>
+                  <div className="flex items-center gap-4 text-[10px] font-bold">
+                    <span className="flex items-center gap-1">⭐ 4.8</span>
+                    <span className="flex items-center gap-1">⏱️ 1-2 Weeks</span>
+                  </div>
+                  <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white/30 transition-colors">
+                    Start Now
+                  </button>
+                </div>
+                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
+                  <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
+                  {[...Array(6)].map((_, i) => (
+                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/40" />
+                  ))}
+                </div>
+              </div>
+            </section>
+          )}
+
+          <section>
+            {isAppShell && (
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-slate-800 text-lg">
+                  {searchQuery ? `Search Results (${filtered.length})` : "Newly Released"}
+                </h3>
+                {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
+              </div>
+            )}
+            <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"} gap-4`}>
+              {filtered.map((course) => (
+                <CourseCard
+                  key={course.id}
+                  course={course}
+                  currency={baseCurrency}
+                  isAppShell={isAppShell}
+                  onOpen={() => {
+                    setSelectedId(course.id);
+                    setView("course");
+                  }}
+                />
+              ))}
+            </div>
+          </section>
+
+          {!searchQuery && (
+            <AcademyRecommendations
+              onOpenCourse={(id) => {
+                setSelectedId(id);
+                setView("course");
+              }}
+            />
+          )}
         </div>
       </div>
+
+      {isAppShell && (
+        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50 pb-safe">
+          <button className="flex flex-col items-center gap-1 text-pink-500">
+            <GraduationCap className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Home</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 text-slate-400">
+            <ScrollText className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Courses</span>
+          </button>
+          <div className="relative -top-6">
+            <button className="w-14 h-14 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
+              <Play className="w-6 h-6 text-white fill-white ml-0.5" />
+            </button>
+            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 whitespace-nowrap">My Learning</span>
+          </div>
+          <button className="flex flex-col items-center gap-1 text-slate-400">
+            <Award className="w-6 h-6" />
+            <span className="text-[10px] font-bold">Certificates</span>
+          </button>
+          <button className="flex flex-col items-center gap-1 text-slate-400">
+            <div className="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center text-[10px] font-black">?</div>
+            <span className="text-[10px] font-bold">FAQ</span>
+          </button>
+        </div>
+      )}
 
       {editingId ? (
         <CourseEditorModal
