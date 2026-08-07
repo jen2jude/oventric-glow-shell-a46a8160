@@ -17,6 +17,7 @@ import {
   Award,
   Rocket,
   Save,
+  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -34,6 +35,7 @@ import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { currencySymbol, usdRate } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 const CATEGORIES: { key: CourseCategory; label: string }[] = [
   { key: "frontend", label: "Frontend Dev" },
@@ -80,6 +82,7 @@ export function CoursePublishWizard({
   const getUpload = useServerFn(getCourseCoverUploadUrl);
   const snapshotFx = useServerFn(snapshotFxRates);
   const { baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
 
   const [step, setStep] = useState<Step>(0);
   const [saving, setSaving] = useState<null | "draft" | "publish">(null);
@@ -219,9 +222,19 @@ export function CoursePublishWizard({
   if (!open) return null;
 
   const body = (
-    <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
-      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
-      <div className="relative w-full max-w-5xl max-h-[95vh] bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div
+      className={`modal-light fixed inset-0 z-[70] flex ${
+        isAppShell ? "items-end" : "items-center justify-center p-2 sm:p-6"
+      }`}
+    >
+      <div className="absolute inset-0 bg-black/80" onClick={isAppShell ? undefined : onClose} />
+      <div
+        className={`relative w-full bg-[#1E1E24] border border-white/10 shadow-2xl flex flex-col overflow-hidden ${
+          isAppShell
+            ? "max-h-[92dvh] rounded-t-3xl"
+            : "max-w-5xl max-h-[95vh] rounded-2xl"
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 shrink-0">
           <div>
@@ -239,11 +252,29 @@ export function CoursePublishWizard({
         </div>
 
         {/* Progress bar */}
-        <div className="px-4 sm:px-5 py-3 border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-1 sm:gap-2">
+        <div className={`border-b border-white/10 shrink-0 ${isAppShell ? "px-4 py-2.5" : "px-4 sm:px-5 py-3"}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {STEPS.map((s, i) => {
               const done = i < step;
               const active = i === step;
+              if (isAppShell) {
+                return (
+                  <button
+                    key={s}
+                    onClick={() => i <= step && setStep(i as Step)}
+                    disabled={i > step}
+                    className={`flex-1 h-9 rounded-lg text-xs font-bold transition-colors ${
+                      active
+                        ? "bg-emerald-500 text-black"
+                        : done
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-white/5 text-slate-500"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              }
               return (
                 <button
                   key={s}
@@ -275,9 +306,10 @@ export function CoursePublishWizard({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className={`flex-1 overflow-y-auto ${isAppShell ? "p-5 pb-24" : "p-4 sm:p-6"}`}>
           {step === 0 && (
             <BasicsStep
+              isAppShell={isAppShell}
               title={title}
               setTitle={setTitle}
               subtitle={subtitle}
@@ -294,10 +326,11 @@ export function CoursePublishWizard({
               onCoverUpload={handleCoverUpload}
             />
           )}
-          {step === 1 && <CurriculumStep sections={sections} setSections={setSections} />}
-          {step === 2 && <QuizzesStep quizzes={quizzes} setQuizzes={setQuizzes} />}
+          {step === 1 && <CurriculumStep isAppShell={isAppShell} sections={sections} setSections={setSections} />}
+          {step === 2 && <QuizzesStep isAppShell={isAppShell} quizzes={quizzes} setQuizzes={setQuizzes} />}
           {step === 3 && (
             <SettingsStep
+              isAppShell={isAppShell}
               isFree={isFree}
               setIsFree={setIsFree}
               priceLocal={priceLocal}
@@ -313,6 +346,7 @@ export function CoursePublishWizard({
           )}
           {step === 4 && (
             <ReviewStep
+              isAppShell={isAppShell}
               title={title}
               subtitle={subtitle}
               sections={sections}
@@ -329,11 +363,21 @@ export function CoursePublishWizard({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-2 p-4 border-t border-white/10 shrink-0 bg-[#121214]/70">
+        <div
+          className={`flex items-center justify-between gap-2 border-t border-white/10 shrink-0 ${
+            isAppShell
+              ? "fixed bottom-0 left-0 right-0 p-4 bg-[#16161A] z-10 rounded-t-2xl"
+              : "p-4 bg-[#121214]/70"
+          }`}
+        >
           <button
             onClick={() => setStep((s) => (s > 0 ? ((s - 1) as Step) : s))}
             disabled={step === 0 || saving !== null}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-300 disabled:opacity-40"
+            className={`inline-flex items-center gap-1 rounded-lg text-sm text-slate-300 disabled:opacity-40 ${
+              isAppShell
+                ? "px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 font-semibold"
+                : "px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10"
+            }`}
           >
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
@@ -344,7 +388,9 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(false)}
                   disabled={saving !== null}
-                  className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40"
+                  className={`inline-flex items-center gap-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40 ${
+                    isAppShell ? "px-4 py-3 font-semibold" : "px-3 py-2"
+                  }`}
                 >
                   {saving === "draft" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -356,7 +402,9 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(true)}
                   disabled={saving !== null || totalLessons === 0 || !title.trim()}
-                  className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40"
+                  className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                    isAppShell ? "px-5 py-3" : "px-4 py-2"
+                  }`}
                 >
                   {saving === "publish" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -370,7 +418,9 @@ export function CoursePublishWizard({
               <button
                 onClick={() => canGoNext() && setStep((s) => Math.min(4, s + 1) as Step)}
                 disabled={!canGoNext()}
-                className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40"
+                className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                  isAppShell ? "px-5 py-3" : "px-4 py-2"
+                }`}
               >
                 Save & Next <ChevronRight className="w-4 h-4" />
               </button>
@@ -400,6 +450,7 @@ const inputCls =
   "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
+  isAppShell: boolean;
   title: string;
   setTitle: (v: string) => void;
   subtitle: string;
@@ -416,6 +467,7 @@ function BasicsStep(props: {
   onCoverUpload: (file: File) => void;
 }) {
   const {
+    isAppShell,
     title,
     setTitle,
     subtitle,
@@ -465,17 +517,23 @@ function BasicsStep(props: {
       </div>
       <div>
         <Label>Course Thumbnail (up to 5MB)</Label>
-        <div className="flex items-center gap-3">
-          <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+        {isAppShell ? (
+          <label className="cursor-pointer block relative w-full aspect-[16/10] rounded-xl bg-[#121214] border border-dashed border-white/15 overflow-hidden">
             {coverPreview ? (
               <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
             ) : (
-              <FileType2 className="w-6 h-6 text-slate-600" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
+                <div className="w-14 h-14 rounded-full bg-white/5 grid place-items-center">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+                <span className="text-sm font-semibold">{uploading ? "Uploading…" : "Tap to upload thumbnail"}</span>
+              </div>
             )}
-          </div>
-          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
-            <Upload className="w-4 h-4" />
-            {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
+            {coverPreview && (
+              <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-semibold backdrop-blur-sm">
+                {uploading ? "Uploading…" : "Change"}
+              </div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -484,7 +542,28 @@ function BasicsStep(props: {
               onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])}
             />
           </label>
-        </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+              {coverPreview ? (
+                <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+              ) : (
+                <FileType2 className="w-6 h-6 text-slate-600" />
+              )}
+            </div>
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
+              <Upload className="w-4 h-4" />
+              {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                disabled={uploading}
+                onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])}
+              />
+            </label>
+          </div>
+        )}
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
@@ -523,9 +602,11 @@ function BasicsStep(props: {
 }
 
 function CurriculumStep({
+  isAppShell,
   sections,
   setSections,
 }: {
+  isAppShell: boolean;
   sections: Section[];
   setSections: (s: Section[]) => void;
 }) {
@@ -570,14 +651,16 @@ function CurriculumStep({
   };
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-4 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-slate-400">
           Organise your course into sections. Each section can hold video, text, or PDF lessons.
         </p>
         <button
           onClick={addSection}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+          className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
+            isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
+          }`}
         >
           <Plus className="w-4 h-4" /> Add Section
         </button>
@@ -819,9 +902,11 @@ function VideoLessonEditor({
 }
 
 function QuizzesStep({
+  isAppShell,
   quizzes,
   setQuizzes,
 }: {
+  isAppShell: boolean;
   quizzes: Quiz[];
   setQuizzes: (q: Quiz[]) => void;
 }) {
@@ -870,14 +955,16 @@ function QuizzesStep({
   };
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-4 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-slate-400">
           Quizzes are optional. Add one to the end of the course to gate certificates.
         </p>
         <button
           onClick={addQuiz}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+          className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
+            isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
+          }`}
         >
           <Plus className="w-4 h-4" /> Add Quiz
         </button>
@@ -1043,6 +1130,7 @@ function QuestionCard({
 }
 
 function SettingsStep(props: {
+  isAppShell: boolean;
   isFree: boolean;
   setIsFree: (v: boolean) => void;
   priceLocal: number;
@@ -1056,6 +1144,7 @@ function SettingsStep(props: {
   setCertificateTemplate: (v: string) => void;
 }) {
   const {
+    isAppShell,
     isFree,
     setIsFree,
     priceLocal,
@@ -1069,19 +1158,23 @@ function SettingsStep(props: {
     setCertificateTemplate,
   } = props;
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className={`space-y-5 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
       <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
         <div className="text-sm font-bold text-white">Access Control</div>
         <div className="flex gap-2">
           <button
             onClick={() => setIsFree(true)}
-            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-lg border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            } ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Free
           </button>
           <button
             onClick={() => setIsFree(false)}
-            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-lg border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            } ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Paid
           </button>
@@ -1097,7 +1190,7 @@ function SettingsStep(props: {
               step={1}
               value={priceLocal}
               onChange={(e) => setPriceLocal(Number(e.target.value))}
-              className={inputCls}
+              className={`${inputCls} ${isAppShell ? "py-3 text-base" : ""}`}
             />
             <p className="text-[11px] text-slate-500 mt-1">
               Buyers in other currencies see the equivalent locked at publish time.
@@ -1159,6 +1252,7 @@ function SettingsStep(props: {
 }
 
 function ReviewStep(props: {
+  isAppShell: boolean;
   title: string;
   subtitle: string;
   sections: Section[];
@@ -1172,6 +1266,7 @@ function ReviewStep(props: {
   totalLessons: number;
 }) {
   const {
+    isAppShell,
     title,
     subtitle,
     sections,
