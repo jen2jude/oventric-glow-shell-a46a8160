@@ -143,6 +143,9 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
       
       if (!matchesCategory || !matchesSearch) return false;
       
+      // For web, if we're in "all" category and no search, we show everything in the grid
+      // but the specialized sections above will also show items.
+      
       if (!userId) return true;
       if (c.isFree) return true;
       const oc = String(c.originalCurrency ?? "USD").toUpperCase();
