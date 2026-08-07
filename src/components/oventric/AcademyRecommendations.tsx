@@ -64,7 +64,7 @@ function CourseTile({
   return (
     <button
       onClick={() => onOpen(c.id)}
-      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors group"
+      className={`text-left border rounded-xl overflow-hidden transition-colors group ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40"}`}
     >
       <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40">
         {c.coverUrl ? (
