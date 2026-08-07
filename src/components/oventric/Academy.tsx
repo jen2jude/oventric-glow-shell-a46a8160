@@ -396,7 +396,6 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                       </div>
                     </div>
                   );
-                  );
                 })}
               </div>
             </section>
