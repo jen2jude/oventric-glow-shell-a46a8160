@@ -602,9 +602,11 @@ function BasicsStep(props: {
 }
 
 function CurriculumStep({
+  isAppShell,
   sections,
   setSections,
 }: {
+  isAppShell: boolean;
   sections: Section[];
   setSections: (s: Section[]) => void;
 }) {
@@ -898,9 +900,11 @@ function VideoLessonEditor({
 }
 
 function QuizzesStep({
+  isAppShell,
   quizzes,
   setQuizzes,
 }: {
+  isAppShell: boolean;
   quizzes: Quiz[];
   setQuizzes: (q: Quiz[]) => void;
 }) {
@@ -1122,6 +1126,7 @@ function QuestionCard({
 }
 
 function SettingsStep(props: {
+  isAppShell: boolean;
   isFree: boolean;
   setIsFree: (v: boolean) => void;
   priceLocal: number;
@@ -1135,6 +1140,7 @@ function SettingsStep(props: {
   setCertificateTemplate: (v: string) => void;
 }) {
   const {
+    isAppShell,
     isFree,
     setIsFree,
     priceLocal,
@@ -1238,6 +1244,7 @@ function SettingsStep(props: {
 }
 
 function ReviewStep(props: {
+  isAppShell: boolean;
   title: string;
   subtitle: string;
   sections: Section[];
@@ -1251,6 +1258,7 @@ function ReviewStep(props: {
   totalLessons: number;
 }) {
   const {
+    isAppShell,
     title,
     subtitle,
     sections,
