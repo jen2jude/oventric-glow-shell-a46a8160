@@ -866,7 +866,9 @@ function CheckoutPage() {
               min={1}
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
-              className="w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 mb-4"
+              className={`w-full border rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-emerald-500/60 ${
+                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+              }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
               Fund via
