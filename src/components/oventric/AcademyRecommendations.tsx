@@ -168,7 +168,7 @@ function BountyTile({ b, currency, isAppShell }: { b: DiscoveryBounty; currency:
         </span>
       </div>
       <div className="p-3">
-        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
+        <h4 className={`font-bold text-sm line-clamp-2 leading-snug ${!isAppShell ? "text-slate-900" : "text-white"}`}>{b.title}</h4>
         {b.category && (
           <div className="text-[11px] text-slate-500 mt-1 uppercase tracking-wider">
             {b.category}
