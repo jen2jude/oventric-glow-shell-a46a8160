@@ -292,12 +292,13 @@ function Index() {
       <div className="flex h-full flex-col">
         {/* Managed Header (Desktop Landing/Browser Context vs App Shell) */}
         {desktopLanding ? (
-          active === "Marketplace" ? (
+          active === "Marketplace" || active === "Academy" ? (
             <MarketplaceHeader
               onSelect={setActive}
               avatarUrl={avatarUrl}
               name={name}
               search={renderNavSearch()}
+              activeSection={active}
             />
           ) : (
             <SiteNavbar
