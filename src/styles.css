@@ -2,6 +2,16 @@
 @source "../src";
 @import "tw-animate-css";
 
+@keyframes scroll-x {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-100%); }
+}
+
+@utility animate-scroll-x {
+  animation: scroll-x 15s linear infinite;
+}
+
+
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
