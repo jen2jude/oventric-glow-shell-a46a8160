@@ -353,7 +353,7 @@ function ProductPage() {
                               }}
                               className="absolute top-4 left-4 z-10 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white"
                             >
-                              <ArrowLeft className="w-5 h-5" />
+                              <ArrowLeft className="w-6 h-6" />
                             </button>
                           )}
                           {product.promoted && !isAppShell && (
@@ -363,7 +363,7 @@ function ProductPage() {
                           )}
                         </div>
                       {gallery.length > 1 && (
-                        <div className={`${isAppShell ? "mt-0 px-4" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
+                        <div className={`${isAppShell ? "mt-4 px-4" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
                           {gallery.map((url, i) => (
                             <button
                               key={url}
@@ -393,7 +393,7 @@ function ProductPage() {
               )}
             </div>
 
-            <div className={isAppShell ? "p-4 pt-6" : ""}>
+            <div className={isAppShell ? "p-4 pt-6 pb-24" : ""}>
               <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
@@ -544,7 +544,7 @@ function ProductPage() {
             </div>
             
             {/* Review and Comment Section (Mobile/App fallback) */}
-            <div className={`lg:col-span-2 ${!isAppShell ? "lg:hidden" : ""}`}>
+            <div className={`lg:col-span-2 ${!isAppShell ? "lg:hidden" : "px-4"}`}>
               <ProductComments productId={product.id} />
             </div>
           </div>

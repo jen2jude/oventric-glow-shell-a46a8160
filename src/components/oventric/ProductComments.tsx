@@ -87,7 +87,7 @@ export function ProductComments({ productId }: { productId: string }) {
   }
 
   return (
-    <div className={`${isAppShell ? "mt-12 px-4" : "mt-0"} space-y-8`}>
+    <div className={`${isAppShell ? "mt-12" : "mt-0"} space-y-8 pb-12`}>
       <div className={`flex items-center justify-between border-b ${isAppShell ? "border-white/10" : "border-slate-200"} pb-4`}>
         <h2 className={`text-xl font-bold ${isAppShell ? "text-white" : "text-slate-900"} flex items-center gap-2`}>
           <MessageSquare className="w-5 h-5" />
