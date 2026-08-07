@@ -295,8 +295,8 @@ export function Bounties() {
       <div className="bg-[#0A0A0B] min-h-screen">
         <div className="px-4 pt-4 pb-6">
           {/* Premium hero */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600/25 via-[#101014] to-[#0A0A0B] border border-white/10 p-5">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">
+          <div className="rounded-3xl bg-[#0F0F10] border border-white/[0.06] p-5">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-400">
               <ShieldAlert className="w-3 h-3" /> Escrow protected
             </div>
             <h1 className="mt-3 text-white text-[26px] leading-[1.1] font-black tracking-tight">
@@ -309,8 +309,8 @@ export function Bounties() {
             </p>
 
             <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
-                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
+              <div className="rounded-2xl bg-[#141416] border border-white/[0.06] p-3">
+                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-400">
                   <WalletIcon className="w-3 h-3" /> Locked
                 </div>
                 <div className="mt-1 text-white text-lg font-black leading-none truncate">
@@ -318,7 +318,7 @@ export function Bounties() {
                 </div>
                 <div className="mt-1 text-[10px] text-slate-500">in {baseCurrency} escrow</div>
               </div>
-              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
+              <div className="rounded-2xl bg-[#141416] border border-white/[0.06] p-3">
                 <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   <Target className="w-3 h-3" /> Open tasks
                 </div>
