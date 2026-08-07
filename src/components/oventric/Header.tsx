@@ -259,7 +259,7 @@ export function Header({
     );
   }
 
-  if (browserVisitorHeader && !desktopNav) {
+  if (browserVisitorHeader && !desktopNav && !forceSiteNavbar) {
     return (
       <header className={`sticky top-0 z-40 w-full bg-white border-b border-slate-200 transition-colors duration-200`}>
         <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-4 px-4 sm:px-6">
