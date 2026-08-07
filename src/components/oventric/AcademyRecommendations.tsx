@@ -214,7 +214,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
           )}
         </div>
         <div className="min-w-0 flex-1">
-          <h4 className="text-white font-bold text-sm truncate">{c.name}</h4>
+          <h4 className={`font-bold text-sm truncate ${!isAppShell ? "text-slate-900" : "text-white"}`}>{c.name}</h4>
           <div className="text-[11px] text-slate-500 flex items-center gap-1">
             <Users className="w-3 h-3" /> {c.memberCount} members
           </div>
