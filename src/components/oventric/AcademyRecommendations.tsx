@@ -346,7 +346,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   const blogB = data.blog.slice(3, 6);
 
   return (
-    <section className={`mt-12 border-t pt-8 space-y-10 ${!isAppShell ? "border-slate-200" : "border-white/10"}`}>
+    <section className={`mt-12 space-y-10 ${!isAppShell ? "border-t pt-8 border-slate-200" : ""}`}>
       {/* Recommended courses */}
       {data.courses.length > 0 && (
         <div>
