@@ -676,10 +676,12 @@ function CheckoutPage() {
                   : "bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 lg:col-span-1"
               }`}
             >
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
-                Order Summary
-              </h2>
-              {product.coverUrl ? (
+              {!isAppShell && (
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
+                  Order Summary
+                </h2>
+              )}
+              {isAppShell ? null : product.coverUrl ? (
                 <ResponsiveImage
                   src={product.coverUrl}
                   alt={product.name}
