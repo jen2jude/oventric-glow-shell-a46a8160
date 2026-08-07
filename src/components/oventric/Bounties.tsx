@@ -348,7 +348,7 @@ export function Bounties() {
                   className={`shrink-0 h-9 px-4 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                     active
                       ? "bg-emerald-500 text-black"
-                      : "bg-white/[0.05] text-slate-300 border border-white/10"
+                      : "bg-[#141416] text-slate-300 border border-white/[0.06]"
                   }`}
                 >
                   {f.label}
