@@ -503,7 +503,7 @@ function CourseDetail({
 
       <div className="grid lg:grid-cols-[1fr_320px] gap-6">
         <div className="min-w-0">
-          <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden md:bg-white md:border-slate-200 md:shadow-sm">
+          <div className={`border rounded-xl overflow-hidden ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
             <div className="aspect-video bg-black relative">
               {activeModule && canWatch ? (
                 <iframe
