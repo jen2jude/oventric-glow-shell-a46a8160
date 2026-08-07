@@ -528,7 +528,7 @@ function CheckoutPage() {
                             </span>
                           )}
                         </span>
-                        <span className="block text-xs text-slate-500 md:text-slate-500">
+                        <span className={`block text-xs ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                           {hasGateways && active
                             ? `via ${gateways.find((g) => g.id === gateway)?.label ?? m.hint}`
                             : m.hint}
