@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Building2,
   Check,
+  Headphones,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
@@ -83,7 +84,7 @@ function methodsForCountry(
 }> {
   const wallet = {
     id: "wallet" as PaymentMethod,
-    label: "Oventric Wallet",
+    label: "Pay with Oventric Wallet",
     Icon: WalletIcon,
     hint: "Direct checkout preferred — fund wallet for bounties & ads only",
     disabled: true,
@@ -384,10 +385,10 @@ function CheckoutPage() {
           : "page-light bg-white text-slate-900"
       }`}
     >
-      {!isAppShell && <Header onOpenMessages={() => {}} />}
+      <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} />
       <main
         className={`max-w-4xl mx-auto w-full min-w-0 ${
-          isAppShell ? "px-0 py-0 pb-32" : "px-4 py-6 pb-24"
+          isAppShell ? "px-0 py-0 pb-32" : "px-4 py-12 pb-24"
         }`}
       >
         <Link
@@ -400,14 +401,16 @@ function CheckoutPage() {
               : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-lg px-3 py-2 mb-6"
           }`}
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          {isAppShell ? (
+            <ArrowLeft className="w-6 h-6" />
+          ) : (
+            <>
+              <ArrowLeft className="w-4 h-4" /> Back
+            </>
+          )}
         </Link>
 
-        {!isAppShell && (
-          <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-6">
-            Checkout
-          </h1>
-        )}
+        {/* No H1 needed as Header provides context */}
 
         {loadErr && (
           <div className={`${isAppShell ? "bg-[#16161A] border-white/5 mx-4" : "bg-white shadow-sm border-red-200"} border rounded-xl p-6 text-sm text-red-500`}>
@@ -442,8 +445,8 @@ function CheckoutPage() {
                   </div>
                 </div>
               )}
-              <h2 className={`text-xs font-bold uppercase tracking-widest mb-2 ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
-                Payment Method
+              <h2 className={`text-xs font-bold uppercase tracking-widest mb-3 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
+                Select Payment Method
               </h2>
               {methods.map((m) => {
                 const active = method === m.id;
@@ -501,25 +504,23 @@ function CheckoutPage() {
                         m.disabled
                           ? isAppShell
                             ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
-                            : "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                            : "bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed"
                           : active
-                            ? isAppShell
-                              ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]"
-                              : "bg-emerald-500/10 border-emerald-500/50"
+                            ? "bg-emerald-500/10 border-emerald-500/50"
                             : isAppShell
                               ? "bg-[#16161A] border-white/5 hover:border-white/10"
-                              : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                              : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                       }`}
                     >
                       <span
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : isAppShell ? "bg-white/5" : "bg-slate-100"}`}
                       >
                         <Icon
-                          className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`}
+                          className={`w-5 h-5 ${active && !m.disabled ? (isAppShell ? "text-emerald-300" : "text-emerald-600") : isAppShell ? "text-slate-300" : "text-slate-500"}`}
                         />
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-sm text-white md:text-slate-900 font-semibold">
+                        <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                           {m.label}
                           {m.disabled && (
                             <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500">
@@ -527,14 +528,14 @@ function CheckoutPage() {
                             </span>
                           )}
                         </span>
-                        <span className="block text-xs text-slate-500 md:text-slate-500">
+                        <span className={`block text-xs ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                           {hasGateways && active
                             ? `via ${gateways.find((g) => g.id === gateway)?.label ?? m.hint}`
                             : m.hint}
                         </span>
                       </span>
                       {walletTag && (
-                        <span className="text-[11px] font-mono text-slate-400 md:text-slate-500">
+                        <span className={`text-[11px] font-mono ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                           {fmtLocal(balanceUSD ?? 0, baseCurrency)}
                         </span>
                       )}
@@ -558,19 +559,17 @@ function CheckoutPage() {
                               onClick={() => setGateway(g.id)}
                               className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
                                 on
-                                  ? isAppShell
-                                    ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_10px_-5px_rgba(16,185,129,0.2)]"
-                                    : "bg-emerald-500/10 border-emerald-500/50"
+                                  ? "bg-emerald-500/10 border-emerald-500/50"
                                   : isAppShell
                                     ? "bg-[#0A0A0B] border-white/5 hover:border-white/10"
-                                    : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                                    : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                               }`}
                             >
                               <g.Icon
                                 className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`}
                               />
                               <span className="flex-1 min-w-0">
-                                <span className="block text-sm text-white md:text-slate-900 font-semibold">
+                                <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                                   {g.label}
                                   {g.id === recommended && (
                                     <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
@@ -578,7 +577,7 @@ function CheckoutPage() {
                                     </span>
                                   )}
                                 </span>
-                                <span className="block text-[11px] text-slate-500 md:text-slate-500">
+                                <span className={`block text-[11px] ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                                   {g.hint}
                                 </span>
                               </span>
@@ -597,7 +596,7 @@ function CheckoutPage() {
                   className={`mt-2 flex items-start gap-3 text-xs rounded-lg p-3 ${
                     isAppShell
                       ? "text-amber-300 bg-amber-500/5 border border-amber-500/20"
-                      : "text-amber-300 bg-amber-500/10 border border-amber-500/40"
+                      : "text-amber-700 bg-amber-50 border border-amber-200"
                   }`}
                 >
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
@@ -626,19 +625,19 @@ function CheckoutPage() {
                   className={`mt-2 rounded-xl border p-4 ${
                     isAppShell
                       ? "border-white/5 bg-[#16161A]"
-                      : "border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white"
+                      : "border-slate-200 bg-white shadow-sm"
                   }`}
                 >
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">
+                  <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                     Delivery details
                   </div>
-                  <p className="text-[11px] text-slate-500 md:text-slate-500 mb-3">
+                  <p className={`text-[11px] mb-3 ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                     {product.requiresManualDelivery
                       ? "This product requires manual deployment. After payment is verified, the seller delivers it to you in your Oventric chat."
                       : "We’ll send the receipt and download link here after payment is verified."}
                   </p>
                   <label className="block mb-2">
-                    <span className="text-xs text-slate-300 md:text-slate-600">Email</span>
+                    <span className={`text-xs ${isAppShell ? "text-slate-300" : "text-slate-700 font-medium"}`}>Email Address</span>
                     <input
                       type="email"
                       value={deliveryEmail}
@@ -647,7 +646,7 @@ function CheckoutPage() {
                       className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
                         isAppShell
                           ? "bg-[#0A0A0B] border-white/10 text-white"
-                          : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                          : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                     />
                   </label>
@@ -656,8 +655,8 @@ function CheckoutPage() {
                       Enter a valid email address.
                     </div>
                   )}
-                  <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-[11px] text-emerald-100 leading-relaxed">
-                    <strong className="text-emerald-200">
+                  <div className={`mt-3 rounded-md border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+                    <strong className={isAppShell ? "text-emerald-200" : "text-emerald-900"}>
                       Delivery happens in your Oventric chat.
                     </strong>{" "}
                     Your payment is held in escrow and only released after you confirm receipt.
@@ -673,11 +672,11 @@ function CheckoutPage() {
               className={`h-max min-w-0 ${
                 isAppShell
                   ? "lg:col-span-1 space-y-4 px-4 pb-8"
-                  : "bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 lg:col-span-1"
+                  : "bg-white shadow-sm border border-slate-200 rounded-xl p-5 lg:col-span-1"
               }`}
             >
               {!isAppShell && (
-                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
+                <h2 className={`text-xs font-bold uppercase tracking-widest mb-3 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   Order Summary
                 </h2>
               )}
@@ -686,7 +685,7 @@ function CheckoutPage() {
                   src={product.coverUrl}
                   alt={product.name}
                   sizes="(min-width: 1024px) 384px, 100vw"
-                  className="w-full h-32 object-cover rounded-lg mb-3 border border-white/5 md:border-slate-200 bg-white/5 md:bg-slate-100"
+                  className={`w-full h-32 object-cover rounded-lg mb-3 border ${isAppShell ? "border-white/5 bg-white/5" : "border-slate-200 bg-slate-100"}`}
                   loading="eager"
                   fetchPriority="high"
                 />
@@ -695,10 +694,10 @@ function CheckoutPage() {
               )}
               {!isAppShell && (
                 <>
-                  <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
+                  <div className={`font-semibold text-sm mb-1 ${isAppShell ? "text-white" : "text-slate-900"}`}>
                     {product.name}
                   </div>
-                  <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
+                  <div className={`text-xs mb-3 ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                     by {product.vendor} · Qty {qty}
                   </div>
                 </>
@@ -710,7 +709,7 @@ function CheckoutPage() {
                   isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
                 }`}
               >
-                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 md:text-slate-500 mb-1.5">
+                <div className={`text-[10px] uppercase tracking-widest font-bold mb-1.5 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   Cashback Wallet
                 </div>
                 <label
@@ -721,7 +720,7 @@ function CheckoutPage() {
                         : "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
                       : isAppShell
                         ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
-                        : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
+                        : "bg-slate-100 border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
                   <input
@@ -732,15 +731,15 @@ function CheckoutPage() {
                     className="mt-0.5 w-4 h-4 accent-emerald-500"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="text-xs font-semibold text-white md:text-slate-900">
+                    <div className={`text-xs font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                       Use Cashback
                     </div>
                     <div
-                      className={`text-[11px] ${cashbackUSD > 0 ? "text-emerald-300" : "text-slate-500"}`}
+                      className={`text-[11px] ${cashbackUSD > 0 ? (isAppShell ? "text-emerald-300" : "text-emerald-600") : "text-slate-500"}`}
                     >
                       Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                     </div>
-                    <div className="text-[11px] text-slate-400 md:text-slate-500 mt-0.5">
+                    <div className={`text-[11px] mt-0.5 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                       You earn back: + {fmt(cashbackEarnUSD, baseCurrency)} (Oventric Bonus)
                     </div>
                   </div>
@@ -764,12 +763,12 @@ function CheckoutPage() {
                     </span>
                   </div>
                 )}
-                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
+                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   <span>Processing</span>
-                  <span />
+                  <span className="text-[10px] uppercase font-bold text-emerald-600">Free</span>
                 </div>
                 <div
-                  className={`flex justify-between font-black text-base pt-2 border-t ${
+                  className={`flex justify-between font-black text-lg pt-2 border-t ${
                     isAppShell
                       ? "text-white border-white/5"
                       : "text-slate-900 border-slate-200"
@@ -826,12 +825,22 @@ function CheckoutPage() {
                     ) : gateway === "minipay" ? (
                       `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
                     ) : (
-                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                      <span className="inline-flex items-center gap-2">
+                        Pay with {gateway === "paystack" ? "Paystack" : "Flutterwave"} · {fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}
+                      </span>
                     )}
                   </button>
-                  <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
-                    protection
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
+                      protection
+                    </div>
+                    <Link
+                      to="/help-board"
+                      className="text-[11px] font-medium text-emerald-600 hover:text-emerald-500 inline-flex items-center gap-1"
+                    >
+                      <Headphones className="w-3 h-3" /> Get help
+                    </Link>
                   </div>
                 </>
               )}
@@ -847,11 +856,11 @@ function CheckoutPage() {
         >
           <div
             className={`w-full max-w-md border rounded-2xl p-6 ${
-              isAppShell ? "bg-[#16161A] border-white/5" : "bg-[#1E1E24] md:shadow-sm md:bg-white border-white/10 md:border-slate-200"
+              isAppShell ? "bg-[#16161A] border-white/5" : "bg-white shadow-sm border-slate-200"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">
+            <h3 className={`font-black text-lg mb-1 ${isAppShell ? "text-white" : "text-slate-900"}`}>
               Fund your wallet
             </h3>
             <p className="text-xs text-slate-400 md:text-slate-500 mb-4">
@@ -867,7 +876,7 @@ function CheckoutPage() {
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
               className={`w-full border rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-emerald-500/60 ${
-                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
               }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
@@ -885,18 +894,16 @@ function CheckoutPage() {
                       onClick={() => setTopUpMethod(m.id)}
                       className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
                         active
-                          ? isAppShell
-                            ? "bg-emerald-500/10 border-emerald-500/50"
-                            : "bg-emerald-500/10 border-emerald-500/50"
+                          ? "bg-emerald-500/10 border-emerald-500/50"
                           : isAppShell
                             ? "bg-[#0A0A0B] border-white/5"
-                            : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"
+                            : "bg-white border-slate-200"
                       }`}
                     >
                       <Icon
                         className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
                       />
-                      <span className="text-sm text-white md:text-slate-900">{m.label}</span>
+                      <span className={`text-sm ${isAppShell ? "text-white" : "text-slate-900"}`}>{m.label}</span>
                     </button>
                   );
                 })}
