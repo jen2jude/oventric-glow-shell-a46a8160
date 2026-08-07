@@ -739,7 +739,7 @@ function CheckoutPage() {
                     >
                       Available: {fmt(cashbackUSD, baseCurrency)} · spend-only, not withdrawable
                     </div>
-                    <div className="text-[11px] text-slate-400 md:text-slate-500 mt-0.5">
+                    <div className={`text-[11px] mt-0.5 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                       You earn back: + {fmt(cashbackEarnUSD, baseCurrency)} (Oventric Bonus)
                     </div>
                   </div>
