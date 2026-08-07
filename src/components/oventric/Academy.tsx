@@ -189,13 +189,13 @@ export function Academy() {
               {Array.from({ length: 6 }).map((_, i) => (
                 <div
                   key={i}
-                  className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse md:bg-white md:border-slate-200"
+                  className={`${!isAppShell ? "bg-white border-slate-200" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200"} rounded-xl overflow-hidden animate-pulse`}
                 >
-                  <div className="aspect-video bg-white/5 md:bg-slate-100" />
+                  <div className={`aspect-video ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"}`} />
                   <div className="p-4 space-y-2">
-                    <div className="h-4 bg-white/10 md:bg-slate-200 rounded w-3/4" />
-                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-1/2" />
-                    <div className="h-3 bg-white/5 md:bg-slate-100 rounded w-2/3 mt-3" />
+                    <div className={`h-4 ${!isAppShell ? "bg-slate-200" : "bg-white/10 md:bg-slate-200"} rounded w-3/4`} />
+                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-1/2`} />
+                    <div className={`h-3 ${!isAppShell ? "bg-slate-100" : "bg-white/5 md:bg-slate-100"} rounded w-2/3 mt-3`} />
                   </div>
                 </div>
               ))}
