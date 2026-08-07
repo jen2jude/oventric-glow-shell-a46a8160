@@ -311,8 +311,8 @@ function ProductPage() {
         )}
 
         {product && (
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="flex flex-col gap-8">
+          <div className={`grid grid-cols-1 lg:grid-cols-2 ${isAppShell ? "gap-0" : "gap-8"}`}>
+            <div className={`flex flex-col ${isAppShell ? "gap-0" : "gap-8"}`}>
               <div>
                 {(() => {
                   const gallery =
@@ -363,7 +363,7 @@ function ProductPage() {
                           )}
                         </div>
                       {gallery.length > 1 && (
-                        <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
+                        <div className={`${isAppShell ? "mt-0 px-4" : "mt-3"} flex gap-2 overflow-x-auto scrollbar-none`}>
                           {gallery.map((url, i) => (
                             <button
                               key={url}
