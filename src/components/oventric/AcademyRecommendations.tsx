@@ -126,8 +126,8 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
         </span>
       </div>
       <div className="p-3">
-        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{p.title}</h4>
-        <div className="text-[11px] text-slate-500 mt-1 truncate">{p.vendor || p.category}</div>
+        <h4 className={`font-bold text-sm line-clamp-2 leading-snug ${!isAppShell ? "text-slate-900" : "text-white"}`}>{p.title}</h4>
+        <div className={`text-[11px] mt-1 truncate ${!isAppShell ? "text-slate-500" : "text-slate-500"}`}>{p.vendor || p.category}</div>
       </div>
     </Link>
   );
