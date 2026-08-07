@@ -385,7 +385,7 @@ function RootComponent() {
   }, []);
 
   // Mode switcher for preview environment
-  const isPreview = typeof window !== "undefined" && (window.location.hostname.includes("lovable.app") || window.location.hostname === "localhost");
+  const isPreview = typeof window !== "undefined" && (window.location.hostname.includes("lovable.app") || window.location.hostname.includes("lovableproject.com") || window.location.hostname === "localhost");
   const toggleMode = () => {
     const url = new URL(window.location.href);
     if (launchCtx === "browser") {
