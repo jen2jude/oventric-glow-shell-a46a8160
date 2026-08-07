@@ -369,14 +369,14 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             </div>
           </section>
 
-          {isAppShell && !searchQuery && category === 'all' && (
+          {!searchQuery && category === 'all' && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">Free Courses</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Free Courses</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                {courses?.filter(c => c.isFree).slice(0, 4).map((course) => (
+              <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"} gap-4`}>
+                {courses?.filter(c => c.isFree).slice(0, isAppShell ? 4 : 8).map((course) => (
                   <CourseCard
                     key={course.id}
                     course={course}
