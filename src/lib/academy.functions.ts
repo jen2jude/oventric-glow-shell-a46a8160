@@ -506,24 +506,32 @@ export const enrollFree = createServerFn({ method: "POST" })
 
 export const getMyEnrollment = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
-  .inputValidator((input: { courseId: string }) => ({ courseId: String(input.courseId) }))
+  .inputValidator((input: { courseId: string }) => ({ courseId: String(input?.courseId ?? "") }))
   .handler(async ({ data, context }): Promise<EnrollmentDTO | null> => {
+    if (!data.courseId) return null;
     const { data: row, error } = await context.supabase
       .from("course_enrollments")
       .select("id, course_id, created_at, completed_at")
       .eq("user_id", context.userId)
       .eq("course_id", data.courseId)
       .maybeSingle();
+    
     if (error) {
       console.error("[getMyEnrollment] Enrollment fetch error:", error);
       throw new Error(error.message);
     }
     if (!row) return null;
-    const { data: prog } = await context.supabase
+    
+    const { data: prog, error: pErr } = await context.supabase
       .from("course_progress")
       .select("module_id")
       .eq("user_id", context.userId)
       .eq("course_id", data.courseId);
+
+    if (pErr) {
+      console.error("[getMyEnrollment] Progress fetch error:", pErr);
+    }
+
     return {
       id: row.id as string,
       courseId: row.course_id as string,
