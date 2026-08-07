@@ -259,13 +259,6 @@ function ProductPage() {
             onClick={() => {
               if (typeof window !== "undefined" && window.history.length > 1) {
                 window.history.back();
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
               } else {
                 navigate({ to: "/" });
                 setTimeout(
@@ -289,13 +282,6 @@ function ProductPage() {
             onClick={() => {
               if (typeof window !== "undefined" && window.history.length > 1) {
                 window.history.back();
-                setTimeout(
-                  () =>
-                    window.dispatchEvent(
-                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
-                    ),
-                  40,
-                );
               } else {
                 navigate({ to: "/" });
                 setTimeout(
@@ -546,7 +532,22 @@ function ProductPage() {
       {contactOpen && product && product.kind === "physical" && (
         <ContactSellerModal product={product} onClose={() => setContactOpen(false)} isAppShell={isAppShell} />
       )}
-      <MobileNav onCreate={() => {}} active="Market" onSelect={() => navigate({ to: "/" })} />
+      {isAppShell && (
+        <div className="fixed bottom-0 left-0 right-0 z-30">
+          <MobileNav
+            onCreate={() => {}}
+            active="Market"
+            onSelect={(section) => {
+              navigate({ to: "/" });
+              setTimeout(() => {
+                window.dispatchEvent(
+                  new CustomEvent("oventric:navigate", { detail: { section } }),
+                );
+              }, 30);
+            }}
+          />
+        </div>
+      )}
     </div>
   );
 }
