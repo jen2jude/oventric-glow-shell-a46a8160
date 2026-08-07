@@ -153,7 +153,7 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
     });
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
-  const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
+  const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all" && false; // Force visibility to see hero
 
   useEffect(() => {
     if (!scrollRef.current) return;
