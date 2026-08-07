@@ -377,21 +377,37 @@ function CheckoutPage() {
   };
 
   return (
-    <div className="page-light min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
+    <div
+      className={`min-h-screen overflow-x-hidden ${
+        isAppShell
+          ? "bg-[#0A0A0B] text-slate-200"
+          : "page-light bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700"
+      }`}
+    >
       <Header onOpenMessages={() => {}} />
-      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
+      <main
+        className={`max-w-4xl mx-auto w-full min-w-0 ${
+          isAppShell ? "px-0 py-0 pb-32" : "px-4 py-6 pb-24"
+        }`}
+      >
         <Link
           to="/product/$id"
           params={{ id }}
           search={{ qty }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          className={`inline-flex items-center gap-2 text-sm transition-all ${
+            isAppShell
+              ? "absolute top-4 left-4 z-20 w-10 h-10 items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white"
+              : "text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          }`}
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" /> {!isAppShell && "Back"}
         </Link>
 
-        <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">
-          Checkout
-        </h1>
+        {!isAppShell && (
+          <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">
+            Checkout
+          </h1>
+        )}
 
         {loadErr && (
           <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-6 text-sm text-red-300">
