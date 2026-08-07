@@ -1158,19 +1158,23 @@ function SettingsStep(props: {
     setCertificateTemplate,
   } = props;
   return (
-    <div className="space-y-5 max-w-3xl">
+    <div className={`space-y-5 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
       <section className="rounded-xl bg-[#121214] border border-white/10 p-4 space-y-3">
         <div className="text-sm font-bold text-white">Access Control</div>
         <div className="flex gap-2">
           <button
             onClick={() => setIsFree(true)}
-            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-lg border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            } ${isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Free
           </button>
           <button
             onClick={() => setIsFree(false)}
-            className={`flex-1 px-3 py-2 rounded-lg border text-sm font-semibold ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
+            className={`flex-1 rounded-lg border font-semibold ${
+              isAppShell ? "px-4 py-3 text-base" : "px-3 py-2 text-sm"
+            } ${!isFree ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300" : "bg-white/5 border-white/10 text-slate-300"}`}
           >
             Paid
           </button>
