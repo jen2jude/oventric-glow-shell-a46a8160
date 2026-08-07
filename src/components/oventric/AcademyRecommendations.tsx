@@ -224,7 +224,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
   );
 }
 
-function BlogTile({ b }: { b: RecoBlog }) {
+function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
   return (
     <Link
       to="/blog/$slug"
