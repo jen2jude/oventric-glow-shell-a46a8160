@@ -1,4 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Loader2, CheckCircle2, XCircle, Sparkles, Wallet as WalletIcon } from "lucide-react";
