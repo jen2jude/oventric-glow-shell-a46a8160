@@ -1190,7 +1190,7 @@ function SettingsStep(props: {
               step={1}
               value={priceLocal}
               onChange={(e) => setPriceLocal(Number(e.target.value))}
-              className={inputCls}
+              className={`${inputCls} ${isAppShell ? "py-3 text-base" : ""}`}
             />
             <p className="text-[11px] text-slate-500 mt-1">
               Buyers in other currencies see the equivalent locked at publish time.
