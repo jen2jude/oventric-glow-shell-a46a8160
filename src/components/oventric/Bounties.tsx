@@ -295,8 +295,8 @@ export function Bounties() {
       <div className="bg-[#0A0A0B] min-h-screen">
         <div className="px-4 pt-4 pb-6">
           {/* Premium hero */}
-          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600/25 via-[#101014] to-[#0A0A0B] border border-white/10 p-5">
-            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">
+          <div className="rounded-3xl bg-[#0F0F10] border border-white/[0.06] p-5">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-400">
               <ShieldAlert className="w-3 h-3" /> Escrow protected
             </div>
             <h1 className="mt-3 text-white text-[26px] leading-[1.1] font-black tracking-tight">
@@ -309,8 +309,8 @@ export function Bounties() {
             </p>
 
             <div className="mt-4 grid grid-cols-2 gap-2.5">
-              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
-                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
+              <div className="rounded-2xl bg-[#141416] border border-white/[0.06] p-3">
+                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-400">
                   <WalletIcon className="w-3 h-3" /> Locked
                 </div>
                 <div className="mt-1 text-white text-lg font-black leading-none truncate">
@@ -318,7 +318,7 @@ export function Bounties() {
                 </div>
                 <div className="mt-1 text-[10px] text-slate-500">in {baseCurrency} escrow</div>
               </div>
-              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
+              <div className="rounded-2xl bg-[#141416] border border-white/[0.06] p-3">
                 <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">
                   <Target className="w-3 h-3" /> Open tasks
                 </div>
@@ -348,7 +348,7 @@ export function Bounties() {
                   className={`shrink-0 h-9 px-4 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
                     active
                       ? "bg-emerald-500 text-black"
-                      : "bg-white/[0.05] text-slate-300 border border-white/10"
+                      : "bg-[#141416] text-slate-300 border border-white/[0.06]"
                   }`}
                 >
                   {f.label}
@@ -370,8 +370,8 @@ export function Bounties() {
                 {bountiesError}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
-                <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+              <div className="rounded-3xl border border-dashed border-white/[0.06] bg-[#141416] p-8 text-center">
+                <div className="w-14 h-14 mx-auto rounded-full bg-[#1A1A1C] flex items-center justify-center mb-4">
                   <Target className="w-7 h-7 text-emerald-400" />
                 </div>
                 <h3 className="text-white text-base font-bold mb-1.5">Nothing here yet</h3>
@@ -588,16 +588,16 @@ export function Bounties() {
 
 function BountySkeleton() {
   return (
-    <div className="bg-[#1E1E24] border border-white/5 rounded-xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse md:bg-white md:border-slate-200">
+    <div className="bg-[#141416] border border-white/[0.06] rounded-2xl p-4 flex flex-col md:flex-row md:items-center gap-4 animate-pulse md:bg-white md:border-slate-200">
       <div className="flex-1 min-w-0 space-y-3">
-        <div className="h-5 w-28 rounded bg-slate-700 md:bg-slate-200" />
-        <div className="h-5 w-3/4 rounded bg-slate-700 md:bg-slate-200" />
+        <div className="h-5 w-28 rounded bg-[#1A1A1C] md:bg-slate-200" />
+        <div className="h-5 w-3/4 rounded bg-[#1A1A1C] md:bg-slate-200" />
         <div className="flex items-center gap-4">
-          <div className="h-3.5 w-28 rounded bg-slate-700 md:bg-slate-200" />
-          <div className="h-3.5 w-24 rounded bg-slate-700 md:bg-slate-200" />
+          <div className="h-3.5 w-28 rounded bg-[#1A1A1C] md:bg-slate-200" />
+          <div className="h-3.5 w-24 rounded bg-[#1A1A1C] md:bg-slate-200" />
         </div>
       </div>
-      <div className="h-10 w-32 rounded-lg bg-slate-700 md:bg-slate-200 shrink-0" />
+      <div className="h-10 w-32 rounded-xl bg-[#1A1A1C] md:bg-slate-200 shrink-0" />
     </div>
   );
 }
@@ -623,16 +623,16 @@ function BountyRow({
     return (
       <button
         onClick={onOpen}
-        className={`w-full text-left rounded-2xl p-[1px] transition-transform active:scale-[0.99] ${
+        className={`w-full text-left rounded-2xl bg-[#141416] border transition-transform active:scale-[0.99] ${
           isNew
-            ? "bg-gradient-to-b from-emerald-400/70 to-emerald-500/10"
-            : "bg-gradient-to-b from-white/12 to-white/[0.03]"
+            ? "border-emerald-500/50"
+            : "border-white/[0.06]"
         }`}
       >
-        <div className="rounded-2xl bg-gradient-to-b from-[#141418] to-[#0A0A0B] p-4">
+        <div className="rounded-2xl bg-[#141416] p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-400">
                 <Target className="w-3 h-3" /> Active bounty
               </div>
               <h3 className="mt-1.5 text-white font-semibold text-[15px] leading-snug line-clamp-2">
@@ -640,7 +640,7 @@ function BountyRow({
               </h3>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-emerald-300 font-black text-[17px] leading-none">
+              <div className="text-emerald-400 font-black text-[17px] leading-none">
                 {bounty.displayFormatted}
               </div>
               <div className="text-[10px] text-slate-500 mt-1">escrowed</div>
@@ -648,10 +648,10 @@ function BountyRow({
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-400">
               <Clock className="w-3 h-3" /> {formatCountdown(remaining)}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#1A1A1C] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
               <Users className="w-3 h-3" /> {bounty.applicants.length}
             </span>
             <span className="ml-auto text-[11px] font-semibold text-slate-400">
@@ -662,7 +662,7 @@ function BountyRow({
           <div
             className={`mt-3.5 h-10 rounded-xl inline-flex w-full items-center justify-center gap-1.5 text-[13px] font-bold ${
               alreadyApplied
-                ? "bg-white/[0.06] text-emerald-300"
+                ? "bg-[#1A1A1C] text-emerald-400"
                 : "bg-emerald-500 text-black"
             }`}
           >
@@ -744,13 +744,13 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black animate-pulse md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white">
+      <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-[#141416] animate-pulse md:border-slate-200 md:bg-white">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0 space-y-2">
-            <div className="h-2.5 w-20 rounded bg-slate-700" />
-            <div className="h-4 w-56 rounded bg-slate-700" />
+            <div className="h-2.5 w-20 rounded bg-[#1A1A1C]" />
+            <div className="h-4 w-56 rounded bg-[#1A1A1C]" />
           </div>
-          <div className="h-8 w-16 rounded-lg bg-slate-700 shrink-0" />
+          <div className="h-8 w-16 rounded-lg bg-[#1A1A1C] shrink-0" />
         </div>
       </div>
     );
@@ -772,7 +772,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-dashed border-white/10 bg-gradient-to-r from-slate-800/50 via-slate-900/50 to-black/50 md:border-slate-300 md:from-slate-50 md:via-white md:to-slate-50">
+      <div className="rounded-xl overflow-hidden border border-dashed border-white/[0.06] bg-[#141416] md:border-slate-300 md:bg-white">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -782,7 +782,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
               Your brand could appear here. Reach builders across Oventric.
             </div>
           </div>
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/5 text-slate-400 text-xs font-semibold border border-white/10 md:bg-slate-50 md:text-slate-600 md:border-slate-200">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
             Learn more
           </span>
         </div>
@@ -800,7 +800,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
         href={ad.cta_url || "#"}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/20 transition-colors md:bg-white md:border-slate-200 md:hover:border-slate-300"
+        className="bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/15 transition-colors md:bg-white md:border-slate-200 md:hover:border-slate-300"
       >
         <div className="inline-flex items-center gap-2 text-xs text-slate-400">
           <Megaphone className="w-3.5 h-3.5" />
@@ -822,7 +822,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       href={ad.cta_url || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="block rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black hover:border-white/20 transition-colors md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white md:hover:border-slate-300"
+      className="block rounded-xl overflow-hidden border border-white/[0.06] bg-[#141416] hover:border-white/15 transition-colors md:border-slate-200 md:bg-white md:hover:border-slate-300"
     >
       <div className="flex items-center justify-between px-5 py-4 gap-4">
         <div className="min-w-0">
@@ -841,11 +841,11 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
             src={ad.media_url ?? undefined}
             alt={ad.advertiser}
             sizes="64px"
-            className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/10"
+            className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/[0.06]"
             loading="lazy"
           />
         ) : (
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
             {ctaLabel}
           </span>
         )}
@@ -924,10 +924,10 @@ function ApplicantEvaluation({
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">
                   <GraduationCap className="w-3 h-3" /> {a.lmsMilestones} LMS Milestones
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Package className="w-3 h-3" /> {a.storeSales} Store Sales
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-sky-500/10 border border-sky-500/30 text-sky-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Star className="w-3 h-3" /> Reputation {(a.rating * 20).toFixed(0)}/100
                 </span>
               </div>
