@@ -54,10 +54,12 @@ function CourseTile({
   c,
   currency,
   onOpen,
+  isAppShell,
 }: {
   c: RecoCourse;
   currency: Currency;
   onOpen: (id: string) => void;
+  isAppShell: boolean;
 }) {
   return (
     <button
