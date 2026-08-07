@@ -278,9 +278,15 @@ function Index() {
       <Messages variant="page" />
     ) : active === "Circles" ? (
       <CirclesHub />
+    ) : desktopLanding ? (
+      <>
+        <FeedSocialBar onOpenMessages={() => setMessagesOpen(true)} />
+        <Feed />
+      </>
     ) : (
       <Feed />
     );
+
 
   const isMessages = active === "Messages";
 
