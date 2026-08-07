@@ -272,7 +272,7 @@ function ProductPage() {
           </button>
         )}
 
-        {isAppShell && (
+        {!isAppShell && (
           <button
             type="button"
             onClick={() => {
@@ -285,7 +285,7 @@ function ProductPage() {
                 100,
               );
             }}
-            className="inline-flex items-center gap-2 text-sm text-slate-300 bg-[#1E1E24] border border-white/10 hover:text-white rounded-lg px-3 py-2 mb-6"
+            className="inline-flex items-center gap-2 text-sm text-slate-600 bg-white border border-slate-200 hover:text-slate-900 shadow-sm rounded-lg px-3 py-2 mb-6"
           >
             <ArrowLeft className="w-4 h-4" /> Back to Marketplace
           </button>
@@ -324,26 +324,44 @@ function ProductPage() {
                   const cur = gallery[activeImage] ?? gallery[0];
                   return (
                     <>
-                      <div className={`relative aspect-[4/3] ${isAppShell ? "rounded-xl bg-white/[0.03]" : "rounded-2xl bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
-                        {cur ? (
-                          <ResponsiveImage
-                            sizes="(min-width: 1024px) 640px, 100vw"
-                            src={cur}
-                            alt={product.name}
-                            className="absolute inset-0 w-full h-full object-cover"
-                            loading="eager"
-                            fetchPriority="high"
-                            decoding="async"
-                          />
-                        ) : (
-                          <ShoppingCart className="w-12 h-12 text-white/20" />
-                        )}
-                        {product.promoted && (
-                          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
-                            <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Promoted
-                          </span>
-                        )}
-                      </div>
+                        <div className={`relative ${isAppShell ? "w-full aspect-square" : "aspect-[4/3]"} ${isAppShell ? "" : "rounded-2xl bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
+                          {cur ? (
+                            <ResponsiveImage
+                              sizes="(min-width: 1024px) 640px, 100vw"
+                              src={cur}
+                              alt={product.name}
+                              className="absolute inset-0 w-full h-full object-cover"
+                              loading="eager"
+                              fetchPriority="high"
+                              decoding="async"
+                            />
+                          ) : (
+                            <ShoppingCart className="w-12 h-12 text-white/20" />
+                          )}
+                          {isAppShell && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                navigate({ to: "/" });
+                                setTimeout(
+                                  () =>
+                                    window.dispatchEvent(
+                                      new CustomEvent("oventric:navigate", { detail: { section: "Marketplace" } }),
+                                    ),
+                                  100,
+                                );
+                              }}
+                              className="absolute top-4 left-4 z-10 p-2 rounded-full bg-black/40 backdrop-blur-md border border-white/10 text-white"
+                            >
+                              <ArrowLeft className="w-5 h-5" />
+                            </button>
+                          )}
+                          {product.promoted && !isAppShell && (
+                            <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
+                              <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Promoted
+                            </span>
+                          )}
+                        </div>
                       {gallery.length > 1 && (
                         <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
                           {gallery.map((url, i) => (
@@ -480,19 +498,40 @@ function ProductPage() {
                     </span>
                   </div>
                 )}
-                <button
-                  onClick={product.kind === "physical" ? openContact : startCheckout}
-                  className={`w-full inline-flex items-center justify-center gap-2 ${isAppShell ? "py-2.5 text-[13px]" : "py-3 text-sm"} rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors`}
-                >
-                  <ShoppingCart className={`${isAppShell ? "w-3.5 h-3.5" : "w-4 h-4"}`} /> Buy Now
-                </button>
-                {product.kind !== "physical" && (
-                  <button
-                    onClick={openSellerChat}
-                    className={`mt-2 w-full inline-flex items-center justify-center gap-2 ${isAppShell ? "py-2.5 text-[13px] bg-white/[0.03] border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/5" : "py-3 text-sm bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"} rounded-lg border font-bold transition-colors md:bg-white md:text-emerald-600 md:border-emerald-500/40`}
-                  >
-                    <MessageCircle className={`${isAppShell ? "w-3.5 h-3.5" : "w-4 h-4"}`} /> Chat with seller
-                  </button>
+                {isAppShell ? (
+                  <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5 grid grid-cols-2 gap-3">
+                    <button
+                      onClick={product.kind === "physical" ? openContact : startCheckout}
+                      className="inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Buy Now
+                    </button>
+                    {product.kind !== "physical" && (
+                      <button
+                        onClick={openSellerChat}
+                        className="inline-flex items-center justify-center gap-2 py-3 text-[14px] bg-white/[0.05] border border-white/10 text-white rounded-xl hover:bg-white/[0.1] font-bold transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Chat
+                      </button>
+                    )}
+                  </div>
+                ) : (
+                  <div className="space-y-2">
+                    <button
+                      onClick={product.kind === "physical" ? openContact : startCheckout}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                    >
+                      <ShoppingCart className="w-4 h-4" /> Buy Now
+                    </button>
+                    {product.kind !== "physical" && (
+                      <button
+                        onClick={openSellerChat}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm bg-emerald-50 text-emerald-700 border border-emerald-200 hover:bg-emerald-100 rounded-lg font-bold transition-colors md:bg-white md:text-emerald-600 md:border-emerald-500/40"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Chat with seller
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
 
