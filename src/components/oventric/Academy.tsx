@@ -377,8 +377,8 @@ function CourseCard({
 }) {
   if (isAppShell) {
     return (
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-slate-100">
+      <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
+        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#121214]">
           {course.coverUrl ? (
             <ResponsiveImage
               src={course.coverUrl}
@@ -388,7 +388,7 @@ function CourseCard({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <GraduationCap className="w-8 h-8 text-slate-300" />
+              <GraduationCap className="w-8 h-8 text-white/10" />
             </div>
           )}
           <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
@@ -397,14 +397,13 @@ function CourseCard({
         </button>
         <div className="p-3 flex-1 flex flex-col justify-between">
           <div>
-            <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">
+            <h4 className="font-bold text-white text-[13px] line-clamp-2 leading-tight mb-2">
               {course.title}
             </h4>
-            <div className="text-[10px] text-slate-400 font-medium mb-2">Cambridge International Qualifications, UK</div>
           </div>
           <div className="flex items-center justify-between mt-auto">
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
-              <Clock className="w-3 h-3 text-slate-400" /> 6-9 Hours
+            <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
+              <Clock className="w-3 h-3 text-slate-500" /> 6-9 Hours
             </div>
             <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
           </div>
