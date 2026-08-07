@@ -86,7 +86,7 @@ function embedUrl(m: ModuleDTO): string {
   return yt ? `https://www.youtube.com/embed/${yt}` : raw;
 }
 
-export function Academy() {
+export function Academy({ hubMode = false }: { hubMode?: boolean }) {
   const { baseCurrency } = useOnboarding();
   const isAppShell = useIsAppShell();
   const fetchList = useServerFn(listCourses);
@@ -151,11 +151,14 @@ export function Academy() {
     });
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
+  const hideHeader = hubMode && isAppShell;
+
+
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
-      {!isAppShell ? (
-        <AcademyHero isAppShell={isAppShell} />
-      ) : (
+      {(!isAppShell && <AcademyHero isAppShell={isAppShell} />)}
+      {isAppShell && !hideHeader && (
+
         <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
           <div className="flex gap-2 mt-2">
             <div className="relative flex-1">
