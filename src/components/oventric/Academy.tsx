@@ -156,10 +156,10 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
 
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
-      {(!isAppShell && <AcademyHero isAppShell={isAppShell} />)}
+      {!isAppShell && <AcademyHero isAppShell={isAppShell} />}
       {isAppShell && !hideHeader && (
-
         <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
+
           <div className="flex gap-2 mt-2">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
