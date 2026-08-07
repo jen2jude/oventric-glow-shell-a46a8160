@@ -511,33 +511,36 @@ export const getMyEnrollment = createServerFn({ method: "POST" })
     if (!data.courseId) return null;
     const { data: row, error } = await context.supabase
       .from("course_enrollments")
-      .select("id, course_id, created_at, completed_at")
+      .select("*")
       .eq("user_id", context.userId)
       .eq("course_id", data.courseId)
       .maybeSingle();
     
     if (error) {
       console.error("[getMyEnrollment] Enrollment fetch error:", error);
-      throw new Error(error.message);
+      throw new Error(`Enrollment fetch error: ${error.message}`);
     }
     if (!row) return null;
     
     const { data: prog, error: pErr } = await context.supabase
       .from("course_progress")
-      .select("module_id")
+      .select("*")
       .eq("user_id", context.userId)
       .eq("course_id", data.courseId);
 
     if (pErr) {
       console.error("[getMyEnrollment] Progress fetch error:", pErr);
+      // We don't throw here to allow course content to load even if progress fails
     }
 
+    const completedModules = Array.isArray(prog) ? prog.map((p) => String(p.module_id)) : [];
+    
     return {
-      id: row.id as string,
-      courseId: row.course_id as string,
-      createdAt: row.created_at as string,
-      completedAt: (row.completed_at as string) ?? null,
-      completedModules: (prog ?? []).map((p) => p.module_id as string),
+      id: String(row.id),
+      courseId: String(row.course_id),
+      createdAt: String(row.created_at),
+      completedAt: row.completed_at ? String(row.completed_at) : null,
+      completedModules,
     };
   });
 
@@ -547,10 +550,13 @@ export const listMyEnrollments = createServerFn({ method: "GET" })
     const sb = context.supabase;
     const { data, error } = await sb
       .from("course_enrollments")
-      .select("id, course_id, created_at, completed_at")
+      .select("*")
       .eq("user_id", context.userId)
       .order("created_at", { ascending: false });
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[listMyEnrollments] Fetch error:", error);
+      throw new Error(`Enrollments list error: ${error.message}`);
+    }
     return (data ?? []).map((r) => ({
       id: r.id as string,
       courseId: r.course_id as string,
