@@ -305,6 +305,7 @@ function PromotedStrip({ ads }: { ads: DiscoveryAd[] }) {
 }
 
 export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: string) => void }) {
+  const isAppShell = useIsAppShell();
   const fetchReco = useServerFn(getAcademyRecommendations);
   const { baseCurrency } = useOnboarding();
   const [data, setData] = useState<RecoDTO | null>(null);
