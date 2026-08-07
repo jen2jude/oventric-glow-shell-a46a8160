@@ -507,21 +507,19 @@ function CheckoutPage() {
                         m.disabled
                           ? isAppShell
                             ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
-                            : "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                            : "bg-slate-50 border-slate-200 opacity-50 cursor-not-allowed"
                           : active
-                            ? isAppShell
-                              ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]"
-                              : "bg-emerald-500/10 border-emerald-500/50"
+                            ? "bg-emerald-500/10 border-emerald-500/50"
                             : isAppShell
                               ? "bg-[#16161A] border-white/5 hover:border-white/10"
-                              : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                              : "bg-white border-slate-200 hover:border-slate-300 shadow-sm"
                       }`}
                     >
                       <span
-                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : "bg-white/5"}`}
+                        className={`w-10 h-10 rounded-lg flex items-center justify-center ${active && !m.disabled ? "bg-emerald-500/20" : isAppShell ? "bg-white/5" : "bg-slate-100"}`}
                       >
                         <Icon
-                          className={`w-5 h-5 ${active && !m.disabled ? "text-emerald-300" : "text-slate-300"}`}
+                          className={`w-5 h-5 ${active && !m.disabled ? (isAppShell ? "text-emerald-300" : "text-emerald-600") : isAppShell ? "text-slate-300" : "text-slate-500"}`}
                         />
                       </span>
                       <span className="flex-1 min-w-0">
