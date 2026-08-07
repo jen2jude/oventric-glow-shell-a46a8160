@@ -420,7 +420,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       )}
 
       {/* Promoted B */}
-      <PromotedStrip ads={adsB} />
+      <PromotedStrip ads={adsB} isAppShell={isAppShell} />
 
       {/* Top circles */}
       {data.circles.length > 0 && (
