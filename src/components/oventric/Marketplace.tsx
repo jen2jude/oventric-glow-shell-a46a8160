@@ -339,9 +339,9 @@ export function Marketplace() {
             </div>
             <button className={`text-xs font-black hover:underline self-end sm:self-center ${isAppShell ? "text-emerald-400" : "text-slate-900"}`}>View All &gt;</button>
           </div>
-          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
-            {hotItems.slice(0, 6).map(p => (
-              <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)} data-product-card>
+          <div className={`${isAppShell ? "flex gap-4 overflow-x-auto pb-4 scrollbar-none" : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"}`}>
+            {hotItems.slice(0, isAppShell ? 6 : 10).map(p => (
+              <div key={p.id} className={`group cursor-pointer ${isAppShell ? "shrink-0 w-36 sm:w-44" : ""}`} onClick={() => onOpenProduct(p)} data-product-card>
                 <div className={`aspect-square mb-2 overflow-hidden relative ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
                   <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
@@ -355,6 +355,7 @@ export function Marketplace() {
               </div>
             ))}
           </div>
+
         </div>
 
         {/* ── Marketplace search ─────────────────────────────────── */}
@@ -512,7 +513,7 @@ export function Marketplace() {
                 Hot {mode === "physical" ? "physical" : "digital"} products
               </h2>
             </div>
-            <div className="flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2">
+            <div className={`${isAppShell ? "flex gap-3 overflow-x-auto snap-x scrollbar-none pb-2" : "grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3 sm:gap-4"}`}>
               {hotItems.map((p) => (
                 <MiniProductCard
                   key={`hot-${p.id}`}
@@ -523,6 +524,7 @@ export function Marketplace() {
                 />
               ))}
             </div>
+
           </div>
         </Collapse>
 
@@ -842,12 +844,15 @@ function MiniProductCard({
   return (
     <button
       onClick={onClick}
-      className={`snap-start shrink-0 w-[160px] sm:w-[190px] text-left rounded-[10px] overflow-hidden border transition-colors ${
+      className={`snap-start text-left rounded-[10px] overflow-hidden border transition-colors ${
+        isAppShell ? "shrink-0 w-[160px] sm:w-[190px]" : "w-full"
+      } ${
         p.promoted
           ? (isAppShell ? "border-emerald-500 bg-emerald-500/10" : "border-emerald-400 bg-emerald-50/60")
           : (isAppShell ? "border-white/10 bg-[#1E1E24] hover:border-white/20" : "border-slate-200 bg-white hover:border-slate-300 hover:shadow-md")
       }`}
     >
+
       <div className={`relative h-20 sm:h-24 ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
         {p.coverUrl ? (
           <ResponsiveImage
