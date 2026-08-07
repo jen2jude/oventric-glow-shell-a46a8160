@@ -190,56 +190,51 @@ export const listCourses = createServerFn({ method: "GET" }).handler(async () =>
 export const getCourse = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => ({ id: String(input?.id ?? "") }))
   .handler(async ({ data }): Promise<CourseWithModulesDTO> => {
-    console.log("[getCourse] Fetching course:", data.id);
     if (!data.id) throw new Error("Course id required");
     const sb = serverPublicClient();
+    
+    // Use a simpler select to avoid any potential column mismatch issues first, then expand
     const { data: row, error } = await sb
       .from("courses")
-      .select(COURSE_COLS)
+      .select("*")
       .eq("id", data.id)
       .maybeSingle();
     
-    if (error) {
-      console.error("[getCourse] Course fetch error:", error);
-      throw new Error(error.message);
-    }
-    if (!row) {
-      console.error("[getCourse] Course not found:", data.id);
-      throw new Error("Course not found");
+    if (error) throw new Error(`Course fetch error: ${error.message}`);
+    if (!row) throw new Error("Course not found");
+
+    // Wrap media signing in try/catch so it doesn't break the whole page if storage is misconfigured
+    let coverUrl: string | null = null;
+    try {
+      const signed = await signCovers(sb, [(row.cover_path as string) ?? null]);
+      coverUrl = signed[0];
+    } catch (e) {
+      console.error("[getCourse] signCovers failed", e);
     }
 
-    console.log("[getCourse] Found course, signing cover...");
-    const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]).catch(err => {
-      console.error("[getCourse] signCovers failed:", err);
-      return [null];
-    });
-
-    console.log("[getCourse] Fetching modules...");
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
-      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview, content_data")
+      .select("*")
       .eq("course_id", data.id)
       .order("position", { ascending: true });
 
-    if (mErr) {
-      console.error("[getCourse] Module fetch error:", mErr);
-      throw new Error(mErr.message);
-    }
+    if (mErr) throw new Error(`Module fetch error: ${mErr.message}`);
     
     const modRows = mods ?? [];
-    console.log(`[getCourse] Found ${modRows.length} modules, signing media...`);
-
+    let videoUrls: (string | null)[] = [];
+    
     const videoPaths = modRows.map((m) => {
-      const cd = (m as { content_data?: Record<string, unknown> }).content_data ?? {};
+      const cd = (m.content_data as Record<string, unknown>) ?? {};
       return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
     });
 
-    const videoUrls = await signCourseMedia(sb, videoPaths).catch(err => {
-      console.error("[getCourse] signCourseMedia failed:", err);
-      return videoPaths.map(() => null);
-    });
+    try {
+      videoUrls = await signCourseMedia(sb, videoPaths);
+    } catch (e) {
+      console.error("[getCourse] signCourseMedia failed", e);
+      videoUrls = videoPaths.map(() => null);
+    }
 
-    console.log("[getCourse] Mapping result...");
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
       modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
