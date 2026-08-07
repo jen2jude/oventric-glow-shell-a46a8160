@@ -77,7 +77,7 @@ function PaymentReturnPage() {
 
   return (
     <div className="page-light min-h-screen bg-[#121214] text-slate-200 overflow-x-hidden md:bg-white md:text-slate-800">
-      <Header onOpenMessages={() => {}} />
+      <Header onOpenMessages={() => {}} forceSiteNavbar={!useIsAppShell()} />
       <main className="max-w-md mx-auto w-full px-4 py-24 text-center">
         {state === "verifying" && (
           <>
