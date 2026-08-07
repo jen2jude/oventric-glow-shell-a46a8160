@@ -128,6 +128,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const isAppShell = useIsAppShell();
   const navigate = useNavigate();
   const { tab: tabParam } = Route.useSearch();
   const purchasesFn = useServerFn(listMyPurchases);
