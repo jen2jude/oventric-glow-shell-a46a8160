@@ -439,7 +439,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
               <div className={`overflow-hidden relative w-full aspect-[16/9] rounded-2xl border ${!isAppShell ? "border-slate-200" : "border-white/5"}`}>
                 <div ref={scrollRef} className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory">
                   {(courses?.slice(0, 4) ?? []).map((course) => (
-                    <div key={course.id} className="shrink-0 w-full relative aspect-[16/9] snap-start">
+                    <div key={course.id} className={`shrink-0 relative aspect-[16/9] snap-start ${isAppShell ? "w-full" : "w-full md:w-1/2"}`}>
                       {course.coverUrl ? (
                         <img 
                           src={course.coverUrl} 
@@ -450,18 +450,18 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                         <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-900" />
                       )}
                       <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                      <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Rated</div>
-                      <div className="absolute bottom-6 left-6 right-6 text-white">
-                        <h4 className="text-xl font-bold mb-1 leading-tight">{course.title}</h4>
-                        <div className="flex items-center justify-between">
-                          <div className="text-xs text-white/70">{course.instructorName || "Academy Expert"}</div>
-                          <div className="text-sm font-black text-emerald-400">
+                      <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Rated</div>
+                      <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 text-white">
+                        <h4 className="text-base md:text-lg lg:text-xl font-bold mb-1 leading-tight line-clamp-2">{course.title}</h4>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="text-xs text-white/70 truncate">{course.instructorName || "Academy Expert"}</div>
+                          <div className="text-xs md:text-sm font-black text-emerald-400 shrink-0">
                             {course.isFree ? "Free" : courseDisplayPrice(course, baseCurrency).formatted}
                           </div>
                         </div>
                         <button 
                           onClick={() => { setSelectedId(course.id); setView("course"); }}
-                          className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-5 py-2 rounded-full text-xs font-bold active:scale-95 transition-transform"
+                          className="mt-3 md:mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[11px] md:text-xs font-bold active:scale-95 transition-transform"
                         >
                           Start Now
                         </button>
