@@ -272,10 +272,12 @@ export function Academy() {
 function CourseCard({
   course,
   currency,
+  isAppShell,
   onOpen,
 }: {
   course: CourseDTO;
   currency: Currency;
+  isAppShell: boolean;
   onOpen: () => void;
 }) {
   return (
