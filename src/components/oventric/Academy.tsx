@@ -155,9 +155,25 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
   const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
 
+  const autoScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    if (scrollLeft + clientWidth >= scrollWidth - 10) {
+      scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      scrollRef.current.scrollBy({ left: clientWidth, behavior: "smooth" });
+    }
+  }, []);
+
   useEffect(() => {
-    if (!scrollRef.current || !isAppShell) return;
-    // Auto-scroll removed per user request for trending section
+    if (!isAppShell && (searchQuery !== "" || category !== "all")) return;
+    const interval = setInterval(autoScroll, 5000);
+    return () => clearInterval(interval);
+  }, [autoScroll, isAppShell, searchQuery, category]);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // ... rest of effect if needed
   }, [isAppShell, searchQuery, category]);
 
   if (view === "course" && selectedId) {
