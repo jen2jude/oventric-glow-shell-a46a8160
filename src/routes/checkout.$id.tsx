@@ -705,7 +705,11 @@ function CheckoutPage() {
               )}
 
               {/* Cashback Wallet — spend-only. Toggle always visible; disabled when empty. */}
-              <div className="border-t border-white/5 md:border-slate-200 pt-3 mb-3">
+              <div
+                className={`pt-3 mb-3 border-t ${
+                  isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
+                }`}
+              >
                 <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 md:text-slate-500 mb-1.5">
                   Cashback Wallet
                 </div>
