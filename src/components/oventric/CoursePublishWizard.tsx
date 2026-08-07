@@ -222,9 +222,19 @@ export function CoursePublishWizard({
   if (!open) return null;
 
   const body = (
-    <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center p-2 sm:p-6">
-      <div className="absolute inset-0 bg-black/75" onClick={onClose} />
-      <div className="relative w-full max-w-5xl max-h-[95vh] bg-[#1E1E24] border border-white/10 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
+    <div
+      className={`modal-light fixed inset-0 z-[70] flex ${
+        isAppShell ? "items-end" : "items-center justify-center p-2 sm:p-6"
+      }`}
+    >
+      <div className="absolute inset-0 bg-black/80" onClick={isAppShell ? undefined : onClose} />
+      <div
+        className={`relative w-full bg-[#1E1E24] border border-white/10 shadow-2xl flex flex-col overflow-hidden ${
+          isAppShell
+            ? "max-h-[92dvh] rounded-t-3xl"
+            : "max-w-5xl max-h-[95vh] rounded-2xl"
+        }`}
+      >
         {/* Header */}
         <div className="flex items-center justify-between p-4 sm:p-5 border-b border-white/10 shrink-0">
           <div>
@@ -242,11 +252,29 @@ export function CoursePublishWizard({
         </div>
 
         {/* Progress bar */}
-        <div className="px-4 sm:px-5 py-3 border-b border-white/10 shrink-0">
-          <div className="flex items-center gap-1 sm:gap-2">
+        <div className={`border-b border-white/10 shrink-0 ${isAppShell ? "px-4 py-2.5" : "px-4 sm:px-5 py-3"}`}>
+          <div className="flex items-center gap-1.5 sm:gap-2">
             {STEPS.map((s, i) => {
               const done = i < step;
               const active = i === step;
+              if (isAppShell) {
+                return (
+                  <button
+                    key={s}
+                    onClick={() => i <= step && setStep(i as Step)}
+                    disabled={i > step}
+                    className={`flex-1 h-9 rounded-lg text-xs font-bold transition-colors ${
+                      active
+                        ? "bg-emerald-500 text-black"
+                        : done
+                          ? "bg-emerald-500/20 text-emerald-300"
+                          : "bg-white/5 text-slate-500"
+                    }`}
+                  >
+                    {i + 1}
+                  </button>
+                );
+              }
               return (
                 <button
                   key={s}
@@ -278,9 +306,10 @@ export function CoursePublishWizard({
         </div>
 
         {/* Content */}
-        <div className="flex-1 overflow-y-auto p-4 sm:p-6">
+        <div className={`flex-1 overflow-y-auto ${isAppShell ? "p-5 pb-24" : "p-4 sm:p-6"}`}>
           {step === 0 && (
             <BasicsStep
+              isAppShell={isAppShell}
               title={title}
               setTitle={setTitle}
               subtitle={subtitle}
@@ -297,10 +326,11 @@ export function CoursePublishWizard({
               onCoverUpload={handleCoverUpload}
             />
           )}
-          {step === 1 && <CurriculumStep sections={sections} setSections={setSections} />}
-          {step === 2 && <QuizzesStep quizzes={quizzes} setQuizzes={setQuizzes} />}
+          {step === 1 && <CurriculumStep isAppShell={isAppShell} sections={sections} setSections={setSections} />}
+          {step === 2 && <QuizzesStep isAppShell={isAppShell} quizzes={quizzes} setQuizzes={setQuizzes} />}
           {step === 3 && (
             <SettingsStep
+              isAppShell={isAppShell}
               isFree={isFree}
               setIsFree={setIsFree}
               priceLocal={priceLocal}
@@ -316,6 +346,7 @@ export function CoursePublishWizard({
           )}
           {step === 4 && (
             <ReviewStep
+              isAppShell={isAppShell}
               title={title}
               subtitle={subtitle}
               sections={sections}
@@ -332,11 +363,21 @@ export function CoursePublishWizard({
         </div>
 
         {/* Footer */}
-        <div className="flex items-center justify-between gap-2 p-4 border-t border-white/10 shrink-0 bg-[#121214]/70">
+        <div
+          className={`flex items-center justify-between gap-2 border-t border-white/10 shrink-0 ${
+            isAppShell
+              ? "fixed bottom-0 left-0 right-0 p-4 bg-[#16161A] z-10 rounded-t-2xl"
+              : "p-4 bg-[#121214]/70"
+          }`}
+        >
           <button
             onClick={() => setStep((s) => (s > 0 ? ((s - 1) as Step) : s))}
             disabled={step === 0 || saving !== null}
-            className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-slate-300 disabled:opacity-40"
+            className={`inline-flex items-center gap-1 rounded-lg text-sm text-slate-300 disabled:opacity-40 ${
+              isAppShell
+                ? "px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 font-semibold"
+                : "px-3 py-2 bg-white/5 hover:bg-white/10 border border-white/10"
+            }`}
           >
             <ChevronLeft className="w-4 h-4" /> Back
           </button>
@@ -347,7 +388,9 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(false)}
                   disabled={saving !== null}
-                  className="inline-flex items-center gap-1 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40"
+                  className={`inline-flex items-center gap-1 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white disabled:opacity-40 ${
+                    isAppShell ? "px-4 py-3 font-semibold" : "px-3 py-2"
+                  }`}
                 >
                   {saving === "draft" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -359,7 +402,9 @@ export function CoursePublishWizard({
                 <button
                   onClick={() => handleSave(true)}
                   disabled={saving !== null || totalLessons === 0 || !title.trim()}
-                  className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40"
+                  className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                    isAppShell ? "px-5 py-3" : "px-4 py-2"
+                  }`}
                 >
                   {saving === "publish" ? (
                     <Loader2 className="w-4 h-4 animate-spin" />
@@ -373,7 +418,9 @@ export function CoursePublishWizard({
               <button
                 onClick={() => canGoNext() && setStep((s) => Math.min(4, s + 1) as Step)}
                 disabled={!canGoNext()}
-                className="inline-flex items-center gap-1 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40"
+                className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-bold disabled:opacity-40 ${
+                  isAppShell ? "px-5 py-3" : "px-4 py-2"
+                }`}
               >
                 Save & Next <ChevronRight className="w-4 h-4" />
               </button>
