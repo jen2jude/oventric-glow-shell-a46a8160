@@ -308,13 +308,13 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             </div>
           )}
 
-          {isAppShell && searchQuery === "" && category === 'all' && (
+          {searchQuery === "" && category === 'all' && (
             <section className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">Trending</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Trending</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl border border-white/5">
+              <div className={`overflow-hidden relative w-full aspect-[16/9] rounded-2xl border ${!isAppShell ? "border-slate-200" : "border-white/5"}`}>
                 <div ref={scrollRef} className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory">
                   {(courses?.slice(0, 4) ?? []).map((course) => (
                     <div key={course.id} className="shrink-0 w-full relative aspect-[16/9] snap-start">
