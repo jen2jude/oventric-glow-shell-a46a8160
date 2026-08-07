@@ -219,7 +219,7 @@ export const getCourse = createServerFn({ method: "POST" })
     if (!data.id) throw new Error("Course id required");
     const sb = serverPublicClient();
     
-    // Use a simpler select to avoid any potential column mismatch issues first, then expand
+    // Use select("*") to be safe against schema drifts
     const { data: row, error } = await sb
       .from("courses")
       .select("*")
@@ -229,15 +229,10 @@ export const getCourse = createServerFn({ method: "POST" })
     if (error) throw new Error(`Course fetch error: ${error.message}`);
     if (!row) throw new Error("Course not found");
 
-    // Wrap media signing in try/catch so it doesn't break the whole page if storage is misconfigured
-    let coverUrl: string | null = null;
-    try {
-      const signed = await signCovers(sb, [(row.cover_path as string) ?? null]);
-      coverUrl = signed[0];
-    } catch (e) {
-      console.error("[getCourse] signCovers failed", e);
-    }
+    const signedCovers = await signCovers(sb, [(row.cover_path as string) ?? null]);
+    const coverUrl = signedCovers[0];
 
+    // Fetch modules
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
       .select("*")
@@ -247,19 +242,12 @@ export const getCourse = createServerFn({ method: "POST" })
     if (mErr) throw new Error(`Module fetch error: ${mErr.message}`);
     
     const modRows = mods ?? [];
-    let videoUrls: (string | null)[] = [];
-    
     const videoPaths = modRows.map((m) => {
       const cd = (m.content_data as Record<string, unknown>) ?? {};
       return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
     });
 
-    try {
-      videoUrls = await signCourseMedia(sb, videoPaths);
-    } catch (e) {
-      console.error("[getCourse] signCourseMedia failed", e);
-      videoUrls = videoPaths.map(() => null);
-    }
+    const videoUrls = await signCourseMedia(sb, videoPaths);
 
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
