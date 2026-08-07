@@ -5,6 +5,8 @@ import { Header } from "@/components/oventric/Header";
 import { Sidebar } from "@/components/oventric/Sidebar";
 import { MobileNav } from "@/components/oventric/MobileNav";
 import { Feed } from "@/components/oventric/Feed";
+import { FeedSocialBar } from "@/components/oventric/feed/FeedSocialBar";
+
 import { Wallet } from "@/components/oventric/Wallet";
 import { Marketplace } from "@/components/oventric/Marketplace";
 import { Academy } from "@/components/oventric/Academy";
@@ -278,9 +280,15 @@ function Index() {
       <Messages variant="page" />
     ) : active === "Circles" ? (
       <CirclesHub />
+    ) : desktopLanding ? (
+      <>
+        <FeedSocialBar onOpenMessages={() => setMessagesOpen(true)} />
+        <Feed />
+      </>
     ) : (
       <Feed />
     );
+
 
   const isMessages = active === "Messages";
 
