@@ -357,11 +357,13 @@ function CourseCard({
 function CourseDetail({
   courseId,
   userId,
+  isAppShell,
   onBack,
   onEdit,
 }: {
   courseId: string;
   userId: string | null;
+  isAppShell: boolean;
   onBack: () => void;
   onEdit: (id: string) => void;
 }) {
