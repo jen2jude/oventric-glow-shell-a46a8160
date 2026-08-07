@@ -928,7 +928,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
     return (
       <div className="bg-black px-4 pt-2 pb-6 space-y-6">
         {/* Banner Card */}
-        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] bg-[#1A1A1C] border border-white/5 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/9] md:aspect-[21/7] bg-[#1A1A1C] border border-white/5 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10" />
           <img 
             src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" 
