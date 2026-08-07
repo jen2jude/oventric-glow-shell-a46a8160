@@ -846,7 +846,9 @@ function CheckoutPage() {
           onClick={() => !topUpBusy && setTopUpOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-6"
+            className={`w-full max-w-md border rounded-2xl p-6 ${
+              isAppShell ? "bg-[#16161A] border-white/5" : "bg-[#1E1E24] md:shadow-sm md:bg-white border-white/10 md:border-slate-200"
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">
