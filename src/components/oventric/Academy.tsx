@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useMemo } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -18,6 +18,9 @@ import {
   RotateCcw,
   ScrollText,
   ShoppingBag,
+  Search,
+  Settings2,
+  MoreVertical,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
