@@ -12,6 +12,7 @@ export type MarketplaceHeaderProps = {
   avatarUrl?: string | null;
   name?: string;
   search?: React.ReactNode;
+  activeSection?: string;
 };
 
 const RED_LINKS = [
