@@ -381,10 +381,10 @@ function CheckoutPage() {
       className={`min-h-screen overflow-x-hidden ${
         isAppShell
           ? "bg-[#0A0A0B] text-slate-200"
-          : "page-light bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700"
+          : "page-light bg-white text-slate-900"
       }`}
     >
-      <Header onOpenMessages={() => {}} />
+      {!isAppShell && <Header onOpenMessages={() => {}} />}
       <main
         className={`max-w-4xl mx-auto w-full min-w-0 ${
           isAppShell ? "px-0 py-0 pb-32" : "px-4 py-6 pb-24"
@@ -397,26 +397,26 @@ function CheckoutPage() {
           className={`inline-flex items-center gap-2 text-sm transition-all ${
             isAppShell
               ? "absolute top-4 left-4 z-20 w-10 h-10 items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white"
-              : "text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+              : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-lg px-3 py-2 mb-6"
           }`}
         >
-          <ArrowLeft className="w-4 h-4" /> {!isAppShell && "Back"}
+          <ArrowLeft className="w-4 h-4" /> Back
         </Link>
 
         {!isAppShell && (
-          <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">
+          <h1 className="text-2xl md:text-3xl font-black text-slate-900 mb-6">
             Checkout
           </h1>
         )}
 
         {loadErr && (
-          <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-6 text-sm text-red-300">
+          <div className={`${isAppShell ? "bg-[#16161A] border-white/5 mx-4" : "bg-white shadow-sm border-red-200"} border rounded-xl p-6 text-sm text-red-500`}>
             {loadErr}
           </div>
         )}
 
         {!product && !loadErr && (
-          <div className="flex items-center gap-2 text-slate-400 md:text-slate-500 text-sm">
+          <div className={`flex items-center gap-2 text-sm ${isAppShell ? "text-slate-500 px-4" : "text-slate-500"}`}>
             <Loader2 className="w-4 h-4 animate-spin" /> Loading order…
           </div>
         )}
@@ -442,7 +442,7 @@ function CheckoutPage() {
                   </div>
                 </div>
               )}
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-2">
+              <h2 className={`text-xs font-bold uppercase tracking-widest mb-2 ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
                 Payment Method
               </h2>
               {methods.map((m) => {
@@ -749,22 +749,22 @@ function CheckoutPage() {
 
               <div
                 className={`pt-3 space-y-1 text-sm border-t ${
-                  isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
+                  isAppShell ? "border-white/5" : "border-slate-200"
                 }`}
               >
-                <div className="flex justify-between text-slate-400 md:text-slate-500">
+                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
                   <span>Subtotal</span>
                   <span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span>
                 </div>
                 {cashbackApplyUSD > 0 && (
-                  <div className="flex justify-between text-emerald-300">
+                  <div className="flex justify-between text-emerald-600">
                     <span>Cashback applied</span>
                     <span>
                       − {fmtPrice(cashbackApplyUSD, baseCurrency, product, cashbackApplyLocal)}
                     </span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-400 md:text-slate-500">
+                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
                   <span>Processing</span>
                   <span />
                 </div>
@@ -772,7 +772,7 @@ function CheckoutPage() {
                   className={`flex justify-between font-black text-base pt-2 border-t ${
                     isAppShell
                       ? "text-white border-white/5"
-                      : "text-white md:text-slate-900 border-white/5 md:border-slate-200"
+                      : "text-slate-900 border-slate-200"
                   }`}
                 >
                   <span>Total</span>
@@ -781,7 +781,7 @@ function CheckoutPage() {
               </div>
 
               {isAppShell ? (
-                <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/5 p-4 flex flex-col gap-3">
+                <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/5 p-4 flex flex-col gap-3 pb-safe">
                   <div className="flex justify-between items-center px-1">
                     <span className="text-xs text-slate-400">Total to pay</span>
                     <span className="text-lg font-black text-white">

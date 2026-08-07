@@ -20,8 +20,8 @@ export function GlobalMobileNav() {
   const launchCtx = useLaunchContext();
   const isAppShell = launchCtx === "native" || launchCtx === "standalone";
 
-  // Hide on admin routes, on "/", (index renders its own nav), and on product pages.
-  if (pathname.startsWith("/admin") || pathname === "/" || pathname.startsWith("/product/")) return null;
+  // Hide on admin routes, on "/", (index renders its own nav), on product pages, and checkout.
+  if (pathname.startsWith("/admin") || pathname === "/" || pathname.startsWith("/product/") || pathname.startsWith("/checkout/")) return null;
 
   const goSection = (label: string) => {
     const section = label === "Market" ? "Marketplace" : label;
