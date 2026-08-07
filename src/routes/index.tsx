@@ -325,7 +325,7 @@ function Index() {
         )}
 
         <div
-          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""}`}
+          className={`flex flex-1 min-h-0 ${(active === "Home" || active === "Marketplace") && !isDesktop && !desktopLanding ? "pt-12 md:pt-[4.5rem]" : ""} ${desktopLanding && active === "Marketplace" && !isDesktop ? "pt-0" : ""} ${!isAppShell && !desktopLanding ? "pt-16" : ""}`}
         >
           {!isDesktop && !desktopLanding && (
             <Sidebar onCreate={handleCreate} active={active} onSelect={setActive} />
