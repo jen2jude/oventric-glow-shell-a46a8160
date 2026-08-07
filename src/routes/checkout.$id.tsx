@@ -84,7 +84,7 @@ function methodsForCountry(
 }> {
   const wallet = {
     id: "wallet" as PaymentMethod,
-    label: "Oventric Wallet",
+    label: "Pay with Oventric Wallet",
     Icon: WalletIcon,
     hint: "Direct checkout preferred — fund wallet for bounties & ads only",
     disabled: true,
