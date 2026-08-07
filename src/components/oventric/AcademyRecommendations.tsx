@@ -346,14 +346,14 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   const blogB = data.blog.slice(3, 6);
 
   return (
-    <section className="mt-12 border-t border-white/10 pt-8 space-y-10">
+    <section className={`mt-12 border-t pt-8 space-y-10 ${!isAppShell ? "border-slate-200" : "border-white/10"}`}>
       {/* Recommended courses */}
       {data.courses.length > 0 && (
         <div>
-          <SectionHeader icon={GraduationCap} title="Recommended courses" hint="Most enrolled" />
+          <SectionHeader icon={GraduationCap} title="Recommended courses" hint="Most enrolled" isAppShell={isAppShell} />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.courses.map((c) => (
-              <CourseTile key={c.id} c={c} currency={baseCurrency} onOpen={onOpenCourse} />
+              <CourseTile key={c.id} c={c} currency={baseCurrency} onOpen={onOpenCourse} isAppShell={isAppShell} />
             ))}
           </div>
         </div>
