@@ -152,45 +152,22 @@ export function Academy() {
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
   return (
-    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-[#F8F9FB] min-h-screen"}`}>
+    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
       {!isAppShell ? (
         <AcademyHero isAppShell={isAppShell} />
       ) : (
-        <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-40">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-pink-500 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center gap-1 bg-pink-50 text-pink-500 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-100">
-                🎓 <ArrowRight className="w-2.5 h-2.5" />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Users className="w-6 h-6 text-slate-700" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">6</span>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId || 'anon'}`} alt="" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex gap-2">
+        <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
+          <div className="flex gap-2 mt-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input 
                 type="text" 
-                placeholder="What do you want to learn?"
+                placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-100 rounded-md py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-pink-500/20"
+                className="w-full bg-[#1A1A1C] border border-white/5 rounded-md py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none"
               />
             </div>
-            <button className="w-12 h-12 bg-pink-500 rounded-md flex items-center justify-center shrink-0">
-              <Settings2 className="w-6 h-6 text-white" />
-            </button>
           </div>
         </div>
       )}
