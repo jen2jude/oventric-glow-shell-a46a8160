@@ -450,6 +450,7 @@ const inputCls =
   "w-full px-3 py-2 rounded-lg bg-[#121214] border border-white/10 text-white text-sm placeholder:text-slate-600 outline-none focus:border-emerald-500/50";
 
 function BasicsStep(props: {
+  isAppShell: boolean;
   title: string;
   setTitle: (v: string) => void;
   subtitle: string;
@@ -466,6 +467,7 @@ function BasicsStep(props: {
   onCoverUpload: (file: File) => void;
 }) {
   const {
+    isAppShell,
     title,
     setTitle,
     subtitle,
