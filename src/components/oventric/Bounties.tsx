@@ -924,10 +924,10 @@ function ApplicantEvaluation({
                 <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-emerald-500/10 border border-emerald-500/30 text-emerald-300 text-[10px] font-semibold">
                   <GraduationCap className="w-3 h-3" /> {a.lmsMilestones} LMS Milestones
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-fuchsia-500/10 border border-fuchsia-500/30 text-fuchsia-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Package className="w-3 h-3" /> {a.storeSales} Store Sales
                 </span>
-                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-sky-500/10 border border-sky-500/30 text-sky-300 text-[10px] font-semibold">
+                <span className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[#1A1A1C] border border-white/[0.06] text-slate-300 text-[10px] font-semibold">
                   <Star className="w-3 h-3" /> Reputation {(a.rating * 20).toFixed(0)}/100
                 </span>
               </div>
