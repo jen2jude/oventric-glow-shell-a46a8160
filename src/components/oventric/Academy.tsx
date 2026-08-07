@@ -214,27 +214,27 @@ export function Academy() {
           {isAppShell && filtered.length > 0 && category === 'all' && searchQuery === "" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">My Enrolled Courses</h3>
+                <h3 className="font-bold text-white text-lg">My Enrolled Courses</h3>
               </div>
               <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
                 {filtered.slice(0, 3).map(course => (
-                  <div key={course.id} className="shrink-0 w-64 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                    <h4 className="font-bold text-slate-800 text-sm line-clamp-1 mb-4">{course.title}</h4>
+                  <div key={course.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
+                    <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
                     <div className="flex flex-col items-center py-4">
                       <div className="relative w-24 h-24 flex items-center justify-center">
                         <svg className="w-full h-full -rotate-90">
-                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100" />
+                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
                           <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-pink-500" strokeDasharray={264} strokeDashoffset={264 * (1 - 0.05)} strokeLinecap="round" />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-lg font-bold text-slate-800">5%</span>
+                          <span className="text-lg font-bold text-white">5%</span>
                           <span className="text-[9px] text-slate-400 uppercase font-bold">Completed</span>
                         </div>
                       </div>
                     </div>
                     <button 
                       onClick={() => { setSelectedId(course.id); setView("course"); }}
-                      className="w-full py-2 border border-pink-500 text-pink-500 rounded-md text-xs font-bold hover:bg-pink-50 transition-colors mt-2"
+                      className="w-full py-2 bg-pink-500 text-white rounded-md text-xs font-bold hover:bg-pink-600 transition-colors mt-2"
                     >
                       Resume Learning
                     </button>
