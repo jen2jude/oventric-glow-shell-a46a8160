@@ -226,6 +226,7 @@ export function Academy() {
                 key={course.id}
                 course={course}
                 currency={baseCurrency}
+                isAppShell={isAppShell}
                 onOpen={() => {
                   setSelectedId(course.id);
                   setView("course");
