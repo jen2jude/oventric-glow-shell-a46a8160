@@ -206,7 +206,7 @@ function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
         ) : null}
       </div>
       <div className="p-3 flex items-center gap-3">
-        <div className="w-10 h-10 rounded-full bg-black/50 border border-white/20 flex items-center justify-center text-lg shrink-0 overflow-hidden">
+        <div className={`w-10 h-10 rounded-full flex items-center justify-center text-lg shrink-0 overflow-hidden border ${!isAppShell ? "bg-slate-100 border-slate-200 shadow-inner" : "bg-black/50 border-white/20"}`}>
           {c.avatarUrl ? (
             <img src={c.avatarUrl} alt="" className="w-full h-full object-cover" />
           ) : (
