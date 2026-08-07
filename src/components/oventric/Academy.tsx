@@ -658,7 +658,7 @@ function CourseDetail({
                       <Circle className="w-4 h-4 text-slate-500 shrink-0 mt-0.5" />
                     )}
                     <div className="flex-1 min-w-0">
-                      <div className="text-sm text-white md:text-slate-900 font-semibold truncate">
+                      <div className={`text-sm font-semibold truncate ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>
                         {m.title}
                       </div>
                       <div className="text-[11px] text-slate-500 mt-0.5">
