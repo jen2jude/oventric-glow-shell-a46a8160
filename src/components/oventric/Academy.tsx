@@ -139,8 +139,8 @@ export function Academy() {
     }) ?? [];
 
   return (
-    <div className="w-full md:bg-white md:min-h-screen">
-      <AcademyHero />
+    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
+      <AcademyHero isAppShell={isAppShell} />
 
       <div className="max-w-6xl mx-auto w-full">
         <div className="sticky top-0 z-30 px-4 py-3 bg-[#121214] border-b border-white/5 md:bg-white md:border-slate-200">
