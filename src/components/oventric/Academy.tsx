@@ -359,7 +359,7 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
             {isAppShell && (
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-white text-lg">
-                  {searchQuery ? `Search Results (${filtered.length})` : "Newly Released"}
+                  {searchQuery ? `Search Results (${filtered.length})` : "New"}
                 </h3>
                 {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
               </div>
