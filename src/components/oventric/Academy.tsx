@@ -231,28 +231,26 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
           </div>
         )}
 
-        <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-4"}`}>
-          {isAppShell && enrolled.length > 0 && category === 'all' && searchQuery === "" && (
+        <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-8"}`}>
+          {enrolled.length > 0 && category === 'all' && searchQuery === "" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">My Enrolled Courses</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>My Enrolled Courses</h3>
               </div>
               <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
                 {enrolled.map(enrollment => {
                   const course = courses?.find(c => c.id === enrollment.courseId);
                   if (!course) return null;
                   
-                  // In a real app we'd fetch actual progress, but for this view 
-                  // we can indicate started vs finished
                   const isFinished = enrollment.completedAt != null;
 
                   return (
-                    <div key={enrollment.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
-                      <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
+                    <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg p-4 ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
+                      <h4 className={`font-bold text-sm line-clamp-1 mb-4 ${!isAppShell ? "text-slate-900" : "text-white"}`}>{course.title}</h4>
                       <div className="flex flex-col items-center py-4">
                         <div className="relative w-24 h-24 flex items-center justify-center">
                           <svg className="w-full h-full -rotate-90">
-                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
+                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className={!isAppShell ? "text-slate-100" : "text-white/5"} />
                             <circle 
                               cx="48" cy="48" r="42" 
                               stroke="currentColor" 
@@ -265,7 +263,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                             />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-lg font-bold text-white">{isFinished ? "100%" : "Started"}</span>
+                            <span className={`text-lg font-bold ${!isAppShell ? "text-slate-900" : "text-white"}`}>{isFinished ? "100%" : "Started"}</span>
                             <span className="text-[9px] text-slate-400 uppercase font-bold">{isFinished ? "Finished" : "Progress"}</span>
                           </div>
                         </div>
