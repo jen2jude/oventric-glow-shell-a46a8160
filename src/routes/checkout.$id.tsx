@@ -29,6 +29,7 @@ import { initPayment, getPaymentOptions } from "@/lib/payments.functions";
 import { MiniPayPanel } from "@/components/oventric/MiniPayPanel";
 import { usdRate, convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
 // conversion for the viewer uses the LEGACY fallback rates; the true locked
