@@ -434,40 +434,59 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             <section className="relative">
               <div className="flex items-center justify-between mb-4">
                 <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Trending</h3>
-                <button className="text-pink-500 text-xs font-bold">View All</button>
+                <button className={`text-xs font-bold ${!isAppShell ? "text-red-500" : "text-red-400"}`}>View All</button>
               </div>
-              <div className={`overflow-hidden relative w-full aspect-[16/9] rounded-2xl border ${!isAppShell ? "border-slate-200" : "border-white/5"}`}>
-                <div ref={scrollRef} className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory">
-                  {(courses?.slice(0, 4) ?? []).map((course) => (
-                    <div key={course.id} className={`shrink-0 relative aspect-[16/9] snap-start ${isAppShell ? "w-full" : "w-full md:w-1/2"}`}>
-                      {course.coverUrl ? (
-                        <img 
-                          src={course.coverUrl} 
-                          className="w-full h-full object-cover"
-                          alt={course.title}
-                        />
-                      ) : (
-                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-900" />
-                      )}
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
-                      <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Rated</div>
-                      <div className="absolute bottom-4 left-4 right-4 md:bottom-6 md:left-6 md:right-6 text-white">
-                        <h4 className="text-base md:text-lg lg:text-xl font-bold mb-1 leading-tight line-clamp-2">{course.title}</h4>
-                        <div className="flex items-center justify-between gap-2">
-                          <div className="text-xs text-white/70 truncate">{course.instructorName || "Academy Expert"}</div>
-                          <div className="text-xs md:text-sm font-black text-emerald-400 shrink-0">
-                            {course.isFree ? "Free" : courseDisplayPrice(course, baseCurrency).formatted}
+              <div className="overflow-hidden relative w-full">
+                <div ref={scrollRef} className="flex w-full overflow-x-auto scrollbar-none snap-x snap-mandatory gap-4 pb-2">
+                  {(courses?.slice(0, 4) ?? []).map((course, idx) => {
+                    const gradients = [
+                      "bg-gradient-to-br from-[#8B5CF6] via-[#A78BFA] to-[#C4B5FD]",
+                      "bg-gradient-to-br from-[#F87171] via-[#FB7185] to-[#FCA5A5]",
+                      "bg-gradient-to-br from-[#3B82F6] via-[#60A5FA] to-[#93C5FD]",
+                      "bg-gradient-to-br from-[#F59E0B] via-[#FBBF24] to-[#FCD34D]",
+                    ];
+                    const gradient = gradients[idx % gradients.length];
+                    return (
+                      <div
+                        key={course.id}
+                        className={`shrink-0 snap-start ${isAppShell ? "w-full" : "w-full md:w-[calc(50%-8px)]"} aspect-[16/9] relative rounded-3xl overflow-hidden ${gradient}`}
+                      >
+                        <div className="absolute inset-0 flex">
+                          <div className="flex-1 p-5 md:p-8 flex flex-col justify-center text-white z-10">
+                            <h4 className="text-xl md:text-2xl lg:text-3xl font-black mb-2 leading-tight line-clamp-3">
+                              {course.title}
+                            </h4>
+                            <p className="text-xs md:text-sm text-white/80 mb-4 line-clamp-2">
+                              {course.instructorName || "Learn from industry experts"}
+                            </p>
+                            <button
+                              onClick={() => { setSelectedId(course.id); setView("course"); }}
+                              className="self-start bg-red-500 hover:bg-red-600 text-white px-5 md:px-6 py-2 md:py-2.5 rounded-full text-xs md:text-sm font-bold active:scale-95 transition-transform shadow-lg"
+                            >
+                              Start Now
+                            </button>
+                          </div>
+                          <div className="flex-1 relative min-w-0">
+                            {course.coverUrl ? (
+                              <img
+                                src={course.coverUrl}
+                                className="absolute right-0 bottom-0 h-full w-full object-cover object-center"
+                                alt={course.title}
+                              />
+                            ) : (
+                              <div className="absolute inset-0 flex items-center justify-center">
+                                <GraduationCap className="w-16 h-16 md:w-20 md:h-20 text-white/20" />
+                              </div>
+                            )}
+                            <div className="absolute inset-0 bg-gradient-to-r from-black/20 via-transparent to-transparent" />
                           </div>
                         </div>
-                        <button 
-                          onClick={() => { setSelectedId(course.id); setView("course"); }}
-                          className="mt-3 md:mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 md:px-5 py-1.5 md:py-2 rounded-full text-[11px] md:text-xs font-bold active:scale-95 transition-transform"
-                        >
-                          Start Now
-                        </button>
+                        <div className="absolute top-3 right-3 md:top-4 md:right-4 bg-white/25 text-white text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">
+                          Top Rated
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             </section>
