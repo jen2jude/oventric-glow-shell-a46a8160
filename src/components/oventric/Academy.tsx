@@ -297,6 +297,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                   
                   const isFinished = enrollment.completedAt != null;
 
+                  if (isAppShell) {
                     return (
                       <button 
                         key={enrollment.id} 
