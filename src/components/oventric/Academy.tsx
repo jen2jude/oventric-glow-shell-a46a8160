@@ -980,8 +980,8 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 
   return (
     <div className="relative overflow-hidden border-b bg-white border-slate-200">
-      <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
-        <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
+      <div className="max-w-6xl mx-auto w-full px-4 pt-6 pb-10">
+        <div className="grid gap-8 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700">
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
