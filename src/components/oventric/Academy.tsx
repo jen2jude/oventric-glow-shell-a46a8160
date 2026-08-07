@@ -328,7 +328,7 @@ function CourseCard({
         </div>
       </button>
       <div className="p-5">
-        <h3 className="text-white md:text-slate-900 font-black text-lg leading-snug">
+        <h3 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-lg leading-snug`}>
           {course.title}
         </h3>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
