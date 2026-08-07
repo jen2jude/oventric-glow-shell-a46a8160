@@ -822,7 +822,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       href={ad.cta_url || "#"}
       target="_blank"
       rel="noopener noreferrer sponsored"
-      className="block rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black hover:border-white/20 transition-colors md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white md:hover:border-slate-300"
+      className="block rounded-xl overflow-hidden border border-white/[0.06] bg-[#141416] hover:border-white/15 transition-colors md:border-slate-200 md:bg-white md:hover:border-slate-300"
     >
       <div className="flex items-center justify-between px-5 py-4 gap-4">
         <div className="min-w-0">
@@ -841,11 +841,11 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
             src={ad.media_url ?? undefined}
             alt={ad.advertiser}
             sizes="64px"
-            className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/10"
+            className="shrink-0 w-16 h-10 rounded-lg object-cover border border-white/[0.06]"
             loading="lazy"
           />
         ) : (
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/10 hover:bg-white/15 text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] hover:bg-[#1F1F21] text-white md:bg-emerald-600 md:hover:bg-emerald-700 md:text-white text-xs font-semibold border border-white/[0.06] md:border-0">
             {ctaLabel}
           </span>
         )}
