@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -87,6 +87,8 @@ function embedUrl(m: ModuleDTO): string {
 }
 
 export function Academy({ hubMode = false }: { hubMode?: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const { baseCurrency } = useOnboarding();
   const isAppShell = useIsAppShell();
   const fetchList = useServerFn(listCourses);
@@ -152,6 +154,25 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
   const hideHeader = hubMode && isAppShell;
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const scrollContainer = scrollRef.current;
+    let scrollAmount = 0;
+    const step = () => {
+      if (scrollContainer) {
+        scrollAmount += 1;
+        if (scrollAmount >= scrollContainer.offsetWidth) {
+          scrollAmount = 0;
+        }
+        scrollContainer.scrollTo(scrollAmount, 0);
+      }
+      requestAnimationFrame(step);
+    };
+    const animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [isAppShell, searchQuery, category]);
+
 
 
   return (
@@ -281,7 +302,7 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
               <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl">
-                <div className="flex animate-scroll-x w-full">
+                <div ref={scrollRef} className="flex w-full h-full overflow-hidden">
                   {[1, 2, 3].map((i) => (
                     <div key={i} className="shrink-0 w-full relative aspect-[16/9]">
                       <img 
