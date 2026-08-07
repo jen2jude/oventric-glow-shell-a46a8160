@@ -298,35 +298,56 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                   const isFinished = enrollment.completedAt != null;
 
                   return (
-                    <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg p-4 ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
-                      <h4 className={`font-bold text-sm line-clamp-1 mb-4 ${!isAppShell ? "text-slate-900" : "text-white"}`}>{course.title}</h4>
-                      <div className="flex flex-col items-center py-4">
-                        <div className="relative w-24 h-24 flex items-center justify-center">
-                          <svg className="w-full h-full -rotate-90">
-                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className={!isAppShell ? "text-slate-100" : "text-white/5"} />
-                            <circle 
-                              cx="48" cy="48" r="42" 
-                              stroke="currentColor" 
-                              strokeWidth="4" 
-                              fill="transparent" 
-                              className={isFinished ? "text-emerald-500" : "text-pink-500"} 
-                              strokeDasharray={264} 
-                              strokeDashoffset={264 * (1 - (isFinished ? 1 : 0.05))} 
-                              strokeLinecap="round" 
-                            />
-                          </svg>
-                          <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className={`text-lg font-bold ${!isAppShell ? "text-slate-900" : "text-white"}`}>{isFinished ? "100%" : "Started"}</span>
-                            <span className="text-[9px] text-slate-400 uppercase font-bold">{isFinished ? "Finished" : "Progress"}</span>
+                    <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg overflow-hidden flex flex-col ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
+                      <div className="relative aspect-[21/9] bg-[#121214]">
+                        {course.coverUrl ? (
+                          <img 
+                            src={course.coverUrl} 
+                            className="w-full h-full object-cover"
+                            alt={course.title}
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <GraduationCap className="w-6 h-6 text-white/10" />
                           </div>
+                        )}
+                        <div className="absolute inset-0 bg-black/40" />
+                        <div className="absolute inset-0 p-3 flex flex-col justify-end">
+                          <h4 className="font-bold text-xs text-white line-clamp-1">{course.title}</h4>
                         </div>
                       </div>
-                      <button 
-                        onClick={() => { setSelectedId(course.id); setView("course"); }}
-                        className={`w-full py-2 rounded-md text-xs font-bold transition-colors mt-2 ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
-                      >
-                        {isFinished ? "Finished" : "Resume Learning"}
-                      </button>
+
+                      <div className="p-4 flex flex-col items-center">
+                        <div className="w-full flex items-center justify-between mb-3">
+                          <div className="flex flex-col">
+                            <span className="text-[10px] text-slate-400 uppercase font-bold">{isFinished ? "Finished" : "Progress"}</span>
+                            <span className={`text-sm font-bold ${!isAppShell ? "text-slate-900" : "text-white"}`}>{isFinished ? "100%" : "In Progress"}</span>
+                          </div>
+                          <div className="relative w-10 h-10 flex items-center justify-center">
+                            <svg className="w-full h-full -rotate-90">
+                              <circle cx="20" cy="20" r="18" stroke="currentColor" strokeWidth="3" fill="transparent" className={!isAppShell ? "text-slate-100" : "text-white/5"} />
+                              <circle 
+                                cx="20" cy="20" r="18" 
+                                stroke="currentColor" 
+                                strokeWidth="3" 
+                                fill="transparent" 
+                                className={isFinished ? "text-emerald-500" : "text-pink-500"} 
+                                strokeDasharray={113} 
+                                strokeDashoffset={113 * (1 - (isFinished ? 1 : 0.05))} 
+                                strokeLinecap="round" 
+                              />
+                            </svg>
+                            <span className={`absolute text-[8px] font-bold ${!isAppShell ? "text-slate-900" : "text-white"}`}>{isFinished ? "100" : "5"}%</span>
+                          </div>
+                        </div>
+
+                        <button 
+                          onClick={() => { setSelectedId(course.id); setView("course"); }}
+                          className={`w-full py-2 rounded-md text-xs font-bold transition-colors ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
+                        >
+                          {isFinished ? "Finished" : "Resume Learning"}
+                        </button>
+                      </div>
                     </div>
                   );
                 })}
@@ -384,7 +405,12 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                       <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Rated</div>
                       <div className="absolute bottom-6 left-6 right-6 text-white">
                         <h4 className="text-xl font-bold mb-1 leading-tight">{course.title}</h4>
-                        <div className="text-xs text-white/70 mb-3">{course.instructorName || "Academy Expert"}</div>
+                        <div className="flex items-center justify-between">
+                          <div className="text-xs text-white/70">{course.instructorName || "Academy Expert"}</div>
+                          <div className="text-sm font-black text-emerald-400">
+                            {course.isFree ? "Free" : courseDisplayPrice(course, baseCurrency).formatted}
+                          </div>
+                        </div>
                         <button 
                           onClick={() => { setSelectedId(course.id); setView("course"); }}
                           className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-5 py-2 rounded-full text-xs font-bold active:scale-95 transition-transform"
@@ -530,7 +556,9 @@ function CourseCard({
             <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
               <Clock className="w-3 h-3 text-slate-500" /> 6-9 Hours
             </div>
-            <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
+            <div className="text-[11px] text-emerald-400 font-black uppercase">
+              {course.isFree ? "Free" : courseDisplayPrice(course, currency).formatted}
+            </div>
           </div>
         </div>
       </div>
