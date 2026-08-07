@@ -593,7 +593,13 @@ function CheckoutPage() {
               })}
 
               {insufficient && (
-                <div className="mt-2 flex items-start gap-3 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
+                <div
+                  className={`mt-2 flex items-start gap-3 text-xs rounded-lg p-3 ${
+                    isAppShell
+                      ? "text-amber-300 bg-amber-500/5 border border-amber-500/20"
+                      : "text-amber-300 bg-amber-500/10 border border-amber-500/40"
+                  }`}
+                >
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div>
