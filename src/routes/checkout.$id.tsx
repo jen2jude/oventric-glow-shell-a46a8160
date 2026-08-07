@@ -422,9 +422,26 @@ function CheckoutPage() {
         )}
 
         {product && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
+          <div
+            className={`grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 ${isAppShell ? "p-0" : ""}`}
+          >
             {/* Payment methods */}
-            <div className="lg:col-span-2 space-y-3 min-w-0">
+            <div className={`lg:col-span-2 space-y-3 min-w-0 ${isAppShell ? "px-4 pt-16" : ""}`}>
+              {isAppShell && (
+                <div className="flex items-center gap-4 mb-6">
+                  {product.coverUrl && (
+                    <ResponsiveImage
+                      src={product.coverUrl}
+                      alt={product.name}
+                      className="w-16 h-16 object-cover rounded-xl border border-white/5"
+                    />
+                  )}
+                  <div>
+                    <h1 className="text-xl font-black text-white">{product.name}</h1>
+                    <div className="text-xs text-slate-500">Checkout · Qty {qty}</div>
+                  </div>
+                </div>
+              )}
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-2">
                 Payment Method
               </h2>
@@ -480,10 +497,20 @@ function CheckoutPage() {
                           ? "Wallet is reserved for bounties & ads. Pay directly instead."
                           : undefined
                       }
-                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
+                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-all ${
                         m.disabled
-                          ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                          ? isAppShell
+                            ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
+                            : "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
                           : active
+                            ? isAppShell
+                              ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]"
+                              : "bg-emerald-500/10 border-emerald-500/50"
+                            : isAppShell
+                              ? "bg-[#16161A] border-white/5 hover:border-white/10"
+                              : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                      }`}
+                    >
                             ? "bg-emerald-500/10 border-emerald-500/50"
                             : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                       }`}
