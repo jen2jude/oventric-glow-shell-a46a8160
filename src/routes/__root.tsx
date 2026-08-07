@@ -347,6 +347,8 @@ function RootComponent() {
   const appRouter = useRouter();
 
   const { show, markSeen, hydrated } = useFirstLaunch();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
   // Welcome slides belong to the app shell (native build / installed PWA);
   // plain browser visitors get the marketing site instead.
   const launchCtx = useLaunchContext();
