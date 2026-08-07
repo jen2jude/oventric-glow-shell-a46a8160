@@ -141,10 +141,26 @@ async function signCourseMedia(
 ): Promise<(string | null)[]> {
   const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
   if (unique.length === 0) return paths.map(() => null);
-  const { data } = await sb.storage.from("course-media").createSignedUrls(unique, 60 * 60 * 24 * 7);
-  const map = new Map<string, string>();
-  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
-  return paths.map((p) => (p ? map.get(p) ?? null : null));
+  
+  try {
+    const { data, error } = await sb.storage
+      .from("course-media")
+      .createSignedUrls(unique, 60 * 60 * 24 * 7);
+    
+    if (error) {
+      console.error("[signCourseMedia] Storage error:", error);
+      return paths.map(() => null);
+    }
+
+    const map = new Map<string, string>();
+    (data ?? []).forEach((r) => { 
+      if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); 
+    });
+    return paths.map((p) => (p ? map.get(p) ?? null : null));
+  } catch (e) {
+    console.error("[signCourseMedia] Fatal error:", e);
+    return paths.map(() => null);
+  }
 }
 
 async function signCovers(
