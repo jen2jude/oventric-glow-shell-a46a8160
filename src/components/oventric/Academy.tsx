@@ -739,6 +739,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
               body="Every module is a hosted video. Press play and learn — no downloads, no plugins."
             />
             <ValueCard
+              isAppShell={isAppShell}
               Icon={RotateCcw}
               title="Auto-Resume"
               body="Your progress is saved per module. Pick up exactly where you left off."
