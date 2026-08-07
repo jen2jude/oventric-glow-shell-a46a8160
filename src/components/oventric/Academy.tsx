@@ -37,6 +37,7 @@ import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext
 import { CourseEditorModal } from "./CourseEditorModal";
 import { CoursePublishWizard } from "./CoursePublishWizard";
 import { CourseCheckoutModal } from "./CourseCheckoutModal";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 import { computeDisplayPrice } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
