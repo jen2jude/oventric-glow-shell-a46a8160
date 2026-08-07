@@ -312,67 +312,70 @@ function ProductPage() {
 
         {product && (
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div>
-              {(() => {
-                const gallery =
-                  product.kind === "physical" && product.imageUrls.length > 0
-                    ? product.imageUrls
-                    : product.coverUrl
-                      ? [product.coverUrl]
-                      : [];
-                const cur = gallery[activeImage] ?? gallery[0];
-                return (
-                  <>
-                    <div className={`relative aspect-[4/3] rounded-2xl ${isAppShell ? "bg-white/5" : "bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
-                      {cur ? (
-                        <ResponsiveImage
-                          sizes="(min-width: 1024px) 640px, 100vw"
-                          src={cur}
-                          alt={product.name}
-                          className="absolute inset-0 w-full h-full object-cover"
-                          loading="eager"
-                          fetchPriority="high"
-                          decoding="async"
-                        />
-                      ) : (
-                        <ShoppingCart className="w-12 h-12 text-white/20" />
-                      )}
-                      {product.promoted && (
-                        <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
-                          <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Promoted
-                        </span>
-                      )}
-                    </div>
-                    {gallery.length > 1 && (
-                      <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
-                        {gallery.map((url, i) => (
-                          <button
-                            key={url}
-                            onClick={() => setActiveImage(i)}
-                            className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : isAppShell ? "border-white/10" : "border-slate-200"} md:border-slate-200`}
-                          >
-                            <img
-                              src={url}
-                              alt=""
-                              loading="lazy"
-                              decoding="async"
-                              className="w-full h-full object-cover"
-                            />
-                          </button>
-                        ))}
-                      </div>
-                    )}
-                  </>
-                );
-              })()}
-            </div>
-
             <div className="flex flex-col gap-8">
+              <div>
+                {(() => {
+                  const gallery =
+                    product.kind === "physical" && product.imageUrls.length > 0
+                      ? product.imageUrls
+                      : product.coverUrl
+                        ? [product.coverUrl]
+                        : [];
+                  const cur = gallery[activeImage] ?? gallery[0];
+                  return (
+                    <>
+                      <div className={`relative aspect-[4/3] rounded-2xl ${isAppShell ? "bg-white/5" : "bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
+                        {cur ? (
+                          <ResponsiveImage
+                            sizes="(min-width: 1024px) 640px, 100vw"
+                            src={cur}
+                            alt={product.name}
+                            className="absolute inset-0 w-full h-full object-cover"
+                            loading="eager"
+                            fetchPriority="high"
+                            decoding="async"
+                          />
+                        ) : (
+                          <ShoppingCart className="w-12 h-12 text-white/20" />
+                        )}
+                        {product.promoted && (
+                          <span className="absolute top-3 left-3 text-[10px] font-bold uppercase tracking-wider bg-black/60 text-emerald-300 border border-emerald-400/50 rounded px-2 py-0.5">
+                            <Flame className="w-3 h-3 inline -mt-0.5 mr-0.5" /> Promoted
+                          </span>
+                        )}
+                      </div>
+                      {gallery.length > 1 && (
+                        <div className="mt-3 flex gap-2 overflow-x-auto scrollbar-none">
+                          {gallery.map((url, i) => (
+                            <button
+                              key={url}
+                              onClick={() => setActiveImage(i)}
+                              className={`shrink-0 w-20 h-20 rounded-lg overflow-hidden border-2 ${i === activeImage ? "border-emerald-500" : isAppShell ? "border-white/10" : "border-slate-200"} md:border-slate-200`}
+                            >
+                              <img
+                                src={url}
+                                alt=""
+                                loading="lazy"
+                                decoding="async"
+                                className="w-full h-full object-cover"
+                              />
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </>
+                  );
+                })()}
+              </div>
+
               {!isAppShell && (
                 <div className="lg:block hidden">
                   <ProductComments productId={product.id} />
                 </div>
               )}
+            </div>
+
+            <div>
               <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
