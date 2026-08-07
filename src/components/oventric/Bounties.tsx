@@ -800,7 +800,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
         href={ad.cta_url || "#"}
         target="_blank"
         rel="noopener noreferrer sponsored"
-        className="bg-[#1E1E24] border border-white/10 rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/20 transition-colors md:bg-white md:border-slate-200 md:hover:border-slate-300"
+        className="bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-3 flex items-center justify-between hover:border-white/15 transition-colors md:bg-white md:border-slate-200 md:hover:border-slate-300"
       >
         <div className="inline-flex items-center gap-2 text-xs text-slate-400">
           <Megaphone className="w-3.5 h-3.5" />
