@@ -387,7 +387,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
           />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.products.map((p) => (
-              <ProductTile key={p.id} p={p} currency={baseCurrency} />
+              <ProductTile key={p.id} p={p} currency={baseCurrency} isAppShell={isAppShell} />
             ))}
           </div>
         </div>
