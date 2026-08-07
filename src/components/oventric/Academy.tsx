@@ -607,16 +607,16 @@ function CourseDetail({
           )}
 
           {enrollment && (
-            <div className="p-4 rounded-lg bg-[#1E1E24] border border-white/10 md:bg-white md:border-slate-200 md:shadow-sm">
+            <div className={`p-4 rounded-lg border ${!isAppShell ? "bg-white border-slate-200 shadow-sm" : "bg-[#1E1E24] border-white/10 md:bg-white md:border-slate-200 md:shadow-sm"}`}>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
+                <span className={`text-xs font-bold uppercase tracking-wider ${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
                   Your Progress
                 </span>
-                <span className="text-xs text-emerald-300 md:text-emerald-600 font-bold">
+                <span className={`text-xs font-bold ${!isAppShell ? "text-emerald-600" : "text-emerald-300 md:text-emerald-600"}`}>
                   {progressPct}%
                 </span>
               </div>
-              <div className="w-full h-1.5 bg-white/5 md:bg-slate-200 rounded-full overflow-hidden">
+              <div className={`w-full h-1.5 rounded-full overflow-hidden ${!isAppShell ? "bg-slate-200" : "bg-white/5 md:bg-slate-200"}`}>
                 <div
                   className="h-full bg-emerald-500 transition-all"
                   style={{ width: `${progressPct}%` }}
