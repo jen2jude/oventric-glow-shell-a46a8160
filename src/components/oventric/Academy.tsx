@@ -704,7 +704,7 @@ function CourseDetail({
   );
 }
 
-function AcademyHero() {
+function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   return (
     <div className="relative overflow-hidden border-b border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white">
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
