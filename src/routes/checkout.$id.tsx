@@ -747,7 +747,11 @@ function CheckoutPage() {
                 </label>
               </div>
 
-              <div className="border-t border-white/5 md:border-slate-200 pt-3 space-y-1 text-sm">
+              <div
+                className={`pt-3 space-y-1 text-sm border-t ${
+                  isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
+                }`}
+              >
                 <div className="flex justify-between text-slate-400 md:text-slate-500">
                   <span>Subtotal</span>
                   <span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span>
