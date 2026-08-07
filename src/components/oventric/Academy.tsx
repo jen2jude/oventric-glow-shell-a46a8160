@@ -87,7 +87,7 @@ function embedUrl(m: ModuleDTO): string {
   return yt ? `https://www.youtube.com/embed/${yt}` : raw;
 }
 
-export function Academy({ hubMode = false }: { hubMode?: boolean }) {
+export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   const { baseCurrency } = useOnboarding();
@@ -131,21 +131,6 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
       });
   }, [fetchList, refreshKey]);
 
-  if (view === "course" && selectedId) {
-    return (
-      <CourseDetail
-        courseId={selectedId}
-        userId={userId}
-        isAppShell={isAppShell}
-        onBack={() => setView("catalog")}
-        onEdit={(id) => {
-          setEditingId(id);
-          setEditorOpen(true);
-        }}
-      />
-    );
-  }
-
   // Currency isolation: signed-in users only see courses priced in their home
   // currency (or free). Anon viewers see everything (USD preview).
   const filtered = useMemo(() => {
@@ -172,7 +157,20 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
     // Auto-scroll removed per user request for trending section
   }, [isAppShell, searchQuery, category]);
 
-
+  if (view === "course" && selectedId) {
+    return (
+      <CourseDetail
+        courseId={selectedId}
+        userId={userId}
+        isAppShell={isAppShell}
+        onBack={() => setView("catalog")}
+        onEdit={(id) => {
+          setEditingId(id);
+          setEditorOpen(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
@@ -569,7 +567,7 @@ function CourseCard({
   );
 }
 
-function CourseDetail({
+const CourseDetail = ({
   courseId,
   userId,
   isAppShell,
@@ -581,7 +579,7 @@ function CourseDetail({
   isAppShell: boolean;
   onBack: () => void;
   onEdit: (id: string) => void;
-}) {
+}) => {
   const fetchCourse = useServerFn(getCourse);
   const fetchEnroll = useServerFn(getMyEnrollment);
   const enroll = useServerFn(enrollFree);
@@ -603,28 +601,42 @@ function CourseDetail({
         setCourse(c);
         if (userId) {
           try {
+            console.log("[CourseDetail] Fetching enrollment for course:", courseId);
             const e = await fetchEnroll({ data: { courseId } });
-            if (e) {
-              setEnrollment(e);
+            console.log("[CourseDetail] Enrollment result:", e);
+            if (e && typeof e === 'object' && 'id' in e) {
+              setEnrollment(e as EnrollmentDTO);
               // Resume: last completed + 1 or 0
-              if (c.modules.length > 0) {
-                const lastDone = c.modules.findIndex((m) => !e.completedModules.includes(m.id));
+              if (c.modules && Array.isArray(c.modules) && c.modules.length > 0) {
+                const completedModules = Array.isArray(e.completedModules) ? e.completedModules : [];
+                const lastDone = c.modules.findIndex((m) => !completedModules.includes(m.id));
                 setActiveIdx(lastDone === -1 ? c.modules.length - 1 : lastDone);
               }
             } else {
               setEnrollment(null);
             }
-          } catch {
-            /* not enrolled */
+          } catch (err) {
+            console.error("[CourseDetail] Enrollment fetch failed:", err);
+            // Non-fatal, just means they might not be enrolled or progress couldn't load
+            setEnrollment(null);
           }
         }
       })
       .catch((e) => {
-        console.error("[CourseDetail] Load failed:", e);
-        toast.error("Unable to load course details. Please try again.");
+        console.error("[CourseDetail] Fatal load error:", e);
+        toast.error("Unable to load course content. Please try again.");
       })
       .finally(() => setLoading(false));
   }, [courseId, userId, fetchCourse, fetchEnroll]);
+
+  const isOwner = useMemo(() => userId && course?.ownerId === userId, [userId, course]);
+  const activeModule: ModuleDTO | undefined = useMemo(() => course?.modules[activeIdx], [course, activeIdx]);
+  const canWatch = useMemo(() => enrollment || activeModule?.isPreview || isOwner, [enrollment, activeModule, isOwner]);
+  const isDone = useMemo(() => activeModule && enrollment?.completedModules.includes(activeModule.id), [activeModule, enrollment]);
+  const completedCount = useMemo(() => enrollment?.completedModules.length ?? 0, [enrollment]);
+  const totalModules = useMemo(() => course?.modules.length ?? 0, [course]);
+  const progressPct = useMemo(() => totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0, [totalModules, completedCount]);
+  const isComplete = useMemo(() => enrollment?.completedAt != null, [enrollment]);
 
   if (loading || !course) {
     return (
@@ -633,15 +645,6 @@ function CourseDetail({
       </div>
     );
   }
-
-  const isOwner = userId && course.ownerId === userId;
-  const activeModule: ModuleDTO | undefined = course.modules[activeIdx];
-  const canWatch = enrollment || activeModule?.isPreview || isOwner;
-  const isDone = activeModule && enrollment?.completedModules.includes(activeModule.id);
-  const completedCount = enrollment?.completedModules.length ?? 0;
-  const totalModules = course.modules.length;
-  const progressPct = totalModules > 0 ? Math.round((completedCount / totalModules) * 100) : 0;
-  const isComplete = enrollment?.completedAt != null;
 
   const doEnroll = async () => {
     if (!userId) {
