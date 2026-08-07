@@ -669,7 +669,13 @@ function CheckoutPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 h-max min-w-0">
+            <div
+              className={`h-max min-w-0 ${
+                isAppShell
+                  ? "lg:col-span-1 space-y-4 px-4 pb-8"
+                  : "bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 lg:col-span-1"
+              }`}
+            >
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
                 Order Summary
               </h2>
