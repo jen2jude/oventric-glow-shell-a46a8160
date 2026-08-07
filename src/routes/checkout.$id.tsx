@@ -125,6 +125,7 @@ function CheckoutPage() {
   const { qty } = Route.useSearch();
   const navigate = useNavigate();
   const { baseCurrency, country } = useOnboarding();
+  const isAppShell = useIsAppShell();
 
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
