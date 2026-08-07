@@ -203,9 +203,9 @@ export function Academy() {
           )}
 
           {courses !== null && filtered.length === 0 && (
-            <div className="text-center py-16 border border-dashed border-white/10 md:border-slate-300 rounded-xl">
-              <GraduationCap className="w-10 h-10 text-slate-600 md:text-slate-400 mx-auto mb-3" />
-              <div className="text-white md:text-slate-900 font-bold">No courses yet</div>
+            <div className={`text-center py-16 border border-dashed ${!isAppShell ? "border-slate-300" : "border-white/10 md:border-slate-300"} rounded-xl`}>
+              <GraduationCap className={`w-10 h-10 ${!isAppShell ? "text-slate-400" : "text-slate-600 md:text-slate-400"} mx-auto mb-3`} />
+              <div className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-bold`}>No courses yet</div>
               <p className="text-sm text-slate-500 mt-1">Please check back later.</p>
               {userId && (
                 <button
