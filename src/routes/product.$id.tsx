@@ -237,7 +237,7 @@ function ProductPage() {
 
   return (
     <div
-      className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#121214] text-slate-200" : "bg-[#F7F8FA] text-slate-700"}`}
+      className={`min-h-screen overflow-x-hidden ${isAppShell ? "bg-[#0A0A0B] text-slate-300" : "bg-[#F7F8FA] text-slate-700"}`}
     >
       {!isAppShell ? (
         <MarketplaceHeader
@@ -252,7 +252,7 @@ function ProductPage() {
       ) : (
         <Header onOpenMessages={() => {}} />
       )}
-      <main className="max-w-6xl mx-auto w-full px-4 py-6 pb-24">
+      <main className={`max-w-6xl mx-auto w-full px-4 ${isAppShell ? "py-4 gap-5" : "py-6"} pb-24`}>
         {!isAppShell && (
           <button
             type="button"
@@ -292,7 +292,7 @@ function ProductPage() {
         )}
 
         {error && (
-          <div className={`${isAppShell ? "bg-[#1E1E24] border-red-500/40" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
+          <div className={`${isAppShell ? "bg-[#16161A] border-red-500/20" : "bg-white border-red-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-8 text-center`}>
             <div className="text-red-300 font-bold mb-1">Couldn't load product</div>
             <div className="text-sm text-slate-400 md:text-slate-500 mb-4">{error}</div>
             <Link
@@ -324,7 +324,7 @@ function ProductPage() {
                   const cur = gallery[activeImage] ?? gallery[0];
                   return (
                     <>
-                      <div className={`relative aspect-[4/3] rounded-2xl ${isAppShell ? "bg-white/5" : "bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
+                      <div className={`relative aspect-[4/3] ${isAppShell ? "rounded-xl bg-white/[0.03]" : "rounded-2xl bg-white border border-slate-100 shadow-sm"} md:bg-slate-100 overflow-hidden flex items-center justify-center`}>
                         {cur ? (
                           <ResponsiveImage
                             sizes="(min-width: 1024px) 640px, 100vw"
@@ -396,27 +396,27 @@ function ProductPage() {
               {product.kind === "physical" && (
                 <div className="flex flex-wrap gap-2 text-xs text-slate-300 md:text-slate-600 mb-4">
                   {product.location && (
-                    <span className={`inline-flex items-center gap-1 ${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
+                    <span className={`inline-flex items-center gap-1 ${isAppShell ? "bg-[#16161A] border-white/5 text-slate-400" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-0.5`}>
                       <MapPin className="w-3 h-3" /> {product.location}
                     </span>
                   )}
                   {product.condition && (
-                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
+                    <span className={`${isAppShell ? "bg-[#16161A] border-white/5 text-slate-400" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-0.5`}>
                       {product.condition}
                     </span>
                   )}
                   {product.brand && (
-                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
+                    <span className={`${isAppShell ? "bg-[#16161A] border-white/5 text-slate-400" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-0.5`}>
                       {product.brand}
                     </span>
                   )}
                   {product.negotiable && (
-                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
+                    <span className={`${isAppShell ? "bg-[#16161A] border-white/5 text-slate-400" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-0.5`}>
                       Negotiable: {product.negotiable}
                     </span>
                   )}
                   {product.delivery && (
-                    <span className={`${isAppShell ? "bg-[#1E1E24] border-white/10 text-slate-300" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-1`}>
+                    <span className={`${isAppShell ? "bg-[#16161A] border-white/5 text-slate-400" : "bg-white border-slate-200 text-slate-600 shadow-sm"} md:shadow-sm md:bg-white border md:border-slate-200 rounded px-2 py-0.5`}>
                       Delivery: {product.delivery}
                     </span>
                   )}
@@ -435,7 +435,7 @@ function ProductPage() {
                 {product.description || "No description provided."}
               </p>
 
-              <div className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
+              <div className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:shadow-sm md:bg-white border rounded-xl p-5 mb-4`}>
                 <div className="flex items-baseline justify-between mb-4">
                   <div>
                     {(() => {
@@ -482,16 +482,16 @@ function ProductPage() {
                 )}
                 <button
                   onClick={product.kind === "physical" ? openContact : startCheckout}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors"
+                  className={`w-full inline-flex items-center justify-center gap-2 ${isAppShell ? "py-2.5 text-[13px]" : "py-3 text-sm"} rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors`}
                 >
-                  <ShoppingCart className="w-4 h-4" /> Buy Now
+                  <ShoppingCart className={`${isAppShell ? "w-3.5 h-3.5" : "w-4 h-4"}`} /> Buy Now
                 </button>
                 {product.kind !== "physical" && (
                   <button
                     onClick={openSellerChat}
-                    className={`mt-2 w-full inline-flex items-center justify-center gap-2 py-3 rounded-lg border font-bold text-sm transition-colors ${isAppShell ? "bg-[#121214] border-emerald-500/40 text-emerald-400 hover:bg-emerald-500/10" : "bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"} md:bg-white md:text-emerald-600 md:border-emerald-500/40`}
+                    className={`mt-2 w-full inline-flex items-center justify-center gap-2 ${isAppShell ? "py-2.5 text-[13px] bg-white/[0.03] border-emerald-500/20 text-emerald-400 hover:bg-emerald-500/5" : "py-3 text-sm bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100"} rounded-lg border font-bold transition-colors md:bg-white md:text-emerald-600 md:border-emerald-500/40`}
                   >
-                    <MessageCircle className="w-4 h-4" /> Chat with seller
+                    <MessageCircle className={`${isAppShell ? "w-3.5 h-3.5" : "w-4 h-4"}`} /> Chat with seller
                   </button>
                 )}
               </div>
