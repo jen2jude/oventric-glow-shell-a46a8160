@@ -425,7 +425,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       {/* Top circles */}
       {data.circles.length > 0 && (
         <div>
-          <SectionHeader icon={Users} title="Top circles" hint="Join the movement" />
+          <SectionHeader icon={Users} title="Top circles" hint="Join the movement" isAppShell={isAppShell} />
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
             {data.circles.map((c) => (
               <CircleTile key={c.id} c={c} />
