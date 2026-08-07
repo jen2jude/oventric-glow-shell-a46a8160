@@ -23,6 +23,7 @@ export function PublicChrome({
 }) {
   const [messagesOpen, setMessagesOpen] = useState(false);
   const isDesktop = useIsDesktop();
+  const isAppShell = useIsAppShell();
 
   return (
     <div
