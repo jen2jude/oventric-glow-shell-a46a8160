@@ -883,7 +883,15 @@ function CheckoutPage() {
                     <button
                       key={m.id}
                       onClick={() => setTopUpMethod(m.id)}
-                      className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 ${active ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"}`}
+                      className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
+                        active
+                          ? isAppShell
+                            ? "bg-emerald-500/10 border-emerald-500/50"
+                            : "bg-emerald-500/10 border-emerald-500/50"
+                          : isAppShell
+                            ? "bg-[#0A0A0B] border-white/5"
+                            : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"
+                      }`}
                     >
                       <Icon
                         className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
