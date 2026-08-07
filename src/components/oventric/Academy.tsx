@@ -44,7 +44,7 @@ import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AcademyRecommendations } from "@/components/oventric/AcademyRecommendations";
 
 function courseDisplayPrice(
-  c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: unknown },
+  c: { priceUSD: number; originalCurrency: Currency; originalAmount: number; fxSnapshot: any },
   viewer: Currency,
 ) {
   return computeDisplayPrice(
