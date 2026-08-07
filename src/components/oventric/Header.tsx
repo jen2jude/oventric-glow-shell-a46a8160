@@ -251,7 +251,7 @@ export function Header({
           }
           window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
         }}
-        avatarUrl={profileAvatar}
+        avatarUrl={null}
         name={fullName || ""}
         country={country ?? undefined}
         currency={baseCurrency ?? undefined}
