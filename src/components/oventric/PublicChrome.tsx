@@ -2,6 +2,7 @@ import { type ReactNode, useState } from "react";
 import { Header } from "@/components/oventric/Header";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useIsDesktop } from "@/hooks/use-desktop";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 /**
  * Shared site chrome for standalone routes (blog, profile, etc.).
@@ -22,6 +23,7 @@ export function PublicChrome({
 }) {
   const [messagesOpen, setMessagesOpen] = useState(false);
   const isDesktop = useIsDesktop();
+  const isAppShell = useIsAppShell();
 
   return (
     <div
@@ -34,6 +36,7 @@ export function PublicChrome({
         light={lightDesktop || !isDesktop}
         desktopNav={isDesktop}
         browserVisitorHeader={!isDesktop}
+        forceSiteNavbar={!isAppShell}
       />
       <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">
         {children}

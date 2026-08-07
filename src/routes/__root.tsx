@@ -422,7 +422,7 @@ function RootComponent() {
               <StageModals />
               <ProfileSetupModalHost />
               <ReactivationGate />
-              <GlobalMobileNav />
+              {!isAppShell ? null : <GlobalMobileNav />}
               <Toaster position="top-center" richColors closeButton />
               <LiveNotificationToasts />
               <PushOptInPrompt />

@@ -78,6 +78,7 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { Header } from "@/components/oventric/Header";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
@@ -892,7 +893,7 @@ function ProfilePage() {
       <div className="pointer-events-none fixed top-0 bottom-0 right-0 w-[2px] z-50  hidden md:block" />
 
       <div className="flex min-h-screen flex-col md:h-full md:min-h-0">
-        <Header safeMobile browserVisitorHeader={!useIsAppShell()} />
+        <Header safeMobile forceSiteNavbar={!useIsAppShell()} />
         <main ref={mainRef} className="flex-1 min-w-0 pb-20 md:overflow-y-auto md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
             <div className="profile-standard-actions flex items-center justify-between gap-3 mb-4">

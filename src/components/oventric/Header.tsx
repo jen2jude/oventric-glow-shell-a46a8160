@@ -31,6 +31,8 @@ import logoLight from "@/assets/oventric-full-transparent.png";
 import logoDark from "@/assets/oventric-logo-dark.png";
 import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
@@ -58,6 +60,7 @@ export function Header({
   light = false,
   desktopNav = false,
   browserVisitorHeader = false,
+  forceSiteNavbar = false,
 }: {
   onMenuClick?: () => void;
   onOpenMessages?: () => void;
@@ -67,8 +70,11 @@ export function Header({
   light?: boolean;
   desktopNav?: boolean;
   browserVisitorHeader?: boolean;
+  forceSiteNavbar?: boolean;
 }) {
+  const { fullName } = useOnboarding();
   const { country, baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);
@@ -232,6 +238,24 @@ export function Header({
         <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
         {searchOverlay}
       </header>
+    );
+  }
+
+  if (forceSiteNavbar) {
+    return (
+      <SiteNavbar
+        onSelect={(section) => {
+          if (section === "Home") {
+            window.location.href = "/";
+            return;
+          }
+          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
+        }}
+        avatarUrl={null}
+        name={fullName || ""}
+        country={country ?? undefined}
+        currency={baseCurrency ?? undefined}
+      />
     );
   }
 

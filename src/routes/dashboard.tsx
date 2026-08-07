@@ -425,7 +425,11 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] md:bg-slate-50 text-slate-200 md:text-slate-700">
-      <Header onOpenMessages={() => {}} browserVisitorHeader={!useIsAppShell()} />
+      <Header 
+        onOpenMessages={() => {}} 
+        browserVisitorHeader={!isAppShell} 
+        forceSiteNavbar={!isAppShell}
+      />
       <div
         className="max-w-5xl mx-auto px-4 py-8"
         style={{
