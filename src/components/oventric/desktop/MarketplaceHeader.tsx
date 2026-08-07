@@ -63,6 +63,27 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
             <img src={logo} alt="Oventric" className="h-6 sm:h-8 w-auto object-contain" />
           </button>
 
+          <nav className="flex items-center gap-6 ml-4 text-[13px] font-bold hidden lg:flex">
+            <button
+              onClick={() => onSelect("Marketplace")}
+              className={`hover:text-red-600 transition-colors pb-1 border-b-2 ${activeSection === "Marketplace" ? "text-red-600 border-red-600" : "border-transparent text-slate-900"}`}
+            >
+              Marketplace
+            </button>
+            <button
+              onClick={() => onSelect("Academy")}
+              className={`hover:text-red-600 transition-colors pb-1 border-b-2 ${activeSection === "Academy" ? "text-red-600 border-red-600" : "border-transparent text-slate-900"}`}
+            >
+              Academy
+            </button>
+            <button
+              onClick={() => onSelect("Bounties")}
+              className={`hover:text-red-600 transition-colors pb-1 border-b-2 ${activeSection === "Bounties" ? "text-red-600 border-red-600" : "border-transparent text-slate-900"}`}
+            >
+              Bounties
+            </button>
+          </nav>
+
           {/* Large Search Bar */}
           <div className="flex-1 max-w-2xl hidden md:block">
             {search || (
