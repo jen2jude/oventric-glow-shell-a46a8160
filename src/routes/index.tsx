@@ -339,7 +339,7 @@ function Index() {
             {view}
           </main>
         </div>
-        {!desktopLanding && (
+        {isAppShell && !desktopLanding && (
           <MobileNav
             onCreate={handleCreate}
             active={active === "Wallet" ? "Wallet" : active === "Marketplace" ? "Market" : active}

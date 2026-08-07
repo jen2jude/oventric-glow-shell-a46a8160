@@ -34,6 +34,7 @@ export function PublicChrome({
         light={lightDesktop || !isDesktop}
         desktopNav={isDesktop}
         browserVisitorHeader={!isDesktop}
+        forceSiteNavbar={!isAppShell}
       />
       <main className="flex-1 min-w-0 w-full max-w-full overflow-x-hidden pb-20 md:pb-0">
         {children}

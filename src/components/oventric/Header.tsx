@@ -58,6 +58,7 @@ export function Header({
   light = false,
   desktopNav = false,
   browserVisitorHeader = false,
+  forceSiteNavbar = false,
 }: {
   onMenuClick?: () => void;
   onOpenMessages?: () => void;
@@ -67,7 +68,9 @@ export function Header({
   light?: boolean;
   desktopNav?: boolean;
   browserVisitorHeader?: boolean;
+  forceSiteNavbar?: boolean;
 }) {
+  const { fullName, avatarUrl: profileAvatar } = useOnboarding();
   const { country, baseCurrency } = useOnboarding();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
@@ -232,6 +235,24 @@ export function Header({
         <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
         {searchOverlay}
       </header>
+    );
+  }
+
+  if (forceSiteNavbar) {
+    return (
+      <SiteNavbar
+        onSelect={(section) => {
+          if (section === "Home") {
+            window.location.href = "/";
+            return;
+          }
+          window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section } }));
+        }}
+        avatarUrl={profileAvatar}
+        name={fullName || ""}
+        country={country ?? undefined}
+        currency={baseCurrency ?? undefined}
+      />
     );
   }
 

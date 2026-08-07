@@ -78,6 +78,7 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { Header } from "@/components/oventric/Header";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
