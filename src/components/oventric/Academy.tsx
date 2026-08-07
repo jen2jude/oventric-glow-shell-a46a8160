@@ -134,14 +134,22 @@ export function Academy() {
 
   // Currency isolation: signed-in users only see courses priced in their home
   // currency (or free). Anon viewers see everything (USD preview).
-  const filtered =
-    courses?.filter((c) => {
-      if (category !== "all" && c.category !== category) return false;
+  const filtered = useMemo(() => {
+    if (!courses) return [];
+    return courses.filter((c) => {
+      const matchesCategory = category === "all" || c.category === category;
+      const matchesSearch =
+        c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        c.instructorName?.toLowerCase().includes(searchQuery.toLowerCase());
+      
+      if (!matchesCategory || !matchesSearch) return false;
+      
       if (!userId) return true;
       if (c.isFree) return true;
       const oc = String(c.originalCurrency ?? "USD").toUpperCase();
       return oc === baseCurrency;
-    }) ?? [];
+    });
+  }, [courses, category, searchQuery, userId, baseCurrency]);
 
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
