@@ -556,10 +556,14 @@ function CheckoutPage() {
                             <button
                               key={g.id}
                               onClick={() => setGateway(g.id)}
-                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-colors ${
+                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
                                 on
-                                  ? "bg-emerald-500/10 border-emerald-500/50"
-                                  : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                                  ? isAppShell
+                                    ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_10px_-5px_rgba(16,185,129,0.2)]"
+                                    : "bg-emerald-500/10 border-emerald-500/50"
+                                  : isAppShell
+                                    ? "bg-[#0A0A0B] border-white/5 hover:border-white/10"
+                                    : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                               }`}
                             >
                               <g.Icon
