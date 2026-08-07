@@ -517,17 +517,23 @@ function BasicsStep(props: {
       </div>
       <div>
         <Label>Course Thumbnail (up to 5MB)</Label>
-        <div className="flex items-center gap-3">
-          <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+        {isAppShell ? (
+          <label className="cursor-pointer block relative w-full aspect-[16/10] rounded-xl bg-[#121214] border border-dashed border-white/15 overflow-hidden">
             {coverPreview ? (
               <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
             ) : (
-              <FileType2 className="w-6 h-6 text-slate-600" />
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-2 text-slate-500">
+                <div className="w-14 h-14 rounded-full bg-white/5 grid place-items-center">
+                  <ImageIcon className="w-6 h-6" />
+                </div>
+                <span className="text-sm font-semibold">{uploading ? "Uploading…" : "Tap to upload thumbnail"}</span>
+              </div>
             )}
-          </div>
-          <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
-            <Upload className="w-4 h-4" />
-            {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
+            {coverPreview && (
+              <div className="absolute bottom-3 right-3 px-3 py-1.5 rounded-lg bg-black/70 text-white text-xs font-semibold backdrop-blur-sm">
+                {uploading ? "Uploading…" : "Change"}
+              </div>
+            )}
             <input
               type="file"
               accept="image/*"
@@ -536,7 +542,28 @@ function BasicsStep(props: {
               onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])}
             />
           </label>
-        </div>
+        ) : (
+          <div className="flex items-center gap-3">
+            <div className="w-32 h-20 rounded-lg bg-[#121214] border border-white/10 grid place-items-center overflow-hidden">
+              {coverPreview ? (
+                <img src={coverPreview} alt="cover" className="w-full h-full object-cover" />
+              ) : (
+                <FileType2 className="w-6 h-6 text-slate-600" />
+              )}
+            </div>
+            <label className="cursor-pointer inline-flex items-center gap-2 px-3 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm text-white">
+              <Upload className="w-4 h-4" />
+              {uploading ? "Uploading…" : coverPath ? "Replace" : "Upload"}
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                disabled={uploading}
+                onChange={(e) => e.target.files?.[0] && onCoverUpload(e.target.files[0])}
+              />
+            </label>
+          </div>
+        )}
       </div>
       <div className="grid sm:grid-cols-2 gap-4">
         <div>
