@@ -374,7 +374,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       )}
 
       {/* Promoted A */}
-      <PromotedStrip ads={adsA} />
+      <PromotedStrip ads={adsA} isAppShell={isAppShell} />
 
       {/* Recommended products */}
       {data.products.length > 0 && (
