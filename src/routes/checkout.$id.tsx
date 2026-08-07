@@ -697,7 +697,7 @@ function CheckoutPage() {
                   <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
                     {product.name}
                   </div>
-                  <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
+                  <div className={`text-xs mb-3 ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                     by {product.vendor} · Qty {qty}
                   </div>
                 </>
