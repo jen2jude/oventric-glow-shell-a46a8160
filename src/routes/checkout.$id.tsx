@@ -628,7 +628,7 @@ function CheckoutPage() {
                       : "border-slate-200 bg-white shadow-sm"
                   }`}
                 >
-                  <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">
+                  <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                     Delivery details
                   </div>
                   <p className="text-[11px] text-slate-500 md:text-slate-500 mb-3">
@@ -637,7 +637,7 @@ function CheckoutPage() {
                       : "We’ll send the receipt and download link here after payment is verified."}
                   </p>
                   <label className="block mb-2">
-                    <span className="text-xs text-slate-300 md:text-slate-600">Email</span>
+                    <span className={`text-xs ${isAppShell ? "text-slate-300" : "text-slate-700 font-medium"}`}>Email Address</span>
                     <input
                       type="email"
                       value={deliveryEmail}
