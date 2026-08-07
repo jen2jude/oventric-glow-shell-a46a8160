@@ -133,7 +133,7 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
   );
 }
 
-function BountyTile({ b, currency }: { b: DiscoveryBounty; currency: Currency }) {
+function BountyTile({ b, currency, isAppShell }: { b: DiscoveryBounty; currency: Currency; isAppShell: boolean }) {
   const open = () => {
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Bounties" } }));
     // give Bounties a tick to mount, then open the detail view
