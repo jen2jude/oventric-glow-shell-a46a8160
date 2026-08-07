@@ -341,7 +341,7 @@ export function Marketplace() {
           </div>
           <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none">
             {hotItems.slice(0, 6).map(p => (
-              <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)}>
+              <div key={p.id} className="shrink-0 w-36 sm:w-44 group cursor-pointer" onClick={() => onOpenProduct(p)} data-product-card>
                 <div className={`aspect-square mb-2 overflow-hidden relative ${isAppShell ? "bg-slate-800" : "bg-slate-100"}`}>
                   <ResponsiveImage src={p.coverUrl ?? ""} alt={p.name} className="w-full h-full object-cover transition-transform group-hover:scale-105" />
                   <div className="absolute bottom-2 left-2 bg-black/60 text-white text-[10px] font-black px-1.5 py-0.5 rounded-sm uppercase">Only {Math.floor(Math.random() * 10) + 1} left</div>
