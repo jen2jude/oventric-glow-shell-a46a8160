@@ -726,9 +726,9 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
               resume any time, and earn a certificate when you complete a course.
             </p>
             <div className="mt-7 flex flex-wrap gap-6">
-              <HeroStat value="100%" label="Online & self-paced" />
-              <HeroStat value="Free" label="Courses available" />
-              <HeroStat value="Certificate" label="On completion" />
+              <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
+              <HeroStat isAppShell={isAppShell} value="Free" label="Courses available" />
+              <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
             </div>
           </div>
           <div className="grid gap-3">
