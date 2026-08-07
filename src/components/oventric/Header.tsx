@@ -72,7 +72,7 @@ export function Header({
   browserVisitorHeader?: boolean;
   forceSiteNavbar?: boolean;
 }) {
-  const { fullName, avatarUrl: profileAvatar } = useOnboarding();
+  const { fullName } = useOnboarding();
   const { country, baseCurrency } = useOnboarding();
   const isAppShell = useIsAppShell();
   const [notifOpen, setNotifOpen] = useState(false);
