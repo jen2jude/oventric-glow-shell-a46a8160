@@ -744,13 +744,13 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-white/10 bg-gradient-to-r from-slate-800 via-slate-900 to-black animate-pulse md:border-slate-200 md:from-slate-100 md:via-slate-50 md:to-white">
+      <div className="rounded-xl overflow-hidden border border-white/[0.06] bg-[#141416] animate-pulse md:border-slate-200 md:bg-white">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0 space-y-2">
-            <div className="h-2.5 w-20 rounded bg-slate-700" />
-            <div className="h-4 w-56 rounded bg-slate-700" />
+            <div className="h-2.5 w-20 rounded bg-[#1A1A1C]" />
+            <div className="h-4 w-56 rounded bg-[#1A1A1C]" />
           </div>
-          <div className="h-8 w-16 rounded-lg bg-slate-700 shrink-0" />
+          <div className="h-8 w-16 rounded-lg bg-[#1A1A1C] shrink-0" />
         </div>
       </div>
     );
