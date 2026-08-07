@@ -830,9 +830,17 @@ function CheckoutPage() {
                       </span>
                     )}
                   </button>
-                  <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                    <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
-                    protection
+                  <div className="mt-3 flex items-center justify-between">
+                    <div className="text-[11px] text-slate-500 inline-flex items-center gap-1">
+                      <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
+                      protection
+                    </div>
+                    <Link
+                      to="/help-board"
+                      className="text-[11px] font-medium text-emerald-600 hover:text-emerald-500 inline-flex items-center gap-1"
+                    >
+                      <Headphones className="w-3 h-3" /> Get help
+                    </Link>
                   </div>
                 </>
               )}
