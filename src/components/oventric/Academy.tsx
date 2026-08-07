@@ -347,14 +347,12 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
           )}
 
           <section>
-            {isAppShell && (
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">
-                  {searchQuery ? `Search Results (${filtered.length})` : "New"}
-                </h3>
-                {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
-              </div>
-            )}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>
+                {searchQuery ? `Search Results (${filtered.length})` : "New"}
+              </h3>
+              {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
+            </div>
             <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"} gap-4`}>
               {filtered.map((course) => (
                 <CourseCard
