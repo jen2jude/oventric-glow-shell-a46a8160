@@ -866,7 +866,7 @@ function CourseDetail({
 
 function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#0A0A0B] border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
+    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-black border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
         <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
