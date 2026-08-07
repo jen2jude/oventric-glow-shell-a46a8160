@@ -99,12 +99,12 @@ function CourseTile({
   );
 }
 
-function ProductTile({ p, currency }: { p: DiscoveryProduct; currency: Currency }) {
+function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currency: Currency; isAppShell: boolean }) {
   return (
     <Link
       to="/product/$id"
       params={{ id: p.id }}
-      className="text-left bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-colors block"
+      className={`text-left border rounded-xl overflow-hidden transition-colors block ${!isAppShell ? "bg-white border-slate-200 hover:border-emerald-300 shadow-sm" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40"}`}
     >
       <div className={`relative aspect-video bg-gradient-to-br ${p.hue}`}>
         {p.coverUrl ? (
