@@ -445,8 +445,8 @@ function CheckoutPage() {
                   </div>
                 </div>
               )}
-              <h2 className={`text-xs font-bold uppercase tracking-widest mb-2 ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
-                Payment Method
+              <h2 className={`text-xs font-bold uppercase tracking-widest mb-3 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
+                Select Payment Method
               </h2>
               {methods.map((m) => {
                 const active = method === m.id;
