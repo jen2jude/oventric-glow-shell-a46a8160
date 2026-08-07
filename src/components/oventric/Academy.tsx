@@ -305,7 +305,7 @@ export function Academy() {
           <section>
             {isAppShell && (
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">
+                <h3 className="font-bold text-white text-lg">
                   {searchQuery ? `Search Results (${filtered.length})` : "Newly Released"}
                 </h3>
                 {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
