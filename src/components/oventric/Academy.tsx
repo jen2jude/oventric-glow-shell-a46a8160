@@ -544,13 +544,13 @@ function CourseDetail({
               )}
 
               {activeModule && (
-                <div className="mt-6 p-4 rounded-lg bg-[#121214] border border-white/10 md:bg-slate-50 md:border-slate-200">
-                  <div className="text-[11px] font-bold uppercase tracking-wider text-emerald-300 md:text-emerald-600 mb-1">
+                <div className={`mt-6 p-4 rounded-lg border ${!isAppShell ? "bg-slate-50 border-slate-200" : "bg-[#121214] border-white/10 md:bg-slate-50 md:border-slate-200"}`}>
+                  <div className={`text-[11px] font-bold uppercase tracking-wider mb-1 ${!isAppShell ? "text-emerald-600" : "text-emerald-300 md:text-emerald-600"}`}>
                     Module {activeIdx + 1} of {totalModules}
                   </div>
-                  <div className="text-white md:text-slate-900 font-bold">{activeModule.title}</div>
+                  <div className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-bold`}>{activeModule.title}</div>
                   {activeModule.description && (
-                    <p className="text-sm text-slate-400 md:text-slate-600 mt-2">
+                    <p className={`text-sm mt-2 ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
                       {activeModule.description}
                     </p>
                   )}
