@@ -260,7 +260,7 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
   );
 }
 
-function PromotedStrip({ ads }: { ads: DiscoveryAd[] }) {
+function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: boolean }) {
   if (!ads.length) return null;
   return (
     <div className="my-6 rounded-xl border border-emerald-500/20 bg-gradient-to-r from-emerald-500/5 via-transparent to-indigo-500/5 p-4">
