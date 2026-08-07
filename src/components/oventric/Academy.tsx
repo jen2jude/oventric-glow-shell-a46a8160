@@ -1001,24 +1001,21 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
               <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
             </div>
           </div>
-          <div className="grid gap-3">
-            <ValueCard
-              isAppShell={isAppShell}
+          <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-1">
+            <SlimValueCard
               Icon={Video}
               title="Video-First Delivery"
-              body="Every module is a hosted video. Press play and learn — no downloads, no plugins."
+              img="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80"
             />
-            <ValueCard
-              isAppShell={isAppShell}
+            <SlimValueCard
               Icon={RotateCcw}
-              title="Auto-Resume"
-              body="Your progress is saved per module. Pick up exactly where you left off."
+              title="Auto-Resume Anytime"
+              img="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80"
             />
-            <ValueCard
-              isAppShell={isAppShell}
+            <SlimValueCard
               Icon={ScrollText}
-              title="Certificate on Completion"
-              body="Finish every module and generate a signed digital certificate."
+              title="Verified Certificate"
+              img="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=300&q=80"
             />
           </div>
         </div>
