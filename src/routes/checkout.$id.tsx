@@ -768,33 +768,73 @@ function CheckoutPage() {
                   <span>Processing</span>
                   <span />
                 </div>
-                <div className="flex justify-between text-white md:text-slate-900 font-black text-base pt-2 border-t border-white/5 md:border-slate-200">
+                <div
+                  className={`flex justify-between font-black text-base pt-2 border-t ${
+                    isAppShell
+                      ? "text-white border-white/5"
+                      : "text-white md:text-slate-900 border-white/5 md:border-slate-200"
+                  }`}
+                >
                   <span>Total</span>
                   <span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span>
                 </div>
               </div>
 
-              <button
-                onClick={pay}
-                disabled={submitting || (needsDelivery && !deliveryValid)}
-                className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Processing…
-                  </>
-                ) : method === "wallet" ? (
-                  `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                ) : gateway === "minipay" ? (
-                  `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                ) : (
-                  `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                )}
-              </button>
-              <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
-                protection
-              </div>
+              {isAppShell ? (
+                <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/5 p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-xs text-slate-400">Total to pay</span>
+                    <span className="text-lg font-black text-white">
+                      {fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={pay}
+                    disabled={submitting || (needsDelivery && !deliveryValid)}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Processing…
+                      </>
+                    ) : method === "wallet" ? (
+                      `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : gateway === "minipay" ? (
+                      `Pay with MiniPay`
+                    ) : (
+                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"}`
+                    )}
+                  </button>
+                  <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1 opacity-60">
+                    <ShieldCheck className="w-3 h-3 text-emerald-500/50" /> Secured by Oventric
+                    escrow
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={pay}
+                    disabled={submitting || (needsDelivery && !deliveryValid)}
+                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Processing…
+                      </>
+                    ) : method === "wallet" ? (
+                      `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : gateway === "minipay" ? (
+                      `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : (
+                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    )}
+                  </button>
+                  <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
+                    protection
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
