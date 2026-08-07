@@ -141,10 +141,26 @@ async function signCourseMedia(
 ): Promise<(string | null)[]> {
   const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
   if (unique.length === 0) return paths.map(() => null);
-  const { data } = await sb.storage.from("course-media").createSignedUrls(unique, 60 * 60 * 24 * 7);
-  const map = new Map<string, string>();
-  (data ?? []).forEach((r) => { if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); });
-  return paths.map((p) => (p ? map.get(p) ?? null : null));
+  
+  try {
+    const { data, error } = await sb.storage
+      .from("course-media")
+      .createSignedUrls(unique, 60 * 60 * 24 * 7);
+    
+    if (error) {
+      console.error("[signCourseMedia] Storage error:", error);
+      return paths.map(() => null);
+    }
+
+    const map = new Map<string, string>();
+    (data ?? []).forEach((r) => { 
+      if (r.path && r.signedUrl) map.set(r.path, r.signedUrl); 
+    });
+    return paths.map((p) => (p ? map.get(p) ?? null : null));
+  } catch (e) {
+    console.error("[signCourseMedia] Fatal error:", e);
+    return paths.map(() => null);
+  }
 }
 
 async function signCovers(
@@ -153,17 +169,27 @@ async function signCovers(
 ): Promise<(string | null)[]> {
   const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
   if (unique.length === 0) return paths.map(() => null);
-  // Use service-role client to bypass RLS on private course-covers bucket
-  // so public catalog listings can render cover previews.
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage
-    .from("course-covers")
-    .createSignedUrls(unique, 60 * 60 * 24 * 7);
-  const map = new Map<string, string>();
-  (data ?? []).forEach((r) => {
-    if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
-  });
-  return paths.map((p) => (p ? map.get(p) ?? null : null));
+  
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.storage
+      .from("course-covers")
+      .createSignedUrls(unique, 60 * 60 * 24 * 7);
+    
+    if (error) {
+      console.error("[signCovers] Storage error:", error);
+      return paths.map(() => null);
+    }
+
+    const map = new Map<string, string>();
+    (data ?? []).forEach((r) => {
+      if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
+    });
+    return paths.map((p) => (p ? map.get(p) ?? null : null));
+  } catch (e) {
+    console.error("[signCovers] Fatal error:", e);
+    return paths.map(() => null);
+  }
 }
 
 
@@ -192,26 +218,37 @@ export const getCourse = createServerFn({ method: "POST" })
   .handler(async ({ data }): Promise<CourseWithModulesDTO> => {
     if (!data.id) throw new Error("Course id required");
     const sb = serverPublicClient();
+    
+    // Use select("*") to be safe against schema drifts
     const { data: row, error } = await sb
       .from("courses")
-      .select(COURSE_COLS)
+      .select("*")
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    
+    if (error) throw new Error(`Course fetch error: ${error.message}`);
     if (!row) throw new Error("Course not found");
-    const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]);
+
+    const signedCovers = await signCovers(sb, [(row.cover_path as string) ?? null]);
+    const coverUrl = signedCovers[0];
+
+    // Fetch modules
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
-      .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview, content_data")
+      .select("*")
       .eq("course_id", data.id)
       .order("position", { ascending: true });
-    if (mErr) throw new Error(mErr.message);
+
+    if (mErr) throw new Error(`Module fetch error: ${mErr.message}`);
+    
     const modRows = mods ?? [];
     const videoPaths = modRows.map((m) => {
-      const cd = (m as { content_data?: Record<string, unknown> }).content_data ?? {};
+      const cd = (m.content_data as Record<string, unknown>) ?? {};
       return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
     });
+
     const videoUrls = await signCourseMedia(sb, videoPaths);
+
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
       modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
