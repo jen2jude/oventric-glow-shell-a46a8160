@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo, useRef } from "react";
+import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -143,6 +143,9 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
       
       if (!matchesCategory || !matchesSearch) return false;
       
+      // For web, if we're in "all" category and no search, we show everything in the grid
+      // but the specialized sections above will also show items.
+      
       if (!userId) return true;
       if (c.isFree) return true;
       const oc = String(c.originalCurrency ?? "USD").toUpperCase();
@@ -152,9 +155,25 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
   const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
 
+  const autoScroll = useCallback(() => {
+    if (!scrollRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current;
+    if (scrollLeft + clientWidth >= scrollWidth - 10) {
+      scrollRef.current.scrollTo({ left: 0, behavior: "smooth" });
+    } else {
+      scrollRef.current.scrollBy({ left: clientWidth, behavior: "smooth" });
+    }
+  }, []);
+
   useEffect(() => {
-    if (!scrollRef.current || !isAppShell) return;
-    // Auto-scroll removed per user request for trending section
+    if (!isAppShell && (searchQuery !== "" || category !== "all")) return;
+    const interval = setInterval(autoScroll, 5000);
+    return () => clearInterval(interval);
+  }, [autoScroll, isAppShell, searchQuery, category]);
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    // ... rest of effect if needed
   }, [isAppShell, searchQuery, category]);
 
   if (view === "course" && selectedId) {
@@ -174,12 +193,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
 
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
-      {!isAppShell && <AcademyHero isAppShell={isAppShell} />}
-      {isAppShell && (
-        <div className="pt-0">
-          <AcademyHero isAppShell={isAppShell} />
-        </div>
-      )}
+      <AcademyHero isAppShell={isAppShell} />
 
       {isAppShell && !hideHeader && (
         <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
@@ -236,28 +250,26 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
           </div>
         )}
 
-        <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-4"}`}>
-          {isAppShell && enrolled.length > 0 && category === 'all' && searchQuery === "" && (
+        <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-8"}`}>
+          {enrolled.length > 0 && category === 'all' && searchQuery === "" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">My Enrolled Courses</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>My Enrolled Courses</h3>
               </div>
               <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
                 {enrolled.map(enrollment => {
                   const course = courses?.find(c => c.id === enrollment.courseId);
                   if (!course) return null;
                   
-                  // In a real app we'd fetch actual progress, but for this view 
-                  // we can indicate started vs finished
                   const isFinished = enrollment.completedAt != null;
 
                   return (
-                    <div key={enrollment.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
-                      <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
+                    <div key={enrollment.id} className={`shrink-0 w-64 rounded-xl border shadow-lg p-4 ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1A1A1C] border-white/5"}`}>
+                      <h4 className={`font-bold text-sm line-clamp-1 mb-4 ${!isAppShell ? "text-slate-900" : "text-white"}`}>{course.title}</h4>
                       <div className="flex flex-col items-center py-4">
                         <div className="relative w-24 h-24 flex items-center justify-center">
                           <svg className="w-full h-full -rotate-90">
-                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
+                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className={!isAppShell ? "text-slate-100" : "text-white/5"} />
                             <circle 
                               cx="48" cy="48" r="42" 
                               stroke="currentColor" 
@@ -270,7 +282,7 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                             />
                           </svg>
                           <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-lg font-bold text-white">{isFinished ? "100%" : "Started"}</span>
+                            <span className={`text-lg font-bold ${!isAppShell ? "text-slate-900" : "text-white"}`}>{isFinished ? "100%" : "Started"}</span>
                             <span className="text-[9px] text-slate-400 uppercase font-bold">{isFinished ? "Finished" : "Progress"}</span>
                           </div>
                         </div>
@@ -315,13 +327,13 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             </div>
           )}
 
-          {isAppShell && searchQuery === "" && category === 'all' && (
+          {searchQuery === "" && category === 'all' && (
             <section className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">Trending</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Trending</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl border border-white/5">
+              <div className={`overflow-hidden relative w-full aspect-[16/9] rounded-2xl border ${!isAppShell ? "border-slate-200" : "border-white/5"}`}>
                 <div ref={scrollRef} className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory">
                   {(courses?.slice(0, 4) ?? []).map((course) => (
                     <div key={course.id} className="shrink-0 w-full relative aspect-[16/9] snap-start">
@@ -354,14 +366,12 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
           )}
 
           <section>
-            {isAppShell && (
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">
-                  {searchQuery ? `Search Results (${filtered.length})` : "New"}
-                </h3>
-                {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
-              </div>
-            )}
+            <div className="flex items-center justify-between mb-4">
+              <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>
+                {searchQuery ? `Search Results (${filtered.length})` : "New"}
+              </h3>
+              {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
+            </div>
             <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-1 md:grid-cols-2 lg:grid-cols-3"} gap-4`}>
               {filtered.map((course) => (
                 <CourseCard
@@ -378,14 +388,14 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
             </div>
           </section>
 
-          {isAppShell && !searchQuery && category === 'all' && (
+          {!searchQuery && category === 'all' && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-white text-lg">Free Courses</h3>
+                <h3 className={`font-bold text-lg ${!isAppShell ? "text-slate-900" : "text-white"}`}>Free Courses</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="grid grid-cols-2 gap-4">
-                {courses?.filter(c => c.isFree).slice(0, 4).map((course) => (
+              <div className={`grid ${isAppShell ? "grid-cols-2" : "grid-cols-2 md:grid-cols-3 lg:grid-cols-4"} gap-4`}>
+                {courses?.filter(c => c.isFree).slice(0, isAppShell ? 4 : 8).map((course) => (
                   <CourseCard
                     key={course.id}
                     course={course}
@@ -934,7 +944,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
     return (
       <div className="bg-black px-4 pt-2 pb-6 space-y-6">
         {/* Banner Card */}
-        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] bg-[#1A1A1C] border border-white/5 shadow-2xl">
+        <div className="relative overflow-hidden rounded-2xl aspect-[21/9] md:aspect-[21/7] bg-[#1A1A1C] border border-white/5 shadow-2xl">
           <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10" />
           <img 
             src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" 
@@ -986,48 +996,42 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 
   return (
     <div className="relative overflow-hidden border-b bg-white border-slate-200">
-      <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
-        <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
+      <div className="max-w-6xl mx-auto w-full px-4 pt-6 pb-10">
+        <div className="grid gap-8 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide mb-4 border bg-emerald-50 border-emerald-200 text-emerald-700 uppercase">
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight text-slate-900">
-              Master High-End Digital Skills.
-              <br />
-              <span className="text-slate-500">
-                Learn From Real Builders.
-              </span>{" "}
-              <span className="text-emerald-600">Earn Certificates.</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight text-slate-900">
+              Unlock Your <br />
+              <span className="text-emerald-600">Digital Future.</span>
             </h1>
-            <p className="mt-5 text-base md:text-lg leading-relaxed max-w-xl text-slate-600">
-              Video-first courses from working practitioners. Track your progress across sessions,
-              resume any time, and earn a certificate when you complete a course.
+            <p className="mt-3 text-sm leading-relaxed max-w-xl text-slate-500 font-medium">
+              Learn industry-leading skills today from working practitioners. Earn certificates on completion.
             </p>
-            <div className="mt-7 flex flex-wrap gap-6">
+            <div className="mt-6 flex items-center justify-between gap-2 border-t pt-6 border-slate-100 max-w-sm">
               <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
+              <div className="h-8 w-px bg-slate-200" />
               <HeroStat isAppShell={isAppShell} value="Free" label="Courses available" />
+              <div className="h-8 w-px bg-slate-200" />
               <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
             </div>
           </div>
-          <div className="grid gap-3">
-            <ValueCard
-              isAppShell={isAppShell}
+          <div className="flex gap-3 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4 md:mx-0 md:px-0 md:grid md:grid-cols-1">
+            <SlimValueCard
               Icon={Video}
               title="Video-First Delivery"
-              body="Every module is a hosted video. Press play and learn — no downloads, no plugins."
+              img="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80"
             />
-            <ValueCard
-              isAppShell={isAppShell}
+            <SlimValueCard
               Icon={RotateCcw}
-              title="Auto-Resume"
-              body="Your progress is saved per module. Pick up exactly where you left off."
+              title="Auto-Resume Anytime"
+              img="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80"
             />
-            <ValueCard
-              isAppShell={isAppShell}
+            <SlimValueCard
               Icon={ScrollText}
-              title="Certificate on Completion"
-              body="Finish every module and generate a signed digital certificate."
+              title="Verified Certificate"
+              img="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=300&q=80"
             />
           </div>
         </div>
@@ -1038,7 +1042,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
 
 function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: string }) {
   return (
-    <div className="shrink-0 w-40 h-24 relative rounded-xl overflow-hidden border border-white/5 shadow-lg group">
+    <div className="shrink-0 w-40 md:w-full h-24 relative rounded-xl overflow-hidden border border-white/5 md:border-slate-200 shadow-lg group">
       <img src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
       <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
       <div className="absolute inset-0 p-3 flex flex-col justify-between">
@@ -1054,9 +1058,9 @@ function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: st
 
 function HeroStat({ isAppShell, value, label }: { isAppShell: boolean; value: string; label: string }) {
   return (
-    <div>
-      <div className={`text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
-      <div className="text-xs text-slate-500">{label}</div>
+    <div className="flex flex-col items-center md:items-start">
+      <div className={`text-lg md:text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
+      <div className="text-[10px] text-slate-500 font-bold uppercase tracking-tight">{label}</div>
     </div>
   );
 }
