@@ -281,7 +281,7 @@ function CourseCard({
   onOpen: () => void;
 }) {
   return (
-    <div className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden hover:border-emerald-500/40 transition-all md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-lg md:hover:border-emerald-300 md:hover:-translate-y-0.5">
+    <div className={`${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-300" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-lg md:hover:border-emerald-300"} rounded-xl overflow-hidden transition-all md:hover:-translate-y-0.5`}>
       <button onClick={onOpen} className="block w-full text-left">
         <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40 overflow-hidden">
           {course.coverUrl ? (
