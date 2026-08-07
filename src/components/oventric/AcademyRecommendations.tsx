@@ -100,7 +100,9 @@ function CourseTile({
             <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
               <Clock className="w-3 h-3 text-slate-500" /> 6-9 Hours
             </div>
-            <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
+            <div className="text-[10px] text-emerald-400 font-black uppercase">
+              {c.isFree ? "Free" : fmtPrice(c.priceUsd, currency)}
+            </div>
           </div>
         </div>
       </div>
