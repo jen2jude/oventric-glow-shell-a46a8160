@@ -11,6 +11,7 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
+  Clock,
 } from "lucide-react";
 import {
   getAcademyRecommendations,
