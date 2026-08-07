@@ -733,6 +733,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
           </div>
           <div className="grid gap-3">
             <ValueCard
+              isAppShell={isAppShell}
               Icon={Video}
               title="Video-First Delivery"
               body="Every module is a hosted video. Press play and learn — no downloads, no plugins."
