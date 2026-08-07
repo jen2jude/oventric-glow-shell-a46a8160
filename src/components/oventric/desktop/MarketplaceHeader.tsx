@@ -20,7 +20,7 @@ const RED_LINKS = [
   { label: "5-Star Rated", section: "Marketplace", icon: "⭐" },
 ];
 
-export function MarketplaceHeader({ onSelect, avatarUrl, name, search }: MarketplaceHeaderProps) {
+export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSection }: MarketplaceHeaderProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   const { country, baseCurrency } = useOnboarding();
 
