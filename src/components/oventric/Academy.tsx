@@ -983,7 +983,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
       <div className="max-w-6xl mx-auto w-full px-4 pt-6 pb-10">
         <div className="grid gap-8 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide mb-4 border bg-emerald-50 border-emerald-200 text-emerald-700 uppercase">
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight text-slate-900">
