@@ -179,10 +179,11 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
       {!isAppShell && <AcademyHero isAppShell={isAppShell} />}
       {isAppShell && (
-        <div className="pt-2">
+        <div className="pt-0">
           <AcademyHero isAppShell={isAppShell} />
         </div>
       )}
+
       {isAppShell && !hideHeader && (
         <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
           <div className="flex gap-2 mt-2">
@@ -865,23 +866,73 @@ function CourseDetail({
 }
 
 function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
+  if (isAppShell) {
+    return (
+      <div className="bg-black px-4 pt-2 pb-6 space-y-6">
+        {/* Banner Card */}
+        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] bg-gradient-to-br from-indigo-900 to-purple-900 shadow-2xl">
+          <div className="absolute inset-0 bg-black/20" />
+          <div className="absolute inset-0 p-6 flex flex-col justify-center">
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white uppercase tracking-widest mb-3 w-fit">
+              <Sparkles className="w-3 h-3" /> Oventric Academy
+            </div>
+            <h1 className="text-2xl font-black text-white leading-tight">
+              Master High-End<br />Digital Skills.
+            </h1>
+            <p className="text-xs text-white/70 mt-2 font-medium">Learn From Real Builders.</p>
+          </div>
+          {/* Decorative element */}
+          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl" />
+        </div>
+
+        {/* Info Row */}
+        <div className="flex items-center justify-between gap-2 px-1">
+          <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
+          <div className="h-8 w-px bg-white/10" />
+          <HeroStat isAppShell={isAppShell} value="Free" label="Courses available" />
+          <div className="h-8 w-px bg-white/10" />
+          <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
+        </div>
+
+        {/* Scrollable Rail */}
+        <div className="flex gap-3 overflow-x-auto scrollbar-none -mx-4 px-4">
+          <SlimValueCard
+            Icon={Video}
+            title="Video-First Delivery"
+            img="https://images.unsplash.com/photo-1492619339714-88aa657c1d4a?auto=format&fit=crop&w=300&q=80"
+          />
+          <SlimValueCard
+            Icon={RotateCcw}
+            title="Auto-Resume Anytime"
+            img="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=300&q=80"
+          />
+          <SlimValueCard
+            Icon={ScrollText}
+            title="Verified Certificate"
+            img="https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=300&q=80"
+          />
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-black border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
+    <div className="relative overflow-hidden border-b bg-white border-slate-200">
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
         <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
-            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border ${!isAppShell ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/5 border-white/10 text-slate-200 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700"}`}>
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border bg-emerald-50 border-emerald-200 text-emerald-700">
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
-            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>
+            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight text-slate-900">
               Master High-End Digital Skills.
               <br />
-              <span className={`${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
+              <span className="text-slate-500">
                 Learn From Real Builders.
               </span>{" "}
-              <span className={`${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`}>Earn Certificates.</span>
+              <span className="text-emerald-600">Earn Certificates.</span>
             </h1>
-            <p className={`mt-5 text-base md:text-lg leading-relaxed max-w-xl ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
+            <p className="mt-5 text-base md:text-lg leading-relaxed max-w-xl text-slate-600">
               Video-first courses from working practitioners. Track your progress across sessions,
               resume any time, and earn a certificate when you complete a course.
             </p>
@@ -916,6 +967,22 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
     </div>
   );
 }
+
+function SlimValueCard({ Icon, title, img }: { Icon: any; title: string; img: string }) {
+  return (
+    <div className="shrink-0 w-40 h-24 relative rounded-xl overflow-hidden border border-white/5 shadow-lg group">
+      <img src={img} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" alt={title} />
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-[1px]" />
+      <div className="absolute inset-0 p-3 flex flex-col justify-between">
+        <Icon className="w-4 h-4 text-pink-500" />
+        <div className="text-[11px] font-bold text-white leading-tight">
+          {title}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function HeroStat({ isAppShell, value, label }: { isAppShell: boolean; value: string; label: string }) {
   return (
