@@ -35,6 +35,14 @@ function fmtPrice(usd: number, viewer: Currency): string {
 }
 
 function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; title: string; hint?: string; isAppShell: boolean }) {
+  if (isAppShell) {
+    return (
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
+        <button className="text-pink-500 text-xs font-bold">View All</button>
+      </div>
+    );
+  }
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
