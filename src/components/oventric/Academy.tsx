@@ -427,8 +427,46 @@ function CourseCard({
   isAppShell: boolean;
   onOpen: () => void;
 }) {
+  if (isAppShell) {
+    return (
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-slate-100">
+          {course.coverUrl ? (
+            <ResponsiveImage
+              src={course.coverUrl}
+              alt={course.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <GraduationCap className="w-8 h-8 text-slate-300" />
+            </div>
+          )}
+          <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+            {course.category}
+          </div>
+        </button>
+        <div className="p-3 flex-1 flex flex-col justify-between">
+          <div>
+            <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">
+              {course.title}
+            </h4>
+            <div className="text-[10px] text-slate-400 font-medium mb-2">Cambridge International Qualifications, UK</div>
+          </div>
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+              <Clock className="w-3 h-3 text-slate-400" /> 6-9 Hours
+            </div>
+            <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className={`${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-300" : "bg-[#1E1E24] border-white/10 hover:border-emerald-500/40 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-lg md:hover:border-emerald-300"} rounded-xl overflow-hidden transition-all md:hover:-translate-y-0.5`}>
+    <div className="bg-white border-slate-200 shadow-sm hover:shadow-lg hover:border-emerald-300 rounded-xl overflow-hidden transition-all md:hover:-translate-y-0.5">
       <button onClick={onOpen} className="block w-full text-left">
         <div className="relative aspect-video bg-gradient-to-br from-emerald-600/40 to-indigo-700/40 overflow-hidden">
           {course.coverUrl ? (
@@ -475,7 +513,7 @@ function CourseCard({
         </div>
       </button>
       <div className="p-5">
-        <h3 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-lg leading-snug`}>
+        <h3 className="text-slate-900 font-black text-lg leading-snug">
           {course.title}
         </h3>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
@@ -485,7 +523,7 @@ function CourseCard({
           </span>
         </div>
         {course.description && (
-          <p className={`mt-3 text-sm leading-relaxed line-clamp-2 ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
+          <p className="mt-3 text-sm leading-relaxed line-clamp-2 text-slate-600">
             {course.description}
           </p>
         )}
