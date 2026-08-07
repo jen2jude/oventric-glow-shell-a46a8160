@@ -293,8 +293,8 @@ function PromotedStrip({ ads, isAppShell }: { ads: DiscoveryAd[]; isAppShell: bo
               <div className="text-[10px] uppercase tracking-wider text-slate-500">
                 {a.advertiser}
               </div>
-              <div className="text-white font-bold text-sm truncate">{a.title}</div>
-              {a.body && <div className="text-[12px] text-slate-400 line-clamp-1">{a.body}</div>}
+              <div className={`font-bold text-sm truncate ${!isAppShell ? "text-slate-900" : "text-white"}`}>{a.title}</div>
+              {a.body && <div className={`text-[12px] line-clamp-1 ${!isAppShell ? "text-slate-600" : "text-slate-400"}`}>{a.body}</div>}
             </div>
             <ArrowRight className="w-4 h-4 text-emerald-400 shrink-0" />
           </a>
