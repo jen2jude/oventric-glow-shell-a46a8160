@@ -706,11 +706,11 @@ function CourseDetail({
 
 function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className="relative overflow-hidden border-b border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white">
+    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#0A0A0B] border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
         <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-white/5 border border-white/10 text-slate-200 text-xs font-semibold tracking-wide mb-6 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700">
+            <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border ${!isAppShell ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/5 border-white/10 text-slate-200 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700"}`}>
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
             <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white md:text-slate-900 leading-[1.08] tracking-tight">
