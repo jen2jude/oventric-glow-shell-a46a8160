@@ -28,6 +28,7 @@ import {
   getCourse,
   enrollFree,
   getMyEnrollment,
+  listMyEnrollments,
   markModuleComplete,
   unmarkModuleComplete,
   type CourseDTO,
@@ -95,12 +96,15 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
   const [view, setView] = useState<"catalog" | "course">("catalog");
   const [category, setCategory] = useState<CategoryKey>("all");
   const [courses, setCourses] = useState<CourseDTO[] | null>(null);
+  const [enrolled, setEnrolled] = useState<EnrollmentDTO[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [refreshKey, setRefreshKey] = useState(0);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | undefined>();
   const [userId, setUserId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState("");
+
+  const fetchMyEnrollments = useServerFn(listMyEnrollments);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => setUserId(data.user?.id ?? null));
@@ -109,6 +113,14 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
     );
     return () => sub.subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    if (userId) {
+      fetchMyEnrollments().then(setEnrolled).catch(() => setEnrolled([]));
+    } else {
+      setEnrolled([]);
+    }
+  }, [userId, fetchMyEnrollments, refreshKey]);
 
   useEffect(() => {
     fetchList()
@@ -156,21 +168,8 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
   const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
 
   useEffect(() => {
-    if (!scrollRef.current) return;
-    const scrollContainer = scrollRef.current;
-    let scrollAmount = 0;
-    const step = () => {
-      if (scrollContainer) {
-        scrollAmount += 1;
-        if (scrollAmount >= scrollContainer.offsetWidth) {
-          scrollAmount = 0;
-        }
-        scrollContainer.scrollTo(scrollAmount, 0);
-      }
-      requestAnimationFrame(step);
-    };
-    const animId = requestAnimationFrame(step);
-    return () => cancelAnimationFrame(animId);
+    if (!scrollRef.current || !isAppShell) return;
+    // Auto-scroll removed per user request for trending section
   }, [isAppShell, searchQuery, category]);
 
 
@@ -240,35 +239,53 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
         )}
 
         <div className={`px-4 py-6 ${isAppShell ? "space-y-8" : "space-y-4"}`}>
-          {isAppShell && filtered.length > 0 && category === 'all' && searchQuery === "" && (
+          {isAppShell && enrolled.length > 0 && category === 'all' && searchQuery === "" && (
             <section>
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-bold text-white text-lg">My Enrolled Courses</h3>
               </div>
               <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
-                {filtered.slice(0, 3).map(course => (
-                  <div key={course.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
-                    <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
-                    <div className="flex flex-col items-center py-4">
-                      <div className="relative w-24 h-24 flex items-center justify-center">
-                        <svg className="w-full h-full -rotate-90">
-                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
-                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-pink-500" strokeDasharray={264} strokeDashoffset={264 * (1 - 0.05)} strokeLinecap="round" />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-lg font-bold text-white">5%</span>
-                          <span className="text-[9px] text-slate-400 uppercase font-bold">Completed</span>
+                {enrolled.map(enrollment => {
+                  const course = courses?.find(c => c.id === enrollment.courseId);
+                  if (!course) return null;
+                  
+                  // In a real app we'd fetch actual progress, but for this view 
+                  // we can indicate started vs finished
+                  const isFinished = enrollment.completedAt != null;
+
+                  return (
+                    <div key={enrollment.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
+                      <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
+                      <div className="flex flex-col items-center py-4">
+                        <div className="relative w-24 h-24 flex items-center justify-center">
+                          <svg className="w-full h-full -rotate-90">
+                            <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
+                            <circle 
+                              cx="48" cy="48" r="42" 
+                              stroke="currentColor" 
+                              strokeWidth="4" 
+                              fill="transparent" 
+                              className={isFinished ? "text-emerald-500" : "text-pink-500"} 
+                              strokeDasharray={264} 
+                              strokeDashoffset={264 * (1 - (isFinished ? 1 : 0.05))} 
+                              strokeLinecap="round" 
+                            />
+                          </svg>
+                          <div className="absolute inset-0 flex flex-col items-center justify-center">
+                            <span className="text-lg font-bold text-white">{isFinished ? "100%" : "Started"}</span>
+                            <span className="text-[9px] text-slate-400 uppercase font-bold">{isFinished ? "Finished" : "Progress"}</span>
+                          </div>
                         </div>
                       </div>
+                      <button 
+                        onClick={() => { setSelectedId(course.id); setView("course"); }}
+                        className={`w-full py-2 rounded-md text-xs font-bold transition-colors mt-2 ${isFinished ? "bg-emerald-500 text-black hover:bg-emerald-400" : "bg-pink-500 text-white hover:bg-pink-600"}`}
+                      >
+                        {isFinished ? "Finished" : "Resume Learning"}
+                      </button>
                     </div>
-                    <button 
-                      onClick={() => { setSelectedId(course.id); setView("course"); }}
-                      className="w-full py-2 bg-pink-500 text-white rounded-md text-xs font-bold hover:bg-pink-600 transition-colors mt-2"
-                    >
-                      Resume Learning
-                    </button>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}
@@ -306,21 +323,28 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
                 <h3 className="font-bold text-white text-lg">Trending</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl">
-                <div ref={scrollRef} className="flex w-full h-full overflow-hidden">
-                  {[1, 2, 3].map((i) => (
-                    <div key={i} className="shrink-0 w-full relative aspect-[16/9]">
-                      <img 
-                        src={`https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80&idx=${i}`} 
-                        className="w-full h-full object-cover"
-                        alt="Trending"
-                      />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                      <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
+              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl border border-white/5">
+                <div ref={scrollRef} className="flex w-full h-full overflow-x-auto scrollbar-none snap-x snap-mandatory">
+                  {(courses?.slice(0, 4) ?? []).map((course) => (
+                    <div key={course.id} className="shrink-0 w-full relative aspect-[16/9] snap-start">
+                      {course.coverUrl ? (
+                        <img 
+                          src={course.coverUrl} 
+                          className="w-full h-full object-cover"
+                          alt={course.title}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-indigo-900 to-purple-900" />
+                      )}
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent" />
+                      <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full uppercase tracking-wider">Top Rated</div>
                       <div className="absolute bottom-6 left-6 right-6 text-white">
-                        <h4 className="text-xl font-bold mb-1">Live Professional Training {i}</h4>
-                        <div className="text-xs text-white/70 mb-3">UniAthena</div>
-                        <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold">
+                        <h4 className="text-xl font-bold mb-1 leading-tight">{course.title}</h4>
+                        <div className="text-xs text-white/70 mb-3">{course.instructorName || "Academy Expert"}</div>
+                        <button 
+                          onClick={() => { setSelectedId(course.id); setView("course"); }}
+                          className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-5 py-2 rounded-full text-xs font-bold active:scale-95 transition-transform"
+                        >
                           Start Now
                         </button>
                       </div>
@@ -355,6 +379,29 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
               ))}
             </div>
           </section>
+
+          {isAppShell && !searchQuery && category === 'all' && (
+            <section>
+              <div className="flex items-center justify-between mb-4">
+                <h3 className="font-bold text-white text-lg">Free Courses</h3>
+                <button className="text-pink-500 text-xs font-bold">View All</button>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {courses?.filter(c => c.isFree).slice(0, 4).map((course) => (
+                  <CourseCard
+                    key={course.id}
+                    course={course}
+                    currency={baseCurrency}
+                    isAppShell={isAppShell}
+                    onOpen={() => {
+                      setSelectedId(course.id);
+                      setView("course");
+                    }}
+                  />
+                ))}
+              </div>
+            </section>
+          )}
 
           {!searchQuery && (
             <AcademyRecommendations
@@ -420,8 +467,15 @@ function CourseCard({
               <GraduationCap className="w-8 h-8 text-white/10" />
             </div>
           )}
-          <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
-            {course.category}
+          <div className="absolute top-2 left-2 flex gap-1 items-center">
+            <div className="bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+              {course.category}
+            </div>
+            {new Date(course.createdAt).getTime() > Date.now() - 1000 * 60 * 60 * 24 * 7 && (
+              <div className="bg-emerald-500 text-black text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+                New
+              </div>
+            )}
           </div>
         </button>
         <div className="p-3 flex-1 flex flex-col justify-between">
@@ -870,19 +924,23 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
     return (
       <div className="bg-black px-4 pt-2 pb-6 space-y-6">
         {/* Banner Card */}
-        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] bg-gradient-to-br from-indigo-900 to-purple-900 shadow-2xl">
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 p-6 flex flex-col justify-center">
-            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-white/10 backdrop-blur-md border border-white/20 text-[10px] font-bold text-white uppercase tracking-widest mb-3 w-fit">
-              <Sparkles className="w-3 h-3" /> Oventric Academy
+        <div className="relative overflow-hidden rounded-2xl aspect-[2/1] bg-[#1A1A1C] border border-white/5 shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-r from-black/80 to-transparent z-10" />
+          <img 
+            src="https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80" 
+            className="absolute inset-0 w-full h-full object-cover opacity-60" 
+            alt="Digital Skills"
+          />
+          <div className="absolute inset-0 p-6 flex flex-col justify-center z-20">
+            <div className="inline-flex items-center gap-2 px-2 py-0.5 rounded-full bg-pink-500/20 text-[10px] font-bold text-pink-500 uppercase tracking-widest mb-3 w-fit">
+              <Sparkles className="w-3 h-3" /> Digital Academy
             </div>
             <h1 className="text-2xl font-black text-white leading-tight">
-              Master High-End<br />Digital Skills.
+              Unlock Your <br />
+              <span className="text-pink-500">Digital Future.</span>
             </h1>
-            <p className="text-xs text-white/70 mt-2 font-medium">Learn From Real Builders.</p>
+            <p className="text-xs text-white/70 mt-2 font-medium">Learn industry-leading skills today.</p>
           </div>
-          {/* Decorative element */}
-          <div className="absolute -bottom-6 -right-6 w-32 h-32 bg-pink-500/20 rounded-full blur-3xl" />
         </div>
 
         {/* Info Row */}
@@ -899,7 +957,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
           <SlimValueCard
             Icon={Video}
             title="Video-First Delivery"
-            img="https://images.unsplash.com/photo-1492619339714-88aa657c1d4a?auto=format&fit=crop&w=300&q=80"
+            img="https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=400&q=80"
           />
           <SlimValueCard
             Icon={RotateCcw}
