@@ -1,4 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { CheckCircle2, Download, ExternalLink, Loader2, ArrowLeft, Mail } from "lucide-react";
@@ -54,7 +55,7 @@ function OrderPage() {
 
   return (
     <div className="page-light min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
-      <Header onOpenMessages={() => {}} />
+      <Header onOpenMessages={() => {}} forceSiteNavbar={!useIsAppShell()} />
       <main
         className="max-w-2xl mx-auto w-full px-4 py-6 pb-24"
         style={{

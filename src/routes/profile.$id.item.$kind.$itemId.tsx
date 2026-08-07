@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { createFileRoute, Link, useNavigate, notFound, useRouter } from "@tanstack/react-router";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { toast } from "sonner";
@@ -341,7 +342,7 @@ function Shell({ children }: { children: React.ReactNode }) {
       <div className="pointer-events-none fixed bottom-0 inset-x-0 h-[2px] z-50  hidden md:block" />
 
       <div className="flex h-full flex-col">
-        <Header />
+        <Header forceSiteNavbar={!useIsAppShell()} />
         <main className="flex-1 overflow-y-auto pb-20 md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">{children}</div>
         </main>

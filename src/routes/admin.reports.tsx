@@ -1,4 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -145,7 +146,7 @@ function AdminReportsPage() {
 
   return (
     <div className="min-h-screen bg-[#121214] text-slate-200">
-      <Header />
+      <Header forceSiteNavbar={!useIsAppShell()} />
       <main className="max-w-4xl mx-auto w-full px-4 py-8">
         <div className="flex items-center gap-3 mb-6">
           <div className="w-10 h-10 rounded-xl bg-emerald-500/15 border border-emerald-500/40 flex items-center justify-center">
