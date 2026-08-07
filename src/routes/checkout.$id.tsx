@@ -12,6 +12,7 @@ import {
   ChevronDown,
   Building2,
   Check,
+  Headphones,
 } from "lucide-react";
 import { toast } from "sonner";
 import { Header } from "@/components/oventric/Header";
