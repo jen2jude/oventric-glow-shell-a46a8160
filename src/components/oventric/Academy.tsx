@@ -745,6 +745,7 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
               body="Your progress is saved per module. Pick up exactly where you left off."
             />
             <ValueCard
+              isAppShell={isAppShell}
               Icon={ScrollText}
               title="Certificate on Completion"
               body="Finish every module and generate a signed digital certificate."
