@@ -167,8 +167,12 @@ export function Academy() {
                   onClick={() => setCategory(c.key)}
                   className={`shrink-0 px-4 py-2 rounded-full text-sm font-medium border transition-colors whitespace-nowrap ${
                     active
-                      ? "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
-                      : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
+                      ? !isAppShell
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "bg-emerald-500/15 border-emerald-500/50 text-emerald-300 md:bg-emerald-600 md:border-emerald-600 md:text-white"
+                      : !isAppShell
+                        ? "bg-white border-slate-200 text-slate-600 hover:text-slate-900 hover:border-slate-300"
+                        : "bg-[#1E1E24] border-white/10 text-slate-300 hover:text-white hover:border-white/20 md:bg-white md:border-slate-200 md:text-slate-600 md:hover:text-slate-900 md:hover:border-slate-300"
                   }`}
                 >
                   {c.label}
