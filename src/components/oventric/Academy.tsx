@@ -526,7 +526,7 @@ function CourseDetail({
               )}
             </div>
             <div className="p-5">
-              <h1 className="text-white md:text-slate-900 font-black text-2xl leading-tight">
+              <h1 className={`${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"} font-black text-2xl leading-tight`}>
                 {course.title}
               </h1>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 flex-wrap">
