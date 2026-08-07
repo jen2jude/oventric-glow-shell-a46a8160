@@ -253,8 +253,8 @@ function BlogTile({ b, isAppShell }: { b: RecoBlog; isAppShell: boolean }) {
         )}
       </div>
       <div className="p-3">
-        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{b.title}</h4>
-        {b.excerpt && <p className="text-[12px] text-slate-400 line-clamp-2 mt-1">{b.excerpt}</p>}
+        <h4 className={`font-bold text-sm line-clamp-2 leading-snug ${!isAppShell ? "text-slate-900" : "text-white"}`}>{b.title}</h4>
+        {b.excerpt && <p className={`text-[12px] line-clamp-2 mt-1 ${!isAppShell ? "text-slate-600" : "text-slate-400"}`}>{b.excerpt}</p>}
       </div>
     </Link>
   );
