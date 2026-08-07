@@ -195,18 +195,52 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
       <AcademyHero isAppShell={isAppShell} />
 
-      {isAppShell && !hideHeader && (
+      {isAppShell && (
         <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
-          <div className="flex gap-2 mt-2">
-            <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
+          <div className="flex flex-col gap-3 mt-2">
+            <div className="flex items-center justify-between">
+              <h2 className="text-white font-black text-lg">Browse courses</h2>
+              {userId && (
+                <button
+                  onClick={() => {
+                    setEditingId(undefined);
+                    setEditorOpen(true);
+                  }}
+                  className="inline-flex items-center gap-2 text-xs text-black bg-emerald-500 hover:bg-emerald-400 rounded-lg px-3 py-1.5 font-bold"
+                >
+                  <GraduationCap className="w-4 h-4" /> Publish
+                </button>
+              )}
+            </div>
+            
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
               <input 
                 type="text" 
                 placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#1A1A1C] border border-white/5 rounded-md py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none"
+                className="w-full bg-[#1A1A1C] border border-white/5 rounded-md py-2 pl-9 pr-4 text-xs text-white focus:outline-none"
               />
+            </div>
+
+            <div className="flex gap-2 overflow-x-auto scrollbar-none pb-1">
+              {CATEGORIES.map((c) => {
+                const active = category === c.key;
+                return (
+                  <button
+                    key={c.key}
+                    onClick={() => setCategory(c.key)}
+                    className={`shrink-0 px-3 py-1.5 rounded-full text-[11px] font-bold border transition-colors whitespace-nowrap ${
+                      active
+                        ? "bg-emerald-600 border-emerald-600 text-white"
+                        : "bg-[#1A1A1C] border-white/5 text-slate-400 hover:text-white"
+                    }`}
+                  >
+                    {c.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
         </div>
