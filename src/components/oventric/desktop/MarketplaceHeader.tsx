@@ -15,10 +15,6 @@ export type MarketplaceHeaderProps = {
   activeSection?: string;
 };
 
-const RED_LINKS = [
-  { label: "Best-Selling Items", section: "Marketplace", icon: "👍" },
-  { label: "5-Star Rated", section: "Marketplace", icon: "⭐" },
-];
 
 export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSection }: MarketplaceHeaderProps) {
   const { isAuthenticated, openGate } = useAuthGate();
@@ -150,26 +146,6 @@ export function MarketplaceHeader({ onSelect, avatarUrl, name, search, activeSec
         </div>
       </header>
 
-      {/* Red Brand Strip (Marketplace Links) */}
-      <div className="bg-[#E13B2E] text-white hidden md:block">
-        <div className="mx-auto max-w-[1200px] flex h-10 items-center gap-6 px-6">
-          {RED_LINKS.map((l) => (
-            <button
-              key={l.label}
-              onClick={() => onSelect(l.section)}
-              className="flex items-center gap-1.5 text-[13px] font-black whitespace-nowrap hover:opacity-90"
-            >
-              {l.icon && <span>{l.icon}</span>}
-              {l.label}
-              {"hasArrow" in l && (l as any).hasArrow && <span className="text-[10px] ml-0.5 opacity-80">▼</span>}
-            </button>
-          ))}
-          <div className="ml-auto flex flex-col items-end justify-center h-full">
-            <span className="text-[12px] font-black leading-none">Instant Delivery</span>
-            <span className="text-[9px] font-bold opacity-80 leading-tight">80% of orders under 5 min</span>
-          </div>
-        </div>
-      </div>
 
       {/* Mobile Menu Overlay */}
       {menuOpen && (
