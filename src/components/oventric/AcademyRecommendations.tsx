@@ -11,6 +11,7 @@ import {
   Sparkles,
   ArrowRight,
   Flame,
+  Clock,
 } from "lucide-react";
 import {
   getAcademyRecommendations,
@@ -35,6 +36,14 @@ function fmtPrice(usd: number, viewer: Currency): string {
 }
 
 function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; title: string; hint?: string; isAppShell: boolean }) {
+  if (isAppShell) {
+    return (
+      <div className="flex items-center justify-between mb-4">
+        <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
+        <button className="text-pink-500 text-xs font-bold">View All</button>
+      </div>
+    );
+  }
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
@@ -61,6 +70,44 @@ function CourseTile({
   onOpen: (id: string) => void;
   isAppShell: boolean;
 }) {
+  if (isAppShell) {
+    return (
+      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
+        <button onClick={() => onOpen(c.id)} className="block w-full text-left relative aspect-video bg-slate-100">
+          {c.coverUrl ? (
+            <ResponsiveImage
+              src={c.coverUrl}
+              alt={c.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <GraduationCap className="w-8 h-8 text-slate-300" />
+            </div>
+          )}
+          <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
+            {c.category}
+          </div>
+        </button>
+        <div className="p-3 flex-1 flex flex-col justify-between">
+          <div>
+            <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">
+              {c.title}
+            </h4>
+            <div className="text-[10px] text-slate-400 font-medium mb-2">Cambridge International Qualifications, UK</div>
+          </div>
+          <div className="flex items-center justify-between mt-auto">
+            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
+              <Clock className="w-3 h-3 text-slate-400" /> 6-9 Hours
+            </div>
+            <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <button
       onClick={() => onOpen(c.id)}
@@ -100,6 +147,35 @@ function CourseTile({
 }
 
 function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currency: Currency; isAppShell: boolean }) {
+  if (isAppShell) {
+    return (
+      <Link
+        to="/product/$id"
+        params={{ id: p.id }}
+        className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+      >
+        <div className="relative aspect-square bg-slate-50">
+          {p.coverUrl ? (
+            <ResponsiveImage
+              src={p.coverUrl}
+              alt={p.title}
+              className="absolute inset-0 w-full h-full object-cover"
+              loading="lazy"
+            />
+          ) : (
+            <div className="absolute inset-0 flex items-center justify-center">
+              <ShoppingBag className="w-8 h-8 text-slate-200" />
+            </div>
+          )}
+        </div>
+        <div className="p-3 flex-1 flex flex-col justify-between">
+          <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">{p.title}</h4>
+          <div className="text-[12px] font-black text-slate-900">{fmtPrice(p.priceUsd, currency)}</div>
+        </div>
+      </Link>
+    );
+  }
+
   return (
     <Link
       to="/product/$id"
@@ -346,7 +422,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   const blogB = data.blog.slice(3, 6);
 
   return (
-    <section className={`mt-12 border-t pt-8 space-y-10 ${!isAppShell ? "border-slate-200" : "border-white/10"}`}>
+    <section className={`mt-12 space-y-10 ${!isAppShell ? "border-t pt-8 border-slate-200" : ""}`}>
       {/* Recommended courses */}
       {data.courses.length > 0 && (
         <div>
