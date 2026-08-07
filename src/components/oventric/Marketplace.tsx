@@ -358,7 +358,7 @@ export function Marketplace() {
         </div>
 
         {/* ── Marketplace search ─────────────────────────────────── */}
-        <div className="mb-4 sm:mb-5">
+        <div className={`mb-4 sm:mb-5 ${!isAppShell ? "hidden sm:hidden" : "block"}`}>
           <div className="relative max-w-2xl mx-auto group">
             <input
               type="search"
@@ -369,7 +369,6 @@ export function Marketplace() {
                 setSearchQuery(e.target.value);
                 if (!mode) setMode("digital");
               }}
-
               placeholder="I'm looking for..."
               className={`w-full h-11 sm:h-12 pl-4 pr-12 rounded-none text-sm sm:text-base border-2 focus:outline-none transition-shadow shadow-sm ${isAppShell ? "bg-[#1E1E24] border-emerald-500/30 text-white placeholder:text-slate-500" : "bg-white border-slate-900 text-slate-900 placeholder:text-slate-400"}`}
             />
