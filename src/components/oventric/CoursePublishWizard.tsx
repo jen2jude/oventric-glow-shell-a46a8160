@@ -252,54 +252,58 @@ export function CoursePublishWizard({
         </div>
 
         {/* Progress bar */}
-        <div className={`border-b border-white/10 shrink-0 ${isAppShell ? "px-4 py-2.5" : "px-4 sm:px-5 py-3"}`}>
-          <div className="flex items-center gap-1.5 sm:gap-2">
+        <div className={`border-b border-white/10 shrink-0 ${isAppShell ? "px-4 py-3" : "px-4 sm:px-5 py-3"}`}>
+          <div className="flex items-center">
             {STEPS.map((s, i) => {
               const done = i < step;
               const active = i === step;
-              if (isAppShell) {
-                return (
-                  <button
-                    key={s}
-                    onClick={() => i <= step && setStep(i as Step)}
-                    disabled={i > step}
-                    className={`flex-1 h-9 rounded-lg text-xs font-bold transition-colors ${
-                      active
-                        ? "bg-emerald-500 text-black"
-                        : done
-                          ? "bg-emerald-500/20 text-emerald-300"
-                          : "bg-white/5 text-slate-500"
-                    }`}
-                  >
-                    {i + 1}
-                  </button>
-                );
-              }
+              const upcoming = i > step;
+              const isLast = i === STEPS.length - 1;
+
               return (
-                <button
-                  key={s}
-                  onClick={() => i <= step && setStep(i as Step)}
-                  className={`flex-1 flex items-center gap-2 rounded-lg px-2 sm:px-3 py-1.5 text-[11px] sm:text-xs font-semibold transition-colors ${
-                    active
-                      ? "bg-emerald-500/15 border border-emerald-500/50 text-emerald-300"
-                      : done
-                        ? "bg-emerald-500/5 border border-emerald-500/20 text-emerald-400/80 cursor-pointer hover:bg-emerald-500/10"
-                        : "bg-white/5 border border-white/10 text-slate-500"
-                  }`}
-                >
-                  <div
-                    className={`w-5 h-5 shrink-0 rounded-full grid place-items-center text-[10px] ${
-                      done
-                        ? "bg-emerald-500 text-black"
-                        : active
-                          ? "bg-emerald-500/40 text-white"
-                          : "bg-white/10 text-slate-400"
+                <div key={s} className="flex-1 flex items-center">
+                  <button
+                    onClick={() => i <= step && setStep(i as Step)}
+                    disabled={upcoming}
+                    className={`relative flex flex-col items-center justify-center gap-1.5 w-full transition-all duration-200 ${
+                      upcoming ? "cursor-default" : "cursor-pointer"
                     }`}
                   >
-                    {done ? <CheckCircle2 className="w-3.5 h-3.5" /> : i + 1}
-                  </div>
-                  <span className="hidden sm:inline truncate">{s}</span>
-                </button>
+                    <div
+                      className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center text-xs font-bold transition-all duration-200 ${
+                        active
+                          ? "bg-emerald-500 text-black scale-105"
+                          : done
+                            ? "bg-emerald-500 text-black"
+                            : "bg-[#16161A] text-slate-500 border border-white/10"
+                      }`}
+                    >
+                      {done ? (
+                        <CheckCircle2 className="w-4 h-4" />
+                      ) : (
+                        <span className={active ? "text-black" : "text-slate-500"}>{i + 1}</span>
+                      )}
+                    </div>
+                    {!isAppShell && (
+                      <span
+                        className={`text-[10px] sm:text-[11px] font-medium transition-colors duration-200 ${
+                          active ? "text-emerald-300" : done ? "text-emerald-400/80" : "text-slate-500"
+                        }`}
+                      >
+                        {s}
+                      </span>
+                    )}
+                  </button>
+
+                  {!isLast && (
+                    <div className="flex-1 h-[2px] mx-1 sm:mx-2 rounded-full bg-white/10 overflow-hidden">
+                      <div
+                        className="h-full bg-emerald-500 transition-[width] duration-300 ease-out"
+                        style={{ width: done ? "100%" : "0%" }}
+                      />
+                    </div>
+                  )}
+                </div>
               );
             })}
           </div>
