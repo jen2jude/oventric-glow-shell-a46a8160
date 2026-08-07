@@ -632,7 +632,7 @@ function CheckoutPage() {
                   className={`mt-2 rounded-xl border p-4 ${
                     isAppShell
                       ? "border-white/5 bg-[#16161A]"
-                      : "border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white"
+                      : "border-slate-200 bg-white shadow-sm"
                   }`}
                 >
                   <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">
@@ -653,7 +653,7 @@ function CheckoutPage() {
                       className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
                         isAppShell
                           ? "bg-[#0A0A0B] border-white/10 text-white"
-                          : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                          : "bg-slate-50 border-slate-200 text-slate-900"
                       }`}
                     />
                   </label>
@@ -679,7 +679,7 @@ function CheckoutPage() {
               className={`h-max min-w-0 ${
                 isAppShell
                   ? "lg:col-span-1 space-y-4 px-4 pb-8"
-                  : "bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 lg:col-span-1"
+                  : "bg-white shadow-sm border border-slate-200 rounded-xl p-5 lg:col-span-1"
               }`}
             >
               {!isAppShell && (
@@ -727,7 +727,7 @@ function CheckoutPage() {
                         : "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
                       : isAppShell
                         ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
-                        : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
+                        : "bg-slate-100 border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
                   <input
@@ -853,7 +853,7 @@ function CheckoutPage() {
         >
           <div
             className={`w-full max-w-md border rounded-2xl p-6 ${
-              isAppShell ? "bg-[#16161A] border-white/5" : "bg-[#1E1E24] md:shadow-sm md:bg-white border-white/10 md:border-slate-200"
+              isAppShell ? "bg-[#16161A] border-white/5" : "bg-white shadow-sm border-slate-200"
             }`}
             onClick={(e) => e.stopPropagation()}
           >
@@ -873,7 +873,7 @@ function CheckoutPage() {
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
               className={`w-full border rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-emerald-500/60 ${
-                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"
               }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
@@ -891,12 +891,10 @@ function CheckoutPage() {
                       onClick={() => setTopUpMethod(m.id)}
                       className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
                         active
-                          ? isAppShell
-                            ? "bg-emerald-500/10 border-emerald-500/50"
-                            : "bg-emerald-500/10 border-emerald-500/50"
+                          ? "bg-emerald-500/10 border-emerald-500/50"
                           : isAppShell
                             ? "bg-[#0A0A0B] border-white/5"
-                            : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"
+                            : "bg-white border-slate-200"
                       }`}
                     >
                       <Icon
