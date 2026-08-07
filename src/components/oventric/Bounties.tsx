@@ -370,8 +370,8 @@ export function Bounties() {
                 {bountiesError}
               </div>
             ) : filtered.length === 0 ? (
-              <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
-                <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+              <div className="rounded-3xl border border-dashed border-white/[0.06] bg-[#141416] p-8 text-center">
+                <div className="w-14 h-14 mx-auto rounded-full bg-[#1A1A1C] flex items-center justify-center mb-4">
                   <Target className="w-7 h-7 text-emerald-400" />
                 </div>
                 <h3 className="text-white text-base font-bold mb-1.5">Nothing here yet</h3>
