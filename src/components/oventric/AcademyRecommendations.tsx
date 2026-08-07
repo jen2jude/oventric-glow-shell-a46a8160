@@ -42,7 +42,7 @@ function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; tit
         <h3 className={`font-black text-lg tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
       </div>
       {hint && (
-        <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
+        <span className={`text-[11px] uppercase tracking-wider font-medium ${!isAppShell ? "text-slate-500" : "text-slate-500"}`}>
           {hint}
         </span>
       )}
