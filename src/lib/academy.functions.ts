@@ -226,10 +226,19 @@ export const getCourse = createServerFn({ method: "POST" })
       .eq("id", data.id)
       .maybeSingle();
     
-    if (error) throw new Error(`Course fetch error: ${error.message}`);
-    if (!row) throw new Error("Course not found");
+    if (error) {
+      console.error("[getCourse] Course fetch error:", error);
+      throw new Error(error.message);
+    }
+    if (!row) {
+      console.error("[getCourse] Course not found:", data.id);
+      throw new Error("Course not found");
+    }
 
-    const signedCovers = await signCovers(sb, [(row.cover_path as string) ?? null]);
+    const signedCovers = await signCovers(sb, [(row.cover_path as string) ?? null]).catch(err => {
+      console.error("[getCourse] signCovers failed:", err);
+      return [null];
+    });
     const coverUrl = signedCovers[0];
 
     // Fetch modules
@@ -239,7 +248,10 @@ export const getCourse = createServerFn({ method: "POST" })
       .eq("course_id", data.id)
       .order("position", { ascending: true });
 
-    if (mErr) throw new Error(`Module fetch error: ${mErr.message}`);
+    if (mErr) {
+      console.error("[getCourse] Module fetch error:", mErr);
+      throw new Error(mErr.message);
+    }
     
     const modRows = mods ?? [];
     const videoPaths = modRows.map((m) => {
@@ -247,7 +259,10 @@ export const getCourse = createServerFn({ method: "POST" })
       return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
     });
 
-    const videoUrls = await signCourseMedia(sb, videoPaths);
+    const videoUrls = await signCourseMedia(sb, videoPaths).catch(err => {
+      console.error("[getCourse] signCourseMedia failed:", err);
+      return videoPaths.map(() => null);
+    });
 
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
@@ -499,7 +514,10 @@ export const getMyEnrollment = createServerFn({ method: "POST" })
       .eq("user_id", context.userId)
       .eq("course_id", data.courseId)
       .maybeSingle();
-    if (error) throw new Error(error.message);
+    if (error) {
+      console.error("[getMyEnrollment] Enrollment fetch error:", error);
+      throw new Error(error.message);
+    }
     if (!row) return null;
     const { data: prog } = await context.supabase
       .from("course_progress")
