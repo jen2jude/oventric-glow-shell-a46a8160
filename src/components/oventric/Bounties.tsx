@@ -623,16 +623,16 @@ function BountyRow({
     return (
       <button
         onClick={onOpen}
-        className={`w-full text-left rounded-2xl p-[1px] transition-transform active:scale-[0.99] ${
+        className={`w-full text-left rounded-2xl bg-[#141416] border transition-transform active:scale-[0.99] ${
           isNew
-            ? "bg-gradient-to-b from-emerald-400/70 to-emerald-500/10"
-            : "bg-gradient-to-b from-white/12 to-white/[0.03]"
+            ? "border-emerald-500/50"
+            : "border-white/[0.06]"
         }`}
       >
-        <div className="rounded-2xl bg-gradient-to-b from-[#141418] to-[#0A0A0B] p-4">
+        <div className="rounded-2xl bg-[#141416] p-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-300">
+              <div className="inline-flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-[0.14em] text-emerald-400">
                 <Target className="w-3 h-3" /> Active bounty
               </div>
               <h3 className="mt-1.5 text-white font-semibold text-[15px] leading-snug line-clamp-2">
@@ -640,7 +640,7 @@ function BountyRow({
               </h3>
             </div>
             <div className="shrink-0 text-right">
-              <div className="text-emerald-300 font-black text-[17px] leading-none">
+              <div className="text-emerald-400 font-black text-[17px] leading-none">
                 {bounty.displayFormatted}
               </div>
               <div className="text-[10px] text-slate-500 mt-1">escrowed</div>
@@ -648,10 +648,10 @@ function BountyRow({
           </div>
 
           <div className="mt-3 flex items-center gap-2">
-            <span className="inline-flex items-center gap-1 rounded-full bg-amber-400/10 px-2.5 py-1 text-[11px] font-semibold text-amber-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-amber-500/10 px-2.5 py-1 text-[11px] font-semibold text-amber-400">
               <Clock className="w-3 h-3" /> {formatCountdown(remaining)}
             </span>
-            <span className="inline-flex items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#1A1A1C] px-2.5 py-1 text-[11px] font-semibold text-slate-300">
               <Users className="w-3 h-3" /> {bounty.applicants.length}
             </span>
             <span className="ml-auto text-[11px] font-semibold text-slate-400">
@@ -662,7 +662,7 @@ function BountyRow({
           <div
             className={`mt-3.5 h-10 rounded-xl inline-flex w-full items-center justify-center gap-1.5 text-[13px] font-bold ${
               alreadyApplied
-                ? "bg-white/[0.06] text-emerald-300"
+                ? "bg-[#1A1A1C] text-emerald-400"
                 : "bg-emerald-500 text-black"
             }`}
           >
