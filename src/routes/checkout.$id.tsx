@@ -825,7 +825,9 @@ function CheckoutPage() {
                     ) : gateway === "minipay" ? (
                       `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
                     ) : (
-                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                      <span className="inline-flex items-center gap-2">
+                        Pay with {gateway === "paystack" ? "Paystack" : "Flutterwave"} · {fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}
+                      </span>
                     )}
                   </button>
                   <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
