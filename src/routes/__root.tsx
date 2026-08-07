@@ -434,7 +434,7 @@ function RootComponent() {
               <BootSplash />
                {show && hydrated && !isPc && isAppShell && <FeatureCarousel onComplete={markSeen} />}
               
-              {isPreview && (
+              {isPreview && isMounted && (
                 <button
                   onClick={toggleMode}
                   className="fixed bottom-4 right-4 z-[9999] px-3 py-1.5 bg-emerald-500 text-black text-[10px] font-bold uppercase tracking-wider rounded-full shadow-lg hover:scale-105 transition-transform"
