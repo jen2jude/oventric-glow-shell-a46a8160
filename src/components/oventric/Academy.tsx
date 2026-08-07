@@ -338,7 +338,7 @@ function CourseCard({
           </span>
         </div>
         {course.description && (
-          <p className="mt-3 text-sm text-slate-400 md:text-slate-600 leading-relaxed line-clamp-2">
+          <p className={`mt-3 text-sm leading-relaxed line-clamp-2 ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
             {course.description}
           </p>
         )}
