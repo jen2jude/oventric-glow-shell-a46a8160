@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Header } from "@/components/oventric/Header";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import {
   Loader2,
   Package,
