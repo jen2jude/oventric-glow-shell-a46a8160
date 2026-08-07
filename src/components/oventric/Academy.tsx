@@ -757,32 +757,34 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   );
 }
 
-function HeroStat({ value, label }: { value: string; label: string }) {
+function HeroStat({ isAppShell, value, label }: { isAppShell: boolean; value: string; label: string }) {
   return (
     <div>
-      <div className="text-xl font-black text-white md:text-slate-900">{value}</div>
-      <div className="text-xs text-slate-500 md:text-slate-500">{label}</div>
+      <div className={`text-xl font-black ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{value}</div>
+      <div className="text-xs text-slate-500">{label}</div>
     </div>
   );
 }
 
 function ValueCard({
+  isAppShell,
   Icon,
   title,
   body,
 }: {
+  isAppShell: boolean;
   Icon: React.ComponentType<{ className?: string }>;
   title: string;
   body: string;
 }) {
   return (
-    <div className="bg-[#141418] border border-white/10 rounded-xl p-5 md:bg-white md:border-slate-200 md:shadow-sm flex gap-4">
-      <div className="w-11 h-11 shrink-0 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center md:bg-emerald-50 md:border-emerald-100">
-        <Icon className="w-5 h-5 text-white md:text-emerald-600" />
+    <div className={`p-4 rounded-xl border transition-all ${!isAppShell ? "bg-white border-slate-200 shadow-sm hover:shadow-md" : "bg-white/5 border-white/10 md:bg-white md:border-slate-200 md:shadow-sm md:hover:shadow-md"} flex gap-4`}>
+      <div className={`w-11 h-11 shrink-0 rounded-lg border flex items-center justify-center ${!isAppShell ? "bg-emerald-50 border-emerald-100" : "bg-white/5 border-white/10 md:bg-emerald-50 md:border-emerald-100"}`}>
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`} />
       </div>
       <div className="min-w-0">
-        <h3 className="text-white md:text-slate-900 font-bold text-base mb-1">{title}</h3>
-        <p className="text-sm text-slate-400 md:text-slate-600 leading-relaxed">{body}</p>
+        <h3 className={`font-bold text-base mb-1 ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
+        <p className={`text-sm leading-relaxed ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>{body}</p>
       </div>
     </div>
   );
