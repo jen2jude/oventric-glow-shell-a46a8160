@@ -302,23 +302,23 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                       <button 
                         key={enrollment.id} 
                         onClick={() => { setSelectedId(course.id); setView("course"); }}
-                        className="flex flex-col items-center gap-2 shrink-0 w-20 group"
+                        className="flex flex-col items-center gap-2 shrink-0 w-28 group"
                       >
-                        <div className="relative w-16 h-16">
+                        <div className="relative w-24 h-24">
                           <svg className="absolute inset-0 w-full h-full -rotate-90">
-                            <circle cx="32" cy="32" r="30" stroke="currentColor" strokeWidth="2" fill="transparent" className="text-white/10" />
+                            <circle cx="48" cy="48" r="45" stroke="currentColor" strokeWidth="3" fill="transparent" className="text-white/10" />
                             <circle 
-                              cx="32" cy="32" r="30" 
+                              cx="48" cy="48" r="45" 
                               stroke="currentColor" 
-                              strokeWidth="2" 
+                              strokeWidth="3" 
                               fill="transparent" 
                               className={isFinished ? "text-emerald-500" : "text-pink-500"} 
-                              strokeDasharray={188.5} 
-                              strokeDashoffset={188.5 * (1 - (isFinished ? 1 : 0.05))} 
+                              strokeDasharray={282.7} 
+                              strokeDashoffset={282.7 * (1 - (isFinished ? 1 : 0.05))} 
                               strokeLinecap="round" 
                             />
                           </svg>
-                          <div className="absolute inset-[3px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
+                          <div className="absolute inset-[5px] rounded-full overflow-hidden border border-white/5 bg-[#121214]">
                             {course.coverUrl ? (
                               <img 
                                 src={course.coverUrl} 
@@ -327,19 +327,20 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
                               />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center">
-                                <GraduationCap className="w-6 h-6 text-white/10" />
+                                <GraduationCap className="w-8 h-8 text-white/10" />
                               </div>
                             )}
                           </div>
                           {isFinished && (
-                            <div className="absolute -top-0.5 -right-0.5 bg-emerald-500 rounded-full p-0.5 shadow-lg">
-                              <CheckCircle2 className="w-3 h-3 text-black" />
+                            <div className="absolute top-0 right-0 bg-emerald-500 rounded-full p-0.5 shadow-lg">
+                              <CheckCircle2 className="w-3.5 h-3.5 text-black" />
                             </div>
                           )}
                         </div>
-                        <span className="text-[10px] text-white/70 font-bold text-center line-clamp-2 leading-tight w-full group-hover:text-white transition-colors">
+                        <span className="text-[11px] text-white/70 font-bold text-center line-clamp-2 leading-tight w-full group-hover:text-white transition-colors">
                           {course.title}
                         </span>
+
                       </button>
                     );
                   }
