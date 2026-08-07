@@ -713,15 +713,15 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
             <div className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wide mb-6 border ${!isAppShell ? "bg-emerald-50 border-emerald-200 text-emerald-700" : "bg-white/5 border-white/10 text-slate-200 md:bg-emerald-50 md:border-emerald-200 md:text-emerald-700"}`}>
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black text-white md:text-slate-900 leading-[1.08] tracking-tight">
+            <h1 className={`text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>
               Master High-End Digital Skills.
               <br />
-              <span className="text-slate-400 md:text-slate-500">
+              <span className={`${!isAppShell ? "text-slate-500" : "text-slate-400 md:text-slate-500"}`}>
                 Learn From Real Builders.
               </span>{" "}
-              <span className="text-white md:text-emerald-600">Earn Certificates.</span>
+              <span className={`${!isAppShell ? "text-emerald-600" : "text-white md:text-emerald-600"}`}>Earn Certificates.</span>
             </h1>
-            <p className="mt-5 text-slate-400 md:text-slate-600 text-base md:text-lg leading-relaxed max-w-xl">
+            <p className={`mt-5 text-base md:text-lg leading-relaxed max-w-xl ${!isAppShell ? "text-slate-600" : "text-slate-400 md:text-slate-600"}`}>
               Video-first courses from working practitioners. Track your progress across sessions,
               resume any time, and earn a certificate when you complete a course.
             </p>
