@@ -694,7 +694,7 @@ function CheckoutPage() {
               )}
               {!isAppShell && (
                 <>
-                  <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
+                  <div className={`font-semibold text-sm mb-1 ${isAppShell ? "text-white" : "text-slate-900"}`}>
                     {product.name}
                   </div>
                   <div className={`text-xs mb-3 ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
