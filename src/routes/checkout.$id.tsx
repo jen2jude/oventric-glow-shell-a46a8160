@@ -763,9 +763,9 @@ function CheckoutPage() {
                     </span>
                   </div>
                 )}
-                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
+                <div className={`flex justify-between ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   <span>Processing</span>
-                  <span />
+                  <span className="text-[10px] uppercase font-bold text-emerald-600">Free</span>
                 </div>
                 <div
                   className={`flex justify-between font-black text-lg pt-2 border-t ${
