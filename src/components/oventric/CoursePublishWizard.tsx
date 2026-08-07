@@ -272,7 +272,7 @@ export function CoursePublishWizard({
                     <div
                       className={`relative z-10 w-8 h-8 sm:w-9 sm:h-9 rounded-full grid place-items-center text-xs font-bold transition-all duration-200 ${
                         active
-                          ? "bg-emerald-500 text-black shadow-[0_2px_8px_rgba(59,130,246,0.35)] scale-105"
+                          ? "bg-emerald-500 text-black scale-105"
                           : done
                             ? "bg-emerald-500 text-black"
                             : "bg-[#16161A] text-slate-500 border border-white/10"
