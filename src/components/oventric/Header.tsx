@@ -57,6 +57,7 @@ export function Header({
   hubMode = false,
   light = false,
   desktopNav = false,
+  browserVisitorHeader = false,
 }: {
   onMenuClick?: () => void;
   onOpenMessages?: () => void;
@@ -65,6 +66,7 @@ export function Header({
   hubMode?: boolean;
   light?: boolean;
   desktopNav?: boolean;
+  browserVisitorHeader?: boolean;
 }) {
   const { country, baseCurrency } = useOnboarding();
   const [notifOpen, setNotifOpen] = useState(false);
@@ -229,6 +231,38 @@ export function Header({
         <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
         <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
         {searchOverlay}
+      </header>
+    );
+  }
+
+  if (browserVisitorHeader && !desktopNav) {
+    return (
+      <header className={`sticky top-0 z-40 w-full bg-white border-b border-slate-200 transition-colors duration-200`}>
+        <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-4 px-4 sm:px-6">
+          <Link to="/" aria-label="Oventric home" className="shrink-0">
+            <ResponsiveImage
+              src={logoDark}
+              alt="Oventric"
+              sizes="160px"
+              className="h-6 sm:h-8 w-auto object-contain"
+              draggable={false}
+              loading="eager"
+            />
+          </Link>
+
+          <div className="flex-1 max-w-2xl px-2">
+            <GlobalSearch variant="inline" light />
+          </div>
+
+          <button
+            onClick={() => setMegaOpen(true)}
+            aria-label="Open menu"
+            className="p-2 -mr-1 rounded-lg text-slate-900 hover:bg-slate-100"
+          >
+            <Menu className="w-6 h-6" strokeWidth={2.5} />
+          </button>
+        </div>
+        <MegaMenu open={megaOpen} onClose={() => setMegaOpen(false)} />
       </header>
     );
   }

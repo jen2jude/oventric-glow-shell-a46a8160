@@ -487,7 +487,7 @@ function AdvertisePage() {
   };
 
   return (
-    <PublicChrome>
+    <PublicChrome active="Advertise">
       <div className="mx-auto w-full max-w-6xl px-4 py-8 md:py-14">
         {/* Hero */}
         <section className="text-center">

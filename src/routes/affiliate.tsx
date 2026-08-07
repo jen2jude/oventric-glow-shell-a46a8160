@@ -1,6 +1,7 @@
 import { createFileRoute, Link, useRouter, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { PublicChrome } from "@/components/oventric/PublicChrome";
 import {
   TrendingUp,
   Users,
@@ -110,7 +111,7 @@ function AffiliatePage() {
   }
 
   return (
-    <div className="page-light min-h-screen bg-[#0b0b0d] text-slate-200 md:bg-slate-50 md:text-slate-800">
+    <PublicChrome active="Affiliate">
       <div className="max-w-4xl mx-auto px-4 sm:px-6 py-8">
         <button
           onClick={goBack}
@@ -262,6 +263,6 @@ function AffiliatePage() {
           </div>
         </div>
       </div>
-    </div>
+    </PublicChrome>
   );
 }

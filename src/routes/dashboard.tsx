@@ -1,6 +1,8 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Header } from "@/components/oventric/Header";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import {
   Loader2,
   Package,
@@ -126,6 +128,7 @@ export const Route = createFileRoute("/dashboard")({
 });
 
 function DashboardPage() {
+  const isAppShell = useIsAppShell();
   const navigate = useNavigate();
   const { tab: tabParam } = Route.useSearch();
   const purchasesFn = useServerFn(listMyPurchases);
@@ -422,6 +425,7 @@ function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-[#0b0b0d] md:bg-slate-50 text-slate-200 md:text-slate-700">
+      <Header onOpenMessages={() => {}} browserVisitorHeader={!useIsAppShell()} />
       <div
         className="max-w-5xl mx-auto px-4 py-8"
         style={{
