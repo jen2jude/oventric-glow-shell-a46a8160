@@ -408,7 +408,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
       {/* Blog news #2 */}
       {blogB.length > 0 && (
         <div>
-          <SectionHeader icon={Newspaper} title="More reads" />
+          <SectionHeader icon={Newspaper} title="More reads" isAppShell={isAppShell} />
           <div className="flex md:grid gap-3 md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory -mx-4 px-4 md:mx-0 md:px-0 pb-2 md:pb-0 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
             {blogB.map((b) => (
               <div key={b.id} className="shrink-0 w-[80%] sm:w-[60%] md:w-auto snap-start">
