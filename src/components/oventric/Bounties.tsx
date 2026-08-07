@@ -772,7 +772,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
       );
     }
     return (
-      <div className="rounded-xl overflow-hidden border border-dashed border-white/10 bg-gradient-to-r from-slate-800/50 via-slate-900/50 to-black/50 md:border-slate-300 md:from-slate-50 md:via-white md:to-slate-50">
+      <div className="rounded-xl overflow-hidden border border-dashed border-white/[0.06] bg-[#141416] md:border-slate-300 md:bg-white">
         <div className="flex items-center justify-between px-5 py-4 gap-4">
           <div className="min-w-0">
             <div className="text-[10px] font-bold uppercase tracking-wider text-slate-500">
@@ -782,7 +782,7 @@ function LiveAdSlot({ index, ads, loading }: { index: number; ads: BountyAd[]; l
               Your brand could appear here. Reach builders across Oventric.
             </div>
           </div>
-          <span className="shrink-0 px-3 py-2 rounded-lg bg-white/5 text-slate-400 text-xs font-semibold border border-white/10 md:bg-slate-50 md:text-slate-600 md:border-slate-200">
+          <span className="shrink-0 px-3 py-2 rounded-lg bg-[#1A1A1C] text-slate-400 text-xs font-semibold border border-white/[0.06] md:bg-slate-50 md:text-slate-600 md:border-slate-200">
             Learn more
           </span>
         </div>
