@@ -295,34 +295,30 @@ export function Academy() {
           )}
 
           {isAppShell && searchQuery === "" && category === 'all' && (
-            <section>
+            <section className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">Trending</h3>
+                <h3 className="font-bold text-white text-lg">Trending</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="relative rounded-2xl overflow-hidden aspect-[16/9] shadow-lg group">
-                <img 
-                  src="https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80" 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  alt="Trending"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <h4 className="text-xl font-bold mb-1">Diploma in Environment Health ...</h4>
-                  <div className="text-xs text-white/70 mb-3">UniAthena</div>
-                  <div className="flex items-center gap-4 text-[10px] font-bold">
-                    <span className="flex items-center gap-1">⭐ 4.8</span>
-                    <span className="flex items-center gap-1">⏱️ 1-2 Weeks</span>
-                  </div>
-                  <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white/30 transition-colors">
-                    Start Now
-                  </button>
-                </div>
-                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/40" />
+              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl">
+                <div className="flex animate-scroll-x w-full">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="shrink-0 w-full relative aspect-[16/9]">
+                      <img 
+                        src={`https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80&idx=${i}`} 
+                        className="w-full h-full object-cover"
+                        alt="Trending"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
+                      <div className="absolute bottom-6 left-6 right-6 text-white">
+                        <h4 className="text-xl font-bold mb-1">Live Professional Training {i}</h4>
+                        <div className="text-xs text-white/70 mb-3">UniAthena</div>
+                        <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold">
+                          Start Now
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -365,32 +361,7 @@ export function Academy() {
         </div>
       </div>
 
-      {isAppShell && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50 pb-safe">
-          <button className="flex flex-col items-center gap-1 text-pink-500">
-            <GraduationCap className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Home</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <ScrollText className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Courses</span>
-          </button>
-          <div className="relative -top-6">
-            <button className="w-14 h-14 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-              <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-            </button>
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 whitespace-nowrap">My Learning</span>
-          </div>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <Award className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Certificates</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <div className="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center text-[10px] font-black">?</div>
-            <span className="text-[10px] font-bold">FAQ</span>
-          </button>
-        </div>
-      )}
+// Removed redundant footer menu to restore GlobalMobileNav functionality.
 
       {editingId ? (
         <CourseEditorModal
