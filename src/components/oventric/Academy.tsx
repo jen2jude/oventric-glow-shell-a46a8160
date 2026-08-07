@@ -993,9 +993,11 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
             <p className="mt-3 text-sm leading-relaxed max-w-xl text-slate-500 font-medium">
               Learn industry-leading skills today from working practitioners. Earn certificates on completion.
             </p>
-            <div className="mt-7 flex flex-wrap gap-6">
+            <div className="mt-6 flex items-center justify-between gap-2 border-t pt-6 border-slate-100 max-w-sm">
               <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
+              <div className="h-8 w-px bg-slate-200" />
               <HeroStat isAppShell={isAppShell} value="Free" label="Courses available" />
+              <div className="h-8 w-px bg-slate-200" />
               <HeroStat isAppShell={isAppShell} value="Certificate" label="On completion" />
             </div>
           </div>
