@@ -596,7 +596,7 @@ function CheckoutPage() {
                   className={`mt-2 flex items-start gap-3 text-xs rounded-lg p-3 ${
                     isAppShell
                       ? "text-amber-300 bg-amber-500/5 border border-amber-500/20"
-                      : "text-amber-300 bg-amber-500/10 border border-amber-500/40"
+                      : "text-amber-700 bg-amber-50 border border-amber-200"
                   }`}
                 >
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
