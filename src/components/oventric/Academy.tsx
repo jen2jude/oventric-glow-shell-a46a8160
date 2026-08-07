@@ -84,6 +84,7 @@ function embedUrl(m: ModuleDTO): string {
 
 export function Academy() {
   const { baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
   const fetchList = useServerFn(listCourses);
   const [view, setView] = useState<"catalog" | "course">("catalog");
   const [category, setCategory] = useState<CategoryKey>("all");
