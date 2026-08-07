@@ -31,6 +31,8 @@ import logoLight from "@/assets/oventric-full-transparent.png";
 import logoDark from "@/assets/oventric-logo-dark.png";
 import supportHeadset from "@/assets/support-headset.png.asset.json";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 import { supabase } from "@/integrations/supabase/client";
 import { useServerFn } from "@tanstack/react-start";
 import { listIncomingFollowRequests } from "@/lib/follows.functions";
@@ -70,8 +72,9 @@ export function Header({
   browserVisitorHeader?: boolean;
   forceSiteNavbar?: boolean;
 }) {
-  const { fullName, avatarUrl: profileAvatar } = useOnboarding();
   const { country, baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
+  const isAppShell = useIsAppShell();
   const [notifOpen, setNotifOpen] = useState(false);
   const [mobileSearchOpen, setMobileSearchOpen] = useState(false);
   const [megaOpen, setMegaOpen] = useState(false);

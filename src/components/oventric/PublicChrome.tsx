@@ -2,6 +2,7 @@ import { type ReactNode, useState } from "react";
 import { Header } from "@/components/oventric/Header";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useIsDesktop } from "@/hooks/use-desktop";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 /**
  * Shared site chrome for standalone routes (blog, profile, etc.).
