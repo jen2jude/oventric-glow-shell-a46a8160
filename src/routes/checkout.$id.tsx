@@ -693,12 +693,16 @@ function CheckoutPage() {
               ) : (
                 <div className="h-20 rounded-lg bg-white/5 md:bg-slate-100 mb-3" />
               )}
-              <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
-                {product.name}
-              </div>
-              <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
-                by {product.vendor} · Qty {qty}
-              </div>
+              {!isAppShell && (
+                <>
+                  <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
+                    {product.name}
+                  </div>
+                  <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
+                    by {product.vendor} · Qty {qty}
+                  </div>
+                </>
+              )}
 
               {/* Cashback Wallet — spend-only. Toggle always visible; disabled when empty. */}
               <div className="border-t border-white/5 md:border-slate-200 pt-3 mb-3">
