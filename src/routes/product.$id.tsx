@@ -250,7 +250,7 @@ function ProductPage() {
           name={product?.vendor}
         />
       ) : (
-        <Header onOpenMessages={() => {}} />
+        <Header onOpenMessages={() => {}} browserVisitorHeader={!isAppShell} />
       )}
       <main className={`max-w-6xl mx-auto w-full ${isAppShell ? "px-0 py-0 gap-0" : "px-4 py-6"} pb-24`}>
         {!isAppShell && (
