@@ -17,6 +17,7 @@ import {
   Award,
   Rocket,
   Save,
+  ImageIcon,
 } from "lucide-react";
 import { toast } from "sonner";
 import {
@@ -34,6 +35,7 @@ import { snapshotFxRates } from "@/lib/fx.functions";
 import { useOnboarding, type Currency } from "@/lib/onboarding/OnboardingContext";
 import { currencySymbol, usdRate } from "@/lib/fx-display";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 const CATEGORIES: { key: CourseCategory; label: string }[] = [
   { key: "frontend", label: "Frontend Dev" },
