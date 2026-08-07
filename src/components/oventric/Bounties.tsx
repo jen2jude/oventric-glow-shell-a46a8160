@@ -288,6 +288,142 @@ export function Bounties() {
   }
 
   // ------- Public board -------
+  if (isAppShell) {
+    return (
+      <div className="bg-[#0A0A0B] min-h-screen">
+        <div className="px-4 pt-4 pb-6">
+          {/* Premium hero */}
+          <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-emerald-600/25 via-[#101014] to-[#0A0A0B] border border-white/10 p-5">
+            <div className="inline-flex items-center gap-1.5 rounded-full bg-emerald-400/10 px-2.5 py-1 text-[10px] font-bold uppercase tracking-[0.16em] text-emerald-300">
+              <ShieldAlert className="w-3 h-3" /> Escrow protected
+            </div>
+            <h1 className="mt-3 text-white text-[26px] leading-[1.1] font-black tracking-tight">
+              Bounty &amp; Escrow
+              <br />
+              Board
+            </h1>
+            <p className="mt-2 text-[13px] leading-relaxed text-slate-400">
+              Post work, pick verified solvers, release funds only when you&apos;re happy.
+            </p>
+
+            <div className="mt-4 grid grid-cols-2 gap-2.5">
+              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
+                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-emerald-300">
+                  <WalletIcon className="w-3 h-3" /> Locked
+                </div>
+                <div className="mt-1 text-white text-lg font-black leading-none truncate">
+                  {formatMoney(totalLocked, baseCurrency)}
+                </div>
+                <div className="mt-1 text-[10px] text-slate-500">in {baseCurrency} escrow</div>
+              </div>
+              <div className="rounded-2xl bg-white/[0.05] border border-white/10 p-3">
+                <div className="inline-flex items-center gap-1 text-[9px] font-bold uppercase tracking-[0.12em] text-slate-400">
+                  <Target className="w-3 h-3" /> Open tasks
+                </div>
+                <div className="mt-1 text-white text-lg font-black leading-none">
+                  {activeCount}
+                </div>
+                <div className="mt-1 text-[10px] text-slate-500">seeking solvers</div>
+              </div>
+            </div>
+
+            <button
+              onClick={() => require(1, () => setPostOpen(true), "issuer")}
+              className="mt-4 w-full h-11 rounded-2xl bg-emerald-500 text-black text-sm font-bold inline-flex items-center justify-center gap-2 transition-transform active:scale-[0.98]"
+            >
+              <Plus className="w-4 h-4" /> Post a bounty
+            </button>
+          </div>
+
+          {/* Filters */}
+          <div className="mt-5 -mx-4 px-4 flex gap-2 overflow-x-auto scrollbar-none pb-1">
+            {FILTERS.map((f) => {
+              const active = filter === f.key;
+              return (
+                <button
+                  key={f.key}
+                  onClick={() => setFilter(f.key)}
+                  className={`shrink-0 h-9 px-4 rounded-full text-[13px] font-semibold whitespace-nowrap transition-colors ${
+                    active
+                      ? "bg-emerald-500 text-black"
+                      : "bg-white/[0.05] text-slate-300 border border-white/10"
+                  }`}
+                >
+                  {f.label}
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Stream */}
+          <div className="mt-4 space-y-3">
+            {bountiesLoading ? (
+              <div className="space-y-3">
+                <BountySkeleton />
+                <BountySkeleton />
+                <BountySkeleton />
+              </div>
+            ) : bountiesError ? (
+              <div className="rounded-2xl border border-red-500/30 bg-red-500/10 p-5 text-sm text-red-100">
+                {bountiesError}
+              </div>
+            ) : filtered.length === 0 ? (
+              <div className="rounded-3xl border border-dashed border-white/10 bg-white/[0.02] p-8 text-center">
+                <div className="w-14 h-14 mx-auto rounded-full bg-emerald-500/10 flex items-center justify-center mb-4">
+                  <Target className="w-7 h-7 text-emerald-400" />
+                </div>
+                <h3 className="text-white text-base font-bold mb-1.5">Nothing here yet</h3>
+                <p className="text-slate-400 text-[13px] mb-5">
+                  Post the first task and start attracting verified solvers.
+                </p>
+                <button
+                  onClick={() => require(1, () => setPostOpen(true), "issuer")}
+                  className="inline-flex items-center gap-2 h-10 px-5 rounded-xl bg-emerald-500 text-black text-sm font-bold"
+                >
+                  <Plus className="w-4 h-4" /> Post a bounty
+                </button>
+              </div>
+            ) : (
+              filtered.map((b, idx) => {
+                const rows: React.ReactNode[] = [
+                  <BountyRow
+                    key={b.id}
+                    app
+                    bounty={b}
+                    currency={baseCurrency}
+                    onOpen={() => require(2, () => setSelectedId(b.id), "solver")}
+                    isNew={highlightId === b.id}
+                    alreadyApplied={appliedIds.has(b.id)}
+                  />,
+                ];
+                if ((idx + 1) % 4 === 0) {
+                  rows.push(
+                    <LiveAdSlot
+                      key={`ad-${b.id}`}
+                      index={idx}
+                      ads={bountyAds}
+                      loading={adsLoading}
+                    />,
+                  );
+                }
+                return rows;
+              })
+            )}
+          </div>
+        </div>
+
+        <BountyEditorModal
+          open={postOpen}
+          onClose={() => setPostOpen(false)}
+          onPublished={(id) => {
+            setRefreshTick((t) => t + 1);
+            setHighlightId(id);
+          }}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="md:bg-white md:min-h-screen">
       <div className="max-w-5xl mx-auto w-full px-4 py-6">
@@ -354,6 +490,7 @@ export function Bounties() {
             );
           })}
         </div>
+
 
         {/* Bounty stream */}
         <div className="space-y-3">
