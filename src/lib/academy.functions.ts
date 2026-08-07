@@ -190,6 +190,7 @@ export const listCourses = createServerFn({ method: "GET" }).handler(async () =>
 export const getCourse = createServerFn({ method: "POST" })
   .inputValidator((input: { id: string }) => ({ id: String(input?.id ?? "") }))
   .handler(async ({ data }): Promise<CourseWithModulesDTO> => {
+    console.log("[getCourse] Fetching course:", data.id);
     if (!data.id) throw new Error("Course id required");
     const sb = serverPublicClient();
     const { data: row, error } = await sb
@@ -197,21 +198,48 @@ export const getCourse = createServerFn({ method: "POST" })
       .select(COURSE_COLS)
       .eq("id", data.id)
       .maybeSingle();
-    if (error) throw new Error(error.message);
-    if (!row) throw new Error("Course not found");
-    const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]);
+    
+    if (error) {
+      console.error("[getCourse] Course fetch error:", error);
+      throw new Error(error.message);
+    }
+    if (!row) {
+      console.error("[getCourse] Course not found:", data.id);
+      throw new Error("Course not found");
+    }
+
+    console.log("[getCourse] Found course, signing cover...");
+    const [coverUrl] = await signCovers(sb, [(row.cover_path as string) ?? null]).catch(err => {
+      console.error("[getCourse] signCovers failed:", err);
+      return [null];
+    });
+
+    console.log("[getCourse] Fetching modules...");
     const { data: mods, error: mErr } = await sb
       .from("course_modules")
       .select("id, course_id, position, title, description, video_url, video_provider, duration_min, is_preview, content_data")
       .eq("course_id", data.id)
       .order("position", { ascending: true });
-    if (mErr) throw new Error(mErr.message);
+
+    if (mErr) {
+      console.error("[getCourse] Module fetch error:", mErr);
+      throw new Error(mErr.message);
+    }
+    
     const modRows = mods ?? [];
+    console.log(`[getCourse] Found ${modRows.length} modules, signing media...`);
+
     const videoPaths = modRows.map((m) => {
       const cd = (m as { content_data?: Record<string, unknown> }).content_data ?? {};
       return typeof cd.video_path === "string" ? (cd.video_path as string) : null;
     });
-    const videoUrls = await signCourseMedia(sb, videoPaths);
+
+    const videoUrls = await signCourseMedia(sb, videoPaths).catch(err => {
+      console.error("[getCourse] signCourseMedia failed:", err);
+      return videoPaths.map(() => null);
+    });
+
+    console.log("[getCourse] Mapping result...");
     return {
       ...mapCourse(row as Record<string, unknown>, coverUrl),
       modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
