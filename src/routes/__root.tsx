@@ -347,6 +347,8 @@ function RootComponent() {
   const appRouter = useRouter();
 
   const { show, markSeen, hydrated } = useFirstLaunch();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => setIsMounted(true), []);
   // Welcome slides belong to the app shell (native build / installed PWA);
   // plain browser visitors get the marketing site instead.
   const launchCtx = useLaunchContext();
@@ -384,6 +386,18 @@ function RootComponent() {
     registerAppServiceWorker();
   }, []);
 
+  // Mode switcher for preview environment
+  const isPreview = typeof window !== "undefined" && (window.location.hostname.includes("lovable.app") || window.location.hostname.includes("lovableproject.com") || window.location.hostname === "localhost");
+  const toggleMode = () => {
+    const url = new URL(window.location.href);
+    if (launchCtx === "browser") {
+      url.searchParams.set("mode", "app");
+    } else {
+      url.searchParams.delete("mode");
+    }
+    window.location.href = url.toString();
+  };
+
   // Native iOS / Android shell + deep links (no-op in the browser).
   useEffect(() => {
     void initNativeShell();
@@ -418,7 +432,16 @@ function RootComponent() {
               <UpdatePrompt />
 
               <BootSplash />
-              {show && hydrated && !isPc && isAppShell && <FeatureCarousel onComplete={markSeen} />}
+               {show && hydrated && !isPc && isAppShell && <FeatureCarousel onComplete={markSeen} />}
+              
+              {isPreview && isMounted && (
+                <button
+                  onClick={toggleMode}
+                  className="fixed bottom-6 right-6 z-[9999] px-4 py-2 bg-emerald-500 text-black text-xs font-bold uppercase tracking-widest rounded-full shadow-2xl hover:scale-110 active:scale-95 transition-all border-2 border-white/20"
+                >
+                  {launchCtx === "browser" ? "View App Version" : "View Web Version"}
+                </button>
+              )}
             </KycGateProvider>
           </OnboardingProvider>
         </AuthGateProvider>

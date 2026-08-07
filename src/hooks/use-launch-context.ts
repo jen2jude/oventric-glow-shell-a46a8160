@@ -17,6 +17,12 @@ export function useLaunchContext(): LaunchContext | null {
 
   useEffect(() => {
     const read = (): LaunchContext => {
+      // Manual override for testing
+      const params = new URLSearchParams(window.location.search);
+      const forceMode = params.get("mode");
+      if (forceMode === "app") return "native";
+      if (forceMode === "web") return "browser";
+
       if (isNativeApp()) return "native";
       const standalone =
         (typeof window.matchMedia === "function" &&
