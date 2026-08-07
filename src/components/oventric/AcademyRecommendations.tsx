@@ -320,17 +320,17 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   if (error) return null;
   if (!data) {
     return (
-      <section className="mt-12 border-t border-white/10 pt-8">
+      <section className={`mt-12 border-t pt-8 ${!isAppShell ? "border-slate-200" : "border-white/10"}`}>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
           {Array.from({ length: 4 }).map((_, i) => (
             <div
               key={i}
-              className="bg-[#1E1E24] border border-white/10 rounded-xl overflow-hidden animate-pulse"
+              className={`border rounded-xl overflow-hidden animate-pulse ${!isAppShell ? "bg-white border-slate-200" : "bg-[#1E1E24] border-white/10"}`}
             >
-              <div className="aspect-video bg-white/5" />
+              <div className={`aspect-video ${!isAppShell ? "bg-slate-100" : "bg-white/5"}`} />
               <div className="p-3 space-y-2">
-                <div className="h-3 bg-white/10 rounded w-3/4" />
-                <div className="h-3 bg-white/5 rounded w-1/2" />
+                <div className={`h-3 rounded w-3/4 ${!isAppShell ? "bg-slate-200" : "bg-white/10"}`} />
+                <div className={`h-3 rounded w-1/2 ${!isAppShell ? "bg-slate-100" : "bg-white/5"}`} />
               </div>
             </div>
           ))}
