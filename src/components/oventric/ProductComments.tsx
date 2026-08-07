@@ -107,7 +107,7 @@ export function ProductComments({ productId }: { productId: string }) {
       </div>
 
       {/* Write a review */}
-      <div className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-6`}>
+      <div className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-6`}>
         <h3 className={`text-sm font-bold uppercase tracking-wider ${isAppShell ? "text-slate-400" : "text-slate-500"} mb-4`}>
           {myRating ? "Update your review" : "Write a review"}
         </h3>
@@ -133,7 +133,7 @@ export function ProductComments({ productId }: { productId: string }) {
               value={newComment}
               onChange={(e) => setNewComment(e.target.value)}
               placeholder="Tell others what you think about this product and the seller..."
-              className={`w-full ${isAppShell ? "bg-[#121214] border-white/10 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg p-4 text-sm focus:ring-2 focus:ring-emerald-500 min-h-[100px] resize-none`}
+              className={`w-full ${isAppShell ? "bg-black/20 border-white/5 text-white" : "bg-slate-50 border-slate-200 text-slate-900"} md:bg-slate-50 border md:border-slate-200 rounded-lg p-4 text-sm focus:ring-2 focus:ring-emerald-500 min-h-[100px] resize-none`}
             />
           </div>
 
@@ -158,7 +158,7 @@ export function ProductComments({ productId }: { productId: string }) {
           reviews.map((rev) => (
             <div 
               key={rev.id} 
-              className={`${isAppShell ? "bg-[#1E1E24] border-white/10" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-5`}
+              className={`${isAppShell ? "bg-[#16161A] border-white/5" : "bg-white border-slate-200 shadow-sm"} md:bg-white md:shadow-sm border rounded-xl p-5`}
             >
               <div className="flex items-start justify-between mb-4">
                 <div className="flex items-center gap-3">
