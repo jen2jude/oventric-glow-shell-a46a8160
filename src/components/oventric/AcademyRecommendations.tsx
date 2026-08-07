@@ -399,7 +399,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
           <SectionHeader icon={Target} title="Top bounties" hint="Highest reward" isAppShell={isAppShell} />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.bounties.map((b) => (
-              <BountyTile key={b.id} b={b} currency={baseCurrency} />
+              <BountyTile key={b.id} b={b} currency={baseCurrency} isAppShell={isAppShell} />
             ))}
           </div>
         </div>
