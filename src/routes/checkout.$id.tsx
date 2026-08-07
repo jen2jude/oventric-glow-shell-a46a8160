@@ -709,7 +709,7 @@ function CheckoutPage() {
                   isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
                 }`}
               >
-                <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 md:text-slate-500 mb-1.5">
+                <div className={`text-[10px] uppercase tracking-widest font-bold mb-1.5 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                   Cashback Wallet
                 </div>
                 <label
