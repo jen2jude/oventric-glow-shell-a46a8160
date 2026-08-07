@@ -29,6 +29,7 @@ import { initPayment, getPaymentOptions } from "@/lib/payments.functions";
 import { MiniPayPanel } from "@/components/oventric/MiniPayPanel";
 import { usdRate, convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 // Checkout works in USD canonical (the wallet is USD-native). Display
 // conversion for the viewer uses the LEGACY fallback rates; the true locked
@@ -124,6 +125,7 @@ function CheckoutPage() {
   const { qty } = Route.useSearch();
   const navigate = useNavigate();
   const { baseCurrency, country } = useOnboarding();
+  const isAppShell = useIsAppShell();
 
   const loadProduct = useServerFn(getProduct);
   const submitOrder = useServerFn(createOrder);
@@ -375,21 +377,37 @@ function CheckoutPage() {
   };
 
   return (
-    <div className="page-light min-h-screen bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700 overflow-x-hidden">
+    <div
+      className={`min-h-screen overflow-x-hidden ${
+        isAppShell
+          ? "bg-[#0A0A0B] text-slate-200"
+          : "page-light bg-[#121214] md:bg-slate-50 text-slate-200 md:text-slate-700"
+      }`}
+    >
       <Header onOpenMessages={() => {}} />
-      <main className="max-w-4xl mx-auto w-full px-4 py-6 pb-24 min-w-0">
+      <main
+        className={`max-w-4xl mx-auto w-full min-w-0 ${
+          isAppShell ? "px-0 py-0 pb-32" : "px-4 py-6 pb-24"
+        }`}
+      >
         <Link
           to="/product/$id"
           params={{ id }}
           search={{ qty }}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          className={`inline-flex items-center gap-2 text-sm transition-all ${
+            isAppShell
+              ? "absolute top-4 left-4 z-20 w-10 h-10 items-center justify-center bg-black/40 backdrop-blur-md border border-white/10 rounded-full text-white"
+              : "text-slate-300 md:text-slate-600 hover:text-white md:hover:text-slate-900 bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 mb-6"
+          }`}
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          <ArrowLeft className="w-4 h-4" /> {!isAppShell && "Back"}
         </Link>
 
-        <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">
-          Checkout
-        </h1>
+        {!isAppShell && (
+          <h1 className="text-2xl md:text-3xl font-black text-white md:text-slate-900 mb-6">
+            Checkout
+          </h1>
+        )}
 
         {loadErr && (
           <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-red-500/40 rounded-xl p-6 text-sm text-red-300">
@@ -404,9 +422,26 @@ function CheckoutPage() {
         )}
 
         {product && (
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0">
+          <div
+            className={`grid grid-cols-1 lg:grid-cols-3 gap-6 min-w-0 ${isAppShell ? "p-0" : ""}`}
+          >
             {/* Payment methods */}
-            <div className="lg:col-span-2 space-y-3 min-w-0">
+            <div className={`lg:col-span-2 space-y-3 min-w-0 ${isAppShell ? "px-4 pt-16" : ""}`}>
+              {isAppShell && (
+                <div className="flex items-center gap-4 mb-6">
+                  {product.coverUrl && (
+                    <ResponsiveImage
+                      src={product.coverUrl}
+                      alt={product.name}
+                      className="w-16 h-16 object-cover rounded-xl border border-white/5"
+                    />
+                  )}
+                  <div>
+                    <h1 className="text-xl font-black text-white">{product.name}</h1>
+                    <div className="text-xs text-slate-500">Checkout · Qty {qty}</div>
+                  </div>
+                </div>
+              )}
               <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-2">
                 Payment Method
               </h2>
@@ -462,12 +497,18 @@ function CheckoutPage() {
                           ? "Wallet is reserved for bounties & ads. Pay directly instead."
                           : undefined
                       }
-                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-colors ${
+                      className={`w-full text-left rounded-xl border p-4 flex items-center gap-4 transition-all ${
                         m.disabled
-                          ? "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
+                          ? isAppShell
+                            ? "bg-[#16161A]/50 border-white/5 opacity-40 cursor-not-allowed"
+                            : "bg-[#141418] border-white/5 opacity-50 cursor-not-allowed"
                           : active
-                            ? "bg-emerald-500/10 border-emerald-500/50"
-                            : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                            ? isAppShell
+                              ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_15px_-5px_rgba(16,185,129,0.3)]"
+                              : "bg-emerald-500/10 border-emerald-500/50"
+                            : isAppShell
+                              ? "bg-[#16161A] border-white/5 hover:border-white/10"
+                              : "bg-[#1E1E24] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                       }`}
                     >
                       <span
@@ -515,10 +556,14 @@ function CheckoutPage() {
                             <button
                               key={g.id}
                               onClick={() => setGateway(g.id)}
-                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-colors ${
+                              className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
                                 on
-                                  ? "bg-emerald-500/10 border-emerald-500/50"
-                                  : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
+                                  ? isAppShell
+                                    ? "bg-emerald-500/10 border-emerald-500/50 shadow-[0_0_10px_-5px_rgba(16,185,129,0.2)]"
+                                    : "bg-emerald-500/10 border-emerald-500/50"
+                                  : isAppShell
+                                    ? "bg-[#0A0A0B] border-white/5 hover:border-white/10"
+                                    : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200 hover:border-white/20 md:hover:border-slate-300"
                               }`}
                             >
                               <g.Icon
@@ -548,7 +593,13 @@ function CheckoutPage() {
               })}
 
               {insufficient && (
-                <div className="mt-2 flex items-start gap-3 text-xs text-amber-300 bg-amber-500/10 border border-amber-500/40 rounded-lg p-3">
+                <div
+                  className={`mt-2 flex items-start gap-3 text-xs rounded-lg p-3 ${
+                    isAppShell
+                      ? "text-amber-300 bg-amber-500/5 border border-amber-500/20"
+                      : "text-amber-300 bg-amber-500/10 border border-amber-500/40"
+                  }`}
+                >
                   <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
                   <div className="flex-1">
                     <div>
@@ -571,7 +622,13 @@ function CheckoutPage() {
               )}
 
               {needsDelivery && (
-                <div className="mt-2 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white p-4">
+                <div
+                  className={`mt-2 rounded-xl border p-4 ${
+                    isAppShell
+                      ? "border-white/5 bg-[#16161A]"
+                      : "border-white/10 md:border-slate-200 bg-[#1E1E24] md:shadow-sm md:bg-white"
+                  }`}
+                >
                   <div className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-1">
                     Delivery details
                   </div>
@@ -587,7 +644,11 @@ function CheckoutPage() {
                       value={deliveryEmail}
                       onChange={(e) => setDeliveryEmail(e.target.value)}
                       placeholder="you@example.com"
-                      className="mt-1 w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 outline-none focus:border-emerald-500/60"
+                      className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm outline-none focus:border-emerald-500/60 ${
+                        isAppShell
+                          ? "bg-[#0A0A0B] border-white/10 text-white"
+                          : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+                      }`}
                     />
                   </label>
                   {!deliveryValid && deliveryEmail && (
@@ -608,11 +669,19 @@ function CheckoutPage() {
             </div>
 
             {/* Summary */}
-            <div className="bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 h-max min-w-0">
-              <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
-                Order Summary
-              </h2>
-              {product.coverUrl ? (
+            <div
+              className={`h-max min-w-0 ${
+                isAppShell
+                  ? "lg:col-span-1 space-y-4 px-4 pb-8"
+                  : "bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-xl p-5 lg:col-span-1"
+              }`}
+            >
+              {!isAppShell && (
+                <h2 className="text-xs font-bold uppercase tracking-widest text-slate-400 md:text-slate-500 mb-3">
+                  Order Summary
+                </h2>
+              )}
+              {isAppShell ? null : product.coverUrl ? (
                 <ResponsiveImage
                   src={product.coverUrl}
                   alt={product.name}
@@ -624,23 +693,35 @@ function CheckoutPage() {
               ) : (
                 <div className="h-20 rounded-lg bg-white/5 md:bg-slate-100 mb-3" />
               )}
-              <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
-                {product.name}
-              </div>
-              <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
-                by {product.vendor} · Qty {qty}
-              </div>
+              {!isAppShell && (
+                <>
+                  <div className="text-white md:text-slate-900 font-semibold text-sm mb-1">
+                    {product.name}
+                  </div>
+                  <div className="text-xs text-slate-500 md:text-slate-500 mb-3">
+                    by {product.vendor} · Qty {qty}
+                  </div>
+                </>
+              )}
 
               {/* Cashback Wallet — spend-only. Toggle always visible; disabled when empty. */}
-              <div className="border-t border-white/5 md:border-slate-200 pt-3 mb-3">
+              <div
+                className={`pt-3 mb-3 border-t ${
+                  isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
+                }`}
+              >
                 <div className="text-[10px] uppercase tracking-widest font-bold text-slate-400 md:text-slate-500 mb-1.5">
                   Cashback Wallet
                 </div>
                 <label
-                  className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border ${
+                  className={`flex items-start gap-3 rounded-lg px-3 py-2.5 border transition-all ${
                     cashbackUSD > 0
-                      ? "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
-                      : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
+                      ? isAppShell
+                        ? "bg-emerald-500/5 border-emerald-500/20 cursor-pointer"
+                        : "bg-emerald-500/10 border-emerald-500/40 cursor-pointer"
+                      : isAppShell
+                        ? "bg-[#0A0A0B] border-white/5 opacity-50 cursor-not-allowed"
+                        : "bg-[#121214] md:bg-slate-100 border-white/10 md:border-slate-200 opacity-70 cursor-not-allowed"
                   }`}
                 >
                   <input
@@ -666,7 +747,11 @@ function CheckoutPage() {
                 </label>
               </div>
 
-              <div className="border-t border-white/5 md:border-slate-200 pt-3 space-y-1 text-sm">
+              <div
+                className={`pt-3 space-y-1 text-sm border-t ${
+                  isAppShell ? "border-white/5" : "border-white/5 md:border-slate-200"
+                }`}
+              >
                 <div className="flex justify-between text-slate-400 md:text-slate-500">
                   <span>Subtotal</span>
                   <span>{fmtPrice(subtotalUSD, baseCurrency, product, subtotalLocal)}</span>
@@ -683,33 +768,73 @@ function CheckoutPage() {
                   <span>Processing</span>
                   <span />
                 </div>
-                <div className="flex justify-between text-white md:text-slate-900 font-black text-base pt-2 border-t border-white/5 md:border-slate-200">
+                <div
+                  className={`flex justify-between font-black text-base pt-2 border-t ${
+                    isAppShell
+                      ? "text-white border-white/5"
+                      : "text-white md:text-slate-900 border-white/5 md:border-slate-200"
+                  }`}
+                >
                   <span>Total</span>
                   <span>{fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}</span>
                 </div>
               </div>
 
-              <button
-                onClick={pay}
-                disabled={submitting || (needsDelivery && !deliveryValid)}
-                className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
-              >
-                {submitting ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" /> Processing…
-                  </>
-                ) : method === "wallet" ? (
-                  `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                ) : gateway === "minipay" ? (
-                  `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                ) : (
-                  `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
-                )}
-              </button>
-              <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
-                <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
-                protection
-              </div>
+              {isAppShell ? (
+                <div className="fixed bottom-0 left-0 right-0 z-40 bg-[#0A0A0B]/80 backdrop-blur-xl border-t border-white/5 p-4 flex flex-col gap-3">
+                  <div className="flex justify-between items-center px-1">
+                    <span className="text-xs text-slate-400">Total to pay</span>
+                    <span className="text-lg font-black text-white">
+                      {fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}
+                    </span>
+                  </div>
+                  <button
+                    onClick={pay}
+                    disabled={submitting || (needsDelivery && !deliveryValid)}
+                    className="w-full inline-flex items-center justify-center gap-2 py-3.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-all active:scale-[0.98] disabled:opacity-60 disabled:cursor-not-allowed shadow-[0_4px_20px_-5px_rgba(16,185,129,0.4)]"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Processing…
+                      </>
+                    ) : method === "wallet" ? (
+                      `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : gateway === "minipay" ? (
+                      `Pay with MiniPay`
+                    ) : (
+                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"}`
+                    )}
+                  </button>
+                  <div className="text-[10px] text-slate-500 flex items-center justify-center gap-1 opacity-60">
+                    <ShieldCheck className="w-3 h-3 text-emerald-500/50" /> Secured by Oventric
+                    escrow
+                  </div>
+                </div>
+              ) : (
+                <>
+                  <button
+                    onClick={pay}
+                    disabled={submitting || (needsDelivery && !deliveryValid)}
+                    className="w-full mt-4 inline-flex items-center justify-center gap-2 py-3 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black text-sm transition-colors disabled:opacity-60 disabled:cursor-not-allowed"
+                  >
+                    {submitting ? (
+                      <>
+                        <Loader2 className="w-4 h-4 animate-spin" /> Processing…
+                      </>
+                    ) : method === "wallet" ? (
+                      `Pay ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : gateway === "minipay" ? (
+                      `Pay with MiniPay · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    ) : (
+                      `Pay with ${gateway === "paystack" ? "Paystack" : "Flutterwave"} · ${fmtPrice(totalUSD, baseCurrency, product, totalLocalExact)}`
+                    )}
+                  </button>
+                  <div className="mt-3 text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" /> Secured by Oventric buyer
+                    protection
+                  </div>
+                </>
+              )}
             </div>
           </div>
         )}
@@ -721,7 +846,9 @@ function CheckoutPage() {
           onClick={() => !topUpBusy && setTopUpOpen(false)}
         >
           <div
-            className="w-full max-w-md bg-[#1E1E24] md:shadow-sm md:bg-white border border-white/10 md:border-slate-200 rounded-2xl p-6"
+            className={`w-full max-w-md border rounded-2xl p-6 ${
+              isAppShell ? "bg-[#16161A] border-white/5" : "bg-[#1E1E24] md:shadow-sm md:bg-white border-white/10 md:border-slate-200"
+            }`}
             onClick={(e) => e.stopPropagation()}
           >
             <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">
@@ -739,7 +866,9 @@ function CheckoutPage() {
               min={1}
               value={topUpAmount}
               onChange={(e) => setTopUpAmount(e.target.value)}
-              className="w-full bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-lg px-3 py-2 text-sm text-white md:text-slate-900 mb-4"
+              className={`w-full border rounded-lg px-3 py-2 text-sm mb-4 outline-none focus:border-emerald-500/60 ${
+                isAppShell ? "bg-[#0A0A0B] border-white/10 text-white" : "bg-[#121214] md:bg-slate-50 border-white/10 md:border-slate-200 text-white md:text-slate-900"
+              }`}
             />
             <label className="block text-xs font-semibold uppercase tracking-wider text-slate-400 md:text-slate-500 mb-1.5">
               Fund via
@@ -754,7 +883,15 @@ function CheckoutPage() {
                     <button
                       key={m.id}
                       onClick={() => setTopUpMethod(m.id)}
-                      className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 ${active ? "bg-emerald-500/10 border-emerald-500/50" : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"}`}
+                      className={`w-full text-left rounded-lg border p-3 flex items-center gap-3 transition-all ${
+                        active
+                          ? isAppShell
+                            ? "bg-emerald-500/10 border-emerald-500/50"
+                            : "bg-emerald-500/10 border-emerald-500/50"
+                          : isAppShell
+                            ? "bg-[#0A0A0B] border-white/5"
+                            : "bg-[#121214] md:bg-white border-white/10 md:border-slate-200"
+                      }`}
                     >
                       <Icon
                         className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
