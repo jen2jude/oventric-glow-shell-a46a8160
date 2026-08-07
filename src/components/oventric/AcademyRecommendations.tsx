@@ -34,12 +34,12 @@ function fmtPrice(usd: number, viewer: Currency): string {
   ).formatted;
 }
 
-function SectionHeader({ icon: Icon, title, hint }: { icon: any; title: string; hint?: string }) {
+function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; title: string; hint?: string; isAppShell: boolean }) {
   return (
     <div className="flex items-end justify-between mb-3 px-1">
       <div className="flex items-center gap-2">
-        <Icon className="w-5 h-5 text-emerald-400 md:text-emerald-600" strokeWidth={2.5} />
-        <h3 className="text-white md:text-slate-900 font-black text-lg tracking-tight">{title}</h3>
+        <Icon className={`w-5 h-5 ${!isAppShell ? "text-emerald-600" : "text-emerald-400 md:text-emerald-600"}`} strokeWidth={2.5} />
+        <h3 className={`font-black text-lg tracking-tight ${!isAppShell ? "text-slate-900" : "text-white md:text-slate-900"}`}>{title}</h3>
       </div>
       {hint && (
         <span className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
