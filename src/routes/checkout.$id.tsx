@@ -631,7 +631,7 @@ function CheckoutPage() {
                   <div className={`text-xs font-bold uppercase tracking-widest mb-1 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                     Delivery details
                   </div>
-                  <p className="text-[11px] text-slate-500 md:text-slate-500 mb-3">
+                  <p className={`text-[11px] mb-3 ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                     {product.requiresManualDelivery
                       ? "This product requires manual deployment. After payment is verified, the seller delivers it to you in your Oventric chat."
                       : "We’ll send the receipt and download link here after payment is verified."}
