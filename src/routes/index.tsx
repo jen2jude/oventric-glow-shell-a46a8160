@@ -313,13 +313,14 @@ function Index() {
         ) : (
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
-            showMobileTopRow
-            hubMode={(active === "Home" || (active === "Marketplace" && isAppShell)) && !isDesktop}
+            showMobileTopRow={false}
+            hubMode={isDesktop ? false : (active === "Home" || (active === "Marketplace" && isAppShell))}
             desktopNav={
               isDesktop &&
               ["Marketplace", "Academy", "Bounties", "Circles", "Feed"].includes(active)
             }
             light={isDesktop && !isMarketplace}
+            browserVisitorHeader={!isAppShell}
           />
         )}
 
