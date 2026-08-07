@@ -118,6 +118,7 @@ export function Academy() {
       <CourseDetail
         courseId={selectedId}
         userId={userId}
+        isAppShell={isAppShell}
         onBack={() => setView("catalog")}
         onEdit={(id) => {
           setEditingId(id);
