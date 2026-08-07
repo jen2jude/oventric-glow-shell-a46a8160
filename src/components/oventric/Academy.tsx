@@ -153,7 +153,7 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
     });
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
-  const hideHeader = hubMode && isAppShell;
+  const hideHeader = hubMode && isAppShell && searchQuery === "" && category === "all";
 
   useEffect(() => {
     if (!scrollRef.current) return;
@@ -178,7 +178,7 @@ export function Academy({ hubMode = false }: { hubMode?: boolean }) {
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
       {!isAppShell && <AcademyHero isAppShell={isAppShell} />}
-      {isAppShell && !hideHeader && (
+      {isAppShell && (
         <div className="pt-2">
           <AcademyHero isAppShell={isAppShell} />
         </div>
