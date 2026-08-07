@@ -955,14 +955,16 @@ function QuizzesStep({
   };
 
   return (
-    <div className="space-y-4 max-w-3xl">
-      <div className="flex items-center justify-between">
+    <div className={`space-y-4 max-w-3xl ${isAppShell ? "pb-4" : ""}`}>
+      <div className="flex items-center justify-between gap-3">
         <p className="text-sm text-slate-400">
           Quizzes are optional. Add one to the end of the course to gate certificates.
         </p>
         <button
           onClick={addQuiz}
-          className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-xs font-bold"
+          className={`inline-flex items-center gap-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-bold shrink-0 ${
+            isAppShell ? "px-4 py-2.5 text-sm" : "px-3 py-1.5 text-xs"
+          }`}
         >
           <Plus className="w-4 h-4" /> Add Quiz
         </button>
