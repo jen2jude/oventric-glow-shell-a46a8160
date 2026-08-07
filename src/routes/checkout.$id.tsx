@@ -768,7 +768,7 @@ function CheckoutPage() {
                   <span />
                 </div>
                 <div
-                  className={`flex justify-between font-black text-base pt-2 border-t ${
+                  className={`flex justify-between font-black text-lg pt-2 border-t ${
                     isAppShell
                       ? "text-white border-white/5"
                       : "text-slate-900 border-slate-200"
