@@ -383,6 +383,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
             icon={ShoppingBag}
             title="Recommended products"
             hint="Digital + physical"
+            isAppShell={isAppShell}
           />
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
             {data.products.map((p) => (
