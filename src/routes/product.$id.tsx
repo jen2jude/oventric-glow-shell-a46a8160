@@ -367,7 +367,12 @@ function ProductPage() {
               })()}
             </div>
 
-            <div>
+            <div className="flex flex-col gap-8">
+              {!isAppShell && (
+                <div className="lg:block hidden">
+                  <ProductComments productId={product.id} />
+                </div>
+              )}
               <div className={`text-xs font-bold uppercase tracking-widest ${isAppShell ? "text-emerald-400" : "text-emerald-600"} mb-2`}>
                 {product.category}
                 {product.subcategory ? ` · ${product.subcategory}` : ""}
@@ -496,8 +501,8 @@ function ProductPage() {
               </div>
             </div>
             
-            {/* Review and Comment Section */}
-            <div className="lg:col-span-2">
+            {/* Review and Comment Section (Mobile/App fallback) */}
+            <div className={`lg:col-span-2 ${!isAppShell ? "lg:hidden" : ""}`}>
               <ProductComments productId={product.id} />
             </div>
           </div>
