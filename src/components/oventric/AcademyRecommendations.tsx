@@ -179,7 +179,7 @@ function BountyTile({ b, currency, isAppShell }: { b: DiscoveryBounty; currency:
   );
 }
 
-function CircleTile({ c }: { c: RecoCircle }) {
+function CircleTile({ c, isAppShell }: { c: RecoCircle; isAppShell: boolean }) {
   const open = () => {
     window.dispatchEvent(new CustomEvent("oventric:navigate", { detail: { section: "Circles" } }));
     setTimeout(() => {
