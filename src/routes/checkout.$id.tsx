@@ -569,7 +569,7 @@ function CheckoutPage() {
                                 className={`w-4 h-4 shrink-0 ${on ? "text-emerald-300" : "text-slate-400"}`}
                               />
                               <span className="flex-1 min-w-0">
-                                <span className="block text-sm text-white md:text-slate-900 font-semibold">
+                                <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                                   {g.label}
                                   {g.id === recommended && (
                                     <span className="ml-2 text-[9px] font-bold uppercase tracking-wider text-emerald-300">
@@ -577,7 +577,7 @@ function CheckoutPage() {
                                     </span>
                                   )}
                                 </span>
-                                <span className="block text-[11px] text-slate-500 md:text-slate-500">
+                                <span className={`block text-[11px] ${isAppShell ? "text-slate-500" : "text-slate-600"}`}>
                                   {g.hint}
                                 </span>
                               </span>
