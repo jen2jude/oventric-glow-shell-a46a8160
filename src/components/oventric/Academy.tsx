@@ -483,11 +483,11 @@ function CourseDetail({
   };
 
   return (
-    <div className="max-w-6xl mx-auto w-full px-4 py-4 md:bg-white md:min-h-screen">
+    <div className={`max-w-6xl mx-auto w-full px-4 py-4 ${!isAppShell ? "bg-white min-h-screen" : "md:bg-white md:min-h-screen"}`}>
       <div className="flex items-center gap-2 mb-4 flex-wrap">
         <button
           onClick={onBack}
-          className="inline-flex items-center gap-2 text-sm text-slate-300 hover:text-white bg-[#1E1E24] border border-white/10 rounded-lg px-3 py-1.5 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"
+          className={`inline-flex items-center gap-2 text-sm rounded-lg px-3 py-1.5 border ${!isAppShell ? "text-slate-600 bg-white border-slate-200 hover:text-slate-900" : "text-slate-300 hover:text-white bg-[#1E1E24] border-white/10 md:text-slate-600 md:hover:text-slate-900 md:bg-white md:border-slate-200"}`}
         >
           <ArrowLeft className="w-4 h-4" /> Catalog
         </button>
