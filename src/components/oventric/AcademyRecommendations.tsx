@@ -39,7 +39,7 @@ function SectionHeader({ icon: Icon, title, hint, isAppShell }: { icon: any; tit
   if (isAppShell) {
     return (
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-bold text-slate-800 text-lg">{title}</h3>
+        <h3 className="font-bold text-white text-lg">{title}</h3>
         <button className="text-pink-500 text-xs font-bold">View All</button>
       </div>
     );
@@ -72,8 +72,8 @@ function CourseTile({
 }) {
   if (isAppShell) {
     return (
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-        <button onClick={() => onOpen(c.id)} className="block w-full text-left relative aspect-video bg-slate-100">
+      <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
+        <button onClick={() => onOpen(c.id)} className="block w-full text-left relative aspect-video bg-[#121214]">
           {c.coverUrl ? (
             <ResponsiveImage
               src={c.coverUrl}
@@ -83,7 +83,7 @@ function CourseTile({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <GraduationCap className="w-8 h-8 text-slate-300" />
+              <GraduationCap className="w-8 h-8 text-white/10" />
             </div>
           )}
           <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
@@ -92,14 +92,13 @@ function CourseTile({
         </button>
         <div className="p-3 flex-1 flex flex-col justify-between">
           <div>
-            <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">
+            <h4 className="font-bold text-white text-[13px] line-clamp-2 leading-tight mb-2">
               {c.title}
             </h4>
-            <div className="text-[10px] text-slate-400 font-medium mb-2">Cambridge International Qualifications, UK</div>
           </div>
           <div className="flex items-center justify-between mt-auto">
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
-              <Clock className="w-3 h-3 text-slate-400" /> 6-9 Hours
+            <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
+              <Clock className="w-3 h-3 text-slate-500" /> 6-9 Hours
             </div>
             <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
           </div>
@@ -152,9 +151,9 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
       <Link
         to="/product/$id"
         params={{ id: p.id }}
-        className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col"
+        className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col"
       >
-        <div className="relative aspect-square bg-slate-50">
+        <div className="relative aspect-square bg-[#121214]">
           {p.coverUrl ? (
             <ResponsiveImage
               src={p.coverUrl}
@@ -164,13 +163,13 @@ function ProductTile({ p, currency, isAppShell }: { p: DiscoveryProduct; currenc
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <ShoppingBag className="w-8 h-8 text-slate-200" />
+              <ShoppingBag className="w-8 h-8 text-white/10" />
             </div>
           )}
         </div>
         <div className="p-3 flex-1 flex flex-col justify-between">
-          <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">{p.title}</h4>
-          <div className="text-[12px] font-black text-slate-900">{fmtPrice(p.priceUsd, currency)}</div>
+          <h4 className="font-bold text-white text-[13px] line-clamp-2 leading-tight mb-2">{p.title}</h4>
+          <div className="text-[12px] font-black text-pink-500">{fmtPrice(p.priceUsd, currency)}</div>
         </div>
       </Link>
     );
@@ -422,7 +421,7 @@ export function AcademyRecommendations({ onOpenCourse }: { onOpenCourse: (id: st
   const blogB = data.blog.slice(3, 6);
 
   return (
-    <section className={`mt-12 space-y-10 ${!isAppShell ? "border-t pt-8 border-slate-200" : ""}`}>
+    <section className={`mt-12 space-y-10 ${!isAppShell ? "border-t pt-8 border-slate-200" : "px-0 pb-20"}`}>
       {/* Recommended courses */}
       {data.courses.length > 0 && (
         <div>

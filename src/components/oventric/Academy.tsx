@@ -1,4 +1,4 @@
-import { useEffect, useState, useMemo } from "react";
+import { useEffect, useState, useMemo, useRef } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import {
   ArrowLeft,
@@ -86,7 +86,9 @@ function embedUrl(m: ModuleDTO): string {
   return yt ? `https://www.youtube.com/embed/${yt}` : raw;
 }
 
-export function Academy() {
+export function Academy({ hubMode = false }: { hubMode?: boolean }) {
+  const scrollRef = useRef<HTMLDivElement>(null);
+
   const { baseCurrency } = useOnboarding();
   const isAppShell = useIsAppShell();
   const fetchList = useServerFn(listCourses);
@@ -151,46 +153,49 @@ export function Academy() {
     });
   }, [courses, category, searchQuery, userId, baseCurrency]);
 
+  const hideHeader = hubMode && isAppShell;
+
+  useEffect(() => {
+    if (!scrollRef.current) return;
+    const scrollContainer = scrollRef.current;
+    let scrollAmount = 0;
+    const step = () => {
+      if (scrollContainer) {
+        scrollAmount += 1;
+        if (scrollAmount >= scrollContainer.offsetWidth) {
+          scrollAmount = 0;
+        }
+        scrollContainer.scrollTo(scrollAmount, 0);
+      }
+      requestAnimationFrame(step);
+    };
+    const animId = requestAnimationFrame(step);
+    return () => cancelAnimationFrame(animId);
+  }, [isAppShell, searchQuery, category]);
+
+
+
   return (
-    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-[#F8F9FB] min-h-screen"}`}>
-      {!isAppShell ? (
-        <AcademyHero isAppShell={isAppShell} />
-      ) : (
-        <div className="bg-white px-4 pt-4 pb-3 sticky top-0 z-40">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-pink-500 flex items-center justify-center">
-                <GraduationCap className="w-5 h-5 text-white" />
-              </div>
-              <div className="flex items-center gap-1 bg-pink-50 text-pink-500 px-2 py-0.5 rounded-full text-[10px] font-bold border border-pink-100">
-                🎓 <ArrowRight className="w-2.5 h-2.5" />
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <div className="relative">
-                <Users className="w-6 h-6 text-slate-700" />
-                <span className="absolute -top-1 -right-1 w-4 h-4 bg-orange-500 text-white text-[9px] font-bold flex items-center justify-center rounded-full border-2 border-white">6</span>
-              </div>
-              <div className="w-8 h-8 rounded-full bg-slate-200 overflow-hidden border border-slate-100">
-                <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${userId || 'anon'}`} alt="" />
-              </div>
-            </div>
-          </div>
-          
-          <div className="flex gap-2">
+    <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
+      {!isAppShell && <AcademyHero isAppShell={isAppShell} />}
+      {isAppShell && !hideHeader && (
+        <div className="pt-2">
+          <AcademyHero isAppShell={isAppShell} />
+        </div>
+      )}
+      {isAppShell && !hideHeader && (
+        <div className="bg-[#0A0A0B] px-4 pt-1 pb-3 sticky top-0 z-40 border-b border-white/5">
+          <div className="flex gap-2 mt-2">
             <div className="relative flex-1">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-300" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-slate-500" />
               <input 
                 type="text" 
-                placeholder="What do you want to learn?"
+                placeholder="Search courses..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-100 rounded-md py-3 pl-10 pr-4 text-sm focus:outline-none focus:ring-1 focus:ring-pink-500/20"
+                className="w-full bg-[#1A1A1C] border border-white/5 rounded-md py-2.5 pl-10 pr-4 text-sm text-white focus:outline-none"
               />
             </div>
-            <button className="w-12 h-12 bg-pink-500 rounded-md flex items-center justify-center shrink-0">
-              <Settings2 className="w-6 h-6 text-white" />
-            </button>
           </div>
         </div>
       )}
@@ -237,27 +242,27 @@ export function Academy() {
           {isAppShell && filtered.length > 0 && category === 'all' && searchQuery === "" && (
             <section>
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">My Enrolled Courses</h3>
+                <h3 className="font-bold text-white text-lg">My Enrolled Courses</h3>
               </div>
               <div className="flex gap-4 overflow-x-auto scrollbar-none pb-2 -mx-4 px-4">
                 {filtered.slice(0, 3).map(course => (
-                  <div key={course.id} className="shrink-0 w-64 bg-white rounded-xl border border-slate-100 shadow-sm p-4">
-                    <h4 className="font-bold text-slate-800 text-sm line-clamp-1 mb-4">{course.title}</h4>
+                  <div key={course.id} className="shrink-0 w-64 bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg p-4">
+                    <h4 className="font-bold text-white text-sm line-clamp-1 mb-4">{course.title}</h4>
                     <div className="flex flex-col items-center py-4">
                       <div className="relative w-24 h-24 flex items-center justify-center">
                         <svg className="w-full h-full -rotate-90">
-                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-slate-100" />
+                          <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-white/5" />
                           <circle cx="48" cy="48" r="42" stroke="currentColor" strokeWidth="4" fill="transparent" className="text-pink-500" strokeDasharray={264} strokeDashoffset={264 * (1 - 0.05)} strokeLinecap="round" />
                         </svg>
                         <div className="absolute inset-0 flex flex-col items-center justify-center">
-                          <span className="text-lg font-bold text-slate-800">5%</span>
+                          <span className="text-lg font-bold text-white">5%</span>
                           <span className="text-[9px] text-slate-400 uppercase font-bold">Completed</span>
                         </div>
                       </div>
                     </div>
                     <button 
                       onClick={() => { setSelectedId(course.id); setView("course"); }}
-                      className="w-full py-2 border border-pink-500 text-pink-500 rounded-md text-xs font-bold hover:bg-pink-50 transition-colors mt-2"
+                      className="w-full py-2 bg-pink-500 text-white rounded-md text-xs font-bold hover:bg-pink-600 transition-colors mt-2"
                     >
                       Resume Learning
                     </button>
@@ -295,34 +300,30 @@ export function Academy() {
           )}
 
           {isAppShell && searchQuery === "" && category === 'all' && (
-            <section>
+            <section className="relative">
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">Trending</h3>
+                <h3 className="font-bold text-white text-lg">Trending</h3>
                 <button className="text-pink-500 text-xs font-bold">View All</button>
               </div>
-              <div className="relative rounded-2xl overflow-hidden aspect-[16/9] shadow-lg group">
-                <img 
-                  src="https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80" 
-                  className="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
-                  alt="Trending"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
-                <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
-                <div className="absolute bottom-6 left-6 right-6 text-white">
-                  <h4 className="text-xl font-bold mb-1">Diploma in Environment Health ...</h4>
-                  <div className="text-xs text-white/70 mb-3">UniAthena</div>
-                  <div className="flex items-center gap-4 text-[10px] font-bold">
-                    <span className="flex items-center gap-1">⭐ 4.8</span>
-                    <span className="flex items-center gap-1">⏱️ 1-2 Weeks</span>
-                  </div>
-                  <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold hover:bg-white/30 transition-colors">
-                    Start Now
-                  </button>
-                </div>
-                <div className="absolute bottom-2 left-0 right-0 flex justify-center gap-1">
-                  <div className="w-1.5 h-1.5 rounded-full bg-pink-500" />
-                  {[...Array(6)].map((_, i) => (
-                    <div key={i} className="w-1.5 h-1.5 rounded-full bg-white/40" />
+              <div className="overflow-hidden relative w-full aspect-[16/9] rounded-2xl">
+                <div ref={scrollRef} className="flex w-full h-full overflow-hidden">
+                  {[1, 2, 3].map((i) => (
+                    <div key={i} className="shrink-0 w-full relative aspect-[16/9]">
+                      <img 
+                        src={`https://images.unsplash.com/photo-1576091160550-2173bdb999ef?auto=format&fit=crop&w=800&q=80&idx=${i}`} 
+                        className="w-full h-full object-cover"
+                        alt="Trending"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent" />
+                      <div className="absolute top-4 right-4 bg-pink-500 text-white text-[10px] font-bold px-2 py-1 rounded-full">Upto 60% off</div>
+                      <div className="absolute bottom-6 left-6 right-6 text-white">
+                        <h4 className="text-xl font-bold mb-1">Live Professional Training {i}</h4>
+                        <div className="text-xs text-white/70 mb-3">UniAthena</div>
+                        <button className="mt-4 bg-white/20 backdrop-blur-md border border-white/30 text-white px-4 py-1.5 rounded-full text-xs font-bold">
+                          Start Now
+                        </button>
+                      </div>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -332,7 +333,7 @@ export function Academy() {
           <section>
             {isAppShell && (
               <div className="flex items-center justify-between mb-4">
-                <h3 className="font-bold text-slate-800 text-lg">
+                <h3 className="font-bold text-white text-lg">
                   {searchQuery ? `Search Results (${filtered.length})` : "Newly Released"}
                 </h3>
                 {!searchQuery && <button className="text-pink-500 text-xs font-bold">View All</button>}
@@ -365,32 +366,7 @@ export function Academy() {
         </div>
       </div>
 
-      {isAppShell && (
-        <div className="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 px-6 py-3 flex justify-between items-center z-50 pb-safe">
-          <button className="flex flex-col items-center gap-1 text-pink-500">
-            <GraduationCap className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Home</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <ScrollText className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Courses</span>
-          </button>
-          <div className="relative -top-6">
-            <button className="w-14 h-14 bg-pink-500 rounded-full flex items-center justify-center shadow-lg border-4 border-white">
-              <Play className="w-6 h-6 text-white fill-white ml-0.5" />
-            </button>
-            <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 text-[10px] font-bold text-slate-400 whitespace-nowrap">My Learning</span>
-          </div>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <Award className="w-6 h-6" />
-            <span className="text-[10px] font-bold">Certificates</span>
-          </button>
-          <button className="flex flex-col items-center gap-1 text-slate-400">
-            <div className="w-6 h-6 rounded-full border-2 border-slate-400 flex items-center justify-center text-[10px] font-black">?</div>
-            <span className="text-[10px] font-bold">FAQ</span>
-          </button>
-        </div>
-      )}
+// Removed redundant footer menu to restore GlobalMobileNav functionality.
 
       {editingId ? (
         <CourseEditorModal
@@ -429,8 +405,8 @@ function CourseCard({
 }) {
   if (isAppShell) {
     return (
-      <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden flex flex-col">
-        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-slate-100">
+      <div className="bg-[#1A1A1C] rounded-xl border border-white/5 shadow-lg overflow-hidden flex flex-col">
+        <button onClick={onOpen} className="block w-full text-left relative aspect-video bg-[#121214]">
           {course.coverUrl ? (
             <ResponsiveImage
               src={course.coverUrl}
@@ -440,7 +416,7 @@ function CourseCard({
             />
           ) : (
             <div className="absolute inset-0 flex items-center justify-center">
-              <GraduationCap className="w-8 h-8 text-slate-300" />
+              <GraduationCap className="w-8 h-8 text-white/10" />
             </div>
           )}
           <div className="absolute top-2 left-2 bg-pink-500 text-white text-[8px] font-bold px-1.5 py-0.5 rounded uppercase">
@@ -449,14 +425,13 @@ function CourseCard({
         </button>
         <div className="p-3 flex-1 flex flex-col justify-between">
           <div>
-            <h4 className="font-bold text-slate-800 text-[13px] line-clamp-2 leading-tight mb-2">
+            <h4 className="font-bold text-white text-[13px] line-clamp-2 leading-tight mb-2">
               {course.title}
             </h4>
-            <div className="text-[10px] text-slate-400 font-medium mb-2">Cambridge International Qualifications, UK</div>
           </div>
           <div className="flex items-center justify-between mt-auto">
-            <div className="flex items-center gap-1 text-[10px] text-slate-500 font-bold">
-              <Clock className="w-3 h-3 text-slate-400" /> 6-9 Hours
+            <div className="flex items-center gap-1 text-[10px] text-slate-400 font-bold">
+              <Clock className="w-3 h-3 text-slate-500" /> 6-9 Hours
             </div>
             <div className="text-[10px] text-pink-500 font-bold uppercase cursor-pointer">...More</div>
           </div>
@@ -891,7 +866,7 @@ function CourseDetail({
 
 function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
   return (
-    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-[#0A0A0B] border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
+    <div className={`relative overflow-hidden border-b ${!isAppShell ? "bg-white border-slate-200" : "bg-black border-white/5 md:border-slate-200 md:bg-gradient-to-b md:from-slate-50 md:to-white"}`}>
       <div className="max-w-6xl mx-auto w-full px-4 py-10 md:py-16">
         <div className="grid gap-10 md:grid-cols-[1.15fr_1fr] md:items-center">
           <div>
