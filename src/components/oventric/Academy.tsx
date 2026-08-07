@@ -538,7 +538,7 @@ function CourseDetail({
                 </span>
               </div>
               {course.description && (
-                <p className="mt-4 text-sm text-slate-300 md:text-slate-600 leading-relaxed whitespace-pre-wrap">
+                <p className={`mt-4 text-sm leading-relaxed whitespace-pre-wrap ${!isAppShell ? "text-slate-600" : "text-slate-300 md:text-slate-600"}`}>
                   {course.description}
                 </p>
               )}
