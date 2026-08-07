@@ -381,10 +381,10 @@ function CheckoutPage() {
       className={`min-h-screen overflow-x-hidden ${
         isAppShell
           ? "bg-[#0A0A0B] text-slate-200"
-          : "page-light bg-white text-slate-900"
+          : "page-light bg-[#FFFFFF] text-slate-900"
       }`}
     >
-      {!isAppShell && <Header onOpenMessages={() => {}} />}
+      <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} />
       <main
         className={`max-w-4xl mx-auto w-full min-w-0 ${
           isAppShell ? "px-0 py-0 pb-32" : "px-4 py-6 pb-24"
@@ -400,7 +400,13 @@ function CheckoutPage() {
               : "text-slate-600 hover:text-slate-900 bg-white shadow-sm border border-slate-200 rounded-lg px-3 py-2 mb-6"
           }`}
         >
-          <ArrowLeft className="w-4 h-4" /> Back
+          {isAppShell ? (
+            <ArrowLeft className="w-6 h-6" />
+          ) : (
+            <>
+              <ArrowLeft className="w-4 h-4" /> Back
+            </>
+          )}
         </Link>
 
         {!isAppShell && (
