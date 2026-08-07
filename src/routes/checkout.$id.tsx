@@ -520,7 +520,7 @@ function CheckoutPage() {
                         />
                       </span>
                       <span className="flex-1 min-w-0">
-                        <span className="block text-sm text-white md:text-slate-900 font-semibold">
+                        <span className={`block text-sm font-semibold ${isAppShell ? "text-white" : "text-slate-900"}`}>
                           {m.label}
                           {m.disabled && (
                             <span className="ml-2 text-[10px] font-bold uppercase tracking-wider text-slate-500 md:text-slate-500">
