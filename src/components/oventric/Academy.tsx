@@ -157,27 +157,20 @@ export const Academy = ({ hubMode = false }: { hubMode?: boolean }) => {
     // Auto-scroll removed per user request for trending section
   }, [isAppShell, searchQuery, category]);
 
-  const courseView = useMemo(() => {
-    if (view === "course" && selectedId) {
-      return (
-        <CourseDetail
-          courseId={selectedId}
-          userId={userId}
-          isAppShell={isAppShell}
-          onBack={() => setView("catalog")}
-          onEdit={(id) => {
-            setEditingId(id);
-            setEditorOpen(true);
-          }}
-        />
-      );
-    }
-    return null;
-  }, [view, selectedId, userId, isAppShell]);
-
-  if (courseView) return courseView;
-
-
+  if (view === "course" && selectedId) {
+    return (
+      <CourseDetail
+        courseId={selectedId}
+        userId={userId}
+        isAppShell={isAppShell}
+        onBack={() => setView("catalog")}
+        onEdit={(id) => {
+          setEditingId(id);
+          setEditorOpen(true);
+        }}
+      />
+    );
+  }
 
   return (
     <div className={`w-full ${!isAppShell ? "bg-white min-h-screen" : "bg-black min-h-screen"}`}>
