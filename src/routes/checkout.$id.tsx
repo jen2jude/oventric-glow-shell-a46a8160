@@ -535,7 +535,7 @@ function CheckoutPage() {
                         </span>
                       </span>
                       {walletTag && (
-                        <span className="text-[11px] font-mono text-slate-400 md:text-slate-500">
+                        <span className={`text-[11px] font-mono ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
                           {fmtLocal(balanceUSD ?? 0, baseCurrency)}
                         </span>
                       )}
