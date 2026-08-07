@@ -382,7 +382,7 @@ function CheckoutPage() {
       className={`min-h-screen overflow-x-hidden ${
         isAppShell
           ? "bg-[#0A0A0B] text-slate-200"
-          : "page-light bg-[#FFFFFF] text-slate-900"
+          : "page-light bg-white text-slate-900"
       }`}
     >
       <Header onOpenMessages={() => {}} light={!isAppShell} desktopNav={!isAppShell} />
