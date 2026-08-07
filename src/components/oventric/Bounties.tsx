@@ -28,6 +28,7 @@ import { ResponsiveImage } from "@/components/ui/responsive-image";
 import { useServerFn } from "@tanstack/react-start";
 import { listMyBountyApplicationIds } from "@/lib/bounties.functions";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
+import { useIsAppShell } from "@/hooks/use-launch-context";
 
 type Category = "all" | "frontend" | "database" | "api" | "uiux";
 
@@ -112,6 +113,7 @@ function formatCountdown(ms: number) {
 
 export function Bounties() {
   const { require, baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
   const [filter, setFilter] = useState<Category>("all");
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [bountyAds, setBountyAds] = useState<BountyAd[]>([]);
