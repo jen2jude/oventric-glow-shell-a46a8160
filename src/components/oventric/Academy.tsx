@@ -604,18 +604,25 @@ function CourseDetail({
         if (userId) {
           try {
             const e = await fetchEnroll({ data: { courseId } });
-            setEnrollment(e);
-            // Resume: last completed + 1 or 0
-            if (e && c.modules.length > 0) {
-              const lastDone = c.modules.findIndex((m) => !e.completedModules.includes(m.id));
-              setActiveIdx(lastDone === -1 ? c.modules.length - 1 : lastDone);
+            if (e) {
+              setEnrollment(e);
+              // Resume: last completed + 1 or 0
+              if (c.modules.length > 0) {
+                const lastDone = c.modules.findIndex((m) => !e.completedModules.includes(m.id));
+                setActiveIdx(lastDone === -1 ? c.modules.length - 1 : lastDone);
+              }
+            } else {
+              setEnrollment(null);
             }
           } catch {
             /* not enrolled */
           }
         }
       })
-      .catch((e) => toast.error(e.message))
+      .catch((e) => {
+        console.error("[CourseDetail] Load failed:", e);
+        toast.error("Unable to load course details. Please try again.");
+      })
       .finally(() => setLoading(false));
   }, [courseId, userId, fetchCourse, fetchEnroll]);
 
