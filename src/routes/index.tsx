@@ -268,8 +268,9 @@ function Index() {
     ) : active === "Marketplace" ? (
       <Marketplace />
     ) : active === "Academy" ? (
-      <Academy />
+      <Academy hubMode={active === "Academy"} />
     ) : active === "Bounties" ? (
+
       <Bounties />
     ) : active === "Messages" ? (
       <Messages variant="page" />
