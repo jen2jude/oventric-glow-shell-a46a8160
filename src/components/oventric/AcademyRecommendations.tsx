@@ -89,8 +89,8 @@ function CourseTile({
         </span>
       </div>
       <div className="p-3">
-        <h4 className="text-white font-bold text-sm line-clamp-2 leading-snug">{c.title}</h4>
-        <div className="mt-1.5 flex items-center gap-2 text-[11px] text-slate-500">
+        <h4 className={`font-bold text-sm line-clamp-2 leading-snug ${!isAppShell ? "text-slate-900" : "text-white"}`}>{c.title}</h4>
+        <div className={`mt-1.5 flex items-center gap-2 text-[11px] ${!isAppShell ? "text-slate-500" : "text-slate-500"}`}>
           <Flame className="w-3 h-3 text-amber-400" />
           <span>{c.enrollments} enrolled</span>
         </div>
