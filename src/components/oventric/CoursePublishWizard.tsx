@@ -82,6 +82,7 @@ export function CoursePublishWizard({
   const getUpload = useServerFn(getCourseCoverUploadUrl);
   const snapshotFx = useServerFn(snapshotFxRates);
   const { baseCurrency } = useOnboarding();
+  const isAppShell = useIsAppShell();
 
   const [step, setStep] = useState<Step>(0);
   const [saving, setSaving] = useState<null | "draft" | "publish">(null);
