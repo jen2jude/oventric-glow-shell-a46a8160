@@ -986,17 +986,12 @@ function AcademyHero({ isAppShell }: { isAppShell: boolean }) {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-[10px] font-bold tracking-wide mb-4 border bg-emerald-50 border-emerald-200 text-emerald-700 uppercase">
               <Sparkles className="w-3.5 h-3.5" /> OVENTRIC ACADEMY
             </div>
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-black leading-[1.08] tracking-tight text-slate-900">
-              Master High-End Digital Skills.
-              <br />
-              <span className="text-slate-500">
-                Learn From Real Builders.
-              </span>{" "}
-              <span className="text-emerald-600">Earn Certificates.</span>
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-black leading-tight tracking-tight text-slate-900">
+              Unlock Your <br />
+              <span className="text-emerald-600">Digital Future.</span>
             </h1>
-            <p className="mt-5 text-base md:text-lg leading-relaxed max-w-xl text-slate-600">
-              Video-first courses from working practitioners. Track your progress across sessions,
-              resume any time, and earn a certificate when you complete a course.
+            <p className="mt-3 text-sm leading-relaxed max-w-xl text-slate-500 font-medium">
+              Learn industry-leading skills today from working practitioners. Earn certificates on completion.
             </p>
             <div className="mt-7 flex flex-wrap gap-6">
               <HeroStat isAppShell={isAppShell} value="100%" label="Online & self-paced" />
