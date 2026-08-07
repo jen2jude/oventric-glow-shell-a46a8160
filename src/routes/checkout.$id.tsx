@@ -655,8 +655,8 @@ function CheckoutPage() {
                       Enter a valid email address.
                     </div>
                   )}
-                  <div className="mt-3 rounded-md border border-emerald-500/30 bg-emerald-500/5 px-3 py-2 text-[11px] text-emerald-100 leading-relaxed">
-                    <strong className="text-emerald-200">
+                  <div className={`mt-3 rounded-md border px-3 py-2 text-[11px] leading-relaxed ${isAppShell ? "border-emerald-500/30 bg-emerald-500/5 text-emerald-100" : "border-emerald-200 bg-emerald-50 text-emerald-800"}`}>
+                    <strong className={isAppShell ? "text-emerald-200" : "text-emerald-900"}>
                       Delivery happens in your Oventric chat.
                     </strong>{" "}
                     Your payment is held in escrow and only released after you confirm receipt.
