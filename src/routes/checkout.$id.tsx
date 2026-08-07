@@ -860,7 +860,7 @@ function CheckoutPage() {
             }`}
             onClick={(e) => e.stopPropagation()}
           >
-            <h3 className="text-white md:text-slate-900 font-black text-lg mb-1">
+            <h3 className={`font-black text-lg mb-1 ${isAppShell ? "text-white" : "text-slate-900"}`}>
               Fund your wallet
             </h3>
             <p className="text-xs text-slate-400 md:text-slate-500 mb-4">
@@ -903,7 +903,7 @@ function CheckoutPage() {
                       <Icon
                         className={`w-4 h-4 ${active ? "text-emerald-300" : "text-slate-400"}`}
                       />
-                      <span className="text-sm text-white md:text-slate-900">{m.label}</span>
+                      <span className={`text-sm ${isAppShell ? "text-white" : "text-slate-900"}`}>{m.label}</span>
                     </button>
                   );
                 })}
