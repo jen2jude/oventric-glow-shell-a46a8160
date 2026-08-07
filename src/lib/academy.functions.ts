@@ -153,17 +153,27 @@ async function signCovers(
 ): Promise<(string | null)[]> {
   const unique = Array.from(new Set(paths.filter((p): p is string => !!p)));
   if (unique.length === 0) return paths.map(() => null);
-  // Use service-role client to bypass RLS on private course-covers bucket
-  // so public catalog listings can render cover previews.
-  const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
-  const { data } = await supabaseAdmin.storage
-    .from("course-covers")
-    .createSignedUrls(unique, 60 * 60 * 24 * 7);
-  const map = new Map<string, string>();
-  (data ?? []).forEach((r) => {
-    if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
-  });
-  return paths.map((p) => (p ? map.get(p) ?? null : null));
+  
+  try {
+    const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+    const { data, error } = await supabaseAdmin.storage
+      .from("course-covers")
+      .createSignedUrls(unique, 60 * 60 * 24 * 7);
+    
+    if (error) {
+      console.error("[signCovers] Storage error:", error);
+      return paths.map(() => null);
+    }
+
+    const map = new Map<string, string>();
+    (data ?? []).forEach((r) => {
+      if (r.path && r.signedUrl) map.set(r.path, r.signedUrl);
+    });
+    return paths.map((p) => (p ? map.get(p) ?? null : null));
+  } catch (e) {
+    console.error("[signCovers] Fatal error:", e);
+    return paths.map(() => null);
+  }
 }
 
 
