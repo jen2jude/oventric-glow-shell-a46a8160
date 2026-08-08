@@ -1631,8 +1631,17 @@ export function Feed() {
                       const displayed = imgs.slice(0, layout.displayedCount);
                       return (
                         <div
-                          className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10 md:border-slate-200`}
+                          className={`relative mt-3 ${
+                            isAppShell
+                              ? layout.wrapperClass.replace("gap-1", "gap-[2px]")
+                              : layout.wrapperClass
+                          } overflow-hidden md:rounded-lg md:border md:border-slate-200 ${
+                            isAppShell
+                              ? "mx-4 mb-4 rounded-xl border border-white/[0.06] md:mx-0 md:mb-0"
+                              : "rounded-lg border border-white/10"
+                          }`}
                         >
+
                           {displayed.map((url, i) => {
                             const isLastTile = count > 4 && i === displayed.length - 1;
                             return (
