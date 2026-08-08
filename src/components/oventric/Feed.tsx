@@ -1546,8 +1546,11 @@ export function Feed() {
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 md:text-slate-500">
-                        {timeAgo(post.created_at)}
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 md:text-slate-500">
+                        <span>{timeAgo(post.created_at)}</span>
+                        <span aria-hidden>·</span>
+                        <Globe className="w-3 h-3" aria-hidden />
+                        <span className="sr-only">Public post</span>
                       </div>
                       {post.circle && (
                         <div className="mt-1.5 flex items-center gap-2 text-[11px]">
