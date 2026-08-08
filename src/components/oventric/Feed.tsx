@@ -1481,11 +1481,18 @@ export function Feed() {
                 <article
                   key={post.id}
                   id={`post-${post.id}`}
-                  className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${isReported ? "opacity-70" : ""} ${
+                  className={`md:bg-white md:shadow-sm border scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${
+                    isAppShell
+                      ? "bg-[#141416] rounded-2xl p-0 overflow-hidden md:p-5 md:rounded-xl"
+                      : "bg-[#1E1E24] rounded-xl p-5"
+                  } ${isReported ? "opacity-70" : ""} ${
                     isNew
                       ? "border-emerald-400/70 post-highlight"
-                      : "border-white/10 md:border-slate-200"
+                      : isAppShell
+                        ? "border-white/[0.06] md:border-slate-200"
+                        : "border-white/10 md:border-slate-200"
                   }`}
+
                   style={
                     isNew
                       ? undefined
