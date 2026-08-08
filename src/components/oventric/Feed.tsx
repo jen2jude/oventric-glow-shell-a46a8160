@@ -30,6 +30,8 @@ import { ReportModal } from "@/components/oventric/ReportModal";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
+import { useIsAppShell } from "@/hooks/use-launch-context";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   addComment as addCommentFn,
