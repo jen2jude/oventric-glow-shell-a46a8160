@@ -1102,19 +1102,6 @@ export function Feed() {
       <div
         className={`w-full lg:flex-1 lg:min-w-0 flex flex-col ${isAppShell ? "space-y-3" : "space-y-4"}`}
       >
-        {isAppShell && (
-          <FeedSearchBar
-            appShell
-            q={query}
-            onQueryChange={setQuery}
-            category={category}
-            onCategoryChange={setCategory}
-            resultCount={
-              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
-            }
-          />
-        )}
-
         {/* Composer */}
         <button
           id="oventric-composer"
@@ -1122,7 +1109,7 @@ export function Feed() {
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
           className={`group w-full text-left flex items-center gap-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white ${
             isAppShell
-              ? "border-y border-white/[0.06] py-3 -mx-4 px-4 active:bg-white/[0.03]"
+              ? "bg-[#141416] border border-white/[0.06] rounded-2xl px-3 py-3 active:bg-white/[0.03]"
               : "bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md"
           }`}
         >
@@ -1135,7 +1122,7 @@ export function Feed() {
           </span>
           <span
             className={`flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors ${
-              isAppShell ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5" : ""
+              isAppShell ? "px-1" : ""
             }`}
           >
             <span
@@ -1177,6 +1164,19 @@ export function Feed() {
             ))}
           </span>
         </button>
+
+        {isAppShell && (
+          <FeedSearchBar
+            appShell
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
 
         {!isAppShell && (
           <FeedSearchBar
