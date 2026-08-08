@@ -324,14 +324,22 @@ function RootShell({ children }: { children: ReactNode }) {
             dangerouslySetInnerHTML={{
               __html: `(function(){try{
   var root=document.getElementById('oventric-boot');if(!root)return;
-  var standalone=false;
-  try{standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;}catch(e){}
-  window.__oventricStandalone=!!standalone;
+  var appShell=false;
+  try{
+    var params=new URLSearchParams(window.location.search);
+    var forced=params.get('mode');
+    var native=!!(window.Capacitor&&(typeof window.Capacitor.isNativePlatform==='function'?window.Capacitor.isNativePlatform():window.Capacitor.isNative));
+    var standalone=((window.matchMedia&&window.matchMedia('(display-mode: standalone)').matches)||navigator.standalone===true)&&window.matchMedia('(max-width: 767px)').matches;
+    appShell=forced==='app'?true:forced==='web'?false:(native||standalone);
+  }catch(e){}
+  window.__oventricStandalone=!!appShell;
+  if(appShell){document.documentElement.classList.add('standalone-app');}
   // Keep the node in the DOM (removing it before hydration causes a mismatch);
-  // just leave it hidden when this is not a standalone mobile launch.
-  if(standalone){root.style.display='flex';}else{root.style.display='none';}
+  // just leave it hidden when this is not an app-shell launch.
+  if(appShell){root.style.display='flex';}else{root.style.display='none';}
 
 }catch(e){}})();`,
+
             }}
           />
         </div>

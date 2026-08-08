@@ -24,11 +24,15 @@ export function useLaunchContext(): LaunchContext | null {
       if (forceMode === "web") return "browser";
 
       if (isNativeApp()) return "native";
+      const preboot = (window as unknown as { __oventricStandalone?: boolean })
+        .__oventricStandalone;
       const standalone =
+        preboot === true ||
         (typeof window.matchMedia === "function" &&
           window.matchMedia("(display-mode: standalone)").matches) ||
         (navigator as unknown as { standalone?: boolean }).standalone === true;
       return standalone ? "standalone" : "browser";
+
     };
     setCtx(read());
 
