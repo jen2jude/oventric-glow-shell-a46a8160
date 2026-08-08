@@ -1509,6 +1509,7 @@ export function Feed() {
               return (
                 <article
                   key={post.id}
+                  ref={trackPostView(post.id)}
                   id={`post-${post.id}`}
                   className={`md:bg-white md:shadow-sm border scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${
                     isAppShell
