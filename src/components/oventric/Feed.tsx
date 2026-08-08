@@ -320,6 +320,8 @@ interface PendingPost {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
+  const isAppShell = useIsAppShell();
+
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
