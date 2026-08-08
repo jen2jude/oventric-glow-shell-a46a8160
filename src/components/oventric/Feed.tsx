@@ -120,6 +120,40 @@ function timeAgo(iso: string): string {
   return `${d}d ago`;
 }
 
+/** 1200 → "1.2K"; used for view counters. */
+function compactCount(n: number): string {
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0).replace(/\.0$/, "")}K`;
+  return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+}
+
+/** Registers one view per post per browser session once it scrolls into view. */
+const viewedPostIds = new Set<string>();
+function useTrackPostView(postId: string) {
+  const ref = useRef<HTMLElement | null>(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el || viewedPostIds.has(postId) || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && !viewedPostIds.has(postId)) {
+            viewedPostIds.add(postId);
+            io.disconnect();
+            void (supabase as any).rpc("increment_post_view", { _post_id: postId });
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [postId]);
+  return ref;
+}
+
+
+
 type FeedMosaicLayout = {
   wrapperClass: string;
   tileClasses: string[];
