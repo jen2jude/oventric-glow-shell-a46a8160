@@ -324,7 +324,6 @@ export function Feed() {
   const { require, tier } = useOnboarding();
   const isAppShell = useIsAppShell();
 
-
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
   const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
@@ -1136,9 +1135,7 @@ export function Feed() {
           </span>
           <span
             className={`flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors ${
-              isAppShell
-                ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5"
-                : ""
+              isAppShell ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5" : ""
             }`}
           >
             <span
@@ -1192,7 +1189,6 @@ export function Feed() {
             }
           />
         )}
-
 
         {(debouncedQuery.length >= 2 || isGlobalCategory) && (
           <FeedGlobalResults q={debouncedQuery} category={category} />
@@ -1492,7 +1488,6 @@ export function Feed() {
                         ? "border-white/[0.06] md:border-slate-200"
                         : "border-white/10 md:border-slate-200"
                   }`}
-
                   style={
                     isNew
                       ? undefined
@@ -1502,7 +1497,6 @@ export function Feed() {
                   <header
                     className={`flex items-center gap-3 mb-3 ${isAppShell ? "px-4 pt-4 md:px-0 md:pt-0" : ""}`}
                   >
-
                     <Link
                       to="/profile/$id"
                       params={{ id: profileSlug }}
@@ -1641,7 +1635,6 @@ export function Feed() {
                               : "rounded-lg border border-white/10"
                           }`}
                         >
-
                           {displayed.map((url, i) => {
                             const isLastTile = count > 4 && i === displayed.length - 1;
                             return (
@@ -1675,7 +1668,9 @@ export function Feed() {
                       );
                     })()}
                   {post.media_url && post.media_type === "video" && (
-                    <div className={`relative mt-3 ${isAppShell ? "px-4 pb-4 md:px-0 md:pb-0" : ""}`}>
+                    <div
+                      className={`relative mt-3 ${isAppShell ? "px-4 pb-4 md:px-0 md:pb-0" : ""}`}
+                    >
                       <button
                         type="button"
                         onClick={() => setVideoStartId(post.id)}
@@ -1686,7 +1681,6 @@ export function Feed() {
                         }`}
                         aria-label="Play video"
                       >
-
                         <video
                           src={`${post.media_url}#t=0.1`}
                           poster={post.poster_url ?? undefined}
@@ -1722,7 +1716,6 @@ export function Feed() {
                         : "border-t border-white/5 text-slate-400"
                     }`}
                   >
-
                     <div className="relative flex items-center gap-2">
                       <ReactionButton
                         reaction={post.viewer_reaction ?? "love"}
@@ -1773,7 +1766,9 @@ export function Feed() {
                   </div>
 
                   {/* Comments preview: latest one, tap count → sheet */}
-                  <div className={`mt-3 ${isAppShell ? "px-4 pb-4 mt-0 md:px-0 md:pb-0 md:mt-3" : ""}`}>
+                  <div
+                    className={`mt-3 ${isAppShell ? "px-4 pb-4 mt-0 md:px-0 md:pb-0 md:mt-3" : ""}`}
+                  >
                     {comments.length === 0 ? (
                       <button
                         type="button"

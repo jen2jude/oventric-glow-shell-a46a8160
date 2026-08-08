@@ -103,7 +103,6 @@ export function FeedSearchBar({
         })}
       </div>
 
-
       {typeof resultCount === "number" && (
         <p className="mt-2 text-[11px] text-slate-500 md:text-slate-500">
           {resultCount} {resultCount === 1 ? "match" : "matches"}
