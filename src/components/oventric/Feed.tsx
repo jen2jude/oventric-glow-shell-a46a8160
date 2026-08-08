@@ -1095,28 +1095,71 @@ export function Feed() {
   const isLoggedIn = tier >= 1;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6 md:bg-white md:min-h-screen lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
-      <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
+    <div
+      className={`w-full max-w-7xl mx-auto md:bg-white md:min-h-screen lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable] ${
+        isAppShell ? "px-4 pt-3 pb-6 bg-[#0A0A0B]" : "px-4 py-6"
+      }`}
+    >
+      <div
+        className={`w-full lg:flex-1 lg:min-w-0 flex flex-col ${isAppShell ? "space-y-3" : "space-y-4"}`}
+      >
+        {isAppShell && (
+          <FeedSearchBar
+            appShell
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
+
         {/* Composer */}
         <button
           id="oventric-composer"
           type="button"
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className="group w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 flex items-center gap-3 transition-all duration-200 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white"
+          className={`group w-full text-left flex items-center gap-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white ${
+            isAppShell
+              ? "border-y border-white/[0.06] py-3 -mx-4 px-4 active:bg-white/[0.03]"
+              : "bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md"
+          }`}
         >
-          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 md:ring-1 md:ring-slate-200 flex items-center justify-center">
+          <span
+            className={`w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 md:ring-1 md:ring-slate-200 flex items-center justify-center ${
+              isAppShell ? "border border-white/[0.06]" : ""
+            }`}
+          >
             <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
           </span>
-          <span className="flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors">
-            <span className="block text-sm text-slate-400 md:text-slate-500 md:font-normal truncate">
+          <span
+            className={`flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors ${
+              isAppShell
+                ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5"
+                : ""
+            }`}
+          >
+            <span
+              className={`block text-sm truncate md:text-slate-500 md:font-normal ${
+                isAppShell ? "text-white/40 font-light" : "text-slate-400"
+              }`}
+            >
               {placeholderIdx === 0
                 ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
                 : "What's on your mind today, update us!"}
             </span>
           </span>
-          <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">
-            Photo · Video · @Mention
-          </span>
+          {isAppShell ? (
+            <span className="text-emerald-500 p-1 shrink-0" aria-hidden>
+              <ImageIcon className="w-6 h-6" strokeWidth={1.5} />
+            </span>
+          ) : (
+            <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">
+              Photo · Video · @Mention
+            </span>
+          )}
           <span className="hidden md:flex items-center gap-1 shrink-0">
             {[
               {
@@ -1138,15 +1181,18 @@ export function Feed() {
           </span>
         </button>
 
-        <FeedSearchBar
-          q={query}
-          onQueryChange={setQuery}
-          category={category}
-          onCategoryChange={setCategory}
-          resultCount={
-            showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
-          }
-        />
+        {!isAppShell && (
+          <FeedSearchBar
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
+
 
         {(debouncedQuery.length >= 2 || isGlobalCategory) && (
           <FeedGlobalResults q={debouncedQuery} category={category} />
