@@ -21,6 +21,8 @@ import {
   BookOpen,
   User,
   Users,
+  Globe,
+  Eye,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
