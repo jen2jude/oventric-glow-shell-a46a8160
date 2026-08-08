@@ -1122,7 +1122,7 @@ export function Feed() {
           </span>
           <span
             className={`flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors ${
-              isAppShell ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5" : ""
+              isAppShell ? "px-1" : ""
             }`}
           >
             <span
