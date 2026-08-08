@@ -1165,6 +1165,19 @@ export function Feed() {
           </span>
         </button>
 
+        {isAppShell && (
+          <FeedSearchBar
+            appShell
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
+
         {!isAppShell && (
           <FeedSearchBar
             q={query}
