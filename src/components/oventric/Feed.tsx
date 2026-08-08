@@ -1675,13 +1675,18 @@ export function Feed() {
                       );
                     })()}
                   {post.media_url && post.media_type === "video" && (
-                    <div className="relative mt-3">
+                    <div className={`relative mt-3 ${isAppShell ? "px-4 pb-4 md:px-0 md:pb-0" : ""}`}>
                       <button
                         type="button"
                         onClick={() => setVideoStartId(post.id)}
-                        className="relative block w-full aspect-video rounded-lg border border-white/10 md:border-slate-200 bg-black overflow-hidden group"
+                        className={`relative block w-full aspect-video overflow-hidden group bg-black md:rounded-lg md:border md:border-slate-200 ${
+                          isAppShell
+                            ? "rounded-xl border border-white/[0.06]"
+                            : "rounded-lg border border-white/10"
+                        }`}
                         aria-label="Play video"
                       >
+
                         <video
                           src={`${post.media_url}#t=0.1`}
                           poster={post.poster_url ?? undefined}
