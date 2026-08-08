@@ -27,15 +27,24 @@ export function FeedSearchBar({
   category,
   onCategoryChange,
   resultCount,
+  appShell = false,
 }: {
   q: string;
   onQueryChange: (v: string) => void;
   category: FeedCategory;
   onCategoryChange: (c: FeedCategory) => void;
   resultCount?: number | null;
+  /** Native app shell: chrome-less, hairline-bordered treatment. */
+  appShell?: boolean;
 }) {
   return (
-    <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-3 md:p-3.5">
+    <div
+      className={
+        appShell
+          ? "px-0 pt-1 pb-0"
+          : "bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-3 md:p-3.5"
+      }
+    >
       <div className="relative group">
         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 md:group-focus-within:text-emerald-600 transition-colors" />
         <input
@@ -47,8 +56,12 @@ export function FeedSearchBar({
           onKeyDown={(e) => {
             if (e.key === "Escape") onQueryChange("");
           }}
-          placeholder="Search posts, bounties, assets…"
-          className="w-full h-10 pl-10 pr-9 rounded-lg text-sm bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:outline-none focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20 transition-all"
+          placeholder={appShell ? "Search feed" : "Search posts, bounties, assets…"}
+          className={`w-full h-10 pl-10 pr-9 text-sm focus:outline-none transition-all ${
+            appShell
+              ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-emerald-500/50"
+              : "rounded-lg bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20"
+          }`}
         />
         {q && (
           <button
@@ -76,10 +89,12 @@ export function FeedSearchBar({
               role="tab"
               aria-selected={active}
               onClick={() => onCategoryChange(c.id)}
-              className={`shrink-0 rounded-full px-3 py-1.5 text-xs font-semibold transition-colors ${
+              className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
                 active
-                  ? "bg-emerald-500 text-black"
-                  : "bg-white/[0.06] md:bg-slate-100 text-slate-300 md:text-slate-600 hover:bg-white/10 md:hover:bg-slate-200"
+                  ? "bg-emerald-500 text-black font-semibold"
+                  : appShell
+                    ? "bg-[#141416] border border-white/[0.06] text-white/60 font-medium hover:text-white"
+                    : "bg-white/[0.06] md:bg-slate-100 text-slate-300 md:text-slate-600 font-semibold hover:bg-white/10 md:hover:bg-slate-200"
               }`}
             >
               {c.label}

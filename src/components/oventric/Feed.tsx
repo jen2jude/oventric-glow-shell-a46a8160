@@ -30,6 +30,8 @@ import { ReportModal } from "@/components/oventric/ReportModal";
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
+import { useIsAppShell } from "@/hooks/use-launch-context";
+
 import { supabase } from "@/integrations/supabase/client";
 import {
   addComment as addCommentFn,
@@ -320,6 +322,7 @@ interface PendingPost {
 
 export function Feed() {
   const { require, tier } = useOnboarding();
+  const isAppShell = useIsAppShell();
 
   const [meId, setMeId] = useState<string | null>(null);
   const [meLastName, setMeLastName] = useState<string>("");
@@ -1091,28 +1094,69 @@ export function Feed() {
   const isLoggedIn = tier >= 1;
 
   return (
-    <div className="w-full max-w-7xl mx-auto px-4 py-6 md:bg-white md:min-h-screen lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable]">
-      <div className="w-full lg:flex-1 lg:min-w-0 flex flex-col space-y-4">
+    <div
+      className={`w-full max-w-7xl mx-auto md:bg-white md:min-h-screen lg:flex lg:flex-row lg:gap-6 lg:items-start lg:[scrollbar-gutter:stable] ${
+        isAppShell ? "px-4 pt-3 pb-6 bg-[#0A0A0B]" : "px-4 py-6"
+      }`}
+    >
+      <div
+        className={`w-full lg:flex-1 lg:min-w-0 flex flex-col ${isAppShell ? "space-y-3" : "space-y-4"}`}
+      >
+        {isAppShell && (
+          <FeedSearchBar
+            appShell
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
+
         {/* Composer */}
         <button
           id="oventric-composer"
           type="button"
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className="group w-full text-left bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 flex items-center gap-3 transition-all duration-200 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white"
+          className={`group w-full text-left flex items-center gap-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white ${
+            isAppShell
+              ? "border-y border-white/[0.06] py-3 -mx-4 px-4 active:bg-white/[0.03]"
+              : "bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md"
+          }`}
         >
-          <span className="w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 md:ring-1 md:ring-slate-200 flex items-center justify-center">
+          <span
+            className={`w-9 h-9 rounded-full overflow-hidden shrink-0 bg-neutral-800 md:bg-slate-200 md:ring-1 md:ring-slate-200 flex items-center justify-center ${
+              isAppShell ? "border border-white/[0.06]" : ""
+            }`}
+          >
             <AvatarImage src={meAvatarUrl} alt="Your profile" initials={meInitials} />
           </span>
-          <span className="flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors">
-            <span className="block text-sm text-slate-400 md:text-slate-500 md:font-normal truncate">
+          <span
+            className={`flex-1 min-w-0 md:rounded-full md:bg-slate-100 md:group-hover:bg-slate-100/80 md:px-4 md:py-2.5 md:transition-colors ${
+              isAppShell ? "bg-[#141416] border border-white/[0.06] rounded-xl px-4 py-2.5" : ""
+            }`}
+          >
+            <span
+              className={`block text-sm truncate md:text-slate-500 md:font-normal ${
+                isAppShell ? "text-white/40 font-light" : "text-slate-400"
+              }`}
+            >
               {placeholderIdx === 0
                 ? `Hey${meLastName ? ` ${meLastName}` : ""}! What are you creating today?`
                 : "What's on your mind today, update us!"}
             </span>
           </span>
-          <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">
-            Photo · Video · @Mention
-          </span>
+          {isAppShell ? (
+            <span className="text-emerald-500 p-1 shrink-0" aria-hidden>
+              <ImageIcon className="w-6 h-6" strokeWidth={1.5} />
+            </span>
+          ) : (
+            <span className="hidden sm:flex md:hidden text-[11px] text-slate-500">
+              Photo · Video · @Mention
+            </span>
+          )}
           <span className="hidden md:flex items-center gap-1 shrink-0">
             {[
               {
@@ -1134,15 +1178,17 @@ export function Feed() {
           </span>
         </button>
 
-        <FeedSearchBar
-          q={query}
-          onQueryChange={setQuery}
-          category={category}
-          onCategoryChange={setCategory}
-          resultCount={
-            showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
-          }
-        />
+        {!isAppShell && (
+          <FeedSearchBar
+            q={query}
+            onQueryChange={setQuery}
+            category={category}
+            onCategoryChange={setCategory}
+            resultCount={
+              showPostList && (debouncedQuery || category !== "all") ? filteredPosts.length : null
+            }
+          />
+        )}
 
         {(debouncedQuery.length >= 2 || isGlobalCategory) && (
           <FeedGlobalResults q={debouncedQuery} category={category} />
@@ -1431,10 +1477,16 @@ export function Feed() {
                 <article
                   key={post.id}
                   id={`post-${post.id}`}
-                  className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${isReported ? "opacity-70" : ""} ${
+                  className={`md:bg-white md:shadow-sm border scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${
+                    isAppShell
+                      ? "bg-[#141416] rounded-2xl p-0 overflow-hidden md:p-5 md:rounded-xl"
+                      : "bg-[#1E1E24] rounded-xl p-5"
+                  } ${isReported ? "opacity-70" : ""} ${
                     isNew
                       ? "border-emerald-400/70 post-highlight"
-                      : "border-white/10 md:border-slate-200"
+                      : isAppShell
+                        ? "border-white/[0.06] md:border-slate-200"
+                        : "border-white/10 md:border-slate-200"
                   }`}
                   style={
                     isNew
@@ -1442,7 +1494,9 @@ export function Feed() {
                       : { contentVisibility: "auto", containIntrinsicSize: "1px 600px" }
                   }
                 >
-                  <header className="flex items-center gap-3 mb-3">
+                  <header
+                    className={`flex items-center gap-3 mb-3 ${isAppShell ? "px-4 pt-4 md:px-0 md:pt-0" : ""}`}
+                  >
                     <Link
                       to="/profile/$id"
                       params={{ id: profileSlug }}
@@ -1543,7 +1597,9 @@ export function Feed() {
                     )}
                   </header>
                   {isReported && (
-                    <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600">
+                    <div
+                      className={`mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
+                    >
                       <Flag className="w-3 h-3" />
                       You reported this post. It's hidden from your feed pending review.
                     </div>
@@ -1551,8 +1607,13 @@ export function Feed() {
                   <TruncatedText
                     text={post.text || ""}
                     lines={3}
-                    className="text-slate-300 md:text-slate-700 text-sm leading-relaxed"
+                    className={`md:text-slate-700 leading-relaxed ${
+                      isAppShell
+                        ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
+                        : "text-sm text-slate-300"
+                    }`}
                   />
+
                   {post.media_type === "image" &&
                     post.media.length > 0 &&
                     (() => {
@@ -1564,7 +1625,15 @@ export function Feed() {
                       const displayed = imgs.slice(0, layout.displayedCount);
                       return (
                         <div
-                          className={`relative mt-3 ${layout.wrapperClass} rounded-lg overflow-hidden border border-white/10 md:border-slate-200`}
+                          className={`relative mt-3 ${
+                            isAppShell
+                              ? layout.wrapperClass.replace("gap-1", "gap-[2px]")
+                              : layout.wrapperClass
+                          } overflow-hidden md:rounded-lg md:border md:border-slate-200 ${
+                            isAppShell
+                              ? "mx-4 mb-4 rounded-xl border border-white/[0.06] md:mx-0 md:mb-0"
+                              : "rounded-lg border border-white/10"
+                          }`}
                         >
                           {displayed.map((url, i) => {
                             const isLastTile = count > 4 && i === displayed.length - 1;
@@ -1599,11 +1668,17 @@ export function Feed() {
                       );
                     })()}
                   {post.media_url && post.media_type === "video" && (
-                    <div className="relative mt-3">
+                    <div
+                      className={`relative mt-3 ${isAppShell ? "px-4 pb-4 md:px-0 md:pb-0" : ""}`}
+                    >
                       <button
                         type="button"
                         onClick={() => setVideoStartId(post.id)}
-                        className="relative block w-full aspect-video rounded-lg border border-white/10 md:border-slate-200 bg-black overflow-hidden group"
+                        className={`relative block w-full aspect-video overflow-hidden group bg-black md:rounded-lg md:border md:border-slate-200 ${
+                          isAppShell
+                            ? "rounded-xl border border-white/[0.06]"
+                            : "rounded-lg border border-white/10"
+                        }`}
                         aria-label="Play video"
                       >
                         <video
@@ -1634,7 +1709,13 @@ export function Feed() {
                   )}
 
                   {/* Action bar */}
-                  <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 md:border-slate-200 text-slate-400 md:text-slate-600 text-xs">
+                  <div
+                    className={`relative flex items-center gap-1 mt-4 pt-3 md:border-slate-200 md:text-slate-600 text-xs ${
+                      isAppShell
+                        ? "border-t border-white/[0.06] px-4 pb-3 mt-0 text-white/40 md:px-0 md:pb-0 md:mt-4"
+                        : "border-t border-white/5 text-slate-400"
+                    }`}
+                  >
                     <div className="relative flex items-center gap-2">
                       <ReactionButton
                         reaction={post.viewer_reaction ?? "love"}
@@ -1685,7 +1766,9 @@ export function Feed() {
                   </div>
 
                   {/* Comments preview: latest one, tap count → sheet */}
-                  <div className="mt-3">
+                  <div
+                    className={`mt-3 ${isAppShell ? "px-4 pb-4 mt-0 md:px-0 md:pb-0 md:mt-3" : ""}`}
+                  >
                     {comments.length === 0 ? (
                       <button
                         type="button"
