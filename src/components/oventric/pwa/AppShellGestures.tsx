@@ -22,9 +22,11 @@ export function AppShellGestures() {
     const root = document.documentElement;
     const check = () => {
       const standalone =
+        (window as unknown as { __oventricStandalone?: boolean }).__oventricStandalone === true ||
         window.matchMedia?.("(display-mode: standalone)").matches ||
         (navigator as Navigator & { standalone?: boolean }).standalone === true;
       root.classList.toggle("standalone-app", !!standalone);
+
     };
     check();
     const mql = window.matchMedia("(display-mode: standalone)");
