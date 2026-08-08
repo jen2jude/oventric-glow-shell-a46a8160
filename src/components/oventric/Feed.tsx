@@ -1773,7 +1773,7 @@ export function Feed() {
                   </div>
 
                   {/* Comments preview: latest one, tap count → sheet */}
-                  <div className="mt-3">
+                  <div className={`mt-3 ${isAppShell ? "px-4 pb-4 mt-0 md:px-0 md:pb-0 md:mt-3" : ""}`}>
                     {comments.length === 0 ? (
                       <button
                         type="button"
