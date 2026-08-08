@@ -145,9 +145,7 @@ function trackPostView(postId: string) {
       { threshold: 0.5 },
     );
     io.observe(el);
-    return () => io.disconnect();
-  }, [postId]);
-  return ref;
+  };
 }
 
 
