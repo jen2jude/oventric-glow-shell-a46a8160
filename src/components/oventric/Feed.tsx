@@ -1603,7 +1603,9 @@ export function Feed() {
                     )}
                   </header>
                   {isReported && (
-                    <div className="mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600">
+                    <div
+                      className={`mb-3 flex items-center gap-2 rounded-lg bg-amber-500/10 border border-amber-500/30 px-3 py-2 text-[11px] text-amber-300 md:text-amber-600 ${isAppShell ? "mx-4 md:mx-0" : ""}`}
+                    >
                       <Flag className="w-3 h-3" />
                       You reported this post. It's hidden from your feed pending review.
                     </div>
@@ -1611,8 +1613,13 @@ export function Feed() {
                   <TruncatedText
                     text={post.text || ""}
                     lines={3}
-                    className="text-slate-300 md:text-slate-700 text-sm leading-relaxed"
+                    className={`md:text-slate-700 leading-relaxed ${
+                      isAppShell
+                        ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
+                        : "text-sm text-slate-300"
+                    }`}
                   />
+
                   {post.media_type === "image" &&
                     post.media.length > 0 &&
                     (() => {
