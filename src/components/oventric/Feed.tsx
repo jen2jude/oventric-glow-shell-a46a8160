@@ -56,6 +56,7 @@ import {
   ReactionSplash,
   ReactionImageBadge,
   ReactionButton,
+  ReactionGlyph,
   REACTION_META,
 } from "@/components/oventric/feed/Reactions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
