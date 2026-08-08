@@ -1715,7 +1715,14 @@ export function Feed() {
                   )}
 
                   {/* Action bar */}
-                  <div className="relative flex items-center gap-1 mt-4 pt-3 border-t border-white/5 md:border-slate-200 text-slate-400 md:text-slate-600 text-xs">
+                  <div
+                    className={`relative flex items-center gap-1 mt-4 pt-3 md:border-slate-200 md:text-slate-600 text-xs ${
+                      isAppShell
+                        ? "border-t border-white/[0.06] px-4 pb-3 mt-0 text-white/40 md:px-0 md:pb-0 md:mt-4"
+                        : "border-t border-white/5 text-slate-400"
+                    }`}
+                  >
+
                     <div className="relative flex items-center gap-2">
                       <ReactionButton
                         reaction={post.viewer_reaction ?? "love"}
