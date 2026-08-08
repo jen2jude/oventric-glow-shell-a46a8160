@@ -2448,6 +2448,7 @@ export type Database = {
           shared_to_feed: boolean
           text: string
           updated_at: string
+          views_count: number
           wall_user_id: string | null
         }
         Insert: {
@@ -2463,6 +2464,7 @@ export type Database = {
           shared_to_feed?: boolean
           text: string
           updated_at?: string
+          views_count?: number
           wall_user_id?: string | null
         }
         Update: {
@@ -2478,6 +2480,7 @@ export type Database = {
           shared_to_feed?: boolean
           text?: string
           updated_at?: string
+          views_count?: number
           wall_user_id?: string | null
         }
         Relationships: [
@@ -3242,6 +3245,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      increment_post_view: { Args: { _post_id: string }; Returns: undefined }
       is_circle_admin: {
         Args: { _circle_id: string; _user_id: string }
         Returns: boolean

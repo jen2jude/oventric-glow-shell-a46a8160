@@ -21,6 +21,8 @@ import {
   BookOpen,
   User,
   Users,
+  Globe,
+  Eye,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
@@ -54,6 +56,7 @@ import {
   ReactionSplash,
   ReactionImageBadge,
   ReactionButton,
+  ReactionGlyph,
   REACTION_META,
 } from "@/components/oventric/feed/Reactions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
@@ -116,6 +119,36 @@ function timeAgo(iso: string): string {
   const d = Math.floor(h / 24);
   return `${d}d ago`;
 }
+
+/** 1200 → "1.2K"; used for view counters. */
+function compactCount(n: number): string {
+  if (n < 1000) return String(n);
+  if (n < 1_000_000) return `${(n / 1000).toFixed(n < 10_000 ? 1 : 0).replace(/\.0$/, "")}K`;
+  return `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}M`;
+}
+
+/** Registers one view per post per browser session once it scrolls into view. */
+const viewedPostIds = new Set<string>();
+function trackPostView(postId: string) {
+  return (el: HTMLElement | null) => {
+    if (!el || viewedPostIds.has(postId) || typeof IntersectionObserver === "undefined") return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const e of entries) {
+          if (e.isIntersecting && !viewedPostIds.has(postId)) {
+            viewedPostIds.add(postId);
+            io.disconnect();
+            void (supabase as any).rpc("increment_post_view", { _post_id: postId });
+          }
+        }
+      },
+      { threshold: 0.5 },
+    );
+    io.observe(el);
+  };
+}
+
+
 
 type FeedMosaicLayout = {
   wrapperClass: string;
@@ -1476,6 +1509,7 @@ export function Feed() {
               return (
                 <article
                   key={post.id}
+                  ref={trackPostView(post.id)}
                   id={`post-${post.id}`}
                   className={`md:bg-white md:shadow-sm border scroll-mt-24 md:scroll-mt-28 [transition:border-color_400ms_ease,box-shadow_400ms_ease,opacity_300ms_ease] ${
                     isAppShell
@@ -1544,8 +1578,11 @@ export function Feed() {
                           </span>
                         )}
                       </div>
-                      <div className="text-xs text-slate-500 md:text-slate-500">
-                        {timeAgo(post.created_at)}
+                      <div className="flex items-center gap-1.5 text-[11px] text-slate-500 md:text-slate-500">
+                        <span>{timeAgo(post.created_at)}</span>
+                        <span aria-hidden>·</span>
+                        <Globe className="w-3 h-3" aria-hidden />
+                        <span className="sr-only">Public post</span>
                       </div>
                       {post.circle && (
                         <div className="mt-1.5 flex items-center gap-2 text-[11px]">
@@ -1708,19 +1745,68 @@ export function Feed() {
                     </div>
                   )}
 
+                  {/* Engagement summary */}
+                  {(() => {
+                    const topReactions = (
+                      Object.entries(post.reactions ?? {}) as [ReactionType, number][]
+                    )
+                      .filter(([, n]) => n > 0)
+                      .sort((a, b) => b[1] - a[1])
+                      .slice(0, 3)
+                      .map(([r]) => r);
+                    return (
+                      <div
+                        className={`flex items-center gap-2 mt-3 text-[11px] md:text-slate-500 ${
+                          isAppShell ? "px-4 text-white/45 md:px-0" : "text-slate-400"
+                        }`}
+                      >
+                        {topReactions.length > 0 ? (
+                          <span className="flex items-center gap-1.5">
+                            <span className="flex items-center -space-x-1">
+                              {topReactions.map((r) => (
+                                <ReactionGlyph
+                                  key={r}
+                                  reaction={r}
+                                  size={16}
+                                  animate={false}
+                                  className="w-4 h-4"
+                                />
+                              ))}
+                            </span>
+                            <span className="font-semibold">{post.likes_count}</span>
+                          </span>
+                        ) : (
+                          <span>Be the first to react</span>
+                        )}
+                        <span className="ml-auto flex items-center gap-2.5">
+                          <button
+                            type="button"
+                            onClick={() => setCommentsSheetPostId(post.id)}
+                            className="hover:underline"
+                          >
+                            {post.comments_count}{" "}
+                            {post.comments_count === 1 ? "comment" : "comments"}
+                          </button>
+                          <span className="inline-flex items-center gap-1">
+                            <Eye className="w-3.5 h-3.5" aria-hidden />
+                            {compactCount(post.views_count ?? 0)}
+                          </span>
+                        </span>
+                      </div>
+                    );
+                  })()}
+
                   {/* Action bar */}
                   <div
-                    className={`relative flex items-center gap-1 mt-4 pt-3 md:border-slate-200 md:text-slate-600 text-xs ${
+                    className={`relative grid grid-cols-3 items-center gap-1 mt-2 pt-1.5 md:border-slate-200 md:text-slate-600 text-xs ${
                       isAppShell
-                        ? "border-t border-white/[0.06] px-4 pb-3 mt-0 text-white/40 md:px-0 md:pb-0 md:mt-4"
+                        ? "border-t border-white/[0.06] px-2 pb-2 text-white/55 md:px-0 md:pb-0"
                         : "border-t border-white/5 text-slate-400"
                     }`}
                   >
-                    <div className="relative flex items-center gap-2">
-                      <ReactionButton
-                        reaction={post.viewer_reaction ?? "love"}
-                        size="sm"
-                        ariaLabel="React"
+                    <div className="relative flex items-center justify-center">
+                      <button
+                        type="button"
                         onClick={() => {
                           if (post.viewer_reaction) {
                             handleReact(post, null);
@@ -1728,19 +1814,25 @@ export function Feed() {
                             setPickerFor((v) => (v === post.id ? null : post.id));
                           }
                         }}
-                      />
-                      <span
-                        className="font-semibold"
+                        className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
                         style={{
                           color: post.viewer_reaction
                             ? REACTION_META[post.viewer_reaction].color
                             : undefined,
                         }}
+                        aria-label="React"
                       >
-                        {post.likes_count}
-                      </span>
+                        <ReactionGlyph
+                          reaction={post.viewer_reaction ?? "love"}
+                          size={18}
+                          animate={false}
+                          className="w-[18px] h-[18px]"
+                        />
+                        {post.viewer_reaction ? REACTION_META[post.viewer_reaction].label : "React"}
+                      </button>
                       {pickerFor === post.id && (
                         <ReactionPicker
+                          align="center"
                           onPick={(r) => {
                             setPickerFor(null);
                             handleReact(post, r);
@@ -1752,18 +1844,21 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors"
+                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
-                      <MessageSquare className="w-4 h-4" /> {post.comments_count}
+                      <MessageSquare className="w-4 h-4" /> Comment
                     </button>
                     <button
+                      type="button"
                       onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors ml-auto"
+                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                     >
                       <Share2 className="w-4 h-4" /> Share
                     </button>
                   </div>
+
+
 
                   {/* Comments preview: latest one, tap count → sheet */}
                   <div

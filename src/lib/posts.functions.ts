@@ -42,6 +42,7 @@ export interface FeedPost {
   viewer_reaction: ReactionType | null;
   reactions: Record<ReactionType, number>;
   comments_count: number;
+  views_count: number;
   // Legacy fields (kept so existing render paths keep working for single-media rows).
   media_url: string | null;
   media_type: "image" | "video" | null;
@@ -259,6 +260,7 @@ async function buildFeedPosts(
       viewer_reaction,
       reactions,
       comments_count: commentCounts.get(r.id) ?? 0,
+      views_count: Number((r as any).views_count ?? 0),
       media_url: primary?.url ?? null,
       media_type: primary?.type ?? null,
       poster_url: primary?.type === "video" ? (primary?.poster_url ?? null) : null,
@@ -283,7 +285,7 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   const { sb, userId } = await getViewerClient();
   const { data: posts, error } = await sb
     .from("posts")
-    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
+    .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id, views_count" as any)
     .is("wall_user_id" as any, null)
     .order("created_at", { ascending: false })
     .limit(100);
@@ -303,7 +305,7 @@ export const listWallPosts = createServerFn({ method: "GET" })
     //         (b) the wall owner's own public newsfeed posts (no circle, no other wall).
     const { data: rows, error } = await sb
       .from("posts")
-      .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id" as any)
+      .select("id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id, views_count" as any)
       .or(
         `wall_user_id.eq.${data.wallUserId},and(wall_user_id.is.null,author_id.eq.${data.wallUserId},audience.eq.public,circle_id.is.null)`,
       )
