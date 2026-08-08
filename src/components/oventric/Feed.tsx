@@ -129,10 +129,8 @@ function compactCount(n: number): string {
 
 /** Registers one view per post per browser session once it scrolls into view. */
 const viewedPostIds = new Set<string>();
-function useTrackPostView(postId: string) {
-  const ref = useRef<HTMLElement | null>(null);
-  useEffect(() => {
-    const el = ref.current;
+function trackPostView(postId: string) {
+  return (el: HTMLElement | null) => {
     if (!el || viewedPostIds.has(postId) || typeof IntersectionObserver === "undefined") return;
     const io = new IntersectionObserver(
       (entries) => {
