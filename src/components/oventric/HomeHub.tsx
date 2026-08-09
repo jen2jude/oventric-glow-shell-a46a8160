@@ -43,6 +43,7 @@ export type HubProps = {
   onCreate: (choice?: ChoiceKey) => void;
   onOpenMessages: () => void;
   counts?: Counts;
+  returnedToHub?: boolean;
 };
 
 type Tile = {
