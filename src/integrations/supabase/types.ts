@@ -2712,6 +2712,10 @@ export type Database = {
           phone: string | null
           profile_completed_at: string | null
           reputation_stars: number
+          shop_about: string | null
+          shop_cover_path: string | null
+          shop_logo_path: string | null
+          shop_name: string | null
           skills: string[]
           slug: string
           social_links: Json
@@ -2747,6 +2751,10 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          shop_about?: string | null
+          shop_cover_path?: string | null
+          shop_logo_path?: string | null
+          shop_name?: string | null
           skills?: string[]
           slug: string
           social_links?: Json
@@ -2782,6 +2790,10 @@ export type Database = {
           phone?: string | null
           profile_completed_at?: string | null
           reputation_stars?: number
+          shop_about?: string | null
+          shop_cover_path?: string | null
+          shop_logo_path?: string | null
+          shop_name?: string | null
           skills?: string[]
           slug?: string
           social_links?: Json
