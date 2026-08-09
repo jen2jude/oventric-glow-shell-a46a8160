@@ -30,7 +30,6 @@ import type {
   ProfileGroup,
   ProfileListing,
   ProfileBounty,
-  ProfileArticle,
 } from "@/lib/profiles/mockProfiles";
 import {
   ArrowLeft,
@@ -233,12 +232,6 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
   ],
   skills: [{ value: "newest", label: "Newest" }],
   collections: [{ value: "newest", label: "Newest" }],
-  blog: [
-    { value: "newest", label: "Newest" },
-    { value: "most_liked", label: "Most reactions" },
-    { value: "most_commented", label: "Most commented" },
-    { value: "alpha", label: "A – Z" },
-  ],
 };
 const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   posts: "Search posts…",
@@ -248,10 +241,8 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   skills: "Search skills…",
   collections: "Search boards…",
   courses: "Search courses…",
-
   posted: "Search bounties…",
   solved: "Search solved bounties…",
-  blog: "Search articles…",
 };
 
 function ProfilePage() {
@@ -347,10 +338,8 @@ function ProfilePage() {
     skills: { ...emptyTabState },
     collections: { ...emptyTabState },
     courses: { ...emptyTabState },
-
     posted: { ...emptyTabState },
     solved: { ...emptyTabState },
-    blog: { ...emptyTabState },
   });
   const PAGE_SIZE = 6;
 
@@ -742,12 +731,10 @@ function ProfilePage() {
       marketplace: { ...emptyTabState },
       services: { ...emptyTabState },
       skills: { ...emptyTabState },
-    collections: { ...emptyTabState },
+      collections: { ...emptyTabState },
       courses: { ...emptyTabState },
-
       posted: { ...emptyTabState },
       solved: { ...emptyTabState },
-      blog: { ...emptyTabState },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile.id]);
