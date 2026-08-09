@@ -34,6 +34,7 @@ import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
+import { SpotlightRail } from "@/components/oventric/SpotlightRail";
 
 type Counts = Partial<Record<string, number>>;
 
@@ -413,6 +414,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </div>
         </section>
       )}
+
+      {/* Spotlights */}
+      <SpotlightRail onSelect={onSelect} />
 
       {/* Live strips */}
       <MiniRail
