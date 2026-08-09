@@ -1959,26 +1959,6 @@ function ProfilePage() {
   );
 }
 
-function RepStat({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="profile-card-safe bg-[#17171C] md:bg-white md:shadow-sm border border-white/5  md:border-slate-200 rounded-lg px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-1 text-sm">{value}</div>
-    </div>
-  );
-}
-
 /** 2.4K-style compact numbers for the identity stat strip. */
 function compactCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
@@ -1986,32 +1966,6 @@ function compactCount(n: number): string {
   return String(n);
 }
 
-
-function MobileRepLine({
-  label,
-  value,
-  icon,
-  last = false,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30] md:border-slate-200"}`}
-    >
-      <div className="flex min-w-0 items-center gap-2">
-        {icon ? <span className="shrink-0 inline-flex">{icon}</span> : null}
-        <div className="min-w-0 text-xs font-semibold text-slate-300 md:text-slate-600">
-          {label}
-        </div>
-      </div>
-      <div className="shrink-0 text-sm font-black text-white md:text-slate-900">{value}</div>
-    </div>
-  );
-}
 
 function relTime(iso: string | null): string | null {
   if (!iso) return null;
@@ -2093,23 +2047,6 @@ function CircleStatusNote({
     );
   }
   return null;
-}
-
-function StarRow({ value }: { value: number }) {
-  return (
-    <div className="flex items-center">
-      {[0, 1, 2, 3, 4].map((i) => {
-        const filled = value >= i + 1;
-        const half = !filled && value >= i + 0.5;
-        return (
-          <Star
-            key={i}
-            className={`w-3 h-3 ${filled ? "fill-yellow-400 text-yellow-400" : half ? "fill-yellow-400/50 text-yellow-400/60" : "text-slate-600"}`}
-          />
-        );
-      })}
-    </div>
-  );
 }
 
 function TabFilters({
