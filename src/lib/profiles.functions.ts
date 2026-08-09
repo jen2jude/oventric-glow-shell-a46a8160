@@ -208,6 +208,7 @@ export interface RealProfileView {
   coverUrl: string | null;
   socialLinks: SocialLinks;
   skills: string[];
+  interests: string[];
 
   verificationTier: string;
   reputationStars: number;
