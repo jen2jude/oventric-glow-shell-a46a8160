@@ -1165,23 +1165,45 @@ function ProfilePage() {
                     >
                       <Share2 className="h-4 w-4" />
                     </button>
-                    {isOwnProfile ? (
-                      <button
-                        onClick={() => setEditProfileOpen(true)}
-                        aria-label="Edit profile"
-                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-200 md:text-slate-700 hover:bg-[#232329]"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setReportOpen(true)}
-                        aria-label="Report profile"
-                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-[#E5484D]"
-                      >
-                        <Flag className="h-4 w-4" />
-                      </button>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          aria-label="More profile options"
+                          className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] text-slate-200 hover:bg-[#232329] md:border-slate-200 md:bg-white md:text-slate-700"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem onClick={handleCopyLink}>
+                          {copied ? (
+                            <Check className="mr-2 h-4 w-4" />
+                          ) : (
+                            <Link2 className="mr-2 h-4 w-4" />
+                          )}
+                          {copied ? "Link copied" : "Copy profile link"}
+                        </DropdownMenuItem>
+                        {isOwnProfile ? (
+                          <>
+                            <DropdownMenuItem onClick={() => setEditProfileOpen(true)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit profile
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setFollowRequestsOpen(true)}>
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              Follow requests
+                              {pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount})` : ""}
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          <DropdownMenuItem onClick={() => setReportOpen(true)}>
+                            <Flag className="mr-2 h-4 w-4" />
+                            Report profile
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+
                   </div>
                 </div>
 
