@@ -4,22 +4,17 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Eye,
   EyeOff,
-  Plus,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  Send,
   Store,
   Target,
   GraduationCap,
   Newspaper,
   LayoutDashboard,
-  Megaphone,
-  Gift,
-  BookOpen,
+  MessageSquare,
+  Users,
+  Newspaper as FeedIcon,
   LifeBuoy,
   ChevronRight,
   KeyRound,
-  User,
   Star,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,10 +25,6 @@ import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
-import promoCashbackArt from "@/assets/promo-cashback.png";
-import promoReferArt from "@/assets/promo-refer.png";
-import promoAdvertiseArt from "@/assets/promo-advertise.png";
-import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
@@ -42,24 +33,7 @@ import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { PromoBanners } from "@/components/oventric/PromoBanners";
-import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
-
-import homeIcon from "@/assets/home-3d.png.asset.json";
-import walletIcon from "@/assets/wallet-3d.webp.asset.json";
-import marketIcon from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
-import circlesIcon from "@/assets/circles-3d.png.asset.json";
-import messageIcon from "@/assets/message-3d.webp.asset.json";
+import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
 type Counts = Partial<Record<string, number>>;
 
@@ -72,105 +46,31 @@ export type HubProps = {
 
 type Tile = {
   label: string;
-  caption: string;
-  img?: string;
-  icon?: typeof Store;
+  icon: typeof Store;
   section?: string;
   to?: string;
   countKey?: string;
-  tint: string;
 };
 
+// Single uniform line-art grid: 2 rows x 4 columns.
 const TILES: Tile[] = [
-  {
-    label: "Feed",
-    caption: "What's new",
-    img: homeIcon.url,
-    section: "Feed",
-    countKey: "Feed",
-    tint: "from-sky-500/25 to-sky-500/5",
-  },
-  {
-    label: "Market",
-    caption: "Buy & sell",
-    img: marketIcon.url,
-    section: "Marketplace",
-    countKey: "Market",
-    tint: "from-emerald-500/25 to-emerald-500/5",
-  },
-  {
-    label: "Academy",
-    caption: "Learn & earn",
-    img: academyIcon.url,
-    section: "Academy",
-    countKey: "Academy",
-    tint: "from-violet-500/25 to-violet-500/5",
-  },
-  {
-    label: "Bounties",
-    caption: "Get paid",
-    img: bountiesIcon.url,
-    section: "Bounties",
-    countKey: "Bounties",
-    tint: "from-amber-500/25 to-amber-500/5",
-  },
-  {
-    label: "Wallet",
-    caption: "Money",
-    img: walletIcon.url,
-    section: "Wallet",
-    countKey: "Wallet",
-    tint: "from-emerald-500/25 to-teal-500/5",
-  },
-  {
-    label: "Circles",
-    caption: "Communities",
-    img: circlesIcon.url,
-    section: "Circles",
-    tint: "from-pink-500/25 to-pink-500/5",
-  },
-  {
-    label: "Messages",
-    caption: "Chat",
-    img: messageIcon.url,
-    section: "Messages",
-    tint: "from-cyan-500/25 to-cyan-500/5",
-  },
-  {
-    label: "Dashboard",
-    caption: "Your hub",
-    icon: LayoutDashboard,
-    to: "/dashboard",
-    tint: "from-indigo-500/25 to-indigo-500/5",
-  },
-  {
-    label: "Advertise",
-    caption: "Promote",
-    icon: Megaphone,
-    to: "/advertise",
-    tint: "from-orange-500/25 to-orange-500/5",
-  },
-  {
-    label: "Affiliate",
-    caption: "Refer & earn",
-    icon: Gift,
-    to: "/affiliate",
-    tint: "from-rose-500/25 to-rose-500/5",
-  },
-  {
-    label: "Blog",
-    caption: "Stories",
-    icon: BookOpen,
-    to: "/blog",
-    tint: "from-slate-400/25 to-slate-400/5",
-  },
-  {
-    label: "Help",
-    caption: "Support",
-    icon: LifeBuoy,
-    to: "/help",
-    tint: "from-teal-500/25 to-teal-500/5",
-  },
+  { label: "Feed", icon: FeedIcon, section: "Feed", countKey: "Feed" },
+  { label: "Market", icon: Store, section: "Marketplace", countKey: "Market" },
+  { label: "Academy", icon: GraduationCap, section: "Academy", countKey: "Academy" },
+  { label: "Bounties", icon: Target, section: "Bounties", countKey: "Bounties" },
+  { label: "Circles", icon: Users, section: "Circles" },
+  { label: "Messages", icon: MessageSquare, section: "Messages" },
+  { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+  { label: "Help", icon: LifeBuoy, to: "/help" },
+];
+
+// Secondary destinations kept reachable as compact text links so no existing
+// feature loses its entry point from the home screen.
+const MORE_LINKS: Array<{ label: string; to: string }> = [
+  { label: "Wallet", to: "" },
+  { label: "Advertise", to: "/advertise" },
+  { label: "Affiliate", to: "/affiliate" },
+  { label: "Blog", to: "/blog" },
 ];
 
 function fromUSD(usd: number, target: Currency): number {
@@ -192,7 +92,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
-  const [sendSoonOpen, setSendSoonOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
   const loadBalances = useServerFn(getWalletBalances);
@@ -312,62 +211,21 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   }, [loadDiscovery, loadCourses]);
 
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
-  const [greeting, setGreeting] = useState("Welcome");
-  useEffect(() => {
-    const h = new Date().getHours();
-    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
-  }, []);
-  const flag = country ? (COUNTRY_META[country]?.flag ?? "") : "";
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
-      {/* Identity row */}
-      <div className="flex items-center gap-3">
-        {isAuthenticated ? (
-          <>
-            <Link
-              to="/dashboard"
-              aria-label="Open your dashboard"
-              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 "
-            >
-              <AvatarImage src={avatarUrl} alt={name || "You"} loading="eager" />
-            </Link>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-wide text-slate-500">{greeting}</div>
-              <div className="text-white font-semibold truncate">{name || "Welcome back"}</div>
-            </div>
-          </>
-        ) : (
-          <>
-            <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/15 flex items-center justify-center text-white shrink-0">
-              <User className="w-5 h-5" strokeWidth={2.5} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-wide text-slate-500">{greeting}</div>
-              <div className="text-white font-semibold truncate">Welcome to Oventric</div>
-            </div>
-          </>
-        )}
-        <span className="shrink-0 inline-flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-xs font-semibold text-slate-200">
-          {flag && <span aria-hidden>{flag}</span>}
-          {currency}
-        </span>
-      </div>
-
-      {/* Wallet card */}
+      {/* Financial hub card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-[10px] border border-white/10 p-4 md:p-5 hub-card-solid"
+        className="hub-wallet relative overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
         style={{
-          background: "oklch(0.2 0 0)",
+          backgroundImage: "linear-gradient(145deg, #23232B 0%, #191920 45%, #131318 100%)",
         }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">
-              Main balance
-            </div>
+            <div className="text-sm font-bold text-sky-400">Hub</div>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-2xl md:text-3xl font-bold text-white tabular-nums truncate">
+              <span className="text-3xl md:text-4xl font-extrabold text-white tabular-nums truncate">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
               </span>
               {isAuthenticated && (
@@ -375,116 +233,142 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                   type="button"
                   onClick={toggleBalancesHidden}
                   aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                  className="p-1.5 rounded-full text-slate-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-full text-slate-500 hover:text-white transition-colors"
                 >
                   {balancesHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               )}
             </div>
+            <div className="mt-3 space-y-1">
+              <div className="text-sm text-slate-200">
+                Cashback Wallet:{" "}
+                <span className="font-semibold text-white tabular-nums">
+                  {isAuthenticated
+                    ? balancesHidden
+                      ? "••••"
+                      : formatMoney(fromUSD(cashback, currency), currency)
+                    : formatMoney(0, currency)}
+                </span>
+              </div>
+              <div className="text-sm text-slate-200">
+                Pending Payout:{" "}
+                <span className="font-semibold text-white tabular-nums">
+                  {isAuthenticated
+                    ? balancesHidden
+                      ? "••••"
+                      : formatMoney(escrow + fromUSD(bounty, currency), currency)
+                    : formatMoney(0, currency)}
+                </span>
+              </div>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => onSelect("Wallet")}
-            className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200"
+            aria-label="Open wallet"
+            className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white"
           >
             Wallet <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <SubChip
-            label="Cashback"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(cashback, currency), currency)
-                : "—"
-            }
-          />
-          <SubChip
-            label="Bounty"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(bounty, currency), currency)
-                : "—"
-            }
-          />
-          <SubChip
-            label="Escrow"
-            value={
-              isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : "—"
-            }
-          />
-        </div>
-
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 grid grid-cols-2 border-t border-white/10 pt-3 text-center">
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-slate-500 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-black/20"
+            className="border-r border-white/10 py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
           >
-            <ArrowDownToLine className="w-4 h-4 text-[#ff0000]" strokeWidth={3} />{" "}
-            <span style={{ color: "white" }}>Add</span>
+            Fund Wallet
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
           >
-            <ArrowUpFromLine className="w-4 h-4" strokeWidth={3} /> Withdraw
-          </button>
-          <button
-            type="button"
-            onClick={() => (isAuthenticated ? setSendSoonOpen(true) : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
-          >
-            <Send className="w-4 h-4" strokeWidth={3} /> Send
+            Request Payout
           </button>
         </div>
       </section>
 
-      {/* Quick actions */}
-      <section className="grid grid-cols-4 gap-2">
-        <QuickAction
-          icon={Store}
-          label="Sell"
-          onClick={() => requireTier(2, () => setSellOpen(true))}
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={Plus}
-          label="Post"
-          onClick={() =>
-            requireTier(1, () => {
-              onSelect("Feed");
-              setTimeout(() => {
-                window.dispatchEvent(
-                  new CustomEvent("oventric:create", { detail: { kind: "post" } }),
-                );
-              }, 80);
-            })
-          }
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={GraduationCap}
-          label="Course"
-          onClick={() => requireTier(2, () => setCourseOpen(true))}
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={Target}
-          label="Bounty"
-          onClick={() => onCreate("bounty")}
-          className="hub-card-solid  rounded-[10px]"
-        />
-      </section>
+      {/* Uniform 8-icon navigation grid */}
+      <section>
+        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+          {TILES.map((t) => {
+            const sectionUnread =
+              t.label === "Messages"
+                ? unread.messages + (unread.sections["Messages"] ?? 0)
+                : (unread.sections[t.label] ?? 0);
+            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
+            const inner = (
+              <span className="flex flex-col items-center gap-2">
+                <span className="relative inline-flex items-center justify-center">
+                  <t.icon className="w-7 h-7 text-white" strokeWidth={1.5} />
+                  <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
+                </span>
+                <span className="text-[13px] font-medium text-slate-100 leading-tight text-center">
+                  {t.label}
+                </span>
+              </span>
+            );
+            const cls = "py-1 active:scale-95 transition-transform";
+            return t.to ? (
+              <Link key={t.label} to={t.to} className={cls}>
+                {inner}
+              </Link>
+            ) : (
+              <button
+                key={t.label}
+                type="button"
+                onClick={() => (t.section === "Messages" ? onOpenMessages() : onSelect(t.section!))}
+                className={cls}
+              >
+                {inner}
+              </button>
+            );
+          })}
+        </div>
 
-      {/* Promo banners */}
-      <PromoBanners onSelect={onSelect} />
+        {/* Secondary destinations */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] font-medium text-slate-500">
+          {MORE_LINKS.map((l) =>
+            l.to ? (
+              <Link key={l.label} to={l.to} className="hover:text-slate-200 transition-colors">
+                {l.label}
+              </Link>
+            ) : (
+              <button
+                key={l.label}
+                type="button"
+                onClick={() => onSelect("Wallet")}
+                className="hover:text-slate-200 transition-colors"
+              >
+                {l.label}
+              </button>
+            ),
+          )}
+          <button
+            type="button"
+            onClick={() => requireTier(2, () => setSellOpen(true))}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Sell
+          </button>
+          <button
+            type="button"
+            onClick={() => requireTier(2, () => setCourseOpen(true))}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Publish course
+          </button>
+          <button
+            type="button"
+            onClick={() => onCreate("bounty")}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Post bounty
+          </button>
+        </div>
+      </section>
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
@@ -529,105 +413,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </div>
         </section>
       )}
-
-      {/* Feature grid */}
-
-      <section>
-        <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
-          {TILES.map((t, i) => {
-            const sectionUnread =
-              t.label === "Messages"
-                ? unread.messages + (unread.sections["Messages"] ?? 0)
-                : (unread.sections[t.label] ?? 0);
-            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
-            const inner = (
-              <span className="flex flex-col items-center gap-1.5">
-                <span
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-solid `}
-                >
-                  {t.img ? (
-                    <img
-                      src={t.img}
-                      alt=""
-                      aria-hidden
-                      className="w-8 h-8 md:w-9 md:h-9 object-contain"
-                      loading="eager"
-                    />
-                  ) : t.icon ? (
-                    <t.icon className="w-6 h-6 text-white" strokeWidth={2.5} />
-                  ) : null}
-                  <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
-                </span>
-                <span className="text-[11px] font-semibold text-white leading-tight text-center">
-                  {t.label}
-                </span>
-                <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">
-                  {t.caption}
-                </span>
-              </span>
-            );
-            const cls =
-              "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
-
-            const style = { animationDelay: `${Math.min(i, 11) * 28}ms` } as const;
-            return t.to ? (
-              <Link key={t.label} to={t.to} className={cls} style={style}>
-                {inner}
-              </Link>
-            ) : (
-              <button
-                key={t.label}
-                type="button"
-                style={style}
-                onClick={() => (t.section === "Messages" ? onOpenMessages() : onSelect(t.section!))}
-                className={cls}
-              >
-                {inner}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Promo rail */}
-      <section
-        aria-label="Promotions"
-        className="flex gap-3 overflow-x-auto overscroll-x-contain touch-pan-x scroll-pl-3 pb-3 pt-1 -mx-3 px-3 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0 md:pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:snap-none"
-      >
-        <PromoCard
-          id="cashback"
-          title="Earn 2% cashback"
-          highlight="on every order"
-          body="Money back into your cashback wallet."
-          cta="Shop now"
-          onClick={() => onSelect("Marketplace")}
-          art={promoCashbackArt}
-          gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
-        />
-        <PromoCard
-          id="refer"
-          title="Refer & earn"
-          highlight="both sides win"
-          body="Invite builders and earn from their activity."
-          cta="Invite friends"
-          to="/affiliate"
-          search={{ reserve: "1" }}
-          art={promoReferArt}
-          gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
-        />
-        <PromoCard
-          id="advertise"
-          title="Advertise here"
-          highlight="reach thousands"
-          body="Put your product in front of Africa's builders."
-          cta="Start a campaign"
-          to="/advertise"
-          search={{ start: "image" }}
-          art={promoAdvertiseArt}
-          gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
-        />
-      </section>
 
       {/* Live strips */}
       <MiniRail
@@ -678,6 +463,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </button>
       )}
 
+      <PromoInterstitial onSelect={onSelect} />
+
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
       <CoursePublishWizard
         open={courseOpen}
@@ -687,25 +474,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           onSelect("Academy");
         }}
       />
-      <Dialog open={sendSoonOpen} onOpenChange={setSendSoonOpen}>
-        <DialogContent className="sm:max-w-sm bg-[#1E1E24] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-center text-white">Send to users</DialogTitle>
-            <DialogDescription className="text-center text-slate-400">
-              Big things coming soon, stay tuned!
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <button
-              type="button"
-              onClick={() => setSendSoonOpen(false)}
-              className="w-full h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
-            >
-              OK
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -779,112 +547,5 @@ function SubChip({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] uppercase tracking-wide text-slate-500 truncate">{label}</div>
       <div className="text-xs font-bold text-white tabular-nums truncate">{value}</div>
     </div>
-  );
-}
-
-function QuickAction({
-  icon: Icon,
-  label,
-  onClick,
-  className,
-}: {
-  icon: typeof Store;
-  label: string;
-  onClick: () => void;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform ${className || "rounded-2xl hover:bg-white/5"}`}
-    >
-      <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white">
-        <Icon className="w-5 h-5" strokeWidth={2.5} />
-      </span>
-      <span className="text-[11px] font-semibold text-slate-200">{label}</span>
-    </button>
-  );
-}
-
-function PromoCard({
-  id,
-  title,
-  highlight,
-  body,
-  cta,
-  art,
-  gradient,
-  onClick,
-  to,
-  search,
-}: {
-  id: string;
-  title: string;
-  highlight: string;
-  body: string;
-  cta: string;
-  art: string;
-  gradient: string;
-  onClick?: () => void;
-  to?: string;
-  search?: Record<string, unknown>;
-}) {
-  const promo = { id, title, surface: "home_promo_rail" };
-  const ref = usePromoImpression<HTMLDivElement>(promo);
-  const content = (
-    <span
-      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[10px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
-      style={{ backgroundImage: gradient }}
-    >
-      <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
-      <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">
-        {title}
-      </span>
-      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">
-        {highlight}
-      </span>
-      <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">
-        {body}
-      </span>
-      <span className="promo-tile-cta relative mt-3 inline-flex min-h-[2.25rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-[11px] font-bold text-white">
-        {cta} <ChevronRight className="w-3.5 h-3.5" />
-      </span>
-      <img
-        src={art}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        width={768}
-        height={768}
-        className="promo-tile-art pointer-events-none absolute -bottom-2 right-[-6px] h-[112%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
-      />
-    </span>
-  );
-  const cls =
-    "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
-  const handleClick = () => {
-    void trackPromoEvent("click", promo);
-    onClick?.();
-  };
-  return to ? (
-    <Link
-      ref={ref as unknown as React.Ref<HTMLAnchorElement>}
-      to={to}
-      search={search as never}
-      className={cls}
-      onClick={handleClick}
-    >
-      {content}
-    </Link>
-  ) : (
-    <button
-      ref={ref as unknown as React.Ref<HTMLButtonElement>}
-      type="button"
-      onClick={handleClick}
-      className={cls}
-    >
-      {content}
-    </button>
   );
 }

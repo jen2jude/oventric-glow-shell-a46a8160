@@ -173,63 +173,44 @@ export function Header({
   if (hubMode) {
     return (
       <header className={`fixed top-0 left-0 right-0 z-40 w-full ${bg} border-b ${edge}`}>
-        <div className="h-12 md:h-[4.5rem] flex items-center gap-2 md:gap-4 px-3 md:px-6">
-          <Link to="/" aria-label="Oventric" className="flex items-center shrink-0">
-            {LogoMark}
-          </Link>
-
-          <div className="flex-1 max-w-xl mx-auto min-w-0 hidden sm:block">
-            <GlobalSearch variant="inline" light={light} />
-          </div>
-
-          <div className="ml-auto sm:ml-0 flex items-center gap-0.5 md:gap-1 shrink-0">
+        <div className="relative h-12 md:h-[4.5rem] flex items-center justify-between px-3 md:px-6">
+          {/* Left: search */}
+          <div className="flex items-center gap-0.5 shrink-0">
             <button
               onClick={() => setMobileSearchOpen(true)}
               aria-label="Open search"
-              className={`sm:hidden p-2 md:p-2.5 rounded-xl transition-colors ${flat}`}
+              className={`p-2 md:p-2.5 rounded-xl transition-colors ${flat}`}
             >
-              <Search className="w-5 h-5" strokeWidth={2.5} />
+              <Search className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
             </button>
-
-            {/* Notifications + chat: same live red counters as the full header */}
-            <button
-              onClick={() => setNotifOpen(true)}
-              aria-label="Open notifications"
-              className={`relative inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
-            >
-              <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-              <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
-            </button>
-
-            <button
-              onClick={onOpenMessages}
-              aria-label="Open messages"
-              className={`relative inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
-            >
-              <MessageSquare className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2.5} />
-              <CountBadge count={unreadMessages} ariaLabel={`${unreadMessages} unread messages`} />
-            </button>
-
-            <Link
-              to="/help-board"
-              aria-label="Help board"
-              className={`inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
-            >
-              <img
-                src={supportHeadset.url}
-                alt="Help board"
-                className="w-5 h-5 md:w-6 md:h-6 headset-fluid object-contain"
-                draggable={false}
-              />
-            </Link>
-
             <button
               onClick={() => setMegaOpen(true)}
               aria-label="Open menu"
               className={`inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
             >
-              <Menu className="w-5 h-5 md:hidden" strokeWidth={2.5} />
-              <Grip className="w-6 h-6 hidden md:block" strokeWidth={2.5} />
+              <Menu className="w-5 h-5 md:hidden" strokeWidth={2} />
+              <Grip className="w-6 h-6 hidden md:block" strokeWidth={2} />
+            </button>
+          </div>
+
+          {/* Center: brand */}
+          <Link
+            to="/"
+            aria-label="Oventric"
+            className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 flex items-center"
+          >
+            {LogoMark}
+          </Link>
+
+          {/* Right: notifications */}
+          <div className="flex items-center gap-0.5 shrink-0">
+            <button
+              onClick={() => setNotifOpen(true)}
+              aria-label="Open notifications"
+              className={`relative inline-flex p-2 md:p-2.5 rounded-xl transition-colors shrink-0 ${flat}`}
+            >
+              <Bell className="w-5 h-5 md:w-6 md:h-6" strokeWidth={2} />
+              <CountBadge count={unreadCount} ariaLabel={`${unreadCount} unread notifications`} />
             </button>
           </div>
         </div>
@@ -261,7 +242,9 @@ export function Header({
 
   if (browserVisitorHeader && !desktopNav && !forceSiteNavbar) {
     return (
-      <header className={`sticky top-0 z-40 w-full bg-white border-b border-slate-200 transition-colors duration-200`}>
+      <header
+        className={`sticky top-0 z-40 w-full bg-white border-b border-slate-200 transition-colors duration-200`}
+      >
         <div className="mx-auto flex h-16 w-full max-w-[1200px] items-center gap-4 px-4 sm:px-6">
           <Link to="/" aria-label="Oventric home" className="shrink-0">
             <ResponsiveImage
@@ -395,7 +378,6 @@ export function Header({
           </div>
 
           {/* Desktop candy-box menu hidden here, moved inside profile cluster */}
-
 
           {/* Circles & Guilds */}
           <button
