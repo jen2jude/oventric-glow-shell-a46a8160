@@ -84,6 +84,14 @@ function SocialIcon({ kind }: { kind: string }) {
   return <Globe className={cls} />;
 }
 
+/** Returns the emoji flag for a stored country name or ISO code. */
+function CountryFlag({ country }: { country: string | null | undefined }) {
+  const code = normalizeCountryCode(country);
+  const flag = code ? COUNTRY_META[code]?.flag : undefined;
+  if (!flag) return null;
+  return <span className="leading-none">{flag}</span>;
+}
+
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
@@ -94,6 +102,10 @@ import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import {
+  normalizeCountryCode,
+  COUNTRY_META,
+} from "@/lib/currency/africa";
 import {
   getProfile,
   computeStarBreakdown,
@@ -1199,11 +1211,25 @@ function ProfilePage() {
                   </p>
                 )}
 
-                {(realProfile?.country?.trim() || realProfile?.socialLinks?.website) && (
+                {(realProfile?.country?.trim() ||
+                  realProfile?.address?.trim() ||
+                  realProfile?.socialLinks?.website) && (
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
-                    {realProfile?.country?.trim() && (
+                    {(realProfile?.country?.trim() || realProfile?.address?.trim()) && (
                       <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {realProfile.country}
+                        <MapPin className="h-3.5 w-3.5" />
+                        {realProfile?.country?.trim() && (
+                          <>
+                            <CountryFlag country={realProfile.country} />
+                            <span>{realProfile.country}</span>
+                          </>
+                        )}
+                        {realProfile?.country?.trim() && realProfile?.address?.trim() && (
+                          <span className="text-slate-600">·</span>
+                        )}
+                        {realProfile?.address?.trim() && (
+                          <span className="max-w-[160px] truncate">{realProfile.address}</span>
+                        )}
                       </span>
                     )}
                     {realProfile?.socialLinks?.website && (
@@ -1380,62 +1406,6 @@ function ProfilePage() {
               </div>
             </section>
 
-            {/* Member details: country, address & birthday — centred */}
-            <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm p-4 text-center">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-slate-300 md:text-slate-600 mb-3">
-                Member details
-              </h3>
-              <dl className="mx-auto max-w-xl grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm justify-items-center">
-                <div className="text-center">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
-                    Country
-                  </dt>
-                  <dd className="mt-0.5 text-white md:text-slate-900 font-semibold">
-                    {realProfile?.country?.trim() || (
-                      <span className="text-slate-500 md:text-slate-500 font-normal">
-                        Not provided
-                      </span>
-                    )}
-                  </dd>
-                </div>
-                <div className="text-center">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
-                    Address
-                  </dt>
-                  <dd className="mt-0.5 text-white md:text-slate-900 font-semibold break-words">
-                    {realProfile?.address?.trim() ? (
-                      realProfile.address
-                    ) : isOwnProfile ? (
-                      <span className="text-slate-500 md:text-slate-500 font-normal">Private</span>
-                    ) : (
-                      <span className="text-slate-500 md:text-slate-500 font-normal">
-                        Not shared
-                      </span>
-                    )}
-                  </dd>
-                </div>
-                <div className="text-center">
-                  <dt className="text-[11px] uppercase tracking-wider text-slate-500 md:text-slate-500">
-                    Date of birth
-                  </dt>
-                  <dd className="mt-0.5 text-white md:text-slate-900 font-semibold">
-                    {realProfile?.dateOfBirth ? (
-                      new Date(realProfile.dateOfBirth).toLocaleDateString(undefined, {
-                        day: "numeric",
-                        month: "long",
-                        year: "numeric",
-                      })
-                    ) : isOwnProfile ? (
-                      <span className="text-slate-500 md:text-slate-500 font-normal">Private</span>
-                    ) : (
-                      <span className="text-slate-500 md:text-slate-500 font-normal">
-                        Not shared
-                      </span>
-                    )}
-                  </dd>
-                </div>
-              </dl>
-            </div>
 
             {/* Tabs */}
             <nav
