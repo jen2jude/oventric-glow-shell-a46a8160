@@ -108,6 +108,8 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
+import { ProfilePostCard } from "@/components/oventric/profile/ProfilePostCard";
+
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
