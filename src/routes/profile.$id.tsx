@@ -63,7 +63,6 @@ import {
   Youtube,
   Music2,
   Facebook,
-  MessageCircle,
   Send,
   FileText,
   MapPin,
