@@ -28,7 +28,7 @@ const STEPS = [
 
 /**
  * Services tab for the identity hub — "Services I Offer" rows with a starting
- * price and a круг-style action arrow, plus a simple work-process explainer.
+ * price and a circular action arrow, plus a simple work-process explainer.
  */
 export function ProfileServicesTab({
   items,
