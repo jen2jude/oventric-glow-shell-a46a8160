@@ -98,6 +98,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const [bounty, setBounty] = useState(0);
   const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [mySlug, setMySlug] = useState<string | null>(null);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
 
   const [name, setName] = useState<string>(fullName || storeName || "");
