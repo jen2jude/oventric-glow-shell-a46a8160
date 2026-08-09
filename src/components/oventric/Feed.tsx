@@ -1,6 +1,8 @@
 import {
   Paperclip,
   MessageSquare,
+  MessageCircle,
+  Repeat2,
   Share2,
   Flag,
   Send,
