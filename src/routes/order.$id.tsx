@@ -159,6 +159,50 @@ function OrderPage() {
                   </span>{" "}
                   — escrow, refunds and dispute mediation only cover deals completed here.
                 </div>
+                {order.servicePackage && (
+                  <div className="mb-3 rounded-md border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">
+                      Package
+                    </div>
+                    <div className="font-bold text-white md:text-slate-900">
+                      {order.servicePackage.name}
+                    </div>
+                    {order.servicePackage.features.length > 0 && (
+                      <ul className="mt-1 space-y-0.5 text-slate-400 md:text-slate-600">
+                        {order.servicePackage.features.map((f) => (
+                          <li key={f}>• {f}</li>
+                        ))}
+                      </ul>
+                    )}
+                    <div className="mt-1 flex flex-wrap gap-x-3 text-[11px] text-slate-500">
+                      {order.servicePackage.deliveryDays != null && (
+                        <span>{order.servicePackage.deliveryDays}-day delivery</span>
+                      )}
+                      {order.servicePackage.revisions != null && (
+                        <span>{order.servicePackage.revisions} revisions</span>
+                      )}
+                    </div>
+                  </div>
+                )}
+                {order.serviceBrief && Object.keys(order.serviceBrief).length > 0 && (
+                  <div className="mb-3 rounded-md border border-white/10 md:border-slate-200 bg-[#121214] md:bg-slate-50 px-3 py-2 text-xs">
+                    <div className="text-[10px] uppercase tracking-widest text-slate-500 mb-1">
+                      Project brief
+                    </div>
+                    <dl className="space-y-1">
+                      {Object.entries(order.serviceBrief).map(([k, v]) =>
+                        v ? (
+                          <div key={k}>
+                            <dt className="text-[10px] uppercase tracking-wide text-slate-500">
+                              {k}
+                            </dt>
+                            <dd className="text-slate-300 md:text-slate-700">{v}</dd>
+                          </div>
+                        ) : null,
+                      )}
+                    </dl>
+                  </div>
+                )}
                 <div className="text-xs">
                   <div className="bg-[#121214] md:bg-slate-50 border border-white/10 md:border-slate-200 rounded-md px-3 py-2">
                     <div className="text-[10px] uppercase tracking-widest text-slate-500 md:text-slate-500 mb-0.5">

@@ -75,6 +75,8 @@ export interface OrderDTO {
   deliveryEmail: string | null;
   deliveryWhatsapp: string | null;
   requiresManualDelivery: boolean;
+  servicePackage: { name: string; tier: string; features: string[]; deliveryDays: number | null; revisions: number | null } | null;
+  serviceBrief: Record<string, string> | null;
 }
 
 export const FX_FROM_USD: Record<OrderCurrency, number> = fallbackRateTable();
@@ -1086,6 +1088,18 @@ export const getOrderWithDownload = createServerFn({ method: "POST" })
         deliveryEmail: (o.delivery_email as string) ?? null,
         deliveryWhatsapp: (o.delivery_whatsapp as string) ?? null,
         requiresManualDelivery: Boolean(product.requires_manual_delivery),
+        servicePackage: (() => {
+          const snap = o.service_package_snapshot as Record<string, unknown> | null;
+          if (!snap) return null;
+          return {
+            name: String(snap.name ?? "Package"),
+            tier: String(snap.tier ?? ""),
+            features: Array.isArray(snap.features) ? (snap.features as string[]) : [],
+            deliveryDays: snap.delivery_days == null ? null : Number(snap.delivery_days),
+            revisions: snap.revisions == null ? null : Number(snap.revisions),
+          };
+        })(),
+        serviceBrief: (o.service_brief as Record<string, string> | null) ?? null,
       } satisfies OrderDTO,
       downloadUrl,
     };
