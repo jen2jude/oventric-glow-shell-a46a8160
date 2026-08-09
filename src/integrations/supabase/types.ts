@@ -2703,6 +2703,7 @@ export type Database = {
           flag_reason: string | null
           flagged: boolean
           has_seen_feature_carousel: boolean
+          interests: string[]
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
@@ -2737,6 +2738,7 @@ export type Database = {
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean
+          interests?: string[]
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
@@ -2771,6 +2773,7 @@ export type Database = {
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean
+          interests?: string[]
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
