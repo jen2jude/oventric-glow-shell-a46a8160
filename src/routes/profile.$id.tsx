@@ -64,7 +64,15 @@ import {
   FileText,
   MapPin,
   Share2,
+  MoreHorizontal,
+  ChevronDown,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 /** Renders the matching brand glyph for a social-link key. */
 function SocialIcon({ kind }: { kind: string }) {
