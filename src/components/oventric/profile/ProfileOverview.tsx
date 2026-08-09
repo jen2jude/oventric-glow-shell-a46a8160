@@ -240,16 +240,6 @@ export function ProfileOverview({
         </Module>
       )}
 
-      {interests.length > 0 && (
-        <Module title="Interests">
-          <div className="flex flex-wrap gap-2">
-            {interests.map((i) => (
-              <Chip key={i} label={i} />
-            ))}
-          </div>
-        </Module>
-      )}
-
       {skills.length > 0 && (
         <Module title="Skills">
           <div className="flex flex-wrap gap-2">
