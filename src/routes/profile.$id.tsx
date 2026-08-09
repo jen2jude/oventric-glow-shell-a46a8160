@@ -1358,7 +1358,7 @@ function ProfilePage() {
                 )}
 
                 {/* What I'm into */}
-                {realProfile?.interests && realProfile.interests.length > 0 && (
+                {((realProfile?.interests && realProfile.interests.length > 0) || isOwnProfile) && (
                   <div className="mt-4">
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <h2 className="truncate text-sm font-black text-white md:text-slate-900">
