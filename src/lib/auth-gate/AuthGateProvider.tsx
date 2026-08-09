@@ -194,7 +194,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
 
   const ensureUserAuthenticated = useCallback(
     (actionCallback: () => void | Promise<void>, contextType: AuthGateContextKey = "generic") => {
-      if (session) {
+      if (isAuthenticated) {
         void actionCallback();
         return;
       }
@@ -202,7 +202,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       setCtxKey(contextType);
       setGateOpen(true);
     },
-    [session],
+    [isAuthenticated],
   );
 
   const openGate = useCallback((contextType: AuthGateContextKey = "generic") => {
