@@ -14,6 +14,8 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 import { MAX_STORY_FILES, useStoryRail } from "@/components/oventric/feed/useStories";
 import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
+import { StoryTrimmerModal } from "@/components/oventric/feed/StoryTrimmerModal";
+
 
 
 export type FeedTab = "foryou" | "following" | "discover";
