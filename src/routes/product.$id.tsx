@@ -479,7 +479,7 @@ function ProductPage() {
                       );
                     })()}
                   </div>
-                  {product.kind !== "physical" && packages.length === 0 && (
+                  {product.kind === "digital" && packages.length === 0 && (
                     <div className="flex items-center gap-2">
                       <label className="text-xs text-slate-400 md:text-slate-500 uppercase tracking-wide">
                         Qty
@@ -553,7 +553,7 @@ function ProductPage() {
                     })}
                   </div>
                 )}
-                {product.kind !== "physical" && packages.length === 0 && (
+                {product.kind === "digital" && packages.length === 0 && (
                   <div className={`flex items-center justify-between text-xs ${isAppShell ? "text-slate-500" : "text-slate-400"} md:text-slate-500 mb-4`}>
                     <span>Line total</span>
                     <span className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-mono`}>
@@ -561,7 +561,25 @@ function ProductPage() {
                     </span>
                   </div>
                 )}
-                {isAppShell ? (
+                {product.kind === "service" ? (
+                  isAppShell ? (
+                    <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5">
+                      <button
+                        onClick={openSellerChat}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Contact for this service
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={openSellerChat}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Contact for this service
+                    </button>
+                  )
+                ) : isAppShell ? (
                   <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5 grid grid-cols-2 gap-3">
                     <button
                       onClick={product.kind === "physical" ? openContact : startCheckout}
@@ -600,10 +618,13 @@ function ProductPage() {
 
               <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-emerald-400" />
-                {product.kind === "physical"
-                  ? "Deal directly with the seller — Oventric does not mediate."
-                  : "Instant download after payment · Buyer protection covered"}
+                {product.kind === "service"
+                  ? "Service listing — message the provider to agree scope, timeline and price."
+                  : product.kind === "physical"
+                    ? "Deal directly with the seller — Oventric does not mediate."
+                    : "Instant download after payment · Buyer protection covered"}
               </div>
+
             </div>
             
             {/* Review and Comment Section (Mobile/App fallback) */}
@@ -628,7 +649,15 @@ function ProductPage() {
             coverUrl: product.coverUrl,
             priceLabel: productDisplay(product, baseCurrency).formatted,
           }}
-          initialDraft={`Hi ${product.vendor}! I'm interested in "${product.name}" (${productDisplay(product, baseCurrency).formatted}) on Oventric. Is it available and can you deliver right away?\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`}
+          initialDraft={
+            product.kind === "service"
+              ? `Hi ${product.vendor}! I'd like to talk about your service "${product.name}"${
+                  packages.length > 0 && selectedPkg
+                    ? ` (${packages.find((p) => p.id === selectedPkg)?.name ?? ""} package)`
+                    : ` (from ${productDisplay(product, baseCurrency).formatted})`
+                } on Oventric. Here's what I need:\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`
+              : `Hi ${product.vendor}! I'm interested in "${product.name}" (${productDisplay(product, baseCurrency).formatted}) on Oventric. Is it available and can you deliver right away?\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`
+          }
         />
       )}
       {contactOpen && product && product.kind === "physical" && (
