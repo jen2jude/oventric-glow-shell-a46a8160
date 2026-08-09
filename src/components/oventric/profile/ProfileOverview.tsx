@@ -34,7 +34,6 @@ interface Props {
   website?: string | null;
   joined?: string;
   skills: string[];
-  interests: string[];
   /** Section -> item count, so empty modules never render. */
   counts: Partial<Record<EcosystemSectionKey, number>>;
   isOwner: boolean;
