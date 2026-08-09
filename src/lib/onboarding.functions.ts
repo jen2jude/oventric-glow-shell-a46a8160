@@ -80,6 +80,12 @@ export const seedNewUser = createServerFn({ method: "POST" })
         ({ error: insErr } = await tryInsert(`${slugBase}${suffix}`, `${desiredUsername}-${suffix}`));
       }
       if (insErr) {
+        // 23503: the bearer token references an auth user that no longer
+        // exists (deleted account / reset backend). Signal the client to
+        // clear the stale session instead of hard-failing the app shell.
+        if ((insErr as { code?: string }).code === "23503") {
+          return { ok: false as const, staleSession: true, userId };
+        }
         console.error("[seedNewUser] profile insert failed", insErr);
         throw new Error("Failed to create profile");
       }
@@ -107,7 +113,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
       }
     }
 
-    return { ok: true, userId };
+    return { ok: true as const, staleSession: false, userId };
   });
 
 const FullNameInput = z.object({

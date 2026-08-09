@@ -254,7 +254,7 @@ function ProductPage() {
         navigate({
           to: "/checkout/$id",
           params: { id },
-          search: { qty, ...(selectedPkg ? { pkg: selectedPkg } : {}) },
+          search: { qty, pkg: selectedPkg || undefined },
         }),
       "buyer",
     );

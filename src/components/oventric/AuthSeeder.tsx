@@ -55,7 +55,13 @@ export function AuthSeeder() {
       }
       seededFor.current = userId;
       try {
-        await seedNewUser({ data: {} });
+        const seeded = await seedNewUser({ data: {} });
+        if (seeded && seeded.staleSession) {
+          // The session points at an account that no longer exists.
+          seededFor.current = null;
+          await supabase.auth.signOut();
+          return;
+        }
         await refreshBalances();
         // Hydrate the onboarding tier from the persisted profile so returning
         // users who already unlocked commerce don't get re-prompted.

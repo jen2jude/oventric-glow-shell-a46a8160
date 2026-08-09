@@ -552,7 +552,7 @@ function ShopPage() {
                   <SectionHead
                     title="Open bounties"
                     action={
-                      <Link to="/bounties" className="text-sm font-bold" style={{ color: ACCENT }}>
+                      <Link to="/" search={{ section: "Bounties" } as never} className="text-sm font-bold" style={{ color: ACCENT }}>
                         View all
                       </Link>
                     }
