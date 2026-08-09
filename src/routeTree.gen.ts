@@ -36,6 +36,7 @@ import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdsManagerIdRouteImport } from './routes/ads-manager.$id'
 import { Route as AdminUsersRouteImport } from './routes/admin.users'
+import { Route as AdminToolsRouteImport } from './routes/admin.tools'
 import { Route as AdminSystemWalletsRouteImport } from './routes/admin.system-wallets'
 import { Route as AdminSupportRouteImport } from './routes/admin.support'
 import { Route as AdminSettingsRouteImport } from './routes/admin.settings'
@@ -206,6 +207,11 @@ const AdsManagerIdRoute = AdsManagerIdRouteImport.update({
 const AdminUsersRoute = AdminUsersRouteImport.update({
   id: '/users',
   path: '/users',
+  getParentRoute: () => AdminRoute,
+} as any)
+const AdminToolsRoute = AdminToolsRouteImport.update({
+  id: '/tools',
+  path: '/tools',
   getParentRoute: () => AdminRoute,
 } as any)
 const AdminSystemWalletsRoute = AdminSystemWalletsRouteImport.update({
@@ -435,6 +441,7 @@ export interface FileRoutesByFullPath {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -498,6 +505,7 @@ export interface FileRoutesByTo {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -564,6 +572,7 @@ export interface FileRoutesById {
   '/admin/settings': typeof AdminSettingsRoute
   '/admin/support': typeof AdminSupportRoute
   '/admin/system-wallets': typeof AdminSystemWalletsRoute
+  '/admin/tools': typeof AdminToolsRoute
   '/admin/users': typeof AdminUsersRoute
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
@@ -631,6 +640,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
+    | '/admin/tools'
     | '/admin/users'
     | '/ads-manager/$id'
     | '/blog/$slug'
@@ -694,6 +704,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
+    | '/admin/tools'
     | '/admin/users'
     | '/ads-manager/$id'
     | '/blog/$slug'
@@ -759,6 +770,7 @@ export interface FileRouteTypes {
     | '/admin/settings'
     | '/admin/support'
     | '/admin/system-wallets'
+    | '/admin/tools'
     | '/admin/users'
     | '/ads-manager/$id'
     | '/blog/$slug'
@@ -1015,6 +1027,13 @@ declare module '@tanstack/react-router' {
       path: '/users'
       fullPath: '/admin/users'
       preLoaderRoute: typeof AdminUsersRouteImport
+      parentRoute: typeof AdminRoute
+    }
+    '/admin/tools': {
+      id: '/admin/tools'
+      path: '/tools'
+      fullPath: '/admin/tools'
+      preLoaderRoute: typeof AdminToolsRouteImport
       parentRoute: typeof AdminRoute
     }
     '/admin/system-wallets': {
@@ -1308,6 +1327,7 @@ interface AdminRouteChildren {
   AdminSettingsRoute: typeof AdminSettingsRoute
   AdminSupportRoute: typeof AdminSupportRoute
   AdminSystemWalletsRoute: typeof AdminSystemWalletsRoute
+  AdminToolsRoute: typeof AdminToolsRoute
   AdminUsersRoute: typeof AdminUsersRoute
   AdminIndexRoute: typeof AdminIndexRoute
 }
@@ -1334,6 +1354,7 @@ const AdminRouteChildren: AdminRouteChildren = {
   AdminSettingsRoute: AdminSettingsRoute,
   AdminSupportRoute: AdminSupportRoute,
   AdminSystemWalletsRoute: AdminSystemWalletsRoute,
+  AdminToolsRoute: AdminToolsRoute,
   AdminUsersRoute: AdminUsersRoute,
   AdminIndexRoute: AdminIndexRoute,
 }
