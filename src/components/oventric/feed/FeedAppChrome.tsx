@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, MessageSquare, Search, Plus } from "lucide-react";
@@ -11,7 +11,6 @@ import {
 } from "@/components/oventric/NotificationsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
-import { useChromeHidden, useScrollHideChrome } from "@/hooks/use-chrome-hide";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 export type FeedTab = "foryou" | "following" | "discover";
