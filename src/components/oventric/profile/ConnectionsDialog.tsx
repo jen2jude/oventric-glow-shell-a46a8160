@@ -341,7 +341,12 @@ export function ConnectionsDialog({
                           <MoreHorizontal className="h-5 w-5" />
                         </button>
                       </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-52">
+                      <DropdownMenuContent
+                        align="end"
+                        sideOffset={6}
+                        collisionPadding={12}
+                        className="z-[120] w-52"
+                      >
                         <DropdownMenuItem
                           onClick={() => {
                             onOpenChange(false);
