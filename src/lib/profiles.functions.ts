@@ -159,6 +159,8 @@ async function resolveProfileImageUrl(
   return data.publicUrl || null;
 }
 
+import { normaliseTools, normaliseSkillLevels } from "./profiles/tools";
+
 export interface SocialLinks {
   website?: string;
   x?: string;
@@ -224,6 +226,8 @@ export interface RealProfileView {
   socialLinks: SocialLinks;
   skills: string[];
   interests: string[];
+  skillLevels: Record<string, number>;
+  tools: string[];
 
   verificationTier: string;
   reputationStars: number;
@@ -249,7 +253,7 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
     const query = supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, avatar_path, cover_path, social_links, skills, interests, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
+        "user_id, slug, display_name, username, bio, avatar_path, cover_path, social_links, skills, interests, skill_levels, tools, verification_tier, reputation_stars, country, address, address_public, date_of_birth, dob_public, created_at",
       )
       .limit(1);
 
@@ -284,6 +288,8 @@ export const getProfileByIdOrSlug = createServerFn({ method: "GET" })
         socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
         skills: normaliseSkills((row as { skills?: unknown }).skills),
         interests: normaliseSkills((row as { interests?: unknown }).interests),
+        skillLevels: normaliseSkillLevels((row as { skill_levels?: unknown }).skill_levels),
+        tools: normaliseTools((row as { tools?: unknown }).tools),
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
         country: (row as { country?: string | null }).country ?? null,
@@ -412,6 +418,8 @@ const UpdateInput = z.object({
     .optional(),
   skills: z.array(z.string().trim().max(32)).max(20).optional(),
   interests: z.array(z.string().trim().max(32)).max(20).optional(),
+  skillLevels: z.record(z.string(), z.number()).optional(),
+  tools: z.array(z.string().trim().max(40)).max(12).optional(),
   notificationPreferences: NotificationPrefsInput.optional(),
 
 });
@@ -437,6 +445,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
       social_links?: Record<string, string>;
       skills?: string[];
       interests?: string[];
+      skill_levels?: Record<string, number>;
+      tools?: string[];
       notification_preferences?: NotificationPreferences;
     } = {};
     if (data.displayName !== undefined) patch.display_name = data.displayName;
@@ -454,6 +464,8 @@ export const updateMyProfile = createServerFn({ method: "POST" })
     if (data.socialLinks !== undefined) patch.social_links = normaliseSocialLinks(data.socialLinks) as Record<string, string>;
     if (data.skills !== undefined) patch.skills = normaliseSkills(data.skills);
     if (data.interests !== undefined) patch.interests = normaliseSkills(data.interests);
+    if (data.skillLevels !== undefined) patch.skill_levels = normaliseSkillLevels(data.skillLevels);
+    if (data.tools !== undefined) patch.tools = normaliseTools(data.tools);
     if (data.notificationPreferences !== undefined) patch.notification_preferences = data.notificationPreferences;
 
 
@@ -517,7 +529,7 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
     const { data: row, error } = await supabaseAdmin
       .from("profiles")
       .select(
-        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, social_links, skills, interests, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
+        "user_id, slug, display_name, username, bio, phone, country, address, address_public, date_of_birth, dob_public, avatar_path, social_links, skills, interests, skill_levels, tools, verification_tier, reputation_stars, kyc_completed_at, kyc_selfie_path, kyc_id_path, profile_completed_at, notification_preferences, created_at",
       )
       .eq("user_id", userId)
       .maybeSingle();
