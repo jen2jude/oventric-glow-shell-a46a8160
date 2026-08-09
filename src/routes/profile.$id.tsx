@@ -1763,11 +1763,17 @@ function ProfilePage() {
                                 key={t.key}
                                 {...(t.blogSlug
                                   ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as any)
-                                  : ({
-                                      to: "/profile/$id/item/$kind/$itemId",
-                                      params: { id: profile.id, kind: t.kind, itemId: t.itemId },
-                                      search: itemSearch,
-                                    } as any))}
+                                  : t.academy
+                                    ? ({
+                                        to: "/",
+                                        search: { section: "Academy", course: t.itemId },
+                                      } as any)
+                                    : ({
+                                        to: "/profile/$id/item/$kind/$itemId",
+                                        params: { id: profile.id, kind: t.kind, itemId: t.itemId },
+                                        search: itemSearch,
+                                      } as any))}
+
                                 className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                               >
                                 <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
