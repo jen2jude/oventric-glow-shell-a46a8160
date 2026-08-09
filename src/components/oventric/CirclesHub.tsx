@@ -517,9 +517,9 @@ function CircleWorkspace({ slug, onBack }: { slug: string; onBack: () => void })
             )}
           </div>
           <div className="flex-1 min-w-0 pb-2">
-            <h1 className="text-xl md:text-2xl font-black text-white truncate md:text-slate-900">
+            <h2 className="text-xl md:text-2xl font-black text-white truncate md:text-slate-900">
               {circle.name}
-            </h1>
+            </h2>
             <div className="flex items-center gap-3 text-xs text-slate-400 mt-1 flex-wrap md:text-slate-600">
               <span className="uppercase tracking-wider font-bold">{circle.category}</span>
               <span className="inline-flex items-center gap-1">
