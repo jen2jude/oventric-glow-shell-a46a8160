@@ -65,7 +65,6 @@ import {
   MapPin,
   Share2,
   MoreHorizontal,
-  ChevronDown,
 } from "lucide-react";
 import {
   DropdownMenu,
