@@ -1776,9 +1776,7 @@ function ProfilePage() {
                           key: string;
                           kind: "post" | "group" | "listing" | "bounty" | "solved";
                           itemId: string;
-                          blogSlug?: string;
                           academy?: boolean;
-
                           coverUrl?: string | null;
                           placeholderIcon: React.ReactNode;
                           badge?: { label: string; tone: "emerald" | "purple" | "sky" | "amber" };
@@ -1816,22 +1814,6 @@ function ProfilePage() {
                             subtitle: `${b.applicants ?? 0} applicant${(b.applicants ?? 0) === 1 ? "" : "s"}`,
                             priceLabel: price(b.amountUsd),
                           }));
-                        } else if (tab === "blog") {
-                          tiles = (st.items as ProfileArticle[]).map((a) => ({
-                            key: a.id,
-                            kind: "post" as const,
-                            itemId: a.id,
-                            blogSlug: a.slug,
-                            coverUrl: a.coverUrl ?? null,
-                            placeholderIcon: (
-                              <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />
-                            ),
-                            badge: a.category
-                              ? { label: a.category, tone: "sky" as const }
-                              : undefined,
-                            title: a.title,
-                            subtitle: `${a.timeAgo} · ❤ ${a.reactions} · 💬 ${a.comments}`,
-                          }));
                         } else if (tab === "solved") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
@@ -1860,18 +1842,16 @@ function ProfilePage() {
                             {tiles.map((t) => (
                               <Link
                                 key={t.key}
-                                {...(t.blogSlug
-                                  ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as any)
-                                  : t.academy
-                                    ? ({
-                                        to: "/",
-                                        search: { section: "Academy", course: t.itemId },
-                                      } as any)
-                                    : ({
-                                        to: "/profile/$id/item/$kind/$itemId",
-                                        params: { id: profile.id, kind: t.kind, itemId: t.itemId },
-                                        search: itemSearch,
-                                      } as any))}
+                                {...(t.academy
+                                  ? ({
+                                      to: "/",
+                                      search: { section: "Academy", course: t.itemId },
+                                    } as any)
+                                  : ({
+                                      to: "/profile/$id/item/$kind/$itemId",
+                                      params: { id: profile.id, kind: t.kind, itemId: t.itemId },
+                                      search: itemSearch,
+                                    } as any))}
                                 className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                               >
                                 <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -2385,11 +2365,6 @@ function emptyContentFor(
         title: "No open bounties",
         hint: "Active bounties this creator has posted will show up here.",
       };
-    case "blog":
-      return {
-        title: `${name} hasn't published any articles`,
-        hint: "Published blog articles from this creator will appear here.",
-      };
     case "services":
       return {
         title: `${name} offers no services yet`,
@@ -2434,8 +2409,6 @@ function tabNoun(tab: Tab): string {
       return "bounties";
     case "solved":
       return "solved bounties";
-    case "blog":
-      return "articles";
     case "skills":
       return "skills";
     case "collections":
