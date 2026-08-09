@@ -1070,8 +1070,8 @@ function ProfilePage() {
               data-testid="profile-banner"
               className="profile-card-safe profile-standard-header mb-6"
             >
-              {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-40 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
+              {/* Cover image — full-bleed hero */}
+              <div className="profile-cover-safe relative -mx-4 -mt-6 h-56 overflow-hidden border-b border-white/10 bg-[#18181d] sm:h-72 md:mx-0 md:mt-0 md:rounded-2xl md:border md:border-slate-200 md:bg-slate-100">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -1084,18 +1084,31 @@ function ProfilePage() {
                 )}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/60 to-transparent" />
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.history.length > 1)
+                      window.history.back();
+                    else navigate({ to: "/" });
+                  }}
+                  aria-label="Go back"
+                  className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-black/45 text-white hover:bg-black/65"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+
                 {isOwnProfile && (
                   <button
                     type="button"
                     onClick={() => coverInputRef.current?.click()}
                     disabled={uploading === "cover"}
                     aria-label="Change cover image"
-                    className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/70 border border-white/20 text-white text-xs font-semibold"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-xs font-semibold text-white hover:bg-black/65"
                   >
                     {uploading === "cover" ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <Camera className="w-3.5 h-3.5" />
+                      <Camera className="w-4 h-4" />
                     )}
                     <span className="hidden sm:inline">
                       {uploading === "cover"
@@ -1107,6 +1120,7 @@ function ProfilePage() {
                   </button>
                 )}
               </div>
+
 
               {/* Identity — avatar overlaps the cover from the left, app-style */}
               <div className="-mt-12 px-1">
