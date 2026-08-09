@@ -657,6 +657,9 @@ function ProfilePage() {
       posts: { ...emptyTabState },
       groups: { ...emptyTabState },
       marketplace: { ...emptyTabState },
+      services: { ...emptyTabState },
+      courses: { ...emptyTabState },
+
       posted: { ...emptyTabState },
       solved: { ...emptyTabState },
       blog: { ...emptyTabState },
