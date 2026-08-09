@@ -1928,6 +1928,9 @@ export type Database = {
           released_by: string | null
           seller_id: string
           seller_share_usd: number
+          service_brief: Json | null
+          service_package_id: string | null
+          service_package_snapshot: Json | null
           status: string
           total_usd: number
           unit_price_usd: number
@@ -1961,6 +1964,9 @@ export type Database = {
           released_by?: string | null
           seller_id: string
           seller_share_usd?: number
+          service_brief?: Json | null
+          service_package_id?: string | null
+          service_package_snapshot?: Json | null
           status?: string
           total_usd: number
           unit_price_usd: number
@@ -1994,6 +2000,9 @@ export type Database = {
           released_by?: string | null
           seller_id?: string
           seller_share_usd?: number
+          service_brief?: Json | null
+          service_package_id?: string | null
+          service_package_snapshot?: Json | null
           status?: string
           total_usd?: number
           unit_price_usd?: number
@@ -2004,6 +2013,13 @@ export type Database = {
             columns: ["product_id"]
             isOneToOne: false
             referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_service_package_id_fkey"
+            columns: ["service_package_id"]
+            isOneToOne: false
+            referencedRelation: "service_packages"
             referencedColumns: ["id"]
           },
         ]
@@ -2872,6 +2888,65 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      service_packages: {
+        Row: {
+          created_at: string
+          delivery_days: number | null
+          features: string[]
+          id: string
+          name: string
+          original_amount: number
+          original_currency: string
+          price_usd: number
+          product_id: string
+          revisions: number | null
+          sort_order: number
+          summary: string
+          tier: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          delivery_days?: number | null
+          features?: string[]
+          id?: string
+          name: string
+          original_amount?: number
+          original_currency?: string
+          price_usd?: number
+          product_id: string
+          revisions?: number | null
+          sort_order?: number
+          summary?: string
+          tier: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          delivery_days?: number | null
+          features?: string[]
+          id?: string
+          name?: string
+          original_amount?: number
+          original_currency?: string
+          price_usd?: number
+          product_id?: string
+          revisions?: number | null
+          sort_order?: number
+          summary?: string
+          tier?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "service_packages_product_id_fkey"
+            columns: ["product_id"]
+            isOneToOne: false
+            referencedRelation: "products"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       support_chat_messages: {
         Row: {

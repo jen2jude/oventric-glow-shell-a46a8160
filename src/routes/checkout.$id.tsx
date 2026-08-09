@@ -27,6 +27,8 @@ import {
 } from "@/lib/marketplace.functions";
 
 import { initPayment, getPaymentOptions } from "@/lib/payments.functions";
+import { getServicePackages, type ServicePackage } from "@/lib/services.functions";
+import { ServiceBriefForm, BRIEF_FIELDS, type BriefState } from "@/components/oventric/services/ServiceBriefForm";
 import { MiniPayPanel } from "@/components/oventric/MiniPayPanel";
 import { usdRate, convertViaSnapshot, formatMoney } from "@/lib/fx-display";
 import { ResponsiveImage } from "@/components/ui/responsive-image";
@@ -117,13 +119,14 @@ export const Route = createFileRoute("/checkout/$id")({
   ssr: false,
   validateSearch: (s: Record<string, unknown>) => ({
     qty: Math.max(1, Math.min(20, Number(s?.qty ?? 1) || 1)),
+    pkg: typeof s?.pkg === "string" && s.pkg ? String(s.pkg) : undefined,
   }),
   component: CheckoutPage,
 });
 
 function CheckoutPage() {
   const { id } = Route.useParams();
-  const { qty } = Route.useSearch();
+  const { qty, pkg } = Route.useSearch();
   const navigate = useNavigate();
   const { baseCurrency, country } = useOnboarding();
   const isAppShell = useIsAppShell();
@@ -152,6 +155,14 @@ function CheckoutPage() {
   const [gateway, setGateway] = useState<"flutterwave" | "paystack" | "minipay">("flutterwave");
   const [recommended, setRecommended] = useState<"flutterwave" | "paystack">("flutterwave");
   const loadOptions = useServerFn(getPaymentOptions);
+  const loadPackages = useServerFn(getServicePackages);
+  const [servicePackage, setServicePackage] = useState<ServicePackage | null>(null);
+  const [brief, setBrief] = useState<BriefState>({
+    goal: "",
+    timeline: "",
+    audience: "",
+    references: "",
+  });
 
   useEffect(() => {
     let cancelled = false;
@@ -168,11 +179,29 @@ function CheckoutPage() {
     };
   }, [loadOptions, baseCurrency]);
 
+  useEffect(() => {
+    if (!pkg) {
+      setServicePackage(null);
+      return;
+    }
+    let cancelled = false;
+    loadPackages({ data: { productId: id } })
+      .then((rows) => {
+        if (!cancelled) setServicePackage(rows.find((r) => r.id === pkg) ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [pkg, id, loadPackages]);
+
   const methods = useMemo(() => methodsForCountry(country), [country]);
-  const subtotalUSD = useMemo(() => (product ? product.priceUSD * qty : 0), [product, qty]);
+  const unitUSD = servicePackage ? servicePackage.priceUsd : (product?.priceUSD ?? 0);
+  const unitLocal = servicePackage ? servicePackage.originalAmount : (product?.originalAmount ?? 0);
+  const subtotalUSD = useMemo(() => (product ? unitUSD * qty : 0), [product, unitUSD, qty]);
   // When viewing in the product's ORIGINAL currency, prefer the seller's exact
   // locked amount so the checkout total matches the listing card 1:1.
-  const subtotalLocal = useMemo(() => (product ? product.originalAmount * qty : 0), [product, qty]);
+  const subtotalLocal = useMemo(() => (product ? unitLocal * qty : 0), [product, unitLocal, qty]);
   // Cashback (spend-only) can now be applied on ANY payment method.
   const cashbackApplyUSD = useMemo(() => {
     if (!useCashback) return 0;
@@ -246,6 +275,9 @@ function CheckoutPage() {
   const isDigital = product?.kind === "digital";
   const needsDelivery = Boolean(isDigital);
   const deliveryValid = !needsDelivery || /^\S+@\S+\.\S+$/.test(deliveryEmail.trim());
+  const isService = product?.kind === "service";
+  const briefValid =
+    !isService || BRIEF_FIELDS.every((f) => !f.required || brief[f.key].trim().length >= 10);
 
   // `balanceUSD` state actually holds the buyer's balance in their HOME
   // currency (see the fetcher above). Compare it against the total in that
@@ -260,6 +292,12 @@ function CheckoutPage() {
 
   const pay = async () => {
     if (!product || submitting) return;
+    if (isService && !briefValid) {
+      toast.error("Tell the seller about your project", {
+        description: "Fill in the short project brief so they can start straight away.",
+      });
+      return;
+    }
     if (needsDelivery && !deliveryValid) {
       toast.error("Add your delivery details", {
         description: "We need a valid email address to deliver your purchase.",
@@ -294,6 +332,8 @@ function CheckoutPage() {
             deliveryEmail: needsDelivery ? deliveryEmail.trim() : null,
             deliveryWhatsapp: null,
             applyCashbackUSD: cashbackApplyUSD,
+            servicePackageId: servicePackage?.id ?? null,
+            serviceBrief: isService ? brief : null,
             channel,
             provider: gateway === "minipay" ? undefined : gateway,
           },
@@ -618,6 +658,60 @@ function CheckoutPage() {
                     </button>
                   </div>
                 </div>
+              )}
+
+              {isService && (
+                <>
+                  {servicePackage && (
+                    <div
+                      className={`mt-2 rounded-xl border p-4 ${
+                        isAppShell
+                          ? "border-white/5 bg-[#16161A]"
+                          : "border-slate-200 bg-white shadow-sm"
+                      }`}
+                    >
+                      <div
+                        className={`text-xs font-bold uppercase tracking-widest mb-2 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                      >
+                        Selected package
+                      </div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div
+                            className={`text-sm font-black ${isAppShell ? "text-white" : "text-slate-900"}`}
+                          >
+                            {servicePackage.name}
+                          </div>
+                          {servicePackage.summary && (
+                            <p
+                              className={`mt-1 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                            >
+                              {servicePackage.summary}
+                            </p>
+                          )}
+                          <div
+                            className={`mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                          >
+                            {servicePackage.deliveryDays != null && (
+                              <span>
+                                {servicePackage.deliveryDays}-day delivery
+                              </span>
+                            )}
+                            {servicePackage.revisions != null && (
+                              <span>{servicePackage.revisions} revisions</span>
+                            )}
+                          </div>
+                        </div>
+                        <span
+                          className={`shrink-0 text-sm font-black ${isAppShell ? "text-white" : "text-slate-900"}`}
+                        >
+                          {fmtPrice(unitUSD, baseCurrency, product, unitLocal)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <ServiceBriefForm value={brief} onChange={setBrief} dark={isAppShell} />
+                </>
               )}
 
               {needsDelivery && (

@@ -3,6 +3,7 @@ import { Link } from "@tanstack/react-router";
 import { ArrowRight, Compass, PenTool, Plus, Send, Sparkles } from "lucide-react";
 import type { ProfileListing } from "@/lib/profiles/mockProfiles";
 import { ServiceComposerModal } from "@/components/oventric/services/ServiceComposerModal";
+import { ServicePackagesModal } from "@/components/oventric/services/ServicePackagesModal";
 
 const ACCENT = "#E5484D";
 
@@ -42,6 +43,7 @@ export function ProfileServicesTab({
   onPublished?: () => void;
 }) {
   const [composing, setComposing] = useState(false);
+  const [editingPackages, setEditingPackages] = useState<ProfileListing | null>(null);
 
   return (
     <div>
@@ -61,8 +63,8 @@ export function ProfileServicesTab({
 
       <div className="mt-3 space-y-3">
         {items.map((s) => (
+          <div key={s.id} className="relative">
           <Link
-            key={s.id}
             to="/product/$id"
             params={{ id: s.id }}
             className="flex items-stretch gap-3 rounded-2xl border border-white/10 bg-[#141417] p-3 transition-colors hover:bg-[#1A1A1F] md:border-slate-200 md:bg-white md:hover:bg-slate-50"
@@ -91,6 +93,16 @@ export function ProfileServicesTab({
               </div>
             </div>
           </Link>
+          {isOwner && (
+            <button
+              type="button"
+              onClick={() => setEditingPackages(s)}
+              className="mt-2 inline-flex h-9 w-full items-center justify-center rounded-xl border border-white/12 bg-white/[0.04] text-xs font-bold text-white md:border-slate-200 md:bg-white md:text-slate-700"
+            >
+              Edit packages
+            </button>
+          )}
+          </div>
         ))}
 
         {items.length === 0 && (
@@ -138,6 +150,16 @@ export function ProfileServicesTab({
           </div>
         ))}
       </div>
+
+      {isOwner && editingPackages && (
+        <ServicePackagesModal
+          open
+          productId={editingPackages.id}
+          serviceTitle={editingPackages.title}
+          onClose={() => setEditingPackages(null)}
+          onSaved={() => onPublished?.()}
+        />
+      )}
 
       {isOwner && (
         <ServiceComposerModal
