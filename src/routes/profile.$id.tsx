@@ -1296,6 +1296,29 @@ function ProfilePage() {
                   </div>
                 </div>
 
+                {/* Connections entry — opens the All / Following / Followers / Suggested browser */}
+                <button
+                  type="button"
+                  onClick={() => openRelationships("all")}
+                  className="mt-3 flex w-full items-center gap-3 rounded-2xl border border-white/10 bg-[#141418] px-4 py-3 text-left hover:bg-[#1A1A1F] md:border-slate-200 md:bg-white md:hover:bg-slate-50"
+                >
+                  <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-[#E5484D]/15 text-[#E5484D]">
+                    <Users className="h-4 w-4" />
+                  </span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block text-sm font-black text-white md:text-slate-900">
+                      Connections
+                    </span>
+                    <span className="block text-[11px] font-semibold text-slate-500">
+                      {compactCount(socialCounts?.followers ?? 0)} followers ·{" "}
+                      {compactCount(socialCounts?.following ?? 0)} following
+                    </span>
+                  </span>
+                  <ChevronRight className="h-4 w-4 shrink-0 text-slate-500" />
+                </button>
+
+
+
                 {/* Primary actions */}
                 {!isOwnProfile && !identityMissing && realProfile?.userId && (
                   <div className="mt-3 flex items-center gap-2">
