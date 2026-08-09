@@ -93,6 +93,14 @@
   --color-lime-500: #3b82f6;
 }
 
+/* Off-screen drawers/sheets must never create a horizontal scroll surface,
+   otherwise swiping right on any page drags the closed panel into view. */
+html,
+body {
+  overflow-x: clip;
+  max-width: 100%;
+}
+
 
 :root {
   --radius: 0.5rem;
