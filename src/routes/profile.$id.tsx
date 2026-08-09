@@ -631,26 +631,41 @@ function ProfilePage() {
     }
   }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
-  // Change tabs — preserve current scroll position, don't jump to top.
+  // Scroll so the tab rail sits just under the sticky header — the tab
+  // content then starts at the top of the viewport, ready to scroll.
+  const tabsNavRef = useRef<HTMLElement | null>(null);
+  const tabsTopY = useCallback((): number => {
+    const nav = tabsNavRef.current;
+    if (!nav) return getScrollY();
+    const navTop = nav.getBoundingClientRect().top;
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) {
+      return Math.max(0, el.scrollTop + (navTop - el.getBoundingClientRect().top) - 8);
+    }
+    return Math.max(0, window.scrollY + navTop - 64);
+  }, [getScrollY, mainRef]);
+
+  // Change tabs — snap the tab rail to the top so the new section starts there.
   const changeTab = useCallback(
     (next: Tab) => {
-      const currentY = getScrollY();
-      pinAcrossChange(currentY);
+      const targetY = tabsTopY();
+      pinAcrossChange(targetY);
       if (next === tab) {
-        requestAnimationFrame(() => restoreScroll(currentY));
+        requestAnimationFrame(() => restoreScroll(targetY));
         return;
       }
       const nextSort = SORT_OPTIONS_BY_TAB[next].some((o) => o.value === sort) ? sort : "newest";
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab: next, pages: 1, y: currentY, q, sort: nextSort },
+        search: { tab: next, pages: 1, y: targetY, q, sort: nextSort },
         replace: true,
         resetScroll: false,
       });
     },
-    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll, q, sort],
+    [tab, navigate, id, tabsTopY, pinAcrossChange, restoreScroll, q, sort],
   );
+
 
   // Retry a failed tab: clear its cache so the load effect refetches up to
   // the current desiredPages (preserving pagination). Also reset scroll.
