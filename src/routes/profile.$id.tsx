@@ -64,7 +64,14 @@ import {
   FileText,
   MapPin,
   Share2,
+  MoreHorizontal,
 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 /** Renders the matching brand glyph for a social-link key. */
 function SocialIcon({ kind }: { kind: string }) {
@@ -152,7 +159,6 @@ const TAB_KEYS: Tab[] = [
   "blog",
 ];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
-
 
 type SortOption = { value: ProfileSortKey; label: string };
 const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
@@ -275,6 +281,7 @@ function ProfilePage() {
   }>({ sentAt: null, acceptedAt: null, canceledAt: null });
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [joinCircleOpen, setJoinCircleOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
@@ -511,7 +518,6 @@ function ProfilePage() {
   // Adaptive ecosystem sections: a person's profile only shows the surfaces
   // they actually use (shop, services, courses, communities…).
   const { sections: ecosystemSections } = useProfileEcosystem(id, isOwnProfile);
-
 
   const fetchOverview = useServerFn(getDashboardOverview);
   useEffect(() => {
@@ -841,8 +847,6 @@ function ProfilePage() {
     : isUuidId
       ? "Unverified"
       : "Verified";
-  const displayStars =
-    liveRep?.stars ?? realProfile?.reputationStars ?? (isUuidId ? 0 : starBreakdown.stars);
 
   const handleJoin = () => {
     require(1, async () => {
@@ -965,47 +969,6 @@ function ProfilePage() {
         <Header forceSiteNavbar={!useIsAppShell()} />
         <main ref={mainRef} className="flex-1 min-w-0 pb-20 md:overflow-y-auto md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
-            <div className="profile-standard-actions flex items-center justify-between gap-3 mb-4">
-              <button
-                onClick={() => navigate({ to: "/" })}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 md:text-slate-500 hover:text-emerald-400 md:text-emerald-600"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
-              </button>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:hover:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
-                  aria-label="Copy profile link"
-                >
-                  {copied ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400 md:text-emerald-600" />
-                  ) : (
-                    <Link2 className="w-3.5 h-3.5 text-slate-400 md:text-slate-500" />
-                  )}
-                  {copied ? "Copied!" : "Copy Link"}
-                </button>
-                {isOwnProfile && (
-                  <button
-                    onClick={() => setFollowRequestsOpen(true)}
-                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
-                    aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
-                  >
-                    <UserPlus className="w-3.5 h-3.5 text-sky-300 md:text-sky-700" />
-                    Follow Requests
-                    {pendingFollowReqCount > 0 && (
-                      <span
-                        className=" absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
-                        aria-hidden
-                      >
-                        {pendingFollowReqCount > 9 ? "9+" : pendingFollowReqCount}
-                      </span>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
-
             {/* Hero — the whole mobile profile surface is intentionally plain:
                  no animated gradients, filters, backdrop blur, blend modes,
                  compositor promotion, or clipped gradient layers. Those effects
@@ -1061,8 +1024,8 @@ function ProfilePage() {
               data-testid="profile-banner"
               className="profile-card-safe profile-standard-header mb-6"
             >
-              {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-40 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
+              {/* Cover image — full-bleed hero */}
+              <div className="profile-cover-safe relative -mx-4 -mt-6 h-56 overflow-hidden border-b border-white/10 bg-[#18181d] sm:h-72 md:mx-0 md:mt-0 md:rounded-2xl md:border md:border-slate-200 md:bg-slate-100">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -1075,18 +1038,31 @@ function ProfilePage() {
                 )}
                 <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/60 to-transparent" />
 
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (typeof window !== "undefined" && window.history.length > 1)
+                      window.history.back();
+                    else navigate({ to: "/" });
+                  }}
+                  aria-label="Go back"
+                  className="absolute left-3 top-3 grid h-10 w-10 place-items-center rounded-full bg-black/45 text-white hover:bg-black/65"
+                >
+                  <ArrowLeft className="h-5 w-5" />
+                </button>
+
                 {isOwnProfile && (
                   <button
                     type="button"
                     onClick={() => coverInputRef.current?.click()}
                     disabled={uploading === "cover"}
                     aria-label="Change cover image"
-                    className="absolute top-2 right-2 inline-flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-black/60 hover:bg-black/70 border border-white/20 text-white text-xs font-semibold"
+                    className="absolute top-3 right-3 inline-flex items-center gap-1.5 rounded-full bg-black/45 px-3 py-2 text-xs font-semibold text-white hover:bg-black/65"
                   >
                     {uploading === "cover" ? (
-                      <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      <Loader2 className="w-4 h-4 animate-spin" />
                     ) : (
-                      <Camera className="w-3.5 h-3.5" />
+                      <Camera className="w-4 h-4" />
                     )}
                     <span className="hidden sm:inline">
                       {uploading === "cover"
@@ -1156,23 +1132,44 @@ function ProfilePage() {
                     >
                       <Share2 className="h-4 w-4" />
                     </button>
-                    {isOwnProfile ? (
-                      <button
-                        onClick={() => setEditProfileOpen(true)}
-                        aria-label="Edit profile"
-                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-200 md:text-slate-700 hover:bg-[#232329]"
-                      >
-                        <Pencil className="h-4 w-4" />
-                      </button>
-                    ) : (
-                      <button
-                        onClick={() => setReportOpen(true)}
-                        aria-label="Report profile"
-                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-[#E5484D]"
-                      >
-                        <Flag className="h-4 w-4" />
-                      </button>
-                    )}
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          aria-label="More profile options"
+                          className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] text-slate-200 hover:bg-[#232329] md:border-slate-200 md:bg-white md:text-slate-700"
+                        >
+                          <MoreHorizontal className="h-4 w-4" />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-56">
+                        <DropdownMenuItem onClick={handleCopyLink}>
+                          {copied ? (
+                            <Check className="mr-2 h-4 w-4" />
+                          ) : (
+                            <Link2 className="mr-2 h-4 w-4" />
+                          )}
+                          {copied ? "Link copied" : "Copy profile link"}
+                        </DropdownMenuItem>
+                        {isOwnProfile ? (
+                          <>
+                            <DropdownMenuItem onClick={() => setEditProfileOpen(true)}>
+                              <Pencil className="mr-2 h-4 w-4" />
+                              Edit profile
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => setFollowRequestsOpen(true)}>
+                              <UserPlus className="mr-2 h-4 w-4" />
+                              Follow requests
+                              {pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount})` : ""}
+                            </DropdownMenuItem>
+                          </>
+                        ) : (
+                          <DropdownMenuItem onClick={() => setReportOpen(true)}>
+                            <Flag className="mr-2 h-4 w-4" />
+                            Report profile
+                          </DropdownMenuItem>
+                        )}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </div>
 
@@ -1222,10 +1219,6 @@ function ProfilePage() {
                           .replace(/\/$/, "")}
                       </a>
                     )}
-                    <span className="inline-flex items-center gap-1.5">
-                      <Star className="h-3.5 w-3.5 text-amber-300 md:text-amber-600" />
-                      {displayStars.toFixed(1)}
-                    </span>
                   </div>
                 )}
 
@@ -1240,7 +1233,9 @@ function ProfilePage() {
                     <span className="block text-base font-black text-white md:text-slate-900">
                       {compactCount(socialCounts?.followers ?? 0)}
                     </span>
-                    <span className="block text-[11px] font-semibold text-slate-500">Followers</span>
+                    <span className="block text-[11px] font-semibold text-slate-500">
+                      Followers
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1251,7 +1246,9 @@ function ProfilePage() {
                     <span className="block text-base font-black text-white md:text-slate-900">
                       {compactCount(socialCounts?.following ?? 0)}
                     </span>
-                    <span className="block text-[11px] font-semibold text-slate-500">Following</span>
+                    <span className="block text-[11px] font-semibold text-slate-500">
+                      Following
+                    </span>
                   </button>
                   <div className="px-2 py-3 text-center">
                     <span className="block text-base font-black text-white md:text-slate-900">
@@ -1309,6 +1306,31 @@ function ProfilePage() {
                   </div>
                 )}
 
+                {/* About card */}
+                {displayBio && (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-[#141418] p-4 md:border-slate-200 md:bg-white md:shadow-sm">
+                    <h2 className="text-sm font-black text-white md:text-slate-900">
+                      About {displayName.split(" ")[0]}
+                    </h2>
+                    <p
+                      className={`mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-300 md:text-slate-600 ${
+                        aboutExpanded ? "" : "line-clamp-4"
+                      }`}
+                    >
+                      {displayBio}
+                    </p>
+                    {displayBio.length > 160 && (
+                      <button
+                        type="button"
+                        onClick={() => setAboutExpanded((v) => !v)}
+                        className="mt-2 text-xs font-bold text-[#E5484D] hover:underline"
+                      >
+                        {aboutExpanded ? "Show less" : "Read more"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {/* What I'm into */}
                 {realProfile?.interests && realProfile.interests.length > 0 && (
                   <div className="mt-4">
@@ -1356,104 +1378,7 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
-
             </section>
-
-            {/* Reputation block */}
-            <div
-              data-testid="profile-reputation"
-              className="profile-reputation-safe profile-card-safe mt-5 p-4 sm:p-6 rounded-xl border border-white/10 md:border-slate-200 bg-[#1E1E24] md:bg-white md:shadow-sm"
-            >
-              <div className="sm:hidden rounded-lg border border-[#2A2A30] md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm">
-                <MobileRepLine
-                  icon={<Star className="w-4 h-4 text-white" />}
-                  label="Star Rating"
-                  value={`${displayStars.toFixed(1)} / 5`}
-                />
-                <MobileRepLine
-                  icon={<Target className="w-4 h-4 text-white" />}
-                  label="Bounties Solved"
-                  value={liveRep ? liveRep.metrics.bountiesSolved : "…"}
-                />
-                <MobileRepLine
-                  icon={<Award className="w-4 h-4 text-white" />}
-                  label="Product Rating"
-                  value={
-                    liveRep
-                      ? liveRep.metrics.productReviewCount > 0
-                        ? liveRep.metrics.avgProductRating.toFixed(1)
-                        : "—"
-                      : "…"
-                  }
-                />
-                <MobileRepLine
-                  icon={<ShoppingBag className="w-4 h-4 text-white" />}
-                  label="Listings"
-                  value={liveRep ? liveRep.metrics.productsListed : "…"}
-                />
-                <MobileRepLine
-                  icon={<ShieldCheck className="w-4 h-4 text-white" />}
-                  label="Posts (30d)"
-                  value={liveRep ? liveRep.metrics.postsLast30d : "…"}
-                  last
-                />
-              </div>
-
-              <div className="hidden sm:grid sm:grid-cols-5 gap-3">
-                <RepStat
-                  icon={<Star className="w-4 h-4 text-white" />}
-                  label="Star Rating"
-                  value={
-                    <div className="flex items-center gap-1">
-                      <span className="text-white md:text-slate-900 font-black">
-                        {displayStars.toFixed(1)}
-                      </span>
-                      <StarRow value={displayStars} />
-                    </div>
-                  }
-                />
-                <RepStat
-                  icon={<Target className="w-4 h-4 text-white" />}
-                  label="Bounties Solved"
-                  value={
-                    <span className="text-white md:text-slate-900 font-black">
-                      {liveRep ? liveRep.metrics.bountiesSolved : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<Award className="w-4 h-4 text-white" />}
-                  label="Product Rating"
-                  value={
-                    <span className="text-white md:text-slate-900 font-black">
-                      {liveRep
-                        ? liveRep.metrics.productReviewCount > 0
-                          ? liveRep.metrics.avgProductRating.toFixed(1)
-                          : "—"
-                        : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<ShoppingBag className="w-4 h-4 text-white" />}
-                  label="Listings"
-                  value={
-                    <span className="text-white md:text-slate-900 font-black">
-                      {liveRep ? liveRep.metrics.productsListed : "…"}
-                    </span>
-                  }
-                />
-                <RepStat
-                  icon={<ShieldCheck className="w-4 h-4 text-white" />}
-                  label="Posts (30d)"
-                  value={
-                    <span className="text-white md:text-slate-900 font-black">
-                      {liveRep ? liveRep.metrics.postsLast30d : "…"}
-                    </span>
-                  }
-                />
-              </div>
-            </div>
 
             {/* Member details: country, address & birthday — centred */}
             <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm p-4 text-center">
@@ -1544,26 +1469,26 @@ function ProfilePage() {
                   const label = section.label;
                   const count = tabData[key].total ?? section.count;
 
-                return (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setPhotosMode(false);
-                      changeTab(key);
-                    }}
-                    className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                      tab === key && !photosMode && !overviewMode
-                        ? "text-white md:text-slate-900 border-[#E5484D]"
-                        : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
-                    }`}
-                  >
-                    {label}
-                    <span className="text-xs text-slate-500 md:text-slate-500 ml-1">
-                      ({count === null ? "…" : count})
-                    </span>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setPhotosMode(false);
+                        changeTab(key);
+                      }}
+                      className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                        tab === key && !photosMode && !overviewMode
+                          ? "text-white md:text-slate-900 border-[#E5484D]"
+                          : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
+                      }`}
+                    >
+                      {label}
+                      <span className="text-xs text-slate-500 md:text-slate-500 ml-1">
+                        ({count === null ? "…" : count})
+                      </span>
+                    </button>
+                  );
+                })}
               <button
                 key="photos"
                 onClick={() => {
@@ -1584,37 +1509,37 @@ function ProfilePage() {
 
             {/* Search + sort */}
             {!overviewMode && !photosMode && (
-            <TabFilters
-              tab={tab}
-              q={q}
-              sort={sort}
-              onChangeQ={(next) => {
-                navigate({
-                  to: "/profile/$id",
-                  params: { id },
-                  search: (prev: Record<string, unknown>) => ({
-                    ...prev,
-                    q: next,
-                    pages: 1,
-                    y: 0,
-                  }),
-                  replace: true,
-                });
-              }}
-              onChangeSort={(next) => {
-                navigate({
-                  to: "/profile/$id",
-                  params: { id },
-                  search: (prev: Record<string, unknown>) => ({
-                    ...prev,
-                    sort: next,
-                    pages: 1,
-                    y: 0,
-                  }),
-                  replace: true,
-                });
-              }}
-            />
+              <TabFilters
+                tab={tab}
+                q={q}
+                sort={sort}
+                onChangeQ={(next) => {
+                  navigate({
+                    to: "/profile/$id",
+                    params: { id },
+                    search: (prev: Record<string, unknown>) => ({
+                      ...prev,
+                      q: next,
+                      pages: 1,
+                      y: 0,
+                    }),
+                    replace: true,
+                  });
+                }}
+                onChangeSort={(next) => {
+                  navigate({
+                    to: "/profile/$id",
+                    params: { id },
+                    search: (prev: Record<string, unknown>) => ({
+                      ...prev,
+                      sort: next,
+                      pages: 1,
+                      y: 0,
+                    }),
+                    replace: true,
+                  });
+                }}
+              />
             )}
 
             {/* Live refresh indicator for the marketplace tab */}
@@ -1667,7 +1592,7 @@ function ProfilePage() {
                   onOpenSection={(key) => {
                     if (key === "about") {
                       document
-                        .querySelector('[data-testid="profile-reputation"]')
+                        .querySelector('[data-testid="profile-banner"]')
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                       return;
                     }
@@ -1787,7 +1712,6 @@ function ProfilePage() {
                             subtitle: "Course",
                             priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
                           }));
-
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
@@ -1861,7 +1785,6 @@ function ProfilePage() {
                                         params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                         search: itemSearch,
                                       } as any))}
-
                                 className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                               >
                                 <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -2025,58 +1948,11 @@ function ProfilePage() {
   );
 }
 
-function RepStat({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: React.ReactNode;
-}) {
-  return (
-    <div className="profile-card-safe bg-[#17171C] md:bg-white md:shadow-sm border border-white/5  md:border-slate-200 rounded-lg px-3 py-2.5">
-      <div className="flex items-center gap-1.5 text-[10px] uppercase tracking-wider text-slate-500 md:text-slate-500">
-        {icon}
-        {label}
-      </div>
-      <div className="mt-1 text-sm">{value}</div>
-    </div>
-  );
-}
-
 /** 2.4K-style compact numbers for the identity stat strip. */
 function compactCount(n: number): string {
   if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
   if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
   return String(n);
-}
-
-
-function MobileRepLine({
-  label,
-  value,
-  icon,
-  last = false,
-}: {
-  label: string;
-  value: React.ReactNode;
-  icon?: React.ReactNode;
-  last?: boolean;
-}) {
-  return (
-    <div
-      className={`flex min-h-12 items-center justify-between gap-3 px-3 py-2.5 ${last ? "" : "border-b border-[#2A2A30] md:border-slate-200"}`}
-    >
-      <div className="flex min-w-0 items-center gap-2">
-        {icon ? <span className="shrink-0 inline-flex">{icon}</span> : null}
-        <div className="min-w-0 text-xs font-semibold text-slate-300 md:text-slate-600">
-          {label}
-        </div>
-      </div>
-      <div className="shrink-0 text-sm font-black text-white md:text-slate-900">{value}</div>
-    </div>
-  );
 }
 
 function relTime(iso: string | null): string | null {
@@ -2159,23 +2035,6 @@ function CircleStatusNote({
     );
   }
   return null;
-}
-
-function StarRow({ value }: { value: number }) {
-  return (
-    <div className="flex items-center">
-      {[0, 1, 2, 3, 4].map((i) => {
-        const filled = value >= i + 1;
-        const half = !filled && value >= i + 0.5;
-        return (
-          <Star
-            key={i}
-            className={`w-3 h-3 ${filled ? "fill-yellow-400 text-yellow-400" : half ? "fill-yellow-400/50 text-yellow-400/60" : "text-slate-600"}`}
-          />
-        );
-      })}
-    </div>
-  );
 }
 
 function TabFilters({
@@ -2491,7 +2350,6 @@ function tabNoun(tab: Tab): string {
       return "articles";
   }
 }
-
 
 function HeaderStat({
   icon,

@@ -63,15 +63,8 @@ test.describe("Profile visual regression @ mobile breakpoints", () => {
         animations: "disabled",
       });
 
-      // 4) Reputation block (stats + "How this rating is calculated") —
-      // the mid-page region that showed the worst scrambling on Infinix/Redmi.
-      const reputation = page.getByTestId("profile-reputation");
-      await expect(reputation).toBeVisible();
-      await reputation.scrollIntoViewIfNeeded();
-      await expect(reputation).toHaveScreenshot(`reputation-${vp.label}.png`, {
-        maxDiffPixelRatio: 0.02,
-        animations: "disabled",
-      });
+      // 4) (Reputation block removed from the identity hub redesign.)
+
 
       // 5) Tabs nav — horizontal scroller that historically triggered
       // overflow/compositor bugs on narrow Android widths.
