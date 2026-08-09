@@ -113,7 +113,7 @@ export const seedNewUser = createServerFn({ method: "POST" })
       }
     }
 
-    return { ok: true, userId };
+    return { ok: true as const, staleSession: false, userId };
   });
 
 const FullNameInput = z.object({
