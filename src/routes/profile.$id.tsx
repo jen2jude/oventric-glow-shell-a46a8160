@@ -170,6 +170,7 @@ type Tab =
   | "marketplace"
   | "services"
   | "skills"
+  | "collections"
   | "courses"
   | "posted"
   | "solved"
@@ -180,6 +181,7 @@ const TAB_KEYS: Tab[] = [
   "marketplace",
   "services",
   "skills",
+  "collections",
   "courses",
   "posted",
   "solved",
