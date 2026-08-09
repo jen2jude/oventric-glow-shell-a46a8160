@@ -24,6 +24,18 @@ type Slide = {
 
 const SLIDES: Slide[] = [
   {
+    id: "digital",
+    title: "Shop & download millions of free digital assets",
+    subtitle: "Get premium themes, plugins, AI tools & more.",
+    cta: "Explore Assets",
+    img: digitalImg,
+    bg: "linear-gradient(110deg, #4C1D95 0%, #6D28D9 55%, #2E1065 100%)",
+    text: "text-white",
+    sub: "text-white/70",
+    pill: "bg-black/70 text-white",
+    section: "Marketplace",
+  },
+  {
     id: "shopping",
     title: "Save big on all your shopping",
     subtitle: "Buy from real sellers",
@@ -37,9 +49,9 @@ const SLIDES: Slide[] = [
   },
   {
     id: "assets",
-    title: "Earn 2% on every digital asset",
+    title: "Earn 2% cashback on every purchase",
     subtitle: "Money back into your cashback wallet.",
-    cta: "Start Selling",
+    cta: "Shop Now",
     img: assetsImg,
     bg: "linear-gradient(110deg, #F7B500 0%, #F59E0B 60%, #E8890B 100%)",
     text: "text-black",
