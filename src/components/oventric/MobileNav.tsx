@@ -1,6 +1,5 @@
 import { Home, Target, Wallet, Plus, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
-import { useChromeHidden } from "@/hooks/use-chrome-hide";
 import { haptic } from "@/lib/haptics";
 
 const left = [
