@@ -2034,6 +2034,7 @@ function ProfilePage() {
             coverUrl: realProfile.coverUrl,
             socialLinks: realProfile.socialLinks,
             skills: realProfile.skills,
+            interests: realProfile.interests,
           }}
           onSaved={reloadRealProfile}
         />
