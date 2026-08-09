@@ -248,7 +248,24 @@ export function StoryViewerModal({
           />
         </div>
 
+        {/* Floating reactions — drift from the stack upward */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-16 z-30 h-1/2 overflow-hidden">
+          {floats.map((f, idx) => (
+            <span
+              key={f.id}
+              className="absolute bottom-0 left-1/2 text-[26px] story-float"
+              style={{
+                transform: `translateX(${f.x}px)`,
+                animationDelay: `${idx * 90}ms`,
+              }}
+            >
+              {f.emoji}
+            </span>
+          ))}
+        </div>
+
         {/* Reaction stack */}
+
         {!group.isMe && (
           <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6">
             <div className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-2 backdrop-blur-md">
