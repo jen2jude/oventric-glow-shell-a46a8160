@@ -1491,12 +1491,16 @@ export function Feed() {
                 <MessageSquare className="w-5 h-5 text-[#E5484D] md:text-[#E5484D]" />
               </div>
               <p className="text-sm font-semibold text-white md:text-slate-900">
-                The feed is quiet right now
+                {isAppShell && feedTab === "following"
+                  ? "Nothing from the people you follow"
+                  : "The feed is quiet right now"}
               </p>
               <p className="mt-1 text-xs text-slate-400 md:text-slate-600 max-w-sm mx-auto">
-                No posts have been shared yet. Kick things off — share an update, ship a build log,
-                or ask the network a question.
+                {isAppShell && feedTab === "following"
+                  ? "Follow more creators to fill this tab — head to Discover to find people worth following."
+                  : "No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question."}
               </p>
+
             </div>
           )
         ) : (
