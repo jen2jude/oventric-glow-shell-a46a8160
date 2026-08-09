@@ -347,6 +347,7 @@ function ProfilePage() {
     marketplace: { ...emptyTabState },
     services: { ...emptyTabState },
     skills: { ...emptyTabState },
+    collections: { ...emptyTabState },
     courses: { ...emptyTabState },
 
     posted: { ...emptyTabState },
@@ -743,6 +744,7 @@ function ProfilePage() {
       marketplace: { ...emptyTabState },
       services: { ...emptyTabState },
       skills: { ...emptyTabState },
+    collections: { ...emptyTabState },
       courses: { ...emptyTabState },
 
       posted: { ...emptyTabState },
