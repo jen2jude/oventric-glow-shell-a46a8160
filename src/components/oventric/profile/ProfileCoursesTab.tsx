@@ -223,8 +223,8 @@ export function ProfileCoursesTab({
 
   const viewCourses = (
     <Link
-      to="/courses/$id"
-      params={{ id: slug }}
+      to="/"
+      search={{ section: "Academy" } as never}
       className="inline-flex items-center gap-1 text-sm font-bold"
       style={{ color: ACCENT }}
     >

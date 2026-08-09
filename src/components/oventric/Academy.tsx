@@ -1,5 +1,6 @@
 import { useEffect, useState, useMemo, useRef, useCallback } from "react";
 import { useServerFn } from "@tanstack/react-start";
+import { Link } from "@tanstack/react-router";
 import {
   ArrowLeft,
   ArrowRight,
@@ -684,7 +685,18 @@ function CourseCard({
           {course.title}
         </h3>
         <div className="mt-2 flex flex-wrap items-center gap-3 text-xs text-slate-500">
-          {course.instructorName && <span>By {course.instructorName}</span>}
+          {course.ownerSlug ? (
+            <Link
+              to="/profile/$id"
+              params={{ id: course.ownerSlug }}
+              onClick={(e) => e.stopPropagation()}
+              className="font-semibold text-emerald-600 hover:underline"
+            >
+              By {course.ownerName || course.instructorName || "Creator"}
+            </Link>
+          ) : (
+            course.instructorName && <span>By {course.instructorName}</span>
+          )}
           <span className="inline-flex items-center gap-1">
             <Users className="w-3 h-3" /> {course.level}
           </span>
@@ -894,7 +906,17 @@ const CourseDetail = ({
                 {course.title}
               </h1>
               <div className="mt-2 flex items-center gap-4 text-xs text-slate-500 flex-wrap">
-                {course.instructorName && <span>By {course.instructorName}</span>}
+                {course.ownerSlug ? (
+                  <Link
+                    to="/profile/$id"
+                    params={{ id: course.ownerSlug }}
+                    className="font-semibold text-emerald-500 hover:underline"
+                  >
+                    By {course.ownerName || course.instructorName || "Creator"}
+                  </Link>
+                ) : (
+                  course.instructorName && <span>By {course.instructorName}</span>
+                )}
                 <span>{course.category}</span>
                 <span>{course.level}</span>
                 <span className="inline-flex items-center gap-1">
