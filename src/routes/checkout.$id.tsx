@@ -233,7 +233,7 @@ function CheckoutPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, loadProduct]);
+  }, [id, loadProduct, navigate]);
 
   useEffect(() => {
     let cancelled = false;
