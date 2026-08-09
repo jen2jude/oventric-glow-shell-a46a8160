@@ -1673,6 +1673,12 @@ function ProfilePage() {
                 />
               ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
+              ) : tab === "posts" && realProfile?.userId ? (
+                <ProfilePostsFeed
+                  wallUserId={realProfile.userId}
+                  wallOwnerName={displayName}
+                  viewerId={meId ?? null}
+                />
               ) : (
                 (() => {
                   const st = tabData[tab];
@@ -1717,24 +1723,6 @@ function ProfilePage() {
                   return (
                     <>
                       {(() => {
-                        // Posts render as a real feed wall instead of grid tiles.
-                        if (tab === "posts") {
-                          return (
-                            <div className="space-y-3">
-                              {(st.items as ProfilePost[]).map((p) => (
-                                <ProfilePostCard
-                                  key={p.id}
-                                  post={p}
-                                  profileId={profile.id}
-                                  authorName={displayName}
-                                  authorAvatarUrl={realProfile?.avatarUrl}
-                                  itemSearch={itemSearch as Record<string, unknown>}
-                                />
-                              ))}
-                            </div>
-                          );
-                        }
-
                         // Uniform grid tiles across every tab. Tiles deep-link to the
                         // profile item detail route so the panel loads instantly with
                         // its own skeleton while the URL stays shareable.
