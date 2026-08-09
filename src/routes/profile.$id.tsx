@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfileEcosystem } from "@/lib/ecosystem/useProfileEcosystem";
+
 import {
   getCircleStatus,
   sendCircleRequest,
