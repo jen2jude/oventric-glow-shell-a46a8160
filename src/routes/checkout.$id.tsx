@@ -219,7 +219,13 @@ function CheckoutPage() {
     let cancelled = false;
     loadProduct({ data: { id } })
       .then((p) => {
-        if (!cancelled) setProduct(p);
+        if (cancelled) return;
+        // Services are showcase-only: they're arranged over chat, not bought.
+        if (p.kind === "service") {
+          void navigate({ to: "/product/$id", params: { id }, replace: true });
+          return;
+        }
+        setProduct(p);
       })
       .catch((e: Error) => {
         if (!cancelled) setLoadErr(e.message || "Failed to load");
