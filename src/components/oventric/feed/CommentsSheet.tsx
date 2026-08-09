@@ -37,7 +37,7 @@ function Comment({
   const viewer = c.viewer_reaction;
   return (
     <div className="flex gap-2.5 py-2">
-      <div className="w-8 h-8 shrink-0 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-300 md:text-emerald-700 text-[11px] font-semibold">
+      <div className="w-8 h-8 shrink-0 rounded-full bg-[#E5484D]/20 border border-[#E5484D]/40 flex items-center justify-center text-emerald-300 md:text-emerald-700 text-[11px] font-semibold">
         {c.initials}
       </div>
       <div className="flex-1 min-w-0">
@@ -242,7 +242,7 @@ export function CommentsSheet({
               onChange={(e) => setText(e.target.value)}
               placeholder={replyTo ? "Write a reply…" : "Write a comment…"}
               rows={1}
-              className="flex-1 resize-none rounded-2xl bg-[#0f0f11] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-[13px] text-slate-100 md:text-slate-800 outline-none focus:border-emerald-500/60 max-h-32"
+              className="flex-1 resize-none rounded-2xl bg-[#0f0f11] md:bg-slate-50 border border-white/10 md:border-slate-200 px-3 py-2 text-[13px] text-slate-100 md:text-slate-800 outline-none focus:border-[#E5484D]/60 max-h-32"
               onKeyDown={(e) => {
                 if (e.key === "Enter" && !e.shiftKey) {
                   e.preventDefault();
@@ -254,7 +254,7 @@ export function CommentsSheet({
               type="button"
               onClick={handleSubmit}
               disabled={!text.trim() || addMut.isPending}
-              className="p-2 rounded-full bg-emerald-500 text-black disabled:opacity-40 hover:bg-emerald-400"
+              className="p-2 rounded-full bg-[#E5484D] text-black disabled:opacity-40 hover:bg-[#E5484D]"
               aria-label="Send"
             >
               <Send className="w-4 h-4" />

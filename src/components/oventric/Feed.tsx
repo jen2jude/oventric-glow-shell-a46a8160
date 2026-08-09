@@ -68,6 +68,9 @@ import { PostActionsMenu, shareUrl, getHiddenPosts } from "@/components/oventric
 import { listBlogPosts, type BlogListItem } from "@/lib/blog.functions";
 import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { PostComposerModal } from "@/components/oventric/PostComposerModal";
+import { FeedAppChrome, type FeedTab } from "@/components/oventric/feed/FeedAppChrome";
+import { listFollowing } from "@/lib/follows.functions";
+
 import {
   FeedSearchBar,
   FeedGlobalResults,
@@ -361,6 +364,11 @@ export function Feed() {
   const [meLastName, setMeLastName] = useState<string>("");
   const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
   const [meInitials, setMeInitials] = useState<string>("Me");
+  const [meSlug, setMeSlug] = useState<string | null>(null);
+  const [feedTab, setFeedTab] = useState<FeedTab>("foryou");
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [followingIds, setFollowingIds] = useState<Set<string> | null>(null);
+
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
   const [newPostId, setNewPostId] = useState<string | null>(null);
@@ -562,9 +570,11 @@ export function Feed() {
       try {
         const { data: prof } = await supabase
           .from("profiles")
-          .select("display_name, username, avatar_path")
+          .select("display_name, username, avatar_path, slug")
           .eq("user_id", uid)
           .maybeSingle();
+        if (prof?.slug) setMeSlug(prof.slug);
+
         const name = (prof?.display_name || prof?.username || "").trim();
         if (name) {
           const parts = name.split(/\s+/);
@@ -591,6 +601,23 @@ export function Feed() {
       }
     })();
   }, []);
+
+  // Following set — powers the "Following" / "Discover" tabs.
+  const loadFollowing = useServerFn(listFollowing);
+  useEffect(() => {
+    if (!meId) return;
+    let cancelled = false;
+    loadFollowing({ data: { userId: meId } })
+      .then((rows) => {
+        if (cancelled) return;
+        setFollowingIds(new Set((rows ?? []).map((r: any) => r.userId ?? r.user_id ?? r.id)));
+      })
+      .catch(() => setFollowingIds(new Set()));
+    return () => {
+      cancelled = true;
+    };
+  }, [meId, loadFollowing]);
+
 
   // Rotate composer placeholder every 3s
   useEffect(() => {
@@ -1109,6 +1136,13 @@ export function Feed() {
     const term = debouncedQuery.toLowerCase();
     return posts.filter((p) => {
       if (hiddenPosts.has(p.id)) return false;
+      if (isAppShell && feedTab === "following") {
+        if (!followingIds || !followingIds.has(p.author_id)) return false;
+      }
+      if (isAppShell && feedTab === "discover") {
+        if (p.author_id === meId) return false;
+        if (followingIds && followingIds.has(p.author_id)) return false;
+      }
       const hasMedia = p.media.length > 0 || !!p.media_url;
       if (category === "media" && !hasMedia) return false;
       if (category === "posts" && hasMedia) return false;
@@ -1119,7 +1153,17 @@ export function Feed() {
         (p.circle?.name ?? "").toLowerCase().includes(term)
       );
     });
-  }, [posts, hiddenPosts, category, debouncedQuery]);
+  }, [
+    posts,
+    hiddenPosts,
+    category,
+    debouncedQuery,
+    isAppShell,
+    feedTab,
+    followingIds,
+    meId,
+  ]);
+
   const isFiltering = debouncedQuery.length > 0 || category !== "all";
 
   const handleBuy = () => require(2, () => alert("Proceeding to checkout (mock)"), "buyer");
@@ -1135,12 +1179,25 @@ export function Feed() {
       <div
         className={`w-full lg:flex-1 lg:min-w-0 flex flex-col ${isAppShell ? "space-y-3" : "space-y-4"}`}
       >
+        {isAppShell && (
+          <FeedAppChrome
+            tab={feedTab}
+            onTabChange={setFeedTab}
+            searchOpen={searchOpen}
+            onToggleSearch={() => setSearchOpen((v) => !v)}
+            meAvatarUrl={meAvatarUrl}
+            meInitials={meInitials}
+            meSlug={meSlug}
+            onAddStory={() => require(1, () => setComposerOpen(true), "seller")}
+          />
+        )}
         {/* Composer */}
+
         <button
           id="oventric-composer"
           type="button"
           onClick={() => require(1, () => setComposerOpen(true), "seller")}
-          className={`group w-full text-left flex items-center gap-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 md:focus-visible:ring-emerald-500/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white ${
+          className={`group w-full text-left flex items-center gap-3 transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5484D]/60 md:focus-visible:ring-[#E5484D]/40 focus-visible:ring-offset-2 focus-visible:ring-offset-[#141418] md:focus-visible:ring-offset-white ${
             isAppShell
               ? "bg-[#141416] border border-white/[0.06] rounded-2xl px-3 py-3 active:bg-white/[0.03]"
               : "bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-4 md:p-3.5 hover:bg-[#22222a] md:hover:bg-white md:hover:border-slate-300 md:hover:shadow-md"
@@ -1169,7 +1226,7 @@ export function Feed() {
             </span>
           </span>
           {isAppShell ? (
-            <span className="text-emerald-500 p-1 shrink-0" aria-hidden>
+            <span className="text-[#E5484D] p-1 shrink-0" aria-hidden>
               <ImageIcon className="w-6 h-6" strokeWidth={1.5} />
             </span>
           ) : (
@@ -1182,7 +1239,7 @@ export function Feed() {
               {
                 Icon: ImageIcon,
                 label: "Photo",
-                tone: "text-emerald-600 group-hover:bg-emerald-50",
+                tone: "text-[#E5484D] group-hover:bg-emerald-50",
               },
               { Icon: VideoIcon, label: "Video", tone: "text-rose-600 group-hover:bg-rose-50" },
               { Icon: AtSign, label: "Mention", tone: "text-sky-600 group-hover:bg-sky-50" },
@@ -1198,7 +1255,8 @@ export function Feed() {
           </span>
         </button>
 
-        {isAppShell && (
+        {isAppShell && searchOpen && (
+
           <FeedSearchBar
             appShell
             q={query}
@@ -1236,7 +1294,7 @@ export function Feed() {
               <article
                 key={p.tempId}
                 className={`bg-[#1E1E24] md:bg-white md:shadow-sm border rounded-xl p-5 transition-opacity ${
-                  p.error ? "border-red-500/50" : "border-emerald-400/40 opacity-80"
+                  p.error ? "border-red-500/50" : "border-[#E5484D]/40 opacity-80"
                 }`}
                 aria-busy={!p.error}
               >
@@ -1254,7 +1312,7 @@ export function Feed() {
                         </>
                       ) : (
                         <>
-                          <span className="w-3 h-3 rounded-full border-2 border-emerald-400/40 border-t-emerald-400 animate-spin" />
+                          <span className="w-3 h-3 rounded-full border-2 border-[#E5484D]/40 border-t-emerald-400 animate-spin" />
                           Posting…
                         </>
                       )}
@@ -1325,7 +1383,7 @@ export function Feed() {
                             type="button"
                             onClick={() => setIntent({ comment: true })}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors hover:bg-white/5 md:hover:bg-slate-100 ${
-                              intent.comment ? "text-emerald-400 md:text-emerald-600" : ""
+                              intent.comment ? "text-[#E5484D] md:text-[#E5484D]" : ""
                             }`}
                           >
                             <MessageSquare className="w-4 h-4" /> 0
@@ -1334,7 +1392,7 @@ export function Feed() {
                             type="button"
                             onClick={() => setIntent({ share: true })}
                             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-colors ml-auto hover:bg-white/5 md:hover:bg-slate-100 ${
-                              intent.share ? "text-emerald-400 md:text-emerald-600" : ""
+                              intent.share ? "text-[#E5484D] md:text-[#E5484D]" : ""
                             }`}
                           >
                             <Share2 className="w-4 h-4" /> Share
@@ -1416,15 +1474,15 @@ export function Feed() {
                   setQuery("");
                   setCategory("all");
                 }}
-                className="mt-3 inline-flex items-center rounded-lg bg-emerald-500 px-3 py-1.5 text-xs font-semibold text-black hover:bg-emerald-400 transition-colors"
+                className="mt-3 inline-flex items-center rounded-lg bg-[#E5484D] px-3 py-1.5 text-xs font-semibold text-black hover:bg-[#E5484D] transition-colors"
               >
                 Clear filters
               </button>
             </div>
           ) : (
             <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
-              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center">
-                <MessageSquare className="w-5 h-5 text-emerald-400 md:text-emerald-600" />
+              <div className="w-12 h-12 mx-auto mb-3 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 flex items-center justify-center">
+                <MessageSquare className="w-5 h-5 text-[#E5484D] md:text-[#E5484D]" />
               </div>
               <p className="text-sm font-semibold text-white md:text-slate-900">
                 The feed is quiet right now
@@ -1448,7 +1506,7 @@ export function Feed() {
                 items.push(
                   <div
                     key={`blog-${b.id}`}
-                    className="relative bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-emerald-500/30 rounded-xl overflow-hidden hover:border-emerald-500/60 transition"
+                    className="relative bg-gradient-to-br from-[#1E1E24] to-[#191921] border border-[#E5484D]/30 rounded-xl overflow-hidden hover:border-[#E5484D]/60 transition"
                   >
                     <Link to="/blog/$slug" params={{ slug: b.slug }} className="block">
                       {b.cover_url && (
@@ -1462,8 +1520,8 @@ export function Feed() {
 
                       <div className="p-4">
                         <div className="flex items-center gap-2 mb-1">
-                          <BookOpen className="w-3.5 h-3.5 text-emerald-400 md:text-emerald-600" />
-                          <span className="text-[10px] uppercase tracking-wider text-emerald-400 md:text-emerald-600 font-bold">
+                          <BookOpen className="w-3.5 h-3.5 text-[#E5484D] md:text-[#E5484D]" />
+                          <span className="text-[10px] uppercase tracking-wider text-[#E5484D] md:text-[#E5484D] font-bold">
                             Blog{b.category_name ? ` · ${b.category_name}` : ""}
                           </span>
                         </div>
@@ -1477,7 +1535,7 @@ export function Feed() {
                           <span className="text-[11px] text-slate-500 md:text-slate-500">
                             By {b.author_name}
                           </span>
-                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-emerald-500 text-black text-xs font-bold">
+                          <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#E5484D] text-black text-xs font-bold">
                             Read article →
                           </span>
                         </div>
@@ -1517,7 +1575,7 @@ export function Feed() {
                       : "bg-[#1E1E24] rounded-xl p-5"
                   } ${isReported ? "opacity-70" : ""} ${
                     isNew
-                      ? "border-emerald-400/70 post-highlight"
+                      ? "border-[#E5484D]/70 post-highlight"
                       : isAppShell
                         ? "border-white/[0.06] md:border-slate-200"
                         : "border-white/10 md:border-slate-200"
@@ -1534,7 +1592,7 @@ export function Feed() {
                     <Link
                       to="/profile/$id"
                       params={{ id: profileSlug }}
-                      className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-emerald-400/60 transition"
+                      className="w-10 h-10 rounded-full overflow-hidden bg-neutral-800 md:bg-slate-200 flex items-center justify-center shrink-0 hover:ring-2 hover:ring-[#E5484D]/60 transition"
                     >
                       <AvatarImage
                         src={post.author_avatar_url}
@@ -1547,7 +1605,7 @@ export function Feed() {
                         <Link
                           to="/profile/$id"
                           params={{ id: profileSlug }}
-                          className="font-semibold text-white md:text-slate-900 text-sm hover:text-emerald-400 md:hover:text-emerald-600 transition-colors"
+                          className="font-semibold text-white md:text-slate-900 text-sm hover:text-[#E5484D] md:hover:text-[#E5484D] transition-colors"
                         >
                           {post.author_name}
                         </Link>
@@ -1557,7 +1615,7 @@ export function Feed() {
                             <Link
                               to="/profile/$id"
                               params={{ id: post.mentions[0].slug ?? post.mentions[0].user_id }}
-                              className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
+                              className="text-[#E5484D] md:text-[#E5484D] hover:underline font-medium"
                             >
                               {post.mentions[0].name}
                             </Link>
@@ -1567,7 +1625,7 @@ export function Feed() {
                                 <button
                                   type="button"
                                   onClick={() => setMentionsSheet(post.mentions)}
-                                  className="text-emerald-400 md:text-emerald-600 hover:underline font-medium"
+                                  className="text-[#E5484D] md:text-[#E5484D] hover:underline font-medium"
                                 >
                                   {Math.min(post.mentions.length - 1, 99)}
                                   {post.mentions.length - 1 >= 99 ? "+" : ""} other
@@ -1610,7 +1668,7 @@ export function Feed() {
                               onClick={() =>
                                 handleJoinCircleFromFeed(post.circle!.id, post.circle!.slug)
                               }
-                              className="ml-1 px-2 py-0.5 rounded-full bg-emerald-500/15 border border-emerald-500/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold hover:bg-emerald-500/25"
+                              className="ml-1 px-2 py-0.5 rounded-full bg-[#E5484D]/15 border border-[#E5484D]/40 text-emerald-300 md:text-emerald-700 text-[10px] font-bold hover:bg-[#E5484D]/25"
                             >
                               Join
                             </button>
@@ -1895,7 +1953,7 @@ export function Feed() {
                         <button
                           type="button"
                           onClick={() => setCommentsSheetPostId(post.id)}
-                          className="text-[11px] font-medium text-emerald-400 md:text-emerald-600 hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
+                          className="text-[11px] font-medium text-[#E5484D] md:text-[#E5484D] hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
                         >
                           {post.comments_count > 1
                             ? `View all ${post.comments_count} comments`

@@ -197,7 +197,7 @@ function VideoItem({
             className="w-9 h-9 rounded-full object-cover border border-white/30 shrink-0"
           />
         ) : (
-          <div className="w-9 h-9 rounded-full bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-[11px] font-semibold text-emerald-300 shrink-0">
+          <div className="w-9 h-9 rounded-full bg-[#E5484D]/20 border border-[#E5484D]/40 flex items-center justify-center text-[11px] font-semibold text-emerald-300 shrink-0">
             {post.initials}
           </div>
         )}
@@ -248,7 +248,7 @@ function VideoItem({
           type="button"
           onClick={() => onTogglePin(post.id)}
           className={`p-3 rounded-full bg-black/50 border backdrop-blur transition-colors ${
-            pinned ? "border-emerald-400 text-emerald-300" : "border-white/20 text-white"
+            pinned ? "border-[#E5484D] text-emerald-300" : "border-white/20 text-white"
           }`}
           aria-label={pinned ? "Unpin" : "Pin"}
         >
