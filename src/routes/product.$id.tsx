@@ -1,4 +1,6 @@
 import { useIsAppShell } from "@/hooks/use-launch-context";
+import { CreatorChip, EcosystemLinks } from "@/components/oventric/ecosystem/CreatorChip";
+
 import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
