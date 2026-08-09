@@ -649,7 +649,15 @@ function ProductPage() {
             coverUrl: product.coverUrl,
             priceLabel: productDisplay(product, baseCurrency).formatted,
           }}
-          initialDraft={`Hi ${product.vendor}! I'm interested in "${product.name}" (${productDisplay(product, baseCurrency).formatted}) on Oventric. Is it available and can you deliver right away?\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`}
+          initialDraft={
+            product.kind === "service"
+              ? `Hi ${product.vendor}! I'd like to talk about your service "${product.name}"${
+                  packages.length > 0 && selectedPkg
+                    ? ` (${packages.find((p) => p.id === selectedPkg)?.name ?? ""} package)`
+                    : ` (from ${productDisplay(product, baseCurrency).formatted})`
+                } on Oventric. Here's what I need:\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`
+              : `Hi ${product.vendor}! I'm interested in "${product.name}" (${productDisplay(product, baseCurrency).formatted}) on Oventric. Is it available and can you deliver right away?\n\n${typeof window !== "undefined" ? window.location.origin : "https://oventric.com"}/product/${product.id}`
+          }
         />
       )}
       {contactOpen && product && product.kind === "physical" && (
