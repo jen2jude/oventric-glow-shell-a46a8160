@@ -86,10 +86,11 @@ export function FeedAppChrome({
     >
       {/* Brand header — collapses independently; tabs/stories slide up into its place */}
       <div
-        className={`overflow-hidden transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-[max-height,opacity] ${
-          chromeHidden ? "max-h-0 opacity-0" : "max-h-[72px] opacity-100"
+        className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] will-change-[grid-template-rows,opacity] ${
+          chromeHidden ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"
         }`}
       >
+        <div className="min-h-0 overflow-hidden">
         <div className="flex items-center gap-2 px-4 pt-1 pb-2">
         <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
         <div className="ml-auto flex items-center gap-1.5">
@@ -137,7 +138,10 @@ export function FeedAppChrome({
           )}
         </div>
         </div>
+        </div>
       </div>
+
+
 
 
       {/* Tabs */}
