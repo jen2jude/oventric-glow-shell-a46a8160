@@ -4,22 +4,17 @@ import { useServerFn } from "@tanstack/react-start";
 import {
   Eye,
   EyeOff,
-  Plus,
-  ArrowDownToLine,
-  ArrowUpFromLine,
-  Send,
   Store,
   Target,
   GraduationCap,
   Newspaper,
   LayoutDashboard,
-  Megaphone,
-  Gift,
-  BookOpen,
+  MessageSquare,
+  Users,
+  Newspaper as FeedIcon,
   LifeBuoy,
   ChevronRight,
   KeyRound,
-  User,
   Star,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -30,10 +25,6 @@ import { getMyFullProfile } from "@/lib/profiles.functions";
 import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
-import promoCashbackArt from "@/assets/promo-cashback.png";
-import promoReferArt from "@/assets/promo-refer.png";
-import promoAdvertiseArt from "@/assets/promo-advertise.png";
-import { COUNTRY_META } from "@/lib/currency/africa";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { CountBadge } from "@/components/oventric/CountBadge";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
@@ -50,16 +41,8 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { PromoBanners } from "@/components/oventric/PromoBanners";
-import { trackPromoEvent, usePromoImpression } from "@/lib/promo-analytics";
+import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
-import homeIcon from "@/assets/home-3d.png.asset.json";
-import walletIcon from "@/assets/wallet-3d.webp.asset.json";
-import marketIcon from "@/assets/marketplace-3d.png.asset.json";
-import academyIcon from "@/assets/academy-3d.png.asset.json";
-import bountiesIcon from "@/assets/bounties-3d.webp.asset.json";
-import circlesIcon from "@/assets/circles-3d.png.asset.json";
-import messageIcon from "@/assets/message-3d.webp.asset.json";
 
 type Counts = Partial<Record<string, number>>;
 
