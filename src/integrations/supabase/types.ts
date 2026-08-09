@@ -2796,6 +2796,7 @@ export type Database = {
           avatar_path: string | null
           banned_at: string | null
           bio: string | null
+          certifications: Json
           country: string | null
           cover_path: string | null
           created_at: string
@@ -2805,6 +2806,7 @@ export type Database = {
           deletion_reason: string | null
           display_name: string | null
           dob_public: boolean
+          education: Json
           flag_reason: string | null
           flagged: boolean
           has_seen_feature_carousel: boolean
@@ -2812,6 +2814,7 @@ export type Database = {
           kyc_completed_at: string | null
           kyc_id_path: string | null
           kyc_selfie_path: string | null
+          languages: string[]
           last_liveness_verified_at: string | null
           notification_preferences: Json
           phone: string | null
@@ -2837,6 +2840,7 @@ export type Database = {
           avatar_path?: string | null
           banned_at?: string | null
           bio?: string | null
+          certifications?: Json
           country?: string | null
           cover_path?: string | null
           created_at?: string
@@ -2846,6 +2850,7 @@ export type Database = {
           deletion_reason?: string | null
           display_name?: string | null
           dob_public?: boolean
+          education?: Json
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean
@@ -2853,6 +2858,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          languages?: string[]
           last_liveness_verified_at?: string | null
           notification_preferences?: Json
           phone?: string | null
@@ -2878,6 +2884,7 @@ export type Database = {
           avatar_path?: string | null
           banned_at?: string | null
           bio?: string | null
+          certifications?: Json
           country?: string | null
           cover_path?: string | null
           created_at?: string
@@ -2887,6 +2894,7 @@ export type Database = {
           deletion_reason?: string | null
           display_name?: string | null
           dob_public?: boolean
+          education?: Json
           flag_reason?: string | null
           flagged?: boolean
           has_seen_feature_carousel?: boolean
@@ -2894,6 +2902,7 @@ export type Database = {
           kyc_completed_at?: string | null
           kyc_id_path?: string | null
           kyc_selfie_path?: string | null
+          languages?: string[]
           last_liveness_verified_at?: string | null
           notification_preferences?: Json
           phone?: string | null
