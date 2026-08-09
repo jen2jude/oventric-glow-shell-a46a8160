@@ -44,6 +44,7 @@ export const SECTION_ACCESS: Record<string, ManagementRole[]> = {
   "/admin/communications": ["admin", "content"],
   "/admin/categories": ["admin", "content"],
   "/admin/circle-categories": ["admin", "content"],
+  "/admin/tools": ["admin", "content"],
   "/admin/features": ["admin"],
   "/admin/audit": ["admin", "support"],
   "/admin/settings": ["admin"],
