@@ -136,7 +136,9 @@ export function FeedAppChrome({
             </span>
           )}
         </div>
+        </div>
       </div>
+
 
       {/* Tabs */}
       <div className="grid grid-cols-3 px-2">
