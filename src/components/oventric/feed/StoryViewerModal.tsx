@@ -211,8 +211,11 @@ export function StoryViewerModal({
               key={item.id}
               ref={videoRef}
               src={item.mediaUrl}
+              poster={item.posterUrl ?? undefined}
               autoPlay
+              muted={false}
               playsInline
+              preload="auto"
               className="max-h-full w-full object-contain"
               onTimeUpdate={(e) => {
                 const v = e.currentTarget;
@@ -225,9 +228,12 @@ export function StoryViewerModal({
               key={item.id}
               src={item.mediaUrl}
               alt=""
+              decoding="async"
+              fetchPriority="high"
               className="max-h-full w-full object-contain"
             />
           )}
+
           <button
             type="button"
             aria-label="Previous"
