@@ -43,6 +43,12 @@ export interface FeedPost {
   reactions: Record<ReactionType, number>;
   comments_count: number;
   views_count: number;
+  /** Number of times this post has been reposted. */
+  reposts_count: number;
+  /** Whether the viewer already reposted this post. */
+  viewer_reposted: boolean;
+  /** Original post when this row is a repost (quote repost). */
+  repost_of: FeedPost | null;
   // Legacy fields (kept so existing render paths keep working for single-media rows).
   media_url: string | null;
   media_type: "image" | "video" | null;
@@ -52,6 +58,7 @@ export interface FeedPost {
   mentions: MentionRef[];
   circle: PostCircleRef | null;
 }
+
 
 function initialsFrom(name: string | null | undefined, fallback: string): string {
   const src = (name ?? "").trim();
