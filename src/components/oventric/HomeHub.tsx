@@ -206,18 +206,33 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
 
   return (
-    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
+    <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-3 md:py-6 space-y-4">
+      {/* Greeting + currency */}
+      <section className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+        <div className="flex min-w-0 items-center gap-3">
+          <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
+            <AvatarImage src={avatarUrl} alt={name || "You"} />
+          </span>
+          <div className="min-w-0">
+            <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
+            <div className="truncate text-[19px] font-extrabold text-white">
+              {name || "Welcome"}
+            </div>
+          </div>
+        </div>
+        <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-2 text-[12px] font-bold text-white">
+          <span aria-hidden>{flagEmoji(country)}</span>
+          {currency}
+        </span>
+      </section>
+
       {/* Financial hub card */}
-      <section
-        className="hub-wallet relative overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
-        style={{
-          backgroundImage: "linear-gradient(145deg, #23232B 0%, #191920 45%, #131318 100%)",
-        }}
-      >
+      <section className="rounded-2xl border border-white/[0.08] bg-[#0F0F13] p-4">
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
+            <div className="text-[12px] text-slate-400">Main Balance</div>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-3xl md:text-4xl font-extrabold text-white tabular-nums truncate">
+              <span className="truncate text-[30px] font-extrabold leading-none text-white tabular-nums">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
               </span>
               {isAuthenticated && (
@@ -225,145 +240,117 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
                   type="button"
                   onClick={toggleBalancesHidden}
                   aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                  className="p-1.5 rounded-full text-slate-500 hover:text-white transition-colors"
+                  className="p-1 text-slate-500 transition-colors hover:text-white"
                 >
-                  {balancesHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                  {balancesHidden ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               )}
-            </div>
-            <div className="mt-3 space-y-1">
-              <div className="text-sm text-slate-200">
-                Cashback Wallet:{" "}
-                <span className="font-semibold text-white tabular-nums">
-                  {isAuthenticated
-                    ? balancesHidden
-                      ? "••••"
-                      : formatMoney(fromUSD(cashback, currency), currency)
-                    : formatMoney(0, currency)}
-                </span>
-              </div>
-              <div className="text-sm text-slate-200">
-                Pending Payout:{" "}
-                <span className="font-semibold text-white tabular-nums">
-                  {isAuthenticated
-                    ? balancesHidden
-                      ? "••••"
-                      : formatMoney(escrow + fromUSD(bounty, currency), currency)
-                    : formatMoney(0, currency)}
-                </span>
-              </div>
             </div>
           </div>
           <button
             type="button"
             onClick={() => onSelect("Wallet")}
-            aria-label="Open wallet"
-            className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white"
+            className="inline-flex shrink-0 items-center gap-1 rounded-full border border-white/10 bg-[#17171D] px-3.5 py-2 text-[12px] font-bold text-white"
           >
-            Wallet <ChevronRight className="w-4 h-4" />
+            Wallet <ChevronRight className="h-3.5 w-3.5" />
           </button>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 border-t border-white/10 pt-3 text-center">
-          <button
-            type="button"
-            onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="border-r border-white/10 py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
-          >
-            Fund Wallet
-          </button>
-          <button
-            type="button"
-            onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
-          >
-            Request Payout
-          </button>
+        <div className="mt-4 grid grid-cols-3 gap-2">
+          <SubChip
+            label="Cashback"
+            value={
+              isAuthenticated
+                ? balancesHidden
+                  ? "••••"
+                  : formatMoney(fromUSD(cashback, currency), currency)
+                : formatMoney(0, currency)
+            }
+          />
+          <SubChip
+            label="Bounty"
+            value={
+              isAuthenticated
+                ? balancesHidden
+                  ? "••••"
+                  : formatMoney(fromUSD(bounty, currency), currency)
+                : formatMoney(0, currency)
+            }
+          />
+          <SubChip
+            label="Escrow"
+            value={
+              isAuthenticated
+                ? balancesHidden
+                  ? "••••"
+                  : formatMoney(escrow, currency)
+                : formatMoney(0, currency)
+            }
+          />
+        </div>
+
+        <div className="mt-3 grid grid-cols-3 gap-2">
+          {[
+            { label: "Add Money", icon: Plus, color: "#E5484D" },
+            { label: "Withdraw", icon: ArrowUp, color: "#E7E7EA" },
+            { label: "Send Money", icon: Send, color: "#E7E7EA" },
+          ].map((a) => (
+            <button
+              key={a.label}
+              type="button"
+              onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
+              className="inline-flex items-center justify-center gap-1.5 rounded-xl border border-white/[0.08] bg-[#15151A] py-2.5 text-[12px] font-semibold text-white active:scale-95 transition-transform"
+            >
+              <a.icon className="h-4 w-4" style={{ color: a.color }} strokeWidth={2.2} />
+              {a.label}
+            </button>
+          ))}
         </div>
       </section>
 
-      {/* Uniform 8-icon navigation grid */}
-      <section>
-        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
-          {TILES.map((t) => {
-            const sectionUnread =
-              t.label === "Messages"
-                ? unread.messages + (unread.sections["Messages"] ?? 0)
-                : (unread.sections[t.label] ?? 0);
-            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
-            const inner = (
-              <span className="flex flex-col items-center gap-2">
-                <span className="relative inline-flex items-center justify-center">
-                  <t.icon className="w-7 h-7 text-white" strokeWidth={1.5} />
-                  <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
-                </span>
-                <span className="text-[13px] font-medium text-slate-100 leading-tight text-center">
-                  {t.label}
-                </span>
-              </span>
-            );
-            const cls = "py-1 active:scale-95 transition-transform";
-            return t.to ? (
-              <Link key={t.label} to={t.to} className={cls}>
-                {inner}
-              </Link>
-            ) : (
-              <button
-                key={t.label}
-                type="button"
-                onClick={() => (t.section === "Messages" ? onOpenMessages() : onSelect(t.section!))}
-                className={cls}
-              >
-                {inner}
-              </button>
-            );
-          })}
-        </div>
-
-        {/* Secondary destinations */}
-        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] font-medium text-slate-500">
-          {MORE_LINKS.map((l) =>
-            l.to ? (
-              <Link key={l.label} to={l.to} className="hover:text-slate-200 transition-colors">
-                {l.label}
-              </Link>
-            ) : (
-              <button
-                key={l.label}
-                type="button"
-                onClick={() => onSelect("Wallet")}
-                className="hover:text-slate-200 transition-colors"
-              >
-                {l.label}
-              </button>
-            ),
-          )}
+      {/* Quick actions */}
+      <section className="grid grid-cols-5 gap-2">
+        {[
+          {
+            label: "Sell",
+            icon: Store,
+            color: "#E5484D",
+            onClick: () => requireTier(2, () => setSellOpen(true)),
+          },
+          { label: "Post", icon: PenSquare, color: "#7C6CF6", onClick: () => onCreate("post") },
+          {
+            label: "Course",
+            icon: GraduationCap,
+            color: "#A78BFA",
+            onClick: () => requireTier(2, () => setCourseOpen(true)),
+          },
+          { label: "Bounty", icon: Target, color: "#E5484D", onClick: () => onCreate("bounty") },
+          {
+            label: "More",
+            icon: MoreHorizontal,
+            color: "#E7E7EA",
+            onClick: () => setMoreOpen(true),
+          },
+        ].map((q) => (
           <button
+            key={q.label}
             type="button"
-            onClick={() => requireTier(2, () => setSellOpen(true))}
-            className="hover:text-slate-200 transition-colors"
+            onClick={q.onClick}
+            className="flex flex-col items-center gap-2 rounded-2xl border border-white/[0.08] bg-[#0F0F13] py-3.5 active:scale-95 transition-transform"
           >
-            Sell
+            <q.icon className="h-6 w-6" style={{ color: q.color }} strokeWidth={1.8} />
+            <span className="text-[11.5px] font-semibold text-white">{q.label}</span>
           </button>
-          <button
-            type="button"
-            onClick={() => requireTier(2, () => setCourseOpen(true))}
-            className="hover:text-slate-200 transition-colors"
-          >
-            Publish course
-          </button>
-          <button
-            type="button"
-            onClick={() => onCreate("bounty")}
-            className="hover:text-slate-200 transition-colors"
-          >
-            Post bounty
-          </button>
-        </div>
+        ))}
       </section>
+
+      {/* Offer carousel */}
+      <HubPromoCarousel onSelect={goSection} />
 
       {/* Spotlights */}
       <SpotlightRail onSelect={onSelect} />
+
+
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
