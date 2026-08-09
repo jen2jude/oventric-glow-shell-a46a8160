@@ -106,9 +106,8 @@ import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
-import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
-import { ProfilePostCard } from "@/components/oventric/profile/ProfilePostCard";
+import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -1674,6 +1673,12 @@ function ProfilePage() {
                 />
               ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
+              ) : tab === "posts" && realProfile?.userId ? (
+                <ProfilePostsFeed
+                  wallUserId={realProfile.userId}
+                  wallOwnerName={displayName}
+                  viewerId={meId ?? null}
+                />
               ) : (
                 (() => {
                   const st = tabData[tab];
@@ -1718,24 +1723,6 @@ function ProfilePage() {
                   return (
                     <>
                       {(() => {
-                        // Posts render as a real feed wall instead of grid tiles.
-                        if (tab === "posts") {
-                          return (
-                            <div className="space-y-3">
-                              {(st.items as ProfilePost[]).map((p) => (
-                                <ProfilePostCard
-                                  key={p.id}
-                                  post={p}
-                                  profileId={profile.id}
-                                  authorName={displayName}
-                                  authorAvatarUrl={realProfile?.avatarUrl}
-                                  itemSearch={itemSearch as Record<string, unknown>}
-                                />
-                              ))}
-                            </div>
-                          );
-                        }
-
                         // Uniform grid tiles across every tab. Tiles deep-link to the
                         // profile item detail route so the panel loads instantly with
                         // its own skeleton while the URL stays shareable.
@@ -1961,14 +1948,6 @@ function ProfilePage() {
 
             <EarningsBreakdown isOwner={isOwnProfile} />
 
-            {/* Member wall — followers can drop posts, owner is notified */}
-            {realProfile?.userId && (
-              <ProfileWall
-                wallUserId={realProfile.userId}
-                wallOwnerName={displayName}
-                viewerId={meId ?? null}
-              />
-            )}
           </div>
         </main>
         {/* Mobile footer nav is rendered globally in __root.tsx */}
