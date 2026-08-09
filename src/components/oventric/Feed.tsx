@@ -379,6 +379,8 @@ export function Feed() {
 
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [repostTarget, setRepostTarget] = useState<FeedPost | null>(null);
+
   const [newPostId, setNewPostId] = useState<string | null>(null);
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
   // Like / comment / share tapped on an optimistic card before the server
