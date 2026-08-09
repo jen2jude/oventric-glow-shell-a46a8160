@@ -292,12 +292,13 @@ export function StoryViewerModal({
               ))}
               <button
                 type="button"
-                onClick={() => onReact("💬")}
+                onClick={() => onReact("💬", true)}
                 aria-label="Reply in chat"
                 className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-[#E5484D] text-white active:scale-95"
               >
                 <Send className="h-4 w-4" />
               </button>
+
             </div>
           </div>
         )}
