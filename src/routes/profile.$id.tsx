@@ -1786,21 +1786,6 @@ function ProfilePage() {
                             subtitle: "Service",
                             priceLabel: price(l.priceUsd),
                           }));
-                        } else if (tab === "courses") {
-                          tiles = (st.items as ProfileListing[]).map((l) => ({
-                            key: l.id,
-                            kind: "listing" as const,
-                            itemId: l.id,
-                            academy: true,
-                            coverUrl: l.coverUrl ?? null,
-                            placeholderIcon: (
-                              <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />
-                            ),
-                            badge: { label: l.category, tone: "sky" as const },
-                            title: l.title,
-                            subtitle: "Course",
-                            priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
-                          }));
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
