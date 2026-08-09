@@ -65,7 +65,7 @@ function Module({
           <button
             type="button"
             onClick={onAction}
-            className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-emerald-400 md:text-emerald-600 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/60 rounded"
+            className="inline-flex shrink-0 items-center gap-1 text-xs font-bold text-[#E5484D] hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-[#E5484D]/60 rounded"
           >
             {action} <ArrowRight className="h-3.5 w-3.5" />
           </button>
@@ -90,7 +90,7 @@ function Chip({ label, tone = "neutral" }: { label: string; tone?: "neutral" | "
     <span
       className={`inline-flex items-center rounded-full border px-3 py-1.5 text-xs font-bold ${
         tone === "accent"
-          ? "border-emerald-500/30 bg-emerald-500/10 text-emerald-300 md:bg-emerald-50 md:text-emerald-700"
+          ? "border-[#E5484D]/30 bg-[#E5484D]/12 text-[#E5484D]"
           : "border-white/10 bg-white/[0.05] text-slate-200 md:border-slate-200 md:bg-slate-50 md:text-slate-700"
       }`}
     >
@@ -187,7 +187,7 @@ export function ProfileOverview({
         <p className="line-clamp-2 text-[13px] font-bold leading-snug text-white md:text-slate-900">
           {l.title}
         </p>
-        <p className="mt-1 text-xs font-black text-emerald-400 md:text-emerald-600">
+        <p className="mt-1 text-xs font-black text-[#E5484D]">
           {free && l.priceUsd <= 0 ? "Free" : price(l.priceUsd)}
         </p>
         <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-500">{label}</p>
@@ -225,7 +225,7 @@ export function ProfileOverview({
                   href={website}
                   target="_blank"
                   rel="noopener noreferrer nofollow"
-                  className="inline-flex items-center gap-1.5 font-semibold text-emerald-400 md:text-emerald-600 hover:underline"
+                  className="inline-flex items-center gap-1.5 font-semibold text-[#E5484D] hover:underline"
                 >
                   <Globe className="h-3.5 w-3.5" /> Website
                 </a>
@@ -334,7 +334,7 @@ export function ProfileOverview({
                 className="flex items-start gap-3 rounded-2xl border border-white/10 bg-[#141418] p-3 md:border-slate-200 md:bg-white md:shadow-sm"
               >
                 <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[0.06] md:bg-slate-100">
-                  <MessageCircle className="h-4 w-4 text-emerald-400 md:text-emerald-600" />
+                  <MessageCircle className="h-4 w-4 text-[#E5484D]" />
                 </span>
                 <span className="min-w-0">
                   <span className="line-clamp-2 block text-sm text-slate-200 md:text-slate-700">
@@ -362,7 +362,7 @@ export function ProfileOverview({
                 className="w-[60%] min-w-[180px] max-w-[240px] shrink-0 snap-start rounded-2xl border border-white/10 bg-[#141418] p-3 md:border-slate-200 md:bg-white md:shadow-sm"
               >
                 <span className="grid h-9 w-9 place-items-center rounded-full bg-white/[0.06] md:bg-slate-100">
-                  <Users className="h-4 w-4 text-emerald-400 md:text-emerald-600" />
+                  <Users className="h-4 w-4 text-[#E5484D]" />
                 </span>
                 <p className="mt-2 line-clamp-1 text-sm font-bold text-white md:text-slate-900">
                   {g.name}
