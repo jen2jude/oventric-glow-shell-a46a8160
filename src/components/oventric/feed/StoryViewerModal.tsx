@@ -134,7 +134,20 @@ export function StoryViewerModal({
 
   if (!group || !item || typeof document === "undefined") return null;
 
+  /** Emoji tap: float the reaction in-story. Send button: attach the clip in chat. */
   const onReact = async (emoji: string, openChat = false) => {
+    if (openChat) {
+      try {
+        const res: any = await react({ data: { storyId: item.id, clipOnly: true } });
+        if (res?.peerId && !res.skipped) {
+          onClose();
+          window.location.href = `/?section=Messages&dm=${res.peerId}`;
+        }
+      } catch {
+        /* silent */
+      }
+      return;
+    }
     setSent(emoji);
     // Floating burst from the reaction stack upward.
     const burst = Array.from({ length: 5 }, (_, k) => ({
@@ -147,15 +160,7 @@ export function StoryViewerModal({
       setFloats((f) => f.filter((x) => !burst.some((b) => b.id === x.id)));
     }, 2200);
     try {
-      const res: any = await react({ data: { storyId: item.id, emoji } });
-      if (openChat && res?.peerId && !res.skipped) {
-        window.dispatchEvent(
-          new CustomEvent("oventric:navigate-section", { detail: { section: "Messages" } }),
-        );
-        window.setTimeout(() => {
-          window.location.href = `/?section=Messages&dm=${res.peerId}`;
-        }, 900);
-      }
+      await react({ data: { storyId: item.id, emoji } });
     } catch {
       /* silent */
     }
