@@ -1211,11 +1211,25 @@ function ProfilePage() {
                   </p>
                 )}
 
-                {(realProfile?.country?.trim() || realProfile?.socialLinks?.website) && (
+                {(realProfile?.country?.trim() ||
+                  realProfile?.address?.trim() ||
+                  realProfile?.socialLinks?.website) && (
                   <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
-                    {realProfile?.country?.trim() && (
+                    {(realProfile?.country?.trim() || realProfile?.address?.trim()) && (
                       <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="h-3.5 w-3.5" /> {realProfile.country}
+                        <MapPin className="h-3.5 w-3.5" />
+                        {realProfile?.country?.trim() && (
+                          <>
+                            <CountryFlag country={realProfile.country} />
+                            <span>{realProfile.country}</span>
+                          </>
+                        )}
+                        {realProfile?.country?.trim() && realProfile?.address?.trim() && (
+                          <span className="text-slate-600">·</span>
+                        )}
+                        {realProfile?.address?.trim() && (
+                          <span className="max-w-[160px] truncate">{realProfile.address}</span>
+                        )}
                       </span>
                     )}
                     {realProfile?.socialLinks?.website && (
