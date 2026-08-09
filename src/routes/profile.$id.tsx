@@ -167,6 +167,19 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
     { value: "most_sold", label: "Most sold" },
     { value: "alpha", label: "A – Z" },
   ],
+  services: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  courses: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "alpha", label: "A – Z" },
+  ],
+
   posted: [
     { value: "newest", label: "Newest" },
     { value: "highest_bounty", label: "Highest bounty" },
