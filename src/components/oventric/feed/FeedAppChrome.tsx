@@ -11,6 +11,7 @@ import {
 } from "@/components/oventric/NotificationsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
+import { useChromeHidden, useScrollHideChrome } from "@/hooks/use-chrome-hide";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 export type FeedTab = "foryou" | "following" | "discover";
@@ -58,6 +59,9 @@ export function FeedAppChrome({
   const [msgOpen, setMsgOpen] = useState(false);
   const [people, setPeople] = useState<TopUser[]>([]);
 
+  useScrollHideChrome(true);
+  const chromeHidden = useChromeHidden();
+
   const unreadNotifs = useUnreadNotificationsCount();
   const { messages } = useUnreadCounts();
   const loadTopUsers = useServerFn(getTopUsers);
@@ -75,7 +79,11 @@ export function FeedAppChrome({
   }, [loadTopUsers]);
 
   return (
-    <div className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl">
+    <div
+      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl transition-transform duration-300 ease-out will-change-transform ${
+        chromeHidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
       {/* Brand header */}
       <div className="flex items-center gap-2 px-4 pt-1 pb-2">
         <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
