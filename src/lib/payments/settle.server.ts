@@ -74,6 +74,17 @@ export async function settleWalletTopup(
   return { alreadySettled: false as const, creditedAmount: amount, creditedCurrency: currency };
 }
 
+interface SettledServicePackage {
+  id: string;
+  tier: string;
+  name: string;
+  price_usd: number;
+  original_currency: string;
+  original_amount: number;
+  delivery_days: number | null;
+  revisions: number | null;
+}
+
 export async function settleOrder(
   buyerId: string,
   reference: string,
@@ -117,16 +128,7 @@ export async function settleOrder(
   const qty = Math.max(1, Math.min(20, Number(meta.quantity)));
 
   // A chosen service tier is the authoritative unit price for this order.
-  let pkgRow: {
-    id: string;
-    tier: string;
-    name: string;
-    price_usd: number;
-    original_currency: string;
-    original_amount: number;
-    delivery_days: number | null;
-    revisions: number | null;
-  } | null = null;
+  let pkgRow: SettledServicePackage | null = null;
   if (meta.servicePackageId) {
     const { data: pk } = await supabaseAdmin
       .from("service_packages")
@@ -134,7 +136,7 @@ export async function settleOrder(
       .eq("id", meta.servicePackageId)
       .eq("product_id", pRow.id)
       .maybeSingle();
-    pkgRow = (pk as typeof pkgRow) ?? null;
+    pkgRow = (pk as SettledServicePackage | null) ?? null;
   }
   const priceUSD = pkgRow ? Number(pkgRow.price_usd) : Number(pRow.price_usd);
   const grossUSD = Number((priceUSD * qty).toFixed(2));
