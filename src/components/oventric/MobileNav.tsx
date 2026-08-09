@@ -29,6 +29,7 @@ export function MobileNav({
   onSelect: (label: string) => void;
   counts?: MobileNavCounts;
 }) {
+  const chromeHidden = useChromeHidden();
   const Item = (it: { icon: typeof Home; label: string }) => {
     const isActive = active === it.label;
     const count = counts?.[it.label as keyof MobileNavCounts] ?? 0;
