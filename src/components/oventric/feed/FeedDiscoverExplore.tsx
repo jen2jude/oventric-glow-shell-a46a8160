@@ -62,6 +62,8 @@ export function FeedDiscoverExplore({
   renderPost: (p: FeedPost) => React.ReactNode;
 }) {
   const { peers, products, bounties, courses, circles, loading } = useFeedDiscovery(true);
+  const { groups: storyGroups, refresh: refreshStories } = useStoryRail(true);
+  const [reelAt, setReelAt] = useState<number | null>(null);
 
   const trending = [...posts]
     .sort(
@@ -72,7 +74,61 @@ export function FeedDiscoverExplore({
 
   return (
     <div className="space-y-6">
+      {storyGroups.length > 0 && (
+        <Section icon={PlayCircle} title="Reels">
+          <Rail>
+            {storyGroups.map((g, i) => (
+              <button
+                key={g.userId}
+                type="button"
+                onClick={() => setReelAt(i)}
+                className="relative h-[210px] w-[132px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+              >
+                {g.items[0]?.mediaType === "video" ? (
+                  <video
+                    src={g.items[0].mediaUrl}
+                    muted
+                    playsInline
+                    preload="metadata"
+                    className="h-full w-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={g.items[0]?.mediaUrl}
+                    alt=""
+                    loading="lazy"
+                    className="h-full w-full object-cover"
+                  />
+                )}
+                <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2.5">
+                  <span className="flex items-center gap-1.5">
+                    <span className="h-6 w-6 overflow-hidden rounded-full ring-1 ring-[#E5484D]">
+                      <AvatarImage src={g.avatarUrl} alt={g.displayName} />
+                    </span>
+                    <span className="truncate text-[11.5px] font-semibold text-white">
+                      {g.displayName.split(" ")[0]}
+                    </span>
+                  </span>
+                </span>
+              </button>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {reelAt !== null && (
+        <StoryViewerModal
+          groups={storyGroups}
+          startIndex={reelAt}
+          onClose={() => {
+            setReelAt(null);
+            void refreshStories();
+          }}
+        />
+      )}
+
       {peers.length > 0 && (
+
         <Section icon={Sparkles} title="Creators to follow">
           <Rail>
             {peers.slice(0, 12).map((p) => (
