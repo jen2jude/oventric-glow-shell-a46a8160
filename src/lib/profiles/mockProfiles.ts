@@ -4,7 +4,11 @@ export interface ProfilePost {
   timeAgo: string;
   likes: number;
   comments: number;
+  /** Signed media URLs attached to the post (images or a video). */
+  mediaUrls?: string[];
+  mediaType?: string | null;
 }
+
 export interface ProfileGroup {
   id: string;
   name: string;
