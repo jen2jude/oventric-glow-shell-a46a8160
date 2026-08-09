@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, MessageSquare, Search, Plus } from "lucide-react";
@@ -11,7 +11,6 @@ import {
 } from "@/components/oventric/NotificationsDrawer";
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
-import { useChromeHidden, useScrollHideChrome } from "@/hooks/use-chrome-hide";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 export type FeedTab = "foryou" | "following" | "discover";
@@ -58,10 +57,6 @@ export function FeedAppChrome({
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [people, setPeople] = useState<TopUser[]>([]);
-  const chromeRef = useRef<HTMLDivElement>(null);
-
-  useScrollHideChrome(true, chromeRef);
-  const chromeHidden = useChromeHidden();
 
   const unreadNotifs = useUnreadNotificationsCount();
   const { messages } = useUnreadCounts();
@@ -80,12 +75,7 @@ export function FeedAppChrome({
   }, [loadTopUsers]);
 
   return (
-    <div
-      ref={chromeRef}
-      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B] transition-[transform,opacity] duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] will-change-transform ${
-        chromeHidden ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
-      }`}
-    >
+    <div className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]">
       {/* Brand header — stays pinned; only fades slightly on scroll down */}
       <div>
         <div className="min-h-0">
