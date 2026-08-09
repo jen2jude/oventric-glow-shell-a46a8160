@@ -222,62 +222,22 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   }, [loadDiscovery, loadCourses]);
 
   const hide = (v: number) => (balancesHidden ? "••••" : formatMoney(v, currency));
-  const [greeting, setGreeting] = useState("Welcome");
-  useEffect(() => {
-    const h = new Date().getHours();
-    setGreeting(h < 12 ? "Good morning" : h < 17 ? "Good afternoon" : "Good evening");
-  }, []);
-  const flag = country ? (COUNTRY_META[country]?.flag ?? "") : "";
 
   return (
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-4 md:py-6 space-y-5">
-      {/* Identity row */}
-      <div className="flex items-center gap-3">
-        {isAuthenticated ? (
-          <>
-            <Link
-              to="/dashboard"
-              aria-label="Open your dashboard"
-              className="w-11 h-11 rounded-full overflow-hidden border border-white/15 shrink-0 "
-            >
-              <AvatarImage src={avatarUrl} alt={name || "You"} loading="eager" />
-            </Link>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-wide text-slate-500">{greeting}</div>
-              <div className="text-white font-semibold truncate">{name || "Welcome back"}</div>
-            </div>
-          </>
-        ) : (
-          <>
-            <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/15 flex items-center justify-center text-white shrink-0">
-              <User className="w-5 h-5" strokeWidth={2.5} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="text-[11px] uppercase tracking-wide text-slate-500">{greeting}</div>
-              <div className="text-white font-semibold truncate">Welcome to Oventric</div>
-            </div>
-          </>
-        )}
-        <span className="shrink-0 inline-flex items-center gap-1.5 h-8 px-2.5 rounded-full bg-[#1E1E24] border border-white/10 text-xs font-semibold text-slate-200">
-          {flag && <span aria-hidden>{flag}</span>}
-          {currency}
-        </span>
-      </div>
-
-      {/* Wallet card */}
+      {/* Financial hub card */}
       <section
-        className="hub-wallet relative overflow-hidden rounded-[10px] border border-white/10 p-4 md:p-5 hub-card-solid"
+        className="hub-wallet relative overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
         style={{
-          background: "oklch(0.2 0 0)",
+          backgroundImage:
+            "linear-gradient(145deg, #23232B 0%, #191920 45%, #131318 100%)",
         }}
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-[11px] uppercase tracking-wide text-emerald-300/80">
-              Main balance
-            </div>
+            <div className="text-sm font-bold text-sky-400">Hub</div>
             <div className="mt-1 flex items-center gap-2">
-              <span className="text-2xl md:text-3xl font-bold text-white tabular-nums truncate">
+              <span className="text-3xl md:text-4xl font-extrabold text-white tabular-nums truncate">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
               </span>
               {isAuthenticated && (
@@ -285,116 +245,63 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                   type="button"
                   onClick={toggleBalancesHidden}
                   aria-label={balancesHidden ? "Show balance" : "Hide balance"}
-                  className="p-1.5 rounded-full text-slate-400 hover:text-white transition-colors"
+                  className="p-1.5 rounded-full text-slate-500 hover:text-white transition-colors"
                 >
                   {balancesHidden ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                 </button>
               )}
             </div>
+            <div className="mt-3 space-y-1">
+              <div className="text-sm text-slate-200">
+                Cashback Wallet:{" "}
+                <span className="font-semibold text-white tabular-nums">
+                  {isAuthenticated
+                    ? balancesHidden
+                      ? "••••"
+                      : formatMoney(fromUSD(cashback, currency), currency)
+                    : formatMoney(0, currency)}
+                </span>
+              </div>
+              <div className="text-sm text-slate-200">
+                Pending Payout:{" "}
+                <span className="font-semibold text-white tabular-nums">
+                  {isAuthenticated
+                    ? balancesHidden
+                      ? "••••"
+                      : formatMoney(escrow + fromUSD(bounty, currency), currency)
+                    : formatMoney(0, currency)}
+                </span>
+              </div>
+            </div>
           </div>
           <button
             type="button"
             onClick={() => onSelect("Wallet")}
-            className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 hover:text-emerald-200"
+            aria-label="Open wallet"
+            className="shrink-0 inline-flex items-center gap-1 text-xs font-semibold text-slate-400 hover:text-white"
           >
             Wallet <ChevronRight className="w-4 h-4" />
           </button>
         </div>
 
-        <div className="mt-3 grid grid-cols-3 gap-2">
-          <SubChip
-            label="Cashback"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(cashback, currency), currency)
-                : "—"
-            }
-          />
-          <SubChip
-            label="Bounty"
-            value={
-              isAuthenticated
-                ? balancesHidden
-                  ? "••••"
-                  : formatMoney(fromUSD(bounty, currency), currency)
-                : "—"
-            }
-          />
-          <SubChip
-            label="Escrow"
-            value={
-              isAuthenticated ? (balancesHidden ? "••••" : formatMoney(escrow, currency)) : "—"
-            }
-          />
-        </div>
-
-        <div className="mt-4 flex gap-2">
+        <div className="mt-4 grid grid-cols-2 border-t border-white/10 pt-3 text-center">
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-slate-500 text-white font-bold text-sm active:scale-95 transition-transform shadow-lg shadow-black/20"
+            className="border-r border-white/10 py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
           >
-            <ArrowDownToLine className="w-4 h-4 text-[#ff0000]" strokeWidth={3} />{" "}
-            <span style={{ color: "white" }}>Add</span>
+            Fund Wallet
           </button>
           <button
             type="button"
             onClick={() => (isAuthenticated ? onSelect("Wallet") : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
+            className="py-1 text-sm font-medium text-slate-300 active:text-white transition-colors"
           >
-            <ArrowUpFromLine className="w-4 h-4" strokeWidth={3} /> Withdraw
-          </button>
-          <button
-            type="button"
-            onClick={() => (isAuthenticated ? setSendSoonOpen(true) : openGate("generic"))}
-            className="flex-1 inline-flex items-center justify-center gap-1.5 h-11 rounded-[10px] bg-oklch(0.24 0 0) border border-white/15 text-white font-bold text-sm active:scale-95 transition-transform"
-          >
-            <Send className="w-4 h-4" strokeWidth={3} /> Send
+            Request Payout
           </button>
         </div>
       </section>
 
-      {/* Quick actions */}
-      <section className="grid grid-cols-4 gap-2">
-        <QuickAction
-          icon={Store}
-          label="Sell"
-          onClick={() => requireTier(2, () => setSellOpen(true))}
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={Plus}
-          label="Post"
-          onClick={() =>
-            requireTier(1, () => {
-              onSelect("Feed");
-              setTimeout(() => {
-                window.dispatchEvent(
-                  new CustomEvent("oventric:create", { detail: { kind: "post" } }),
-                );
-              }, 80);
-            })
-          }
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={GraduationCap}
-          label="Course"
-          onClick={() => requireTier(2, () => setCourseOpen(true))}
-          className="hub-card-solid  rounded-[10px]"
-        />
-        <QuickAction
-          icon={Target}
-          label="Bounty"
-          onClick={() => onCreate("bounty")}
-          className="hub-card-solid  rounded-[10px]"
-        />
-      </section>
-
-      {/* Promo banners */}
-      <PromoBanners onSelect={onSelect} />
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
