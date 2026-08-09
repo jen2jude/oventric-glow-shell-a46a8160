@@ -187,11 +187,14 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const isAuthenticated = !!session;
+  // Anonymous (guest) sessions do NOT count as signed in — otherwise the
+  // sign-in / sign-up gate is skipped and users land straight in profile setup.
+  const isAnonSession = !!(session?.user as { is_anonymous?: boolean } | undefined)?.is_anonymous;
+  const isAuthenticated = !!session && !isAnonSession;
 
   const ensureUserAuthenticated = useCallback(
     (actionCallback: () => void | Promise<void>, contextType: AuthGateContextKey = "generic") => {
-      if (session) {
+      if (isAuthenticated) {
         void actionCallback();
         return;
       }
@@ -199,7 +202,7 @@ export function AuthGateProvider({ children }: { children: ReactNode }) {
       setCtxKey(contextType);
       setGateOpen(true);
     },
-    [session],
+    [isAuthenticated],
   );
 
   const openGate = useCallback((contextType: AuthGateContextKey = "generic") => {
