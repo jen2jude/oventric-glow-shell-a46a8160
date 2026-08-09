@@ -50,7 +50,7 @@ export function useScrollHideChrome(
       ticking = false;
       const y = readScrollTop();
       const delta = y - last;
-      if (Math.abs(delta) < 6) return;
+      if (Math.abs(delta) < 4) return;
       if (y < 80) setHidden(false);
       else setHidden(delta > 0);
       last = y;
