@@ -553,7 +553,7 @@ function ProductPage() {
                     })}
                   </div>
                 )}
-                {product.kind !== "physical" && packages.length === 0 && (
+                {product.kind === "digital" && packages.length === 0 && (
                   <div className={`flex items-center justify-between text-xs ${isAppShell ? "text-slate-500" : "text-slate-400"} md:text-slate-500 mb-4`}>
                     <span>Line total</span>
                     <span className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-mono`}>
@@ -561,7 +561,25 @@ function ProductPage() {
                     </span>
                   </div>
                 )}
-                {isAppShell ? (
+                {product.kind === "service" ? (
+                  isAppShell ? (
+                    <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5">
+                      <button
+                        onClick={openSellerChat}
+                        className="w-full inline-flex items-center justify-center gap-2 py-3 text-[14px] rounded-xl bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                      >
+                        <MessageCircle className="w-4 h-4" /> Contact for this service
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={openSellerChat}
+                      className="w-full inline-flex items-center justify-center gap-2 py-3 text-sm rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black font-black transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" /> Contact for this service
+                    </button>
+                  )
+                ) : isAppShell ? (
                   <div className="fixed bottom-0 left-0 right-0 z-40 p-4 bg-[#0A0A0B] border-t border-white/5 grid grid-cols-2 gap-3">
                     <button
                       onClick={product.kind === "physical" ? openContact : startCheckout}
@@ -600,10 +618,13 @@ function ProductPage() {
 
               <div className="text-[11px] text-slate-500 md:text-slate-500 inline-flex items-center gap-1">
                 <Sparkles className="w-3 h-3 text-emerald-400" />
-                {product.kind === "physical"
-                  ? "Deal directly with the seller — Oventric does not mediate."
-                  : "Instant download after payment · Buyer protection covered"}
+                {product.kind === "service"
+                  ? "Service listing — message the provider to agree scope, timeline and price."
+                  : product.kind === "physical"
+                    ? "Deal directly with the seller — Oventric does not mediate."
+                    : "Instant download after payment · Buyer protection covered"}
               </div>
+
             </div>
             
             {/* Review and Comment Section (Mobile/App fallback) */}
