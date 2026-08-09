@@ -347,7 +347,8 @@ function Index() {
               search={renderNavSearch()}
             />
           )
-        ) : (
+        ) : isAppShell && !isDesktop && active === "Feed" ? null : (
+
           <Header
             onOpenMessages={() => setMessagesOpen(true)}
             showMobileTopRow={false}
