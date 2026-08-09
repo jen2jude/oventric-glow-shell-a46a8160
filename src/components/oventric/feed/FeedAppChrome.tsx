@@ -14,6 +14,8 @@ import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 import { MAX_STORY_FILES, useStoryRail } from "@/components/oventric/feed/useStories";
 import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
+import { StoryTrimmerModal } from "@/components/oventric/feed/StoryTrimmerModal";
+
 
 
 export type FeedTab = "foryou" | "following" | "discover";
@@ -67,7 +69,13 @@ export function FeedAppChrome({
     progress,
     upload,
     refresh,
+    trimRequest,
+    trimWorking,
+    trimProgress,
+    cancelTrim,
+    confirmTrim,
   } = useStoryRail(true);
+
   const myGroup = storyGroups.find((g) => g.isMe) ?? null;
   const openViewer = (index: number) => setViewerAt(index >= 0 ? index : 0);
 
@@ -183,9 +191,10 @@ export function FeedAppChrome({
             if (files.length) void upload(files);
           }}
         />
+        {/* Add Story — always the first circle, purely an uploader */}
         <button
           type="button"
-          onClick={() => (myGroup && !uploading ? openViewer(0) : fileRef.current?.click())}
+          onClick={() => !uploading && fileRef.current?.click()}
           className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
         >
           <span className="relative block h-[58px] w-[58px]">
@@ -203,7 +212,7 @@ export function FeedAppChrome({
                 uploading ? "m-[3px] border-2 border-[#0A0A0B]" : ""
               }`}
             >
-              <AvatarImage src={meAvatarUrl} alt="Your story" initials={meInitials} />
+              <AvatarImage src={meAvatarUrl} alt="Add story" initials={meInitials} />
             </span>
             {!uploading && (
               <span className="absolute -bottom-0.5 -right-0.5 z-10 grid h-[22px] w-[22px] place-items-center rounded-full border-2 border-[#0A0A0B] bg-[#E5484D]">
@@ -212,9 +221,31 @@ export function FeedAppChrome({
             )}
           </span>
           <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
-            {uploading ? "Uploading…" : myGroup ? "Your story" : "Your story"}
+            {uploading ? "Uploading…" : "Add Story"}
           </span>
         </button>
+
+        {/* My published story lives in its own circle right after the uploader */}
+        {myGroup && (
+          <button
+            type="button"
+            onClick={() => openViewer(storyGroups.indexOf(myGroup))}
+            className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
+          >
+            <span
+              className={`grid h-[58px] w-[58px] place-items-center rounded-full p-[2px] ${
+                myGroup.allViewed ? "bg-white/15" : `bg-gradient-to-tr ${RINGS[0]}`
+              }`}
+            >
+              <span className="block h-full w-full overflow-hidden rounded-full border-2 border-[#0A0A0B] bg-[#1A1A1F]">
+                <AvatarImage src={myGroup.avatarUrl} alt={myGroup.displayName} />
+              </span>
+            </span>
+            <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
+              Your story
+            </span>
+          </button>
+        )}
 
         {storyGroups
           .filter((g) => !g.isMe)
@@ -229,7 +260,7 @@ export function FeedAppChrome({
                 className={`grid h-[58px] w-[58px] place-items-center rounded-full p-[2px] ${
                   g.allViewed
                     ? "bg-white/15"
-                    : `bg-gradient-to-tr ${RINGS[i % RINGS.length]}`
+                    : `bg-gradient-to-tr ${RINGS[(i + 1) % RINGS.length]}`
                 }`}
               >
                 <span className="block h-full w-full overflow-hidden rounded-full border-2 border-[#0A0A0B] bg-[#1A1A1F]">
@@ -241,6 +272,7 @@ export function FeedAppChrome({
               </span>
             </button>
           ))}
+
 
         {people
           .filter((u) => !storyGroups.some((g) => g.userId === u.userId))
@@ -276,6 +308,17 @@ export function FeedAppChrome({
           }}
         />
       )}
+      {trimRequest && (
+        <StoryTrimmerModal
+          file={trimRequest.file}
+          duration={trimRequest.duration}
+          working={trimWorking}
+          progress={trimProgress}
+          onCancel={cancelTrim}
+          onConfirm={(s) => void confirmTrim(s)}
+        />
+      )}
+
 
       <div className="h-px w-full bg-white/[0.07]" />
 

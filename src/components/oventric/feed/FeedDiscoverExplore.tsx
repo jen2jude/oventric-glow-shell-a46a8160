@@ -85,21 +85,33 @@ export function FeedDiscoverExplore({
                 className="relative h-[210px] w-[132px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
               >
                 {g.items[0]?.mediaType === "video" ? (
-                  <video
-                    src={g.items[0].mediaUrl}
-                    muted
-                    playsInline
-                    preload="metadata"
-                    className="h-full w-full object-cover"
-                  />
+                  g.items[0]?.posterUrl ? (
+                    <img
+                      src={g.items[0].posterUrl}
+                      alt=""
+                      loading="lazy"
+                      decoding="async"
+                      className="h-full w-full object-cover"
+                    />
+                  ) : (
+                    <video
+                      src={g.items[0].mediaUrl}
+                      muted
+                      playsInline
+                      preload="metadata"
+                      className="h-full w-full object-cover"
+                    />
+                  )
                 ) : (
                   <img
                     src={g.items[0]?.mediaUrl}
                     alt=""
                     loading="lazy"
+                    decoding="async"
                     className="h-full w-full object-cover"
                   />
                 )}
+
                 <span className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/85 to-transparent p-2.5">
                   <span className="flex items-center gap-1.5">
                     <span className="h-6 w-6 overflow-hidden rounded-full ring-1 ring-[#E5484D]">

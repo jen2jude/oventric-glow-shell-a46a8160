@@ -6,10 +6,12 @@ export type StoryItem = {
   id: string;
   mediaUrl: string;
   mediaType: "image" | "video";
+  posterUrl: string | null;
   createdAt: string;
   expiresAt: string;
   viewed: boolean;
 };
+
 
 export type StoryGroup = {
   userId: string;
@@ -34,6 +36,21 @@ export const getStoryUploadUrl = createServerFn({ method: "POST" })
     if (error) throw error;
     return { path, token: signed.token as string, signedUrl: signed.signedUrl as string };
   });
+
+/** Signed upload slot for a video's poster frame (`<videoPath>.poster.jpg`). */
+export const getStoryPosterUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ videoPath: z.string().min(1).max(500) }).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!data.videoPath.startsWith(`${context.userId}/`)) throw new Error("Forbidden");
+    const path = `${data.videoPath}.poster.jpg`;
+    const { data: signed, error } = await context.supabase.storage
+      .from("story-media")
+      .createSignedUploadUrl(path);
+    if (error) throw error;
+    return { path, token: signed.token as string };
+  });
+
 
 /** Persist uploaded story media (max 10 per publish). Auto-expires in 24h. */
 export const publishStories = createServerFn({ method: "POST" })
@@ -131,10 +148,13 @@ export const listStories = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const mediaByPath = new Map<string, string>();
+    const posterPaths = rows
+      .filter((r: any) => r.media_type === "video")
+      .map((r: any) => `${r.media_path}.poster.jpg`);
     const { data: mediaSigned } = await supabaseAdmin.storage
       .from("story-media")
       .createSignedUrls(
-        rows.map((r: any) => r.media_path),
+        [...rows.map((r: any) => r.media_path), ...posterPaths],
         60 * 60 * 6,
       );
     (mediaSigned ?? []).forEach((s: any) => {
@@ -166,11 +186,14 @@ export const listStories = createServerFn({ method: "GET" })
         id: r.id,
         mediaUrl: url,
         mediaType: r.media_type === "video" ? "video" : "image",
+        posterUrl:
+          r.media_type === "video" ? (mediaByPath.get(`${r.media_path}.poster.jpg`) ?? null) : null,
         createdAt: r.created_at,
         expiresAt: r.expires_at,
         viewed: isViewed,
       });
     });
+
 
     const list = Array.from(groups.values());
     list.sort((a, b) => {

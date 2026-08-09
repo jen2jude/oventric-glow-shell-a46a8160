@@ -32,12 +32,14 @@ export function StoryViewerModal({
   const [ii, setIi] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [sent, setSent] = useState<string | null>(null);
+  const [floats, setFloats] = useState<{ id: number; emoji: string; x: number }[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const markViewed = useServerFn(markStoryViewed);
   const react = useServerFn(reactToStory);
 
   const group = groups[gi];
   const item = group?.items[ii];
+
 
   const next = useCallback(() => {
     setElapsed(0);
@@ -109,10 +111,41 @@ export function StoryViewerModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [next, prev, onClose]);
 
+  // Warm the next few media items so playback starts instantly.
+  useEffect(() => {
+    const g = groups[gi];
+    if (!g) return;
+    const upcoming = [
+      ...g.items.slice(ii + 1, ii + 3),
+      ...(groups[gi + 1]?.items.slice(0, 1) ?? []),
+    ];
+    upcoming.forEach((s) => {
+      if (s.mediaType === "video") {
+        if (s.posterUrl) new Image().src = s.posterUrl;
+        const v = document.createElement("video");
+        v.preload = "auto";
+        v.muted = true;
+        v.src = s.mediaUrl;
+      } else {
+        new Image().src = s.mediaUrl;
+      }
+    });
+  }, [groups, gi, ii]);
+
   if (!group || !item || typeof document === "undefined") return null;
 
   const onReact = async (emoji: string) => {
     setSent(emoji);
+    // Floating burst from the reaction stack upward.
+    const burst = Array.from({ length: 5 }, (_, k) => ({
+      id: Date.now() + k,
+      emoji,
+      x: Math.round((Math.random() - 0.5) * 120),
+    }));
+    setFloats((f) => [...f, ...burst]);
+    window.setTimeout(() => {
+      setFloats((f) => f.filter((x) => !burst.some((b) => b.id === x.id)));
+    }, 2200);
     try {
       const res: any = await react({ data: { storyId: item.id, emoji } });
       if (res?.peerId && !res.skipped) {
@@ -121,12 +154,13 @@ export function StoryViewerModal({
         );
         window.setTimeout(() => {
           window.location.href = `/?section=Messages&dm=${res.peerId}`;
-        }, 60);
+        }, 900);
       }
     } catch {
       /* silent */
     }
   };
+
 
   return createPortal(
     <div
@@ -177,8 +211,11 @@ export function StoryViewerModal({
               key={item.id}
               ref={videoRef}
               src={item.mediaUrl}
+              poster={item.posterUrl ?? undefined}
               autoPlay
+              muted={false}
               playsInline
+              preload="auto"
               className="max-h-full w-full object-contain"
               onTimeUpdate={(e) => {
                 const v = e.currentTarget;
@@ -191,9 +228,12 @@ export function StoryViewerModal({
               key={item.id}
               src={item.mediaUrl}
               alt=""
+              decoding="async"
+              fetchPriority="high"
               className="max-h-full w-full object-contain"
             />
           )}
+
           <button
             type="button"
             aria-label="Previous"
@@ -208,7 +248,25 @@ export function StoryViewerModal({
           />
         </div>
 
+        {/* Floating reactions — drift from the stack upward */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-16 z-30 h-1/2 overflow-hidden">
+          {floats.map((f, idx) => (
+            <span
+              key={f.id}
+              className="absolute bottom-0 left-1/2 text-[26px] story-float"
+              style={{
+                ["--tx" as never]: `${f.x}px`,
+                animationDelay: `${idx * 90}ms`,
+              }}
+
+            >
+              {f.emoji}
+            </span>
+          ))}
+        </div>
+
         {/* Reaction stack */}
+
         {!group.isMe && (
           <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6">
             <div className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-2 backdrop-blur-md">
