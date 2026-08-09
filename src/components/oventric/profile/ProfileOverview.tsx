@@ -110,7 +110,6 @@ export function ProfileOverview({
   website,
   joined,
   skills,
-  interests,
   counts,
   isOwner,
   price,
