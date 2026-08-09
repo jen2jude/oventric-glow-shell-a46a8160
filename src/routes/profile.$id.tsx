@@ -61,6 +61,8 @@ import {
   Github,
   Youtube,
   FileText,
+  MapPin,
+  Share2,
 } from "lucide-react";
 
 /** Renders the matching brand glyph for a social-link key. */
@@ -245,6 +247,22 @@ function ProfilePage() {
   // Search state to hand off to item detail pages so their back link returns
   // to the exact tab, pagination depth, and scroll position we're in.
   const itemSearch = { tab, pages: desiredPages, y: restoreY, q, sort };
+
+  /** Shares the profile via the native share sheet, falling back to copy. */
+  const shareProfile = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    const url = window.location.origin + `/profile/${id}`;
+    try {
+      if (navigator.share) {
+        await navigator.share({ title: "Oventric profile", url });
+        return;
+      }
+      await navigator.clipboard.writeText(url);
+      toast.success("Profile link copied");
+    } catch {
+      /* user dismissed the share sheet */
+    }
+  }, [id]);
 
   const [circle, setCircle] = useState<CircleStatus>("none");
   const [circleBusy, setCircleBusy] = useState(false);
@@ -1220,6 +1238,40 @@ function ProfilePage() {
                   </p>
                 )}
 
+                {(realProfile?.country?.trim() || realProfile?.socialLinks?.website) && (
+                  <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
+                    {realProfile?.country?.trim() && (
+                      <span className="inline-flex items-center gap-1.5">
+                        <MapPin className="w-3.5 h-3.5" /> {realProfile.country}
+                      </span>
+                    )}
+                    {realProfile?.socialLinks?.website && (
+                      <a
+                        href={realProfile.socialLinks.website}
+                        target="_blank"
+                        rel="noopener noreferrer nofollow"
+                        className="inline-flex items-center gap-1.5 font-semibold text-emerald-400 md:text-emerald-600 hover:underline"
+                      >
+                        <Globe className="w-3.5 h-3.5" />
+                        {realProfile.socialLinks.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                      </a>
+                    )}
+                  </div>
+                )}
+
+                {realProfile?.interests && realProfile.interests.length > 0 && (
+                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
+                    {realProfile.interests.map((s) => (
+                      <span
+                        key={s}
+                        className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/[0.06] md:bg-slate-100 text-slate-200 md:text-slate-700 border border-white/10 md:border-slate-200"
+                      >
+                        {s}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {realProfile?.skills && realProfile.skills.length > 0 && (
                   <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
                     {realProfile.skills.map((s) => (
@@ -1278,6 +1330,15 @@ function ProfilePage() {
                         />
                       </button>
                     </div>
+                    <div className="mt-2 flex justify-center">
+                      <button
+                        type="button"
+                        onClick={shareProfile}
+                        className="inline-flex items-center gap-2 rounded-lg border border-white/15 md:border-slate-300 px-4 py-2 text-sm font-semibold text-slate-200 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
+                      >
+                        <Share2 className="w-4 h-4" /> Share profile
+                      </button>
+                    </div>
                     <p className="mt-1.5 text-center text-[11px] text-slate-500 md:text-slate-500">
                       {isViewedUserOnline
                         ? "Online now · usually replies in minutes"
@@ -1313,6 +1374,12 @@ function ProfilePage() {
                     <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 text-xs font-semibold">
                       This is your profile
                     </span>
+                    <button
+                      onClick={shareProfile}
+                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-300 text-white md:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-sm font-semibold"
+                    >
+                      <Share2 className="w-4 h-4" /> Share
+                    </button>
                     <button
                       onClick={() => navigate({ to: "/" })}
                       className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-300 text-white md:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-sm font-semibold"
