@@ -1640,6 +1640,8 @@ function ProfilePage() {
                           kind: "post" | "group" | "listing" | "bounty" | "solved";
                           itemId: string;
                           blogSlug?: string;
+                          academy?: boolean;
+
                           coverUrl?: string | null;
                           placeholderIcon: React.ReactNode;
                           badge?: { label: string; tone: "emerald" | "purple" | "sky" | "amber" };
