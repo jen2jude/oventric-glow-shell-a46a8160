@@ -1731,18 +1731,8 @@ function ProfilePage() {
                           priceLabel?: string;
                         };
                         let tiles: TileConfig[] = [];
-                        if (tab === "posts") {
-                          tiles = (st.items as ProfilePost[]).map((p) => ({
-                            key: p.id,
-                            kind: "post" as const,
-                            itemId: p.id,
-                            placeholderIcon: (
-                              <MessageCircle className="w-8 h-8 text-emerald-300 md:text-emerald-700/70" />
-                            ),
-                            title: p.content,
-                            subtitle: `${p.timeAgo} · ❤ ${p.likes} · 💬 ${p.comments}`,
-                          }));
-                        } else if (tab === "groups") {
+                        if (tab === "groups") {
+
                           tiles = (st.items as ProfileGroup[]).map((g) => ({
                             key: g.id,
                             kind: "group" as const,
