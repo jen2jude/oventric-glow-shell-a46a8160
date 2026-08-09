@@ -210,10 +210,11 @@ export function PromoInterstitial({
           <button
             type="button"
             onClick={close}
-            className="mt-3 w-full text-center text-xs font-semibold text-promo-text/50 hover:text-promo-text transition-colors"
+            className="mt-3 w-full text-center text-xs font-semibold text-white/45 hover:text-white transition-colors"
           >
             Not now
           </button>
+
         </div>
       </div>
     </div>
