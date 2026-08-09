@@ -82,12 +82,14 @@ export function FeedAppChrome({
   return (
     <div
       ref={chromeRef}
-      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl transition-transform duration-300 ease-out will-change-transform ${
-        chromeHidden ? "-translate-y-full" : "translate-y-0"
-      }`}
+      className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl"
     >
-      {/* Brand header */}
-      <div className="flex items-center gap-2 px-4 pt-1 pb-2">
+      {/* Brand header — collapses independently; tabs/stories stay pinned */}
+      <div
+        className={`flex items-center gap-2 px-4 pt-1 pb-2 transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+          chromeHidden ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
+        }`}
+      >
         <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
         <div className="ml-auto flex items-center gap-1.5">
           <button
