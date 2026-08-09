@@ -32,7 +32,6 @@ import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as PaymentReturnRouteImport } from './routes/payment.return'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
-import { Route as CoursesIdRouteImport } from './routes/courses.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AdsManagerIdRouteImport } from './routes/ads-manager.$id'
@@ -187,11 +186,6 @@ const PaymentReturnRoute = PaymentReturnRouteImport.update({
 const OrderIdRoute = OrderIdRouteImport.update({
   id: '/order/$id',
   path: '/order/$id',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CoursesIdRoute = CoursesIdRouteImport.update({
-  id: '/courses/$id',
-  path: '/courses/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CheckoutIdRoute = CheckoutIdRouteImport.update({
@@ -445,7 +439,6 @@ export interface FileRoutesByFullPath {
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
-  '/courses/$id': typeof CoursesIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
@@ -509,7 +502,6 @@ export interface FileRoutesByTo {
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
-  '/courses/$id': typeof CoursesIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
@@ -576,7 +568,6 @@ export interface FileRoutesById {
   '/ads-manager/$id': typeof AdsManagerIdRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/checkout/$id': typeof CheckoutIdRoute
-  '/courses/$id': typeof CoursesIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
@@ -644,7 +635,6 @@ export interface FileRouteTypes {
     | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
-    | '/courses/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
@@ -708,7 +698,6 @@ export interface FileRouteTypes {
     | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
-    | '/courses/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
@@ -774,7 +763,6 @@ export interface FileRouteTypes {
     | '/ads-manager/$id'
     | '/blog/$slug'
     | '/checkout/$id'
-    | '/courses/$id'
     | '/order/$id'
     | '/payment/return'
     | '/product/$id'
@@ -818,7 +806,6 @@ export interface RootRouteChildren {
   DotwellKnownAssetlinksDotjsonRoute: typeof DotwellKnownAssetlinksDotjsonRoute
   BlogSlugRoute: typeof BlogSlugRoute
   CheckoutIdRoute: typeof CheckoutIdRoute
-  CoursesIdRoute: typeof CoursesIdRoute
   OrderIdRoute: typeof OrderIdRoute
   PaymentReturnRoute: typeof PaymentReturnRoute
   ProductIdRoute: typeof ProductIdRoute
@@ -1000,13 +987,6 @@ declare module '@tanstack/react-router' {
       path: '/order/$id'
       fullPath: '/order/$id'
       preLoaderRoute: typeof OrderIdRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/courses/$id': {
-      id: '/courses/$id'
-      path: '/courses/$id'
-      fullPath: '/courses/$id'
-      preLoaderRoute: typeof CoursesIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/checkout/$id': {
@@ -1404,7 +1384,6 @@ const rootRouteChildren: RootRouteChildren = {
   DotwellKnownAssetlinksDotjsonRoute: DotwellKnownAssetlinksDotjsonRoute,
   BlogSlugRoute: BlogSlugRoute,
   CheckoutIdRoute: CheckoutIdRoute,
-  CoursesIdRoute: CoursesIdRoute,
   OrderIdRoute: OrderIdRoute,
   PaymentReturnRoute: PaymentReturnRoute,
   ProductIdRoute: ProductIdRoute,

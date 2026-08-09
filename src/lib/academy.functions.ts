@@ -38,6 +38,8 @@ export interface CourseDTO {
   fxSnapshot: CourseFxSnapshot;
   moduleCount?: number;
   enrolledCount?: number;
+  ownerSlug?: string | null;
+  ownerName?: string | null;
 }
 
 export interface ModuleDTO {
@@ -196,6 +198,28 @@ async function signCovers(
 const COURSE_COLS =
   "id, owner_id, title, slug, description, category, level, instructor_name, cover_path, price_usd, is_free, is_published, promoted, created_at, original_currency, original_amount, fx_snapshot";
 
+async function attachOwners(
+  sb: ReturnType<typeof serverPublicClient>,
+  courses: CourseDTO[],
+): Promise<CourseDTO[]> {
+  const ids = Array.from(new Set(courses.map((c) => c.ownerId).filter(Boolean)));
+  if (ids.length === 0) return courses;
+  const { data } = await sb
+    .from("profiles")
+    .select("user_id, slug, display_name")
+    .in("user_id", ids);
+  const byId = new Map(
+    (data ?? []).map((r) => [
+      r.user_id as string,
+      { slug: (r.slug as string) ?? null, name: (r.display_name as string) ?? null },
+    ]),
+  );
+  return courses.map((c) => {
+    const o = byId.get(c.ownerId);
+    return { ...c, ownerSlug: o?.slug ?? null, ownerName: o?.name ?? null };
+  });
+}
+
 // ---------- PUBLIC LISTINGS ----------
 
 export const listCourses = createServerFn({ method: "GET" }).handler(async () => {
@@ -210,7 +234,8 @@ export const listCourses = createServerFn({ method: "GET" }).handler(async () =>
   if (error) throw new Error(error.message);
   const rows = data ?? [];
   const urls = await signCovers(sb, rows.map((r) => (r.cover_path as string) ?? null));
-  return rows.map((r, i) => mapCourse(r as Record<string, unknown>, urls[i]));
+  const mapped = rows.map((r, i) => mapCourse(r as Record<string, unknown>, urls[i]));
+  return attachOwners(sb, mapped).catch(() => mapped);
 });
 
 export const getCourse = createServerFn({ method: "POST" })
@@ -264,8 +289,11 @@ export const getCourse = createServerFn({ method: "POST" })
       return videoPaths.map(() => null);
     });
 
+    const [withOwner] = await attachOwners(sb, [
+      mapCourse(row as Record<string, unknown>, coverUrl),
+    ]).catch(() => [mapCourse(row as Record<string, unknown>, coverUrl)]);
     return {
-      ...mapCourse(row as Record<string, unknown>, coverUrl),
+      ...(withOwner as CourseDTO),
       modules: modRows.map((m, i) => mapModule(m as Record<string, unknown>, videoUrls[i])),
     };
   });
