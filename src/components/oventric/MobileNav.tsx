@@ -1,5 +1,6 @@
 import { Home, Target, Wallet, Plus, ShoppingBag, GraduationCap, Newspaper } from "lucide-react";
 import { CountBadge } from "@/components/oventric/CountBadge";
+import { useChromeHidden } from "@/hooks/use-chrome-hide";
 import { haptic } from "@/lib/haptics";
 
 const left = [
@@ -57,7 +58,9 @@ export function MobileNav({
   return (
     <nav
       data-testid="mobile-nav"
-      className="md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#141418] border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2"
+      className={`md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#141418] border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2 transition-transform duration-300 ease-out will-change-transform ${
+        chromeHidden ? "translate-y-full" : "translate-y-0"
+      }`}
       style={{
         height: "calc(4rem + max(env(safe-area-inset-bottom), 0.5rem))",
         paddingBottom: "max(env(safe-area-inset-bottom), 0.5rem)",
