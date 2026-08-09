@@ -79,6 +79,7 @@ import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.fu
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
+import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
@@ -1547,6 +1548,7 @@ function ProfilePage() {
             </nav>
 
             {/* Search + sort */}
+            {!overviewMode && !photosMode && (
             <TabFilters
               tab={tab}
               q={q}
@@ -1578,9 +1580,10 @@ function ProfilePage() {
                 });
               }}
             />
+            )}
 
             {/* Live refresh indicator for the marketplace tab */}
-            {tab === "marketplace" && (
+            {!overviewMode && tab === "marketplace" && (
               <div className="mt-3 flex items-center justify-between text-[11px]">
                 <div className="inline-flex items-center gap-1.5 text-slate-400 md:text-slate-500">
                   <span
@@ -1609,7 +1612,34 @@ function ProfilePage() {
 
             {/* Tab content */}
             <section data-testid="profile-tab-content" className="mt-5 space-y-3">
-              {photosMode ? (
+              {overviewMode && !photosMode ? (
+                <ProfileOverview
+                  idOrSlug={id}
+                  profileId={profile.id}
+                  name={displayName}
+                  bio={displayBio}
+                  country={realProfile?.country ?? null}
+                  website={realProfile?.socialLinks?.website ?? null}
+                  joined={displayJoined}
+                  skills={realProfile?.skills ?? []}
+                  interests={realProfile?.interests ?? []}
+                  counts={Object.fromEntries(
+                    ecosystemSections.map((sct) => [sct.key, sct.count ?? 0]),
+                  )}
+                  isOwner={isOwnProfile}
+                  price={price}
+                  itemSearch={itemSearch}
+                  onOpenSection={(key) => {
+                    if (key === "about") {
+                      document
+                        .querySelector('[data-testid="profile-reputation"]')
+                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      return;
+                    }
+                    if (isTab(key)) changeTab(key);
+                  }}
+                />
+              ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
               ) : (
                 (() => {
