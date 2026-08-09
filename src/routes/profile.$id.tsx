@@ -161,7 +161,6 @@ const TAB_KEYS: Tab[] = [
 ];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 
-
 type SortOption = { value: ProfileSortKey; label: string };
 const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
   posts: [
@@ -521,7 +520,6 @@ function ProfilePage() {
   // they actually use (shop, services, courses, communities…).
   const { sections: ecosystemSections } = useProfileEcosystem(id, isOwnProfile);
 
-
   const fetchOverview = useServerFn(getDashboardOverview);
   useEffect(() => {
     if (!isOwnProfile) {
@@ -851,8 +849,6 @@ function ProfilePage() {
       ? "Unverified"
       : "Verified";
 
-
-
   const handleJoin = () => {
     require(1, async () => {
       setCircleBusy(true);
@@ -974,7 +970,6 @@ function ProfilePage() {
         <Header forceSiteNavbar={!useIsAppShell()} />
         <main ref={mainRef} className="flex-1 min-w-0 pb-20 md:overflow-y-auto md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
-
             {/* Hero — the whole mobile profile surface is intentionally plain:
                  no animated gradients, filters, backdrop blur, blend modes,
                  compositor promotion, or clipped gradient layers. Those effects
@@ -1081,7 +1076,6 @@ function ProfilePage() {
                 )}
               </div>
 
-
               {/* Identity — avatar overlaps the cover from the left, app-style */}
               <div className="-mt-12 px-1">
                 <div className="grid grid-cols-[auto_minmax(0,1fr)] items-end gap-3">
@@ -1177,7 +1171,6 @@ function ProfilePage() {
                         )}
                       </DropdownMenuContent>
                     </DropdownMenu>
-
                   </div>
                 </div>
 
@@ -1241,7 +1234,9 @@ function ProfilePage() {
                     <span className="block text-base font-black text-white md:text-slate-900">
                       {compactCount(socialCounts?.followers ?? 0)}
                     </span>
-                    <span className="block text-[11px] font-semibold text-slate-500">Followers</span>
+                    <span className="block text-[11px] font-semibold text-slate-500">
+                      Followers
+                    </span>
                   </button>
                   <button
                     type="button"
@@ -1252,7 +1247,9 @@ function ProfilePage() {
                     <span className="block text-base font-black text-white md:text-slate-900">
                       {compactCount(socialCounts?.following ?? 0)}
                     </span>
-                    <span className="block text-[11px] font-semibold text-slate-500">Following</span>
+                    <span className="block text-[11px] font-semibold text-slate-500">
+                      Following
+                    </span>
                   </button>
                   <div className="px-2 py-3 text-center">
                     <span className="block text-base font-black text-white md:text-slate-900">
@@ -1338,7 +1335,6 @@ function ProfilePage() {
                 {/* What I'm into */}
                 {realProfile?.interests && realProfile.interests.length > 0 && (
                   <div className="mt-4">
-
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <h2 className="truncate text-sm font-black text-white md:text-slate-900">
                         What I&apos;m into
@@ -1383,11 +1379,7 @@ function ProfilePage() {
                   </div>
                 )}
               </div>
-
             </section>
-
-
-
 
             {/* Member details: country, address & birthday — centred */}
             <div className="profile-card-safe mt-4 rounded-lg border border-white/5  md:border-slate-200 bg-[#17171C] md:bg-white md:shadow-sm p-4 text-center">
@@ -1478,26 +1470,26 @@ function ProfilePage() {
                   const label = section.label;
                   const count = tabData[key].total ?? section.count;
 
-                return (
-                  <button
-                    key={key}
-                    onClick={() => {
-                      setPhotosMode(false);
-                      changeTab(key);
-                    }}
-                    className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                      tab === key && !photosMode && !overviewMode
-                        ? "text-white md:text-slate-900 border-[#E5484D]"
-                        : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
-                    }`}
-                  >
-                    {label}
-                    <span className="text-xs text-slate-500 md:text-slate-500 ml-1">
-                      ({count === null ? "…" : count})
-                    </span>
-                  </button>
-                );
-              })}
+                  return (
+                    <button
+                      key={key}
+                      onClick={() => {
+                        setPhotosMode(false);
+                        changeTab(key);
+                      }}
+                      className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                        tab === key && !photosMode && !overviewMode
+                          ? "text-white md:text-slate-900 border-[#E5484D]"
+                          : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
+                      }`}
+                    >
+                      {label}
+                      <span className="text-xs text-slate-500 md:text-slate-500 ml-1">
+                        ({count === null ? "…" : count})
+                      </span>
+                    </button>
+                  );
+                })}
               <button
                 key="photos"
                 onClick={() => {
@@ -1518,37 +1510,37 @@ function ProfilePage() {
 
             {/* Search + sort */}
             {!overviewMode && !photosMode && (
-            <TabFilters
-              tab={tab}
-              q={q}
-              sort={sort}
-              onChangeQ={(next) => {
-                navigate({
-                  to: "/profile/$id",
-                  params: { id },
-                  search: (prev: Record<string, unknown>) => ({
-                    ...prev,
-                    q: next,
-                    pages: 1,
-                    y: 0,
-                  }),
-                  replace: true,
-                });
-              }}
-              onChangeSort={(next) => {
-                navigate({
-                  to: "/profile/$id",
-                  params: { id },
-                  search: (prev: Record<string, unknown>) => ({
-                    ...prev,
-                    sort: next,
-                    pages: 1,
-                    y: 0,
-                  }),
-                  replace: true,
-                });
-              }}
-            />
+              <TabFilters
+                tab={tab}
+                q={q}
+                sort={sort}
+                onChangeQ={(next) => {
+                  navigate({
+                    to: "/profile/$id",
+                    params: { id },
+                    search: (prev: Record<string, unknown>) => ({
+                      ...prev,
+                      q: next,
+                      pages: 1,
+                      y: 0,
+                    }),
+                    replace: true,
+                  });
+                }}
+                onChangeSort={(next) => {
+                  navigate({
+                    to: "/profile/$id",
+                    params: { id },
+                    search: (prev: Record<string, unknown>) => ({
+                      ...prev,
+                      sort: next,
+                      pages: 1,
+                      y: 0,
+                    }),
+                    replace: true,
+                  });
+                }}
+              />
             )}
 
             {/* Live refresh indicator for the marketplace tab */}
@@ -1721,7 +1713,6 @@ function ProfilePage() {
                             subtitle: "Course",
                             priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
                           }));
-
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
@@ -1795,7 +1786,6 @@ function ProfilePage() {
                                         params: { id: profile.id, kind: t.kind, itemId: t.itemId },
                                         search: itemSearch,
                                       } as any))}
-
                                 className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                               >
                                 <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -1965,7 +1955,6 @@ function compactCount(n: number): string {
   if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
   return String(n);
 }
-
 
 function relTime(iso: string | null): string | null {
   if (!iso) return null;
@@ -2362,7 +2351,6 @@ function tabNoun(tab: Tab): string {
       return "articles";
   }
 }
-
 
 function HeaderStat({
   icon,
