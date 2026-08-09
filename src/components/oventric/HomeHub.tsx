@@ -55,106 +55,33 @@ export type HubProps = {
 
 type Tile = {
   label: string;
-  caption: string;
-  img?: string;
-  icon?: typeof Store;
+  icon: typeof Store;
   section?: string;
   to?: string;
   countKey?: string;
-  tint: string;
 };
 
+// Single uniform line-art grid: 2 rows x 4 columns.
 const TILES: Tile[] = [
-  {
-    label: "Feed",
-    caption: "What's new",
-    img: homeIcon.url,
-    section: "Feed",
-    countKey: "Feed",
-    tint: "from-sky-500/25 to-sky-500/5",
-  },
-  {
-    label: "Market",
-    caption: "Buy & sell",
-    img: marketIcon.url,
-    section: "Marketplace",
-    countKey: "Market",
-    tint: "from-emerald-500/25 to-emerald-500/5",
-  },
-  {
-    label: "Academy",
-    caption: "Learn & earn",
-    img: academyIcon.url,
-    section: "Academy",
-    countKey: "Academy",
-    tint: "from-violet-500/25 to-violet-500/5",
-  },
-  {
-    label: "Bounties",
-    caption: "Get paid",
-    img: bountiesIcon.url,
-    section: "Bounties",
-    countKey: "Bounties",
-    tint: "from-amber-500/25 to-amber-500/5",
-  },
-  {
-    label: "Wallet",
-    caption: "Money",
-    img: walletIcon.url,
-    section: "Wallet",
-    countKey: "Wallet",
-    tint: "from-emerald-500/25 to-teal-500/5",
-  },
-  {
-    label: "Circles",
-    caption: "Communities",
-    img: circlesIcon.url,
-    section: "Circles",
-    tint: "from-pink-500/25 to-pink-500/5",
-  },
-  {
-    label: "Messages",
-    caption: "Chat",
-    img: messageIcon.url,
-    section: "Messages",
-    tint: "from-cyan-500/25 to-cyan-500/5",
-  },
-  {
-    label: "Dashboard",
-    caption: "Your hub",
-    icon: LayoutDashboard,
-    to: "/dashboard",
-    tint: "from-indigo-500/25 to-indigo-500/5",
-  },
-  {
-    label: "Advertise",
-    caption: "Promote",
-    icon: Megaphone,
-    to: "/advertise",
-    tint: "from-orange-500/25 to-orange-500/5",
-  },
-  {
-    label: "Affiliate",
-    caption: "Refer & earn",
-    icon: Gift,
-    to: "/affiliate",
-    tint: "from-rose-500/25 to-rose-500/5",
-  },
-  {
-    label: "Blog",
-    caption: "Stories",
-    icon: BookOpen,
-    to: "/blog",
-    tint: "from-slate-400/25 to-slate-400/5",
-  },
-  {
-    label: "Help",
-    caption: "Support",
-    icon: LifeBuoy,
-    to: "/help",
-    tint: "from-teal-500/25 to-teal-500/5",
-  },
+  { label: "Feed", icon: FeedIcon, section: "Feed", countKey: "Feed" },
+  { label: "Market", icon: Store, section: "Marketplace", countKey: "Market" },
+  { label: "Academy", icon: GraduationCap, section: "Academy", countKey: "Academy" },
+  { label: "Bounties", icon: Target, section: "Bounties", countKey: "Bounties" },
+  { label: "Circles", icon: Users, section: "Circles" },
+  { label: "Messages", icon: MessageSquare, section: "Messages" },
+  { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
+  { label: "Help", icon: LifeBuoy, to: "/help" },
 ];
+
+// Secondary destinations kept reachable as compact text links so no existing
+// feature loses its entry point from the home screen.
+const MORE_LINKS: Array<{ label: string; to: string }> = [
+  { label: "Wallet", to: "" },
+  { label: "Advertise", to: "/advertise" },
+  { label: "Affiliate", to: "/affiliate" },
+  { label: "Blog", to: "/blog" },
+];
+
 
 function fromUSD(usd: number, target: Currency): number {
   return target === "USD" ? usd : usd * usdRate(target);
