@@ -25,6 +25,10 @@ import {
   Gift,
   LogOut,
   Megaphone,
+  Newspaper,
+  Link2,
+  Tag,
+  PenSquare,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -163,6 +167,13 @@ export function MegaMenu({ open, onClose }: Props) {
     window.dispatchEvent(new CustomEvent("oventric:open-messages"));
   };
 
+  const openCreate = (choice: "sell" | "course" | "bounty") => {
+    onClose();
+    setTimeout(() => {
+      window.dispatchEvent(new CustomEvent("oventric:open-create", { detail: { choice } }));
+    }, 30);
+  };
+
   const grid = [
     { icon: MessageCircle, label: "Messages", onClick: openMessages },
     { icon: Shield, label: "Circles & Guilds", onClick: () => go("/", "Circles") },
@@ -173,6 +184,11 @@ export function MegaMenu({ open, onClose }: Props) {
     { icon: WalletIcon, label: "My Wallet", onClick: () => go("/", "Wallet") },
     { icon: GraduationCap, label: "Academy", onClick: () => go("/", "Academy") },
     { icon: Megaphone, label: "Advert", onClick: () => go("/advertise") },
+    { icon: Link2, label: "Affiliate", onClick: () => go("/affiliate") },
+    { icon: Newspaper, label: "Blog", onClick: () => go("/blog") },
+    { icon: Tag, label: "Sell", onClick: () => openCreate("sell") },
+    { icon: PenSquare, label: "Publish course", onClick: () => openCreate("course") },
+    { icon: Target, label: "Post bounty", onClick: () => openCreate("bounty") },
   ];
 
   const inviteLink =
