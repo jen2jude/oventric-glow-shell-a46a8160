@@ -84,6 +84,14 @@ function SocialIcon({ kind }: { kind: string }) {
   return <Globe className={cls} />;
 }
 
+/** Returns the emoji flag for a stored country name or ISO code. */
+function CountryFlag({ country }: { country: string | null | undefined }) {
+  const code = normalizeCountryCode(country);
+  const flag = code ? COUNTRY_META[code]?.flag : undefined;
+  if (!flag) return null;
+  return <span className="leading-none">{flag}</span>;
+}
+
 import { listUserPhotos, type UserPhoto } from "@/lib/posts.functions";
 import { getDashboardOverview, type DashboardOverview } from "@/lib/dashboard.functions";
 import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
