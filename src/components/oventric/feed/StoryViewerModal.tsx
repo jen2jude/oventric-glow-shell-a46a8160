@@ -32,12 +32,14 @@ export function StoryViewerModal({
   const [ii, setIi] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [sent, setSent] = useState<string | null>(null);
+  const [floats, setFloats] = useState<{ id: number; emoji: string; x: number }[]>([]);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const markViewed = useServerFn(markStoryViewed);
   const react = useServerFn(reactToStory);
 
   const group = groups[gi];
   const item = group?.items[ii];
+
 
   const next = useCallback(() => {
     setElapsed(0);
