@@ -46,7 +46,7 @@ export const getProfileEcosystem = createServerFn({ method: "GET" })
     const userId = prof.user_id as string;
 
     const head = { count: "exact" as const, head: true };
-    const [posts, shop, services, courses, blog, bountiesOpen, bountiesSolved, circles] =
+    const [posts, shop, services, courses, bountiesOpen, bountiesSolved, circles] =
       await Promise.all([
         supabase.from("posts").select("id", head).eq("author_id", userId),
         supabase
@@ -60,11 +60,6 @@ export const getProfileEcosystem = createServerFn({ method: "GET" })
           .select("id", head)
           .eq("owner_id", userId)
           .eq("is_published", true),
-        supabase
-          .from("blog_posts")
-          .select("id", head)
-          .eq("author_id", userId)
-          .eq("status", "published"),
         supabase
           .from("bounties")
           .select("id", head)
@@ -106,7 +101,6 @@ export const getProfileEcosystem = createServerFn({ method: "GET" })
         marketplace: shop.count ?? 0,
         services: services.count ?? 0,
         courses: courses.count ?? 0,
-        blog: blog.count ?? 0,
         posted: bountiesOpen.count ?? 0,
         solved: bountiesSolved.count ?? 0,
         groups: circles.count ?? 0,
