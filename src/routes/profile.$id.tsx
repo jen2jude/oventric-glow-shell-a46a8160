@@ -61,11 +61,15 @@ import {
   Linkedin,
   Github,
   Youtube,
+  Music2,
+  Facebook,
+  Send,
   FileText,
   MapPin,
   Share2,
   MoreHorizontal,
 } from "lucide-react";
+import { openSocialLink, SOCIAL_LABELS } from "@/lib/profiles/socialDeepLinks";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -81,6 +85,10 @@ function SocialIcon({ kind }: { kind: string }) {
   if (kind === "linkedin") return <Linkedin className={cls} />;
   if (kind === "github") return <Github className={cls} />;
   if (kind === "youtube") return <Youtube className={cls} />;
+  if (kind === "tiktok") return <Music2 className={cls} />;
+  if (kind === "facebook") return <Facebook className={cls} />;
+  if (kind === "whatsapp") return <MessageCircle className={cls} />;
+  if (kind === "telegram") return <Send className={cls} />;
   return <Globe className={cls} />;
 }
 
@@ -1398,19 +1406,24 @@ function ProfilePage() {
                 )}
 
                 {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
-                  <div className="mt-3 flex flex-wrap items-center gap-2">
-                    {Object.entries(realProfile.socialLinks).map(([key, url]) => (
-                      <a
-                        key={key}
-                        href={url}
-                        target="_blank"
-                        rel="noopener noreferrer nofollow"
-                        aria-label={key}
-                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-[#1A1A1F] text-slate-300 hover:text-white md:border-slate-300 md:bg-slate-100 md:text-slate-600"
-                      >
-                        <SocialIcon kind={key} />
-                      </a>
-                    ))}
+                  <div className="mt-4">
+                    <h2 className="text-sm font-black text-white md:text-slate-900">
+                      Find me on
+                    </h2>
+                    <div className="-mx-1 mt-2 flex flex-wrap items-center gap-2 px-1">
+                      {Object.entries(realProfile.socialLinks).map(([key, url]) => (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => openSocialLink(key, url)}
+                          aria-label={SOCIAL_LABELS[key as keyof typeof SOCIAL_LABELS] ?? key}
+                          title={SOCIAL_LABELS[key as keyof typeof SOCIAL_LABELS] ?? key}
+                          className="inline-flex h-10 w-10 items-center justify-center rounded-full border border-white/12 bg-[#1A1A1F] text-slate-300 transition-colors hover:text-white hover:bg-[#232329] md:border-slate-300 md:bg-slate-100 md:text-slate-600 md:hover:bg-slate-200 md:hover:text-slate-900"
+                        >
+                          <SocialIcon kind={key} />
+                        </button>
+                      ))}
+                    </div>
                   </div>
                 )}
               </div>

@@ -8,8 +8,12 @@ import {
   Globe,
   ImagePlus,
   Instagram,
+  Facebook,
   Linkedin,
   Loader2,
+  MessageCircle,
+  Music2,
+  Send,
   Plus,
   Twitter,
   X,
@@ -76,6 +80,34 @@ const LINK_FIELDS: Array<{
     host: /(^|\.)(youtube\.com|youtu\.be)$/i,
     icon: <Youtube className="w-4 h-4" />,
   },
+  {
+    key: "tiktok",
+    label: "TikTok",
+    placeholder: "https://tiktok.com/@username",
+    host: /(^|\.)tiktok\.com$/i,
+    icon: <Music2 className="w-4 h-4" />,
+  },
+  {
+    key: "facebook",
+    label: "Facebook",
+    placeholder: "https://facebook.com/username",
+    host: /(^|\.)(facebook\.com|fb\.com|fb\.me)$/i,
+    icon: <Facebook className="w-4 h-4" />,
+  },
+  {
+    key: "whatsapp",
+    label: "WhatsApp",
+    placeholder: "https://wa.me/2348012345678",
+    host: /(^|\.)(wa\.me|whatsapp\.com)$/i,
+    icon: <MessageCircle className="w-4 h-4" />,
+  },
+  {
+    key: "telegram",
+    label: "Telegram",
+    placeholder: "https://t.me/username",
+    host: /(^|\.)(t\.me|telegram\.me)$/i,
+    icon: <Send className="w-4 h-4" />,
+  },
 ];
 
 export interface UrlCheck {
@@ -106,6 +138,10 @@ export function normaliseSocialUrl(raw: string, field?: { key: LinkKey; host?: R
       github: "https://github.com/",
       linkedin: "https://linkedin.com/in/",
       youtube: "https://youtube.com/@",
+      tiktok: "https://tiktok.com/@",
+      facebook: "https://facebook.com/",
+      whatsapp: "https://wa.me/",
+      telegram: "https://t.me/",
     };
     const prefix = base[field.key];
     if (!prefix) return { url: null, error: "Enter a full link (https://…)." };

@@ -166,13 +166,28 @@ export interface SocialLinks {
   linkedin?: string;
   github?: string;
   youtube?: string;
+  tiktok?: string;
+  facebook?: string;
+  whatsapp?: string;
+  telegram?: string;
 }
 
 /** Normalises an unknown jsonb blob into a safe SocialLinks object. */
 export function normaliseSocialLinks(raw: unknown): SocialLinks {
   const out: SocialLinks = {};
   if (!raw || typeof raw !== "object") return out;
-  const keys: Array<keyof SocialLinks> = ["website", "x", "instagram", "linkedin", "github", "youtube"];
+  const keys: Array<keyof SocialLinks> = [
+    "website",
+    "x",
+    "instagram",
+    "linkedin",
+    "github",
+    "youtube",
+    "tiktok",
+    "facebook",
+    "whatsapp",
+    "telegram",
+  ];
   for (const k of keys) {
     const v = (raw as Record<string, unknown>)[k];
     if (typeof v === "string" && v.trim()) out[k] = v.trim().slice(0, 200);
@@ -389,6 +404,10 @@ const UpdateInput = z.object({
       linkedin: z.string().trim().max(200).optional(),
       github: z.string().trim().max(200).optional(),
       youtube: z.string().trim().max(200).optional(),
+      tiktok: z.string().trim().max(200).optional(),
+      facebook: z.string().trim().max(200).optional(),
+      whatsapp: z.string().trim().max(200).optional(),
+      telegram: z.string().trim().max(200).optional(),
     })
     .optional(),
   skills: z.array(z.string().trim().max(32)).max(20).optional(),
