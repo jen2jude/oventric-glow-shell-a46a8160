@@ -109,6 +109,7 @@ import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
 import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed";
 import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
+import { ProfileCoursesTab } from "@/components/oventric/profile/ProfileCoursesTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -1696,6 +1697,17 @@ function ProfilePage() {
                     );
                   }
                   if (initialLoading) return <TabSkeleton variant={tab} />;
+                  if (tab === "courses") {
+                    return (
+                      <ProfileCoursesTab
+                        items={st.items as ProfileListing[]}
+                        total={st.total ?? st.items.length}
+                        isOwner={isOwnProfile}
+                        price={price}
+                        slug={id}
+                      />
+                    );
+                  }
                   if (isEmpty) {
                     const empty = emptyContentFor(
                       tab,
@@ -1773,21 +1785,6 @@ function ProfilePage() {
                             title: l.title,
                             subtitle: "Service",
                             priceLabel: price(l.priceUsd),
-                          }));
-                        } else if (tab === "courses") {
-                          tiles = (st.items as ProfileListing[]).map((l) => ({
-                            key: l.id,
-                            kind: "listing" as const,
-                            itemId: l.id,
-                            academy: true,
-                            coverUrl: l.coverUrl ?? null,
-                            placeholderIcon: (
-                              <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />
-                            ),
-                            badge: { label: l.category, tone: "sky" as const },
-                            title: l.title,
-                            subtitle: "Course",
-                            priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
                           }));
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
