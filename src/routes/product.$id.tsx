@@ -207,6 +207,9 @@ function ProductPage() {
   const [contactOpen, setContactOpen] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
   const [activeImage, setActiveImage] = useState(0);
+  const loadPackages = useServerFn(getServicePackages);
+  const [packages, setPackages] = useState<ServicePackage[]>([]);
+  const [selectedPkg, setSelectedPkg] = useState<string | null>(null);
 
   useEffect(() => {
     let cancelled = false;
@@ -225,8 +228,35 @@ function ProductPage() {
     };
   }, [id, load]);
 
+  useEffect(() => {
+    if (product?.kind !== "service") {
+      setPackages([]);
+      return;
+    }
+    let cancelled = false;
+    loadPackages({ data: { productId: id } })
+      .then((rows) => {
+        if (cancelled) return;
+        setPackages(rows);
+        setSelectedPkg(rows[0]?.id ?? null);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, [product?.kind, id, loadPackages]);
+
   const startCheckout = () => {
-    require(2, () => navigate({ to: "/checkout/$id", params: { id }, search: { qty } }), "buyer");
+    require(
+      2,
+      () =>
+        navigate({
+          to: "/checkout/$id",
+          params: { id },
+          search: { qty, ...(selectedPkg ? { pkg: selectedPkg } : {}) },
+        }),
+      "buyer",
+    );
   };
 
   const openContact = () => {
@@ -448,7 +478,7 @@ function ProductPage() {
                       );
                     })()}
                   </div>
-                  {product.kind !== "physical" && (
+                  {product.kind !== "physical" && packages.length === 0 && (
                     <div className="flex items-center gap-2">
                       <label className="text-xs text-slate-400 md:text-slate-500 uppercase tracking-wide">
                         Qty
@@ -466,7 +496,63 @@ function ProductPage() {
                     </div>
                   )}
                 </div>
-                {product.kind !== "physical" && (
+                {packages.length > 0 && (
+                  <div className="mb-4 space-y-2">
+                    <div className={`text-xs uppercase tracking-wide ${isAppShell ? "text-slate-400" : "text-slate-500"}`}>
+                      Choose a package
+                    </div>
+                    {packages.map((pk) => {
+                      const active = pk.id === selectedPkg;
+                      return (
+                        <button
+                          key={pk.id}
+                          type="button"
+                          onClick={() => setSelectedPkg(pk.id)}
+                          className={`w-full rounded-xl border p-3 text-left transition-colors ${
+                            active
+                              ? "border-emerald-500 bg-emerald-500/10"
+                              : isAppShell
+                                ? "border-white/10 bg-[#121214] hover:bg-[#17171B]"
+                                : "border-slate-200 bg-white hover:bg-slate-50"
+                          }`}
+                        >
+                          <div className="flex items-start justify-between gap-3">
+                            <div className="min-w-0">
+                              <div className={`text-sm font-black ${isAppShell ? "text-white" : "text-slate-900"}`}>
+                                {pk.name}
+                              </div>
+                              {pk.summary && (
+                                <p className={`mt-0.5 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
+                                  {pk.summary}
+                                </p>
+                              )}
+                              {pk.features.length > 0 && (
+                                <ul className={`mt-1.5 space-y-0.5 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}>
+                                  {pk.features.map((f) => (
+                                    <li key={f}>• {f}</li>
+                                  ))}
+                                </ul>
+                              )}
+                              <div className={`mt-1.5 flex flex-wrap gap-x-3 text-[11px] ${isAppShell ? "text-slate-500" : "text-slate-500"}`}>
+                                {pk.deliveryDays != null && <span>{pk.deliveryDays}-day delivery</span>}
+                                {pk.revisions != null && <span>{pk.revisions} revisions</span>}
+                              </div>
+                            </div>
+                            <span className={`shrink-0 font-black ${isAppShell ? "text-white" : "text-slate-900"}`}>
+                              {formatMoney(
+                                pk.originalCurrency === baseCurrency
+                                  ? pk.originalAmount
+                                  : pk.priceUsd * usdRate(baseCurrency),
+                                baseCurrency,
+                              )}
+                            </span>
+                          </div>
+                        </button>
+                      );
+                    })}
+                  </div>
+                )}
+                {product.kind !== "physical" && packages.length === 0 && (
                   <div className={`flex items-center justify-between text-xs ${isAppShell ? "text-slate-500" : "text-slate-400"} md:text-slate-500 mb-4`}>
                     <span>Line total</span>
                     <span className={`${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 font-mono`}>
