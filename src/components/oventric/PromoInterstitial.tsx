@@ -96,7 +96,7 @@ export function PromoInterstitial({ onSelect }: { onSelect: (section: string) =>
       role="dialog"
       aria-modal="true"
       aria-label={promo.title}
-      className="fixed inset-0 z-[70] flex items-end sm:items-center justify-center bg-black/70 p-4"
+      className="fixed inset-0 z-[70] grid place-items-center bg-black/70 p-4 overflow-y-auto"
       onClick={close}
     >
       <div
