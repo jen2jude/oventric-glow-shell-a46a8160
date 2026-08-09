@@ -59,8 +59,8 @@ export function MobileNav({
   return (
     <nav
       data-testid="mobile-nav"
-      className={`md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#141418] border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-        chromeHidden ? "translate-y-full" : "translate-y-0"
+      className={`md:hidden fixed bottom-0 inset-x-0 z-30 max-w-full bg-[#141418] border-t border-white/15 shadow-[0_-10px_40px_-10px_rgba(0,0,0,0.45)] rounded-t-2xl flex items-center px-2 transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+        chromeHidden ? "translate-y-full opacity-0" : "translate-y-0 opacity-100"
       }`}
       style={{
         height: "calc(4rem + max(env(safe-area-inset-bottom), 0.5rem))",
