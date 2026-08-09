@@ -82,15 +82,13 @@ export function FeedAppChrome({
   return (
     <div
       ref={chromeRef}
-      className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl"
+      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl transition-opacity duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
+        chromeHidden ? "opacity-60" : "opacity-100"
+      }`}
     >
-      {/* Brand header — collapses independently; tabs/stories slide up into its place */}
-      <div
-        className={`grid overflow-hidden transition-[grid-template-rows,opacity] duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] will-change-[grid-template-rows,opacity] ${
-          chromeHidden ? "grid-rows-[0fr] opacity-0" : "grid-rows-[1fr] opacity-100"
-        }`}
-      >
-        <div className="min-h-0 overflow-hidden">
+      {/* Brand header — stays pinned; only fades slightly on scroll down */}
+      <div>
+        <div className="min-h-0">
         <div className="flex items-center gap-2 px-4 pt-1 pb-2">
         <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
         <div className="ml-auto flex items-center gap-1.5">
