@@ -1834,6 +1834,31 @@ export function Feed() {
                     </div>
                   )}
 
+                  {/* Quoted original when this post is a repost */}
+                  {post.repost_of && (
+                    <div className={isAppShell ? "px-4 md:px-0" : ""}>
+                      <div className="mt-3 flex gap-3 rounded-2xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-3">
+                        {(post.repost_of.media_url || post.repost_of.poster_url) && (
+                          <img
+                            src={post.repost_of.poster_url ?? post.repost_of.media_url ?? ""}
+                            alt=""
+                            loading="lazy"
+                            className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-white md:text-slate-900">
+                            {post.repost_of.author_name}
+                          </p>
+                          <p className="mt-0.5 line-clamp-3 text-xs text-white/60 md:text-slate-600">
+                            {post.repost_of.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+
                   {/* Engagement summary */}
                   {(() => {
                     const topReactions = (
