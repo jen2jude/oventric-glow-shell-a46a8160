@@ -505,6 +505,8 @@ export interface MyFullProfile {
   socialLinks: SocialLinks;
   skills: string[];
   interests: string[];
+  skillLevels: Record<string, number>;
+  tools: string[];
 
   avatarUrl: string | null;
   verificationTier: string;
@@ -564,6 +566,8 @@ export const getMyFullProfile = createServerFn({ method: "GET" })
         socialLinks: normaliseSocialLinks((row as { social_links?: unknown }).social_links),
         skills: normaliseSkills((row as { skills?: unknown }).skills),
         interests: normaliseSkills((row as { interests?: unknown }).interests),
+        skillLevels: normaliseSkillLevels((row as { skill_levels?: unknown }).skill_levels),
+        tools: normaliseTools((row as { tools?: unknown }).tools),
         avatarUrl,
         verificationTier: row.verification_tier,
         reputationStars: Number(row.reputation_stars ?? 0),
