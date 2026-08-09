@@ -1318,9 +1318,35 @@ function ProfilePage() {
                   </div>
                 )}
 
+                {/* About card */}
+                {displayBio && (
+                  <div className="mt-4 rounded-2xl border border-white/10 bg-[#141418] p-4 md:border-slate-200 md:bg-white md:shadow-sm">
+                    <h2 className="text-sm font-black text-white md:text-slate-900">
+                      About {displayName.split(" ")[0]}
+                    </h2>
+                    <p
+                      className={`mt-2 whitespace-pre-line text-sm leading-relaxed text-slate-300 md:text-slate-600 ${
+                        aboutExpanded ? "" : "line-clamp-4"
+                      }`}
+                    >
+                      {displayBio}
+                    </p>
+                    {displayBio.length > 160 && (
+                      <button
+                        type="button"
+                        onClick={() => setAboutExpanded((v) => !v)}
+                        className="mt-2 text-xs font-bold text-[#E5484D] hover:underline"
+                      >
+                        {aboutExpanded ? "Show less" : "Read more"}
+                      </button>
+                    )}
+                  </div>
+                )}
+
                 {/* What I'm into */}
                 {realProfile?.interests && realProfile.interests.length > 0 && (
                   <div className="mt-4">
+
                     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
                       <h2 className="truncate text-sm font-black text-white md:text-slate-900">
                         What I&apos;m into
