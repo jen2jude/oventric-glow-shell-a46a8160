@@ -801,7 +801,7 @@ function ProfilePage() {
     let cancelled = false;
     const load = async () => {
       try {
-        await ensureSession();
+        if (!(await ensureSession())) return;
         const res = await fetchStatus({ data: { targetSlug: circleTargetSlug } });
         if (cancelled) return;
         setCircle(res.status);
