@@ -32,7 +32,7 @@ import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
-import { SpotlightRail } from "@/components/oventric/SpotlightRail";
+
 import { HubPromoCarousel } from "@/components/oventric/hub/HubPromoCarousel";
 import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
 
@@ -346,11 +346,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
 
       {/* Offer carousel */}
       <HubPromoCarousel onSelect={goSection} />
-
-      {/* Spotlights */}
-      <SpotlightRail onSelect={onSelect} />
-
-
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
