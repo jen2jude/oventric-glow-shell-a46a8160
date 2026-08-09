@@ -1091,7 +1091,7 @@ function ProfilePage() {
               <div className="-mt-12 px-1">
                 <div className="grid grid-cols-[auto_minmax(0,1fr)] items-end gap-3">
                   <div className="relative shrink-0">
-                    <div className="profile-avatar-safe w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#8B0000] ring-[3px] ring-[#8B0000]/70 outline outline-4 outline-[#121214] flex items-center justify-center text-white text-3xl font-black overflow-hidden">
+                    <div className="profile-avatar-safe w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E5484D] ring-[3px] ring-[#E5484D]/70 outline outline-4 outline-[#121214] flex items-center justify-center text-white text-3xl font-black overflow-hidden">
                       {displayAvatar ? (
                         <ResponsiveImage
                           src={displayAvatar}
@@ -1297,7 +1297,7 @@ function ProfilePage() {
                   <div className="mt-3 flex items-center gap-2">
                     <FollowButton
                       targetId={realProfile.userId}
-                      className="w-full justify-center rounded-xl py-3 text-sm font-black bg-[#8B0000]! hover:bg-[#660000]! text-white! border-transparent!"
+                      className="w-full justify-center rounded-xl py-3 text-sm font-black bg-[#E5484D]! hover:bg-[#C43D42]! text-white! border-transparent!"
                     />
                     <button
                       onClick={handleChat}
@@ -1319,7 +1319,7 @@ function ProfilePage() {
                   <div className="mt-3 flex items-center gap-2">
                     <button
                       onClick={() => setEditProfileOpen(true)}
-                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#8B0000] px-4 py-3 text-sm font-black text-white hover:bg-[#660000]"
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#E5484D] px-4 py-3 text-sm font-black text-white hover:bg-[#C43D42]"
                     >
                       <Pencil className="h-4 w-4" strokeWidth={2.5} /> Edit profile
                     </button>
@@ -1349,7 +1349,7 @@ function ProfilePage() {
                       <button
                         type="button"
                         onClick={() => setAboutExpanded((v) => !v)}
-                        className="mt-2 text-xs font-bold text-[#8B0000] hover:underline"
+                        className="mt-2 text-xs font-bold text-[#E5484D] hover:underline"
                       >
                         {aboutExpanded ? "Show less" : "Read more"}
                       </button>
@@ -1368,7 +1368,7 @@ function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => setEditProfileOpen(true)}
-                          className="shrink-0 text-xs font-bold text-[#8B0000] hover:underline"
+                          className="shrink-0 text-xs font-bold text-[#E5484D] hover:underline"
                         >
                           Edit
                         </button>
@@ -1387,7 +1387,7 @@ function ProfilePage() {
                         <button
                           type="button"
                           onClick={() => setEditProfileOpen(true)}
-                          className="shrink-0 rounded-full border border-dashed border-[#8B0000]/60 bg-[#1A1A1F] px-3.5 py-2 text-xs font-bold text-[#E5484D] hover:bg-[#232329] md:bg-white"
+                          className="shrink-0 rounded-full border border-dashed border-[#E5484D]/60 bg-[#1A1A1F] px-3.5 py-2 text-xs font-bold text-[#E5484D] hover:bg-[#232329] md:bg-white"
                         >
                           + Add interests
                         </button>
@@ -1436,7 +1436,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   overviewMode && !photosMode
-                    ? "text-white md:text-slate-900 border-[#8B0000]"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
@@ -1458,7 +1458,7 @@ function ProfilePage() {
                       }}
                       className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                         tab === key && !photosMode && !overviewMode
-                          ? "text-white md:text-slate-900 border-[#8B0000]"
+                          ? "text-white md:text-slate-900 border-[#E5484D]"
                           : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                       }`}
                     >
@@ -1479,7 +1479,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
-                    ? "text-white md:text-slate-900 border-[#8B0000]"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
