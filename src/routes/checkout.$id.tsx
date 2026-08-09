@@ -660,6 +660,60 @@ function CheckoutPage() {
                 </div>
               )}
 
+              {isService && (
+                <>
+                  {servicePackage && (
+                    <div
+                      className={`mt-2 rounded-xl border p-4 ${
+                        isAppShell
+                          ? "border-white/5 bg-[#16161A]"
+                          : "border-slate-200 bg-white shadow-sm"
+                      }`}
+                    >
+                      <div
+                        className={`text-xs font-bold uppercase tracking-widest mb-2 ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                      >
+                        Selected package
+                      </div>
+                      <div className="flex items-start justify-between gap-3">
+                        <div className="min-w-0">
+                          <div
+                            className={`text-sm font-black ${isAppShell ? "text-white" : "text-slate-900"}`}
+                          >
+                            {servicePackage.name}
+                          </div>
+                          {servicePackage.summary && (
+                            <p
+                              className={`mt-1 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                            >
+                              {servicePackage.summary}
+                            </p>
+                          )}
+                          <div
+                            className={`mt-2 flex flex-wrap gap-x-4 gap-y-1 text-[11px] ${isAppShell ? "text-slate-400" : "text-slate-600"}`}
+                          >
+                            {servicePackage.deliveryDays != null && (
+                              <span>
+                                {servicePackage.deliveryDays}-day delivery
+                              </span>
+                            )}
+                            {servicePackage.revisions != null && (
+                              <span>{servicePackage.revisions} revisions</span>
+                            )}
+                          </div>
+                        </div>
+                        <span
+                          className={`shrink-0 text-sm font-black ${isAppShell ? "text-white" : "text-slate-900"}`}
+                        >
+                          {fmtPrice(unitUSD, baseCurrency, product, unitLocal)}
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  <ServiceBriefForm value={brief} onChange={setBrief} dark={isAppShell} />
+                </>
+              )}
+
               {needsDelivery && (
                 <div
                   className={`mt-2 rounded-xl border p-4 ${

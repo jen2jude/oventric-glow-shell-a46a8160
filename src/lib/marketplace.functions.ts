@@ -6,7 +6,7 @@ import { dbCurrency } from "@/lib/currency/africa";
 import { fallbackRateTable } from "@/lib/currency/africa";
 
 export type ProductCategory = string;
-export type ProductKind = "digital" | "physical";
+export type ProductKind = "digital" | "physical" | "service";
 export type ProductStatus = "pending" | "active" | "rejected";
 /** Any currency in the pan-African registry (see @/lib/currency/africa). */
 export type OrderCurrency = string;
