@@ -1591,6 +1591,7 @@ function ProfilePage() {
                   itemSearch={itemSearch}
                   onOpenSection={(key) => {
                     if (key === "about") {
+                      document
                         .querySelector('[data-testid="profile-banner"]')
                         ?.scrollIntoView({ behavior: "smooth", block: "start" });
                       return;
