@@ -57,19 +57,18 @@ const EMPTY_STATS: ProfileAbout["stats"] = {
 
 function toEntries(value: unknown): AboutEntry[] {
   if (!Array.isArray(value)) return [];
-  return value
-    .map((raw) => {
-      const r = (raw ?? {}) as Record<string, unknown>;
-      const title = typeof r["title"] === "string" ? r["title"].trim() : "";
-      if (!title) return null;
-      return {
-        title: title.slice(0, 120),
-        subtitle: typeof r["subtitle"] === "string" ? r["subtitle"].trim().slice(0, 160) : "",
-        year: typeof r["year"] === "string" ? r["year"].trim().slice(0, 24) : "",
-      } satisfies AboutEntry;
-    })
-    .filter((e): e is AboutEntry => !!e)
-    .slice(0, 20);
+  const out: AboutEntry[] = [];
+  for (const raw of value) {
+    const r = (raw ?? {}) as Record<string, unknown>;
+    const title = typeof r["title"] === "string" ? r["title"].trim() : "";
+    if (!title) continue;
+    out.push({
+      title: title.slice(0, 120),
+      subtitle: typeof r["subtitle"] === "string" ? r["subtitle"].trim().slice(0, 160) : "",
+      year: typeof r["year"] === "string" ? r["year"].trim().slice(0, 24) : "",
+    });
+  }
+  return out.slice(0, 20);
 }
 
 const Input = z.object({ idOrSlug: z.string().trim().min(1).max(120) });
@@ -82,7 +81,7 @@ export const getProfileAbout = createServerFn({ method: "GET" })
 
     const q = supabaseAdmin
       .from("profiles")
-      .select("user_id, bio, created_at, education, certifications, languages")
+      .select("user_id, bio, created_at, education, certifications, languages" as never)
       .limit(1);
     const { data: prof } = UUID_RE.test(data.idOrSlug)
       ? await q.eq("user_id", data.idOrSlug).maybeSingle()
@@ -154,7 +153,7 @@ export const getProfileAbout = createServerFn({ method: "GET" })
         .neq("kind", "service"),
       supabaseAdmin.from("products").select("id", head).eq("seller_id", userId).eq("kind", "service"),
       supabaseAdmin.from("posts").select("id", head).eq("author_id", userId),
-      supabaseAdmin.from("follows").select("follower_id", head).eq("following_id", userId),
+      supabaseAdmin.from("follows").select("follower_id", head).eq("followee_id", userId),
       supabaseAdmin.from("circle_members").select("circle_id", head).eq("user_id", userId),
     ]);
 
@@ -249,7 +248,7 @@ export const saveMyAbout = createServerFn({ method: "POST" })
 
     const { error } = await context.supabase
       .from("profiles")
-      .update(patch)
+      .update(patch as never)
       .eq("user_id", context.userId);
     if (error) {
       console.error("[saveMyAbout] update failed", error);
