@@ -81,7 +81,7 @@ export const getProfileAbout = createServerFn({ method: "GET" })
 
     const q = supabaseAdmin
       .from("profiles")
-      .select("user_id, bio, created_at, education, certifications, languages" as never)
+      .select("user_id, bio, created_at, education, certifications, languages")
       .limit(1);
     const { data: prof } = UUID_RE.test(data.idOrSlug)
       ? await q.eq("user_id", data.idOrSlug).maybeSingle()
