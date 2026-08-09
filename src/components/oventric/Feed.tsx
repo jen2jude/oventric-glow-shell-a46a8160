@@ -1883,13 +1883,13 @@ export function Feed() {
 
                   {/* Action bar */}
                   <div
-                    className={`relative grid grid-cols-3 items-center gap-1 mt-2 pt-1.5 md:border-slate-200 md:text-slate-600 text-xs ${
+                    className={`relative flex items-center gap-1 mt-2 pt-1.5 md:border-slate-200 md:text-slate-600 text-xs ${
                       isAppShell
-                        ? "border-t border-white/[0.06] px-2 pb-2 text-white/55 md:px-0 md:pb-0"
+                        ? "border-t border-white/[0.06] px-3 pb-2 text-white/55 md:px-0 md:pb-0"
                         : "border-t border-white/5 text-slate-400"
                     }`}
                   >
-                    <div className="relative flex items-center justify-center">
+                    <div className="relative">
                       <button
                         type="button"
                         onClick={() => {
@@ -1899,7 +1899,7 @@ export function Feed() {
                             setPickerFor((v) => (v === post.id ? null : post.id));
                           }
                         }}
-                        className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
+                        className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
                         style={{
                           color: post.viewer_reaction
                             ? REACTION_META[post.viewer_reaction].color
@@ -1913,11 +1913,13 @@ export function Feed() {
                           animate={false}
                           className="w-[18px] h-[18px]"
                         />
-                        {post.viewer_reaction ? REACTION_META[post.viewer_reaction].label : "React"}
+                        {post.likes_count > 0 && (
+                          <span>{compactCount(post.likes_count)}</span>
+                        )}
                       </button>
                       {pickerFor === post.id && (
                         <ReactionPicker
-                          align="center"
+                          align="left"
                           onPick={(r) => {
                             setPickerFor(null);
                             handleReact(post, r);
@@ -1929,19 +1931,36 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
-                      <MessageSquare className="w-4 h-4" /> Comment
+                      <MessageCircle className="w-[18px] h-[18px]" />
+                      {post.comments_count > 0 && (
+                        <span>{compactCount(post.comments_count)}</span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRepostTarget(post)}
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      style={{ color: post.viewer_reposted ? "#E5484D" : undefined }}
+                      aria-label="Repost"
+                    >
+                      <Repeat2 className="w-[19px] h-[19px]" />
+                      {(post.reposts_count ?? 0) > 0 && (
+                        <span>{compactCount(post.reposts_count)}</span>
+                      )}
                     </button>
                     <button
                       type="button"
                       onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      aria-label="Share"
                     >
-                      <Share2 className="w-4 h-4" /> Share
+                      <Share2 className="w-[18px] h-[18px]" />
                     </button>
                   </div>
+
 
 
 
