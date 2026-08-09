@@ -134,7 +134,7 @@ export function StoryViewerModal({
 
   if (!group || !item || typeof document === "undefined") return null;
 
-  const onReact = async (emoji: string) => {
+  const onReact = async (emoji: string, openChat = false) => {
     setSent(emoji);
     // Floating burst from the reaction stack upward.
     const burst = Array.from({ length: 5 }, (_, k) => ({
@@ -148,7 +148,7 @@ export function StoryViewerModal({
     }, 2200);
     try {
       const res: any = await react({ data: { storyId: item.id, emoji } });
-      if (res?.peerId && !res.skipped) {
+      if (openChat && res?.peerId && !res.skipped) {
         window.dispatchEvent(
           new CustomEvent("oventric:navigate-section", { detail: { section: "Messages" } }),
         );
@@ -160,6 +160,7 @@ export function StoryViewerModal({
       /* silent */
     }
   };
+
 
 
   return createPortal(
@@ -187,13 +188,20 @@ export function StoryViewerModal({
 
         {/* Header */}
         <div className="absolute left-0 right-0 top-6 z-20 flex items-center gap-2.5 px-4 pt-2">
-          <span className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-[#E5484D]">
-            <AvatarImage src={group.avatarUrl} alt={group.displayName} />
-          </span>
-          <div className="min-w-0">
-            <p className="truncate text-[13.5px] font-semibold text-white">{group.displayName}</p>
-            <p className="text-[11px] text-white/55">{timeAgo(item.createdAt)} ago</p>
-          </div>
+          <a
+            href={`/profile/${group.slug}`}
+            onClick={(e) => e.stopPropagation()}
+            className="flex min-w-0 items-center gap-2.5 active:scale-[0.98] transition-transform"
+          >
+            <span className="h-9 w-9 shrink-0 overflow-hidden rounded-full ring-2 ring-[#E5484D]">
+              <AvatarImage src={group.avatarUrl} alt={group.displayName} />
+            </span>
+            <div className="min-w-0">
+              <p className="truncate text-[13.5px] font-semibold text-white">{group.displayName}</p>
+              <p className="text-[11px] text-white/55">{timeAgo(item.createdAt)} ago</p>
+            </div>
+          </a>
+
           <button
             type="button"
             onClick={onClose}
@@ -284,12 +292,13 @@ export function StoryViewerModal({
               ))}
               <button
                 type="button"
-                onClick={() => onReact("💬")}
+                onClick={() => onReact("💬", true)}
                 aria-label="Reply in chat"
                 className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-[#E5484D] text-white active:scale-95"
               >
                 <Send className="h-4 w-4" />
               </button>
+
             </div>
           </div>
         )}
