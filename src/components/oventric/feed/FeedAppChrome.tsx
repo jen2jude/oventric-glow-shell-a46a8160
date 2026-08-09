@@ -67,7 +67,13 @@ export function FeedAppChrome({
     progress,
     upload,
     refresh,
+    trimRequest,
+    trimWorking,
+    trimProgress,
+    cancelTrim,
+    confirmTrim,
   } = useStoryRail(true);
+
   const myGroup = storyGroups.find((g) => g.isMe) ?? null;
   const openViewer = (index: number) => setViewerAt(index >= 0 ? index : 0);
 
