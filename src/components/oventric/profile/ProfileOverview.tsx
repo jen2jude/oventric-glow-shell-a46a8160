@@ -34,7 +34,6 @@ interface Props {
   website?: string | null;
   joined?: string;
   skills: string[];
-  interests: string[];
   /** Section -> item count, so empty modules never render. */
   counts: Partial<Record<EcosystemSectionKey, number>>;
   isOwner: boolean;
@@ -111,7 +110,6 @@ export function ProfileOverview({
   website,
   joined,
   skills,
-  interests,
   counts,
   isOwner,
   price,
@@ -236,16 +234,6 @@ export function ProfileOverview({
                 </span>
               )}
             </div>
-          </div>
-        </Module>
-      )}
-
-      {interests.length > 0 && (
-        <Module title="Interests">
-          <div className="flex flex-wrap gap-2">
-            {interests.map((i) => (
-              <Chip key={i} label={i} />
-            ))}
           </div>
         </Module>
       )}

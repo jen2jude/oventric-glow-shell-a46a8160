@@ -1575,7 +1575,6 @@ function ProfilePage() {
                   website={realProfile?.socialLinks?.website ?? null}
                   joined={displayJoined}
                   skills={realProfile?.skills ?? []}
-                  interests={realProfile?.interests ?? []}
                   counts={Object.fromEntries(
                     ecosystemSections.map((sct) => [sct.key, sct.count ?? 0]),
                   )}
