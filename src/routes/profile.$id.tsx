@@ -1696,6 +1696,17 @@ function ProfilePage() {
                     );
                   }
                   if (initialLoading) return <TabSkeleton variant={tab} />;
+                  if (tab === "courses") {
+                    return (
+                      <ProfileCoursesTab
+                        items={st.items as ProfileListing[]}
+                        total={st.total ?? st.items.length}
+                        isOwner={isOwnProfile}
+                        price={price}
+                        slug={id}
+                      />
+                    );
+                  }
                   if (isEmpty) {
                     const empty = emptyContentFor(
                       tab,
