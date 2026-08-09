@@ -1231,10 +1231,6 @@ function ProfilePage() {
                           .replace(/\/$/, "")}
                       </a>
                     )}
-                    <span className="inline-flex items-center gap-1.5">
-                      <Star className="h-3.5 w-3.5 text-amber-300 md:text-amber-600" />
-                      {displayStars.toFixed(1)}
-                    </span>
                   </div>
                 )}
 
