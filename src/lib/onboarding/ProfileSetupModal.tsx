@@ -67,7 +67,7 @@ export function ProfileSetupModalHost() {
         /* fail-open: gate reappears on retry */
       })
       .finally(() => setChecking(false));
-  }, [session?.user?.id, checked, getStatus]);
+  }, [session?.user?.id, checked, isAuthenticated, getStatus]);
 
   const handleDone = useCallback(
     (fullName: string, country: Country) => {
