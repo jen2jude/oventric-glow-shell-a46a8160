@@ -47,7 +47,7 @@ export function TruncatedText({
         <button
           type="button"
           onClick={() => setExpanded((v) => !v)}
-          className="mt-1 text-xs font-medium text-emerald-400 hover:text-emerald-300 focus:outline-none"
+          className="mt-1 text-xs font-medium text-[#E5484D] hover:text-emerald-300 focus:outline-none"
         >
           {expanded ? seeLessText : seeMoreText}
         </button>

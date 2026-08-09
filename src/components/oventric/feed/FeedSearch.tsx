@@ -46,7 +46,7 @@ export function FeedSearchBar({
       }
     >
       <div className="relative group">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-emerald-400 md:group-focus-within:text-emerald-600 transition-colors" />
+        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500 group-focus-within:text-[#E5484D] md:group-focus-within:text-[#E5484D] transition-colors" />
         <input
           type="search"
           role="searchbox"
@@ -59,8 +59,8 @@ export function FeedSearchBar({
           placeholder={appShell ? "Search feed" : "Search posts, bounties, assets…"}
           className={`w-full h-10 pl-10 pr-9 text-sm focus:outline-none transition-all ${
             appShell
-              ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-emerald-500/50"
-              : "rounded-lg bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-emerald-500/60 focus:ring-2 focus:ring-emerald-500/20"
+              ? "rounded-full bg-[#141416] border border-white/[0.06] text-white placeholder:text-white/30 focus:border-[#E5484D]/50"
+              : "rounded-lg bg-[#141418] md:bg-slate-100 border border-white/10 md:border-slate-200 text-slate-200 md:text-slate-900 placeholder:text-slate-500 focus:border-[#E5484D]/60 focus:ring-2 focus:ring-[#E5484D]/20"
           }`}
         />
         {q && (
@@ -91,7 +91,7 @@ export function FeedSearchBar({
               onClick={() => onCategoryChange(c.id)}
               className={`shrink-0 rounded-full px-4 py-1.5 text-xs transition-colors ${
                 active
-                  ? "bg-emerald-500 text-black font-semibold"
+                  ? "bg-[#E5484D] text-black font-semibold"
                   : appShell
                     ? "bg-[#141416] border border-white/[0.06] text-white/60 font-medium hover:text-white"
                     : "bg-white/[0.06] md:bg-slate-100 text-slate-300 md:text-slate-600 font-semibold hover:bg-white/10 md:hover:bg-slate-200"
@@ -197,7 +197,7 @@ export function FeedGlobalResults({ q, category }: { q: string; category: FeedCa
               {p.avatarUrl ? (
                 <img src={p.avatarUrl} alt="" className="w-8 h-8 rounded-full object-cover" />
               ) : (
-                <span className="w-8 h-8 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+                <span className="w-8 h-8 rounded-full bg-[#E5484D]/20 text-[#E5484D] flex items-center justify-center">
                   <User className="w-3.5 h-3.5" />
                 </span>
               )}
