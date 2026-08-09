@@ -255,9 +255,10 @@ export function StoryViewerModal({
               key={f.id}
               className="absolute bottom-0 left-1/2 text-[26px] story-float"
               style={{
-                transform: `translateX(${f.x}px)`,
+                ["--tx" as never]: `${f.x}px`,
                 animationDelay: `${idx * 90}ms`,
               }}
+
             >
               {f.emoji}
             </span>
