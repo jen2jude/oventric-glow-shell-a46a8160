@@ -55,15 +55,27 @@ export function FeedAppChrome({
   meAvatarUrl,
   meInitials,
   meSlug,
-  onAddStory,
 }: Props) {
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [people, setPeople] = useState<TopUser[]>([]);
+  const [viewerAt, setViewerAt] = useState<number | null>(null);
+  const fileRef = useRef<HTMLInputElement | null>(null);
+
+  const {
+    groups: storyGroups,
+    uploading,
+    progress,
+    upload,
+    refresh,
+  } = useStoryRail(true);
+  const myGroup = storyGroups.find((g) => g.isMe) ?? null;
+  const openViewer = (index: number) => setViewerAt(index >= 0 ? index : 0);
 
   const unreadNotifs = useUnreadNotificationsCount();
   const { messages } = useUnreadCounts();
   const loadTopUsers = useServerFn(getTopUsers);
+
 
   useEffect(() => {
     let cancelled = false;
