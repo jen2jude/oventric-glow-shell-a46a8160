@@ -223,7 +223,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-bold text-sky-400">Hub</div>
+            <div className="text-sm font-bold text-[#E5484D]">Hub</div>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-3xl md:text-4xl font-extrabold text-white tabular-nums truncate">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
@@ -379,7 +379,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
             </h2>
             <button
               onClick={() => onSelect("Feed")}
-              className="text-[11px] font-bold text-blue-400 hover:text-blue-300 transition-colors"
+              className="text-[11px] font-bold text-[#E5484D] hover:text-[#F2686C] transition-colors"
             >
               View all
             </button>
@@ -403,10 +403,10 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
                   </div>
                 </div>
                 <div className="flex flex-col items-center gap-0.5">
-                  <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-blue-400 transition-colors">
+                  <span className="text-[11px] font-bold text-slate-100 truncate w-16 text-center group-hover:text-[#E5484D] transition-colors">
                     {u.displayName.split(" ")[0]}
                   </span>
-                  <div className="w-1 h-1 rounded-full bg-blue-500/50 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <div className="w-1 h-1 rounded-full bg-[#E5484D]/60 opacity-0 group-hover:opacity-100 transition-opacity" />
                 </div>
               </Link>
             ))}
@@ -503,7 +503,7 @@ function MiniRail({
         <button
           type="button"
           onClick={onSeeAll}
-          className="text-xs font-semibold text-emerald-300 hover:text-emerald-200 inline-flex items-center gap-1"
+          className="text-xs font-semibold text-[#E5484D] hover:text-[#F2686C] inline-flex items-center gap-1"
         >
           See all <ChevronRight className="w-3.5 h-3.5" />
         </button>
@@ -533,7 +533,7 @@ function MiniRail({
             <span className="mt-1.5 block h-[28px] text-[11px] font-semibold text-white line-clamp-2 leading-[14px] overflow-hidden">
               {it.title}
             </span>
-            <span className="block text-[11px] text-emerald-300 font-bold truncate">{it.meta}</span>
+            <span className="block text-[11px] text-[#E5484D] font-bold truncate">{it.meta}</span>
           </button>
         ))}
       </div>

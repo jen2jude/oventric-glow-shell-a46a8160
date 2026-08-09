@@ -39,7 +39,7 @@ export function MobileNav({
           onSelect(it.label);
         }}
         className={`nav-tap relative flex flex-col items-center justify-center gap-0.5 flex-1 py-1 min-w-0 ${
-          isActive ? "text-emerald-400" : "text-white"
+          isActive ? "text-[#E5484D]" : "text-white"
         }`}
       >
         <span className="relative">
