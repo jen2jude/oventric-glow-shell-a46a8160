@@ -302,6 +302,87 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </div>
       </section>
 
+      {/* Uniform 8-icon navigation grid */}
+      <section>
+        <div className="grid grid-cols-4 gap-y-5 gap-x-2">
+          {TILES.map((t) => {
+            const sectionUnread =
+              t.label === "Messages"
+                ? unread.messages + (unread.sections["Messages"] ?? 0)
+                : (unread.sections[t.label] ?? 0);
+            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
+            const inner = (
+              <span className="flex flex-col items-center gap-2">
+                <span className="relative inline-flex items-center justify-center">
+                  <t.icon className="w-7 h-7 text-white" strokeWidth={1.5} />
+                  <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
+                </span>
+                <span className="text-[13px] font-medium text-slate-100 leading-tight text-center">
+                  {t.label}
+                </span>
+              </span>
+            );
+            const cls = "py-1 active:scale-95 transition-transform";
+            return t.to ? (
+              <Link key={t.label} to={t.to} className={cls}>
+                {inner}
+              </Link>
+            ) : (
+              <button
+                key={t.label}
+                type="button"
+                onClick={() => (t.section === "Messages" ? onOpenMessages() : onSelect(t.section!))}
+                className={cls}
+              >
+                {inner}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Secondary destinations */}
+        <div className="mt-5 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-[12px] font-medium text-slate-500">
+          {MORE_LINKS.map((l) =>
+            l.to ? (
+              <Link key={l.label} to={l.to} className="hover:text-slate-200 transition-colors">
+                {l.label}
+              </Link>
+            ) : (
+              <button
+                key={l.label}
+                type="button"
+                onClick={() => onSelect("Wallet")}
+                className="hover:text-slate-200 transition-colors"
+              >
+                {l.label}
+              </button>
+            ),
+          )}
+          <button
+            type="button"
+            onClick={() => requireTier(2, () => setSellOpen(true))}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Sell
+          </button>
+          <button
+            type="button"
+            onClick={() => requireTier(2, () => setCourseOpen(true))}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Publish course
+          </button>
+          <button
+            type="button"
+            onClick={() => onCreate("bounty")}
+            className="hover:text-slate-200 transition-colors"
+          >
+            Post bounty
+          </button>
+        </div>
+      </section>
+
+
 
       {/* Top Users Section */}
       {topUsers.length > 0 && (
@@ -347,104 +428,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </section>
       )}
 
-      {/* Feature grid */}
-
-      <section>
-        <h2 className="text-sm font-bold text-white mb-2">Everything on Oventric</h2>
-        <div className="grid grid-cols-4 sm:grid-cols-6 gap-2 md:gap-3">
-          {TILES.map((t, i) => {
-            const sectionUnread =
-              t.label === "Messages"
-                ? unread.messages + (unread.sections["Messages"] ?? 0)
-                : (unread.sections[t.label] ?? 0);
-            const count = (t.countKey ? (counts?.[t.countKey] ?? 0) : 0) + sectionUnread;
-            const inner = (
-              <span className="flex flex-col items-center gap-1.5">
-                <span
-                  className={`relative w-12 h-12 md:w-14 md:h-14 rounded-[10px] bg-gradient-to-b ${t.tint} border border-white/10 flex items-center justify-center hub-card-solid `}
-                >
-                  {t.img ? (
-                    <img
-                      src={t.img}
-                      alt=""
-                      aria-hidden
-                      className="w-8 h-8 md:w-9 md:h-9 object-contain"
-                      loading="eager"
-                    />
-                  ) : t.icon ? (
-                    <t.icon className="w-6 h-6 text-white" strokeWidth={2.5} />
-                  ) : null}
-                  <CountBadge count={count} ariaLabel={`${count} new in ${t.label}`} />
-                </span>
-                <span className="text-[11px] font-semibold text-white leading-tight text-center">
-                  {t.label}
-                </span>
-                <span className="text-[9px] text-slate-500 leading-none text-center hidden sm:block">
-                  {t.caption}
-                </span>
-              </span>
-            );
-            const cls =
-              "hub-tile p-1.5 rounded-[10px] hover:bg-white/5 active:scale-95 transition-transform";
-
-            const style = { animationDelay: `${Math.min(i, 11) * 28}ms` } as const;
-            return t.to ? (
-              <Link key={t.label} to={t.to} className={cls} style={style}>
-                {inner}
-              </Link>
-            ) : (
-              <button
-                key={t.label}
-                type="button"
-                style={style}
-                onClick={() => (t.section === "Messages" ? onOpenMessages() : onSelect(t.section!))}
-                className={cls}
-              >
-                {inner}
-              </button>
-            );
-          })}
-        </div>
-      </section>
-
-      {/* Promo rail */}
-      <section
-        aria-label="Promotions"
-        className="flex gap-3 overflow-x-auto overscroll-x-contain touch-pan-x scroll-pl-3 pb-3 pt-1 -mx-3 px-3 snap-x snap-mandatory [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden md:mx-0 md:px-0 md:pb-2 md:grid md:grid-cols-3 md:gap-4 md:overflow-visible md:snap-none"
-      >
-        <PromoCard
-          id="cashback"
-          title="Earn 2% cashback"
-          highlight="on every order"
-          body="Money back into your cashback wallet."
-          cta="Shop now"
-          onClick={() => onSelect("Marketplace")}
-          art={promoCashbackArt}
-          gradient="linear-gradient(135deg,#FFD22E 0%,#FFB020 55%,#FF8A3D 100%)"
-        />
-        <PromoCard
-          id="refer"
-          title="Refer & earn"
-          highlight="both sides win"
-          body="Invite builders and earn from their activity."
-          cta="Invite friends"
-          to="/affiliate"
-          search={{ reserve: "1" }}
-          art={promoReferArt}
-          gradient="linear-gradient(135deg,#7DE2A8 0%,#2ED3A0 55%,#12B39B 100%)"
-        />
-        <PromoCard
-          id="advertise"
-          title="Advertise here"
-          highlight="reach thousands"
-          body="Put your product in front of Africa's builders."
-          cta="Start a campaign"
-          to="/advertise"
-          search={{ start: "image" }}
-          art={promoAdvertiseArt}
-          gradient="linear-gradient(135deg,#7BC5FF 0%,#3D8DFF 55%,#6B5BFF 100%)"
-        />
-      </section>
 
       {/* Live strips */}
       <MiniRail
