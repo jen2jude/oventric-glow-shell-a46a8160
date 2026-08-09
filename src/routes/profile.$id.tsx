@@ -112,6 +112,7 @@ import { ProfileCoursesTab } from "@/components/oventric/profile/ProfileCoursesT
 import { ProfileServicesTab } from "@/components/oventric/profile/ProfileServicesTab";
 import { ProfileSkillsTab } from "@/components/oventric/profile/ProfileSkillsTab";
 import { ProfileCollectionsTab } from "@/components/oventric/profile/ProfileCollectionsTab";
+import { ProfileAboutTab } from "@/components/oventric/profile/ProfileAboutTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -263,6 +264,7 @@ function ProfilePage() {
     ? (search.sort as ProfileSortKey)
     : "newest";
   const [photosMode, setPhotosMode] = useState(false);
+  const [aboutMode, setAboutMode] = useState(false);
   const [connectionsOpen, setConnectionsOpen] = useState(false);
   const [connectionsTab, setConnectionsTab] = useState<ConnectionsTab>("followers");
   const onlineUsers = useOnlineUsers();
@@ -1523,6 +1525,7 @@ function ProfilePage() {
                 key="overview"
                 onClick={() => {
                   setPhotosMode(false);
+                  setAboutMode(false);
                   const targetY = tabsTopY();
                   pinAcrossChange(targetY);
                   navigate({
@@ -1535,7 +1538,7 @@ function ProfilePage() {
                 }}
 
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  overviewMode && !photosMode
+                  overviewMode && !photosMode && !aboutMode
                     ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
@@ -1554,10 +1557,11 @@ function ProfilePage() {
                       key={key}
                       onClick={() => {
                         setPhotosMode(false);
+                        setAboutMode(false);
                         changeTab(key);
                       }}
                       className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                        tab === key && !photosMode && !overviewMode
+                        tab === key && !photosMode && !aboutMode && !overviewMode
                           ? "text-white md:text-slate-900 border-[#E5484D]"
                           : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                       }`}
@@ -1574,22 +1578,40 @@ function ProfilePage() {
                 onClick={() => {
                   const currentY = tabsTopY();
                   pinAcrossChange(currentY);
+                  setAboutMode(false);
                   setPhotosMode(true);
                   requestAnimationFrame(() => restoreScroll(currentY));
 
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
-                  photosMode
+                  photosMode && !aboutMode
                     ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
                 Photos
               </button>
+              <button
+                key="about"
+                onClick={() => {
+                  const currentY = tabsTopY();
+                  pinAcrossChange(currentY);
+                  setPhotosMode(false);
+                  setAboutMode(true);
+                  requestAnimationFrame(() => restoreScroll(currentY));
+                }}
+                className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
+                  aboutMode
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
+                    : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
+                }`}
+              >
+                About
+              </button>
             </nav>
 
             {/* Search + sort */}
-            {!overviewMode && !photosMode && tab !== "skills" && tab !== "collections" && (
+            {!overviewMode && !photosMode && !aboutMode && tab !== "skills" && tab !== "collections" && (
               <TabFilters
                 tab={tab}
                 q={q}
@@ -1653,7 +1675,14 @@ function ProfilePage() {
 
             {/* Tab content */}
             <section data-testid="profile-tab-content" className="mt-5 space-y-3">
-              {overviewMode && !photosMode ? (
+              {aboutMode ? (
+                <ProfileAboutTab
+                  idOrSlug={id}
+                  name={displayName}
+                  isOwner={isOwnProfile}
+                  price={price}
+                />
+              ) : overviewMode && !photosMode ? (
                 <ProfileOverview
                   idOrSlug={id}
                   profileId={profile.id}
