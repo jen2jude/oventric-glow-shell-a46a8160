@@ -1570,10 +1570,11 @@ function ProfilePage() {
               <button
                 key="photos"
                 onClick={() => {
-                  const currentY = getScrollY();
+                  const currentY = tabsTopY();
                   pinAcrossChange(currentY);
                   setPhotosMode(true);
                   requestAnimationFrame(() => restoreScroll(currentY));
+
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
