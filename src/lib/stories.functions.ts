@@ -133,10 +133,13 @@ export const listStories = createServerFn({ method: "GET" })
 
     const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
     const mediaByPath = new Map<string, string>();
+    const posterPaths = rows
+      .filter((r: any) => r.media_type === "video")
+      .map((r: any) => `${r.media_path}.poster.jpg`);
     const { data: mediaSigned } = await supabaseAdmin.storage
       .from("story-media")
       .createSignedUrls(
-        rows.map((r: any) => r.media_path),
+        [...rows.map((r: any) => r.media_path), ...posterPaths],
         60 * 60 * 6,
       );
     (mediaSigned ?? []).forEach((s: any) => {
@@ -168,11 +171,14 @@ export const listStories = createServerFn({ method: "GET" })
         id: r.id,
         mediaUrl: url,
         mediaType: r.media_type === "video" ? "video" : "image",
+        posterUrl:
+          r.media_type === "video" ? (mediaByPath.get(`${r.media_path}.poster.jpg`) ?? null) : null,
         createdAt: r.created_at,
         expiresAt: r.expires_at,
         viewed: isViewed,
       });
     });
+
 
     const list = Array.from(groups.values());
     list.sort((a, b) => {
