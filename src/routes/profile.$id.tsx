@@ -1062,7 +1062,7 @@ function ProfilePage() {
               className="profile-card-safe profile-standard-header mb-6"
             >
               {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
+              <div className="profile-cover-safe relative h-40 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -1071,9 +1071,10 @@ function ProfilePage() {
                     className="block h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-fuchsia-500/25" />
+                  <div className="w-full h-full bg-[linear-gradient(135deg,#1b1b20_0%,#26161a_55%,#3a1218_100%)]" />
                 )}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/50 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/60 to-transparent" />
+
                 {isOwnProfile && (
                   <button
                     type="button"
@@ -1098,152 +1099,114 @@ function ProfilePage() {
                 )}
               </div>
 
-              {/* Centered identity — avatar overlaps cover from the top */}
-              <div className="-mt-14 sm:-mt-16 flex flex-col items-center px-4">
-                <div className="relative">
-                  <div className="profile-avatar-safe w-28 h-28 sm:w-32 sm:h-32 rounded-full bg-emerald-500 ring-4 ring-[#121214] shadow-[0_0_0_1px_rgba(96, 165, 250,0.45),0_18px_40px_-18px_rgba(59, 130, 246,0.7)] flex items-center justify-center text-black text-3xl font-black overflow-hidden">
-                    {displayAvatar ? (
-                      <ResponsiveImage
-                        src={displayAvatar}
-                        alt={`${displayName} avatar`}
-                        sizes="128px"
-                        className="block w-full h-full rounded-full object-cover"
-                      />
-                    ) : (
-                      displayInitials
+              {/* Identity — avatar overlaps the cover from the left, app-style */}
+              <div className="-mt-12 px-1">
+                <div className="grid grid-cols-[auto_minmax(0,1fr)] items-end gap-3">
+                  <div className="relative shrink-0">
+                    <div className="profile-avatar-safe w-24 h-24 sm:w-28 sm:h-28 rounded-full bg-[#E5484D] ring-[3px] ring-[#E5484D]/70 outline outline-4 outline-[#121214] flex items-center justify-center text-white text-3xl font-black overflow-hidden">
+                      {displayAvatar ? (
+                        <ResponsiveImage
+                          src={displayAvatar}
+                          alt={`${displayName} avatar`}
+                          sizes="128px"
+                          className="block w-full h-full rounded-full object-cover"
+                        />
+                      ) : (
+                        displayInitials
+                      )}
+                    </div>
+                    <span
+                      className="absolute bottom-0.5 right-0.5 grid h-7 w-7 place-items-center rounded-full bg-[#2f6fed] border-[3px] border-[#121214]"
+                      aria-label={displayTierLabel}
+                    >
+                      <Check className="h-3.5 w-3.5 text-white" strokeWidth={3.5} />
+                    </span>
+                    {isOwnProfile && (
+                      <button
+                        type="button"
+                        onClick={() => avatarInputRef.current?.click()}
+                        disabled={uploading === "avatar"}
+                        aria-label="Change profile picture"
+                        className="absolute -top-1 -right-1 w-8 h-8 rounded-full bg-black/70 hover:bg-black text-white border border-white/20 flex items-center justify-center"
+                      >
+                        {uploading === "avatar" ? (
+                          <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                        ) : (
+                          <Camera className="w-3.5 h-3.5" strokeWidth={2.4} />
+                        )}
+                      </button>
                     )}
                   </div>
-                  {isOwnProfile && (
+
+                  {/* Quick actions, bottom-aligned against the cover edge */}
+                  <div className="flex items-center justify-end gap-2 pb-1">
+                    {!isOwnProfile && realProfile?.userId && (
+                      <button
+                        onClick={handleChat}
+                        aria-label={`Message ${displayName}`}
+                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-200 md:text-slate-700 hover:bg-[#232329]"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                      </button>
+                    )}
                     <button
-                      type="button"
-                      onClick={() => avatarInputRef.current?.click()}
-                      disabled={uploading === "avatar"}
-                      aria-label="Change profile picture"
-                      className="absolute bottom-1 right-1 w-9 h-9 rounded-full bg-emerald-500 hover:bg-emerald-400 text-black border-2 border-[#121214] flex items-center justify-center shadow-lg"
+                      onClick={shareProfile}
+                      aria-label="Share profile"
+                      className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-200 md:text-slate-700 hover:bg-[#232329]"
                     >
-                      {uploading === "avatar" ? (
-                        <Loader2 className="w-4 h-4 animate-spin" />
-                      ) : (
-                        <Camera className="w-4 h-4" strokeWidth={2.4} />
-                      )}
+                      <Share2 className="h-4 w-4" />
                     </button>
+                    {isOwnProfile ? (
+                      <button
+                        onClick={() => setEditProfileOpen(true)}
+                        aria-label="Edit profile"
+                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-200 md:text-slate-700 hover:bg-[#232329]"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => setReportOpen(true)}
+                        aria-label="Report profile"
+                        className="grid h-10 w-10 place-items-center rounded-full border border-white/12 bg-[#1A1A1F] md:bg-white md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-[#E5484D]"
+                      >
+                        <Flag className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Name + role */}
+                <div className="mt-3">
+                  <div className="flex min-w-0 items-center gap-2">
+                    <h1 className="truncate text-2xl sm:text-3xl font-black leading-tight text-white md:text-slate-900">
+                      {displayName}
+                    </h1>
+                    <ShieldCheck
+                      className="h-5 w-5 shrink-0 text-[#2f6fed]"
+                      aria-label={displayTierLabel}
+                    />
+                  </div>
+                  <p className="mt-0.5 text-sm font-semibold text-slate-400 md:text-slate-500">
+                    {(realProfile?.skills ?? []).slice(0, 3).join(" • ") ||
+                      (realProfile?.username ? `@${realProfile.username}` : displayTierLabel)}
+                  </p>
+                  {realProfile?.username && (realProfile?.skills ?? []).length > 0 && (
+                    <p className="text-xs font-semibold text-slate-500">@{realProfile.username}</p>
                   )}
-                </div>
-
-                <div className="mt-3 flex items-center gap-2 flex-wrap justify-center">
-                  <h1 className="text-white md:text-slate-900 text-2xl sm:text-3xl font-black text-center leading-tight">
-                    {displayName}
-                  </h1>
-                  <ShieldCheck
-                    className="w-5 h-5 text-emerald-400 md:text-emerald-600"
-                    aria-label={displayTierLabel}
-                  />
-                </div>
-
-                <div className="mt-1 flex flex-wrap items-center justify-center gap-2">
-                  {realProfile?.username && (
-                    <span className="text-sm font-semibold text-slate-400 md:text-slate-500">
-                      @{realProfile.username}
-                    </span>
-                  )}
-                  {realProfile?.userId && (
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider ${
-                        isViewedUserOnline
-                          ? "border-emerald-400/40 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700"
-                          : "border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-400 md:text-slate-500"
-                      }`}
-                    >
-                      <span
-                        className={`h-2 w-2 rounded-full ${isViewedUserOnline ? "bg-emerald-400 animate-pulse" : "bg-slate-500"}`}
-                        aria-hidden
-                      />
-                      {isViewedUserOnline ? "Online now" : "Offline"}
-                    </span>
-                  )}
-                </div>
-
-                <div className="mt-2 flex flex-wrap items-center justify-center gap-1.5">
-                  <span className="inline-flex items-center gap-1 rounded-full bg-gradient-to-r from-emerald-500/20 to-cyan-500/20 border border-emerald-400/40 px-2.5 py-0.5 text-[10px] font-black uppercase tracking-wider text-emerald-300 md:text-emerald-700">
-                    <ShieldCheck className="w-3 h-3" /> {displayTierLabel}
-                  </span>
-                  <span className="inline-flex items-center gap-1 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-300 md:text-slate-600">
-                    <Star className="w-3 h-3 text-amber-300 md:text-amber-600" />{" "}
-                    {displayStars.toFixed(1)}
-                  </span>
-                  <span className="inline-flex items-center rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 px-2.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-400 md:text-slate-500">
-                    Joined {displayJoined}
-                  </span>
-                </div>
-
-                <div className="mt-3 flex flex-wrap items-center justify-center gap-x-5 gap-y-1 text-xs">
-                  <button
-                    type="button"
-                    onClick={() => openRelationships("followers")}
-                    aria-controls="relationships"
-                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-                  >
-                    <span className="font-bold text-white md:text-slate-900">
-                      {(socialCounts?.followers ?? 0).toLocaleString()}
-                    </span>{" "}
-                    <span className="text-slate-500 md:text-slate-500">followers</span>
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => openRelationships("following")}
-                    aria-controls="relationships"
-                    className="rounded text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-                  >
-                    <span className="font-bold text-white md:text-slate-900">
-                      {(socialCounts?.following ?? 0).toLocaleString()}
-                    </span>{" "}
-                    <span className="text-slate-500 md:text-slate-500">following</span>
-                  </button>
-                  <span className="text-slate-300 md:text-slate-600">
-                    <span className="font-bold text-white md:text-slate-900">
-                      {(socialCounts?.circleMembers ?? 0).toLocaleString()}
-                    </span>{" "}
-                    <span className="text-slate-500 md:text-slate-500">in circle</span>
-                  </span>
-                </div>
-
-                {/* Key stats */}
-                <div className="mt-4 grid w-full max-w-md grid-cols-3 gap-2">
-                  <HeaderStat
-                    icon={<Sparkles className="w-4 h-4 text-cyan-300" />}
-                    label="Posts"
-                    value={liveRep ? liveRep.metrics.postsTotal.toLocaleString() : "…"}
-                  />
-                  <HeaderStat
-                    icon={<Target className="w-4 h-4 text-emerald-300 md:text-emerald-700" />}
-                    label="Bounties"
-                    value={liveRep ? liveRep.metrics.bountiesSolved.toLocaleString() : "…"}
-                  />
-                  <HeaderStat
-                    icon={<Award className="w-4 h-4 text-amber-300 md:text-amber-600" />}
-                    label="Earnings"
-                    value={
-                      isOwnProfile
-                        ? overview
-                          ? `${overview.bounties.earnedCurrency} ${overview.bounties.earned.toLocaleString()}`
-                          : "…"
-                        : "Private"
-                    }
-                    muted={!isOwnProfile}
-                  />
                 </div>
 
                 {displayBio && (
-                  <p className="profile-mid-safe text-sm text-slate-300 md:text-slate-600 mt-3 leading-relaxed text-center max-w-md">
+                  <p className="profile-mid-safe mt-2.5 line-clamp-3 text-sm leading-relaxed text-slate-300 md:text-slate-600">
                     {displayBio}
                   </p>
                 )}
 
                 {(realProfile?.country?.trim() || realProfile?.socialLinks?.website) && (
-                  <div className="mt-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
+                  <div className="mt-2.5 flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-slate-400 md:text-slate-500">
                     {realProfile?.country?.trim() && (
                       <span className="inline-flex items-center gap-1.5">
-                        <MapPin className="w-3.5 h-3.5" /> {realProfile.country}
+                        <MapPin className="h-3.5 w-3.5" /> {realProfile.country}
                       </span>
                     )}
                     {realProfile?.socialLinks?.website && (
@@ -1251,43 +1214,133 @@ function ProfilePage() {
                         href={realProfile.socialLinks.website}
                         target="_blank"
                         rel="noopener noreferrer nofollow"
-                        className="inline-flex items-center gap-1.5 font-semibold text-emerald-400 md:text-emerald-600 hover:underline"
+                        className="inline-flex items-center gap-1.5 font-semibold text-[#2f6fed] hover:underline"
                       >
-                        <Globe className="w-3.5 h-3.5" />
-                        {realProfile.socialLinks.website.replace(/^https?:\/\//, "").replace(/\/$/, "")}
+                        <Globe className="h-3.5 w-3.5" />
+                        {realProfile.socialLinks.website
+                          .replace(/^https?:\/\//, "")
+                          .replace(/\/$/, "")}
                       </a>
                     )}
+                    <span className="inline-flex items-center gap-1.5">
+                      <Star className="h-3.5 w-3.5 text-amber-300 md:text-amber-600" />
+                      {displayStars.toFixed(1)}
+                    </span>
                   </div>
                 )}
 
+                {/* Stat strip */}
+                <div className="mt-4 grid grid-cols-4 divide-x divide-white/8 rounded-2xl border border-white/10 bg-[#141418] md:divide-slate-200 md:border-slate-200 md:bg-white md:shadow-sm">
+                  <button
+                    type="button"
+                    onClick={() => openRelationships("followers")}
+                    aria-controls="relationships"
+                    className="px-2 py-3 text-center"
+                  >
+                    <span className="block text-base font-black text-white md:text-slate-900">
+                      {compactCount(socialCounts?.followers ?? 0)}
+                    </span>
+                    <span className="block text-[11px] font-semibold text-slate-500">Followers</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => openRelationships("following")}
+                    aria-controls="relationships"
+                    className="px-2 py-3 text-center"
+                  >
+                    <span className="block text-base font-black text-white md:text-slate-900">
+                      {compactCount(socialCounts?.following ?? 0)}
+                    </span>
+                    <span className="block text-[11px] font-semibold text-slate-500">Following</span>
+                  </button>
+                  <div className="px-2 py-3 text-center">
+                    <span className="block text-base font-black text-white md:text-slate-900">
+                      {liveRep ? compactCount(liveRep.metrics.productsListed) : "…"}
+                    </span>
+                    <span className="block text-[11px] font-semibold text-slate-500">Products</span>
+                  </div>
+                  <div className="px-2 py-3 text-center">
+                    <span className="block text-base font-black text-white md:text-slate-900">
+                      {compactCount(
+                        ecosystemSections.find((s) => s.key === "services")?.count ?? 0,
+                      )}
+                    </span>
+                    <span className="block text-[11px] font-semibold text-slate-500">Services</span>
+                  </div>
+                </div>
+
+                {/* Primary actions */}
+                {!isOwnProfile && !identityMissing && realProfile?.userId && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <FollowButton
+                      targetId={realProfile.userId}
+                      className="w-full justify-center rounded-xl py-3 text-sm font-black bg-[#E5484D]! hover:bg-[#d13c41]! text-white! border-transparent!"
+                    />
+                    <button
+                      onClick={handleChat}
+                      aria-label={`Message ${displayName}`}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-[#1A1A1F] px-4 py-3 text-sm font-bold text-white hover:bg-[#232329] md:border-slate-300 md:bg-white md:text-slate-900 md:hover:bg-slate-100"
+                    >
+                      <MessageCircle className="h-4 w-4" /> Message
+                    </button>
+                    <button
+                      onClick={() => setJoinCircleOpen(true)}
+                      aria-label="Request to join one of this user's circles"
+                      className="grid h-11 w-11 shrink-0 place-items-center rounded-xl border border-white/12 bg-[#1A1A1F] text-slate-300 hover:bg-[#232329] md:border-slate-300 md:bg-white md:text-slate-600"
+                    >
+                      <Users className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+                {isOwnProfile && (
+                  <div className="mt-3 flex items-center gap-2">
+                    <button
+                      onClick={() => setEditProfileOpen(true)}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl bg-[#E5484D] px-4 py-3 text-sm font-black text-white hover:bg-[#d13c41]"
+                    >
+                      <Pencil className="h-4 w-4" strokeWidth={2.5} /> Edit profile
+                    </button>
+                    <button
+                      onClick={() => navigate({ to: "/" })}
+                      className="flex-1 inline-flex items-center justify-center gap-2 rounded-xl border border-white/12 bg-[#1A1A1F] px-4 py-3 text-sm font-bold text-white hover:bg-[#232329] md:border-slate-300 md:bg-white md:text-slate-900 md:hover:bg-slate-100"
+                    >
+                      Back to feed
+                    </button>
+                  </div>
+                )}
+
+                {/* What I'm into */}
                 {realProfile?.interests && realProfile.interests.length > 0 && (
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
-                    {realProfile.interests.map((s) => (
-                      <span
-                        key={s}
-                        className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-white/[0.06] md:bg-slate-100 text-slate-200 md:text-slate-700 border border-white/10 md:border-slate-200"
-                      >
-                        {s}
-                      </span>
-                    ))}
-                  </div>
-                )}
-
-                {realProfile?.skills && realProfile.skills.length > 0 && (
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-1.5 max-w-md">
-                    {realProfile.skills.map((s) => (
-                      <span
-                        key={s}
-                        className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-emerald-500/15 text-emerald-300 md:text-emerald-700 border border-emerald-500/30"
-                      >
-                        {s}
-                      </span>
-                    ))}
+                  <div className="mt-4">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                      <h2 className="truncate text-sm font-black text-white md:text-slate-900">
+                        What I&apos;m into
+                      </h2>
+                      {isOwnProfile && (
+                        <button
+                          type="button"
+                          onClick={() => setEditProfileOpen(true)}
+                          className="shrink-0 text-xs font-bold text-[#E5484D] hover:underline"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                    <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
+                      {realProfile.interests.map((s) => (
+                        <span
+                          key={s}
+                          className="shrink-0 rounded-full border border-white/10 bg-[#1A1A1F] px-3.5 py-2 text-xs font-bold text-slate-200 md:border-slate-200 md:bg-slate-100 md:text-slate-700"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                    </div>
                   </div>
                 )}
 
                 {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
-                  <div className="mt-3 flex flex-wrap items-center justify-center gap-2">
+                  <div className="mt-3 flex flex-wrap items-center gap-2">
                     {Object.entries(realProfile.socialLinks).map(([key, url]) => (
                       <a
                         key={key}
@@ -1295,101 +1348,15 @@ function ProfilePage() {
                         target="_blank"
                         rel="noopener noreferrer nofollow"
                         aria-label={key}
-                        className="inline-flex items-center justify-center w-9 h-9 rounded-full border border-white/15 md:border-slate-300 bg-white/5 md:bg-slate-100 text-slate-300 md:text-slate-600 hover:text-emerald-300 md:text-emerald-700 hover:border-emerald-400/50 transition-colors focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+                        className="inline-flex h-9 w-9 items-center justify-center rounded-full border border-white/12 bg-[#1A1A1F] text-slate-300 hover:text-white md:border-slate-300 md:bg-slate-100 md:text-slate-600"
                       >
                         <SocialIcon kind={key} />
                       </a>
                     ))}
                   </div>
                 )}
-
-                {!isOwnProfile && !identityMissing && realProfile?.userId && (
-                  <div className="mt-4 w-full max-w-md">
-                    {/* Primary duo: follow + premium message CTA */}
-                    <div className="flex flex-wrap items-start justify-center gap-2">
-                      <FollowButton
-                        targetId={realProfile.userId}
-                        className="flex-1 min-w-[140px]"
-                      />
-                      <button
-                        onClick={handleChat}
-                        aria-label={`Message ${displayName}`}
-                        className="group relative flex-1 min-w-[140px] inline-flex items-center justify-center gap-2 overflow-hidden rounded-lg bg-gradient-to-r from-emerald-500 via-emerald-400 to-cyan-400 px-4 py-2 text-sm font-black text-black shadow-sm transition-transform hover:-translate-y-px active:translate-y-0 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300/80"
-                      >
-                        {/* Sheen sweep */}
-                        <span
-                          aria-hidden
-                          className="pointer-events-none absolute inset-y-0 -left-1/3 w-1/3 -skew-x-12 bg-white/40 opacity-0 transition-all duration-700 group-hover:left-[110%] group-hover:opacity-100"
-                        />
-                        <MessageCircle className="relative w-4 h-4" strokeWidth={2.6} />
-                        <span className="relative">Message</span>
-                        <span
-                          aria-hidden
-                          className={`relative h-1.5 w-1.5 rounded-full ${
-                            isViewedUserOnline ? "bg-black/70 animate-pulse" : "bg-black/25"
-                          }`}
-                        />
-                      </button>
-                    </div>
-                    <div className="mt-2 flex justify-center">
-                      <button
-                        type="button"
-                        onClick={shareProfile}
-                        className="inline-flex items-center gap-2 rounded-lg border border-white/15 md:border-slate-300 px-4 py-2 text-sm font-semibold text-slate-200 md:text-slate-700 hover:bg-white/5 md:hover:bg-slate-100 focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-                      >
-                        <Share2 className="w-4 h-4" /> Share profile
-                      </button>
-                    </div>
-                    <p className="mt-1.5 text-center text-[11px] text-slate-500 md:text-slate-500">
-                      {isViewedUserOnline
-                        ? "Online now · usually replies in minutes"
-                        : "Send a direct message — replies land in your inbox"}
-                    </p>
-
-                    {/* Secondary actions */}
-                    <div className="mt-2 flex flex-wrap items-center justify-center gap-2">
-                      <button
-                        onClick={() => setJoinCircleOpen(true)}
-                        className="flex-1 min-w-[120px] inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 hover:bg-emerald-500/20 md:hover:bg-emerald-100 text-sm font-semibold focus:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400/70"
-                        aria-label="Request to join one of this user's circles"
-                      >
-                        <Users className="w-4 h-4" /> Join Circle
-                      </button>
-                      <button
-                        onClick={() => setReportOpen(true)}
-                        className="inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg border border-white/10 md:border-slate-200 text-slate-400 md:text-slate-500 hover:text-red-400 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-xs focus:outline-none focus-visible:ring-2 focus-visible:ring-red-400/50"
-                      >
-                        <Flag className="w-3.5 h-3.5" /> Report
-                      </button>
-                    </div>
-                  </div>
-                )}
-                {isOwnProfile && (
-                  <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                    <button
-                      onClick={() => setEditProfileOpen(true)}
-                      className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-black text-sm font-black focus:outline-none focus:ring-2 focus:ring-emerald-400/60"
-                    >
-                      <Pencil className="w-4 h-4" strokeWidth={2.5} /> Edit profile
-                    </button>
-                    <span className="inline-flex items-center gap-2 px-4 py-2 rounded-lg border border-emerald-500/40 md:border-emerald-300 bg-emerald-500/10 md:bg-emerald-50 text-emerald-300 md:text-emerald-700 text-xs font-semibold">
-                      This is your profile
-                    </span>
-                    <button
-                      onClick={shareProfile}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-300 text-white md:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-sm font-semibold"
-                    >
-                      <Share2 className="w-4 h-4" /> Share
-                    </button>
-                    <button
-                      onClick={() => navigate({ to: "/" })}
-                      className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-white/15 md:border-slate-300 text-white md:text-slate-900 hover:bg-white/5 md:bg-slate-100 md:hover:bg-slate-100 text-sm font-semibold"
-                    >
-                      Back to feed
-                    </button>
-                  </div>
-                )}
               </div>
+
             </section>
 
             {/* Reputation block */}
@@ -1564,7 +1531,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   overviewMode && !photosMode
-                    ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
@@ -1586,7 +1553,7 @@ function ProfilePage() {
                     }}
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key && !photosMode && !overviewMode
-                        ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                        ? "text-white md:text-slate-900 border-[#E5484D]"
                         : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                     }`}
                   >
@@ -1607,7 +1574,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
-                    ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
@@ -2077,6 +2044,14 @@ function RepStat({
     </div>
   );
 }
+
+/** 2.4K-style compact numbers for the identity stat strip. */
+function compactCount(n: number): string {
+  if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(n % 1_000_000 === 0 ? 0 : 1)}M`;
+  if (n >= 1_000) return `${(n / 1_000).toFixed(n % 1_000 === 0 ? 0 : 1)}K`;
+  return String(n);
+}
+
 
 function MobileRepLine({
   label,
