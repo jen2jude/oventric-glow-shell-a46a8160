@@ -745,11 +745,13 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
     }
 
-    if (data.tab === "marketplace") {
+    if (data.tab === "marketplace" || data.tab === "services") {
       let q = supabase
         .from("products")
         .select("id, name, category, price_usd, created_at, cover_path, image_paths", { count: "exact" })
         .eq("seller_id", userId);
+      q = data.tab === "services" ? q.eq("kind", "service") : q.neq("kind", "service");
+
       if (data.q) q = q.ilike("name", `%${data.q}%`);
       if (data.sort === "price_low") q = q.order("price_usd", { ascending: true });
       else if (data.sort === "price_high") q = q.order("price_usd", { ascending: false });
