@@ -111,10 +111,41 @@ export function StoryViewerModal({
     return () => window.removeEventListener("keydown", onKey);
   }, [next, prev, onClose]);
 
+  // Warm the next few media items so playback starts instantly.
+  useEffect(() => {
+    const g = groups[gi];
+    if (!g) return;
+    const upcoming = [
+      ...g.items.slice(ii + 1, ii + 3),
+      ...(groups[gi + 1]?.items.slice(0, 1) ?? []),
+    ];
+    upcoming.forEach((s) => {
+      if (s.mediaType === "video") {
+        if (s.posterUrl) new Image().src = s.posterUrl;
+        const v = document.createElement("video");
+        v.preload = "auto";
+        v.muted = true;
+        v.src = s.mediaUrl;
+      } else {
+        new Image().src = s.mediaUrl;
+      }
+    });
+  }, [groups, gi, ii]);
+
   if (!group || !item || typeof document === "undefined") return null;
 
   const onReact = async (emoji: string) => {
     setSent(emoji);
+    // Floating burst from the reaction stack upward.
+    const burst = Array.from({ length: 5 }, (_, k) => ({
+      id: Date.now() + k,
+      emoji,
+      x: Math.round((Math.random() - 0.5) * 120),
+    }));
+    setFloats((f) => [...f, ...burst]);
+    window.setTimeout(() => {
+      setFloats((f) => f.filter((x) => !burst.some((b) => b.id === x.id)));
+    }, 2200);
     try {
       const res: any = await react({ data: { storyId: item.id, emoji } });
       if (res?.peerId && !res.skipped) {
@@ -123,12 +154,13 @@ export function StoryViewerModal({
         );
         window.setTimeout(() => {
           window.location.href = `/?section=Messages&dm=${res.peerId}`;
-        }, 60);
+        }, 900);
       }
     } catch {
       /* silent */
     }
   };
+
 
   return createPortal(
     <div
