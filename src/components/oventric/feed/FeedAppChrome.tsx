@@ -82,8 +82,10 @@ export function FeedAppChrome({
   return (
     <div
       ref={chromeRef}
-      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl transition-opacity duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
-        chromeHidden ? "opacity-60" : "opacity-100"
+      className={`-mx-4 sticky top-0 z-30 transition-all duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] ${
+        chromeHidden
+          ? "bg-[#0A0A0B]/55 backdrop-blur-2xl border-b border-white/[0.08] shadow-[0_8px_30px_-10px_rgba(0,0,0,0.5)] opacity-75"
+          : "bg-[#0A0A0B] opacity-100"
       }`}
     >
       {/* Brand header — stays pinned; only fades slightly on scroll down */}
