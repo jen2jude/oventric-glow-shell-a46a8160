@@ -2,7 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Check, Plus, Search, X } from "lucide-react";
 import { updateMyProfile } from "@/lib/profiles.functions";
-import { MAX_TOOLS, TOOL_CATALOGUE, TOOL_GROUPS, toolIconUrl } from "@/lib/profiles/tools";
+import { MAX_TOOLS, toolIconUrl } from "@/lib/profiles/tools";
+import type { ToolCategoryDTO, ToolDTO } from "@/lib/tools.functions";
 
 const ACCENT = "#E5484D";
 const MAX_SKILLS = 12;
@@ -22,18 +23,21 @@ export function SkillsEditModal({
   initialSkills,
   initialTools,
   onSaved,
+  library,
 }: {
   open: boolean;
   onClose: () => void;
   initialSkills: SkillRow[];
   initialTools: string[];
   onSaved: (skills: SkillRow[], tools: string[]) => void;
+  library: { categories: ToolCategoryDTO[]; tools: ToolDTO[] };
 }) {
   const save = useServerFn(updateMyProfile);
   const [rows, setRows] = useState<SkillRow[]>(initialSkills);
   const [tools, setTools] = useState<string[]>(initialTools);
   const [draft, setDraft] = useState("");
   const [toolQuery, setToolQuery] = useState("");
+  const [activeCat, setActiveCat] = useState<string>("all");
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -43,16 +47,19 @@ export function SkillsEditModal({
     setTools(initialTools);
     setDraft("");
     setToolQuery("");
+    setActiveCat("all");
     setError(null);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
   const filteredTools = useMemo(() => {
     const q = toolQuery.trim().toLowerCase();
-    return TOOL_CATALOGUE.filter(
-      (t) => !q || t.label.toLowerCase().includes(q) || t.id.includes(q),
+    return library.tools.filter(
+      (t) =>
+        (activeCat === "all" || t.categorySlug === activeCat) &&
+        (!q || t.name.toLowerCase().includes(q) || t.slug.includes(q)),
     );
-  }, [toolQuery]);
+  }, [library.tools, toolQuery, activeCat]);
 
   if (!open) return null;
 
@@ -203,54 +210,73 @@ export function SkillsEditModal({
               />
             </div>
 
-            <div className="mt-4 space-y-4">
-              {TOOL_GROUPS.map((group) => {
-                const items = filteredTools.filter((t) => t.group === group);
-                if (items.length === 0) return null;
-                return (
-                  <div key={group}>
-                    <p className="text-[11px] font-black uppercase tracking-wide text-slate-500">
-                      {group}
-                    </p>
-                    <div className="mt-2 grid grid-cols-4 gap-2">
-                      {items.map((t) => {
-                        const on = tools.includes(t.id);
-                        return (
-                          <button
-                            key={t.id}
-                            type="button"
-                            onClick={() => toggleTool(t.id)}
-                            aria-pressed={on}
-                            className={`relative flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 transition-colors ${
-                              on
-                                ? "border-[#E5484D] bg-[#E5484D]/10"
-                                : "border-white/10 bg-[#1A1A1F] md:border-slate-200 md:bg-slate-50"
-                            }`}
+            {/* Category filter */}
+            <div className="mt-3 flex gap-2 overflow-x-auto pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+              {[{ slug: "all", name: "All", imageUrl: null } as Pick<ToolCategoryDTO, "slug" | "name" | "imageUrl">, ...library.categories].map(
+                (c) => {
+                  const on = activeCat === c.slug;
+                  return (
+                    <button
+                      key={c.slug}
+                      type="button"
+                      onClick={() => setActiveCat(c.slug)}
+                      className={`inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition-colors ${
+                        on
+                          ? "border-[#E5484D] bg-[#E5484D]/10 text-white md:text-slate-900"
+                          : "border-white/12 text-slate-400 md:border-slate-300 md:text-slate-600"
+                      }`}
+                    >
+                      {c.imageUrl && (
+                        <img src={c.imageUrl} alt="" className="h-4 w-4 rounded" loading="lazy" />
+                      )}
+                      {c.name}
+                    </button>
+                  );
+                },
+              )}
+            </div>
+
+            <div className="mt-4">
+              {filteredTools.length === 0 ? (
+                <p className="py-6 text-center text-sm text-slate-500">No tools match that search.</p>
+              ) : (
+                <div className="grid grid-cols-4 gap-2">
+                  {filteredTools.map((t) => {
+                    const on = tools.includes(t.slug);
+                    return (
+                      <button
+                        key={t.id}
+                        type="button"
+                        onClick={() => toggleTool(t.slug)}
+                        aria-pressed={on}
+                        className={`relative flex flex-col items-center gap-1.5 rounded-2xl border p-2.5 transition-colors ${
+                          on
+                            ? "border-[#E5484D] bg-[#E5484D]/10"
+                            : "border-white/10 bg-[#1A1A1F] md:border-slate-200 md:bg-slate-50"
+                        }`}
+                      >
+                        {on && (
+                          <span
+                            className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full text-white"
+                            style={{ background: ACCENT }}
                           >
-                            {on && (
-                              <span
-                                className="absolute right-1 top-1 grid h-4 w-4 place-items-center rounded-full text-white"
-                                style={{ background: ACCENT }}
-                              >
-                                <Check className="h-2.5 w-2.5" strokeWidth={4} />
-                              </span>
-                            )}
-                            <img
-                              src={toolIconUrl(t.id)}
-                              alt=""
-                              loading="lazy"
-                              className="h-7 w-7"
-                            />
-                            <span className="line-clamp-1 text-[10px] font-semibold text-slate-300 md:text-slate-600">
-                              {t.label}
-                            </span>
-                          </button>
-                        );
-                      })}
-                    </div>
-                  </div>
-                );
-              })}
+                            <Check className="h-2.5 w-2.5" strokeWidth={4} />
+                          </span>
+                        )}
+                        <img
+                          src={t.imageUrl ?? toolIconUrl(t.slug)}
+                          alt=""
+                          loading="lazy"
+                          className="h-7 w-7 object-contain"
+                        />
+                        <span className="line-clamp-1 text-[10px] font-semibold text-slate-300 md:text-slate-600">
+                          {t.name}
+                        </span>
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
             </div>
           </section>
         </div>
