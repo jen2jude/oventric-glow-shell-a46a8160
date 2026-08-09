@@ -44,33 +44,63 @@ const PROMOS: Promo[] = [
   },
 ];
 
-const FIRST_DELAY = 25_000;
-const INTERVAL = 180_000;
+const STORAGE_KEY_INDEX = "oventric:promo:index";
+const STORAGE_KEY_LAST = "oventric:promo:lastShown";
+const COOLDOWN_MS = 120_000;
+const RETURN_DELAY_MS = 400;
 
 const FLOATERS = ["✨", "🪙", "💎", "⭐", "🎉"];
 
+function getStoredIndex(): number {
+  if (typeof window === "undefined") return 0;
+  const raw = window.localStorage.getItem(STORAGE_KEY_INDEX);
+  const n = raw ? parseInt(raw, 10) : 0;
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function setStoredIndex(i: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STORAGE_KEY_INDEX, String(i));
+}
+
+function getLastShown(): number {
+  if (typeof window === "undefined") return 0;
+  const raw = window.localStorage.getItem(STORAGE_KEY_LAST);
+  const n = raw ? parseInt(raw, 10) : 0;
+  return Number.isNaN(n) ? 0 : n;
+}
+
+function setLastShown(t: number) {
+  if (typeof window === "undefined") return;
+  window.localStorage.setItem(STORAGE_KEY_LAST, String(t));
+}
+
 /**
- * Rotating promotional splash. Replaces the old inline promo rail: it appears
- * on an interval as a warm, colorful overlay that feels rewarding to see.
+ * Rotating promotional splash. Appears only when the user leaves the home hub
+ * and comes back, taking turns through the promo queue so each return surfaces
+ * a fresh offer.
  */
-export function PromoInterstitial({ onSelect }: { onSelect: (section: string) => void }) {
+export function PromoInterstitial({
+  onSelect,
+  returnedToHub,
+}: {
+  onSelect: (section: string) => void;
+  returnedToHub?: boolean;
+}) {
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
-    let cancelled = false;
-    const show = () => {
-      if (cancelled || document.hidden) return;
-      setOpen(true);
-    };
-    const first = setTimeout(show, FIRST_DELAY);
-    const timer = setInterval(show, INTERVAL);
-    return () => {
-      cancelled = true;
-      clearTimeout(first);
-      clearInterval(timer);
-    };
+    setIndex(getStoredIndex());
   }, []);
+
+  useEffect(() => {
+    if (!returnedToHub || open) return;
+    const lastShown = getLastShown();
+    if (Date.now() - lastShown < COOLDOWN_MS) return;
+    const t = setTimeout(() => setOpen(true), RETURN_DELAY_MS);
+    return () => clearTimeout(t);
+  }, [returnedToHub, open]);
 
   const promo = PROMOS[index % PROMOS.length]!;
 
@@ -80,7 +110,10 @@ export function PromoInterstitial({ onSelect }: { onSelect: (section: string) =>
 
   const close = () => {
     setOpen(false);
-    setIndex((i) => i + 1);
+    const next = (getStoredIndex() + 1) % PROMOS.length;
+    setStoredIndex(next);
+    setLastShown(Date.now());
+    setIndex(next);
   };
 
   const handleCta = () => {

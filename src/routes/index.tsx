@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
 import { Header } from "@/components/oventric/Header";
 import { Sidebar } from "@/components/oventric/Sidebar";
@@ -65,6 +65,8 @@ function Index() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [q, setQ] = useState("");
+  const [returnedToHub, setReturnedToHub] = useState(false);
+  const prevActiveRef = useRef<string | null>(null);
 
   const { require, fullName, storeName, country, baseCurrency } = useOnboarding();
   const { isAuthenticated } = useAuthGate();
@@ -89,6 +91,18 @@ function Index() {
       cancelled = true;
     };
   }, [isAuthenticated, fullName, storeName, loadProfile]);
+
+  // Detect when the user leaves the home hub and comes back so promos can
+  // take turns appearing on each return.
+  useEffect(() => {
+    const prev = prevActiveRef.current;
+    if (active === "Home" && prev && prev !== "Home") {
+      setReturnedToHub(true);
+    } else if (active !== "Home") {
+      setReturnedToHub(false);
+    }
+    prevActiveRef.current = active;
+  }, [active]);
 
   const renderNavSearch = () => (
     <div className="relative w-full">
@@ -268,6 +282,7 @@ function Index() {
           onSelect={setActive}
           onCreate={handleCreate}
           onOpenMessages={() => setMessagesOpen(true)}
+          returnedToHub={returnedToHub}
           counts={{
             Feed: feedCount.count,
             Market: marketCount.count,

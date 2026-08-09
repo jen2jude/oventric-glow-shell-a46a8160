@@ -43,6 +43,7 @@ export type HubProps = {
   onCreate: (choice?: ChoiceKey) => void;
   onOpenMessages: () => void;
   counts?: Counts;
+  returnedToHub?: boolean;
 };
 
 type Tile = {
@@ -78,7 +79,7 @@ function fromUSD(usd: number, target: Currency): number {
   return target === "USD" ? usd : usd * usdRate(target);
 }
 
-export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps) {
+export function HomeHub({ onSelect, onCreate, onOpenMessages, counts, returnedToHub }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
   // Same live unread counters the header shows, mirrored onto the hub tiles.
   const unread = useUnreadCounts();
@@ -466,7 +467,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </button>
       )}
 
-      <PromoInterstitial onSelect={onSelect} />
+      <PromoInterstitial onSelect={onSelect} returnedToHub={returnedToHub} />
 
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
       <CoursePublishWizard
