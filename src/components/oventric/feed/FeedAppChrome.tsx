@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, MessageSquare, Search, Plus } from "lucide-react";
@@ -12,6 +12,9 @@ import {
 import { MessagesDrawer } from "@/components/oventric/MessagesDrawer";
 import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
+import { MAX_STORY_FILES, useStoryRail } from "@/components/oventric/feed/useStories";
+import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
+
 
 export type FeedTab = "foryou" | "following" | "discover";
 
