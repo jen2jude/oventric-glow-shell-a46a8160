@@ -110,10 +110,7 @@ import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
-import {
-  normalizeCountryCode,
-  COUNTRY_META,
-} from "@/lib/currency/africa";
+import { normalizeCountryCode, COUNTRY_META } from "@/lib/currency/africa";
 import {
   getProfile,
   computeStarBreakdown,
@@ -1408,15 +1405,12 @@ function ProfilePage() {
                         </button>
                       )}
                     </div>
-
                   </div>
                 )}
 
                 {realProfile?.socialLinks && Object.keys(realProfile.socialLinks).length > 0 && (
                   <div className="mt-4">
-                    <h2 className="text-sm font-black text-white md:text-slate-900">
-                      Find me on
-                    </h2>
+                    <h2 className="text-sm font-black text-white md:text-slate-900">Find me on</h2>
                     <div className="-mx-1 mt-2 flex flex-wrap items-center gap-2 px-1">
                       {Object.entries(realProfile.socialLinks).map(([key, url]) => (
                         <button
@@ -1474,7 +1468,6 @@ function ProfilePage() {
                 )}
               </div>
             </section>
-
 
             {/* Tabs */}
             <nav
