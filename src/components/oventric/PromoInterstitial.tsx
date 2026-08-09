@@ -129,15 +129,16 @@ export function PromoInterstitial({
       role="dialog"
       aria-modal="true"
       aria-label={promo.title}
-      className="fixed inset-0 z-[70] grid place-items-center bg-black/75 p-4 overflow-y-auto backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-6 backdrop-blur-md animate-fade-in"
       onClick={close}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-promo-surface to-promo-surface-2 p-6 pt-8 text-left shadow-2xl"
+        className="relative w-full max-w-sm px-2 py-4 text-left animate-scale-in"
       >
-        {/* Soft warm glow behind the card */}
-        <div className="pointer-events-none absolute -top-10 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-promo-warm/25 blur-3xl" />
+        {/* Soft warm glow behind the splash */}
+        <div className="pointer-events-none absolute top-0 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-promo-warm/30 blur-3xl" />
+
 
         {/* Floating decorative emojis */}
         {FLOATERS.map((icon, i) => (
@@ -159,30 +160,31 @@ export function PromoInterstitial({
           type="button"
           onClick={close}
           aria-label="Close"
-          className="absolute right-3 top-3 rounded-full p-2 text-promo-text/60 hover:bg-black/5 hover:text-promo-text transition-colors"
+          className="absolute -right-1 -top-2 rounded-full p-2 text-white/50 hover:bg-white/10 hover:text-white transition-colors"
         >
           <X className="h-4 w-4" strokeWidth={2.5} />
         </button>
 
         {/* Hero emoji */}
-        <div className="relative mx-auto mb-4 flex h-24 w-24 items-center justify-center">
-          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-promo-gold/40 to-promo-warm/40 blur-md" />
-          <span className="relative text-6xl drop-shadow-sm">{promo.emoji}</span>
+        <div className="relative mx-auto mb-4 flex h-28 w-28 items-center justify-center">
+          <div className="absolute inset-0 rounded-full bg-gradient-to-br from-promo-gold/30 to-promo-warm/30 blur-2xl" />
+          <span className="relative text-7xl drop-shadow-[0_8px_24px_rgba(0,0,0,0.5)]">
+            {promo.emoji}
+          </span>
         </div>
 
         <div className="relative text-center">
-          <div className="mx-auto mb-2 inline-flex items-center gap-1 rounded-full bg-promo-hot/10 px-3 py-1 text-xs font-bold uppercase tracking-wide text-promo-hot">
+          <div className="mx-auto mb-2 inline-flex items-center gap-1 rounded-full bg-promo-hot/15 px-3 py-1 text-xs font-bold uppercase tracking-wide text-promo-gold">
             <Sparkles className="h-3 w-3" />
             Just for you
           </div>
 
-          <h2 className="bg-gradient-to-r from-promo-hot via-promo-warm to-promo-gold bg-clip-text text-2xl font-black text-transparent">
+          <h2 className="bg-gradient-to-r from-promo-hot via-promo-warm to-promo-gold bg-clip-text text-3xl font-black leading-tight text-transparent">
             {promo.title}
           </h2>
-          <p className="mt-2 text-sm font-medium leading-relaxed text-promo-text-soft">
-            {promo.body}
-          </p>
+          <p className="mt-2 text-sm font-medium leading-relaxed text-white/75">{promo.body}</p>
         </div>
+
 
         <div className="relative mt-6">
           {promo.to ? (
@@ -208,10 +210,11 @@ export function PromoInterstitial({
           <button
             type="button"
             onClick={close}
-            className="mt-3 w-full text-center text-xs font-semibold text-promo-text/50 hover:text-promo-text transition-colors"
+            className="mt-3 w-full text-center text-xs font-semibold text-white/45 hover:text-white transition-colors"
           >
             Not now
           </button>
+
         </div>
       </div>
     </div>
