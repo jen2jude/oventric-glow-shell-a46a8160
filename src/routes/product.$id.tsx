@@ -151,6 +151,7 @@ export const Route = createFileRoute("/product/$id")({
       const p = await getProduct({ data: { id: params.id } });
       return {
         title: p.name as string,
+        priceUSD: Number(p.priceUSD ?? 0),
         description:
           ((p.description as string) || "").slice(0, 155) ||
           "Buy digital assets from Oventric's marketplace.",
@@ -191,6 +192,28 @@ export const Route = createFileRoute("/product/$id")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: loaderData?.title
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Product",
+                name: loaderData.title,
+                description,
+                url,
+                ...(image ? { image } : {}),
+                offers: {
+                  "@type": "Offer",
+                  url,
+                  price: String(loaderData.priceUSD ?? 0),
+                  priceCurrency: "USD",
+                  availability: "https://schema.org/InStock",
+                },
+              }),
+            },
+          ]
+        : [],
     };
   },
   component: ProductPage,
