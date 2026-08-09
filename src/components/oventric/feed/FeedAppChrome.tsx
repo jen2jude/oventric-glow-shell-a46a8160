@@ -160,46 +160,112 @@ export function FeedAppChrome({
 
       {/* Stories rail */}
       <div className="flex gap-4 overflow-x-auto px-4 py-3 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+        <input
+          ref={fileRef}
+          type="file"
+          accept="image/*,video/*"
+          multiple
+          className="hidden"
+          onChange={(e) => {
+            const files = Array.from(e.target.files ?? []).slice(0, MAX_STORY_FILES);
+            e.target.value = "";
+            if (files.length) void upload(files);
+          }}
+        />
         <button
           type="button"
-          onClick={onAddStory}
+          onClick={() => (myGroup && !uploading ? openViewer(0) : fileRef.current?.click())}
           className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
         >
           <span className="relative block h-[58px] w-[58px]">
-            <span className="block h-full w-full overflow-hidden rounded-full bg-[#1A1A1F] ring-1 ring-white/10">
+            {uploading && (
+              <span
+                className="absolute inset-0 animate-spin rounded-full"
+                style={{
+                  background: `conic-gradient(#E5484D ${Math.round(progress * 360)}deg, rgba(255,255,255,0.12) 0deg)`,
+                  animationDuration: "1.4s",
+                }}
+              />
+            )}
+            <span
+              className={`absolute inset-0 overflow-hidden rounded-full bg-[#1A1A1F] ring-1 ring-white/10 ${
+                uploading ? "m-[3px] border-2 border-[#0A0A0B]" : ""
+              }`}
+            >
               <AvatarImage src={meAvatarUrl} alt="Your story" initials={meInitials} />
             </span>
-            <span className="absolute -bottom-0.5 -right-0.5 grid h-[22px] w-[22px] place-items-center rounded-full border-2 border-[#0A0A0B] bg-[#E5484D]">
-              <Plus className="h-3 w-3 text-white" strokeWidth={3} />
-            </span>
+            {!uploading && (
+              <span className="absolute -bottom-0.5 -right-0.5 z-10 grid h-[22px] w-[22px] place-items-center rounded-full border-2 border-[#0A0A0B] bg-[#E5484D]">
+                <Plus className="h-3 w-3 text-white" strokeWidth={3} />
+              </span>
+            )}
           </span>
           <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
-            Your story
+            {uploading ? "Uploading…" : myGroup ? "Your story" : "Your story"}
           </span>
         </button>
 
-        {people.map((u, i) => (
-          <Link
-            key={u.userId}
-            to="/profile/$id"
-            params={{ id: u.slug }}
-            className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
-          >
-            <span
-              className={`grid h-[58px] w-[58px] place-items-center rounded-full bg-gradient-to-tr p-[2px] ${
-                RINGS[i % RINGS.length]
-              }`}
+        {storyGroups
+          .filter((g) => !g.isMe)
+          .map((g, i) => (
+            <button
+              key={g.userId}
+              type="button"
+              onClick={() => openViewer(storyGroups.indexOf(g))}
+              className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
             >
-              <span className="block h-full w-full overflow-hidden rounded-full border-2 border-[#0A0A0B] bg-[#1A1A1F]">
-                <AvatarImage src={u.avatarUrl} alt={u.displayName} />
+              <span
+                className={`grid h-[58px] w-[58px] place-items-center rounded-full p-[2px] ${
+                  g.allViewed
+                    ? "bg-white/15"
+                    : `bg-gradient-to-tr ${RINGS[i % RINGS.length]}`
+                }`}
+              >
+                <span className="block h-full w-full overflow-hidden rounded-full border-2 border-[#0A0A0B] bg-[#1A1A1F]">
+                  <AvatarImage src={g.avatarUrl} alt={g.displayName} />
+                </span>
               </span>
-            </span>
-            <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
-              {u.displayName.split(" ")[0]}
-            </span>
-          </Link>
-        ))}
+              <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
+                {g.displayName.split(" ")[0]}
+              </span>
+            </button>
+          ))}
+
+        {people
+          .filter((u) => !storyGroups.some((g) => g.userId === u.userId))
+          .map((u, i) => (
+            <Link
+              key={u.userId}
+              to="/profile/$id"
+              params={{ id: u.slug }}
+              className="flex w-[62px] shrink-0 flex-col items-center gap-1.5 active:scale-95 transition-transform"
+            >
+              <span
+                className={`grid h-[58px] w-[58px] place-items-center rounded-full bg-gradient-to-tr p-[2px] ${
+                  RINGS[i % RINGS.length]
+                }`}
+              >
+                <span className="block h-full w-full overflow-hidden rounded-full border-2 border-[#0A0A0B] bg-[#1A1A1F]">
+                  <AvatarImage src={u.avatarUrl} alt={u.displayName} />
+                </span>
+              </span>
+              <span className="w-full truncate text-center text-[11px] font-medium text-white/70">
+                {u.displayName.split(" ")[0]}
+              </span>
+            </Link>
+          ))}
       </div>
+      {viewerAt !== null && (
+        <StoryViewerModal
+          groups={storyGroups}
+          startIndex={viewerAt}
+          onClose={() => {
+            setViewerAt(null);
+            void refresh();
+          }}
+        />
+      )}
+
       <div className="h-px w-full bg-white/[0.07]" />
 
       <NotificationsDrawer open={notifOpen} onClose={() => setNotifOpen(false)} />
