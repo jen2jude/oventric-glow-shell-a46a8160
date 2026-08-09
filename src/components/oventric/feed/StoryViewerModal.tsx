@@ -134,7 +134,7 @@ export function StoryViewerModal({
 
   if (!group || !item || typeof document === "undefined") return null;
 
-  const onReact = async (emoji: string) => {
+  const onReact = async (emoji: string, openChat = false) => {
     setSent(emoji);
     // Floating burst from the reaction stack upward.
     const burst = Array.from({ length: 5 }, (_, k) => ({
@@ -148,7 +148,7 @@ export function StoryViewerModal({
     }, 2200);
     try {
       const res: any = await react({ data: { storyId: item.id, emoji } });
-      if (res?.peerId && !res.skipped) {
+      if (openChat && res?.peerId && !res.skipped) {
         window.dispatchEvent(
           new CustomEvent("oventric:navigate-section", { detail: { section: "Messages" } }),
         );
@@ -160,6 +160,7 @@ export function StoryViewerModal({
       /* silent */
     }
   };
+
 
 
   return createPortal(
