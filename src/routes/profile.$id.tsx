@@ -1472,17 +1472,13 @@ function ProfilePage() {
               data-testid="profile-tabs"
               className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10 md:border-slate-200"
             >
-              {(
-                [
-                  ["posts", "Posts"],
-                  ["posted", "Bounties Posted"],
-                  ["solved", "Bounties Solved"],
-                  ["marketplace", "Assets"],
-                  ["blog", "Blog"],
-                  ["groups", "Circles"],
-                ] as [Tab, string][]
-              ).map(([key, label]) => {
-                const count = tabData[key].total;
+              {ecosystemSections
+                .filter((s): s is typeof s & { key: Tab } => isTab(s.key))
+                .map((section) => {
+                  const key = section.key;
+                  const label = section.label;
+                  const count = tabData[key].total ?? section.count;
+
                 return (
                   <button
                     key={key}
