@@ -37,6 +37,21 @@ export const getStoryUploadUrl = createServerFn({ method: "POST" })
     return { path, token: signed.token as string, signedUrl: signed.signedUrl as string };
   });
 
+/** Signed upload slot for a video's poster frame (`<videoPath>.poster.jpg`). */
+export const getStoryPosterUploadUrl = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((d) => z.object({ videoPath: z.string().min(1).max(500) }).parse(d))
+  .handler(async ({ data, context }) => {
+    if (!data.videoPath.startsWith(`${context.userId}/`)) throw new Error("Forbidden");
+    const path = `${data.videoPath}.poster.jpg`;
+    const { data: signed, error } = await context.supabase.storage
+      .from("story-media")
+      .createSignedUploadUrl(path);
+    if (error) throw error;
+    return { path, token: signed.token as string };
+  });
+
+
 /** Persist uploaded story media (max 10 per publish). Auto-expires in 24h. */
 export const publishStories = createServerFn({ method: "POST" })
   .middleware([requireSupabaseAuth])
