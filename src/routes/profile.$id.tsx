@@ -68,7 +68,9 @@ import {
   MapPin,
   Share2,
   MoreHorizontal,
+  ChevronRight,
 } from "lucide-react";
+
 import { openSocialLink, SOCIAL_LABELS } from "@/lib/profiles/socialDeepLinks";
 import {
   DropdownMenu,
