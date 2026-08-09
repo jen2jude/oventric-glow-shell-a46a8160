@@ -2306,3 +2306,13 @@ p {
 section + section {
   margin-top: clamp(1.5rem, 4vw, 3rem);
 }
+
+/* --- Story reaction float ---------------------------------------------- */
+@keyframes story-float-up {
+  0% { opacity: 0; transform: translate(var(--tx, 0), 0) scale(0.6); }
+  15% { opacity: 1; transform: translate(var(--tx, 0), -10px) scale(1.1); }
+  100% { opacity: 0; transform: translate(var(--tx, 0), -240px) scale(0.9); }
+}
+.story-float {
+  animation: story-float-up 2.1s cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
