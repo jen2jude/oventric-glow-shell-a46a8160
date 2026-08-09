@@ -108,6 +108,7 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
 import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed";
+import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -1722,7 +1723,15 @@ function ProfilePage() {
 
                   return (
                     <>
-                      {(() => {
+                      {tab === "marketplace" ? (
+                        <ProfileShopTab
+                          items={st.items as ProfileListing[]}
+                          total={st.total ?? st.items.length}
+                          isOwner={isOwnProfile}
+                          price={price}
+                          shopSlug={id}
+                        />
+                      ) : (() => {
                         // Uniform grid tiles across every tab. Tiles deep-link to the
                         // profile item detail route so the panel loads instantly with
                         // its own skeleton while the URL stays shareable.
