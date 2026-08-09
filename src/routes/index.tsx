@@ -127,6 +127,16 @@ function Index() {
       "seller",
     );
 
+  // Allow other components (e.g. MegaMenu) to trigger the create panel directly.
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const choice = (e as CustomEvent<{ choice?: ChoiceKey }>).detail?.choice;
+      handleCreate(choice);
+    };
+    window.addEventListener("oventric:open-create", handler);
+    return () => window.removeEventListener("oventric:open-create", handler);
+  }, [require]);
+
   // Live counters for each mobile-footer section. Each increments as new rows
   // are inserted on the corresponding table and clears when that section is
   // active.
