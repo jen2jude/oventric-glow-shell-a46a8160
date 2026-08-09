@@ -108,6 +108,8 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileWall } from "@/components/oventric/ProfileWall";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
+import { ProfilePostCard } from "@/components/oventric/profile/ProfilePostCard";
+
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
@@ -629,26 +631,41 @@ function ProfilePage() {
     }
   }, [tab, tabData, fetchOne, navigate, id, q, sort, getScrollY]);
 
-  // Change tabs — preserve current scroll position, don't jump to top.
+  // Scroll so the tab rail sits just under the sticky header — the tab
+  // content then starts at the top of the viewport, ready to scroll.
+  const tabsNavRef = useRef<HTMLElement | null>(null);
+  const tabsTopY = useCallback((): number => {
+    const nav = tabsNavRef.current;
+    if (!nav) return getScrollY();
+    const navTop = nav.getBoundingClientRect().top;
+    const el = mainRef.current;
+    if (el && el.scrollHeight > el.clientHeight + 1) {
+      return Math.max(0, el.scrollTop + (navTop - el.getBoundingClientRect().top) - 8);
+    }
+    return Math.max(0, window.scrollY + navTop - 64);
+  }, [getScrollY, mainRef]);
+
+  // Change tabs — snap the tab rail to the top so the new section starts there.
   const changeTab = useCallback(
     (next: Tab) => {
-      const currentY = getScrollY();
-      pinAcrossChange(currentY);
+      const targetY = tabsTopY();
+      pinAcrossChange(targetY);
       if (next === tab) {
-        requestAnimationFrame(() => restoreScroll(currentY));
+        requestAnimationFrame(() => restoreScroll(targetY));
         return;
       }
       const nextSort = SORT_OPTIONS_BY_TAB[next].some((o) => o.value === sort) ? sort : "newest";
       navigate({
         to: "/profile/$id",
         params: { id },
-        search: { tab: next, pages: 1, y: currentY, q, sort: nextSort },
+        search: { tab: next, pages: 1, y: targetY, q, sort: nextSort },
         replace: true,
         resetScroll: false,
       });
     },
-    [tab, navigate, id, getScrollY, pinAcrossChange, restoreScroll, q, sort],
+    [tab, navigate, id, tabsTopY, pinAcrossChange, restoreScroll, q, sort],
   );
+
 
   // Retry a failed tab: clear its cache so the load effect refetches up to
   // the current desiredPages (preserving pagination). Also reset scroll.
@@ -1495,21 +1512,26 @@ function ProfilePage() {
 
             {/* Tabs */}
             <nav
+              ref={tabsNavRef}
               data-testid="profile-tabs"
+
               className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10 md:border-slate-200"
             >
               <button
                 key="overview"
                 onClick={() => {
                   setPhotosMode(false);
+                  const targetY = tabsTopY();
+                  pinAcrossChange(targetY);
                   navigate({
                     to: "/profile/$id",
                     params: { id },
-                    search: { tab: "overview", pages: 1, y: 0, q: "", sort: "newest" },
+                    search: { tab: "overview", pages: 1, y: targetY, q: "", sort: "newest" },
                     replace: true,
                     resetScroll: false,
                   });
                 }}
+
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   overviewMode && !photosMode
                     ? "text-white md:text-slate-900 border-[#E5484D]"
@@ -1548,10 +1570,11 @@ function ProfilePage() {
               <button
                 key="photos"
                 onClick={() => {
-                  const currentY = getScrollY();
+                  const currentY = tabsTopY();
                   pinAcrossChange(currentY);
                   setPhotosMode(true);
                   requestAnimationFrame(() => restoreScroll(currentY));
+
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
@@ -1695,6 +1718,24 @@ function ProfilePage() {
                   return (
                     <>
                       {(() => {
+                        // Posts render as a real feed wall instead of grid tiles.
+                        if (tab === "posts") {
+                          return (
+                            <div className="space-y-3">
+                              {(st.items as ProfilePost[]).map((p) => (
+                                <ProfilePostCard
+                                  key={p.id}
+                                  post={p}
+                                  profileId={profile.id}
+                                  authorName={displayName}
+                                  authorAvatarUrl={realProfile?.avatarUrl}
+                                  itemSearch={itemSearch as Record<string, unknown>}
+                                />
+                              ))}
+                            </div>
+                          );
+                        }
+
                         // Uniform grid tiles across every tab. Tiles deep-link to the
                         // profile item detail route so the panel loads instantly with
                         // its own skeleton while the URL stays shareable.
@@ -1713,18 +1754,8 @@ function ProfilePage() {
                           priceLabel?: string;
                         };
                         let tiles: TileConfig[] = [];
-                        if (tab === "posts") {
-                          tiles = (st.items as ProfilePost[]).map((p) => ({
-                            key: p.id,
-                            kind: "post" as const,
-                            itemId: p.id,
-                            placeholderIcon: (
-                              <MessageCircle className="w-8 h-8 text-emerald-300 md:text-emerald-700/70" />
-                            ),
-                            title: p.content,
-                            subtitle: `${p.timeAgo} · ❤ ${p.likes} · 💬 ${p.comments}`,
-                          }));
-                        } else if (tab === "groups") {
+                        if (tab === "groups") {
+
                           tiles = (st.items as ProfileGroup[]).map((g) => ({
                             key: g.id,
                             kind: "group" as const,

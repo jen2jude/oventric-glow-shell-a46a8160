@@ -748,7 +748,7 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
     if (data.tab === "posts") {
       let q = supabase
         .from("posts")
-        .select("id, text, created_at, media_path", { count: "exact" })
+        .select("id, text, created_at, media_path, media_paths, media_type", { count: "exact" })
         .eq("author_id", userId);
       if (data.q) q = q.ilike("text", `%${data.q}%`);
       q = q.order("created_at", { ascending: false }).range(from, to);
@@ -768,13 +768,46 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
         likeMap.set(r.post_id, (likeMap.get(r.post_id) ?? 0) + 1);
       for (const r of (commentsRes.data ?? []) as { post_id: string }[])
         commentMap.set(r.post_id, (commentMap.get(r.post_id) ?? 0) + 1);
-      let items: ProfilePost[] = (rows ?? []).map((r) => ({
-        id: r.id as string,
-        content: (r.text as string) ?? "",
-        timeAgo: timeAgo(r.created_at as string),
-        likes: likeMap.get(r.id as string) ?? 0,
-        comments: commentMap.get(r.id as string) ?? 0,
-      }));
+
+      // Sign attached post media so the wall can render a real feed.
+      const mediaPaths = new Set<string>();
+      for (const r of (rows ?? []) as any[]) {
+        const arr = Array.isArray(r.media_paths) ? (r.media_paths as string[]) : [];
+        arr.forEach((p) => p && mediaPaths.add(p));
+        if (r.media_path) mediaPaths.add(r.media_path as string);
+      }
+      const signedMedia = new Map<string, string>();
+      if (mediaPaths.size > 0) {
+        try {
+          const { supabaseAdmin } = await import("@/integrations/supabase/client.server");
+          const { data: signed } = await supabaseAdmin.storage
+            .from("post-media")
+            .createSignedUrls(Array.from(mediaPaths), 60 * 60 * 6);
+          (signed ?? []).forEach((s: any) => {
+            if (s?.path && s?.signedUrl) signedMedia.set(s.path, s.signedUrl);
+          });
+        } catch {
+          /* media stays unsigned; the card falls back to a text-only post */
+        }
+      }
+
+      let items: ProfilePost[] = (rows ?? []).map((r: any) => {
+        const paths: string[] = Array.isArray(r.media_paths) && r.media_paths.length
+          ? r.media_paths
+          : r.media_path
+            ? [r.media_path]
+            : [];
+        return {
+          id: r.id as string,
+          content: (r.text as string) ?? "",
+          timeAgo: timeAgo(r.created_at as string),
+          likes: likeMap.get(r.id as string) ?? 0,
+          comments: commentMap.get(r.id as string) ?? 0,
+          mediaUrls: paths.map((p) => signedMedia.get(p)).filter((u): u is string => !!u),
+          mediaType: (r.media_type as string | null) ?? null,
+        };
+      });
+
       if (data.sort === "most_liked") items = [...items].sort((a, b) => b.likes - a.likes);
       else if (data.sort === "most_commented")
         items = [...items].sort((a, b) => b.comments - a.comments);
