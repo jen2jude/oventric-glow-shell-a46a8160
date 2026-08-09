@@ -1,0 +1,229 @@
+import { Link } from "@tanstack/react-router";
+import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag } from "lucide-react";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { navigateSection } from "@/components/oventric/DiscoveryPanel";
+import { useFeedDiscovery } from "@/components/oventric/feed/useFeedDiscovery";
+import type { FeedPost } from "@/lib/posts.functions";
+
+function Section({
+  icon: Icon,
+  title,
+  action,
+  onAction,
+  children,
+}: {
+  icon: React.ComponentType<{ className?: string; strokeWidth?: number }>;
+  title: string;
+  action?: string;
+  onAction?: () => void;
+  children: React.ReactNode;
+}) {
+  return (
+    <section className="space-y-2.5">
+      <div className="flex items-center gap-2 px-0.5">
+        <Icon className="h-[18px] w-[18px] text-[#E5484D]" strokeWidth={2} />
+        <h3 className="text-[15px] font-bold text-white">{title}</h3>
+        {action && (
+          <button
+            type="button"
+            onClick={onAction}
+            className="ml-auto text-[12px] font-semibold text-[#E5484D] active:opacity-70"
+          >
+            {action} →
+          </button>
+        )}
+      </div>
+      {children}
+    </section>
+  );
+}
+
+function Rail({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="-mx-4 flex snap-x snap-mandatory gap-3 overflow-x-auto px-4 pb-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
+      {children}
+    </div>
+  );
+}
+
+/**
+ * "Discover" tab — a sectioned explore surface (trending posts, creators to
+ * follow, hot bounties, popular courses, shop picks) instead of a plain feed.
+ */
+export function FeedDiscoverExplore({
+  posts,
+  renderPost,
+}: {
+  posts: FeedPost[];
+  renderPost: (p: FeedPost) => React.ReactNode;
+}) {
+  const { peers, products, bounties, courses, circles, loading } = useFeedDiscovery(true);
+
+  const trending = [...posts]
+    .sort(
+      (a, b) =>
+        b.likes_count + b.comments_count * 2 - (a.likes_count + a.comments_count * 2),
+    )
+    .slice(0, 6);
+
+  return (
+    <div className="space-y-6">
+      {peers.length > 0 && (
+        <Section icon={Sparkles} title="Creators to follow">
+          <Rail>
+            {peers.slice(0, 12).map((p) => (
+              <Link
+                key={p.id}
+                to="/profile/$id"
+                params={{ id: p.slug }}
+                className="w-[122px] shrink-0 snap-start rounded-2xl border border-white/[0.06] bg-[#141416] p-3 text-center active:scale-[0.98]"
+              >
+                <span className="mx-auto block h-14 w-14 overflow-hidden rounded-full bg-[#1A1A1F]">
+                  <AvatarImage src={p.avatarUrl} alt={p.name} initials={p.initials} />
+                </span>
+                <p className="mt-2 truncate text-[12.5px] font-semibold text-white">{p.name}</p>
+                <p className="text-[11px] text-white/40">★ {p.stars.toFixed(1)}</p>
+              </Link>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {trending.length > 0 && (
+        <Section icon={Flame} title="Trending posts">
+          <div className="space-y-3">{trending.map((p) => renderPost(p))}</div>
+        </Section>
+      )}
+
+      {bounties.length > 0 && (
+        <Section
+          icon={Trophy}
+          title="Hot bounties"
+          action="All bounties"
+          onAction={() => navigateSection("Bounties")}
+        >
+          <Rail>
+            {bounties.slice(0, 10).map((b) => (
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => navigateSection("Bounties")}
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+              >
+                {b.coverUrl ? (
+                  <img src={b.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
+                ) : (
+                  <div className="h-24 w-full bg-gradient-to-br from-[#E5484D]/30 to-[#7C6CF6]/25" />
+                )}
+                <div className="p-3">
+                  <p className="line-clamp-2 text-[13px] font-semibold text-white">{b.title}</p>
+                  <p className="mt-1 text-[12px] font-bold text-[#E5484D]">
+                    ${b.amountUsd.toLocaleString()}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {products.length > 0 && (
+        <Section
+          icon={ShoppingBag}
+          title="Shop picks"
+          action="Marketplace"
+          onAction={() => navigateSection("Marketplace")}
+        >
+          <Rail>
+            {products.slice(0, 12).map((p) => (
+              <Link
+                key={p.id}
+                to="/product/$id"
+                params={{ id: p.id }}
+                className="w-[152px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] active:scale-[0.98]"
+              >
+                {p.coverUrl ? (
+                  <img src={p.coverUrl} alt="" loading="lazy" className="h-28 w-full object-cover" />
+                ) : (
+                  <div className={`h-28 w-full bg-gradient-to-br ${p.hue}`} />
+                )}
+                <div className="p-2.5">
+                  <p className="line-clamp-2 text-[12.5px] font-medium text-white">{p.title}</p>
+                  <p className="mt-1 text-[12.5px] font-bold text-[#E5484D]">
+                    ${p.priceUsd.toLocaleString()}
+                  </p>
+                </div>
+              </Link>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {courses.length > 0 && (
+        <Section
+          icon={GraduationCap}
+          title="Popular courses"
+          action="Academy"
+          onAction={() => navigateSection("Academy")}
+        >
+          <Rail>
+            {courses.slice(0, 10).map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => navigateSection("Academy")}
+                className="w-[200px] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/[0.06] bg-[#141416] text-left active:scale-[0.98]"
+              >
+                {c.coverUrl ? (
+                  <img src={c.coverUrl} alt="" loading="lazy" className="h-24 w-full object-cover" />
+                ) : (
+                  <div className="h-24 w-full bg-gradient-to-br from-[#7C6CF6]/35 to-[#30A46C]/25" />
+                )}
+                <div className="p-3">
+                  <p className="line-clamp-2 text-[13px] font-semibold text-white">{c.title}</p>
+                  <p className="mt-1 text-[11.5px] text-white/45">
+                    {c.isFree ? "Free" : `$${c.priceUsd.toLocaleString()}`}
+                    {c.instructor ? ` · ${c.instructor}` : ""}
+                  </p>
+                </div>
+              </button>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {circles.length > 0 && (
+        <Section
+          icon={Users}
+          title="Communities to join"
+          action="Circles"
+          onAction={() => navigateSection("Circles")}
+        >
+          <Rail>
+            {circles.slice(0, 10).map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                onClick={() => navigateSection("Circles")}
+                className="w-[150px] shrink-0 snap-start rounded-2xl border border-white/[0.06] bg-[#141416] p-3 text-left active:scale-[0.98]"
+              >
+                <span className="text-2xl">{c.emoji}</span>
+                <p className="mt-1.5 line-clamp-2 text-[13px] font-semibold text-white">{c.name}</p>
+                <p className="text-[11px] text-white/40">{c.memberCount} members</p>
+              </button>
+            ))}
+          </Rail>
+        </Section>
+      )}
+
+      {!loading && peers.length === 0 && trending.length === 0 && (
+        <div className="rounded-2xl border border-white/[0.06] bg-[#141416] p-8 text-center">
+          <p className="text-sm font-semibold text-white">Nothing to discover yet</p>
+          <p className="mt-1 text-xs text-white/45">
+            As the network grows, new creators, bounties and products will show up here.
+          </p>
+        </div>
+      )}
+    </div>
+  );
+}

@@ -70,6 +70,11 @@ import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { PostComposerModal } from "@/components/oventric/PostComposerModal";
 import { FeedAppChrome, type FeedTab } from "@/components/oventric/feed/FeedAppChrome";
 import { listFollowing } from "@/lib/follows.functions";
+import { FeedDiscoverExplore } from "@/components/oventric/feed/FeedDiscoverExplore";
+import {
+  FeedCommerceCard,
+  useFeedCommerceCards,
+} from "@/components/oventric/feed/FeedCommerceCard";
 
 import {
   FeedSearchBar,
@@ -368,6 +373,7 @@ export function Feed() {
   const [feedTab, setFeedTab] = useState<FeedTab>("foryou");
   const [searchOpen, setSearchOpen] = useState(false);
   const [followingIds, setFollowingIds] = useState<Set<string> | null>(null);
+  const commerceCards = useFeedCommerceCards(isAppShell && feedTab === "foryou");
 
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
@@ -1459,7 +1465,7 @@ export function Feed() {
             </p>
             <p className="mt-1 text-xs text-red-300/80">{postsError}</p>
           </div>
-        ) : filteredPosts.length === 0 ? (
+        ) : filteredPosts.length === 0 && !(isAppShell && feedTab === "discover") ? (
           isFiltering ? (
             <div className="bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-xl p-8 text-center">
               <p className="text-sm font-semibold text-white md:text-slate-900">
@@ -1485,23 +1491,43 @@ export function Feed() {
                 <MessageSquare className="w-5 h-5 text-[#E5484D] md:text-[#E5484D]" />
               </div>
               <p className="text-sm font-semibold text-white md:text-slate-900">
-                The feed is quiet right now
+                {isAppShell && feedTab === "following"
+                  ? "Nothing from the people you follow"
+                  : "The feed is quiet right now"}
               </p>
               <p className="mt-1 text-xs text-slate-400 md:text-slate-600 max-w-sm mx-auto">
-                No posts have been shared yet. Kick things off — share an update, ship a build log,
-                or ask the network a question.
+                {isAppShell && feedTab === "following"
+                  ? "Follow more creators to fill this tab — head to Discover to find people worth following."
+                  : "No posts have been shared yet. Kick things off — share an update, ship a build log, or ask the network a question."}
               </p>
+
             </div>
           )
         ) : (
           (() => {
             const shareOrigin = typeof window !== "undefined" ? window.location.origin : "";
+            if (isAppShell && feedTab === "discover") {
+              return (
+                <FeedDiscoverExplore posts={filteredPosts} renderPost={renderPost} />
+              );
+            }
             const visible = filteredPosts;
             const items: React.ReactNode[] = [];
             let blogIdx = 0;
+            let commerceIdx = 0;
             visible.forEach((post, i) => {
               items.push(renderPost(post));
+              if (
+                isAppShell &&
+                feedTab === "foryou" &&
+                (i + 1) % 4 === 0 &&
+                commerceCards[commerceIdx]
+              ) {
+                const c = commerceCards[commerceIdx++];
+                items.push(<FeedCommerceCard key={`commerce-${c.kind}-${c.id}`} item={c} />);
+              }
               if ((i + 1) % 10 === 0 && blogPosts[blogIdx]) {
+
                 const b = blogPosts[blogIdx++];
                 items.push(
                   <div
