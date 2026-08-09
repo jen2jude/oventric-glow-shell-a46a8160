@@ -1,17 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  ArrowRight,
-  FileText,
-  Globe,
-  MapPin,
-  MessageCircle,
-  ShoppingBag,
-  Sparkles,
-  Users,
-  Wrench,
-} from "lucide-react";
+import { ArrowRight, FileText, MessageCircle, ShoppingBag, Users, Wrench } from "lucide-react";
 import { getLiveProfileTab } from "@/lib/profiles.functions";
 import type {
   ProfileArticle,
@@ -29,11 +19,6 @@ interface Props {
   /** Profile id used when linking to the item detail route. */
   profileId: string;
   name: string;
-  bio?: string | null;
-  country?: string | null;
-  website?: string | null;
-  joined?: string;
-  skills: string[];
   /** Section -> item count, so empty modules never render. */
   counts: Partial<Record<EcosystemSectionKey, number>>;
   isOwner: boolean;
@@ -105,11 +90,6 @@ export function ProfileOverview({
   idOrSlug,
   profileId,
   name,
-  bio,
-  country,
-  website,
-  joined,
-  skills,
   counts,
   isOwner,
   price,
@@ -200,54 +180,8 @@ export function ProfileOverview({
   const posts = (data.posts ?? []) as ProfilePost[];
   const groups = (data.groups ?? []) as ProfileGroup[];
 
-  const hasAbout = !!(bio?.trim() || country?.trim() || website);
-
   return (
     <div data-testid="profile-overview" className="pb-2">
-      {hasAbout && (
-        <Module title="About" action="Details" onAction={() => onOpenSection("about")}>
-          <div className="rounded-2xl border border-white/10 bg-[#141418] p-4 md:border-slate-200 md:bg-white md:shadow-sm">
-            {bio?.trim() ? (
-              <p className="text-sm leading-relaxed text-slate-300 md:text-slate-600">{bio}</p>
-            ) : (
-              <p className="text-sm text-slate-500">No bio yet.</p>
-            )}
-            <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-400 md:text-slate-500">
-              {country?.trim() && (
-                <span className="inline-flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" /> {country}
-                </span>
-              )}
-              {website && (
-                <a
-                  href={website}
-                  target="_blank"
-                  rel="noopener noreferrer nofollow"
-                  className="inline-flex items-center gap-1.5 font-semibold text-[#E5484D] hover:underline"
-                >
-                  <Globe className="h-3.5 w-3.5" /> Website
-                </a>
-              )}
-              {joined && (
-                <span className="inline-flex items-center gap-1.5">
-                  <Sparkles className="h-3.5 w-3.5" /> Joined {joined}
-                </span>
-              )}
-            </div>
-          </div>
-        </Module>
-      )}
-
-      {skills.length > 0 && (
-        <Module title="Skills">
-          <div className="flex flex-wrap gap-2">
-            {skills.map((s) => (
-              <Chip key={s} label={s} tone="accent" />
-            ))}
-          </div>
-        </Module>
-      )}
-
       {shop.length > 0 && (
         <Module
           title={`From ${name.split(" ")[0] || name}'s shop`}
@@ -364,7 +298,7 @@ export function ProfileOverview({
         </Module>
       )}
 
-      {isOwner && wanted.length === 0 && !hasAbout && (
+      {isOwner && wanted.length === 0 && (
         <div className="mt-6 rounded-2xl border border-dashed border-white/15 p-6 text-center md:border-slate-300">
           <Wrench className="mx-auto h-6 w-6 text-slate-500" />
           <p className="mt-2 text-sm font-bold text-white md:text-slate-900">
