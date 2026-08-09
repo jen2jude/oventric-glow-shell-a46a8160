@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import {
@@ -119,6 +119,8 @@ export function ProfileOverview({
   onOpenSection,
 }: Props) {
   const fetchTab = useServerFn(getLiveProfileTab);
+  const fetchRef = useRef(fetchTab);
+  fetchRef.current = fetchTab;
   const [data, setData] = useState<Partial<Record<PreviewKey, unknown[]>>>({});
 
   const wanted = useMemo(() => {
@@ -141,7 +143,7 @@ export function ProfileOverview({
       const results = await Promise.all(
         wanted.map(async (key) => {
           try {
-            const res = await fetchTab({
+            const res = await fetchRef.current({
               data: { idOrSlug, tab: key, page: 1, pageSize: 6, q: "", sort: "newest" },
             });
             return [key, res.items] as const;
@@ -157,7 +159,7 @@ export function ProfileOverview({
       cancelled = true;
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [idOrSlug, wantedKey, fetchTab]);
+  }, [idOrSlug, wantedKey]);
 
   const listingCard = (l: ProfileListing, kind: "listing", label: string, free = false) => (
     <Link
