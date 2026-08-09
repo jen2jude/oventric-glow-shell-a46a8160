@@ -129,15 +129,16 @@ export function PromoInterstitial({
       role="dialog"
       aria-modal="true"
       aria-label={promo.title}
-      className="fixed inset-0 z-[70] grid place-items-center bg-black/75 p-4 overflow-y-auto backdrop-blur-sm"
+      className="fixed inset-0 z-[70] flex items-center justify-center bg-black/80 p-6 backdrop-blur-md animate-fade-in"
       onClick={close}
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="relative w-full max-w-sm overflow-hidden rounded-3xl border border-white/20 bg-gradient-to-br from-promo-surface to-promo-surface-2 p-6 pt-8 text-left shadow-2xl"
+        className="relative w-full max-w-sm px-2 py-4 text-left animate-scale-in"
       >
-        {/* Soft warm glow behind the card */}
-        <div className="pointer-events-none absolute -top-10 left-1/2 h-40 w-40 -translate-x-1/2 rounded-full bg-promo-warm/25 blur-3xl" />
+        {/* Soft warm glow behind the splash */}
+        <div className="pointer-events-none absolute top-0 left-1/2 h-56 w-56 -translate-x-1/2 rounded-full bg-promo-warm/30 blur-3xl" />
+
 
         {/* Floating decorative emojis */}
         {FLOATERS.map((icon, i) => (
