@@ -1362,6 +1362,13 @@ function ProfilePage() {
                         {aboutExpanded ? "Show less" : "Read more"}
                       </button>
                     )}
+                    <div className="mt-3 flex flex-wrap items-center gap-x-4 gap-y-1.5 text-xs text-slate-400 md:text-slate-500">
+                      {displayJoined && (
+                        <span className="inline-flex items-center gap-1.5">
+                          <Sparkles className="h-3.5 w-3.5" /> Joined {displayJoined}
+                        </span>
+                      )}
+                    </div>
                   </div>
                 )}
 
@@ -1423,6 +1430,45 @@ function ProfilePage() {
                           <SocialIcon kind={key} />
                         </button>
                       ))}
+                    </div>
+                  </div>
+                )}
+
+                {/* Skills */}
+                {((realProfile?.skills && realProfile.skills.length > 0) || isOwnProfile) && (
+                  <div className="mt-4">
+                    <div className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
+                      <h2 className="truncate text-sm font-black text-white md:text-slate-900">
+                        Skills
+                      </h2>
+                      {isOwnProfile && (
+                        <button
+                          type="button"
+                          onClick={() => setEditProfileOpen(true)}
+                          className="shrink-0 text-xs font-bold text-[#E5484D] hover:underline"
+                        >
+                          Edit
+                        </button>
+                      )}
+                    </div>
+                    <div className="-mx-1 mt-2 flex flex-wrap gap-2 px-1">
+                      {(realProfile?.skills ?? []).map((s) => (
+                        <span
+                          key={s}
+                          className="inline-flex items-center rounded-full border border-[#E5484D]/30 bg-[#E5484D]/12 px-3 py-1.5 text-xs font-bold text-[#E5484D]"
+                        >
+                          {s}
+                        </span>
+                      ))}
+                      {isOwnProfile && (realProfile?.skills?.length ?? 0) === 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setEditProfileOpen(true)}
+                          className="inline-flex items-center rounded-full border border-dashed border-[#E5484D]/60 bg-[#1A1A1F] px-3 py-1.5 text-xs font-bold text-[#E5484D] hover:bg-[#232329] md:bg-white"
+                        >
+                          + Add skills
+                        </button>
+                      )}
                     </div>
                   </div>
                 )}
