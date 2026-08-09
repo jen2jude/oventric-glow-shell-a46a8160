@@ -126,9 +126,27 @@ export const Route = createFileRoute("/profile/$id")({
   component: ProfilePage,
 });
 
-type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved" | "blog";
-const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved", "blog"];
+type Tab =
+  | "posts"
+  | "groups"
+  | "marketplace"
+  | "services"
+  | "courses"
+  | "posted"
+  | "solved"
+  | "blog";
+const TAB_KEYS: Tab[] = [
+  "posts",
+  "groups",
+  "marketplace",
+  "services",
+  "courses",
+  "posted",
+  "solved",
+  "blog",
+];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
+
 
 type SortOption = { value: ProfileSortKey; label: string };
 const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
