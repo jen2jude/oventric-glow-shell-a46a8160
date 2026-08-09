@@ -52,6 +52,17 @@ export function SkillsEditModal({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open]);
 
+  // Lock background scroll while the modal is open.
+  useEffect(() => {
+    if (!open) return;
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prev;
+    };
+  }, [open]);
+
+
   const filteredTools = useMemo(() => {
     const q = toolQuery.trim().toLowerCase();
     return library.tools.filter(
