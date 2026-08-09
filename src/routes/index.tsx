@@ -65,6 +65,8 @@ function Index() {
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
   const [name, setName] = useState<string>("");
   const [q, setQ] = useState("");
+  const [returnedToHub, setReturnedToHub] = useState(false);
+  const prevActiveRef = useRef<string | null>(null);
 
   const { require, fullName, storeName, country, baseCurrency } = useOnboarding();
   const { isAuthenticated } = useAuthGate();
