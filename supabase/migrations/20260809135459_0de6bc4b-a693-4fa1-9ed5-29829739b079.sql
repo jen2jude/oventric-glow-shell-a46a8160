@@ -1,0 +1,2 @@
+ALTER TABLE public.products DROP CONSTRAINT IF EXISTS products_kind_check;
+ALTER TABLE public.products ADD CONSTRAINT products_kind_check CHECK (kind = ANY (ARRAY['digital'::text,'physical'::text,'service'::text]));
