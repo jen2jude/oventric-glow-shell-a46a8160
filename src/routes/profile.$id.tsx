@@ -95,6 +95,10 @@ import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
 
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import {
+  normalizeCountryCode,
+  COUNTRY_META,
+} from "@/lib/currency/africa";
+import {
   getProfile,
   computeStarBreakdown,
   getCircleMembersPreview,
