@@ -850,8 +850,8 @@ function ProfilePage() {
     : isUuidId
       ? "Unverified"
       : "Verified";
-  const displayStars =
-    liveRep?.stars ?? realProfile?.reputationStars ?? (isUuidId ? 0 : starBreakdown.stars);
+
+
 
   const handleJoin = () => {
     require(1, async () => {
