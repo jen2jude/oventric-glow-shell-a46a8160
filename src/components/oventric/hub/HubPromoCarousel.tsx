@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { ChevronRight } from "lucide-react";
 
+import digitalImg from "@/assets/promo-digital.png";
 import shoppingImg from "@/assets/promo-shopping.png";
 import assetsImg from "@/assets/promo-assets.png";
 import referImg from "@/assets/promo-refer.png";
