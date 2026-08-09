@@ -343,6 +343,27 @@ export const listPosts = createServerFn({ method: "GET" }).handler(async () => {
   return { posts: out };
 });
 
+/** Fetch a single post (with quoted original) for the dedicated post screen. */
+export const getPost = createServerFn({ method: "GET" })
+  .inputValidator((input: unknown) => z.object({ id: z.string().uuid() }).parse(input))
+  .handler(async ({ data }) => {
+    const { sb, userId } = await getViewerClient();
+    const { data: row, error } = await sb
+      .from("posts")
+      .select(POST_SELECT as any)
+      .eq("id", data.id)
+      .maybeSingle();
+    if (error) {
+      console.error("[getPost] failed", error);
+      throw new Error("Failed to load post");
+    }
+    if (!row) return { post: null as FeedPost | null };
+    const out = await buildFeedPosts(sb, userId, [row as any]);
+    return { post: (out[0] ?? null) as FeedPost | null };
+  });
+
+
+
 export const listWallPosts = createServerFn({ method: "GET" })
   .inputValidator((input: unknown) => z.object({ wallUserId: z.string().uuid() }).parse(input))
   .handler(async ({ data }) => {
