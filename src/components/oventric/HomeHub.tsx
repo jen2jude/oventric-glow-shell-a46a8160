@@ -224,7 +224,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       >
         <div className="flex items-start justify-between gap-3">
           <div className="min-w-0">
-            <div className="text-sm font-bold text-[#E5484D]">Hub</div>
             <div className="mt-1 flex items-center gap-2">
               <span className="text-3xl md:text-4xl font-extrabold text-white tabular-nums truncate">
                 {isAuthenticated ? hide(main) : formatMoney(0, currency)}
@@ -371,6 +370,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </div>
       </section>
 
+      {/* Spotlights */}
+      <SpotlightRail onSelect={onSelect} />
+
       {/* Top Users Section */}
       {topUsers.length > 0 && (
         <section className="mt-6 mb-2">
@@ -414,9 +416,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </div>
         </section>
       )}
-
-      {/* Spotlights */}
-      <SpotlightRail onSelect={onSelect} />
 
       {/* Live strips */}
       <MiniRail
