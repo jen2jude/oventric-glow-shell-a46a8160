@@ -1194,7 +1194,6 @@ export function Feed() {
             meAvatarUrl={meAvatarUrl}
             meInitials={meInitials}
             meSlug={meSlug}
-            onAddStory={() => require(1, () => setComposerOpen(true), "seller")}
           />
         )}
         {/* Composer */}
