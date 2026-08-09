@@ -8,14 +8,14 @@ import {
   Target,
   GraduationCap,
   Newspaper,
-  LayoutDashboard,
-  MessageSquare,
-  Users,
-  Newspaper as FeedIcon,
-  LifeBuoy,
   ChevronRight,
   KeyRound,
   Star,
+  Plus,
+  ArrowUp,
+  Send,
+  PenSquare,
+  MoreHorizontal,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuthGate } from "@/lib/auth-gate/AuthGateProvider";
@@ -26,8 +26,6 @@ import { getDiscoveryFeed } from "@/lib/discovery.functions";
 import { listCourses } from "@/lib/academy.functions";
 import { formatMoney, usdRate, safeFormatDisplayPrice } from "@/lib/fx-display";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
-import { CountBadge } from "@/components/oventric/CountBadge";
-import { useUnreadCounts } from "@/hooks/use-unread-counts";
 import { SellSwitcherModal } from "@/components/oventric/SellSwitcherModal";
 import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import type { ChoiceKey } from "@/components/oventric/CreatePanel";
@@ -35,6 +33,8 @@ import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 import { SpotlightRail } from "@/components/oventric/SpotlightRail";
+import { HubPromoCarousel } from "@/components/oventric/hub/HubPromoCarousel";
+import { AllFeaturesSheet } from "@/components/oventric/hub/AllFeaturesSheet";
 
 type Counts = Partial<Record<string, number>>;
 
@@ -46,34 +46,23 @@ export type HubProps = {
   returnedToHub?: boolean;
 };
 
-type Tile = {
-  label: string;
-  icon: typeof Store;
-  section?: string;
-  to?: string;
-  countKey?: string;
-};
+/** ISO-2 country code → flag emoji (regional indicator pair). */
+function flagEmoji(code: string | null | undefined): string {
+  if (!code || code.length !== 2 || code === "OT") return "🌍";
+  return String.fromCodePoint(
+    ...code
+      .toUpperCase()
+      .split("")
+      .map((c) => 0x1f1e6 + c.charCodeAt(0) - 65),
+  );
+}
 
-// Single uniform line-art grid: 2 rows x 4 columns.
-const TILES: Tile[] = [
-  { label: "Feed", icon: FeedIcon, section: "Feed", countKey: "Feed" },
-  { label: "Market", icon: Store, section: "Marketplace", countKey: "Market" },
-  { label: "Academy", icon: GraduationCap, section: "Academy", countKey: "Academy" },
-  { label: "Bounties", icon: Target, section: "Bounties", countKey: "Bounties" },
-  { label: "Circles", icon: Users, section: "Circles" },
-  { label: "Messages", icon: MessageSquare, section: "Messages" },
-  { label: "Dashboard", icon: LayoutDashboard, to: "/dashboard" },
-  { label: "Help", icon: LifeBuoy, to: "/help" },
-];
-
-// Secondary destinations kept reachable as compact text links so no existing
-// feature loses its entry point from the home screen.
-const MORE_LINKS: Array<{ label: string; to: string }> = [
-  { label: "Wallet", to: "" },
-  { label: "Advertise", to: "/advertise" },
-  { label: "Affiliate", to: "/affiliate" },
-  { label: "Blog", to: "/blog" },
-];
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 12) return "Good morning";
+  if (h < 17) return "Good afternoon";
+  return "Good evening";
+}
 
 function fromUSD(usd: number, target: Currency): number {
   return target === "USD" ? usd : usd * usdRate(target);
