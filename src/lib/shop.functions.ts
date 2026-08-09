@@ -133,14 +133,20 @@ export const updateMyShop = createServerFn({ method: "POST" })
   .inputValidator((input: unknown) => UpdateShopInput.parse(input ?? {}))
   .handler(async ({ data, context }) => {
     const { supabase, userId } = context;
-    const patch: Record<string, string | null> = {};
-    if (data.shopName !== undefined) patch['shop_name'] = data.shopName || null;
-    if (data.shopAbout !== undefined) patch['shop_about'] = data.shopAbout || null;
-    if (data.shopLogoPath !== undefined) patch['shop_logo_path'] = data.shopLogoPath;
-    if (data.shopCoverPath !== undefined) patch['shop_cover_path'] = data.shopCoverPath;
+    const patch: {
+      shop_name?: string | null;
+      shop_about?: string | null;
+      shop_logo_path?: string | null;
+      shop_cover_path?: string | null;
+    } = {};
+    if (data.shopName !== undefined) patch.shop_name = data.shopName || null;
+    if (data.shopAbout !== undefined) patch.shop_about = data.shopAbout || null;
+    if (data.shopLogoPath !== undefined) patch.shop_logo_path = data.shopLogoPath;
+    if (data.shopCoverPath !== undefined) patch.shop_cover_path = data.shopCoverPath;
     if (Object.keys(patch).length === 0) return { ok: true };
 
     const { error } = await supabase.from("profiles").update(patch).eq("user_id", userId);
+
     if (error) {
       console.error("[updateMyShop] failed", error);
       throw new Error("Failed to update shop details");
