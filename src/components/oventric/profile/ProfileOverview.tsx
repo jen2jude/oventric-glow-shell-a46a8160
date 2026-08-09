@@ -106,7 +106,6 @@ export function ProfileOverview({
     if ((counts.marketplace ?? 0) > 0) keys.push("marketplace");
     if ((counts.services ?? 0) > 0) keys.push("services");
     if ((counts.courses ?? 0) > 0) keys.push("courses");
-    if ((counts.blog ?? 0) > 0) keys.push("blog");
     if ((counts.posts ?? 0) > 0) keys.push("posts");
     if ((counts.groups ?? 0) > 0) keys.push("groups");
     return keys;
