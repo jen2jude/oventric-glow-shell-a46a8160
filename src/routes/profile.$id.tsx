@@ -1062,7 +1062,7 @@ function ProfilePage() {
               className="profile-card-safe profile-standard-header mb-6"
             >
               {/* Cover image (top banner) */}
-              <div className="profile-cover-safe relative h-36 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
+              <div className="profile-cover-safe relative h-40 sm:h-56 rounded-2xl border border-white/10 md:border-slate-200 bg-[#18181d] md:bg-slate-100 overflow-hidden shadow-[0_16px_40px_-24px_rgba(0,0,0,0.9)]">
                 {realProfile?.coverUrl ? (
                   <ResponsiveImage
                     src={realProfile.coverUrl}
@@ -1071,9 +1071,10 @@ function ProfilePage() {
                     className="block h-full w-full object-cover"
                   />
                 ) : (
-                  <div className="w-full h-full bg-gradient-to-br from-emerald-500/25 via-cyan-500/10 to-fuchsia-500/25" />
+                  <div className="w-full h-full bg-[linear-gradient(135deg,#1b1b20_0%,#26161a_55%,#3a1218_100%)]" />
                 )}
-                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/50 to-transparent" />
+                <div className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#121214] via-[#121214]/60 to-transparent" />
+
                 {isOwnProfile && (
                   <button
                     type="button"
