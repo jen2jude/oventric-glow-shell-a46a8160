@@ -82,9 +82,7 @@ export function FeedAppChrome({
   return (
     <div
       ref={chromeRef}
-      className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B] transition-[transform,opacity] duration-[520ms] ease-[cubic-bezier(0.33,1,0.68,1)] will-change-transform ${
-        chromeHidden ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
-      }`}
+      className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]"
     >
       {/* Brand header — stays pinned; only fades slightly on scroll down */}
       <div>
