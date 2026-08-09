@@ -414,6 +414,9 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </section>
       )}
 
+      {/* Spotlights */}
+      <SpotlightRail onSelect={onSelect} />
+
       {/* Live strips */}
       <MiniRail
         title="Fresh in the market"
