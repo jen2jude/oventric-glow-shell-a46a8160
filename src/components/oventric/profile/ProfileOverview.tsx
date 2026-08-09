@@ -298,7 +298,7 @@ export function ProfileOverview({
         </Module>
       )}
 
-      {isOwner && wanted.length === 0 && !hasAbout && (
+      {isOwner && wanted.length === 0 && (
         <div className="mt-6 rounded-2xl border border-dashed border-white/15 p-6 text-center md:border-slate-300">
           <Wrench className="mx-auto h-6 w-6 text-slate-500" />
           <p className="mt-2 text-sm font-bold text-white md:text-slate-900">
