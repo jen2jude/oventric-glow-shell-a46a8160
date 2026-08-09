@@ -290,6 +290,9 @@ async function buildFeedPosts(
       }
     }
     return {
+      reposts_count: repostCounts.get(r.id) ?? 0,
+      viewer_reposted: viewerReposted.has(r.id),
+      repost_of: r.repost_of ? (quotedById.get(r.repost_of) ?? null) : null,
       id: r.id,
       author_id: r.author_id,
       author_name: name,
