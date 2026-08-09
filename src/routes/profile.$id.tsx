@@ -1616,11 +1616,6 @@ function ProfilePage() {
                   idOrSlug={id}
                   profileId={profile.id}
                   name={displayName}
-                  bio={displayBio}
-                  country={realProfile?.country ?? null}
-                  website={realProfile?.socialLinks?.website ?? null}
-                  joined={displayJoined}
-                  skills={realProfile?.skills ?? []}
                   counts={Object.fromEntries(
                     ecosystemSections.map((sct) => [sct.key, sct.count ?? 0]),
                   )}
