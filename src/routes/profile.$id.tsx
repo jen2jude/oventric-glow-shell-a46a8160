@@ -1521,14 +1521,17 @@ function ProfilePage() {
                 key="overview"
                 onClick={() => {
                   setPhotosMode(false);
+                  const targetY = tabsTopY();
+                  pinAcrossChange(targetY);
                   navigate({
                     to: "/profile/$id",
                     params: { id },
-                    search: { tab: "overview", pages: 1, y: 0, q: "", sort: "newest" },
+                    search: { tab: "overview", pages: 1, y: targetY, q: "", sort: "newest" },
                     replace: true,
                     resetScroll: false,
                   });
                 }}
+
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   overviewMode && !photosMode
                     ? "text-white md:text-slate-900 border-[#E5484D]"
