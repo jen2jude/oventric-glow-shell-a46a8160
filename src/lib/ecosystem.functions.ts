@@ -74,6 +74,12 @@ export const getProfileEcosystem = createServerFn({ method: "GET" })
         supabase.from("circle_members").select("circle_id", head).eq("user_id", userId),
       ]);
 
+    const collections = await supabase
+      .from("collections")
+      .select("id", head)
+      .eq("user_id", userId)
+      .eq("is_public", true);
+
     const skills = Array.isArray(prof.skills)
       ? (prof.skills as unknown[]).filter((s): s is string => typeof s === "string" && !!s.trim())
       : [];
@@ -105,6 +111,7 @@ export const getProfileEcosystem = createServerFn({ method: "GET" })
         solved: bountiesSolved.count ?? 0,
         groups: circles.count ?? 0,
         skills: skills.length,
+        collections: collections.count ?? 0,
       },
     };
   });

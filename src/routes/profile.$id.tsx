@@ -112,6 +112,7 @@ import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
 import { ProfileCoursesTab } from "@/components/oventric/profile/ProfileCoursesTab";
 import { ProfileServicesTab } from "@/components/oventric/profile/ProfileServicesTab";
 import { ProfileSkillsTab } from "@/components/oventric/profile/ProfileSkillsTab";
+import { ProfileCollectionsTab } from "@/components/oventric/profile/ProfileCollectionsTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -233,6 +234,7 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
     { value: "lowest_bounty", label: "Lowest bounty" },
   ],
   skills: [{ value: "newest", label: "Newest" }],
+  collections: [{ value: "newest", label: "Newest" }],
   blog: [
     { value: "newest", label: "Newest" },
     { value: "most_liked", label: "Most reactions" },
@@ -246,6 +248,7 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   marketplace: "Search listings…",
   services: "Search services…",
   skills: "Search skills…",
+  collections: "Search boards…",
   courses: "Search courses…",
 
   posted: "Search bounties…",
@@ -697,7 +700,7 @@ function ProfilePage() {
   // Load (or reload) the active tab up to `desiredPages`, then restore scroll.
   useEffect(() => {
     let cancelled = false;
-    if (tab === "skills") return;
+    if (tab === "skills" || tab === "collections") return;
     const state = tabData[tab];
     // Only trigger the initial hydration for this tab.
     if (state.page !== 0 || state.loading) return;
@@ -1599,7 +1602,7 @@ function ProfilePage() {
             </nav>
 
             {/* Search + sort */}
-            {!overviewMode && !photosMode && tab !== "skills" && (
+            {!overviewMode && !photosMode && tab !== "skills" && tab !== "collections" && (
               <TabFilters
                 tab={tab}
                 q={q}
@@ -1686,6 +1689,12 @@ function ProfilePage() {
                 />
               ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
+              ) : tab === "collections" ? (
+                <ProfileCollectionsTab
+                  idOrSlug={id}
+                  name={displayName}
+                  isOwner={isOwnProfile}
+                />
               ) : tab === "skills" ? (
                 <ProfileSkillsTab
                   name={displayName}
@@ -2409,6 +2418,11 @@ function emptyContentFor(
         title: "No solved bounties yet",
         hint: "Completed bounties with delivered proof will appear on this tab.",
       };
+    case "collections":
+      return {
+        title: "No boards yet",
+        hint: `${name} hasn't published a curated board yet.`,
+      };
     case "skills":
       return {
         title: "No skills added yet",
@@ -2437,6 +2451,8 @@ function tabNoun(tab: Tab): string {
       return "articles";
     case "skills":
       return "skills";
+    case "collections":
+      return "boards";
   }
 }
 
