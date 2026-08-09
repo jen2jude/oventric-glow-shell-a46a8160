@@ -68,9 +68,10 @@ export const getProfileTab = createServerFn({ method: "GET" })
     const { loadProfileTab } = await import("@/lib/profiles/data.server");
     // Small artificial latency so pagination UX is observable in the demo.
     await new Promise((r) => setTimeout(r, 120));
-    if (data.tab === "blog") {
+    if (data.tab === "blog" || data.tab === "services" || data.tab === "courses") {
       return { items: [], total: 0, page: data.page, pageSize: data.pageSize, hasMore: false };
     }
+
     return loadProfileTab(data.profileId, data.tab, data.page, data.pageSize, {
       q: data.q,
       sort: data.sort,
