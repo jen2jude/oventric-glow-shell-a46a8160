@@ -11,6 +11,16 @@
   animation: scroll-x 15s linear infinite;
 }
 
+@keyframes promo-float {
+  0%, 100% { transform: translateY(0) rotate(-6deg); }
+  50% { transform: translateY(-10px) rotate(6deg); }
+}
+
+@keyframes promo-float-slow {
+  0%, 100% { transform: translateY(0) rotate(8deg); }
+  50% { transform: translateY(-14px) rotate(-8deg); }
+}
+
 
 @custom-variant dark (&:is(.dark *));
 
@@ -38,8 +48,17 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-promo-surface: var(--promo-surface);
+  --color-promo-surface-2: var(--promo-surface-2);
+  --color-promo-warm: var(--promo-warm);
+  --color-promo-hot: var(--promo-hot);
+  --color-promo-gold: var(--promo-gold);
+  --color-promo-text: var(--promo-text);
+  --color-promo-text-soft: var(--promo-text-soft);
   --animate-rgb-neon-chase: rgb-neon-chase 6s linear infinite;
   --animate-rgb-pulse: rgb-pulse 3s ease-in-out infinite;
+  --animate-promo-float: promo-float 3.2s ease-in-out infinite;
+  --animate-promo-float-slow: promo-float-slow 4.5s ease-in-out infinite;
 }
 
 /* Brand accent remap: green/emerald utilities resolve to the sharp hero blue. */
@@ -99,6 +118,15 @@
   --border: oklch(1 0 0 / 10%);
   --input: oklch(1 0 0 / 12%);
   --ring: oklch(0.85 0 0);
+
+  /* Warm, celebratory promo modal tokens */
+  --promo-surface: oklch(0.96 0.03 75);
+  --promo-surface-2: oklch(0.93 0.05 65);
+  --promo-warm: oklch(0.72 0.16 55);
+  --promo-hot: oklch(0.60 0.22 30);
+  --promo-gold: oklch(0.78 0.14 85);
+  --promo-text: oklch(0.30 0.06 45);
+  --promo-text-soft: oklch(0.45 0.05 55);
 }
 
 
