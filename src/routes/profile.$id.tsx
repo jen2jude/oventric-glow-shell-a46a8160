@@ -1893,18 +1893,16 @@ function ProfilePage() {
             </section>
 
             {realProfile?.userId && (
-              <RelationshipsSection
+              <ConnectionsDialog
+                open={connectionsOpen}
+                onOpenChange={setConnectionsOpen}
                 userId={realProfile.userId}
                 name={displayName}
                 viewerId={meId ?? null}
-                tab={relTab}
-                onTabChange={setRelTab}
-                counts={{
-                  followers: socialCounts?.followers ?? 0,
-                  following: socialCounts?.following ?? 0,
-                }}
+                initialTab={connectionsTab}
               />
             )}
+
 
             <EarningsBreakdown isOwner={isOwnProfile} />
 
