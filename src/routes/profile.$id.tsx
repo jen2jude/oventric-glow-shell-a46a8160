@@ -1670,7 +1670,7 @@ function ProfilePage() {
                             title: g.name,
                             subtitle: `${g.tag} · ${g.members.toLocaleString()} member${g.members === 1 ? "" : "s"}`,
                           }));
-                        } else if (tab === "marketplace") {
+                        } else if (tab === "marketplace" || tab === "services") {
                           tiles = (st.items as ProfileListing[]).map((l) => ({
                             key: l.id,
                             kind: "listing" as const,
@@ -1679,9 +1679,25 @@ function ProfilePage() {
                             placeholderIcon: <ShoppingBag className="w-8 h-8 text-white/30" />,
                             badge: { label: l.category, tone: "emerald" as const },
                             title: l.title,
-                            subtitle: `${l.sales} sold`,
+                            subtitle: tab === "services" ? "Service" : `${l.sales} sold`,
                             priceLabel: price(l.priceUsd),
                           }));
+                        } else if (tab === "courses") {
+                          tiles = (st.items as ProfileListing[]).map((l) => ({
+                            key: l.id,
+                            kind: "listing" as const,
+                            itemId: l.id,
+                            academy: true,
+                            coverUrl: l.coverUrl ?? null,
+                            placeholderIcon: (
+                              <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />
+                            ),
+                            badge: { label: l.category, tone: "sky" as const },
+                            title: l.title,
+                            subtitle: "Course",
+                            priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
+                          }));
+
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
