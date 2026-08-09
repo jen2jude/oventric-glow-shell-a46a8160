@@ -1,6 +1,8 @@
 import {
   Paperclip,
   MessageSquare,
+  MessageCircle,
+  Repeat2,
   Share2,
   Flag,
   Send,
@@ -29,6 +31,8 @@ import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { RepostDialog } from "@/components/oventric/feed/RepostDialog";
+
 import { AdSlot } from "@/components/oventric/ads/AdSlot";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { DiscoveryPanel } from "@/components/oventric/DiscoveryPanel";
@@ -377,6 +381,8 @@ export function Feed() {
 
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [posts, setPosts] = useState<FeedPost[]>([]);
+  const [repostTarget, setRepostTarget] = useState<FeedPost | null>(null);
+
   const [newPostId, setNewPostId] = useState<string | null>(null);
   const [pendingPosts, setPendingPosts] = useState<PendingPost[]>([]);
   // Like / comment / share tapped on an optimistic card before the server
@@ -1828,6 +1834,31 @@ export function Feed() {
                     </div>
                   )}
 
+                  {/* Quoted original when this post is a repost */}
+                  {post.repost_of && (
+                    <div className={isAppShell ? "px-4 md:px-0" : ""}>
+                      <div className="mt-3 flex gap-3 rounded-2xl border border-white/10 md:border-slate-200 bg-white/[0.03] md:bg-slate-50 p-3">
+                        {(post.repost_of.media_url || post.repost_of.poster_url) && (
+                          <img
+                            src={post.repost_of.poster_url ?? post.repost_of.media_url ?? ""}
+                            alt=""
+                            loading="lazy"
+                            className="h-14 w-14 shrink-0 rounded-xl object-cover"
+                          />
+                        )}
+                        <div className="min-w-0">
+                          <p className="text-xs font-bold text-white md:text-slate-900">
+                            {post.repost_of.author_name}
+                          </p>
+                          <p className="mt-0.5 line-clamp-3 text-xs text-white/60 md:text-slate-600">
+                            {post.repost_of.text}
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+
                   {/* Engagement summary */}
                   {(() => {
                     const topReactions = (
@@ -1881,13 +1912,13 @@ export function Feed() {
 
                   {/* Action bar */}
                   <div
-                    className={`relative grid grid-cols-3 items-center gap-1 mt-2 pt-1.5 md:border-slate-200 md:text-slate-600 text-xs ${
+                    className={`relative flex items-center gap-1 mt-2 pt-1.5 md:border-slate-200 md:text-slate-600 text-xs ${
                       isAppShell
-                        ? "border-t border-white/[0.06] px-2 pb-2 text-white/55 md:px-0 md:pb-0"
+                        ? "border-t border-white/[0.06] px-3 pb-2 text-white/55 md:px-0 md:pb-0"
                         : "border-t border-white/5 text-slate-400"
                     }`}
                   >
-                    <div className="relative flex items-center justify-center">
+                    <div className="relative">
                       <button
                         type="button"
                         onClick={() => {
@@ -1897,7 +1928,7 @@ export function Feed() {
                             setPickerFor((v) => (v === post.id ? null : post.id));
                           }
                         }}
-                        className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
+                        className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 transition-colors font-semibold"
                         style={{
                           color: post.viewer_reaction
                             ? REACTION_META[post.viewer_reaction].color
@@ -1911,11 +1942,13 @@ export function Feed() {
                           animate={false}
                           className="w-[18px] h-[18px]"
                         />
-                        {post.viewer_reaction ? REACTION_META[post.viewer_reaction].label : "React"}
+                        {post.likes_count > 0 && (
+                          <span>{compactCount(post.likes_count)}</span>
+                        )}
                       </button>
                       {pickerFor === post.id && (
                         <ReactionPicker
-                          align="center"
+                          align="left"
                           onPick={(r) => {
                             setPickerFor(null);
                             handleReact(post, r);
@@ -1927,19 +1960,36 @@ export function Feed() {
                     <button
                       type="button"
                       onClick={() => setCommentsSheetPostId(post.id)}
-                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
-                      <MessageSquare className="w-4 h-4" /> Comment
+                      <MessageCircle className="w-[18px] h-[18px]" />
+                      {post.comments_count > 0 && (
+                        <span>{compactCount(post.comments_count)}</span>
+                      )}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setRepostTarget(post)}
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      style={{ color: post.viewer_reposted ? "#E5484D" : undefined }}
+                      aria-label="Repost"
+                    >
+                      <Repeat2 className="w-[19px] h-[19px]" />
+                      {(post.reposts_count ?? 0) > 0 && (
+                        <span>{compactCount(post.reposts_count)}</span>
+                      )}
                     </button>
                     <button
                       type="button"
                       onClick={() => shareUrl(shareHref, `${post.author_name} on Oventric`)}
-                      className="flex w-full items-center justify-center gap-1.5 px-2 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      className="ml-auto flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
+                      aria-label="Share"
                     >
-                      <Share2 className="w-4 h-4" /> Share
+                      <Share2 className="w-[18px] h-[18px]" />
                     </button>
                   </div>
+
 
 
 
@@ -2009,7 +2059,14 @@ export function Feed() {
           title={blogShare?.title ?? "Oventric Blog"}
           text={blogShare?.excerpt || undefined}
         />
+        <RepostDialog
+          open={!!repostTarget}
+          post={repostTarget}
+          onClose={() => setRepostTarget(null)}
+          onDone={() => void refreshPosts()}
+        />
         <ReportModal
+
           open={!!reportOpen}
           onClose={() => setReportOpen(null)}
           target={

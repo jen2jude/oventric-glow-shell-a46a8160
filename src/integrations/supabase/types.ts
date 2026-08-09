@@ -2550,6 +2550,7 @@ export type Database = {
           media_paths: string[]
           media_type: string | null
           mentioned_user_ids: string[]
+          repost_of: string | null
           shared_to_feed: boolean
           text: string
           updated_at: string
@@ -2566,6 +2567,7 @@ export type Database = {
           media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
+          repost_of?: string | null
           shared_to_feed?: boolean
           text: string
           updated_at?: string
@@ -2582,6 +2584,7 @@ export type Database = {
           media_paths?: string[]
           media_type?: string | null
           mentioned_user_ids?: string[]
+          repost_of?: string | null
           shared_to_feed?: boolean
           text?: string
           updated_at?: string
@@ -2594,6 +2597,13 @@ export type Database = {
             columns: ["circle_id"]
             isOneToOne: false
             referencedRelation: "circles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "posts_repost_of_fkey"
+            columns: ["repost_of"]
+            isOneToOne: false
+            referencedRelation: "posts"
             referencedColumns: ["id"]
           },
         ]
