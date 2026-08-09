@@ -38,8 +38,17 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
+  --color-promo-surface: var(--promo-surface);
+  --color-promo-surface-2: var(--promo-surface-2);
+  --color-promo-warm: var(--promo-warm);
+  --color-promo-hot: var(--promo-hot);
+  --color-promo-gold: var(--promo-gold);
+  --color-promo-text: var(--promo-text);
+  --color-promo-text-soft: var(--promo-text-soft);
   --animate-rgb-neon-chase: rgb-neon-chase 6s linear infinite;
   --animate-rgb-pulse: rgb-pulse 3s ease-in-out infinite;
+  --animate-promo-float: promo-float 3.2s ease-in-out infinite;
+  --animate-promo-float-slow: promo-float-slow 4.5s ease-in-out infinite;
 }
 
 /* Brand accent remap: green/emerald utilities resolve to the sharp hero blue. */
