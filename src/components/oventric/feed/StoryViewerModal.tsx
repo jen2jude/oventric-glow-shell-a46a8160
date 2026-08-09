@@ -1,0 +1,242 @@
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
+import { useServerFn } from "@tanstack/react-start";
+import { X, Send } from "lucide-react";
+import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { markStoryViewed, reactToStory, type StoryGroup } from "@/lib/stories.functions";
+
+const IMAGE_MS = 5000;
+const REACTIONS = ["❤️", "🔥", "😂", "👏", "😮", "💯"];
+
+function timeAgo(iso: string) {
+  const mins = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+  if (mins < 60) return `${mins}m`;
+  return `${Math.floor(mins / 60)}h`;
+}
+
+/**
+ * Full-screen story carousel: auto-advances (5s per image, video duration for
+ * clips), blurs and locks the page behind it, closes on outside click, and lets
+ * viewers fire a reaction that lands in the owner's inbox with the media snippet.
+ */
+export function StoryViewerModal({
+  groups,
+  startIndex,
+  onClose,
+}: {
+  groups: StoryGroup[];
+  startIndex: number;
+  onClose: () => void;
+}) {
+  const [gi, setGi] = useState(startIndex);
+  const [ii, setIi] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
+  const [sent, setSent] = useState<string | null>(null);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const markViewed = useServerFn(markStoryViewed);
+  const react = useServerFn(reactToStory);
+
+  const group = groups[gi];
+  const item = group?.items[ii];
+
+  const next = useCallback(() => {
+    setElapsed(0);
+    setIi((prev) => {
+      const g = groups[gi];
+      if (g && prev + 1 < g.items.length) return prev + 1;
+      if (gi + 1 < groups.length) {
+        setGi(gi + 1);
+        return 0;
+      }
+      onClose();
+      return prev;
+    });
+  }, [gi, groups, onClose]);
+
+  const prev = useCallback(() => {
+    setElapsed(0);
+    setIi((p) => {
+      if (p > 0) return p - 1;
+      if (gi > 0) {
+        const g = groups[gi - 1];
+        setGi(gi - 1);
+        return Math.max(0, (g?.items.length ?? 1) - 1);
+      }
+      return 0;
+    });
+  }, [gi, groups]);
+
+  // Lock background scroll while open.
+  useEffect(() => {
+    const prevOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      document.body.style.overflow = prevOverflow;
+    };
+  }, []);
+
+  useEffect(() => {
+    if (!item) return;
+    markViewed({ data: { storyId: item.id } }).catch(() => {});
+  }, [item, markViewed]);
+
+  const duration = useMemo(() => {
+    if (item?.mediaType === "video") return null; // driven by the <video> element
+    return IMAGE_MS;
+  }, [item]);
+
+  useEffect(() => {
+    if (!duration) return;
+    const started = Date.now();
+    const t = setInterval(() => {
+      const p = (Date.now() - started) / duration;
+      setElapsed(Math.min(1, p));
+      if (p >= 1) {
+        clearInterval(t);
+        next();
+      }
+    }, 50);
+    return () => clearInterval(t);
+  }, [duration, next, gi, ii]);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key === "Escape") onClose();
+      if (e.key === "ArrowRight") next();
+      if (e.key === "ArrowLeft") prev();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [next, prev, onClose]);
+
+  if (!group || !item || typeof document === "undefined") return null;
+
+  const onReact = async (emoji: string) => {
+    setSent(emoji);
+    try {
+      const res: any = await react({ data: { storyId: item.id, emoji } });
+      if (res?.peerId && !res.skipped) {
+        window.dispatchEvent(
+          new CustomEvent("oventric:navigate-section", { detail: { section: "Messages" } }),
+        );
+        window.setTimeout(() => {
+          window.location.href = `/?section=Messages&dm=${res.peerId}`;
+        }, 60);
+      }
+    } catch {
+      /* silent */
+    }
+  };
+
+  return createPortal(
+    <div
+      className="fixed inset-0 z-[120] flex items-center justify-center bg-black/80 backdrop-blur-xl"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="relative flex h-full w-full max-w-[440px] flex-col"
+        onClick={(e) => e.stopPropagation()}
+      >
+        {/* Progress bars */}
+        <div className="absolute left-0 right-0 top-0 z-20 flex gap-1 px-3 pt-3">
+          {group.items.map((s, i) => (
+            <span key={s.id} className="h-[2.5px] flex-1 overflow-hidden rounded-full bg-white/25">
+              <span
+                className="block h-full rounded-full bg-white"
+                style={{ width: i < ii ? "100%" : i === ii ? `${elapsed * 100}%` : "0%" }}
+              />
+            </span>
+          ))}
+        </div>
+
+        {/* Header */}
+        <div className="absolute left-0 right-0 top-6 z-20 flex items-center gap-2.5 px-4 pt-2">
+          <span className="h-9 w-9 overflow-hidden rounded-full ring-2 ring-[#E5484D]">
+            <AvatarImage src={group.avatarUrl} alt={group.displayName} />
+          </span>
+          <div className="min-w-0">
+            <p className="truncate text-[13.5px] font-semibold text-white">{group.displayName}</p>
+            <p className="text-[11px] text-white/55">{timeAgo(item.createdAt)} ago</p>
+          </div>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Close story"
+            className="ml-auto grid h-9 w-9 place-items-center rounded-full bg-black/40 text-white active:scale-95"
+          >
+            <X className="h-5 w-5" />
+          </button>
+        </div>
+
+        {/* Media */}
+        <div className="relative flex flex-1 items-center justify-center overflow-hidden bg-black">
+          {item.mediaType === "video" ? (
+            <video
+              key={item.id}
+              ref={videoRef}
+              src={item.mediaUrl}
+              autoPlay
+              playsInline
+              className="max-h-full w-full object-contain"
+              onTimeUpdate={(e) => {
+                const v = e.currentTarget;
+                if (v.duration) setElapsed(Math.min(1, v.currentTime / v.duration));
+              }}
+              onEnded={next}
+            />
+          ) : (
+            <img
+              key={item.id}
+              src={item.mediaUrl}
+              alt=""
+              className="max-h-full w-full object-contain"
+            />
+          )}
+          <button
+            type="button"
+            aria-label="Previous"
+            onClick={prev}
+            className="absolute inset-y-0 left-0 w-1/3"
+          />
+          <button
+            type="button"
+            aria-label="Next"
+            onClick={next}
+            className="absolute inset-y-0 right-0 w-1/3"
+          />
+        </div>
+
+        {/* Reaction stack */}
+        {!group.isMe && (
+          <div className="absolute bottom-0 left-0 right-0 z-20 px-4 pb-6">
+            <div className="flex items-center justify-center gap-2 rounded-full border border-white/10 bg-black/55 px-3 py-2 backdrop-blur-md">
+              {REACTIONS.map((r) => (
+                <button
+                  key={r}
+                  type="button"
+                  onClick={() => onReact(r)}
+                  className={`grid h-9 w-9 place-items-center rounded-full text-[19px] transition-transform active:scale-90 ${
+                    sent === r ? "scale-110 bg-[#E5484D]/25" : "hover:bg-white/10"
+                  }`}
+                >
+                  {r}
+                </button>
+              ))}
+              <button
+                type="button"
+                onClick={() => onReact("💬")}
+                aria-label="Reply in chat"
+                className="ml-1 grid h-9 w-9 place-items-center rounded-full bg-[#E5484D] text-white active:scale-95"
+              >
+                <Send className="h-4 w-4" />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>,
+    document.body,
+  );
+}
