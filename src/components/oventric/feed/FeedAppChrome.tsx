@@ -138,7 +138,10 @@ export function FeedAppChrome({
           )}
         </div>
         </div>
+        </div>
       </div>
+
+
 
 
       {/* Tabs */}
