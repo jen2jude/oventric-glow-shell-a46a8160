@@ -27,7 +27,7 @@ import {
   Eye,
 } from "lucide-react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Link } from "@tanstack/react-router";
+import { Link, useNavigate } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { ReportModal } from "@/components/oventric/ReportModal";
@@ -878,6 +878,8 @@ export function Feed() {
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
+  const navigate = useNavigate();
+  const openPostScreen = (postId: string) => navigate({ to: "/post/$id", params: { id: postId } });
   const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
   const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
   const [blogShare, setBlogShare] = useState<BlogListItem | null>(null);
@@ -1895,7 +1897,7 @@ export function Feed() {
                         <span className="ml-auto flex items-center gap-2.5">
                           <button
                             type="button"
-                            onClick={() => setCommentsSheetPostId(post.id)}
+                            onClick={() => openPostScreen(post.id)}
                             className="hover:underline"
                           >
                             {post.comments_count}{" "}
@@ -1959,7 +1961,7 @@ export function Feed() {
                     </div>
                     <button
                       type="button"
-                      onClick={() => setCommentsSheetPostId(post.id)}
+                      onClick={() => openPostScreen(post.id)}
                       className="flex items-center gap-1.5 px-2.5 py-2 rounded-lg hover:bg-white/5 md:hover:bg-slate-100 hover:text-white md:hover:text-slate-900 transition-colors font-semibold"
                       aria-label="Open comments"
                     >
@@ -2000,7 +2002,7 @@ export function Feed() {
                     {comments.length === 0 ? (
                       <button
                         type="button"
-                        onClick={() => setCommentsSheetPostId(post.id)}
+                        onClick={() => openPostScreen(post.id)}
                         className="w-full rounded-lg border border-dashed border-white/10 md:border-slate-300 bg-black/20 md:bg-slate-50 px-3 py-3 text-left text-xs text-slate-500 hover:text-slate-300 md:hover:text-slate-700 hover:border-white/20 md:hover:border-slate-400 transition-colors"
                       >
                         No comments yet — be the first to reply.
@@ -2027,7 +2029,7 @@ export function Feed() {
                         })()}
                         <button
                           type="button"
-                          onClick={() => setCommentsSheetPostId(post.id)}
+                          onClick={() => openPostScreen(post.id)}
                           className="text-[11px] font-medium text-[#E5484D] md:text-[#E5484D] hover:text-emerald-300 md:hover:text-emerald-700 ml-9"
                         >
                           {post.comments_count > 1

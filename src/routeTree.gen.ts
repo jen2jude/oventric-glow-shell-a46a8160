@@ -31,6 +31,7 @@ import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
 import { Route as ShopIdRouteImport } from './routes/shop.$id'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
+import { Route as PostIdRouteImport } from './routes/post.$id'
 import { Route as PaymentReturnRouteImport } from './routes/payment.return'
 import { Route as OrderIdRouteImport } from './routes/order.$id'
 import { Route as CheckoutIdRouteImport } from './routes/checkout.$id'
@@ -183,6 +184,11 @@ const ProfileIdRoute = ProfileIdRouteImport.update({
 const ProductIdRoute = ProductIdRouteImport.update({
   id: '/product/$id',
   path: '/product/$id',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PostIdRoute = PostIdRouteImport.update({
+  id: '/post/$id',
+  path: '/post/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PaymentReturnRoute = PaymentReturnRouteImport.update({
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
+  '/post/$id': typeof PostIdRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/shop/$id': typeof ShopIdRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByTo {
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
+  '/post/$id': typeof PostIdRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/shop/$id': typeof ShopIdRoute
@@ -588,6 +596,7 @@ export interface FileRoutesById {
   '/checkout/$id': typeof CheckoutIdRoute
   '/order/$id': typeof OrderIdRoute
   '/payment/return': typeof PaymentReturnRoute
+  '/post/$id': typeof PostIdRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
   '/shop/$id': typeof ShopIdRoute
@@ -657,6 +666,7 @@ export interface FileRouteTypes {
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
+    | '/post/$id'
     | '/product/$id'
     | '/profile/$id'
     | '/shop/$id'
@@ -722,6 +732,7 @@ export interface FileRouteTypes {
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
+    | '/post/$id'
     | '/product/$id'
     | '/profile/$id'
     | '/shop/$id'
@@ -789,6 +800,7 @@ export interface FileRouteTypes {
     | '/checkout/$id'
     | '/order/$id'
     | '/payment/return'
+    | '/post/$id'
     | '/product/$id'
     | '/profile/$id'
     | '/shop/$id'
@@ -833,6 +845,7 @@ export interface RootRouteChildren {
   CheckoutIdRoute: typeof CheckoutIdRoute
   OrderIdRoute: typeof OrderIdRoute
   PaymentReturnRoute: typeof PaymentReturnRoute
+  PostIdRoute: typeof PostIdRoute
   ProductIdRoute: typeof ProductIdRoute
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
   ShopIdRoute: typeof ShopIdRoute
@@ -1005,6 +1018,13 @@ declare module '@tanstack/react-router' {
       path: '/product/$id'
       fullPath: '/product/$id'
       preLoaderRoute: typeof ProductIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/post/$id': {
+      id: '/post/$id'
+      path: '/post/$id'
+      fullPath: '/post/$id'
+      preLoaderRoute: typeof PostIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/payment/return': {
@@ -1428,6 +1448,7 @@ const rootRouteChildren: RootRouteChildren = {
   CheckoutIdRoute: CheckoutIdRoute,
   OrderIdRoute: OrderIdRoute,
   PaymentReturnRoute: PaymentReturnRoute,
+  PostIdRoute: PostIdRoute,
   ProductIdRoute: ProductIdRoute,
   ProfileIdRoute: ProfileIdRouteWithChildren,
   ShopIdRoute: ShopIdRoute,
@@ -1449,13 +1470,3 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
