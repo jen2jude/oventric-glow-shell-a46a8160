@@ -68,10 +68,8 @@ function fromUSD(usd: number, target: Currency): number {
   return target === "USD" ? usd : usd * usdRate(target);
 }
 
-export function HomeHub({ onSelect, onCreate, onOpenMessages, counts, returnedToHub }: HubProps) {
+export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: HubProps) {
   const { isAuthenticated, openGate } = useAuthGate();
-  // Same live unread counters the header shows, mirrored onto the hub tiles.
-  const unread = useUnreadCounts();
   const {
     baseCurrency,
     country,
@@ -83,7 +81,11 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts, returnedTo
   } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
+  const [moreOpen, setMoreOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
+
+  const goSection = (section: string) =>
+    section === "Messages" ? onOpenMessages() : onSelect(section);
 
   const loadBalances = useServerFn(getWalletBalances);
   const loadProfile = useServerFn(getMyFullProfile);
