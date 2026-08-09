@@ -174,8 +174,7 @@ type Tab =
   | "collections"
   | "courses"
   | "posted"
-  | "solved"
-  | "blog";
+  | "solved";
 const TAB_KEYS: Tab[] = [
   "posts",
   "groups",
@@ -186,7 +185,6 @@ const TAB_KEYS: Tab[] = [
   "courses",
   "posted",
   "solved",
-  "blog",
 ];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
 

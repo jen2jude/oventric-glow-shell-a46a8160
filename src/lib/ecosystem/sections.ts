@@ -12,7 +12,6 @@ export type EcosystemSectionKey =
   | "marketplace"
   | "services"
   | "courses"
-  | "blog"
   | "groups"
   | "posted"
   | "solved"
@@ -40,7 +39,6 @@ export const ECOSYSTEM_SECTIONS: EcosystemSectionDef[] = [
   { key: "skills", label: "Skills", noun: "skills", ownerVisible: true },
   { key: "courses", label: "Courses", noun: "courses" },
   { key: "collections", label: "Collections", noun: "boards", ownerVisible: true },
-  { key: "blog", label: "Blog", noun: "articles" },
   { key: "groups", label: "Communities", noun: "communities" },
   { key: "posted", label: "Bounties", noun: "bounties" },
   { key: "solved", label: "Solved", noun: "solved bounties" },
