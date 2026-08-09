@@ -2407,6 +2407,11 @@ function emptyContentFor(
         title: "No solved bounties yet",
         hint: "Completed bounties with delivered proof will appear on this tab.",
       };
+    case "skills":
+      return {
+        title: "No skills added yet",
+        hint: `${name} hasn't listed skills or tools yet.`,
+      };
   }
 }
 
@@ -2428,6 +2433,8 @@ function tabNoun(tab: Tab): string {
       return "solved bounties";
     case "blog":
       return "articles";
+    case "skills":
+      return "skills";
   }
 }
 
