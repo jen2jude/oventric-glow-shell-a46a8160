@@ -2030,7 +2030,14 @@ export function Feed() {
           title={blogShare?.title ?? "Oventric Blog"}
           text={blogShare?.excerpt || undefined}
         />
+        <RepostDialog
+          open={!!repostTarget}
+          post={repostTarget}
+          onClose={() => setRepostTarget(null)}
+          onDone={() => void refreshPosts()}
+        />
         <ReportModal
+
           open={!!reportOpen}
           onClose={() => setReportOpen(null)}
           target={
