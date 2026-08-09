@@ -1375,7 +1375,7 @@ function ProfilePage() {
                       )}
                     </div>
                     <div className="-mx-1 mt-2 flex gap-2 overflow-x-auto px-1 pb-1 no-scrollbar">
-                      {realProfile.interests.map((s) => (
+                      {(realProfile?.interests ?? []).map((s) => (
                         <span
                           key={s}
                           className="shrink-0 rounded-full border border-white/10 bg-[#1A1A1F] px-3.5 py-2 text-xs font-bold text-slate-200 md:border-slate-200 md:bg-slate-100 md:text-slate-700"
@@ -1383,7 +1383,17 @@ function ProfilePage() {
                           {s}
                         </span>
                       ))}
+                      {isOwnProfile && (realProfile?.interests?.length ?? 0) === 0 && (
+                        <button
+                          type="button"
+                          onClick={() => setEditProfileOpen(true)}
+                          className="shrink-0 rounded-full border border-dashed border-[#8B0000]/60 bg-[#1A1A1F] px-3.5 py-2 text-xs font-bold text-[#E5484D] hover:bg-[#232329] md:bg-white"
+                        >
+                          + Add interests
+                        </button>
+                      )}
                     </div>
+
                   </div>
                 )}
 
