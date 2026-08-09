@@ -253,6 +253,8 @@ export async function settleFromMetadata(
       deliveryEmail: (meta.delivery_email as string | null) ?? null,
       deliveryWhatsapp: (meta.delivery_whatsapp as string | null) ?? null,
       cashbackAppliedUSD: Number(meta.cashback_applied_usd ?? 0),
+      servicePackageId: (meta.service_package_id as string | null) ?? null,
+      serviceBrief: (meta.service_brief as Record<string, string> | null) ?? null,
     });
     return {
       ok: true,

@@ -31,6 +31,10 @@ export type OrderIntent = {
   deliveryWhatsapp?: string | null;
   /** Amount of Cashback Wallet (USD) to spend on this order. Debited atomically. */
   applyCashbackUSD?: number | null;
+  /** Service listings: the tier the buyer chose (authoritative price source). */
+  servicePackageId?: string | null;
+  /** Service listings: the buyer's project brief. */
+  serviceBrief?: Record<string, string> | null;
 };
 
 export type PaymentIntentInput = WalletTopupIntent | OrderIntent;
@@ -78,7 +82,26 @@ export async function buildPaymentIntent(
 
   const qty = Math.max(1, Math.min(20, Number(data.quantity ?? 1)));
   const displayCurrency = data.displayCurrency;
-  const grossUSD = Number(p.price_usd) * qty;
+
+  // Service tiers price the order, not the listing's "starting from" figure.
+  let unitUSD = Number(p.price_usd);
+  let pkgOriginalCurrency = (p.original_currency as string) ?? "USD";
+  let pkgOriginalAmount = Number(p.original_amount ?? 0);
+  let servicePackageId: string | null = null;
+  if (data.servicePackageId) {
+    const { data: pkg } = await supabase
+      .from("service_packages")
+      .select("id, price_usd, original_currency, original_amount")
+      .eq("id", data.servicePackageId)
+      .eq("product_id", data.productId)
+      .maybeSingle();
+    if (!pkg) throw new Error("That service package is no longer available");
+    unitUSD = Number(pkg.price_usd);
+    pkgOriginalCurrency = (pkg.original_currency as string) ?? "USD";
+    pkgOriginalAmount = Number(pkg.original_amount ?? 0);
+    servicePackageId = String(pkg.id);
+  }
+  const grossUSD = unitUSD * qty;
 
   let discountUSD = 0;
   if (data.couponCode) {
@@ -120,8 +143,8 @@ export async function buildPaymentIntent(
 
   // Prefer the seller's exact locked amount when the buyer pays in the
   // product's ORIGINAL currency — avoids USD round-trip drift.
-  const originalCurrency = ((p.original_currency as string) ?? "USD") as OrderCurrency;
-  const originalAmount = Number(p.original_amount ?? 0);
+  const originalCurrency = pkgOriginalCurrency as OrderCurrency;
+  const originalAmount = pkgOriginalAmount;
   let converted = 0;
   if (originalAmount > 0 && displayCurrency === originalCurrency && totalAfterCouponUSD > 0) {
     const ratio = totalUSD / totalAfterCouponUSD;
@@ -144,6 +167,8 @@ export async function buildPaymentIntent(
   metadata.coupon_code = data.couponCode ?? null;
   metadata.total_usd = totalUSD;
   metadata.cashback_applied_usd = cashbackAppliedUSD;
+  metadata.service_package_id = servicePackageId;
+  metadata.service_brief = servicePackageId ? (data.serviceBrief ?? null) : null;
   metadata.delivery_email = data.deliveryEmail ? String(data.deliveryEmail).trim().slice(0, 320) : null;
   metadata.delivery_whatsapp = data.deliveryWhatsapp
     ? String(data.deliveryWhatsapp).replace(/\D/g, "").slice(0, 20)

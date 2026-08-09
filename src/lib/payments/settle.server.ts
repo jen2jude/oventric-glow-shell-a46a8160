@@ -85,6 +85,8 @@ export async function settleOrder(
     deliveryEmail?: string | null;
     deliveryWhatsapp?: string | null;
     cashbackAppliedUSD?: number;
+    servicePackageId?: string | null;
+    serviceBrief?: Record<string, string> | null;
   },
 ) {
   await primeRuntimeFxRates();
@@ -113,7 +115,28 @@ export async function settleOrder(
   if (!pRow) throw new Error("Product not found");
 
   const qty = Math.max(1, Math.min(20, Number(meta.quantity)));
-  const priceUSD = Number(pRow.price_usd);
+
+  // A chosen service tier is the authoritative unit price for this order.
+  let pkgRow: {
+    id: string;
+    tier: string;
+    name: string;
+    price_usd: number;
+    original_currency: string;
+    original_amount: number;
+    delivery_days: number | null;
+    revisions: number | null;
+  } | null = null;
+  if (meta.servicePackageId) {
+    const { data: pk } = await supabaseAdmin
+      .from("service_packages")
+      .select("id, tier, name, price_usd, original_currency, original_amount, delivery_days, revisions")
+      .eq("id", meta.servicePackageId)
+      .eq("product_id", pRow.id)
+      .maybeSingle();
+    pkgRow = (pk as typeof pkgRow) ?? null;
+  }
+  const priceUSD = pkgRow ? Number(pkgRow.price_usd) : Number(pRow.price_usd);
   const grossUSD = Number((priceUSD * qty).toFixed(2));
   let discountUSD = 0;
   if (meta.couponCode) {
@@ -130,8 +153,8 @@ export async function settleOrder(
   const totalUSD = Number((afterCouponUSD - cashbackAppliedUSD).toFixed(2));
   const snapRaw = (pRow.fx_snapshot as { base?: string; rates?: Record<string, number> } | null) ?? null;
   const snap = snapRaw && snapRaw.rates ? { base: "USD" as const, rates: snapRaw.rates } : null;
-  const originalCurrency = ((pRow.original_currency as string) ?? "USD") as OrderCurrency;
-  const originalAmount = Number(pRow.original_amount ?? 0);
+  const originalCurrency = ((pkgRow?.original_currency ?? (pRow.original_currency as string) ?? "USD")) as OrderCurrency;
+  const originalAmount = Number(pkgRow?.original_amount ?? pRow.original_amount ?? 0);
   const convertedTotal =
     originalAmount > 0 && meta.displayCurrency === originalCurrency && afterCouponUSD > 0
       ? originalAmount * qty * (totalUSD / afterCouponUSD)
@@ -158,6 +181,17 @@ export async function settleOrder(
       paystack_ref: reference,
       delivery_email: meta.deliveryEmail ?? null,
       delivery_whatsapp: meta.deliveryWhatsapp ?? null,
+      service_package_id: pkgRow?.id ?? null,
+      service_package_snapshot: pkgRow
+        ? JSON.parse(JSON.stringify({
+            tier: pkgRow.tier,
+            name: pkgRow.name,
+            priceUsd: Number(pkgRow.price_usd),
+            deliveryDays: pkgRow.delivery_days,
+            revisions: pkgRow.revisions,
+          }))
+        : null,
+      service_brief: meta.serviceBrief ? JSON.parse(JSON.stringify(meta.serviceBrief)) : null,
     })
     .select()
     .single();
@@ -190,7 +224,7 @@ export async function settleOrder(
     .maybeSingle();
   const sellerCountry = String(sellerProfile?.country ?? "").toUpperCase();
   const sellerCurrency: OrderCurrency = sellerCountry === "NG" ? "NGN" : sellerCountry === "GH" ? "GHS" : "USD";
-  const grossOriginalUSD = Number(pRow.price_usd) * qty;
+  const grossOriginalUSD = priceUSD * qty;
   const saleRatio = grossOriginalUSD > 0 ? afterCouponUSD / grossOriginalUSD : 1;
   const sellerCutLocalRaw =
     originalAmount > 0 && sellerCurrency === originalCurrency
