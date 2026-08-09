@@ -33,14 +33,6 @@ import { CoursePublishWizard } from "@/components/oventric/CoursePublishWizard";
 import type { ChoiceKey } from "@/components/oventric/CreatePanel";
 import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
 
@@ -102,7 +94,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
   } = useOnboarding();
   const [sellOpen, setSellOpen] = useState(false);
   const [courseOpen, setCourseOpen] = useState(false);
-  const [sendSoonOpen, setSendSoonOpen] = useState(false);
   const currency: Currency = country ? baseCurrency : "USD";
 
   const loadBalances = useServerFn(getWalletBalances);
@@ -478,6 +469,8 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </button>
       )}
 
+      <PromoInterstitial onSelect={onSelect} />
+
       <SellSwitcherModal open={sellOpen} onClose={() => setSellOpen(false)} />
       <CoursePublishWizard
         open={courseOpen}
@@ -487,25 +480,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           onSelect("Academy");
         }}
       />
-      <Dialog open={sendSoonOpen} onOpenChange={setSendSoonOpen}>
-        <DialogContent className="sm:max-w-sm bg-[#1E1E24] border-white/10 text-white">
-          <DialogHeader>
-            <DialogTitle className="text-center text-white">Send to users</DialogTitle>
-            <DialogDescription className="text-center text-slate-400">
-              Big things coming soon, stay tuned!
-            </DialogDescription>
-          </DialogHeader>
-          <DialogFooter className="mt-4">
-            <button
-              type="button"
-              onClick={() => setSendSoonOpen(false)}
-              className="w-full h-11 rounded-2xl bg-emerald-500 text-[#08130f] font-bold text-sm active:scale-95 transition-transform"
-            >
-              OK
-            </button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
     </div>
   );
 }
@@ -579,112 +553,5 @@ function SubChip({ label, value }: { label: string; value: string }) {
       <div className="text-[10px] uppercase tracking-wide text-slate-500 truncate">{label}</div>
       <div className="text-xs font-bold text-white tabular-nums truncate">{value}</div>
     </div>
-  );
-}
-
-function QuickAction({
-  icon: Icon,
-  label,
-  onClick,
-  className,
-}: {
-  icon: typeof Store;
-  label: string;
-  onClick: () => void;
-  className?: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={`flex flex-col items-center gap-1.5 py-2 active:scale-95 transition-transform ${className || "rounded-2xl hover:bg-white/5"}`}
-    >
-      <span className="w-11 h-11 rounded-full bg-[#1E1E24] border border-white/10 flex items-center justify-center text-white">
-        <Icon className="w-5 h-5" strokeWidth={2.5} />
-      </span>
-      <span className="text-[11px] font-semibold text-slate-200">{label}</span>
-    </button>
-  );
-}
-
-function PromoCard({
-  id,
-  title,
-  highlight,
-  body,
-  cta,
-  art,
-  gradient,
-  onClick,
-  to,
-  search,
-}: {
-  id: string;
-  title: string;
-  highlight: string;
-  body: string;
-  cta: string;
-  art: string;
-  gradient: string;
-  onClick?: () => void;
-  to?: string;
-  search?: Record<string, unknown>;
-}) {
-  const promo = { id, title, surface: "home_promo_rail" };
-  const ref = usePromoImpression<HTMLDivElement>(promo);
-  const content = (
-    <span
-      className="promo-tile-surface relative block h-full min-h-[9.25rem] overflow-hidden rounded-[10px] p-4 pr-[5.5rem] shadow-[0_10px_30px_-12px_rgba(0,0,0,0.55)] sm:pr-24"
-      style={{ backgroundImage: gradient }}
-    >
-      <span className="pointer-events-none absolute -right-6 -top-10 h-32 w-32 rounded-full bg-white/25 blur-2xl" />
-      <span className="relative block text-[15px] font-extrabold leading-tight text-slate-900">
-        {title}
-      </span>
-      <span className="relative mt-0.5 block text-[13px] font-bold leading-tight text-slate-900/80">
-        {highlight}
-      </span>
-      <span className="relative mt-1 block text-[11px] leading-snug text-slate-900/65 max-w-[8.5rem]">
-        {body}
-      </span>
-      <span className="promo-tile-cta relative mt-3 inline-flex min-h-[2.25rem] items-center gap-1 rounded-full bg-slate-950 px-4 py-2 text-[11px] font-bold text-white">
-        {cta} <ChevronRight className="w-3.5 h-3.5" />
-      </span>
-      <img
-        src={art}
-        alt=""
-        aria-hidden
-        loading="lazy"
-        width={768}
-        height={768}
-        className="promo-tile-art pointer-events-none absolute -bottom-2 right-[-6px] h-[112%] w-auto max-w-none object-contain drop-shadow-[0_8px_16px_rgba(0,0,0,0.2)]"
-      />
-    </span>
-  );
-  const cls =
-    "promo-tile shrink-0 w-[82vw] min-w-[16.5rem] max-w-[20rem] snap-start text-left sm:w-[20rem] md:w-auto md:max-w-none md:shrink";
-  const handleClick = () => {
-    void trackPromoEvent("click", promo);
-    onClick?.();
-  };
-  return to ? (
-    <Link
-      ref={ref as unknown as React.Ref<HTMLAnchorElement>}
-      to={to}
-      search={search as never}
-      className={cls}
-      onClick={handleClick}
-    >
-      {content}
-    </Link>
-  ) : (
-    <button
-      ref={ref as unknown as React.Ref<HTMLButtonElement>}
-      type="button"
-      onClick={handleClick}
-      className={cls}
-    >
-      {content}
-    </button>
   );
 }
