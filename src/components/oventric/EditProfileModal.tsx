@@ -169,6 +169,7 @@ interface Props {
     coverUrl?: string | null;
     socialLinks: SocialLinks;
     skills?: string[];
+    interests?: string[];
   };
   userId: string;
   onSaved: () => void | Promise<void>;
@@ -191,6 +192,8 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
   const [links, setLinks] = useState<Record<string, string>>(() => ({ ...initial.socialLinks }));
   const [skills, setSkills] = useState<string[]>(initial.skills ?? []);
   const [skillDraft, setSkillDraft] = useState("");
+  const [interests, setInterests] = useState<string[]>(initial.interests ?? []);
+  const [interestDraft, setInterestDraft] = useState("");
   const [avatarPreview, setAvatarPreview] = useState<string | null>(initial.avatarUrl);
   const [avatarBlob, setAvatarBlob] = useState<Blob | null>(null);
   const [coverPreview, setCoverPreview] = useState<string | null>(initial.coverUrl ?? null);
@@ -212,6 +215,8 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
     setLinks({ ...initial.socialLinks });
     setSkills(initial.skills ?? []);
     setSkillDraft("");
+    setInterests(initial.interests ?? []);
+    setInterestDraft("");
     setAvatarPreview(initial.avatarUrl);
     setAvatarBlob(null);
     setCoverPreview(initial.coverUrl ?? null);
@@ -293,6 +298,24 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
     [clearError],
   );
 
+  const addInterest = useCallback(
+    (raw: string) => {
+      const tag = raw.trim().replace(/^#/, "").replace(/\s+/g, " ").slice(0, MAX_SKILL_LEN);
+      if (!tag) return;
+      setInterests((prev) => {
+        if (prev.length >= MAX_SKILLS) {
+          setErrors((e) => ({ ...e, interests: `Up to ${MAX_SKILLS} interests.` }));
+          return prev;
+        }
+        if (prev.some((s) => s.toLowerCase() === tag.toLowerCase())) return prev;
+        return [...prev, tag];
+      });
+      setInterestDraft("");
+      clearError("interests");
+    },
+    [clearError],
+  );
+
   const initials = useMemo(
     () =>
       displayName
@@ -366,6 +389,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
             bio: bio.trim() ? bio.trim() : null,
             socialLinks: cleanLinks,
             skills,
+            interests,
             ...(avatarPath ? { avatarPath } : {}),
             ...(coverPath ? { coverPath } : {}),
           },
@@ -402,6 +426,7 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
       bio,
       links,
       skills,
+      interests,
       avatarBlob,
       coverBlob,
       uploadImage,
@@ -700,6 +725,71 @@ export function EditProfileModal({ open, onClose, initial, userId, onSaved }: Pr
             </div>
             {errors.skills && (
               <p className="mt-1 text-xs font-semibold text-red-400">{errors.skills}</p>
+            )}
+          </div>
+
+          {/* Interests */}
+          <div>
+            <div className="flex items-center justify-between mb-1.5">
+              <label
+                htmlFor="ep-interest"
+                className="block text-xs font-bold uppercase tracking-wider text-slate-400 md:text-slate-500"
+              >
+                Interests
+              </label>
+              <span className="text-[11px] font-semibold text-slate-500">
+                {interests.length}/{MAX_SKILLS}
+              </span>
+            </div>
+            {interests.length > 0 && (
+              <div className="mb-2 flex flex-wrap gap-1.5">
+                {interests.map((s) => (
+                  <span
+                    key={s}
+                    className="inline-flex items-center gap-1 pl-2.5 pr-1 py-1 rounded-full text-xs font-bold bg-white/[0.06] md:bg-slate-100 text-slate-200 md:text-slate-700 border border-white/10 md:border-slate-300"
+                  >
+                    {s}
+                    <button
+                      type="button"
+                      aria-label={`Remove ${s}`}
+                      onClick={() => setInterests((prev) => prev.filter((x) => x !== s))}
+                      className="w-4 h-4 rounded-full flex items-center justify-center hover:bg-white/10"
+                    >
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+            <div className="flex gap-2">
+              <input
+                id="ep-interest"
+                value={interestDraft}
+                maxLength={MAX_SKILL_LEN}
+                onChange={(e) => {
+                  setInterestDraft(e.target.value);
+                  clearError("interests");
+                }}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" || e.key === ",") {
+                    e.preventDefault();
+                    addInterest(interestDraft);
+                  }
+                }}
+                placeholder="e.g. Design, AI, Photography"
+                className={`${inputBase} ${errors.interests ? "border-red-500/70" : "border-white/10 md:border-slate-300"}`}
+              />
+              <button
+                type="button"
+                onClick={() => addInterest(interestDraft)}
+                aria-label="Add interest"
+                className="shrink-0 px-3 rounded-xl bg-white/5 md:bg-slate-100 border border-white/10 md:border-slate-300 text-slate-300 md:text-slate-700 hover:text-white md:hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-500/40"
+              >
+                <Plus className="w-4 h-4" />
+              </button>
+            </div>
+            {errors.interests && (
+              <p className="mt-1 text-xs font-semibold text-red-400">{errors.interests}</p>
             )}
           </div>
 
