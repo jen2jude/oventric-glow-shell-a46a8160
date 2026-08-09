@@ -2732,9 +2732,11 @@ export type Database = {
           shop_cover_path: string | null
           shop_logo_path: string | null
           shop_name: string | null
+          skill_levels: Json
           skills: string[]
           slug: string
           social_links: Json
+          tools: string[]
           updated_at: string
           user_id: string
           username: string | null
@@ -2771,9 +2773,11 @@ export type Database = {
           shop_cover_path?: string | null
           shop_logo_path?: string | null
           shop_name?: string | null
+          skill_levels?: Json
           skills?: string[]
           slug: string
           social_links?: Json
+          tools?: string[]
           updated_at?: string
           user_id: string
           username?: string | null
@@ -2810,9 +2814,11 @@ export type Database = {
           shop_cover_path?: string | null
           shop_logo_path?: string | null
           shop_name?: string | null
+          skill_levels?: Json
           skills?: string[]
           slug?: string
           social_links?: Json
+          tools?: string[]
           updated_at?: string
           user_id?: string
           username?: string | null
