@@ -458,6 +458,82 @@ export const createPost = createServerFn({ method: "POST" })
     return { post: row };
   });
 
+/**
+ * Repost (quote repost): creates a new post on the reposter's wall/feed that
+ * points at the original via `repost_of`. Optional `comment` is the quote text.
+ */
+export const repostPost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) =>
+    z
+      .object({
+        postId: z.string().uuid(),
+        comment: z.string().trim().max(1000).optional().nullable(),
+      })
+      .parse(input),
+  )
+  .handler(async ({ data, context }) => {
+    const { data: original } = await (context.supabase as any)
+      .from("posts")
+      .select("id, author_id, repost_of")
+      .eq("id", data.postId)
+      .maybeSingle();
+    if (!original) throw new Error("Post unavailable");
+    // Reposting a repost points at the underlying original.
+    const targetId: string = original.repost_of ?? original.id;
+
+    const { data: row, error } = await (context.supabase as any)
+      .from("posts")
+      .insert({
+        author_id: context.userId,
+        text: (data.comment ?? "").trim(),
+        audience: "public",
+        media_paths: [],
+        repost_of: targetId,
+      })
+      .select("id, author_id, text, created_at")
+      .single();
+    if (error || !row) {
+      console.error("[repostPost] failed", error);
+      throw new Error("Failed to repost");
+    }
+
+    if (original.author_id !== context.userId) {
+      const { data: me } = await context.supabase
+        .from("profiles")
+        .select("display_name, username")
+        .eq("user_id", context.userId)
+        .maybeSingle();
+      const who = me?.display_name || me?.username || "Someone";
+      await context.supabase.from("notifications").insert({
+        user_id: original.author_id,
+        from_user_id: context.userId,
+        kind: "repost",
+        title: `${who} reposted your post`,
+        body: (data.comment ?? "").slice(0, 140),
+        link: `/#post-${row.id}`,
+      });
+    }
+
+    return { post: row };
+  });
+
+/** Remove the viewer's repost of a post (undo repost). */
+export const undoRepost = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: unknown) => z.object({ postId: z.string().uuid() }).parse(input))
+  .handler(async ({ data, context }) => {
+    const { error } = await (context.supabase as any)
+      .from("posts")
+      .delete()
+      .eq("author_id", context.userId)
+      .eq("repost_of", data.postId);
+    if (error) throw new Error("Failed to undo repost");
+    return { ok: true };
+  });
+
+
+
 export const searchMentionCandidates = createServerFn({ method: "GET" })
   .middleware([requireSupabaseAuth])
   .inputValidator((input: unknown) =>
