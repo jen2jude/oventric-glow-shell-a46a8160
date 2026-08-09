@@ -283,6 +283,7 @@ function ProfilePage() {
   }>({ sentAt: null, acceptedAt: null, canceledAt: null });
   const [dmOpen, setDmOpen] = useState(false);
   const [reportOpen, setReportOpen] = useState(false);
+  const [aboutExpanded, setAboutExpanded] = useState(false);
   const [editProfileOpen, setEditProfileOpen] = useState(false);
   const [joinCircleOpen, setJoinCircleOpen] = useState(false);
   const [requestsOpen, setRequestsOpen] = useState(false);
