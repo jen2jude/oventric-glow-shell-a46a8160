@@ -1531,7 +1531,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   overviewMode && !photosMode
-                    ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
@@ -1553,7 +1553,7 @@ function ProfilePage() {
                     }}
                     className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                       tab === key && !photosMode && !overviewMode
-                        ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                        ? "text-white md:text-slate-900 border-[#E5484D]"
                         : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                     }`}
                   >
@@ -1574,7 +1574,7 @@ function ProfilePage() {
                 }}
                 className={`shrink-0 px-4 py-2.5 text-sm font-semibold border-b-2 -mb-px transition-colors ${
                   photosMode
-                    ? "text-emerald-400 md:text-emerald-600 border-emerald-400"
+                    ? "text-white md:text-slate-900 border-[#E5484D]"
                     : "text-slate-400 md:text-slate-500 border-transparent hover:text-white md:hover:text-slate-900"
                 }`}
               >
