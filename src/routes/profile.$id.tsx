@@ -2330,6 +2330,16 @@ function emptyContentFor(
         title: `${name} hasn't published any articles`,
         hint: "Published blog articles from this creator will appear here.",
       };
+    case "services":
+      return {
+        title: `${name} offers no services yet`,
+        hint: "Services this creator offers will appear here.",
+      };
+    case "courses":
+      return {
+        title: `${name} hasn't published a course`,
+        hint: "Courses published by this creator will appear here.",
+      };
     case "solved":
       return {
         title: "No solved bounties yet",
@@ -2346,6 +2356,10 @@ function tabNoun(tab: Tab): string {
       return "groups";
     case "marketplace":
       return "listings";
+    case "services":
+      return "services";
+    case "courses":
+      return "courses";
     case "posted":
       return "bounties";
     case "solved":
@@ -2354,6 +2368,7 @@ function tabNoun(tab: Tab): string {
       return "articles";
   }
 }
+
 
 function HeaderStat({
   icon,
