@@ -784,13 +784,13 @@ function ProfilePage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id, profile.id]);
 
-  // Ensure an auth session exists (anonymous is fine for the demo)
+  // Report whether a real (non-anonymous) session exists. Never create an
+  // anonymous session — that would make the app think the visitor is signed in
+  // and skip the sign-in / sign-up gate entirely.
   const ensureSession = async () => {
     const { data } = await supabase.auth.getSession();
-    if (!data.session) {
-      const { error } = await supabase.auth.signInAnonymously();
-      if (error) throw error;
-    }
+    const user = data.session?.user;
+    return !!user && !(user as { is_anonymous?: boolean }).is_anonymous;
   };
 
   const circleTargetSlug = realProfile?.slug ?? profile.id;
