@@ -98,12 +98,17 @@ function zeroReactions(): Record<ReactionType, number> {
   return { love: 0, like: 0, dislike: 0, laugh: 0, crown: 0 };
 }
 
+const POST_SELECT =
+  "id, author_id, text, created_at, media_path, media_type, media_paths, mentioned_user_ids, circle_id, audience, shared_to_feed, wall_user_id, views_count, repost_of";
+
 async function buildFeedPosts(
   sb: SupabaseClient<Database>,
   userId: string | null,
   rows: any[],
+  depth = 0,
 ): Promise<FeedPost[]> {
   if (rows.length === 0) return [];
+
 
   const authorIds = new Set<string>(rows.map((r) => r.author_id));
   const mentionedByPost = new Map<string, string[]>();
