@@ -111,6 +111,7 @@ import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed
 import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
 import { ProfileCoursesTab } from "@/components/oventric/profile/ProfileCoursesTab";
 import { ProfileServicesTab } from "@/components/oventric/profile/ProfileServicesTab";
+import { ProfileSkillsTab } from "@/components/oventric/profile/ProfileSkillsTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -168,6 +169,7 @@ type Tab =
   | "groups"
   | "marketplace"
   | "services"
+  | "skills"
   | "courses"
   | "posted"
   | "solved"
@@ -177,6 +179,7 @@ const TAB_KEYS: Tab[] = [
   "groups",
   "marketplace",
   "services",
+  "skills",
   "courses",
   "posted",
   "solved",
@@ -227,6 +230,7 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
     { value: "highest_bounty", label: "Highest bounty" },
     { value: "lowest_bounty", label: "Lowest bounty" },
   ],
+  skills: [{ value: "newest", label: "Newest" }],
   blog: [
     { value: "newest", label: "Newest" },
     { value: "most_liked", label: "Most reactions" },
@@ -239,6 +243,7 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   groups: "Search groups…",
   marketplace: "Search listings…",
   services: "Search services…",
+  skills: "Search skills…",
   courses: "Search courses…",
 
   posted: "Search bounties…",
@@ -336,6 +341,7 @@ function ProfilePage() {
     groups: { ...emptyTabState },
     marketplace: { ...emptyTabState },
     services: { ...emptyTabState },
+    skills: { ...emptyTabState },
     courses: { ...emptyTabState },
 
     posted: { ...emptyTabState },
@@ -689,6 +695,7 @@ function ProfilePage() {
   // Load (or reload) the active tab up to `desiredPages`, then restore scroll.
   useEffect(() => {
     let cancelled = false;
+    if (tab === "skills") return;
     const state = tabData[tab];
     // Only trigger the initial hydration for this tab.
     if (state.page !== 0 || state.loading) return;
@@ -730,6 +737,7 @@ function ProfilePage() {
       groups: { ...emptyTabState },
       marketplace: { ...emptyTabState },
       services: { ...emptyTabState },
+      skills: { ...emptyTabState },
       courses: { ...emptyTabState },
 
       posted: { ...emptyTabState },
@@ -1589,7 +1597,7 @@ function ProfilePage() {
             </nav>
 
             {/* Search + sort */}
-            {!overviewMode && !photosMode && (
+            {!overviewMode && !photosMode && tab !== "skills" && (
               <TabFilters
                 tab={tab}
                 q={q}
@@ -1676,6 +1684,14 @@ function ProfilePage() {
                 />
               ) : photosMode ? (
                 <ProfilePhotosGallery slug={id} />
+              ) : tab === "skills" ? (
+                <ProfileSkillsTab
+                  name={displayName}
+                  isOwner={isOwnProfile}
+                  skills={realProfile?.skills ?? []}
+                  skillLevels={realProfile?.skillLevels ?? {}}
+                  tools={realProfile?.tools ?? []}
+                />
               ) : tab === "posts" && realProfile?.userId ? (
                 <ProfilePostsFeed
                   wallUserId={realProfile.userId}
