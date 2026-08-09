@@ -29,24 +29,22 @@ export function MessagesDrawer({
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onClose]);
 
+  if (!open) return null;
+
   return (
     <>
       {/* Backdrop */}
       <div
         onClick={onClose}
-        aria-hidden={!open}
-        className={`modal-light fixed inset-0 z-40 bg-black/60 backdrop-blur-sm transition-opacity ${
-          open ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"
-        }`}
+        aria-hidden="true"
+        className="modal-light fixed inset-0 z-40 bg-black/60 backdrop-blur-sm"
       />
       {/* Drawer */}
       <aside
         role="dialog"
         aria-label="Messages"
-        aria-hidden={!open}
-        className={`fixed z-50 top-0 right-0 h-full w-full md:w-[880px] max-w-full bg-[#121214] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out ${
-          open ? "translate-x-0 visible" : "translate-x-full invisible pointer-events-none"
-        }`}
+        aria-modal="true"
+        className="fixed z-50 top-0 right-0 h-full w-full md:w-[880px] max-w-full bg-[#121214] border-l border-white/10 shadow-2xl animate-in slide-in-from-right duration-300"
 
       >
         <div className="flex items-center justify-between h-12 px-4 border-b border-white/10 bg-[#16161B]">

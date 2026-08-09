@@ -66,7 +66,7 @@ export function AppShellGestures() {
       const dy = t.clientY - state.current.startY;
 
       // Edge swipe back
-      if (state.current.edge && dx > 90 && Math.abs(dy) < 60) {
+      if (pathname !== "/" && state.current.edge && dx > 90 && Math.abs(dy) < 60) {
         haptic("light");
         router.history.back();
       }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
 import { Bell, MessageSquare, Search, Plus } from "lucide-react";
@@ -58,8 +58,9 @@ export function FeedAppChrome({
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [people, setPeople] = useState<TopUser[]>([]);
+  const chromeRef = useRef<HTMLDivElement>(null);
 
-  useScrollHideChrome(true);
+  useScrollHideChrome(true, chromeRef);
   const chromeHidden = useChromeHidden();
 
   const unreadNotifs = useUnreadNotificationsCount();
@@ -80,6 +81,7 @@ export function FeedAppChrome({
 
   return (
     <div
+      ref={chromeRef}
       className={`-mx-4 sticky top-0 z-30 bg-[#0A0A0B]/95 backdrop-blur-xl transition-transform duration-300 ease-out will-change-transform ${
         chromeHidden ? "-translate-y-full" : "translate-y-0"
       }`}

@@ -1,4 +1,4 @@
-import { useEffect, useSyncExternalStore } from "react";
+import { useEffect, useSyncExternalStore, type RefObject } from "react";
 
 /**
  * Tiny global store telling app chrome (feed header + bottom nav) to collapse
@@ -31,18 +31,24 @@ export function useChromeHidden() {
  * Drives the store from window scroll direction. Mount once (feed screen).
  * Small threshold avoids jitter; chrome always returns near the top.
  */
-export function useScrollHideChrome(enabled = true) {
+export function useScrollHideChrome(
+  enabled = true,
+  anchorRef?: RefObject<HTMLElement | null>,
+) {
   useEffect(() => {
     if (!enabled) {
       setHidden(false);
       return;
     }
-    let last = window.scrollY;
+    const scrollRoot = anchorRef?.current?.closest("main") ?? window;
+    const readScrollTop = () =>
+      scrollRoot instanceof Window ? window.scrollY : scrollRoot.scrollTop;
+    let last = readScrollTop();
     let ticking = false;
 
     const update = () => {
       ticking = false;
-      const y = window.scrollY;
+      const y = readScrollTop();
       const delta = y - last;
       if (Math.abs(delta) < 6) return;
       if (y < 80) setHidden(false);
@@ -56,10 +62,10 @@ export function useScrollHideChrome(enabled = true) {
       requestAnimationFrame(update);
     };
 
-    window.addEventListener("scroll", onScroll, { passive: true });
+    scrollRoot.addEventListener("scroll", onScroll, { passive: true });
     return () => {
-      window.removeEventListener("scroll", onScroll);
+      scrollRoot.removeEventListener("scroll", onScroll);
       setHidden(false);
     };
-  }, [enabled]);
+  }, [enabled, anchorRef]);
 }
