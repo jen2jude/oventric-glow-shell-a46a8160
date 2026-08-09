@@ -123,9 +123,10 @@ import { FollowRequestsDrawer } from "@/components/oventric/FollowRequestsDrawer
 import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
 import { EarningsBreakdown } from "@/components/oventric/profile/EarningsBreakdown";
 import {
-  RelationshipsSection,
-  type RelationshipTab,
-} from "@/components/oventric/RelationshipsSection";
+  ConnectionsDialog,
+  type ConnectionsTab,
+} from "@/components/oventric/profile/ConnectionsDialog";
+
 import { useOnlineUsers } from "@/hooks/use-presence";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { JoinCirclePickerModal } from "@/components/oventric/JoinCirclePickerModal";
