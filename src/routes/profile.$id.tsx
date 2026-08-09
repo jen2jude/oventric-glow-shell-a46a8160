@@ -257,16 +257,14 @@ function ProfilePage() {
     ? (search.sort as ProfileSortKey)
     : "newest";
   const [photosMode, setPhotosMode] = useState(false);
-  const [relTab, setRelTab] = useState<RelationshipTab>("followers");
+  const [connectionsOpen, setConnectionsOpen] = useState(false);
+  const [connectionsTab, setConnectionsTab] = useState<ConnectionsTab>("followers");
   const onlineUsers = useOnlineUsers();
-  const openRelationships = (which: RelationshipTab) => {
-    setRelTab(which);
-    requestAnimationFrame(() => {
-      const el = document.getElementById("relationships");
-      el?.scrollIntoView({ behavior: "smooth", block: "start" });
-      el?.querySelector<HTMLButtonElement>(`#rel-tab-${which}`)?.focus({ preventScroll: true });
-    });
+  const openRelationships = (which: ConnectionsTab) => {
+    setConnectionsTab(which);
+    setConnectionsOpen(true);
   };
+
 
   // Search state to hand off to item detail pages so their back link returns
   // to the exact tab, pagination depth, and scroll position we're in.
