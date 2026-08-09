@@ -306,6 +306,17 @@ export function FeedAppChrome({
           }}
         />
       )}
+      {trimRequest && (
+        <StoryTrimmerModal
+          file={trimRequest.file}
+          duration={trimRequest.duration}
+          working={trimWorking}
+          progress={trimProgress}
+          onCancel={cancelTrim}
+          onConfirm={(s) => void confirmTrim(s)}
+        />
+      )}
+
 
       <div className="h-px w-full bg-white/[0.07]" />
 
