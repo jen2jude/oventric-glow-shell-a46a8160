@@ -228,6 +228,8 @@ export const reactToStory = createServerFn({ method: "POST" })
         storyId: z.string().uuid(),
         emoji: z.string().min(1).max(8).optional(),
         body: z.string().trim().max(1000).optional(),
+        /** Send only the media clip (no text) so the viewer can comment in chat. */
+        clipOnly: z.boolean().optional(),
       })
       .parse(d),
   )
