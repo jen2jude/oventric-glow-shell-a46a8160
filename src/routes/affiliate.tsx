@@ -33,7 +33,9 @@ export const Route = createFileRoute("/affiliate")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://oventric.com/affiliate" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/affiliate" }],
   }),
   component: AffiliatePage,
 });

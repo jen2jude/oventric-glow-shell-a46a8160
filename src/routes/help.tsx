@@ -15,7 +15,9 @@ export const Route = createFileRoute("/help")({
         property: "og:description",
         content: "Answers about accounts, payments, marketplace, wallet, bounties, and more.",
       },
+      { property: "og:url", content: "https://oventric.com/help" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/help" }],
   }),
   component: HelpPage,
 });

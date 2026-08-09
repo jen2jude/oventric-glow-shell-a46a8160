@@ -15,7 +15,9 @@ export const Route = createFileRoute("/about")({
         property: "og:description",
         content: "One platform for builders — social, marketplace, academy, bounties, wallet.",
       },
+      { property: "og:url", content: "https://oventric.com/about" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/about" }],
   }),
   component: AboutPage,
 });

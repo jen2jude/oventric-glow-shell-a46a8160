@@ -39,7 +39,9 @@ export const Route = createFileRoute("/advertise")({
         content:
           "Text $0.50/day, Image $0.79/day, Video $0.99/day. City & state level targeting across Africa.",
       },
+      { property: "og:url", content: "https://oventric.com/advertise" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/advertise" }],
   }),
   component: AdvertisePage,
 });

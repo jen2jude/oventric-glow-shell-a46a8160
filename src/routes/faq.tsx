@@ -17,7 +17,9 @@ export const Route = createFileRoute("/faq")({
         property: "og:description",
         content: "Answers to the most common questions across Oventric.",
       },
+      { property: "og:url", content: "https://oventric.com/faq" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/faq" }],
   }),
   component: FaqPage,
 });

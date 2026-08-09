@@ -11,7 +11,9 @@ export const Route = createFileRoute("/privacy")({
         property: "og:description",
         content: "How Oventric collects, uses, and protects your data.",
       },
+      { property: "og:url", content: "https://oventric.com/privacy" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/privacy" }],
   }),
   component: PrivacyPage,
 });
