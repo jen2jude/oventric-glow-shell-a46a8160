@@ -1496,12 +1496,28 @@ export function Feed() {
         ) : (
           (() => {
             const shareOrigin = typeof window !== "undefined" ? window.location.origin : "";
+            if (isAppShell && feedTab === "discover") {
+              return (
+                <FeedDiscoverExplore posts={filteredPosts} renderPost={renderPost} />
+              );
+            }
             const visible = filteredPosts;
             const items: React.ReactNode[] = [];
             let blogIdx = 0;
+            let commerceIdx = 0;
             visible.forEach((post, i) => {
               items.push(renderPost(post));
+              if (
+                isAppShell &&
+                feedTab === "foryou" &&
+                (i + 1) % 4 === 0 &&
+                commerceCards[commerceIdx]
+              ) {
+                const c = commerceCards[commerceIdx++];
+                items.push(<FeedCommerceCard key={`commerce-${c.kind}-${c.id}`} item={c} />);
+              }
               if ((i + 1) % 10 === 0 && blogPosts[blogIdx]) {
+
                 const b = blogPosts[blogIdx++];
                 items.push(
                   <div
