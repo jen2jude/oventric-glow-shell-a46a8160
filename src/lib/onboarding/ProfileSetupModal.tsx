@@ -45,7 +45,7 @@ const COUNTRIES: { code: Country; label: string }[] = [
  * right for a fresh-onboarding feel.
  */
 export function ProfileSetupModalHost() {
-  const { session, checked } = useAuthGate();
+  const { session, checked, isAuthenticated } = useAuthGate();
   const { advanceTo, tier } = useOnboarding();
   const [open, setOpen] = useState(false);
   const [checking, setChecking] = useState(false);
@@ -53,7 +53,9 @@ export function ProfileSetupModalHost() {
   const lastCheckedRef = useRef<string | null>(null);
 
   useEffect(() => {
-    if (!checked || !session?.user?.id) return;
+    // Guests (no session, or an anonymous session) must sign in first — the
+    // AuthGate owns that step. Never jump straight to profile setup.
+    if (!checked || !isAuthenticated || !session?.user?.id) return;
     if (lastCheckedRef.current === session.user.id) return;
     lastCheckedRef.current = session.user.id;
     setChecking(true);
