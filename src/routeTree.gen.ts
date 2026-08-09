@@ -27,6 +27,7 @@ import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as AdminIndexRouteImport } from './routes/admin.index'
 import { Route as WalletLedgerRouteImport } from './routes/wallet.ledger'
 import { Route as WalletHistoryRouteImport } from './routes/wallet.history'
+import { Route as ShopIdRouteImport } from './routes/shop.$id'
 import { Route as ProfileIdRouteImport } from './routes/profile.$id'
 import { Route as ProductIdRouteImport } from './routes/product.$id'
 import { Route as PaymentReturnRouteImport } from './routes/payment.return'
@@ -160,6 +161,11 @@ const WalletLedgerRoute = WalletLedgerRouteImport.update({
 const WalletHistoryRoute = WalletHistoryRouteImport.update({
   id: '/wallet/history',
   path: '/wallet/history',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ShopIdRoute = ShopIdRouteImport.update({
+  id: '/shop/$id',
+  path: '/shop/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ProfileIdRoute = ProfileIdRouteImport.update({
@@ -437,6 +443,7 @@ export interface FileRoutesByFullPath {
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/shop/$id': typeof ShopIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/wallet/ledger': typeof WalletLedgerRoute
   '/admin/': typeof AdminIndexRoute
@@ -499,6 +506,7 @@ export interface FileRoutesByTo {
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/shop/$id': typeof ShopIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/wallet/ledger': typeof WalletLedgerRoute
   '/admin': typeof AdminIndexRoute
@@ -564,6 +572,7 @@ export interface FileRoutesById {
   '/payment/return': typeof PaymentReturnRoute
   '/product/$id': typeof ProductIdRoute
   '/profile/$id': typeof ProfileIdRouteWithChildren
+  '/shop/$id': typeof ShopIdRoute
   '/wallet/history': typeof WalletHistoryRoute
   '/wallet/ledger': typeof WalletLedgerRoute
   '/admin/': typeof AdminIndexRoute
@@ -630,6 +639,7 @@ export interface FileRouteTypes {
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
+    | '/shop/$id'
     | '/wallet/history'
     | '/wallet/ledger'
     | '/admin/'
@@ -692,6 +702,7 @@ export interface FileRouteTypes {
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
+    | '/shop/$id'
     | '/wallet/history'
     | '/wallet/ledger'
     | '/admin'
@@ -756,6 +767,7 @@ export interface FileRouteTypes {
     | '/payment/return'
     | '/product/$id'
     | '/profile/$id'
+    | '/shop/$id'
     | '/wallet/history'
     | '/wallet/ledger'
     | '/admin/'
@@ -798,6 +810,7 @@ export interface RootRouteChildren {
   PaymentReturnRoute: typeof PaymentReturnRoute
   ProductIdRoute: typeof ProductIdRoute
   ProfileIdRoute: typeof ProfileIdRouteWithChildren
+  ShopIdRoute: typeof ShopIdRoute
   WalletHistoryRoute: typeof WalletHistoryRoute
   WalletLedgerRoute: typeof WalletLedgerRoute
   BlogIndexRoute: typeof BlogIndexRoute
@@ -939,6 +952,13 @@ declare module '@tanstack/react-router' {
       path: '/wallet/history'
       fullPath: '/wallet/history'
       preLoaderRoute: typeof WalletHistoryRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/shop/$id': {
+      id: '/shop/$id'
+      path: '/shop/$id'
+      fullPath: '/shop/$id'
+      preLoaderRoute: typeof ShopIdRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/profile/$id': {
@@ -1368,6 +1388,7 @@ const rootRouteChildren: RootRouteChildren = {
   PaymentReturnRoute: PaymentReturnRoute,
   ProductIdRoute: ProductIdRoute,
   ProfileIdRoute: ProfileIdRouteWithChildren,
+  ShopIdRoute: ShopIdRoute,
   WalletHistoryRoute: WalletHistoryRoute,
   WalletLedgerRoute: WalletLedgerRoute,
   BlogIndexRoute: BlogIndexRoute,

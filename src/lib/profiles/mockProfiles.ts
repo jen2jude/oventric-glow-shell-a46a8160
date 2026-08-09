@@ -22,6 +22,9 @@ export interface ProfileListing {
   priceUsd: number;
   sales: number;
   coverUrl?: string | null;
+  rating?: number;
+  blurb?: string | null;
+  promoted?: boolean;
 }
 export interface ProfileBounty {
   id: string;

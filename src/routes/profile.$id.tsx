@@ -108,6 +108,7 @@ import { ImageLightbox } from "@/components/oventric/feed/ImageLightbox";
 import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
 import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed";
+import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
@@ -1722,7 +1723,15 @@ function ProfilePage() {
 
                   return (
                     <>
-                      {(() => {
+                      {tab === "marketplace" ? (
+                        <ProfileShopTab
+                          items={st.items as ProfileListing[]}
+                          total={st.total ?? st.items.length}
+                          isOwner={isOwnProfile}
+                          price={price}
+                          shopSlug={id}
+                        />
+                      ) : (() => {
                         // Uniform grid tiles across every tab. Tiles deep-link to the
                         // profile item detail route so the panel loads instantly with
                         // its own skeleton while the URL stays shareable.
@@ -1753,7 +1762,7 @@ function ProfilePage() {
                             title: g.name,
                             subtitle: `${g.tag} · ${g.members.toLocaleString()} member${g.members === 1 ? "" : "s"}`,
                           }));
-                        } else if (tab === "marketplace" || tab === "services") {
+                        } else if (tab === "services") {
                           tiles = (st.items as ProfileListing[]).map((l) => ({
                             key: l.id,
                             kind: "listing" as const,
@@ -1762,7 +1771,7 @@ function ProfilePage() {
                             placeholderIcon: <ShoppingBag className="w-8 h-8 text-white/30" />,
                             badge: { label: l.category, tone: "emerald" as const },
                             title: l.title,
-                            subtitle: tab === "services" ? "Service" : `${l.sales} sold`,
+                            subtitle: "Service",
                             priceLabel: price(l.priceUsd),
                           }));
                         } else if (tab === "courses") {
@@ -1898,6 +1907,7 @@ function ProfilePage() {
                           </div>
                         );
                       })()}
+
 
                       {/* Pagination footer */}
                       <div className="pt-2 flex items-center justify-center">
