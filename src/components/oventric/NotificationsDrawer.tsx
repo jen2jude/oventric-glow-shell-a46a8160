@@ -370,7 +370,7 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
       )}
       <aside
         className={`w-full sm:w-[400px] h-screen bg-[#1E1E24] border-l border-white/5 shadow-2xl z-50 fixed right-0 top-0 transition-transform duration-300 ${
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0 visible" : "translate-x-full invisible pointer-events-none"
         }`}
         role="dialog"
         aria-label="Notifications"
