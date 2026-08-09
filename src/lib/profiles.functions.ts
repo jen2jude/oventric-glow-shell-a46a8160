@@ -12,7 +12,17 @@ import type {
   ProfilePost,
 } from "./profiles/mockProfiles";
 
-const TabEnum = z.enum(["posts", "groups", "marketplace", "posted", "solved", "blog"]);
+const TabEnum = z.enum([
+  "posts",
+  "groups",
+  "marketplace",
+  "services",
+  "courses",
+  "posted",
+  "solved",
+  "blog",
+]);
+
 const SortEnum = z.enum([
   "newest",
   "most_liked",
