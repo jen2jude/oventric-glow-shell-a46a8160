@@ -57,10 +57,6 @@ export interface CourseTileData {
   done?: boolean;
 }
 
-function courseLink(id: string) {
-  return { to: "/", search: { section: "Academy", course: id } } as never;
-}
-
 function CourseRow({
   c,
   price,
@@ -70,7 +66,8 @@ function CourseRow({
 }) {
   return (
     <Link
-      {...courseLink(c.id)}
+      to="/"
+      search={{ section: "Academy", course: c.id } as never}
       className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#141417] p-3 transition-colors hover:bg-[#1A1A1F] md:border-slate-200 md:bg-white md:hover:bg-slate-50"
     >
       <Cover url={c.coverUrl} className="h-16 w-16 shrink-0" />
@@ -101,7 +98,8 @@ function CourseRow({
 function CourseCard({ c, price }: { c: CourseTileData; price: (usd: number) => string }) {
   return (
     <Link
-      {...courseLink(c.id)}
+      to="/"
+      search={{ section: "Academy", course: c.id } as never}
       className="group overflow-hidden rounded-2xl border border-white/10 bg-[#141417] transition-transform hover:-translate-y-0.5 md:border-slate-200 md:bg-white"
     >
       <Cover url={c.coverUrl} className="aspect-[4/3] w-full rounded-none" />
