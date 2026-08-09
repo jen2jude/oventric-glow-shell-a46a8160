@@ -86,8 +86,8 @@ export function FeedAppChrome({
     >
       {/* Brand header — collapses independently; tabs/stories stay pinned */}
       <div
-        className={`flex items-center gap-2 px-4 pt-1 pb-2 transition-transform duration-700 ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
-          chromeHidden ? "-translate-y-full" : "translate-y-0"
+        className={`flex items-center gap-2 px-4 pt-1 pb-2 transition-all duration-[900ms] ease-[cubic-bezier(0.22,1,0.36,1)] will-change-transform ${
+          chromeHidden ? "-translate-y-full opacity-0" : "translate-y-0 opacity-100"
         }`}
       >
         <img src={logoFull} alt="Oventric" className="h-7 w-auto shrink-0" />
