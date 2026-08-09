@@ -45,8 +45,9 @@ export function MessagesDrawer({
         aria-label="Messages"
         aria-hidden={!open}
         className={`fixed z-50 top-0 right-0 h-full w-full md:w-[880px] max-w-full bg-[#121214] border-l border-white/10 shadow-2xl transition-transform duration-300 ease-out ${
-          open ? "translate-x-0" : "translate-x-full"
+          open ? "translate-x-0 visible" : "translate-x-full invisible pointer-events-none"
         }`}
+
       >
         <div className="flex items-center justify-between h-12 px-4 border-b border-white/10 bg-[#16161B]">
           <div className="flex items-center gap-2">
