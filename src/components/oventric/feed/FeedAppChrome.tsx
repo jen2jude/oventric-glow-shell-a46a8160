@@ -75,10 +75,7 @@ export function FeedAppChrome({
   }, [loadTopUsers]);
 
   return (
-    <div
-      ref={chromeRef}
-      className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]"
-    >
+    <div className="-mx-4 sticky top-0 z-30 bg-[#0A0A0B]">
       {/* Brand header — stays pinned; only fades slightly on scroll down */}
       <div>
         <div className="min-h-0">
