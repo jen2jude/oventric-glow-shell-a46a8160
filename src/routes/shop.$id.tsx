@@ -1,17 +1,35 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
-import { ArrowLeft, BadgeCheck, MessageCircle, ShoppingBag, Star } from "lucide-react";
+import {
+  ArrowLeft,
+  BadgeCheck,
+  ChevronLeft,
+  ChevronRight,
+  GraduationCap,
+  MessageCircle,
+  Pencil,
+  ShoppingBag,
+  Star,
+  Target,
+} from "lucide-react";
 import {
   getLiveProfileTab,
-  getProfileByIdOrSlug,
   getProfileSocialCounts,
-  type RealProfileView,
 } from "@/lib/profiles.functions";
+import {
+  getShopBranding,
+  getShopDiscovery,
+  type ShopBranding,
+  type ShopDiscovery,
+  type ShopRailItem,
+} from "@/lib/shop.functions";
 import type { ProfileListing } from "@/lib/profiles/mockProfiles";
 import { FollowButton } from "@/components/oventric/FollowButton";
 import { ProfileMessageModal } from "@/components/oventric/messaging/ProfileMessageModal";
+import { ShopEditModal } from "@/components/oventric/shop/ShopEditModal";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
+import { supabase } from "@/integrations/supabase/client";
 
 const ACCENT = "#E5484D";
 type ShopTab = "shop" | "collections" | "services" | "about";
@@ -56,23 +74,80 @@ function Cover({ url, className }: { url?: string | null; className?: string }) 
   );
 }
 
+function SectionHead({
+  title,
+  action,
+}: {
+  title: string;
+  action?: React.ReactNode;
+}) {
+  return (
+    <div className="mt-7 flex items-center justify-between gap-3">
+      <h2 className="text-base font-black">{title}</h2>
+      {action}
+    </div>
+  );
+}
+
+/** Horizontal snap rail with optional desktop arrows. */
+function Rail({ children }: { children: React.ReactNode }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const scrollBy = (dir: number) =>
+    ref.current?.scrollBy({ left: dir * (ref.current.clientWidth * 0.8), behavior: "smooth" });
+  return (
+    <div className="relative">
+      <div
+        ref={ref}
+        className="-mx-1 mt-3 flex snap-x snap-mandatory gap-3 overflow-x-auto px-1 pb-2 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+      >
+        {children}
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 right-0 hidden items-center sm:flex">
+        <button
+          type="button"
+          onClick={() => scrollBy(1)}
+          aria-label="Scroll right"
+          className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full bg-black/60 backdrop-blur hover:bg-black/80"
+        >
+          <ChevronRight className="h-4 w-4" />
+        </button>
+      </div>
+      <div className="pointer-events-none absolute inset-y-0 left-0 hidden items-center sm:flex">
+        <button
+          type="button"
+          onClick={() => scrollBy(-1)}
+          aria-label="Scroll left"
+          className="pointer-events-auto grid h-9 w-9 place-items-center rounded-full bg-black/60 backdrop-blur hover:bg-black/80"
+        >
+          <ChevronLeft className="h-4 w-4" />
+        </button>
+      </div>
+    </div>
+  );
+}
+
 function ShopPage() {
   const { id } = Route.useParams();
   const navigate = useNavigate();
   const { baseCurrency } = useOnboarding();
 
-  const loadProfile = useServerFn(getProfileByIdOrSlug);
+  const loadShop = useServerFn(getShopBranding);
   const loadCounts = useServerFn(getProfileSocialCounts);
   const loadTab = useServerFn(getLiveProfileTab);
+  const loadDiscovery = useServerFn(getShopDiscovery);
 
-  const [profile, setProfile] = useState<RealProfileView | null>(null);
+  const [shop, setShop] = useState<ShopBranding | null>(null);
   const [followers, setFollowers] = useState(0);
   const [products, setProducts] = useState<ProfileListing[]>([]);
   const [productTotal, setProductTotal] = useState(0);
   const [services, setServices] = useState<ProfileListing[]>([]);
+  const [discovery, setDiscovery] = useState<ShopDiscovery | null>(null);
+  const [meId, setMeId] = useState<string | null>(null);
   const [tab, setTab] = useState<ShopTab>("shop");
   const [dmOpen, setDmOpen] = useState(false);
+  const [editOpen, setEditOpen] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [reloadKey, setReloadKey] = useState(0);
 
   const fx = baseCurrency === "USD" ? 1 : baseCurrency === "NGN" ? 1500 : 14;
   const sym = baseCurrency === "USD" ? "$" : baseCurrency === "NGN" ? "₦" : "₵";
@@ -82,26 +157,51 @@ function ShopPage() {
   );
 
   useEffect(() => {
+    let alive = true;
+    supabase.auth.getSession().then(({ data }) => {
+      if (alive) setMeId(data.session?.user?.id ?? null);
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
+      setMeId(session?.user?.id ?? null);
+    });
+    return () => {
+      alive = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
       try {
-        const [p, c, mp, sv] = await Promise.all([
-          loadProfile({ data: { idOrSlug: id } }),
+        const [s, c, mp, sv] = await Promise.all([
+          loadShop({ data: { idOrSlug: id } }),
           loadCounts({ data: { idOrSlug: id } }).catch(() => null),
           loadTab({
-            data: { idOrSlug: id, tab: "marketplace", page: 1, pageSize: 24, q: "", sort: "newest" },
+            data: { idOrSlug: id, tab: "marketplace", page: 1, pageSize: 48, q: "", sort: "newest" },
           }).catch(() => null),
           loadTab({
             data: { idOrSlug: id, tab: "services", page: 1, pageSize: 24, q: "", sort: "newest" },
           }).catch(() => null),
         ]);
         if (cancelled) return;
-        setProfile(p.profile);
+        setShop(s.shop);
         setFollowers(c?.followers ?? 0);
-        setProducts((mp?.items ?? []) as ProfileListing[]);
-        setProductTotal(mp?.total ?? (mp?.items?.length ?? 0));
+        const items = (mp?.items ?? []) as ProfileListing[];
+        setProducts(items);
+        setProductTotal(mp?.total ?? items.length);
         setServices((sv?.items ?? []) as ProfileListing[]);
+
+        if (s.shop) {
+          const d = await loadDiscovery({
+            data: {
+              sellerId: s.shop.userId,
+              ...(items[0]?.category ? { category: items[0].category } : {}),
+            },
+          }).catch(() => null);
+          if (!cancelled && d) setDiscovery(d);
+        }
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -109,7 +209,7 @@ function ShopPage() {
     return () => {
       cancelled = true;
     };
-  }, [id, loadProfile, loadCounts, loadTab]);
+  }, [id, reloadKey, loadShop, loadCounts, loadTab, loadDiscovery]);
 
   const sales = useMemo(() => products.reduce((s, p) => s + (p.sales ?? 0), 0), [products]);
   const rating = useMemo(() => {
@@ -119,10 +219,24 @@ function ShopPage() {
       : "—";
   }, [products]);
 
-  const featured = products[0];
-  const arrivals = products.slice(featured ? 1 : 0);
-  const name = profile?.displayName ?? id;
-  const verified = (profile?.verificationTier ?? "none") !== "none";
+  const featured = useMemo(() => {
+    const promoted = products.filter((p) => p.promoted);
+    const rest = products.filter((p) => !p.promoted).sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0));
+    return [...promoted, ...rest].slice(0, 6);
+  }, [products]);
+  const arrivals = useMemo(() => products.slice(0, 10), [products]);
+  const topRated = useMemo(
+    () => [...products].sort((a, b) => (b.rating ?? 0) - (a.rating ?? 0)).slice(0, 10),
+    [products],
+  );
+  const bestSellers = useMemo(
+    () => [...products].sort((a, b) => (b.sales ?? 0) - (a.sales ?? 0)).slice(0, 10),
+    [products],
+  );
+
+  const name = shop?.shopName ?? id;
+  const verified = (shop?.verificationTier ?? "none") !== "none";
+  const isOwner = !!meId && !!shop && meId === shop.userId;
 
   return (
     <div className="min-h-screen bg-[#0A0A0B] text-white">
@@ -130,20 +244,36 @@ function ShopPage() {
       <div className="sticky top-0 z-30 flex items-center gap-3 bg-[#0A0A0B]/90 px-4 py-3 backdrop-blur">
         <button
           type="button"
-          onClick={() => navigate({ to: "/profile/$id", params: { id }, search: { tab: "marketplace", pages: 1, y: 0, q: "", sort: "newest" } as never })}
+          onClick={() =>
+            navigate({
+              to: "/profile/$id",
+              params: { id },
+              search: { tab: "marketplace", pages: 1, y: 0, q: "", sort: "newest" } as never,
+            })
+          }
           aria-label="Back"
           className="grid h-9 w-9 place-items-center rounded-full bg-white/10 hover:bg-white/15"
         >
           <ArrowLeft className="h-4 w-4" />
         </button>
         <div className="min-w-0 flex-1 truncate text-sm font-bold">Seller Shop Overview</div>
+        {isOwner && (
+          <button
+            type="button"
+            onClick={() => setEditOpen(true)}
+            className="inline-flex h-9 items-center gap-1.5 rounded-full px-3 text-xs font-black"
+            style={{ backgroundColor: ACCENT }}
+          >
+            <Pencil className="h-3.5 w-3.5" /> Edit shop
+          </button>
+        )}
       </div>
 
       <div className="mx-auto w-full max-w-[720px] pb-20">
         {/* Cover */}
         <div className="relative h-40 w-full overflow-hidden sm:h-56">
-          {profile?.coverUrl ? (
-            <img src={profile.coverUrl} alt="" className="h-full w-full object-cover" />
+          {shop?.coverUrl ? (
+            <img src={shop.coverUrl} alt="" className="h-full w-full object-cover" />
           ) : (
             <div className="h-full w-full bg-[linear-gradient(120deg,#2A1030_0%,#3B1240_55%,#120913_100%)]" />
           )}
@@ -152,9 +282,9 @@ function ShopPage() {
 
         {/* Identity */}
         <div className="-mt-12 px-5">
-          <div className="h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-[#141417]">
-            {profile?.avatarUrl ? (
-              <img src={profile.avatarUrl} alt="" className="h-full w-full object-cover" />
+          <div className="relative h-24 w-24 overflow-hidden rounded-2xl border border-white/10 bg-[#141417]">
+            {shop?.logoUrl ? (
+              <img src={shop.logoUrl} alt="" className="h-full w-full object-cover" />
             ) : (
               <div className="grid h-full w-full place-items-center text-2xl font-black text-white/60">
                 {name.charAt(0).toUpperCase()}
@@ -167,7 +297,7 @@ function ShopPage() {
             {verified && <BadgeCheck className="h-5 w-5 shrink-0 text-sky-400" />}
           </div>
           <p className="mt-1 text-sm text-slate-400">
-            {profile?.bio?.trim() || "Digital goods and services on Oventric."}
+            {shop?.shopAbout?.trim() || "Digital goods and services on Oventric."}
           </p>
 
           {/* Stats */}
@@ -187,9 +317,18 @@ function ShopPage() {
 
           {/* Actions */}
           <div className="mt-4 grid grid-cols-2 gap-3">
-            {profile?.userId ? (
+            {isOwner ? (
+              <button
+                type="button"
+                onClick={() => setEditOpen(true)}
+                className="inline-flex h-11 items-center justify-center gap-2 rounded-xl text-sm font-black"
+                style={{ backgroundColor: ACCENT }}
+              >
+                <Pencil className="h-4 w-4" /> Edit shop details
+              </button>
+            ) : shop?.userId ? (
               <FollowButton
-                targetId={profile.userId}
+                targetId={shop.userId}
                 className="h-11 w-full rounded-xl text-sm font-bold"
               />
             ) : (
@@ -237,9 +376,19 @@ function ShopPage() {
             </div>
           ) : tab === "about" ? (
             <div className="mt-5 rounded-2xl border border-white/10 bg-[#141417] p-4 text-sm leading-relaxed text-slate-300">
-              {profile?.bio?.trim() || "This seller hasn't added a shop description yet."}
-              {profile?.country && (
-                <div className="mt-3 text-xs text-slate-500">Based in {profile.country}</div>
+              {shop?.shopAbout?.trim() || "This seller hasn't added a shop description yet."}
+              {shop?.country && (
+                <div className="mt-3 text-xs text-slate-500">Based in {shop.country}</div>
+              )}
+              {isOwner && (
+                <button
+                  type="button"
+                  onClick={() => setEditOpen(true)}
+                  className="mt-4 inline-flex items-center gap-1.5 text-sm font-bold"
+                  style={{ color: ACCENT }}
+                >
+                  <Pencil className="h-4 w-4" /> Edit about
+                </button>
               )}
             </div>
           ) : tab === "services" ? (
@@ -250,59 +399,271 @@ function ShopPage() {
             </div>
           ) : (
             <>
-              {featured && (
+              {/* Featured carousel */}
+              {featured.length > 0 && (
                 <>
-                  <h2 className="mt-6 text-base font-black">Featured Product</h2>
-                  <Link
-                    to="/product/$id"
-                    params={{ id: featured.id }}
-                    className="mt-3 flex items-center gap-3 rounded-2xl border border-white/10 bg-[#141417] p-3 hover:bg-[#1A1A1F]"
-                  >
-                    <Cover url={featured.coverUrl} className="h-20 w-20 shrink-0 rounded-xl" />
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate text-sm font-bold">{featured.title}</div>
-                      <div className="mt-0.5 line-clamp-2 text-xs text-slate-400">
-                        {featured.blurb?.trim() || featured.category}
-                      </div>
-                      <div className="mt-1.5 flex items-center justify-between gap-3">
-                        <span className="text-sm font-black">{price(featured.priceUsd)}</span>
-                        {(featured.rating ?? 0) > 0 && (
-                          <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-400">
-                            <Star className="h-3.5 w-3.5 fill-amber-400" strokeWidth={0} />
-                            {(featured.rating ?? 0).toFixed(1)}
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  </Link>
+                  <SectionHead
+                    title="Featured Products"
+                    action={
+                      <span className="text-xs font-bold text-slate-400">swipe →</span>
+                    }
+                  />
+                  <Rail>
+                    {featured.map((p) => (
+                      <Link
+                        key={p.id}
+                        to="/product/$id"
+                        params={{ id: p.id }}
+                        className="w-[78%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#141417] sm:w-[46%]"
+                      >
+                        <Cover url={p.coverUrl} className="aspect-[16/10] w-full" />
+                        <div className="p-3">
+                          <div className="truncate text-sm font-bold">{p.title}</div>
+                          <div className="mt-0.5 line-clamp-2 text-xs text-slate-400">
+                            {p.blurb?.trim() || p.category}
+                          </div>
+                          <div className="mt-2 flex items-center justify-between gap-2">
+                            <span className="text-sm font-black" style={{ color: ACCENT }}>
+                              {price(p.priceUsd)}
+                            </span>
+                            {(p.rating ?? 0) > 0 && (
+                              <span className="inline-flex items-center gap-1 text-xs font-bold text-amber-400">
+                                <Star className="h-3.5 w-3.5 fill-amber-400" strokeWidth={0} />
+                                {(p.rating ?? 0).toFixed(1)}
+                              </span>
+                            )}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </Rail>
                 </>
               )}
 
-              <div className="mt-7 flex items-center justify-between">
-                <h2 className="text-base font-black">New Arrivals</h2>
-                <span className="text-sm font-bold" style={{ color: ACCENT }}>
-                  {compact(productTotal)} items
-                </span>
-              </div>
-              <Grid items={arrivals} price={price} emptyLabel="No products listed yet." />
+              {/* New arrivals rail */}
+              {arrivals.length > 0 && (
+                <>
+                  <SectionHead
+                    title="New Arrivals"
+                    action={
+                      <span className="text-sm font-bold" style={{ color: ACCENT }}>
+                        {compact(productTotal)} items
+                      </span>
+                    }
+                  />
+                  <Rail>
+                    {arrivals.map((p) => (
+                      <ProductCard key={p.id} item={p} price={price} />
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* Best sellers rail */}
+              {bestSellers.some((p) => (p.sales ?? 0) > 0) && (
+                <>
+                  <SectionHead title="Best Sellers" />
+                  <Rail>
+                    {bestSellers.map((p) => (
+                      <ProductCard key={p.id} item={p} price={price} />
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* Top rated rail */}
+              {topRated.some((p) => (p.rating ?? 0) > 0) && (
+                <>
+                  <SectionHead title="Top Rated" />
+                  <Rail>
+                    {topRated.map((p) => (
+                      <ProductCard key={p.id} item={p} price={price} />
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* All products grid */}
+              <SectionHead title="All Products" />
+              <Grid items={products} price={price} emptyLabel="No products listed yet." />
+
+              {/* Similar items from other sellers */}
+              {(discovery?.similarProducts.length ?? 0) > 0 && (
+                <>
+                  <SectionHead title="Similar items from other sellers" />
+                  <Rail>
+                    {discovery!.similarProducts.map((p) => (
+                      <Link
+                        key={p.id}
+                        to="/product/$id"
+                        params={{ id: p.id }}
+                        className="w-[38%] shrink-0 snap-start overflow-hidden rounded-xl border border-white/10 bg-[#141417] sm:w-[22%]"
+                      >
+                        <Cover url={p.coverUrl} className="aspect-square w-full" />
+                        <div className="p-2">
+                          <div className="line-clamp-2 text-[11px] font-bold leading-snug">
+                            {p.title}
+                          </div>
+                          <div className="mt-1 text-[11px] font-black" style={{ color: ACCENT }}>
+                            {price(p.priceUsd ?? 0)}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* Blog */}
+              {(discovery?.blog.length ?? 0) > 0 && (
+                <>
+                  <SectionHead
+                    title="From the Oventric blog"
+                    action={
+                      <Link to="/blog" className="text-sm font-bold" style={{ color: ACCENT }}>
+                        View all
+                      </Link>
+                    }
+                  />
+                  <Rail>
+                    {discovery!.blog.map((b) => (
+                      <Link
+                        key={b.id}
+                        to="/blog/$slug"
+                        params={{ slug: b.id }}
+                        className="w-[70%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#141417] sm:w-[42%]"
+                      >
+                        <Cover url={b.coverUrl} className="aspect-[16/9] w-full" />
+                        <div className="p-3">
+                          <div className="line-clamp-2 text-xs font-bold">{b.title}</div>
+                          <div className="mt-1 line-clamp-2 text-[11px] text-slate-400">
+                            {b.subtitle}
+                          </div>
+                        </div>
+                      </Link>
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* Bounties */}
+              {(discovery?.bounties.length ?? 0) > 0 && (
+                <>
+                  <SectionHead
+                    title="Open bounties"
+                    action={
+                      <Link to="/bounties" className="text-sm font-bold" style={{ color: ACCENT }}>
+                        View all
+                      </Link>
+                    }
+                  />
+                  <Rail>
+                    {discovery!.bounties.map((b) => (
+                      <div
+                        key={b.id}
+                        className="w-[62%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#141417] p-3 sm:w-[36%]"
+                      >
+                        <div className="flex items-center gap-2 text-[11px] font-bold text-slate-400">
+                          <Target className="h-3.5 w-3.5" style={{ color: ACCENT }} />
+                          {b.subtitle ?? "Bounty"}
+                        </div>
+                        <div className="mt-1.5 line-clamp-2 text-xs font-bold">{b.title}</div>
+                        <div className="mt-2 text-sm font-black" style={{ color: ACCENT }}>
+                          {price(b.priceUsd ?? 0)}
+                        </div>
+                      </div>
+                    ))}
+                  </Rail>
+                </>
+              )}
+
+              {/* Courses */}
+              {(discovery?.courses.length ?? 0) > 0 && (
+                <>
+                  <SectionHead title="Academy courses" />
+                  <Rail>
+                    {discovery!.courses.map((c) => (
+                      <div
+                        key={c.id}
+                        className="w-[62%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#141417] sm:w-[36%]"
+                      >
+                        <Cover url={c.coverUrl} className="aspect-[16/9] w-full" />
+                        <div className="p-3">
+                          <div className="line-clamp-2 text-xs font-bold">{c.title}</div>
+                          <div className="mt-1 flex items-center justify-between gap-2 text-[11px] text-slate-400">
+                            <span className="inline-flex items-center gap-1">
+                              <GraduationCap className="h-3.5 w-3.5" /> {c.subtitle ?? "Oventric"}
+                            </span>
+                            <span className="font-black" style={{ color: ACCENT }}>
+                              {(c.priceUsd ?? 0) > 0 ? price(c.priceUsd ?? 0) : "Free"}
+                            </span>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </Rail>
+                </>
+              )}
             </>
           )}
         </div>
       </div>
 
-      {profile?.userId && (
+      {shop?.userId && (
         <ProfileMessageModal
           open={dmOpen}
           onClose={() => setDmOpen(false)}
           recipient={{
-            userId: profile.userId,
+            userId: shop.userId,
             displayName: name,
-            avatarUrl: profile.avatarUrl,
-            slug: profile.slug,
+            avatarUrl: shop.logoUrl,
+            slug: shop.slug,
           }}
         />
       )}
+
+      {isOwner && shop && (
+        <ShopEditModal
+          open={editOpen}
+          onClose={() => setEditOpen(false)}
+          shop={shop}
+          userId={shop.userId}
+          onSaved={() => setReloadKey((k) => k + 1)}
+        />
+      )}
     </div>
+  );
+}
+
+function ProductCard({
+  item,
+  price,
+}: {
+  item: ProfileListing;
+  price: (usd: number) => string;
+}) {
+  return (
+    <Link
+      to="/product/$id"
+      params={{ id: item.id }}
+      className="w-[46%] shrink-0 snap-start overflow-hidden rounded-2xl border border-white/10 bg-[#141417] sm:w-[28%]"
+    >
+      <Cover url={item.coverUrl} className="aspect-square w-full" />
+      <div className="p-2.5">
+        <div className="line-clamp-2 text-xs font-bold leading-snug">{item.title}</div>
+        <div className="mt-1 flex items-center justify-between gap-2">
+          <span className="text-xs font-black" style={{ color: ACCENT }}>
+            {price(item.priceUsd)}
+          </span>
+          {(item.rating ?? 0) > 0 && (
+            <span className="inline-flex items-center gap-0.5 text-[11px] font-bold text-amber-400">
+              <Star className="h-3 w-3 fill-amber-400" strokeWidth={0} />
+              {(item.rating ?? 0).toFixed(1)}
+            </span>
+          )}
+        </div>
+      </div>
+    </Link>
   );
 }
 
