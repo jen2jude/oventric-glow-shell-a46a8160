@@ -282,6 +282,7 @@ function Index() {
           onSelect={setActive}
           onCreate={handleCreate}
           onOpenMessages={() => setMessagesOpen(true)}
+          returnedToHub={returnedToHub}
           counts={{
             Feed: feedCount.count,
             Market: marketCount.count,
