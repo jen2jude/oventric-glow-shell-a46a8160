@@ -479,7 +479,7 @@ function ProductPage() {
                       );
                     })()}
                   </div>
-                  {product.kind !== "physical" && packages.length === 0 && (
+                  {product.kind === "digital" && packages.length === 0 && (
                     <div className="flex items-center gap-2">
                       <label className="text-xs text-slate-400 md:text-slate-500 uppercase tracking-wide">
                         Qty
