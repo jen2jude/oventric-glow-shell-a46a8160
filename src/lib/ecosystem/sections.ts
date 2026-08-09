@@ -36,7 +36,7 @@ export const ECOSYSTEM_SECTIONS: EcosystemSectionDef[] = [
   { key: "posts", label: "Posts", noun: "posts", alwaysVisible: true },
   { key: "marketplace", label: "Shop", noun: "products", ownerVisible: true },
   { key: "services", label: "Services", noun: "services", ownerVisible: true },
-  { key: "skills", label: "Skills", noun: "skills" },
+  { key: "skills", label: "Skills", noun: "skills", ownerVisible: true },
   { key: "courses", label: "Courses", noun: "courses" },
   { key: "blog", label: "Collections", noun: "articles" },
   { key: "groups", label: "Communities", noun: "communities" },
