@@ -6,10 +6,12 @@ export type StoryItem = {
   id: string;
   mediaUrl: string;
   mediaType: "image" | "video";
+  posterUrl: string | null;
   createdAt: string;
   expiresAt: string;
   viewed: boolean;
 };
+
 
 export type StoryGroup = {
   userId: string;
