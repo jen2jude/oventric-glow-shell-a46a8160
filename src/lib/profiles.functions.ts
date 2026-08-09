@@ -12,7 +12,17 @@ import type {
   ProfilePost,
 } from "./profiles/mockProfiles";
 
-const TabEnum = z.enum(["posts", "groups", "marketplace", "posted", "solved", "blog"]);
+const TabEnum = z.enum([
+  "posts",
+  "groups",
+  "marketplace",
+  "services",
+  "courses",
+  "posted",
+  "solved",
+  "blog",
+]);
+
 const SortEnum = z.enum([
   "newest",
   "most_liked",
@@ -58,9 +68,10 @@ export const getProfileTab = createServerFn({ method: "GET" })
     const { loadProfileTab } = await import("@/lib/profiles/data.server");
     // Small artificial latency so pagination UX is observable in the demo.
     await new Promise((r) => setTimeout(r, 120));
-    if (data.tab === "blog") {
+    if (data.tab === "blog" || data.tab === "services" || data.tab === "courses") {
       return { items: [], total: 0, page: data.page, pageSize: data.pageSize, hasMore: false };
     }
+
     return loadProfileTab(data.profileId, data.tab, data.page, data.pageSize, {
       q: data.q,
       sort: data.sort,
@@ -745,11 +756,13 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
     }
 
-    if (data.tab === "marketplace") {
+    if (data.tab === "marketplace" || data.tab === "services") {
       let q = supabase
         .from("products")
         .select("id, name, category, price_usd, created_at, cover_path, image_paths", { count: "exact" })
         .eq("seller_id", userId);
+      q = data.tab === "services" ? q.eq("kind", "service") : q.neq("kind", "service");
+
       if (data.q) q = q.ilike("name", `%${data.q}%`);
       if (data.sort === "price_low") q = q.order("price_usd", { ascending: true });
       else if (data.sort === "price_high") q = q.order("price_usd", { ascending: false });
@@ -787,6 +800,46 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
       const total = count ?? items.length;
       return { items, total, page: data.page, pageSize: data.pageSize, hasMore: from + items.length < total };
     }
+
+    if (data.tab === "courses") {
+      let q = supabase
+        .from("courses")
+        .select("id, title, category, price_usd, is_free, cover_path, created_at", {
+          count: "exact",
+        })
+        .eq("owner_id", userId)
+        .eq("is_published", true);
+      if (data.q) q = q.ilike("title", `%${data.q}%`);
+      if (data.sort === "price_low") q = q.order("price_usd", { ascending: true });
+      else if (data.sort === "price_high") q = q.order("price_usd", { ascending: false });
+      else if (data.sort === "alpha") q = q.order("title", { ascending: true });
+      else q = q.order("created_at", { ascending: false });
+      const { data: rows, count } = await q.range(from, to);
+      const coverUrls = await signPaths(
+        supabase,
+        "course-covers",
+        (rows ?? []).map((r: any) =>
+          typeof r.cover_path === "string" && r.cover_path ? r.cover_path : null,
+        ),
+      );
+      const items: ProfileListing[] = (rows ?? []).map((r: any, i: number) => ({
+        id: r.id as string,
+        title: (r.title as string) ?? "Untitled",
+        category: (r.category as string) ?? "Course",
+        priceUsd: r.is_free ? 0 : Number(r.price_usd ?? 0),
+        sales: 0,
+        coverUrl: coverUrls[i],
+      }));
+      const total = count ?? items.length;
+      return {
+        items,
+        total,
+        page: data.page,
+        pageSize: data.pageSize,
+        hasMore: from + items.length < total,
+      };
+    }
+
 
     if (data.tab === "posted") {
       let q = supabase

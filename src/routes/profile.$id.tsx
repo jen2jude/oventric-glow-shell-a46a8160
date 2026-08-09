@@ -4,6 +4,8 @@ import { useServerFn } from "@tanstack/react-start";
 import { zodValidator, fallback } from "@tanstack/zod-adapter";
 import { z } from "zod";
 import { supabase } from "@/integrations/supabase/client";
+import { useProfileEcosystem } from "@/lib/ecosystem/useProfileEcosystem";
+
 import {
   getCircleStatus,
   sendCircleRequest,
@@ -126,9 +128,27 @@ export const Route = createFileRoute("/profile/$id")({
   component: ProfilePage,
 });
 
-type Tab = "posts" | "groups" | "marketplace" | "posted" | "solved" | "blog";
-const TAB_KEYS: Tab[] = ["posts", "groups", "marketplace", "posted", "solved", "blog"];
+type Tab =
+  | "posts"
+  | "groups"
+  | "marketplace"
+  | "services"
+  | "courses"
+  | "posted"
+  | "solved"
+  | "blog";
+const TAB_KEYS: Tab[] = [
+  "posts",
+  "groups",
+  "marketplace",
+  "services",
+  "courses",
+  "posted",
+  "solved",
+  "blog",
+];
 const isTab = (v: string): v is Tab => (TAB_KEYS as string[]).includes(v);
+
 
 type SortOption = { value: ProfileSortKey; label: string };
 const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
@@ -149,6 +169,19 @@ const SORT_OPTIONS_BY_TAB: Record<Tab, SortOption[]> = {
     { value: "most_sold", label: "Most sold" },
     { value: "alpha", label: "A – Z" },
   ],
+  services: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "alpha", label: "A – Z" },
+  ],
+  courses: [
+    { value: "newest", label: "Newest" },
+    { value: "price_low", label: "Price: low to high" },
+    { value: "price_high", label: "Price: high to low" },
+    { value: "alpha", label: "A – Z" },
+  ],
+
   posted: [
     { value: "newest", label: "Newest" },
     { value: "highest_bounty", label: "Highest bounty" },
@@ -171,6 +204,9 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   posts: "Search posts…",
   groups: "Search groups…",
   marketplace: "Search listings…",
+  services: "Search services…",
+  courses: "Search courses…",
+
   posted: "Search bounties…",
   solved: "Search solved bounties…",
   blog: "Search articles…",
@@ -247,6 +283,9 @@ function ProfilePage() {
     posts: { ...emptyTabState },
     groups: { ...emptyTabState },
     marketplace: { ...emptyTabState },
+    services: { ...emptyTabState },
+    courses: { ...emptyTabState },
+
     posted: { ...emptyTabState },
     solved: { ...emptyTabState },
     blog: { ...emptyTabState },
@@ -446,6 +485,10 @@ function ProfilePage() {
 
   const isUuidId = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(id);
   const isOwnProfile = !!(meId && (meId === id || (realProfile && meId === realProfile.userId)));
+  // Adaptive ecosystem sections: a person's profile only shows the surfaces
+  // they actually use (shop, services, courses, communities…).
+  const { sections: ecosystemSections } = useProfileEcosystem(id, isOwnProfile);
+
 
   const fetchOverview = useServerFn(getDashboardOverview);
   useEffect(() => {
@@ -620,6 +663,9 @@ function ProfilePage() {
       posts: { ...emptyTabState },
       groups: { ...emptyTabState },
       marketplace: { ...emptyTabState },
+      services: { ...emptyTabState },
+      courses: { ...emptyTabState },
+
       posted: { ...emptyTabState },
       solved: { ...emptyTabState },
       blog: { ...emptyTabState },
@@ -1432,17 +1478,13 @@ function ProfilePage() {
               data-testid="profile-tabs"
               className="mt-5 flex items-center gap-1 overflow-x-auto no-scrollbar border-b border-white/10 md:border-slate-200"
             >
-              {(
-                [
-                  ["posts", "Posts"],
-                  ["posted", "Bounties Posted"],
-                  ["solved", "Bounties Solved"],
-                  ["marketplace", "Assets"],
-                  ["blog", "Blog"],
-                  ["groups", "Circles"],
-                ] as [Tab, string][]
-              ).map(([key, label]) => {
-                const count = tabData[key].total;
+              {ecosystemSections
+                .filter((s): s is typeof s & { key: Tab } => isTab(s.key))
+                .map((section) => {
+                  const key = section.key;
+                  const label = section.label;
+                  const count = tabData[key].total ?? section.count;
+
                 return (
                   <button
                     key={key}
@@ -1598,6 +1640,8 @@ function ProfilePage() {
                           kind: "post" | "group" | "listing" | "bounty" | "solved";
                           itemId: string;
                           blogSlug?: string;
+                          academy?: boolean;
+
                           coverUrl?: string | null;
                           placeholderIcon: React.ReactNode;
                           badge?: { label: string; tone: "emerald" | "purple" | "sky" | "amber" };
@@ -1628,7 +1672,7 @@ function ProfilePage() {
                             title: g.name,
                             subtitle: `${g.tag} · ${g.members.toLocaleString()} member${g.members === 1 ? "" : "s"}`,
                           }));
-                        } else if (tab === "marketplace") {
+                        } else if (tab === "marketplace" || tab === "services") {
                           tiles = (st.items as ProfileListing[]).map((l) => ({
                             key: l.id,
                             kind: "listing" as const,
@@ -1637,9 +1681,25 @@ function ProfilePage() {
                             placeholderIcon: <ShoppingBag className="w-8 h-8 text-white/30" />,
                             badge: { label: l.category, tone: "emerald" as const },
                             title: l.title,
-                            subtitle: `${l.sales} sold`,
+                            subtitle: tab === "services" ? "Service" : `${l.sales} sold`,
                             priceLabel: price(l.priceUsd),
                           }));
+                        } else if (tab === "courses") {
+                          tiles = (st.items as ProfileListing[]).map((l) => ({
+                            key: l.id,
+                            kind: "listing" as const,
+                            itemId: l.id,
+                            academy: true,
+                            coverUrl: l.coverUrl ?? null,
+                            placeholderIcon: (
+                              <FileText className="w-8 h-8 text-sky-300 md:text-sky-700/70" />
+                            ),
+                            badge: { label: l.category, tone: "sky" as const },
+                            title: l.title,
+                            subtitle: "Course",
+                            priceLabel: l.priceUsd > 0 ? price(l.priceUsd) : "Free",
+                          }));
+
                         } else if (tab === "posted") {
                           tiles = (st.items as ProfileBounty[]).map((b) => ({
                             key: b.id,
@@ -1703,11 +1763,17 @@ function ProfilePage() {
                                 key={t.key}
                                 {...(t.blogSlug
                                   ? ({ to: "/blog/$slug", params: { slug: t.blogSlug } } as any)
-                                  : ({
-                                      to: "/profile/$id/item/$kind/$itemId",
-                                      params: { id: profile.id, kind: t.kind, itemId: t.itemId },
-                                      search: itemSearch,
-                                    } as any))}
+                                  : t.academy
+                                    ? ({
+                                        to: "/",
+                                        search: { section: "Academy", course: t.itemId },
+                                      } as any)
+                                    : ({
+                                        to: "/profile/$id/item/$kind/$itemId",
+                                        params: { id: profile.id, kind: t.kind, itemId: t.itemId },
+                                        search: itemSearch,
+                                      } as any))}
+
                                 className="group block bg-[#141418] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 rounded-2xl overflow-hidden hover:border-emerald-500/40 md:hover:border-emerald-300 transition-colors"
                               >
                                 <div className="relative aspect-[4/3] bg-neutral-900 overflow-hidden">
@@ -2290,6 +2356,16 @@ function emptyContentFor(
         title: `${name} hasn't published any articles`,
         hint: "Published blog articles from this creator will appear here.",
       };
+    case "services":
+      return {
+        title: `${name} offers no services yet`,
+        hint: "Services this creator offers will appear here.",
+      };
+    case "courses":
+      return {
+        title: `${name} hasn't published a course`,
+        hint: "Courses published by this creator will appear here.",
+      };
     case "solved":
       return {
         title: "No solved bounties yet",
@@ -2306,6 +2382,10 @@ function tabNoun(tab: Tab): string {
       return "groups";
     case "marketplace":
       return "listings";
+    case "services":
+      return "services";
+    case "courses":
+      return "courses";
     case "posted":
       return "bounties";
     case "solved":
@@ -2314,6 +2394,7 @@ function tabNoun(tab: Tab): string {
       return "articles";
   }
 }
+
 
 function HeaderStat({
   icon,

@@ -1,4 +1,6 @@
 import { useIsAppShell } from "@/hooks/use-launch-context";
+import { CreatorChip, EcosystemLinks } from "@/components/oventric/ecosystem/CreatorChip";
+
 import { createFileRoute, Link, useNavigate, useRouterState } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useServerFn } from "@tanstack/react-start";
@@ -371,16 +373,20 @@ function ProductPage() {
               <h1 className={`text-2xl md:text-3xl font-black ${isAppShell ? "text-white" : "text-slate-900"} md:text-slate-900 mb-2`}>
                 {product.name}
               </h1>
-              <div className="text-sm text-slate-500 md:text-slate-500 mb-3">
-                by{" "}
-                <Link
-                  to="/profile/$id"
-                  params={{ id: product.sellerSlug ?? product.sellerId }}
-                  className={`${isAppShell ? "text-emerald-400" : "text-emerald-600"} hover:underline font-medium`}
-                >
-                  {product.vendor}
-                </Link>
+              <div className="mb-3 space-y-2">
+                <CreatorChip
+                  idOrSlug={product.sellerSlug ?? product.sellerId}
+                  name={product.vendor}
+                  caption="Seller"
+                  dark={isAppShell}
+                />
+                <EcosystemLinks
+                  idOrSlug={product.sellerSlug ?? product.sellerId}
+                  exclude={["marketplace"]}
+                  dark={isAppShell}
+                />
               </div>
+
               {product.kind === "physical" && (
                 <div className="flex flex-wrap gap-2 text-xs text-slate-300 md:text-slate-600 mb-4">
                   {product.location && (
