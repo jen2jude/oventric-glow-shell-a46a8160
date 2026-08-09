@@ -40,7 +40,6 @@ type Props = {
   meAvatarUrl: string | null;
   meInitials: string;
   meSlug: string | null;
-  onAddStory: () => void;
 };
 
 /**
