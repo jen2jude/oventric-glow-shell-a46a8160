@@ -1,7 +1,9 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useServerFn } from "@tanstack/react-start";
 import { Pencil, Sparkles, Wrench } from "lucide-react";
 import { SkillsEditModal, type SkillRow } from "./SkillsEditModal";
 import { getTool, toolIconUrl } from "@/lib/profiles/tools";
+import { listToolLibrary, type ToolCategoryDTO, type ToolDTO } from "@/lib/tools.functions";
 
 const ACCENT = "#E5484D";
 
@@ -26,6 +28,26 @@ export function ProfileSkillsTab({
   const [localSkills, setLocalSkills] = useState<string[]>(skills);
   const [localLevels, setLocalLevels] = useState<Record<string, number>>(skillLevels);
   const [localTools, setLocalTools] = useState<string[]>(tools);
+  const [library, setLibrary] = useState<{ categories: ToolCategoryDTO[]; tools: ToolDTO[] }>({
+    categories: [],
+    tools: [],
+  });
+  const loadLibrary = useServerFn(listToolLibrary);
+
+  useEffect(() => {
+    let alive = true;
+    loadLibrary()
+      .then((res) => alive && setLibrary(res))
+      .catch((e) => console.error("[skills] tool library", e));
+    return () => {
+      alive = false;
+    };
+  }, [loadLibrary]);
+
+  const toolBySlug = useMemo(
+    () => new Map(library.tools.map((t) => [t.slug, t])),
+    [library.tools],
+  );
 
   const rows: SkillRow[] = useMemo(
     () => localSkills.map((s) => ({ name: s, level: localLevels[s] ?? 75 })),
@@ -97,22 +119,31 @@ export function ProfileSkillsTab({
         {localTools.length === 0 ? (
           <p className="mt-4 text-sm text-slate-400 md:text-slate-500">
             {isOwner
-              ? "Pick the tools you work in — logos are added automatically."
-              : `No tools listed yet.`}
+              ? "Pick the tools you work in from the Oventric tools library."
+              : "No tools listed yet."}
           </p>
         ) : (
           <div className="mt-5 grid grid-cols-3 gap-3 sm:grid-cols-4">
-            {localTools.map((id) => (
-              <div
-                key={id}
-                className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-[#17171C] p-4 md:border-slate-200 md:bg-slate-50"
-              >
-                <img src={toolIconUrl(id)} alt={getTool(id).label} loading="lazy" className="h-8 w-8" />
-                <span className="line-clamp-1 text-[11px] font-bold text-slate-300 md:text-slate-600">
-                  {getTool(id).label}
-                </span>
-              </div>
-            ))}
+            {localTools.map((id) => {
+              const t = toolBySlug.get(id);
+              const label = t?.name ?? getTool(id).label;
+              return (
+                <div
+                  key={id}
+                  className="flex flex-col items-center gap-2 rounded-2xl border border-white/8 bg-[#17171C] p-4 md:border-slate-200 md:bg-slate-50"
+                >
+                  <img
+                    src={t?.imageUrl ?? toolIconUrl(id)}
+                    alt={label}
+                    loading="lazy"
+                    className="h-8 w-8 object-contain"
+                  />
+                  <span className="line-clamp-1 text-[11px] font-bold text-slate-300 md:text-slate-600">
+                    {label}
+                  </span>
+                </div>
+              );
+            })}
           </div>
         )}
       </section>
@@ -134,6 +165,7 @@ export function ProfileSkillsTab({
           onClose={() => setEditing(false)}
           initialSkills={rows}
           initialTools={localTools}
+          library={library}
           onSaved={(nextRows, nextTools) => {
             setLocalSkills(nextRows.map((r) => r.name));
             setLocalLevels(Object.fromEntries(nextRows.map((r) => [r.name, r.level])));
