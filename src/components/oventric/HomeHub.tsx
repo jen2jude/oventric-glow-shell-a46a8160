@@ -35,7 +35,6 @@ import { getTopUsers, type TopUser } from "@/lib/top-users.functions";
 
 import { PromoInterstitial } from "@/components/oventric/PromoInterstitial";
 
-
 type Counts = Partial<Record<string, number>>;
 
 export type HubProps = {
@@ -73,7 +72,6 @@ const MORE_LINKS: Array<{ label: string; to: string }> = [
   { label: "Affiliate", to: "/affiliate" },
   { label: "Blog", to: "/blog" },
 ];
-
 
 function fromUSD(usd: number, target: Currency): number {
   return target === "USD" ? usd : usd * usdRate(target);
@@ -220,8 +218,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
       <section
         className="hub-wallet relative overflow-hidden rounded-2xl border border-white/10 p-4 md:p-5"
         style={{
-          backgroundImage:
-            "linear-gradient(145deg, #23232B 0%, #191920 45%, #131318 100%)",
+          backgroundImage: "linear-gradient(145deg, #23232B 0%, #191920 45%, #131318 100%)",
         }}
       >
         <div className="flex items-start justify-between gap-3">
@@ -373,8 +370,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
         </div>
       </section>
 
-
-
       {/* Top Users Section */}
       {topUsers.length > 0 && (
         <section className="mt-6 mb-2">
@@ -418,7 +413,6 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, counts }: HubProps
           </div>
         </section>
       )}
-
 
       {/* Live strips */}
       <MiniRail
