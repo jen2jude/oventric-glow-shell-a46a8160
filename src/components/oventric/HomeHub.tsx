@@ -138,6 +138,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       .then((r) => {
         if (cancelled || !r?.profile) return;
         setAvatarUrl(r.profile.avatarUrl ?? null);
+        setMySlug(r.profile.slug ?? null);
         if (r.profile.displayName) setName(r.profile.displayName);
       })
       .catch(() => {});
