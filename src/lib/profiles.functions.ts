@@ -818,7 +818,10 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
     if (data.tab === "marketplace" || data.tab === "services") {
       let q = supabase
         .from("products")
-        .select("id, name, category, price_usd, created_at, cover_path, image_paths", { count: "exact" })
+        .select(
+          "id, name, category, price_usd, created_at, cover_path, image_paths, rating, description, promoted",
+          { count: "exact" },
+        )
         .eq("seller_id", userId);
       q = data.tab === "services" ? q.eq("kind", "service") : q.neq("kind", "service");
 
@@ -854,6 +857,9 @@ export const getLiveProfileTab = createServerFn({ method: "GET" })
         priceUsd: Number(r.price_usd ?? 0),
         sales: salesMap.get(r.id as string) ?? 0,
         coverUrl: coverUrls[i],
+        rating: Number((r as { rating?: number }).rating ?? 0),
+        blurb: ((r as { description?: string | null }).description ?? null),
+        promoted: !!(r as { promoted?: boolean }).promoted,
       }));
       if (data.sort === "most_sold") items = [...items].sort((a, b) => b.sales - a.sales);
       const total = count ?? items.length;
