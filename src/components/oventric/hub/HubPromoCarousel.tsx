@@ -25,7 +25,7 @@ const SLIDES: Slide[] = [
   {
     id: "shopping",
     title: "Save big on all your shopping",
-    subtitle: "Up to 10% cashback on every order",
+    subtitle: "Buy from real sellers",
     cta: "Shop Now",
     img: shoppingImg,
     bg: "linear-gradient(110deg, #5B0F14 0%, #3A0A12 55%, #1B0A14 100%)",

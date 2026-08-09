@@ -98,6 +98,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
   const [bounty, setBounty] = useState(0);
   const [escrow, setEscrow] = useState(0);
   const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+  const [mySlug, setMySlug] = useState<string | null>(null);
   const [topUsers, setTopUsers] = useState<TopUser[]>([]);
 
   const [name, setName] = useState<string>(fullName || storeName || "");
@@ -137,6 +138,7 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
       .then((r) => {
         if (cancelled || !r?.profile) return;
         setAvatarUrl(r.profile.avatarUrl ?? null);
+        setMySlug(r.profile.slug ?? null);
         if (r.profile.displayName) setName(r.profile.displayName);
       })
       .catch(() => {});
@@ -209,17 +211,39 @@ export function HomeHub({ onSelect, onCreate, onOpenMessages, returnedToHub }: H
     <div className="hub-enter mx-auto w-full max-w-5xl px-3 md:px-6 py-3 md:py-6 space-y-4">
       {/* Greeting + currency */}
       <section className="grid grid-cols-[minmax(0,1fr)_auto] items-center gap-3">
-        <div className="flex min-w-0 items-center gap-3">
-          <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
-            <AvatarImage src={avatarUrl} alt={name || "You"} />
-          </span>
-          <div className="min-w-0">
-            <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
-            <div className="truncate text-[19px] font-extrabold text-white">
-              {name || "Welcome"}
+        {mySlug ? (
+          <Link
+            to="/profile/$id"
+            params={{ id: mySlug }}
+            className="flex min-w-0 items-center gap-3 active:scale-[0.98] transition-transform"
+          >
+            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
+              <AvatarImage src={avatarUrl} alt={name || "You"} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
+              <div className="truncate text-[19px] font-extrabold text-white">
+                {name || "Welcome"}
+              </div>
             </div>
-          </div>
-        </div>
+          </Link>
+        ) : (
+          <button
+            type="button"
+            onClick={() => !isAuthenticated && openGate("generic")}
+            className="flex min-w-0 items-center gap-3 text-left"
+          >
+            <span className="h-11 w-11 shrink-0 overflow-hidden rounded-full bg-[#1A1A1F]">
+              <AvatarImage src={avatarUrl} alt={name || "You"} />
+            </span>
+            <div className="min-w-0">
+              <div className="text-[12px] text-slate-400">{greeting()} 👋</div>
+              <div className="truncate text-[19px] font-extrabold text-white">
+                {name || "Welcome"}
+              </div>
+            </div>
+          </button>
+        )}
         <span className="inline-flex shrink-0 items-center gap-1.5 rounded-full border border-white/10 bg-[#121216] px-3 py-2 text-[12px] font-bold text-white">
           <span aria-hidden>{flagEmoji(country)}</span>
           {currency}
