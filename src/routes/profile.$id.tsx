@@ -159,6 +159,13 @@ export const Route = createFileRoute("/profile/$id")({
         name: "description",
         content: `Profile, listings, and bounties for ${params.id} on Oventric.`,
       },
+      { property: "og:title", content: `@${params.id} · Oventric` },
+      {
+        property: "og:description",
+        content: `Profile, listings, and bounties for ${params.id} on Oventric.`,
+      },
+      { property: "og:type", content: "profile" },
+      { property: "og:url", content: `https://oventric.com/profile/${params.id}` },
       { name: "robots", content: "noindex" },
     ],
   }),

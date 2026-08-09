@@ -74,6 +74,7 @@ export function Sidebar({
 
       <button
         onClick={() => setCollapsed((v) => !v)}
+        aria-label="Toggle sidebar"
         className="m-3 p-2 rounded-lg text-slate-500 hover:text-white hover:bg-white/5 transition-colors flex items-center justify-center"
       >
         <ChevronLeft className={`w-4 h-4 transition-transform ${collapsed ? "rotate-180" : ""}`} />

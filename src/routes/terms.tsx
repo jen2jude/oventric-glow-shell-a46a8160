@@ -8,7 +8,9 @@ export const Route = createFileRoute("/terms")({
       { name: "description", content: "The terms that govern your use of Oventric." },
       { property: "og:title", content: "Oventric Terms of Use" },
       { property: "og:description", content: "The terms that govern your use of Oventric." },
+      { property: "og:url", content: "https://oventric.com/terms" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/terms" }],
   }),
   component: TermsPage,
 });

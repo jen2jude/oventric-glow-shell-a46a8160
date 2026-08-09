@@ -36,7 +36,9 @@ export const Route = createFileRoute("/help-board")({
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: "https://oventric.com/help-board" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/help-board" }],
   }),
   component: HelpBoardPage,
 });

@@ -1,0 +1,19 @@
+# Oventric
+
+> Oventric is a builder-first tech platform combining a social feed, multi-vendor marketplace, academy, bounty board and a multi-currency escrow wallet.
+
+## Pages
+
+- [Home](/): Feed, marketplace, academy, bounties and wallet in one place.
+- [About](/about): Our story and what Oventric is building.
+- [FAQ](/faq): Accounts, marketplace escrow, wallet, payouts and bounties.
+- [Help center](/help): Guides for accounts, payments and selling.
+- [Help board](/help-board): Disputes, feedback and live support.
+- [Advertise](/advertise): Ad tiers and targeting across Africa.
+- [Affiliate](/affiliate): Referral program details.
+- [Blog](/blog): Deep dives, playbooks and lessons from the network.
+
+## Optional
+
+- [Privacy Policy](/privacy): How Oventric collects and protects data.
+- [Terms of Use](/terms): Terms governing use of Oventric.

@@ -17,7 +17,9 @@ export const Route = createFileRoute("/blog/")({
         property: "og:description",
         content: "Long-form technical writing from the Oventric network.",
       },
+      { property: "og:url", content: "https://oventric.com/blog" },
     ],
+    links: [{ rel: "canonical", href: "https://oventric.com/blog" }],
   }),
   component: BlogIndex,
 });

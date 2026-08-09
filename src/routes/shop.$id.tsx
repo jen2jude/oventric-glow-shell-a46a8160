@@ -49,7 +49,9 @@ export const Route = createFileRoute("/shop/$id")({
       },
       { property: "og:type", content: "profile" },
       { name: "twitter:card", content: "summary_large_image" },
+      { property: "og:url", content: `https://oventric.com/shop/${params.id}` },
     ],
+    links: [{ rel: "canonical", href: `https://oventric.com/shop/${params.id}` }],
   }),
   component: ShopPage,
 });

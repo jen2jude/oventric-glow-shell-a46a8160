@@ -143,6 +143,40 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { rel: "apple-touch-icon", href: "/apple-touch-icon.png" },
       { rel: "manifest", href: "/manifest.webmanifest" },
     ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@graph": [
+            {
+              "@type": "Organization",
+              "@id": "https://oventric.com/#organization",
+              name: "Oventric",
+              url: "https://oventric.com/",
+              logo: "https://oventric.com/icon-512.png",
+              description:
+                "Multi-vendor tech platform: social feed, marketplace, academy, bounties and a multi-currency escrow wallet.",
+            },
+            {
+              "@type": "WebSite",
+              "@id": "https://oventric.com/#website",
+              name: "Oventric",
+              url: "https://oventric.com/",
+              publisher: { "@id": "https://oventric.com/#organization" },
+              potentialAction: {
+                "@type": "SearchAction",
+                target: {
+                  "@type": "EntryPoint",
+                  urlTemplate: "https://oventric.com/?q={search_term_string}",
+                },
+                "query-input": "required name=search_term_string",
+              },
+            },
+          ],
+        }),
+      },
+    ],
   }),
   shellComponent: RootShell,
   component: RootComponent,

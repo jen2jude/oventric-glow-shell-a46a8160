@@ -63,6 +63,23 @@ export const Route = createFileRoute("/blog/$slug")({
           : []),
       ],
       links: [{ rel: "canonical", href: url }],
+      scripts: loaderData?.title
+        ? [
+            {
+              type: "application/ld+json",
+              children: JSON.stringify({
+                "@context": "https://schema.org",
+                "@type": "Article",
+                headline: loaderData.title,
+                description,
+                url,
+                mainEntityOfPage: url,
+                ...(image ? { image } : {}),
+                publisher: { "@id": "https://oventric.com/#organization" },
+              }),
+            },
+          ]
+        : [],
     };
   },
   component: BlogArticle,
