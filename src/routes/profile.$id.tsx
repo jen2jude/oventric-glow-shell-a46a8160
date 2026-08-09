@@ -1708,6 +1708,16 @@ function ProfilePage() {
                       />
                     );
                   }
+                  if (tab === "services") {
+                    return (
+                      <ProfileServicesTab
+                        items={st.items as ProfileListing[]}
+                        isOwner={isOwnProfile}
+                        price={price}
+                        onPublished={() => retryTab("services")}
+                      />
+                    );
+                  }
                   if (isEmpty) {
                     const empty = emptyContentFor(
                       tab,
