@@ -92,6 +92,18 @@ function Index() {
     };
   }, [isAuthenticated, fullName, storeName, loadProfile]);
 
+  // Detect when the user leaves the home hub and comes back so promos can
+  // take turns appearing on each return.
+  useEffect(() => {
+    const prev = prevActiveRef.current;
+    if (active === "Home" && prev && prev !== "Home") {
+      setReturnedToHub(true);
+    } else if (active !== "Home") {
+      setReturnedToHub(false);
+    }
+    prevActiveRef.current = active;
+  }, [active]);
+
   const renderNavSearch = () => (
     <div className="relative w-full">
       <form
