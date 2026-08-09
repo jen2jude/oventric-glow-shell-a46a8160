@@ -974,46 +974,6 @@ function ProfilePage() {
         <Header forceSiteNavbar={!useIsAppShell()} />
         <main ref={mainRef} className="flex-1 min-w-0 pb-20 md:overflow-y-auto md:pb-0">
           <div className="max-w-3xl mx-auto w-full px-4 py-6">
-            <div className="profile-standard-actions flex items-center justify-between gap-3 mb-4">
-              <button
-                onClick={() => navigate({ to: "/" })}
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 md:text-slate-500 hover:text-emerald-400 md:text-emerald-600"
-              >
-                <ArrowLeft className="w-3.5 h-3.5" /> Back to feed
-              </button>
-              <div className="flex items-center gap-2">
-                <button
-                  onClick={handleCopyLink}
-                  className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-emerald-500/40 md:hover:border-emerald-300 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
-                  aria-label="Copy profile link"
-                >
-                  {copied ? (
-                    <Check className="w-3.5 h-3.5 text-emerald-400 md:text-emerald-600" />
-                  ) : (
-                    <Link2 className="w-3.5 h-3.5 text-slate-400 md:text-slate-500" />
-                  )}
-                  {copied ? "Copied!" : "Copy Link"}
-                </button>
-                {isOwnProfile && (
-                  <button
-                    onClick={() => setFollowRequestsOpen(true)}
-                    className="relative inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E1E24] md:bg-white md:shadow-sm border border-white/10 md:border-slate-200 hover:border-sky-500/40 text-xs font-semibold text-slate-200 md:text-slate-700 hover:text-white md:hover:text-slate-900 transition-colors"
-                    aria-label={`Open follow requests${pendingFollowReqCount > 0 ? ` (${pendingFollowReqCount} pending)` : ""}`}
-                  >
-                    <UserPlus className="w-3.5 h-3.5 text-sky-300 md:text-sky-700" />
-                    Follow Requests
-                    {pendingFollowReqCount > 0 && (
-                      <span
-                        className=" absolute -top-1 -right-1 min-w-[16px] h-4 px-1 rounded-full bg-emerald-400 text-black text-[9px] font-black flex items-center justify-center"
-                        aria-hidden
-                      >
-                        {pendingFollowReqCount > 9 ? "9+" : pendingFollowReqCount}
-                      </span>
-                    )}
-                  </button>
-                )}
-              </div>
-            </div>
 
             {/* Hero — the whole mobile profile surface is intentionally plain:
                  no animated gradients, filters, backdrop blur, blend modes,
