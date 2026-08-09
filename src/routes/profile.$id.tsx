@@ -109,6 +109,7 @@ import { PhotoBatches } from "@/components/oventric/PhotoBatches";
 import { ProfileOverview } from "@/components/oventric/profile/ProfileOverview";
 import { ProfilePostsFeed } from "@/components/oventric/profile/ProfilePostsFeed";
 import { ProfileShopTab } from "@/components/oventric/profile/ProfileShopTab";
+import { ProfileCoursesTab } from "@/components/oventric/profile/ProfileCoursesTab";
 
 import { Header } from "@/components/oventric/Header";
 import { SiteNavbar } from "@/components/oventric/desktop/SiteNavbar";
