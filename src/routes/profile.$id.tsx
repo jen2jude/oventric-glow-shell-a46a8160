@@ -1695,9 +1695,11 @@ function ProfilePage() {
                   itemSearch={itemSearch}
                   onOpenSection={(key) => {
                     if (key === "about") {
-                      document
-                        .querySelector('[data-testid="profile-banner"]')
-                        ?.scrollIntoView({ behavior: "smooth", block: "start" });
+                      const currentY = tabsTopY();
+                      pinAcrossChange(currentY);
+                      setPhotosMode(false);
+                      setAboutMode(true);
+                      requestAnimationFrame(() => restoreScroll(currentY));
                       return;
                     }
                     if (isTab(key)) changeTab(key);
