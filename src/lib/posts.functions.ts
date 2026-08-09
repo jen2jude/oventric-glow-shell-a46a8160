@@ -220,7 +220,38 @@ async function buildFeedPosts(
   const commentCounts = new Map<string, number>();
   (commentRows ?? []).forEach((c) => commentCounts.set(c.post_id, (commentCounts.get(c.post_id) ?? 0) + 1));
 
+  // Repost counts for these posts + whether the viewer already reposted them.
+  const repostCounts = new Map<string, number>();
+  const viewerReposted = new Set<string>();
+  {
+    const { data: rp } = await sb
+      .from("posts")
+      .select("author_id, repost_of" as any)
+      .in("repost_of" as any, postIds);
+    ((rp ?? []) as any[]).forEach((row) => {
+      repostCounts.set(row.repost_of, (repostCounts.get(row.repost_of) ?? 0) + 1);
+      if (userId && row.author_id === userId) viewerReposted.add(row.repost_of);
+    });
+  }
+
+  // Quoted originals (one level deep only).
+  const quotedById = new Map<string, FeedPost>();
+  if (depth === 0) {
+    const quotedIds = Array.from(
+      new Set(rows.map((r) => r.repost_of).filter((x: unknown): x is string => !!x)),
+    );
+    if (quotedIds.length > 0) {
+      const { data: originals } = await sb
+        .from("posts")
+        .select(POST_SELECT as any)
+        .in("id", quotedIds);
+      const built = await buildFeedPosts(sb, userId, (originals ?? []) as any[], 1);
+      built.forEach((p) => quotedById.set(p.id, p));
+    }
+  }
+
   return rows.map((r) => {
+
     const prof = profileById.get(r.author_id);
     const name = prof?.display_name || prof?.username || "Member";
     const reactions = reactionsByPost.get(r.id) ?? zeroReactions();
