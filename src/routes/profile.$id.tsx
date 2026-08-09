@@ -202,6 +202,9 @@ const SEARCH_PLACEHOLDER: Record<Tab, string> = {
   posts: "Search posts…",
   groups: "Search groups…",
   marketplace: "Search listings…",
+  services: "Search services…",
+  courses: "Search courses…",
+
   posted: "Search bounties…",
   solved: "Search solved bounties…",
   blog: "Search articles…",
