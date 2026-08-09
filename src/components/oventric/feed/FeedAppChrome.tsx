@@ -57,10 +57,6 @@ export function FeedAppChrome({
   const [notifOpen, setNotifOpen] = useState(false);
   const [msgOpen, setMsgOpen] = useState(false);
   const [people, setPeople] = useState<TopUser[]>([]);
-  const chromeRef = useRef<HTMLDivElement>(null);
-
-  useScrollHideChrome(true, chromeRef);
-  const chromeHidden = useChromeHidden();
 
   const unreadNotifs = useUnreadNotificationsCount();
   const { messages } = useUnreadCounts();
