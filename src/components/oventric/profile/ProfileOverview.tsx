@@ -1,17 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Link } from "@tanstack/react-router";
 import { useServerFn } from "@tanstack/react-start";
-import {
-  ArrowRight,
-  FileText,
-  Globe,
-  MapPin,
-  MessageCircle,
-  ShoppingBag,
-  Sparkles,
-  Users,
-  Wrench,
-} from "lucide-react";
+import { ArrowRight, FileText, MessageCircle, ShoppingBag, Users, Wrench } from "lucide-react";
 import { getLiveProfileTab } from "@/lib/profiles.functions";
 import type {
   ProfileArticle,
@@ -29,11 +19,6 @@ interface Props {
   /** Profile id used when linking to the item detail route. */
   profileId: string;
   name: string;
-  bio?: string | null;
-  country?: string | null;
-  website?: string | null;
-  joined?: string;
-  skills: string[];
   /** Section -> item count, so empty modules never render. */
   counts: Partial<Record<EcosystemSectionKey, number>>;
   isOwner: boolean;
