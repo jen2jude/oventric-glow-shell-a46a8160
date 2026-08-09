@@ -252,7 +252,10 @@ export const reactToStory = createServerFn({ method: "POST" })
       await supabaseAdmin.storage.from("post-media").upload(dmPath, file, { upsert: true });
     }
 
-    const text = [data.emoji, data.body].filter(Boolean).join(" ").trim() || "Reacted to your story";
+    const joined = [data.emoji, data.body].filter(Boolean).join(" ").trim();
+    // Clip-only: attach the story media with no text so the viewer writes their
+    // own comment in the thread. Fall back to text when there's no media.
+    const text = data.clipOnly ? (file ? null : "Shared your story") : joined || "Reacted to your story";
     const { error: dmErr } = await supabase.from("direct_messages").insert({
       sender_id: userId,
       recipient_id: s.user_id,
