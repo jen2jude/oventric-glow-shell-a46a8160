@@ -359,22 +359,20 @@ export function NotificationsDrawer({ open, onClose }: { open: boolean; onClose:
     }
   };
 
+  if (!open) return null;
+
   return (
     <>
-      {open && (
-        <div
-          className="modal-light fixed inset-0 bg-black/50 z-40 animate-fade-in"
-          onClick={onClose}
-          aria-hidden
-        />
-      )}
+      <div
+        className="modal-light fixed inset-0 bg-black/50 z-40 animate-fade-in"
+        onClick={onClose}
+        aria-hidden
+      />
       <aside
-        className={`w-full sm:w-[400px] h-screen bg-[#1E1E24] border-l border-white/5 shadow-2xl z-50 fixed right-0 top-0 transition-transform duration-300 ${
-          open ? "translate-x-0 visible" : "translate-x-full invisible pointer-events-none"
-        }`}
+        className="w-full sm:w-[400px] h-screen bg-[#1E1E24] border-l border-white/5 shadow-2xl z-50 fixed right-0 top-0 animate-in slide-in-from-right duration-300"
         role="dialog"
+        aria-modal="true"
         aria-label="Notifications"
-        aria-hidden={!open}
       >
         <div className="flex items-center justify-between px-4 h-16 border-b border-white/5">
           <div>
