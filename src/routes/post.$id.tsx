@@ -34,6 +34,7 @@ import {
 import { RepostDialog } from "@/components/oventric/feed/RepostDialog";
 import { ShareSheet } from "@/components/oventric/ShareSheet";
 import { ReportModal } from "@/components/oventric/ReportModal";
+import { ProductAttachmentCard } from "@/components/oventric/feed/ProductAttachmentCard";
 import { useOnboarding } from "@/lib/onboarding/OnboardingContext";
 import { toast } from "sonner";
 
@@ -515,6 +516,16 @@ function PostScreen() {
           </div>
         </div>
       )}
+
+      {post.product_attachments && post.product_attachments.length > 0 && (
+        <div className="px-4">
+          {post.product_attachments.map((pa) => (
+            <ProductAttachmentCard key={pa.id} product={pa} />
+          ))}
+        </div>
+      )}
+
+
 
       {/* Quoted repost */}
       {post.repost_of && (

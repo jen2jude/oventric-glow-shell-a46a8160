@@ -27,6 +27,7 @@ import {
 } from "@/components/oventric/feed/Reactions";
 import { TruncatedText } from "@/components/oventric/feed/TruncatedText";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { ProductAttachmentCard } from "@/components/oventric/feed/ProductAttachmentCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -303,6 +304,16 @@ export function ProfilePostsFeed({ wallUserId, wallOwnerName, viewerId }: Props)
                     ))}
                   </div>
                 )}
+
+                {p.product_attachments && p.product_attachments.length > 0 && (
+                  <div className="px-4">
+                    {p.product_attachments.map((pa) => (
+                      <ProductAttachmentCard key={pa.id} product={pa} />
+                    ))}
+                  </div>
+                )}
+
+
 
                 <footer className="flex items-center gap-5 px-4 py-3">
                   <div className="relative flex items-center gap-2">
