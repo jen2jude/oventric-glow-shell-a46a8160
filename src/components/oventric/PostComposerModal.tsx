@@ -25,6 +25,7 @@ import { useFocusTrap } from "@/hooks/useFocusTrap";
 import {
   createPost as createPostFn,
   searchMentionCandidates as searchMentionsFn,
+  searchMyProductsForTagging as searchProductsFn,
   listMyPostableCircles as listCirclesFn,
 } from "@/lib/posts.functions";
 
@@ -85,6 +86,7 @@ export function PostComposerModal({
   const isWall = !!wallUserId;
   const createPost = useServerFn(createPostFn);
   const searchMentions = useServerFn(searchMentionsFn);
+  const searchProducts = useServerFn(searchProductsFn);
   const listCircles = useServerFn(listCirclesFn);
 
   const [text, setText] = useState("");
@@ -104,6 +106,11 @@ export function PostComposerModal({
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mediaError, setMediaError] = useState<string | null>(null);
+  const [productPickerOpen, setProductPickerOpen] = useState(false);
+  const [productQuery, setProductQuery] = useState("");
+  const [productResults, setProductResults] = useState<any[]>([]);
+  const [productLoading, setProductLoading] = useState(false);
+  const [taggedProducts, setTaggedProducts] = useState<{ productId: string; name: string; mediaIndex: number }[]>([]);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
 
@@ -203,6 +210,28 @@ export function PostComposerModal({
     };
   }, [mentionQuery, mentionPickerOpen, searchMentions]);
 
+  // Debounced product search
+  useEffect(() => {
+    if (!productPickerOpen) return;
+    const q = productQuery.trim();
+    let cancel = false;
+    setProductLoading(true);
+    const t = setTimeout(async () => {
+      try {
+        const r = await searchProducts({ data: { q } });
+        if (!cancel) setProductResults(r.products);
+      } catch {
+        if (!cancel) setProductResults([]);
+      } finally {
+        if (!cancel) setProductLoading(false);
+      }
+    }, 220);
+    return () => {
+      cancel = true;
+      clearTimeout(t);
+    };
+  }, [productQuery, productPickerOpen, searchProducts]);
+
   const clearAttachments = useCallback(() => {
     attachments.forEach((a) => URL.revokeObjectURL(a.previewUrl));
     setAttachments([]);
@@ -273,6 +302,19 @@ export function PostComposerModal({
 
   const removeMention = (id: string) => setMentions((prev) => prev.filter((m) => m.userId !== id));
 
+  const addProductTag = (p: any) => {
+    const mediaIndex = 0;
+    if (!taggedProducts.find(x => x.productId === p.id)) {
+      setTaggedProducts(prev => [...prev, { productId: p.id, name: p.name, mediaIndex }]);
+    }
+    setProductPickerOpen(false);
+    setProductQuery("");
+  };
+
+  const removeProductTag = (id: string) => {
+    setTaggedProducts(prev => prev.filter(p => p.productId !== id));
+  };
+
   const audienceLabel = useMemo(() => {
     if (audience === "public") return "Public";
     if (audience === "followers") return "Followers";
@@ -318,6 +360,7 @@ export function PostComposerModal({
       audience: isWall ? ("public" as Audience) : audience,
       circleId: isWall ? null : audience === "circle" ? circleId : null,
       mentionedUserIds: mentions.map((m) => m.userId),
+      productTags: taggedProducts.map(t => ({ productId: t.productId, mediaIndex: t.mediaIndex })),
     };
     onOptimistic?.({
       tempId,
@@ -395,6 +438,7 @@ export function PostComposerModal({
             audience: snapshot.audience,
             circleId: snapshot.circleId,
             mentionedUserIds: snapshot.mentionedUserIds,
+            productTags: snapshot.productTags,
             wallUserId: wallUserId ?? null,
           },
         });
@@ -586,6 +630,22 @@ export function PostComposerModal({
 
           {/* Extra Info (Mentions, Errors) - Moved INSIDE scroll area */}
           <div className="py-2">
+                        {taggedProducts.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {taggedProducts.map((p) => (
+                  <span
+                    key={p.productId}
+                    className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-amber-400/10 border border-amber-400/30 text-[11px] text-amber-400"
+                  >
+                    <ShoppingBag className="w-3 h-3" />
+                    {p.name}
+                    <button onClick={() => removeProductTag(p.productId)} className="hover:text-white ml-0.5">
+                      <X className="w-3 h-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
             {mentions.length > 0 && (
               <div className="flex flex-wrap gap-1.5 mb-2">
                 {mentions.map((m) => (
@@ -627,12 +687,74 @@ export function PostComposerModal({
               <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
               <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
               <ActionButton icon={<Plus className="w-5 h-5 text-[#E5484D]" />} label="Topic / Hashtag" />
-              <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" />
+              <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" onClick={() => setProductPickerOpen(true)} />
             </div>
           </div>
         </div>
       </div>
 
+      
+      {/* Product picker overlay */}
+      {productPickerOpen && (
+        <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center px-4">
+          <div
+            className="absolute inset-0 bg-black/80"
+            onClick={() => setProductPickerOpen(false)}
+          />
+          <div className="relative w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
+            <div className="flex items-center gap-2 px-3 py-3 border-b border-white/10">
+              <ShoppingBag className="w-4 h-4 text-amber-400" />
+              <input
+                autoFocus
+                value={productQuery}
+                onChange={(e) => setProductQuery(e.target.value)}
+                placeholder="Search your products..."
+                className="flex-1 bg-transparent text-sm text-slate-100 placeholder:text-slate-500 focus:outline-none"
+              />
+              <button
+                onClick={() => setProductPickerOpen(false)}
+                className="text-slate-400 hover:text-white p-1"
+                aria-label="Close product search"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+            <div className="max-h-80 overflow-auto py-1">
+              {productLoading && (
+                <div className="flex items-center justify-center py-6 text-slate-500 text-xs gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-amber-400" /> Searching...
+                </div>
+              )}
+              {!productLoading && productResults.length === 0 && (
+                <div className="text-center text-xs text-slate-500 py-6">
+                  {productQuery.trim().length > 0 ? "No products found" : "Type to search your products"}
+                </div>
+              )}
+              {productResults.map((p) => (
+                <button
+                  key={p.id}
+                  onClick={() => addProductTag(p)}
+                  className="w-full flex items-center gap-3 px-3 py-2 hover:bg-white/5 text-left"
+                >
+                  <span className="w-9 h-9 rounded-lg overflow-hidden bg-white/10 flex items-center justify-center">
+                    {p.coverUrl ? (
+                      <img src={p.coverUrl} alt="" className="w-full h-full object-cover" />
+                    ) : (
+                      <ShoppingBag className="w-4 h-4 text-slate-500" />
+                    )}
+                  </span>
+                  <span className="flex-1 min-w-0">
+                    <span className="block text-sm text-slate-100 truncate">{p.name}</span>
+                    <span className="block text-[11px] text-slate-500 truncate">
+                      {p.vendor} · ${p.priceUsd}
+                    </span>
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
       {/* Mention picker overlay */}
       {mentionPickerOpen && (
         <div className="modal-light fixed inset-0 z-[70] flex items-center justify-center px-4">
