@@ -289,9 +289,10 @@ export function PostComposerModal({
   }, [trimmed]);
   const audienceError =
     !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
-  const hasBlockingError = !!(textError || audienceError);
+  const hasBlockingError = !!(textError || audienceError || (trimmed.length === 0 && !hasMedia));
   const showTextError = submitAttempted && !!textError;
   const showAudienceError = submitAttempted && !!audienceError;
+
 
   const doPost = () => {
     if (posting) return;
