@@ -1,34 +1,13 @@
-# Explore Hub Revamp Plan
+# Plan - Explore Navigation Instructions
 
-Revamp the Oventric Feed search results and discover view to mirror the high-fidelity "Explore" mobile UI design. This includes a dedicated "Explore" header with tabbed navigation (People, Posts, Products, Topics) and a premium list view for people results.
+The user is asking how to find the newly implemented Explore and Search experience.
 
-## Proposed Changes
+## Steps to access the experience:
+1. Navigate to the main **Feed** screen.
+2. Select the **Discover** tab in the top navigation menu (next to "For you" and "Following").
+3. Tap the **"Search Oventric..."** input field at the top of the Discover section.
+4. This action transitions the UI into the **Explore hub**, featuring high-fidelity tabs for **People, Posts, Products, and Topics**.
 
-### 1. New Components
-- **`src/components/oventric/feed/ExploreHeader.tsx`**: A new sticky header for the Explore/Search view with a crimson underlined tab system (People, Posts, Products, Topics).
-- **`src/components/oventric/feed/PeopleExploreList.tsx`**: A dedicated component to render the high-fidelity list of people, matching the reference image's layout (circular avatar, name, @username, description, and crimson 'Follow' button).
+Alternatively, tapping the **Search icon** in the top header and entering a search term will also open the Explore results surface.
 
-### 2. UI Refinements in Feed Search
-- **`src/components/oventric/feed/FeedSearch.tsx`**:
-    - Update `FeedSearchBar` to allow hiding the default tab rail when the new `ExploreHeader` is active.
-    - Refactor `FeedGlobalResults` to use the new `PeopleExploreList` for people search results.
-    - Apply the dark premium theme (#0A0A0B) to match the reference image.
-
-### 3. Feed Integration
-- **`src/components/oventric/Feed.tsx`**:
-    - Update the search view logic to incorporate the `ExploreHeader`.
-    - Ensure a smooth transition between the "Discover" exploration view and the active search "Explore" view.
-
-## Visual Blueprint (from user image)
-- **Header**: Large "Explore" title with crimson-accented tabs.
-- **Background**: Pure dark/black theme (#0A0A0B).
-- **People List**: 
-    - Avatar with subtle ring/border.
-    - Professional/creator description below name.
-    - High-contrast crimson "Follow" button.
-    - Clean hairlines between list items.
-
-## Success Criteria
-- The Explore view exactly matches the design, arrangement, and colors of the provided reference image.
-- Search results for "People" use the new high-fidelity card layout.
-- Navigation between Explore tabs is seamless and follows the existing app-like feel.
+No code changes are required as the feature is already implemented and functional.
