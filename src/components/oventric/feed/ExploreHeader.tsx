@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { ArrowLeft } from "lucide-react";
 
 export type ExploreTab = "People" | "Posts" | "Products" | "Topics";
 
