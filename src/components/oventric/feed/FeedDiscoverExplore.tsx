@@ -1,12 +1,15 @@
 import { useState } from "react";
 import { Link } from "@tanstack/react-router";
-import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle } from "lucide-react";
+import { Flame, Sparkles, Trophy, GraduationCap, Users, ShoppingBag, PlayCircle, Search } from "lucide-react";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
 import { navigateSection } from "@/components/oventric/DiscoveryPanel";
 import { useFeedDiscovery } from "@/components/oventric/feed/useFeedDiscovery";
 import { useStoryRail } from "@/components/oventric/feed/useStories";
 import { StoryViewerModal } from "@/components/oventric/feed/StoryViewerModal";
 import type { FeedPost } from "@/lib/posts.functions";
+import { ExploreHeader, type ExploreTab } from "./ExploreHeader";
+import { PeopleExploreList } from "./PeopleExploreList";
+
 
 
 function Section({
