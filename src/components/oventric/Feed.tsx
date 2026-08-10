@@ -1732,15 +1732,29 @@ export function Feed() {
                       You reported this post. It's hidden from your feed pending review.
                     </div>
                   )}
-                  <TruncatedText
-                    text={post.text || ""}
-                    lines={3}
-                    className={`md:text-slate-700 leading-relaxed ${
-                      isAppShell
-                        ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
-                        : "text-sm text-slate-300"
-                    }`}
-                  />
+                  <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={(e) => {
+                      if ((e.target as HTMLElement).closest("button,a")) return;
+                      setCommentsSheetPostId(post.id);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter") setCommentsSheetPostId(post.id);
+                    }}
+                    className="cursor-pointer"
+                  >
+                    <TruncatedText
+                      text={post.text || ""}
+                      lines={3}
+                      className={`md:text-slate-700 leading-relaxed ${
+                        isAppShell
+                          ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
+                          : "text-sm text-slate-300"
+                      }`}
+                    />
+                  </div>
+
 
                   {post.media_type === "image" &&
                     post.media.length > 0 &&
