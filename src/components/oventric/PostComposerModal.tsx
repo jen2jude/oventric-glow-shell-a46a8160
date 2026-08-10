@@ -637,7 +637,7 @@ export function PostComposerModal({
           />
           <div className="relative w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-white/10">
-              <AtSign className="w-4 h-4 text-emerald-400" />
+              <AtSign className="w-4 h-4 text-[#E5484D]" />
               <input
                 autoFocus
                 value={mentionQuery}
