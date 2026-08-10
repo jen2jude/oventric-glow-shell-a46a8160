@@ -878,7 +878,6 @@ export function Feed() {
   const [lightbox, setLightbox] = useState<{ images: string[]; index: number } | null>(null);
   const [videoStartId, setVideoStartId] = useState<string | null>(null);
   const [commentsSheetPostId, setCommentsSheetPostId] = useState<string | null>(null);
-  const navigate = useNavigate();
   const [hiddenPosts, setHiddenPosts] = useState<Set<string>>(() => getHiddenPosts());
   const [blogPosts, setBlogPosts] = useState<BlogListItem[]>([]);
   const [blogShare, setBlogShare] = useState<BlogListItem | null>(null);
