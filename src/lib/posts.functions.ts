@@ -45,8 +45,13 @@ export interface FeedPost {
   views_count: number;
   /** Number of times this post has been reposted. */
   reposts_count: number;
+  /** Number of times this post has been shared (logged). */
+  shares_count: number;
+  /** Whether the viewer bookmarked/saved this post. */
+  viewer_saved: boolean;
   /** Whether the viewer already reposted this post. */
   viewer_reposted: boolean;
+
   /** Original post when this row is a repost (quote repost). */
   repost_of: FeedPost | null;
   // Legacy fields (kept so existing render paths keep working for single-media rows).
