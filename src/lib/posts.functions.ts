@@ -558,6 +558,15 @@ export const createPost = createServerFn({ method: "POST" })
       throw new Error("Failed to create post");
     }
 
+    if (data.productAttachmentIds?.length) {
+      const attachments = data.productAttachmentIds.map(pid => ({
+        post_id: row.id,
+        product_id: pid
+      }));
+      await context.supabase.from("post_product_attachments").insert(attachments);
+    }
+
+
     if (data.productTags && data.productTags.length > 0) {
       const tagRows = data.productTags.map(t => ({
         post_id: row.id,
