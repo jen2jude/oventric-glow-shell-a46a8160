@@ -106,10 +106,43 @@ export function PostComposerModal({
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
+  // User details for identity hub view
+  const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
+  const [meName, setMeName] = useState<string>("Member");
+  const [meSlug, setMeSlug] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
   useFocusTrap(shellRef, open);
+
+  // Fetch current user details
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id;
+      if (!uid) return;
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("display_name, username, avatar_path, slug")
+          .eq("user_id", uid)
+          .maybeSingle();
+        if (prof?.slug) setMeSlug(prof.slug);
+        const name = (prof?.display_name || prof?.username || "Member").trim();
+        setMeName(name);
+        if (prof?.avatar_path) {
+          const { data: signed } = await supabase.storage
+            .from("avatars")
+            .createSignedUrl(prof.avatar_path, 60 * 60 * 24 * 7);
+          if (signed?.signedUrl) setMeAvatarUrl(signed.signedUrl);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, [open]);
 
   // Reset when opening
   useEffect(() => {
