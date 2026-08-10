@@ -1805,6 +1805,23 @@ export function Feed() {
                                   alt={`Post attachment ${i + 1}`}
                                   className={`${count === 1 ? "max-h-[520px] w-full" : "absolute inset-0 w-full h-full"} object-cover`}
                                 />
+                                {url && post.media[i]?.tags?.map((tag) => (
+                                  <Link
+                                    key={tag.productId}
+                                    to="/product/$id"
+                                    params={{ id: tag.productId }}
+                                    className="absolute z-10 p-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-white shadow-lg flex items-center gap-1.5 active:scale-90 transition-transform"
+                                    style={{
+                                      left: tag.x ? `${tag.x}%` : '50%',
+                                      top: tag.y ? `${tag.y}%` : '50%',
+                                      transform: 'translate(-50%, -50%)',
+                                    }}
+                                    onClick={(e) => e.stopPropagation()}
+                                  >
+                                    <ShoppingBag className="w-3 h-3 text-amber-400" />
+                                    <span className="text-[10px] font-bold pr-1">{tag.productName}</span>
+                                  </Link>
+                                ))}
                                 {isLastTile && count > 4 && (
                                   <div className="absolute inset-0 bg-black/55 flex items-center justify-center text-white text-xl font-semibold">
                                     +{count - 4}
