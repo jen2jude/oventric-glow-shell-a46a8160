@@ -104,11 +104,8 @@ export function PostComposerModal({
   const [posting, setPosting] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [mediaError, setMediaError] = useState<string | null>(null);
-  const trimmed = text.trim();
-  const showTextError = trimmed.length > MAX_TEXT;
-  const textError = showTextError ? `Post is too long (max ${MAX_TEXT} chars)` : "";
-  const showAudienceError = audience === "circle" && !circleId;
-  const audienceError = showAudienceError ? "Please select a circle" : "";
+  const [submitAttempted, setSubmitAttempted] = useState(false);
+
 
 
   // User details for identity hub view
