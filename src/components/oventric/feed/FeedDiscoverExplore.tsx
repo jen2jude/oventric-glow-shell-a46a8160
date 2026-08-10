@@ -163,13 +163,6 @@ export function FeedDiscoverExplore({
           )}
         </div>
         
-        {/* Back to Discovery */}
-        <button 
-          onClick={() => setActiveTab("Discovery")}
-          className="fixed bottom-24 right-6 h-12 w-12 rounded-full bg-[#E5484D] text-white shadow-lg flex items-center justify-center active:scale-95 transition-transform z-50"
-        >
-          <X className="w-6 h-6" />
-        </button>
       </div>
     );
   }
