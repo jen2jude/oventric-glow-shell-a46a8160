@@ -272,6 +272,9 @@ async function buildFeedPosts(
       name: p.name,
       priceUsd: p.price_usd,
       coverUrl: p.cover_path ? `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/products/${p.cover_path}` : null,
+      vendor: vendor?.display_name || vendor?.username || "Seller",
+      vendorId: p.user_id,
+      vendorSlug: vendor?.slug || null,
       vendorAvatarUrl: vendor?.avatar_path ? `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/avatars/${vendor.avatar_path}` : null,
       shortDescription: p.short_description
     });
