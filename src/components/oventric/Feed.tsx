@@ -1760,15 +1760,17 @@ export function Feed() {
                     }}
                     className="cursor-pointer"
                   >
-                    <TruncatedText
-                      text={post.text || ""}
-                      lines={3}
-                      className={`md:text-slate-700 leading-relaxed ${
-                        isAppShell
-                          ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
-                          : "text-sm text-slate-300"
-                      }`}
-                    />
+                    {post.text && (
+                      <TruncatedText
+                        text={post.text}
+                        lines={3}
+                        className={`md:text-slate-700 leading-relaxed ${
+                          isAppShell
+                            ? "px-4 md:px-0 text-[15px] text-white/90 md:text-sm"
+                            : "text-sm text-slate-300"
+                        }`}
+                      />
+                    )}
                   </div>
 
                   {post.product_attachments?.map((pa) => (
