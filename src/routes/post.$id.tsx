@@ -472,7 +472,8 @@ function PostScreen() {
       {post.repost_of && (
         <div className="mt-4 px-4">
           <Link
-            to={`/post/${post.repost_of.id}`}
+            to="/post/$id"
+            params={{ id: post.repost_of.id }}
             className="flex gap-3 rounded-2xl border border-white/10 bg-white/[0.03] p-3"
           >
             {(post.repost_of.poster_url || post.repost_of.media_url) && (
