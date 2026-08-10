@@ -271,11 +271,11 @@ async function buildFeedPosts(
       id: p.id,
       name: p.name,
       priceUsd: p.price_usd,
-      coverUrl: p.cover_path ? `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/products/${p.cover_path}` : null,
+      coverUrl: p.cover_path ? (p.cover_path.startsWith('http') ? p.cover_path : `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/products/${p.cover_path}`) : null,
       vendor: vendor?.display_name || vendor?.username || "Seller",
       vendorId: p.user_id,
       vendorSlug: vendor?.slug || null,
-      vendorAvatarUrl: vendor?.avatar_path ? `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/avatars/${vendor.avatar_path}` : null,
+      vendorAvatarUrl: vendor?.avatar_path ? (vendor.avatar_path.startsWith('http') ? vendor.avatar_path : `https://fwnkrtebjsgguixzaydw.supabase.co/storage/v1/object/public/avatars/${vendor.avatar_path}`) : null,
       shortDescription: p.short_description
     });
     attachmentsByPost.set(at.post_id, list);
