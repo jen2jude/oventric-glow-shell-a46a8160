@@ -513,29 +513,14 @@ export function PostComposerModal({
             </div>
           </div>
         </div>
-                            setAudience("circle");
-                            setCircleId(c.id);
-                            setAudienceOpen(false);
-                          }}
-                          className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm ${
-                            audience === "circle" && circleId === c.id ? "bg-white/5" : ""
-                          }`}
-                        >
-                          <span className="flex items-center gap-2 text-slate-200">
-                            <Users className="w-4 h-4 text-emerald-400" />
-                            {c.name}
-                          </span>
-                          {audience === "circle" && circleId === c.id && (
-                            <Check className="w-4 h-4 text-emerald-400" />
-                          )}
-                        </button>
-                      ))
-                    )}
-                  </div>
-                </div>
-              )}
-            </div>
             {showAudienceError && <FieldError>{audienceError}</FieldError>}
+          </div>
+        ) : (
+          <div className="px-4 pt-3 shrink-0">
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-xs text-[#E5484D]">
+              <UsersRound className="w-3.5 h-3.5" />
+              <span>Wall post{wallOwnerName ? ` · ${wallOwnerName}` : ""}</span>
+            </div>
           </div>
         )}
 
