@@ -27,6 +27,7 @@ import {
 } from "@/components/oventric/feed/Reactions";
 import { TruncatedText } from "@/components/oventric/feed/TruncatedText";
 import { AvatarImage } from "@/components/oventric/AvatarImage";
+import { ProductAttachmentCard } from "@/components/oventric/feed/ProductAttachmentCard";
 import {
   DropdownMenu,
   DropdownMenuContent,
