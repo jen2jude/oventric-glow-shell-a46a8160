@@ -12,6 +12,11 @@ import {
   Check,
   Loader2,
   AlertCircle,
+  BarChart3,
+  Smile,
+  MapPin,
+  ShoppingBag,
+  Plus,
 } from "lucide-react";
 import { useServerFn } from "@tanstack/react-start";
 import { supabase } from "@/integrations/supabase/client";
@@ -101,10 +106,45 @@ export function PostComposerModal({
   const [mediaError, setMediaError] = useState<string | null>(null);
   const [submitAttempted, setSubmitAttempted] = useState(false);
 
+
+
+  // User details for identity hub view
+  const [meAvatarUrl, setMeAvatarUrl] = useState<string | null>(null);
+  const [meName, setMeName] = useState<string>("Member");
+  const [meSlug, setMeSlug] = useState<string | null>(null);
+
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const shellRef = useRef<HTMLDivElement | null>(null);
   useFocusTrap(shellRef, open);
+
+  // Fetch current user details
+  useEffect(() => {
+    if (!open) return;
+    (async () => {
+      const { data } = await supabase.auth.getUser();
+      const uid = data.user?.id;
+      if (!uid) return;
+      try {
+        const { data: prof } = await supabase
+          .from("profiles")
+          .select("display_name, username, avatar_path, slug")
+          .eq("user_id", uid)
+          .maybeSingle();
+        if (prof?.slug) setMeSlug(prof.slug);
+        const name = (prof?.display_name || prof?.username || "Member").trim();
+        setMeName(name);
+        if (prof?.avatar_path) {
+          const { data: signed } = await supabase.storage
+            .from("avatars")
+            .createSignedUrl(prof.avatar_path, 60 * 60 * 24 * 7);
+          if (signed?.signedUrl) setMeAvatarUrl(signed.signedUrl);
+        }
+      } catch {
+        /* ignore */
+      }
+    })();
+  }, [open]);
 
   // Reset when opening
   useEffect(() => {
@@ -240,18 +280,21 @@ export function PostComposerModal({
     return c ? `Circle · ${c.name}` : "Circle";
   }, [audience, circleId, circles]);
 
+  const hasMedia = attachments.length > 0;
   const trimmed = text.trim();
+
   const textError = useMemo(() => {
-    if (trimmed.length === 0) return "Write something before posting.";
     if (trimmed.length > MAX_TEXT)
       return `Post is ${trimmed.length - MAX_TEXT} character${trimmed.length - MAX_TEXT === 1 ? "" : "s"} over the ${MAX_TEXT.toLocaleString()} limit.`;
+
     return null;
   }, [trimmed]);
   const audienceError =
     !isWall && audience === "circle" && !circleId ? "Pick a circle to post into." : null;
-  const hasBlockingError = !!(textError || audienceError);
+  const hasBlockingError = !!(textError || audienceError || (trimmed.length === 0 && !hasMedia));
   const showTextError = submitAttempted && !!textError;
   const showAudienceError = submitAttempted && !!audienceError;
+
 
   const doPost = () => {
     if (posting) return;
@@ -382,7 +425,7 @@ export function PostComposerModal({
         className="relative w-full sm:max-w-xl sm:my-8 h-[100dvh] sm:h-auto sm:max-h-[92dvh] bg-[#141418] sm:rounded-2xl border border-white/10 shadow-2xl flex flex-col"
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10">
+        <div className="flex items-center justify-between px-4 py-3 border-b border-white/10 shrink-0">
           <button
             onClick={onClose}
             className="p-2 -ml-2 rounded-lg hover:bg-white/5 text-slate-300"
@@ -390,53 +433,35 @@ export function PostComposerModal({
           >
             <X className="w-5 h-5" />
           </button>
-          <div className="text-sm font-semibold text-white truncate max-w-[70%]">
-            {isWall
-              ? wallOwnerName
-                ? `Post on ${wallOwnerName}'s wall`
-                : "Post on wall"
-              : "Drop a post"}
-          </div>
+          <div className="text-sm font-semibold text-white">Drop a post</div>
           <button
             onClick={doPost}
             disabled={posting}
-            aria-disabled={hasBlockingError}
-            className={`px-4 py-1.5 rounded-lg font-semibold text-sm text-black bg-emerald-500 hover:bg-emerald-400 disabled:opacity-40 ${
-              hasBlockingError ? "opacity-50" : ""
-            }`}
+            className="px-5 py-1.5 rounded-full font-semibold text-sm text-white bg-[#E5484D] hover:bg-[#c93e43] disabled:opacity-40"
           >
-            {posting ? (attachments.length > 0 ? "Uploading…" : "Posting…") : "Post"}
+            {posting ? "Posting…" : "Post"}
           </button>
         </div>
 
-        {/* Audience picker (hidden in wall mode — wall posts are always public on that member's wall) */}
-        {isWall ? (
-          <div className="px-4 pt-3">
-            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-emerald-500/10 border border-emerald-400/30 text-xs text-emerald-200">
-              <UsersRound className="w-3.5 h-3.5" />
-              <span>Wall post{wallOwnerName ? ` · ${wallOwnerName}` : ""}</span>
-            </div>
+        {/* Identity row & Audience */}
+        <div className="px-4 pt-4 flex items-center gap-3 shrink-0">
+          <div className="w-10 h-10 rounded-full overflow-hidden shrink-0 bg-neutral-800">
+            <AvatarImage src={meAvatarUrl} alt={meName} initials={initialsOf(meName)} />
           </div>
-        ) : (
-          <div className="px-4 pt-3">
-            <div className="relative inline-block">
+          <div className="flex-1 min-w-0">
+            <div className="text-sm font-semibold text-white">{meName}</div>
+            <div className="relative inline-block mt-0.5">
               <button
                 type="button"
                 onClick={() => setAudienceOpen((v) => !v)}
-                className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-xs text-slate-200 hover:bg-white/10"
+                className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-2 py-0.5 text-[11px] text-slate-300 hover:bg-white/10"
               >
-                {audience === "public" ? (
-                  <Globe2 className="w-3.5 h-3.5" />
-                ) : audience === "followers" ? (
-                  <UsersRound className="w-3.5 h-3.5" />
-                ) : (
-                  <Users className="w-3.5 h-3.5" />
-                )}
+                {audience === "public" ? <Globe2 className="w-3 h-3" /> : <Users className="w-3 h-3" />}
                 <span>{audienceLabel}</span>
-                <ChevronDown className="w-3.5 h-3.5 opacity-70" />
+                <ChevronDown className="w-3 h-3 opacity-60" />
               </button>
               {audienceOpen && (
-                <div className="absolute left-0 mt-2 w-64 max-h-72 overflow-auto z-10 bg-[#1a1a20] border border-white/10 rounded-xl shadow-xl p-1">
+                <div className="absolute left-0 mt-2 w-56 z-20 bg-[#1a1a20] border border-white/10 rounded-xl shadow-xl p-1 max-h-72 overflow-auto">
                   <AudienceOption
                     icon={<Globe2 className="w-4 h-4" />}
                     title="Public"
@@ -459,16 +484,12 @@ export function PostComposerModal({
                       setAudienceOpen(false);
                     }}
                   />
-                  <div className="pt-1 mt-1 border-t border-white/5">
-                    <div className="px-2 py-1.5 text-[10px] uppercase tracking-wide text-slate-500">
-                      Circle
-                    </div>
-                    {circles.length === 0 ? (
-                      <div className="px-3 py-2 text-xs text-slate-500">
-                        Join a circle to share here.
+                  {circles.length > 0 && (
+                    <div className="pt-1 mt-1 border-t border-white/5">
+                      <div className="px-2 py-1 text-[10px] uppercase tracking-wide text-slate-500">
+                        Circle
                       </div>
-                    ) : (
-                      circles.map((c) => (
+                      {circles.map((c) => (
                         <button
                           key={c.id}
                           type="button"
@@ -477,25 +498,29 @@ export function PostComposerModal({
                             setCircleId(c.id);
                             setAudienceOpen(false);
                           }}
-                          className={`w-full text-left flex items-center justify-between px-3 py-2 rounded-lg hover:bg-white/5 text-sm ${
+                          className={`w-full text-left flex items-center justify-between px-2 py-1.5 rounded-lg hover:bg-white/5 text-xs ${
                             audience === "circle" && circleId === c.id ? "bg-white/5" : ""
                           }`}
                         >
                           <span className="flex items-center gap-2 text-slate-200">
-                            <Users className="w-4 h-4 text-emerald-400" />
+                            <Users className="w-3.5 h-3.5 text-[#E5484D]" />
                             {c.name}
                           </span>
                           {audience === "circle" && circleId === c.id && (
-                            <Check className="w-4 h-4 text-emerald-400" />
+                            <Check className="w-3.5 h-3.5 text-[#E5484D]" />
                           )}
                         </button>
-                      ))
-                    )}
-                  </div>
+                      ))}
+                    </div>
+                  )}
                 </div>
               )}
             </div>
-            {showAudienceError && <FieldError>{audienceError}</FieldError>}
+          </div>
+        </div>
+        {showAudienceError && (
+          <div className="px-4 pt-1">
+            <FieldError>{audienceError}</FieldError>
           </div>
         )}
 
@@ -507,147 +532,102 @@ export function PostComposerModal({
             onChange={(e) => setText(e.target.value)}
             aria-invalid={showTextError}
             aria-describedby={showTextError ? "composer-text-error" : undefined}
-            placeholder="Share an update, ask a question, drop a build log…"
-            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-4 min-h-[120px] rounded-lg px-2 -mx-2 ${
+            placeholder="What's on your mind?"
+            className={`w-full bg-transparent text-slate-100 placeholder:text-slate-500 resize-none focus:outline-none text-base mt-3 min-h-[100px] rounded-lg px-0 ${
               showTextError ? "ring-1 ring-red-500/60" : ""
             }`}
           />
+          
           <div className="flex items-start justify-between gap-3">
             <div id="composer-text-error" className="min-w-0">
               {showTextError && <FieldError>{textError}</FieldError>}
             </div>
-            {trimmed.length > MAX_TEXT * 0.8 && (
-              <span
-                className={`mt-1.5 text-[11px] shrink-0 ${trimmed.length > MAX_TEXT ? "text-red-400" : "text-slate-500"}`}
+          </div>
+
+          {/* Media Rail / Horizontal Grid */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {attachments.map((a, i) => (
+              <div key={a.previewUrl} className="relative w-24 h-24 shrink-0 rounded-xl overflow-hidden group">
+                {a.kind === "image" ? (
+                  <img src={a.previewUrl} alt="" className="w-full h-full object-cover" />
+                ) : (
+                  <video src={a.previewUrl} className="w-full h-full object-cover" />
+                )}
+                <button
+                  type="button"
+                  onClick={() => removeAttachmentAt(i)}
+                  className="absolute top-1 right-1 p-1 rounded-full bg-black/60 text-white"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              </div>
+            ))}
+            
+            {!attachments.some(a => a.kind === 'video') && attachments.length < MAX_IMAGES && (
+              <button
+                type="button"
+                onClick={onPickFile}
+                className="w-24 h-24 shrink-0 rounded-xl border border-dashed border-white/20 flex flex-col items-center justify-center gap-1 text-slate-400 hover:text-white hover:border-white/40 bg-white/5"
               >
-                {trimmed.length.toLocaleString()}/{MAX_TEXT.toLocaleString()}
-              </span>
+                <Plus className="w-5 h-5" />
+                <span className="text-[10px]">Add media</span>
+              </button>
             )}
           </div>
+          
+          <input
+            ref={fileInputRef}
+            type="file"
+            accept="image/*,video/*"
+            multiple
+            className="hidden"
+            onChange={onFile}
+          />
+        </div>
 
-          {/* Inline action bar — kept high so it stays visible above the mobile keyboard */}
-          <div className="mt-2 -mx-1 flex items-center gap-1 flex-wrap">
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept="image/*,video/*"
-              multiple
-              className="hidden"
-              onChange={onFile}
-            />
-            <button
-              type="button"
-              onClick={onPickFile}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <ImageIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Photo</span>
-            </button>
-            <button
-              type="button"
-              onClick={onPickFile}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <VideoIcon className="w-4 h-4" />
-              <span className="hidden sm:inline">Video</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setMentionPickerOpen(true)}
-              disabled={posting}
-              className="flex items-center gap-2 px-3 py-2 rounded-lg text-slate-300 hover:text-emerald-400 hover:bg-white/5 text-sm"
-            >
-              <AtSign className="w-4 h-4" />
-              <span className="hidden sm:inline">Mention</span>
-            </button>
-            <div className="ml-auto text-[10px] text-slate-500 pr-2">Up to 50 MB media</div>
+        {/* Toolbar Icons */}
+        <div className="px-4 py-3 border-t border-white/10 flex items-center justify-between shrink-0">
+          <div className="flex items-center gap-4">
+            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><ImageIcon className="w-5 h-5" /></button>
+            <button onClick={onPickFile} className="text-slate-400 hover:text-[#E5484D] transition-colors"><VideoIcon className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><BarChart3 className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><Smile className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><MapPin className="w-5 h-5" /></button>
+            <button className="text-slate-400 hover:text-[#E5484D] transition-colors"><ShoppingBag className="w-5 h-5" /></button>
           </div>
+          <div className="text-[10px] text-slate-500 font-medium tracking-wide uppercase">
+            {trimmed.length}/{MAX_TEXT}
+          </div>
+        </div>
 
-          {/* Mention chips */}
+        {/* Action List */}
+        <div className="bg-[#141418] border-t border-white/10 pt-2 pb-6 shrink-0">
+          <div className="px-4 py-2 text-[10px] text-slate-500 font-semibold tracking-wider uppercase">Add to your post</div>
+          <div className="flex flex-col">
+            <ActionButton icon={<ImageIcon className="w-5 h-5 text-sky-400" />} label="Photo/Video" onClick={onPickFile} />
+            <ActionButton icon={<AtSign className="w-5 h-5 text-indigo-400" />} label="Mention People" onClick={() => setMentionPickerOpen(true)} />
+            <ActionButton icon={<Plus className="w-5 h-5 text-[#E5484D]" />} label="Topic / Hashtag" />
+            <ActionButton icon={<ShoppingBag className="w-5 h-5 text-amber-400" />} label="Product from my shop" />
+          </div>
+        </div>
+
+        {/* Extra Info (Mentions, Errors) */}
+        <div className="px-4 py-2 shrink-0">
           {mentions.length > 0 && (
-            <div className="mt-2 flex flex-wrap gap-1.5">
+            <div className="flex flex-wrap gap-1.5 mb-2">
               {mentions.map((m) => (
                 <span
                   key={m.userId}
-                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/30 text-[11px] text-emerald-300"
+                  className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-[#E5484D]/10 border border-[#E5484D]/30 text-[11px] text-[#E5484D]"
                 >
                   @{m.username || m.name}
-                  <button
-                    onClick={() => removeMention(m.userId)}
-                    className="hover:text-white"
-                    aria-label={`Remove mention of ${m.name}`}
-                  >
+                  <button onClick={() => removeMention(m.userId)} className="hover:text-white">
                     <X className="w-3 h-3" />
                   </button>
                 </span>
               ))}
             </div>
           )}
-
-          {/* Attachment previews */}
-          {attachments.length > 0 && (
-            <div className="mt-3">
-              <div className="flex items-center justify-between mb-1.5">
-                <span className="text-[11px] text-slate-400">
-                  {attachments[0].kind === "video"
-                    ? "1 video attached"
-                    : `${attachments.length} of ${MAX_IMAGES} photos attached`}
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setAttachments([])}
-                  disabled={posting}
-                  className="text-[11px] text-slate-400 hover:text-red-400"
-                >
-                  Clear all
-                </button>
-              </div>
-              <div className="grid grid-cols-3 gap-2">
-                {attachments.map((a, i) => (
-                  <div key={a.previewUrl} className="relative aspect-square group">
-                    {a.kind === "image" ? (
-                      <img
-                        src={a.previewUrl}
-                        alt={`Attachment ${i + 1}`}
-                        className="w-full h-full rounded-lg border border-white/10 object-cover"
-                      />
-                    ) : (
-                      <video
-                        src={a.previewUrl}
-                        controls
-                        className="w-full h-full rounded-lg border border-white/10 object-cover"
-                      />
-                    )}
-                    <div className="pointer-events-none absolute bottom-1 left-1 right-8 truncate rounded bg-black/65 px-1.5 py-0.5 text-[9px] text-white/90">
-                      {a.file.name} · {(a.file.size / (1024 * 1024)).toFixed(1)} MB
-                    </div>
-                    <button
-                      type="button"
-                      onClick={() => removeAttachmentAt(i)}
-                      aria-label="Remove attachment"
-                      className="absolute top-1 right-1 p-1 rounded-full bg-black/70 hover:bg-black text-white"
-                    >
-                      <X className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                ))}
-                {attachments[0].kind === "image" && attachments.length < MAX_IMAGES && (
-                  <button
-                    type="button"
-                    onClick={onPickFile}
-                    disabled={posting}
-                    className="aspect-square rounded-lg border border-dashed border-white/20 text-slate-400 hover:text-emerald-400 hover:border-emerald-400/50 flex flex-col items-center justify-center gap-1 text-[11px]"
-                  >
-                    <ImageIcon className="w-4 h-4" />
-                    Add more
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
-
           {mediaError && <FieldError>{mediaError}</FieldError>}
           {error && <FieldError>{error}</FieldError>}
         </div>
@@ -662,7 +642,7 @@ export function PostComposerModal({
           />
           <div className="relative w-full max-w-md bg-[#141418] border border-white/10 rounded-2xl shadow-2xl overflow-hidden">
             <div className="flex items-center gap-2 px-3 py-3 border-b border-white/10">
-              <AtSign className="w-4 h-4 text-emerald-400" />
+              <AtSign className="w-4 h-4 text-[#E5484D]" />
               <input
                 autoFocus
                 value={mentionQuery}
@@ -681,7 +661,7 @@ export function PostComposerModal({
             <div className="max-h-80 overflow-auto py-1">
               {mentionLoading && (
                 <div className="flex items-center justify-center py-6 text-slate-500 text-xs gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin" /> Searching…
+                  <Loader2 className="w-4 h-4 animate-spin text-[#E5484D]" /> Searching…
                 </div>
               )}
               {!mentionLoading && mentionResults.length === 0 && mentionQuery.trim().length > 0 && (
@@ -724,6 +704,27 @@ export function PostComposerModal({
   );
 }
 
+function ActionButton({
+  icon,
+  label,
+  onClick,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  onClick?: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex items-center gap-3 px-4 py-3 hover:bg-white/5 transition-colors text-left"
+    >
+      <span className="shrink-0">{icon}</span>
+      <span className="text-sm font-medium text-slate-200">{label}</span>
+    </button>
+  );
+}
+
 function AudienceOption({
   icon,
   title,
@@ -745,12 +746,12 @@ function AudienceOption({
         active ? "bg-white/5" : ""
       }`}
     >
-      <span className="mt-0.5 text-emerald-400">{icon}</span>
+      <span className="mt-0.5 text-[#E5484D]">{icon}</span>
       <span className="flex-1">
         <span className="block text-sm text-slate-100">{title}</span>
         <span className="block text-[11px] text-slate-500">{desc}</span>
       </span>
-      {active && <Check className="w-4 h-4 text-emerald-400 mt-1" />}
+      {active && <Check className="w-4 h-4 text-[#E5484D] mt-1" />}
     </button>
   );
 }
