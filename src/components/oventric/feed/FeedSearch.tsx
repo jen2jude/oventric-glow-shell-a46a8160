@@ -19,7 +19,7 @@ export const FEED_CATEGORIES: Array<{ id: FeedCategory; label: string }> = [
 /** Categories that resolve against the global index rather than feed posts. */
 export const GLOBAL_CATEGORIES: FeedCategory[] = ["bounties", "assets", "people"];
 
-const EMPTY: SearchResults = { peers: [], bounties: [], products: [] };
+const EMPTY: SearchResults = { peers: [], bounties: [], products: [], circles: [], posts: [] };
 
 export function FeedSearchBar({
   q,
